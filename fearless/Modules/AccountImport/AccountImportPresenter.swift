@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import Rswift
-import FearlessUtils
+import SSFUtils
 
 // swiftlint:disable function_body_length file_length
 enum AccountImportContext: String {
@@ -474,6 +474,7 @@ private extension AccountImportPresenter {
     func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
         let showAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonYes(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText,
             handler: showHandler
         )
         let closeAction = SheetAlertPresentableAction(

@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol QRCoderFactoryProtocol {
     func createEncoder() -> QREncoderProtocol
@@ -128,7 +128,7 @@ final class SoraQRDecoder: QRDecodable {
 
         let prefix = fields[0]
         let address = fields[1]
-        let publicKey = try Data(hexString: fields[2])
+        let publicKey = try Data(hexStringSSF: fields[2])
         let username = fields.count > 3 ? fields[3] : nil
         let assetId = fields[4]
 

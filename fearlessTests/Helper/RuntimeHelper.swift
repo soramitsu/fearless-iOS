@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import BigInt
 @testable import fearless
 
@@ -18,7 +18,7 @@ final class RuntimeHelper {
 
         let hex = try String(contentsOf: metadataUrl)
             .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-        let expectedData = try Data(hexString: hex)
+        let expectedData = try Data(hexStringSSF: hex)
 
         let decoder = try ScaleDecoder(data: expectedData)
         return try RuntimeMetadata(scaleDecoder: decoder)

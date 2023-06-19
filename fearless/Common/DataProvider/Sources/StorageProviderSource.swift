@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceProtocol {
     enum LastSeen: Equatable {

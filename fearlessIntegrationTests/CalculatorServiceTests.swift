@@ -3,7 +3,7 @@
 //import SoraKeystore
 //import RobinHood
 //import SoraFoundation
-//import FearlessUtils
+//import SSFUtils
 //
 //class CalculatorServiceTests: XCTestCase {
 //    func testWestendCalculatorSetupWithoutCache() throws {
@@ -214,7 +214,7 @@
 //                                                        storageFacade: storageFacade)
 //
 //            let identifiers: [Data] = try items.map { item in
-//                let key = try Data(hexString: item.identifier)
+//                let key = try Data(hexStringSSF: item.identifier)
 //                return key.getAccountIdFromKey()
 //            }
 //
@@ -262,7 +262,7 @@
 //                _ = try decodeEncodedValidators(items, codingFactory: factory)
 //
 //                let identifiers: [Data] = try items.map { item in
-//                    let key = try Data(hexString: item.identifier)
+//                    let key = try Data(hexStringSSF: item.identifier)
 //                    return key.getAccountIdFromKey()
 //                }
 //
@@ -390,7 +390,7 @@
 //
 //        let mapOperation: BaseOperation<[(Data, ValidatorExposure)]> = ClosureOperation {
 //            let identifiers = try fetchOperation.extractNoCancellableResultData().map { item in
-//                try Data(hexString: item.identifier).getAccountIdFromKey()
+//                try Data(hexStringSSF: item.identifier).getAccountIdFromKey()
 //            }
 //            let validators = try decodingOperation.extractNoCancellableResultData()
 //

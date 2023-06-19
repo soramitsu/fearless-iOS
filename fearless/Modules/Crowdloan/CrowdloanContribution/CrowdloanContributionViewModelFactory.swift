@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 
 protocol CrowdloanContributionViewModelFactoryProtocol {
     func createContributionSetupViewModel(

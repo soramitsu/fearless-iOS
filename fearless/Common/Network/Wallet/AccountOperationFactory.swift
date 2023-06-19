@@ -3,7 +3,7 @@ import CommonWallet
 import RobinHood
 import IrohaCrypto
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 protocol AccountOperationFactoryProtocol {
     func createGenisisHashOperation() -> BaseOperation<String>
@@ -12,18 +12,18 @@ protocol AccountOperationFactoryProtocol {
 }
 
 final class AccountOperationFactory: AccountOperationFactoryProtocol {
-    let engine: JSONRPCEngine
-    let requestFactory: StorageRequestFactoryProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
+    private let requestFactory: StorageRequestFactoryProtocol
+    private let chainRegistry: ChainRegistryProtocol
+    private let chainId: ChainModel.Id
 
     init(
-        engine: JSONRPCEngine,
         requestFactory: StorageRequestFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        chainRegistry: ChainRegistryProtocol,
+        chainId: ChainModel.Id
     ) {
-        self.engine = engine
         self.requestFactory = requestFactory
-        self.runtimeService = runtimeService
+        self.chainRegistry = chainRegistry
+        self.chainId = chainId
     }
 
     func createGenisisHashOperation() -> BaseOperation<String> {
@@ -31,22 +31,34 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
     }
 
     func createBlockHashOperation(_ block: UInt32) -> BaseOperation<String> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return BaseOperation.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         var currentBlock = block
         let param = Data(Data(bytes: &currentBlock, count: MemoryLayout<UInt32>.size).reversed())
             .toHex(includePrefix: true)
 
         return JSONRPCListOperation<String>(
-            engine: engine,
+            engine: connection,
             method: RPCMethod.getBlockHash,
             parameters: [param]
         )
     }
 
     func createAccountInfoFetchOperation(_ accountId: Data) -> CompoundOperationWrapper<AccountInfo?> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let wrapper: CompoundOperationWrapper<[StorageResponse<AccountInfo>]> = requestFactory.queryItems(
-            engine: engine,
+            engine: connection,
             keyParams: { [accountId] },
             factory: { try coderFactoryOperation.extractNoCancellableResultData() },
             storagePath: StorageCodingPath.account

@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 final class StorageKeysQueryService<T>: Longrunable {
     typealias ResultType = [T]
@@ -94,7 +94,7 @@ final class StorageKeysQueryService<T>: Longrunable {
 
         do {
             let mappedItems: [T] = try response.map { hexKey in
-                let keyData = try Data(hexString: hexKey)
+                let keyData = try Data(hexStringSSF: hexKey)
                 return mapper.map(input: keyData)
             }
 

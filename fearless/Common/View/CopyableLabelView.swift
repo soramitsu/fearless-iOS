@@ -70,5 +70,8 @@ final class CopyableLabelView: UIView {
 
         hStackView.addArrangedSubview(label)
         hStackView.addArrangedSubview(iconImageView)
+
+        label.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
 }

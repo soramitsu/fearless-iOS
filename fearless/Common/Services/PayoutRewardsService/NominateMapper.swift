@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class NominateMapper: Mapping {
     typealias InputType = JSON
@@ -24,7 +24,7 @@ final class NominateMapper: Mapping {
                 return nil
             }
 
-            return try? Data(hexString: accountId)
+            return try? Data(hexStringSSF: accountId)
         }
     }
 

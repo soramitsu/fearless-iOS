@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraUI
-import FearlessUtils
+import SSFUtils
 import CommonWallet
 
 final class StakingAmountViewController: UIViewController, AdaptiveDesignable, LoadableViewProtocol {
@@ -295,6 +295,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         restakeView.amountLabel.textColor = restakeColor
         payoutView.titleLabel.textColor = payoutColor
         payoutView.amountLabel.textColor = payoutColor
+        restakeView.isHidden = !(viewModel.rewardViewModel?.restakeAvailable == true)
 
         restakeView.setNeedsLayout()
         payoutView.setNeedsLayout()

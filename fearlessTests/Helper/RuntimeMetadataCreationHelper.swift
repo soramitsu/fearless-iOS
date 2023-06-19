@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import RobinHood
 @testable import fearless
 
@@ -11,7 +11,7 @@ final class RuntimeMetadataCreationHelper {
                                            operationManager: OperationManager) throws {
         let url = Bundle(for: self).url(forResource: "runtimeTestMetadata", withExtension: "")!
         let hex = try String(contentsOf: url).trimmingCharacters(in: .whitespacesAndNewlines)
-        let data = try Data(hexString: hex)
+        let data = try Data(hexStringSSF: hex)
         let item = RuntimeMetadataItem(chain: identifier, version: specVersion, txVersion: txVersion, metadata: data)
 
         let operation = repository.saveOperation({ [item] }, { [] })

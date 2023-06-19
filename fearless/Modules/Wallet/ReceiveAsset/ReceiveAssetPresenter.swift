@@ -1,7 +1,7 @@
 import SoraFoundation
 import IrohaCrypto
 import CoreGraphics
-import FearlessUtils
+import SSFUtils
 
 final class ReceiveAssetPresenter {
     enum Constants {

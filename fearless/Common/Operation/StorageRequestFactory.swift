@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 struct StorageResponse<T: Decodable> {
     let key: Data
@@ -434,7 +434,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
             let storageKey = try storageKeyParam()
 
             if let hexData = maybeResult {
-                let data = try Data(hexString: hexData)
+                let data = try Data(hexStringSSF: hexData)
 
                 let decoder = try factory().createDecoder(from: data)
 
@@ -465,7 +465,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         let fetchedKeys: () throws -> [Data] = {
             try queryKeysOperation.extractNoCancellableResultData()
                 .compactMap { $0 }.reduce([], +)
-                .compactMap { try Data(hexString: $0) }
+                .compactMap { try Data(hexStringSSF: $0) }
         }
 
         let queryOperation = createQueryOperation(for: fetchedKeys, at: blockHash, engine: engine)

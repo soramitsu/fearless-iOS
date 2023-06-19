@@ -201,7 +201,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
+        GitHubUrl.sharedFeaturesUrl(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "develop")
     }
 }
 
@@ -210,9 +210,17 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
+    private static var sharedUrl: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")
+    }
+
     private static let defaultBranch = "v5"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
+    }
+
+    static func sharedFeaturesUrl(suffix: String, branch: String) -> URL? {
+        sharedUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
     }
 }

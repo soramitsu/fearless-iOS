@@ -1,7 +1,7 @@
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!
@@ -276,11 +276,19 @@ extension StakingRewardDestSetupInteractor: RelaychainStakingLocalStorageSubscri
                 return
             }
 
-            let rewardDestination = try RewardDestination(
+            var rewardDestination = try RewardDestination(
                 payee: payee,
                 stashItem: stashItem,
                 chainFormat: chainAsset.chain.chainFormat
             )
+
+            if rewardDestination == .restake, chainAsset.chain.isSora {
+                /*
+                  We released SORA staking with 'restake' option in UI.
+                 Actually SORA doesn't support 'restake', it just replaced with 'payout(stash)' option.
+                  */
+                rewardDestination = .payout(account: stashItem.stash)
+            }
 
             switch rewardDestination {
             case .restake:

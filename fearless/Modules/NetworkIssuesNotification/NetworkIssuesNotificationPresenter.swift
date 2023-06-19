@@ -70,7 +70,7 @@ final class NetworkIssuesNotificationPresenter {
         ].joined(separator: " ")
 
         let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
-        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .warningStyle) { [weak self] in
+        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundPinkText) { [weak self] in
             self?.interactor.mute(chain: chain)
         }
         let sheetViewModel = SheetAlertPresentableViewModel(
@@ -90,13 +90,13 @@ final class NetworkIssuesNotificationPresenter {
         ].joined(separator: " ")
 
         let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
-        let changeNodeAction = SheetAlertPresentableAction(title: R.string.localizable.switchNode(preferredLanguages: selectedLocale.rLanguages)) {
+        let changeNodeAction = SheetAlertPresentableAction(title: R.string.localizable.switchNode(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundWhiteText) {
             self.router.presentNodeSelection(
                 from: self.view,
                 chain: viewModel.chain
             )
         }
-        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .warningStyle) { [weak self] in
+        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundPinkText) { [weak self] in
             self?.interactor.mute(chain: viewModel.chain)
         }
         let sheetViewModel = SheetAlertPresentableViewModel(

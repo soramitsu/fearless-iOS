@@ -1,9 +1,9 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 extension StorageUpdateData {
     func decodeUpdatedData<V: ScaleDecodable>(for key: String) throws -> V? {
-        let keyData = try Data(hexString: key)
+        let keyData = try Data(hexStringSSF: key)
 
         guard let value = changes.first(where: { $0.key == keyData })?.value else {
             return nil

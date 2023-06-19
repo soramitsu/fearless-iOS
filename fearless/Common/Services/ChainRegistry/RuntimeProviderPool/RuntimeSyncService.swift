@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 protocol RuntimeSyncServiceProtocol {
     func register(chain: ChainModel, with connection: ChainConnection)
@@ -231,7 +231,7 @@ final class RuntimeSyncService {
 
         let buildRuntimeMetadataOperation = ClosureOperation<RuntimeMetadataItem> {
             let hexMetadata = try remoteMetadaOperation.extractNoCancellableResultData()
-            let rawMetadata = try Data(hexString: hexMetadata)
+            let rawMetadata = try Data(hexStringSSF: hexMetadata)
             let metadataItem = RuntimeMetadataItem(
                 chain: chainId,
                 version: runtimeVersion.specVersion,

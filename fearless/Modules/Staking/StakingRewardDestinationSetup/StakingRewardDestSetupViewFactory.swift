@@ -1,7 +1,7 @@
 import SoraFoundation
 import SoraKeystore
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 struct StakingRewardDestSetupViewFactory {
     static func createView(
@@ -37,7 +37,8 @@ struct StakingRewardDestSetupViewFactory {
 
         let rewardDestinationViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: rewardBalanceViewModelFactory,
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator(chain: chain),
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let changeRewardDestViewModelFactory = ChangeRewardDestinationViewModelFactory(
@@ -145,10 +146,9 @@ struct StakingRewardDestSetupViewFactory {
             asset: asset,
             chain: chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

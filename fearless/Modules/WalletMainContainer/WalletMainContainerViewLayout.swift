@@ -222,9 +222,8 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupWalletBalanceLayout() {
-        addressCopyableLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         addressCopyableLabel.snp.makeConstraints { make in
-            make.width.lessThanOrEqualTo(135)
+            make.width.lessThanOrEqualTo(200)
             make.height.equalTo(24)
         }
 
@@ -247,22 +246,23 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupSegmentedLayout() {
-        contentView.setCustomSpacing(32, after: walletBalanceVStackView)
-        let segmentContainer = UIView()
-        contentView.addArrangedSubview(segmentContainer)
-        segmentContainer.addSubview(segmentedControl)
-        segmentedControl.snp.makeConstraints { make in
-            make.height.equalTo(32)
-            make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
-            make.edges.equalToSuperview()
-        }
+        segmentedControl.isHidden = true
+//        contentView.setCustomSpacing(32, after: walletBalanceVStackView)
+//        let segmentContainer = UIView()
+//        contentView.addArrangedSubview(segmentContainer)
+//        segmentContainer.addSubview(segmentedControl)
+//        segmentedControl.snp.makeConstraints { make in
+//            make.height.equalTo(32)
+//            make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
+//            make.edges.equalToSuperview()
+//        }
     }
 
     private func setupListLayout() {
         addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
         pageViewControllerContainer.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(8)
+            make.top.equalTo(contentView.snp.bottom).offset(32)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
         }

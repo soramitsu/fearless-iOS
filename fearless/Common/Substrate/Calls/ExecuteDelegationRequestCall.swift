@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct ExecuteDelegationRequestCall: Codable {
     let delegator: AccountId

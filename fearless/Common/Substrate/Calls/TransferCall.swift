@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import BigInt
 
 struct TokenSymbol: Equatable {
@@ -67,7 +67,7 @@ extension CurrencyId: Encodable {
             try container.encode(id)
         case let .soraAsset(id):
             var container = encoder.container(keyedBy: CodingKeys.self)
-            let assetId32 = try Data(hexString: id)
+            let assetId32 = try Data(hexStringSSF: id)
             try container.encode(assetId32, forKey: .code)
         }
     }

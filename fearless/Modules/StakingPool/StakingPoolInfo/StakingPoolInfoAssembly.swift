@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 import SoraKeystore
 
 final class StakingPoolInfoAssembly {
@@ -57,10 +57,9 @@ final class StakingPoolInfoAssembly {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
@@ -95,9 +94,8 @@ final class StakingPoolInfoAssembly {
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory
+            identityOperationFactory: identityOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let requestFactory = StorageRequestFactory(
@@ -108,8 +106,7 @@ final class StakingPoolInfoAssembly {
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: requestFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
 
         let storageFacade = SubstrateDataStorageFacade.shared

@@ -1,4 +1,4 @@
-import FearlessUtils
+import SSFUtils
 import RobinHood
 
 struct SendDependencies {
@@ -55,9 +55,9 @@ final class SendDepencyContainer {
             )
 
             let existentialDepositService = ExistentialDepositService(
-                runtimeCodingService: runtimeService,
                 operationManager: operationManager,
-                engine: connection
+                chainRegistry: chainRegistry,
+                chainId: chainAsset.chain.chainId
             )
 
             let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)

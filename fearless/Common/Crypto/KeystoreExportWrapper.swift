@@ -1,6 +1,6 @@
 import Foundation
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 
 protocol KeystoreExportWrapperProtocol {
@@ -50,11 +50,11 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
 
         var builder = KeystoreBuilder().with(name: chainAccount.name)
 
-        if let genesisHash = genesisHash, let genesisHashData = try? Data(hexString: genesisHash) {
+        if let genesisHash = genesisHash, let genesisHashData = try? Data(hexStringSSF: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }
 
-        guard let cryptoType = FearlessUtils.CryptoType(onChainType: chainAccount.cryptoType.rawValue) else {
+        guard let cryptoType = SSFUtils.CryptoType(onChainType: chainAccount.cryptoType.rawValue) else {
             throw KeystoreExportWrapperError.unsupportedCryptoType
         }
 

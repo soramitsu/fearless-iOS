@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class StorageKeyDataExtractor {
     private let storageKey: Data
@@ -17,7 +17,7 @@ final class StorageKeyDataExtractor {
             utf16Offset: keyString.count - hexSymbolsPerByte * uint32Bytes,
             in: keyString
         ))
-        let idData = try Data(hexString: String(idHexString))
+        let idData = try Data(hexStringSSF: String(idHexString))
         let decoder = try ScaleDecoder(data: idData)
         let uint32 = try UInt32(scaleDecoder: decoder)
         return uint32
@@ -32,7 +32,7 @@ final class StorageKeyDataExtractor {
             utf16Offset: keyString.count - hexSymbolsPerByte * uint64Bytes,
             in: keyString
         ))
-        let idData = try Data(hexString: String(idHexString))
+        let idData = try Data(hexStringSSF: String(idHexString))
         let decoder = try ScaleDecoder(data: idData)
         let uint64 = try UInt64(scaleDecoder: decoder)
         return uint64

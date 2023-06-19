@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol AccountImportJsonFactoryProtocol {
     func createInfo(from definition: KeystoreDefinition) throws -> MetaAccountImportPreferredInfo

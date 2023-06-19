@@ -1,6 +1,6 @@
 import UIKit
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 import SoraFoundation
 
 final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, LoadableViewProtocol {
@@ -111,6 +111,7 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
             applyPayoutAddress(icon, title: title)
         }
 
+        rootView.restakeOptionView.isHidden = !(viewModel.rewardViewModel?.restakeAvailable == true)
         rootView.restakeOptionView.setNeedsLayout()
         rootView.payoutOptionView.setNeedsLayout()
     }

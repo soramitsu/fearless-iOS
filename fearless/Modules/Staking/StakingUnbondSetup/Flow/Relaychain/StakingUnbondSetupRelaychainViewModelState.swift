@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewModelState {
     var stateListener: StakingUnbondSetupModelStateListener?

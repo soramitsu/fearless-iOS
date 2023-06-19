@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 import RobinHood
 import BigInt
@@ -217,7 +217,7 @@ extension TransactionSubscription {
 
             return block.extrinsics.enumerated().compactMap { index, hexExtrinsic in
                 do {
-                    let data = try Data(hexString: hexExtrinsic)
+                    let data = try Data(hexStringSSF: hexExtrinsic)
                     let extrinsicHash = try data.blake2b32()
 
                     guard let processingResult = extrinsicProcessor.process(

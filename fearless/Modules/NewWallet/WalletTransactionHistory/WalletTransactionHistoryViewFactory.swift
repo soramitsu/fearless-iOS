@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import CommonWallet
 import RobinHood
 import SoraFoundation
@@ -61,9 +61,11 @@ enum WalletTransactionHistoryViewFactory {
 
     static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
         var filters: [WalletTransactionHistoryFilter] = [
-            WalletTransactionHistoryFilter(type: .transfer, selected: true),
-            WalletTransactionHistoryFilter(type: .other, selected: true)
+            WalletTransactionHistoryFilter(type: .transfer, selected: true)
         ]
+        if chain.externalApi?.history?.type != .giantsquid {
+            filters.insert(WalletTransactionHistoryFilter(type: .other, selected: true), at: 1)
+        }
         if chain.hasStakingRewardHistory {
             filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
         }

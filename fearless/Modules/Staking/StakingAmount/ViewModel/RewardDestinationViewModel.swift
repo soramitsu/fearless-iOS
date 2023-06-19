@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 enum RewardDestinationTypeViewModel {
     case restake
@@ -13,6 +13,7 @@ protocol DestinationReturnViewModelProtocol {
     var payoutAmount: String { get }
     var payoutPercentage: String { get }
     var payoutPrice: String { get }
+    var restakeAvailable: Bool { get }
 }
 
 protocol RewardDestinationViewModelProtocol {
@@ -32,4 +33,5 @@ struct DestinationReturnViewModel: DestinationReturnViewModelProtocol {
     let payoutAmount: String
     let payoutPercentage: String
     let payoutPrice: String
+    let restakeAvailable: Bool
 }

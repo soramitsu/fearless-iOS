@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct CancelDelegationRequestCall: Codable {
     let candidate: AccountId

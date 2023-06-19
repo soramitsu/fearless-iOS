@@ -1,4 +1,4 @@
-import FearlessUtils
+import SSFUtils
 import BigInt
 import Foundation
 
@@ -132,7 +132,7 @@ struct SoraAssetId: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         guard
-            let bytes = try? Data(hexString: value).map({ StringScaleMapper(value: $0) })
+            let bytes = try? Data(hexStringSSF: value).map({ StringScaleMapper(value: $0) })
         else {
             let context = EncodingError.Context(
                 codingPath: container.codingPath,
@@ -164,7 +164,7 @@ struct ArrayCodable: Codable, Equatable {
         var container = encoder.singleValueContainer()
 
         guard
-            let bytes = try? Data(hexString: wrappedValue).map({ StringScaleMapper(value: $0) })
+            let bytes = try? Data(hexStringSSF: wrappedValue).map({ StringScaleMapper(value: $0) })
         else {
             let context = EncodingError.Context(
                 codingPath: container.codingPath,
