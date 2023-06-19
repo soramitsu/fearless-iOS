@@ -31,7 +31,9 @@ final class ChainAssetListPresenter {
     private var chainSettings: [ChainSettings]?
 
     private lazy var factoryOperationQueue: OperationQueue = {
-        OperationQueue()
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        return queue
     }()
 
     // MARK: - Constructors
@@ -62,6 +64,7 @@ final class ChainAssetListPresenter {
         }
 
         let chainSettings = chainSettings ?? []
+        let accountInfosCopy = accountInfos
 
         factoryOperationQueue.operations.forEach { $0.cancel() }
         factoryOperationQueue.cancelAllOperations()
@@ -76,9 +79,7 @@ final class ChainAssetListPresenter {
                 wallet: self.wallet,
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,
-                accountInfos: self.lock.concurrentlyRead { [unowned self] in
-                    self.accountInfos
-                },
+                accountInfos: accountInfosCopy,
                 prices: self.prices,
                 chainsWithIssues: self.chainsWithNetworkIssues,
                 chainsWithMissingAccounts: self.chainsWithMissingAccounts,
