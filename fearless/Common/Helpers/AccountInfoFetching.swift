@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol AccountInfoFetchingProtocol {
     func fetch(
@@ -105,10 +106,10 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     .vToken,
                     .vsToken,
                     .stable,
-                    .soraAsset:
+                    .assetId,
+                    .token2:
                     self?.handleOrmlAccountInfo(
                         chainAsset: chainAsset,
-                        accountId: accountId,
                         item: item,
                         completionBlock: completionBlock
                     )
@@ -119,6 +120,26 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                         item: item,
                         completionBlock: completionBlock
                     )
+                case .assets:
+                    self?.handleAssetAccount(
+                        chainAsset: chainAsset,
+                        item: item,
+                        completionBlock: completionBlock
+                    )
+                case .soraAsset:
+                    if chainAsset.isUtility {
+                        self?.handleAccountInfo(
+                            chainAsset: chainAsset,
+                            item: item,
+                            completionBlock: completionBlock
+                        )
+                    } else {
+                        self?.handleOrmlAccountInfo(
+                            chainAsset: chainAsset,
+                            item: item,
+                            completionBlock: completionBlock
+                        )
+                    }
                 }
             default:
                 completionBlock(chainAsset, nil)
@@ -222,7 +243,9 @@ private extension AccountInfoFetching {
             .vToken,
             .vsToken,
             .stable,
-            .soraAsset:
+            .soraAsset,
+            .assetId,
+            .token2:
             guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,
                 chainAsset: chainAsset,
@@ -247,6 +270,21 @@ private extension AccountInfoFetching {
             }
 
             let operation = createEquilibriumMappingOperation(
+                chainAsset: chainAsset,
+                dependingOn: decodingOperation
+            )
+
+            return operation
+        case .assets:
+            guard let decodingOperation: StorageDecodingOperation<AssetAccount?> = createDecodingOperation(
+                for: accountInfoStorageWrapper.data,
+                chainAsset: chainAsset,
+                storagePath: .assetsAccount
+            ) else {
+                return ClosureOperation { [chainAsset: nil] }
+            }
+
+            let operation = createAssetMappingOperation(
                 chainAsset: chainAsset,
                 dependingOn: decodingOperation
             )
@@ -354,6 +392,21 @@ private extension AccountInfoFetching {
         return operation
     }
 
+    func createAssetMappingOperation(
+        chainAsset: ChainAsset,
+        dependingOn decodingOperation: StorageDecodingOperation<AssetAccount?>
+    ) -> ClosureOperation<[ChainAsset: AccountInfo?]> {
+        let operation = ClosureOperation {
+            let assetAccount = try decodingOperation.extractNoCancellableResultData()
+            let accountInfo = AccountInfo(assetAccount: assetAccount)
+            return [chainAsset: accountInfo]
+        }
+
+        operation.addDependency(decodingOperation)
+
+        return operation
+    }
+
     func createEquilibriumMappingOperation(
         chainAsset: ChainAsset,
         dependingOn decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?>
@@ -417,7 +470,6 @@ private extension AccountInfoFetching {
 
     func handleOrmlAccountInfo(
         chainAsset: ChainAsset,
-        accountId _: AccountId,
         item: AccountInfoStorageWrapper,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
@@ -471,6 +523,39 @@ private extension AccountInfoFetching {
                 }
                 switch result {
                 case let .success(accountInfo):
+                    completionBlock(chainAsset, accountInfo)
+                case .failure:
+                    completionBlock(chainAsset, nil)
+                }
+            }
+        }
+        operationQueue.addOperations([decodingOperation] + decodingOperation.dependencies, waitUntilFinished: false)
+    }
+
+    private func handleAssetAccount(
+        chainAsset: ChainAsset,
+        item: AccountInfoStorageWrapper,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        guard let decodingOperation: StorageDecodingOperation<AssetAccount?> = createDecodingOperation(
+            for: item.data,
+            chainAsset: chainAsset,
+            storagePath: .assetsAccount
+        ) else {
+            completionBlock(chainAsset, nil)
+            return
+        }
+
+        decodingOperation.completionBlock = {
+            DispatchQueue.main.async {
+                guard let result = decodingOperation.result else {
+                    completionBlock(chainAsset, nil)
+                    return
+                }
+
+                switch result {
+                case let .success(assetAccount):
+                    let accountInfo = AccountInfo(assetAccount: assetAccount)
                     completionBlock(chainAsset, accountInfo)
                 case .failure:
                     completionBlock(chainAsset, nil)

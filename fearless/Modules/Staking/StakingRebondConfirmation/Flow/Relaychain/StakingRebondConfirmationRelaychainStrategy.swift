@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SoraKeystore
+import SSFModels
 
 protocol StakingRebondConfirmationRelaychainStrategyOutput: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)

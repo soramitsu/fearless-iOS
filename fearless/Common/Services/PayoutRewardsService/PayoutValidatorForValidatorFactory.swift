@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import IrohaCrypto
+import SSFModels
 
 final class PayoutValidatorsForValidatorFactory: PayoutValidatorsFactoryProtocol {
     private let chainAsset: ChainAsset

@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFUtils
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(

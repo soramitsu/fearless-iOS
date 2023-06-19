@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     func close(_ view: WalletDetailsViewProtocol) {

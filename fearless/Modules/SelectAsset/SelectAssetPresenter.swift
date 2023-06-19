@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class SelectAssetPresenter {
     // MARK: Private properties
@@ -108,7 +109,7 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
         guard
             let selectedViewModel = viewModels[safe: index],
             let selectedChainAsset = chainAssets.first(where: { chainAsset in
-                chainAsset.asset.name == selectedViewModel.symbol
+                chainAsset.asset.symbol.lowercased() == selectedViewModel.symbol.lowercased()
             })
         else {
             output.assetSelection(didCompleteWith: nil, contextTag: contextTag)

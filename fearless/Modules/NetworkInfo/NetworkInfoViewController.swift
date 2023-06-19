@@ -2,6 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 import Kingfisher
+import SSFModels
 
 final class NetworkInfoViewController: UIViewController {
     private enum Constants {

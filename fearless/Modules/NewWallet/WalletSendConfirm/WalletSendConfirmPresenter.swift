@@ -3,6 +3,7 @@ import BigInt
 import SoraFoundation
 import IrohaCrypto
 import SwiftUI
+import SSFModels
 
 final class WalletSendConfirmPresenter {
     weak var view: WalletSendConfirmViewProtocol?
@@ -158,7 +159,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
             preferredLanguages: selectedLocale.rLanguages
         )
         let message = R.string.localizable.scamWarningAlertSubtitle(
-            chainAsset.asset.name,
+            chainAsset.asset.symbolUppercased,
             preferredLanguages: selectedLocale.rLanguages
         )
 

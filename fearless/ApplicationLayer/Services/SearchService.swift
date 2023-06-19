@@ -1,6 +1,7 @@
 import CommonWallet
 import RobinHood
 import IrohaCrypto
+import SSFModels
 
 enum SearchServiceError: Error {
     case addressInvalid

@@ -2,6 +2,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFUtils
+import SSFModels
 
 // swiftlint:disable function_body_length
 struct ValidatorSearchViewFactory {

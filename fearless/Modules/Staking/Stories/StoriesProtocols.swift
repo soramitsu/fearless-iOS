@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 protocol StoriesViewProtocol: ControllerBackedProtocol, Localizable {
     func didRecieve(

@@ -2,6 +2,7 @@ import CommonWallet
 import Foundation
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 enum StakingAmountFlow {
     case relaychain

@@ -3,6 +3,7 @@ import SoraFoundation
 import IrohaCrypto
 import BigInt
 import SoraKeystore
+import SSFModels
 
 protocol RewardViewModelFactoryProtocol {
     func createRewardViewModel(

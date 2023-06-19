@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import SoraFoundation
+import SSFModels
 
 struct PolkaswapAdjustmentDetailsViewModel {
     let minMaxReceiveVieModel: BalanceViewModelProtocol?
@@ -145,8 +146,8 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             swapFromChainAsset: swapFromChainAsset,
             availableDexIds: availableDexIds
         )
-        let fromDisplayName = swapFromChainAsset.asset.name
-        let toDisplayName = swapToChainAsset.asset.name
+        let fromDisplayName = swapFromChainAsset.asset.symbolUppercased
+        let toDisplayName = swapToChainAsset.asset.symbolUppercased
         let fromPerToTitle = [fromDisplayName, toDisplayName].joined(separator: " / ")
         let toPerFromTitle = [toDisplayName, fromDisplayName].joined(separator: " / ")
 
@@ -258,9 +259,9 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         let toCurrencyId = swapToChainAsset.asset.currencyId
         let dexCurrencyId = polkaswapDexForRoute?.assetId
 
-        let firstSymbol = swapFromChainAsset.asset.name
+        let firstSymbol = swapFromChainAsset.asset.symbolUppercased
         var secondSymbol: String?
-        let thirSymbol = swapToChainAsset.asset.name
+        let thirSymbol = swapToChainAsset.asset.symbolUppercased
 
         if fromCurrencyId != dexCurrencyId, toCurrencyId != dexCurrencyId {
             secondSymbol = polkaswapDexForRoute?.name.uppercased()

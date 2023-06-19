@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SoraKeystore
 import SSFUtils
+import SSFModels
 
 struct YourValidatorListViewFactory {
     static func createView(

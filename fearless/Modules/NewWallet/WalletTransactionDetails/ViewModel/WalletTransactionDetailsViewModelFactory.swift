@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import SSFModels
 
 protocol WalletTransactionDetailsViewModelFactoryProtocol {
     func buildViewModel(

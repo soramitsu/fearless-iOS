@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import BigInt
+import SSFModels
 
 protocol StakingBondMoreParachainStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

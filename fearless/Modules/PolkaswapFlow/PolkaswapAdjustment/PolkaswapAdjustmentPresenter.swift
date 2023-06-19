@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 // swiftlint:disable file_length type_body_length
 final class PolkaswapAdjustmentPresenter {

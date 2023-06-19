@@ -2,6 +2,7 @@ import Foundation
 import IrohaCrypto
 import SSFUtils
 import BigInt
+import SSFModels
 
 extension TransactionHistoryItem {
     static func createFromSubscriptionResult(

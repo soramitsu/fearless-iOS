@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import SSFModels
 
 final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframeProtocol {
     func showTransactionDetails(

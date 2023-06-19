@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import BigInt
+import SSFModels
 
 class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProtocol, RuntimeConstantFetching {
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!

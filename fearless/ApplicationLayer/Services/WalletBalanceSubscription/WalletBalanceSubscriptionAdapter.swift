@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 typealias WalletBalanceInfos = [MetaAccountId: WalletBalanceInfo]
 typealias WalletBalancesResult = Result<WalletBalanceInfos, Error>

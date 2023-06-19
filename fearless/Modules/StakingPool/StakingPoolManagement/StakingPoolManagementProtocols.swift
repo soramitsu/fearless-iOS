@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 // swiftlint:disable type_name
 typealias StakingPoolManagementModuleCreationResult = (

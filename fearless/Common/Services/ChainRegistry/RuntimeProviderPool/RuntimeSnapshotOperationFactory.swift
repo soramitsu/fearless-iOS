@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import RobinHood
+import SSFModels
 
 protocol RuntimeSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(

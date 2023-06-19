@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class StakingRewardPayoutsWireframe: StakingRewardPayoutsWireframeProtocol {
     func showRewardDetails(

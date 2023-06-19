@@ -1,5 +1,8 @@
 import Foundation
 import RobinHood
+import SSFModels
+import SSFNetwork
+import SSFChainRegistry
 
 /**
  *  Class is designed to handle creation of `ChainRegistryProtocol` instance for application.
@@ -72,10 +75,14 @@ final class ChainRegistryFactory {
         let chainRepository = chainRepositoryFactory.createRepository()
         let chainProvider = createChainProvider(from: repositoryFacade, chainRepository: chainRepository)
 
+        let syncService = SSFChainRegistry.ChainSyncService(
+            chainsUrl: ApplicationConfig.shared.chainListURL!,
+            operationQueue: OperationQueue(),
+            dataFetchFactory: NetworkOperationFactory()
+        )
+
         let chainSyncService = ChainSyncService(
-            chainsUrl: ApplicationConfig.shared.chainListURL,
-            assetsUrl: ApplicationConfig.shared.assetListURL,
-            dataFetchFactory: dataFetchOperationFactory,
+            syncService: syncService,
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
             operationQueue: OperationManagerFacade.syncQueue,
@@ -101,7 +108,7 @@ final class ChainRegistryFactory {
             chainRepository: AnyDataProviderRepository(chainRepository),
             filesOperationFactory: filesOperationFactory,
             runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
-            dataOperationFactory: DataOperationFactory(),
+            dataOperationFactory: NetworkOperationFactory(),
             operationQueue: OperationManagerFacade.runtimeBuildingQueue,
             logger: Logger.shared
         )

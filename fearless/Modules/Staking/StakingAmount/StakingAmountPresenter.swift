@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 final class StakingAmountPresenter {
     weak var view: StakingAmountViewProtocol?

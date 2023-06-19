@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class WalletMainContainerPresenter {
     // MARK: Private properties
@@ -163,7 +164,8 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
 extension WalletMainContainerPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
     }

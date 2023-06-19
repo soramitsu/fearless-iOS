@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import CommonWallet
+import SSFModels
 
 final class ContactsInteractor {
     enum Constants {

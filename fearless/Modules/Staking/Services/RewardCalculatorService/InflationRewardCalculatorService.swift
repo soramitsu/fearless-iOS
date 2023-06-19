@@ -2,13 +2,14 @@ import Foundation
 import RobinHood
 import SSFUtils
 import BigInt
+import SSFModels
 
 enum RewardCalculatorServiceError: Error {
     case timedOut
     case unexpectedInfo
 }
 
-final class RelaychainRewardCalculatorService {
+final class InflationRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
@@ -237,7 +238,7 @@ final class RelaychainRewardCalculatorService {
     }
 }
 
-extension RelaychainRewardCalculatorService: RewardCalculatorServiceProtocol {
+extension InflationRewardCalculatorService: RewardCalculatorServiceProtocol {
     func setup() {
         eraValidatorsService.setup()
 

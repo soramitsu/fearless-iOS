@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol AssetPriceViewModelFactoryProtocol {
     var assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol { get }

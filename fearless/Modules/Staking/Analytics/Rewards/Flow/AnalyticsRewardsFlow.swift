@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import SoraFoundation
+import SSFModels
 
 enum AnalyticsRewardsFlow {
     case relaychain

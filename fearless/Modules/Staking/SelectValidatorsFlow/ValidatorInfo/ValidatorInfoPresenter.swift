@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class ValidatorInfoPresenter {
     weak var view: ValidatorInfoViewProtocol?

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class ValidatorInfoPoolViewModelFactory {
     private let iconGenerator: IconGenerating

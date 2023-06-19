@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SnapKit
+import SSFModels
 
 final class StakingPoolMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed, KeyboardViewAdoptable {
     typealias RootViewType = StakingPoolMainViewLayout

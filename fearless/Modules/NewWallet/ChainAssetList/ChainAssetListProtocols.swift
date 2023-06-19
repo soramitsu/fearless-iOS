@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, input: ChainAssetListModuleInput)
 

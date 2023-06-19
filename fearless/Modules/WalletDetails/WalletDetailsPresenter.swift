@@ -1,6 +1,8 @@
 import SoraFoundation
 import SSFUtils
 import UIKit
+import SSFModels
+
 final class WalletDetailsPresenter {
     weak var view: WalletDetailsViewProtocol?
     private let interactor: WalletDetailsInteractorInputProtocol

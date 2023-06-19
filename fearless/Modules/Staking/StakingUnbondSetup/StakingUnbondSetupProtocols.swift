@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)

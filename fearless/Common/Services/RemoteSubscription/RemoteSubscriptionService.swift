@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 import SSFUtils
 
 typealias RemoteSubscriptionClosure = (Result<Void, Error>) -> Void

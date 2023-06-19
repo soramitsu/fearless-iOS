@@ -26,6 +26,13 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             fileManager: FileManager.default
         )
 
+        let substrateDbMigrator = SubstrateStorageMigrator(
+            targetVersion: SubstrateStorageParams.modelVersion,
+            storeURL: SubstrateStorageParams.storageURL,
+            modelDirectory: SubstrateStorageParams.modelDirectory,
+            fileManager: FileManager.default
+        )
+
         let presenter = RootPresenter(
             localizationManager: LocalizationManager.shared,
             startViewHelper: startViewHelper
@@ -36,7 +43,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             settings: SelectedWalletSettings.shared,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [languageMigrator, dbMigrator],
+            migrators: [languageMigrator, dbMigrator, substrateDbMigrator],
             logger: Logger.shared
         )
 

@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import IrohaCrypto
+import SSFModels
 
 enum SettingsKey: String {
     case selectedLocalization

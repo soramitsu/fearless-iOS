@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
     let settings: SettingsManagerProtocol

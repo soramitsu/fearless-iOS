@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 extension YourValidatorList {
     final class SelectionStartWireframe: SelectValidatorsStartWireframe {

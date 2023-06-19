@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 enum SelectValidatorsConfirmFlow {
     case relaychainInitiated(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)

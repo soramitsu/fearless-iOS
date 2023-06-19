@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 final class SelectValidatorsStartPresenter {
     weak var view: SelectValidatorsStartViewProtocol?

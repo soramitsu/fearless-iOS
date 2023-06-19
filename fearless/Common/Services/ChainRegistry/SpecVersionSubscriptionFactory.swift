@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 /**
  *  Protocol is designed to provide methods to create a subscription

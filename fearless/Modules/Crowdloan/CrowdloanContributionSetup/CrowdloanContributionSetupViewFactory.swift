@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import SSFModels
 
 struct CrowdloanContributionSetupViewFactory {
     static func createView(
@@ -12,7 +13,7 @@ struct CrowdloanContributionSetupViewFactory {
             let asset = chain.utilityAssets().first,
             let interactor = createInteractor(
                 for: paraId,
-                chainAsset: ChainAsset(chain: chain, asset: asset.asset),
+                chainAsset: ChainAsset(chain: chain, asset: asset),
                 state: state
             ),
             let selectedMetaAccount = SelectedWalletSettings.shared.value
@@ -22,7 +23,7 @@ struct CrowdloanContributionSetupViewFactory {
 
         let wireframe = CrowdloanContributionSetupWireframe(state: state)
 
-        let assetInfo = asset.asset.displayInfo(with: chain.icon)
+        let assetInfo = asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
             selectedMetaAccount: selectedMetaAccount
@@ -50,7 +51,7 @@ struct CrowdloanContributionSetupViewFactory {
             assetInfo: assetInfo,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            chainAsset: ChainAsset(chain: chain, asset: asset.asset)
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let view = CrowdloanContributionSetupViewController(

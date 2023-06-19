@@ -96,7 +96,7 @@ struct ReferralCrowdloanViewFactory {
 
         let wireframe = ReferralCrowdloanWireframe()
 
-        let assetInfo = asset.asset.displayInfo(with: chain.icon)
+        let assetInfo = asset.displayInfo(with: chain.icon)
         let viewModelFactory = CrowdloanContributionViewModelFactory(
             assetInfo: assetInfo,
             chainDateCalculator: ChainDateCalculator(),

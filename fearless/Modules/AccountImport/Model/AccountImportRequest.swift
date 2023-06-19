@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import SSFModels
 
 struct MetaAccountImportMnemonicRequest {
     let mnemonic: IRMnemonicProtocol

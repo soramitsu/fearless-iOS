@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class ChainAssetListInteractor {
     // MARK: - Private properties
