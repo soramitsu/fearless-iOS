@@ -50,7 +50,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
 
         var builder = KeystoreBuilder().with(name: chainAccount.name)
 
-        if let genesisHash = genesisHash, let genesisHashData = try? Data(hexString: genesisHash) {
+        if let genesisHash = genesisHash, let genesisHashData = try? Data(hexStringSSF: genesisHash) {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }
 

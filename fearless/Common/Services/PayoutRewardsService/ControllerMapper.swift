@@ -22,7 +22,7 @@ final class ControllerMapper: Mapping {
             return nil
         }
 
-        return try? Data(hexString: controllerHex)
+        return try? Data(hexStringSSF: controllerHex)
     }
 
     private func extractArguments(_ input: InputType) -> JSON? {
