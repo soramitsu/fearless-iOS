@@ -194,8 +194,6 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 .networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         } else if viewModel.isMissingAccount {
-            message = R.string.localizable
-                .manageAssetsAccountMissingText(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable
                 .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages)
         }
