@@ -30,6 +30,7 @@ final class RuntimeProvider {
 
     internal let chainId: ChainModel.Id
     private let chainName: String
+    private let chainModel: ChainModel
     private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
@@ -53,7 +54,7 @@ final class RuntimeProvider {
     private var mutex = NSLock()
 
     private var chainTypes: Data?
-    private var chainMetadata: RuntimeMetadataItem?
+    private var initialChainMetadata: RuntimeMetadataItem?
 
     init(
         chainModel: ChainModel,
@@ -70,6 +71,7 @@ final class RuntimeProvider {
     ) {
         chainId = chainModel.chainId
         chainName = chainModel.name
+        self.chainModel = chainModel
         self.snapshotOperationFactory = snapshotOperationFactory
         self.snapshotHotOperationFactory = snapshotHotOperationFactory
         self.eventCenter = eventCenter
@@ -78,7 +80,7 @@ final class RuntimeProvider {
         self.logger = logger
         self.repository = repository
         self.usedRuntimePaths = usedRuntimePaths
-        self.chainMetadata = chainMetadata
+        initialChainMetadata = chainMetadata
         self.chainTypes = chainTypes
 
         self.operationQueue.maxConcurrentOperationCount = 10
@@ -86,11 +88,10 @@ final class RuntimeProvider {
         eventCenter.add(observer: self, dispatchIn: DispatchQueue.global())
     }
 
-    private func buildSnapshot() {
+    private func buildSnapshot(for metadata: RuntimeMetadataItem?) {
         guard
             let chainTypes = chainTypes,
-            let chainMetadata = chainMetadata,
-            compareChainsTypes(local: runtimeSnapshot?.localChainTypes, remote: chainTypes)
+            let chainMetadata = metadata
         else {
             return
         }
@@ -112,18 +113,6 @@ final class RuntimeProvider {
         currentWrapper = wrapper
 
         operationQueue.addOperation(wrapper)
-    }
-
-    private func compareChainsTypes(local: Data?, remote: Data) -> Bool {
-        guard
-            let localData = local,
-            let localJson = try? JSONDecoder().decode(JSON.self, from: localData),
-            let remoteJson = try? JSONDecoder().decode(JSON.self, from: remote)
-        else {
-            return true
-        }
-
-        return localJson != remoteJson
     }
 
     private func buildHotSnapshot() {
@@ -168,6 +157,9 @@ final class RuntimeProvider {
                 logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
 
                 resolveRequests()
+
+                let event = RuntimeSnapshotReady(chainModel: chainModel)
+                eventCenter.notify(with: event)
             }
         case let .failure(error):
             currentWrapper = nil
@@ -310,7 +302,7 @@ extension RuntimeProvider: RuntimeProviderProtocol {
             return
         }
 
-        buildSnapshot()
+        buildSnapshot(for: initialChainMetadata)
     }
 
     func cleanup() {
@@ -331,7 +323,13 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 
 extension RuntimeProvider: EventVisitorProtocol {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
-        guard let chainTypes = event.versioningMap[chainId] else {
+        guard
+            let chainTypes = event.versioningMap[chainId],
+            let oldChainTypes = self.chainTypes,
+            let oldChainTypesJson = try? JSONDecoder().decode(JSON.self, from: oldChainTypes),
+            let updatedChainTypes = try? JSONDecoder().decode(JSON.self, from: chainTypes),
+            oldChainTypesJson.runtime_id?.unsignedIntValue != updatedChainTypes.runtime_id?.unsignedIntValue
+        else {
             return
         }
 
@@ -346,11 +344,14 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         self.chainTypes = chainTypes
 
-        buildSnapshot()
+        buildSnapshot(for: initialChainMetadata)
     }
 
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted) {
-        guard event.chainId == chainId else {
+        guard
+            event.chainId == chainId,
+            initialChainMetadata != event.metadata
+        else {
             return
         }
 
@@ -363,8 +364,6 @@ extension RuntimeProvider: EventVisitorProtocol {
         currentWrapper?.cancel()
         currentWrapper = nil
 
-        chainMetadata = event.metadata
-
-        buildSnapshot()
+        buildSnapshot(for: event.metadata)
     }
 }

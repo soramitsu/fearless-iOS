@@ -224,20 +224,20 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - SSFChainConnection (from `../soramitsu-shared-features-ios/SSFChainConnection`)
-  - SSFChainRegistry (from `../soramitsu-shared-features-ios/SSFChainRegistry`)
-  - SSFCrypto (from `../soramitsu-shared-features-ios/SSFCrypto`)
-  - SSFEraKit (from `../soramitsu-shared-features-ios/SSFEraKit`)
-  - SSFExtrinsicKit (from `../soramitsu-shared-features-ios/SSFExtrinsicKit`)
-  - SSFHelpers (from `../soramitsu-shared-features-ios/SSFHelpers`)
-  - SSFLogger (from `../soramitsu-shared-features-ios/SSFLogger`)
-  - SSFModels (from `../soramitsu-shared-features-ios/SSFModels`)
-  - SSFNetwork (from `../soramitsu-shared-features-ios/SSFNetwork`)
-  - SSFRuntimeCodingService (from `../soramitsu-shared-features-ios/SSFRuntimeCodingService`)
-  - SSFSigner (from `../soramitsu-shared-features-ios/SSFSigner`)
-  - SSFStorageQueryKit (from `../soramitsu-shared-features-ios/SSFStorageQueryKit`)
-  - SSFUtils (from `../soramitsu-shared-features-ios/SSFUtils`)
-  - SSFXCM (from `../soramitsu-shared-features-ios/SSFXCM`)
+  - SSFChainConnection
+  - SSFChainRegistry
+  - SSFCrypto
+  - SSFEraKit
+  - SSFExtrinsicKit
+  - SSFHelpers
+  - SSFLogger
+  - SSFModels
+  - SSFNetwork
+  - SSFRuntimeCodingService
+  - SSFSigner
+  - SSFStorageQueryKit
+  - SSFUtils
+  - SSFXCM
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
@@ -246,8 +246,27 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
     - BigInt
+    - RobinHood
+    - TweetNacl
+    - xxHash-Swift
+  https://github.com/soramitsu/SSFSpecs.git:
+    - SSFChainConnection
+    - SSFChainRegistry
+    - SSFCrypto
+    - SSFEraKit
+    - SSFExtrinsicKit
+    - SSFHelpers
+    - SSFLogger
+    - SSFModels
+    - SSFNetwork
+    - SSFRuntimeCodingService
+    - SSFSigner
+    - SSFStorageQueryKit
+    - SSFUtils
+    - SSFXCM
+  trunk:
     - Charts
     - CocoaLumberjack
     - CommonWallet
@@ -259,7 +278,6 @@ SPEC REPOS:
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
-    - RobinHood
     - scrypt.c
     - secp256k1.c
     - SnapKit
@@ -271,41 +289,11 @@ SPEC REPOS:
     - SwiftFormat
     - SwiftLint
     - SwiftyBeaver
-    - TweetNacl
-    - xxHash-Swift
 
 EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
-  SSFChainConnection:
-    :path: "../soramitsu-shared-features-ios/SSFChainConnection"
-  SSFChainRegistry:
-    :path: "../soramitsu-shared-features-ios/SSFChainRegistry"
-  SSFCrypto:
-    :path: "../soramitsu-shared-features-ios/SSFCrypto"
-  SSFEraKit:
-    :path: "../soramitsu-shared-features-ios/SSFEraKit"
-  SSFExtrinsicKit:
-    :path: "../soramitsu-shared-features-ios/SSFExtrinsicKit"
-  SSFHelpers:
-    :path: "../soramitsu-shared-features-ios/SSFHelpers"
-  SSFLogger:
-    :path: "../soramitsu-shared-features-ios/SSFLogger"
-  SSFModels:
-    :path: "../soramitsu-shared-features-ios/SSFModels"
-  SSFNetwork:
-    :path: "../soramitsu-shared-features-ios/SSFNetwork"
-  SSFRuntimeCodingService:
-    :path: "../soramitsu-shared-features-ios/SSFRuntimeCodingService"
-  SSFSigner:
-    :path: "../soramitsu-shared-features-ios/SSFSigner"
-  SSFStorageQueryKit:
-    :path: "../soramitsu-shared-features-ios/SSFStorageQueryKit"
-  SSFUtils:
-    :path: "../soramitsu-shared-features-ios/SSFUtils"
-  SSFXCM:
-    :path: "../soramitsu-shared-features-ios/SSFXCM"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -341,20 +329,20 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
-  SSFChainConnection: 2e09fb1ab881300a35658d35291772841d3df83c
-  SSFChainRegistry: a56168a8e65cc579b98379d6f2e4d82702c80621
-  SSFCrypto: 7f45f092ffea4607c5263520cfb676083cf9b210
-  SSFEraKit: 326e1175e2d6af38eebea8c8fba90cabec5e2913
-  SSFExtrinsicKit: 6d5bb2f673c66c9b51c1e477a71c6abb3e80468f
-  SSFHelpers: dc0ad9aea08504629e7079c79f42edccca15c36e
-  SSFLogger: baa2fd710bf2bd243af8fddb9b18574a77f7e734
-  SSFModels: 0f1c159d87352f57c787af8c9d6d7ebe9a62e3ab
-  SSFNetwork: 92b985ffe2670afdaf6db9f7af84890dc16523fd
-  SSFRuntimeCodingService: 862c8686ff522a35db9932a23cfc9629b4a47c3e
-  SSFSigner: fdd10bb636a971c44949cdc62f463adf95a45b93
-  SSFStorageQueryKit: a6276c00809e7d3a0e5d7a0d86fb1eb859bd741d
-  SSFUtils: 0faeb474c4b921baf16514cd00d35f7fce907f44
-  SSFXCM: 72951cb5cb50c208732c1a601ba82bfcd913b5db
+  SSFChainConnection: a232b35cc083e9e9e79ff6ed228812cddd11ace6
+  SSFChainRegistry: bb26ac38e4c43aeaf29f1a959603aa5fd6889d7e
+  SSFCrypto: 1d82ecd49dc44d47e155bdecd7b873348f5bdd16
+  SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
+  SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
+  SSFHelpers: 93becab69ebcef78bceee530fd2d57939d21052c
+  SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
+  SSFModels: 11a6bad13319a03093c50c9278efda185331f70d
+  SSFNetwork: 1dacdbd3db8bddd808de87a707a4e27f18a78de8
+  SSFRuntimeCodingService: 6eb94c6336d47e86b19588524ca75c71c83f53a9
+  SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
+  SSFStorageQueryKit: edb0af3dbed5520f2821d07bb460099430b4f261
+  SSFUtils: 994c698425074c773f001bb0dc5eade36ac2e08c
+  SSFXCM: b5bc8e60248bf2bf7a6e984cc1733d54801b8d41
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -365,6 +353,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 8187e9713b022a7fab6fb5e4678196ba5e3714ef
+PODFILE CHECKSUM: f8a6f5f9b4cccaa26e99188a51ebbb938c15c683
 
 COCOAPODS: 1.11.3

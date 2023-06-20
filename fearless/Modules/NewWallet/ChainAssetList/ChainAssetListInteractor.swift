@@ -286,6 +286,14 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     func processZeroBalancesSettingChanged() {
         updateChainAssets(using: filters, sorts: sorts)
     }
+
+    func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent) {
+        accountInfoSubscriptionAdapter.subscribe(
+            chainsAssets: [event.chainAsset],
+            handler: self,
+            deliveryOn: accountInfosDeliveryQueue
+        )
+    }
 }
 
 extension ChainAssetListInteractor: ChainsIssuesCenterListener {

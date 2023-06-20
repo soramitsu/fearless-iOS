@@ -56,7 +56,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
     // MARK: - Private properties
 
-    private var subscriptions: [StreamableProvider<AccountInfoStorageWrapper>] = []
+    private var subscriptions: [ChainAssetId: StreamableProvider<AccountInfoStorageWrapper>] = [:]
     private var selectedMetaAccount: MetaAccountModel
 
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
@@ -79,11 +79,11 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     // MARK: - Public methods
 
     func reset() {
-        subscriptions.forEach { subscription in
+        subscriptions.values.forEach { subscription in
             subscription.removeObserver(wrapper)
         }
 
-        subscriptions.removeAll()
+        subscriptions = [:]
     }
 
     func subscribe(
@@ -92,12 +92,17 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        reset()
         self.handler = handler
         deliveryQueue = queue
 
-        if let subscription = wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
-            subscriptions.append(subscription)
+        lock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
+            strongSelf.subscriptions[chainAsset.chainAssetId] = nil
+
+            if let subscription = strongSelf.wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
+                strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
+            }
         }
     }
 
@@ -106,20 +111,23 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        reset()
         self.handler = handler
         deliveryQueue = queue
 
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
             chainsAssets.forEach { chainAsset in
+
+                strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
+                strongSelf.subscriptions[chainAsset.chainAssetId] = nil
+
                 let accountRequest = chainAsset.chain.accountRequest()
                 if let accountId = strongSelf.selectedMetaAccount.fetch(for: accountRequest)?.accountId,
                    let subscription = strongSelf.wrapper.subscribeAccountProvider(
                        for: accountId,
                        chainAsset: chainAsset
                    ) {
-                    strongSelf.subscriptions.append(subscription)
+                    strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
                 }
             }
         }
