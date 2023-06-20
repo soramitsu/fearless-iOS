@@ -221,10 +221,12 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
-    func updateViewModel() {
+    func updateViewModel(isInitSearchState: Bool) {
         guard let chainAssets = chainAssets, chainAssets.isNotEmpty else {
             DispatchQueue.main.async { [weak self] in
-                self?.view?.showEmptyState()
+                if !isInitSearchState {
+                    self?.view?.showEmptyState()
+                }
             }
             return
         }
