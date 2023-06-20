@@ -206,7 +206,6 @@ private enum GitHubUrl {
         case master
         case develop
         case v4
-        case newAssets = "new-assets"
     }
 
     static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .develop) -> URL? {
