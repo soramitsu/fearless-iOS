@@ -159,7 +159,8 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         actionsStackView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(textVStackView.snp.trailing)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.offset12)
+            make.top.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         actionButton.snp.makeConstraints { make in
