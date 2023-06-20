@@ -468,9 +468,14 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             guard let feeInPlanks = response.feeInPlanks else {
                 return
             }
+            var precision = Int16(selectedAmountChainAsset.asset.precision)
+            if let destinationPrecision = response.precision,
+               let intDestPrecision = Int16(destinationPrecision) {
+                precision = intDestPrecision
+            }
             destNetworkFee = Decimal.fromSubstrateAmount(
                 feeInPlanks,
-                precision: Int16(selectedAmountChainAsset.asset.precision)
+                precision: precision
             )
 
         case let .failure(error):
