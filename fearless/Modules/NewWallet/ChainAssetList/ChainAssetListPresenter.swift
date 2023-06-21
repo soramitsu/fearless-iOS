@@ -65,6 +65,7 @@ final class ChainAssetListPresenter {
         }
 
         let chainSettings = chainSettings ?? []
+        let accountInfosCopy = accountInfos
 
         factoryOperationQueue.operations.forEach { $0.cancel() }
         factoryOperationQueue.cancelAllOperations()
@@ -79,9 +80,7 @@ final class ChainAssetListPresenter {
                 wallet: self.wallet,
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,
-                accountInfos: self.lock.concurrentlyRead { [unowned self] in
-                    self.accountInfos
-                },
+                accountInfos: accountInfosCopy,
                 prices: self.prices,
                 chainsWithIssues: self.chainsWithNetworkIssues,
                 chainsWithMissingAccounts: self.chainsWithMissingAccounts,
