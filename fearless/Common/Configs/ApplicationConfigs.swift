@@ -161,7 +161,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains_dev.json", branch: .developFree)
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
@@ -206,6 +206,7 @@ private enum GitHubUrl {
         case master
         case develop
         case v4
+        case developFree = "develop-free"
     }
 
     static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .develop) -> URL? {
