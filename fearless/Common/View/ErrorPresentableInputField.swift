@@ -96,9 +96,9 @@ final class ErrorPresentableInputField: UIView {
         }
 
         errorContainer.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview()
             make.top.equalTo(inputField.snp.bottom).offset(UIConstants.defaultOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview()
         }
     }
 
@@ -112,7 +112,7 @@ final class ErrorPresentableInputField: UIView {
             }
 
             errorContainer.snp.remakeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                make.leading.trailing.equalToSuperview()
             }
         case .error:
             inputField.snp.remakeConstraints { make in
@@ -121,9 +121,9 @@ final class ErrorPresentableInputField: UIView {
             }
 
             errorContainer.snp.remakeConstraints { make in
-                make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+                make.leading.trailing.equalToSuperview()
                 make.top.equalTo(inputField.snp.bottom).offset(UIConstants.defaultOffset)
-                make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+                make.bottom.equalToSuperview()
             }
         }
     }
