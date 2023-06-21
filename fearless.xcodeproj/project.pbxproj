@@ -2405,6 +2405,7 @@
 		FAABC4752845DB95002CF40E /* ValidatorListFilterParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4742845DB95002CF40E /* ValidatorListFilterParachainViewModelFactory.swift */; };
 		FAABC4772845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4762845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift */; };
 		FAABC4792845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4782845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift */; };
+		FAAD88182A402D1B0027F01D /* ErrorPresentableInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAD88172A402D1B0027F01D /* ErrorPresentableInputField.swift */; };
 		FAADC19929261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19829261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift */; };
 		FAADC1A529261F7000DA9903 /* PoolRolesConfirmProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19B29261F7000DA9903 /* PoolRolesConfirmProtocols.swift */; };
 		FAADC1A629261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19D29261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift */; };
@@ -5054,6 +5055,7 @@
 		FAABC4762845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModels.swift; sourceTree = "<group>"; };
 		FAABC4782845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterParachainViewModels.swift; sourceTree = "<group>"; };
 		FAAC2F6AE479454F663A3BE7 /* FiltersWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersWireframe.swift; sourceTree = "<group>"; };
+		FAAD88172A402D1B0027F01D /* ErrorPresentableInputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorPresentableInputField.swift; sourceTree = "<group>"; };
 		FAADC19829261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NominationPoolsUpdateRolesCall.swift; sourceTree = "<group>"; };
 		FAADC19B29261F7000DA9903 /* PoolRolesConfirmProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoolRolesConfirmProtocols.swift; sourceTree = "<group>"; };
 		FAADC19D29261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoolRolesConfirmViewModelFactory.swift; sourceTree = "<group>"; };
@@ -8386,6 +8388,7 @@
 				C648FFC728DC43A70072951B /* EmptyView.swift */,
 				C640415C28F507E900845780 /* TriangularedTextField.swift */,
 				076D9D58294C461E002762E3 /* PolkaswapDoubleSymbolView.swift */,
+				FAAD88172A402D1B0027F01D /* ErrorPresentableInputField.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -13344,7 +13347,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -13425,7 +13428,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -13980,6 +13983,7 @@
 				84DD5F3E263DE5FF00425ACF /* DataValidationProtocols.swift in Sources */,
 				84D8F15F24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift in Sources */,
 				AEE5FB0126415E2A002B8FDC /* StakingRebondSetupInteractor.swift in Sources */,
+				FAAD88182A402D1B0027F01D /* ErrorPresentableInputField.swift in Sources */,
 				84C1B98624F5424700FE5470 /* ManagedAccountViewModelFactory.swift in Sources */,
 				AEE5FB1026457806002B8FDC /* StakingRewardDestSetupViewFactory.swift in Sources */,
 				849ABE49262763BB00011A2A /* Longrun.swift in Sources */,
