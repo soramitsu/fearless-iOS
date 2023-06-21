@@ -18,6 +18,8 @@ final class ChainAssetListViewController:
 
     typealias RootViewType = ChainAssetListViewLayout
 
+    var keyboardHandler: FearlessKeyboardHandler?
+
     // MARK: Private properties
 
     private let output: ChainAssetListViewOutput
