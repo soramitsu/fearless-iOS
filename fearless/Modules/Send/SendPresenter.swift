@@ -100,12 +100,8 @@ extension SendPresenter: SendViewOutput {
             refreshFee(for: chainAsset, address: nil)
         case let .address(address):
             recipientAddress = address
-            let viewModel = viewModelFactory.buildRecipientViewModel(
-                address: address,
-                isValid: true
-            )
-            view.didReceive(viewModel: viewModel)
             interactor.getPossibleChains(for: address) { [weak self] possibleChains in
+                self?.provideRecepientViewModel(isPossible: possibleChains?.isNotEmpty == true, address: address)
                 self?.didReceive(possibleChains: possibleChains)
             }
         }
@@ -676,6 +672,36 @@ private extension SendPresenter {
             from: view,
             actions: [action]
         )
+    }
+
+    private func provideRecepientViewModel(
+        isPossible: Bool,
+        address: String
+    ) {
+        guard isPossible else {
+            let dissmissAction = SheetAlertPresentableAction(
+                title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+            ) { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
+            let alertViewModel = SheetAlertPresentableViewModel(
+                title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+                actions: [dissmissAction],
+                closeAction: nil,
+                dismissCompletion: { [weak self] in
+                    self?.router.dismiss(view: self?.view)
+                }
+            )
+            router.present(viewModel: alertViewModel, from: view)
+            return
+        }
+
+        let viewModel = viewModelFactory.buildRecipientViewModel(
+            address: address,
+            isValid: true
+        )
+        view?.didReceive(viewModel: viewModel)
     }
 }
 
