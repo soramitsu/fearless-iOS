@@ -101,8 +101,19 @@ extension SendPresenter: SendViewOutput {
         case let .address(address):
             recipientAddress = address
             interactor.getPossibleChains(for: address) { [weak self] possibleChains in
-                self?.provideRecepientViewModel(isPossible: possibleChains?.isNotEmpty == true, address: address)
-                self?.didReceive(possibleChains: possibleChains)
+                guard let strongSelf = self else {
+                    return
+                }
+                guard possibleChains?.isNotEmpty == true else {
+                    strongSelf.showIncorrectAddressAlert()
+                    return
+                }
+                let viewModel = strongSelf.viewModelFactory.buildRecipientViewModel(
+                    address: address,
+                    isValid: true
+                )
+                strongSelf.view?.didReceive(viewModel: viewModel)
+                strongSelf.didReceive(possibleChains: possibleChains)
             }
         }
     }
@@ -674,34 +685,22 @@ private extension SendPresenter {
         )
     }
 
-    private func provideRecepientViewModel(
-        isPossible: Bool,
-        address: String
-    ) {
-        guard isPossible else {
-            let dissmissAction = SheetAlertPresentableAction(
-                title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
-            ) { [weak self] in
+    private func showIncorrectAddressAlert() {
+        let dissmissAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            self?.router.dismiss(view: self?.view)
+        }
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+            actions: [dissmissAction],
+            closeAction: nil,
+            dismissCompletion: { [weak self] in
                 self?.router.dismiss(view: self?.view)
             }
-            let alertViewModel = SheetAlertPresentableViewModel(
-                title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
-                actions: [dissmissAction],
-                closeAction: nil,
-                dismissCompletion: { [weak self] in
-                    self?.router.dismiss(view: self?.view)
-                }
-            )
-            router.present(viewModel: alertViewModel, from: view)
-            return
-        }
-
-        let viewModel = viewModelFactory.buildRecipientViewModel(
-            address: address,
-            isValid: true
         )
-        view?.didReceive(viewModel: viewModel)
+        router.present(viewModel: alertViewModel, from: view)
     }
 }
 
