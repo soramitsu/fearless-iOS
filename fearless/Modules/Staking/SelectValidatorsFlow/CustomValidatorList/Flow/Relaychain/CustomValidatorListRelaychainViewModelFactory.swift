@@ -57,7 +57,10 @@ final class CustomValidatorListRelaychainViewModelFactory {
                 return true
             }
 
-            return $0.identity?.displayName.lowercased().contains(searchText.lowercased()) == true
+            let foundByName = $0.identity?.displayName.lowercased().contains(searchText.lowercased()) == true
+            let foundByAddress = $0.address.lowercased().contains(searchText.lowercased())
+
+            return foundByName || foundByAddress
         }.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 

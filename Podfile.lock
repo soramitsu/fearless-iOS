@@ -246,7 +246,7 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/Specs.git:
     - BigInt
     - RobinHood
     - TweetNacl
