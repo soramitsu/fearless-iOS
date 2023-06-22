@@ -12,7 +12,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         static let conentEdgeInstets = UIEdgeInsets(
             top: 8, left: 12, bottom: 8, right: 12
         )
-        static let optionsButtonSize = CGSize(width: 44, height: 44)
+        static let optionsButtonSize = CGSize(width: 24, height: 24)
     }
 
     private let backgroundTriangularedView: TriangularedView = {
@@ -52,6 +52,8 @@ final class WalletsManagmentTableCell: UITableViewCell {
     private let optionsButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconHorMore(), for: .normal)
+        button.backgroundColor = R.color.colorWhite8()!
+        button.clipsToBounds = true
         return button
     }()
 
@@ -66,6 +68,11 @@ final class WalletsManagmentTableCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        optionsButton.rounded()
     }
 
     func bind(to viewModel: WalletsManagmentCellViewModel) {
@@ -96,16 +103,16 @@ final class WalletsManagmentTableCell: UITableViewCell {
 
         backgroundTriangularedView.addSubview(iconImageView)
         iconImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.leading.equalToSuperview().offset(UIConstants.offset12)
             make.centerY.equalToSuperview()
             make.size.equalTo(UIConstants.normalAddressIconSize)
         }
 
         let vStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.minimalOffset)
-        vStackView.distribution = .fillProportionally
+        vStackView.distribution = .fillEqually
         backgroundTriangularedView.addSubview(vStackView)
         vStackView.snp.makeConstraints { make in
-            make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.defaultOffset)
+            make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.offset12)
             make.top.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
         }
 

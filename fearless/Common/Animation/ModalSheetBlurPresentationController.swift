@@ -3,6 +3,7 @@ import SoraUI
 
 final class ModalSheetBlurPresentationController: UIPresentationController {
     private let configuration: ModalSheetPresentationConfiguration
+    private let shouldDissmissWhenTapOnBlurArea: Bool
 
     var interactiveDismissal: UIPercentDrivenInteractiveTransition?
     private var initialTranslation: CGPoint = .zero
@@ -26,9 +27,11 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     init(
         presentedViewController: UIViewController,
         presenting presentingViewController: UIViewController?,
-        configuration: ModalSheetPresentationConfiguration
+        configuration: ModalSheetPresentationConfiguration,
+        shouldDissmissWhenTapOnBlurArea: Bool = true
     ) {
         self.configuration = configuration
+        self.shouldDissmissWhenTapOnBlurArea = shouldDissmissWhenTapOnBlurArea
 
         super.init(presentedViewController: presentedViewController, presenting: presentingViewController)
 
@@ -38,26 +41,29 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     }
 
     private func attachCancellationGestureOnBlur() {
-        let cancellationGesture = UITapGestureRecognizer(
-            target: self,
-            action: #selector(actionDidCancel(gesture:))
-        )
-        cancellationGesture.cancelsTouchesInView = false
-
         let blur = UIBlurEffect(style: .dark)
         let blurView = UIVisualEffectView(effect: blur)
         blurView.alpha = 0.975
         blurView.tag = ModalSheetBlurPresentationAppearanceAnimator.UIVisualEffectViewFearlessTag
         blurView.frame = containerView?.bounds ?? .zero
-        blurView.addGestureRecognizer(cancellationGesture)
+        if shouldDissmissWhenTapOnBlurArea {
+            let cancellationGesture = UITapGestureRecognizer(
+                target: self,
+                action: #selector(actionDidCancel(gesture:))
+            )
+            cancellationGesture.cancelsTouchesInView = false
+            blurView.addGestureRecognizer(cancellationGesture)
+        }
 
         containerView?.addSubview(blurView)
     }
 
     private func attachPanGesture() {
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(didPan(sender:)))
-        containerView?.addGestureRecognizer(panGestureRecognizer)
-        panGestureRecognizer.delegate = self
+        if shouldDissmissWhenTapOnBlurArea {
+            let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(didPan(sender:)))
+            containerView?.addGestureRecognizer(panGestureRecognizer)
+            panGestureRecognizer.delegate = self
+        }
     }
 
     // MARK: Presentation overridings
