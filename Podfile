@@ -45,6 +45,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFUtils'
           pod 'SSFChainRegistry'
           pod 'SSFHelpers'
+          pod 'SSFCloudStorage'
       end
   end
 

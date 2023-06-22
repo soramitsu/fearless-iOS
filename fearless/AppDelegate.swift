@@ -1,4 +1,5 @@
 import UIKit
+import GoogleSignIn
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -12,6 +13,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         guard !isUnitTesting else { return true }
+
+        GIDSignIn.sharedInstance().clientID = "621183184145-jla1mrbl3soobt85btt2nebon8s3d30b.apps.googleusercontent.com"
 
         let rootWindow = FearlessWindow()
         window = rootWindow

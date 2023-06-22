@@ -8,6 +8,7 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var termsLabel: UILabel!
     @IBOutlet private var signUpButton: TriangularedButton!
     @IBOutlet private var restoreButton: TriangularedButton!
+    @IBOutlet private var googleBackupButton: TriangularedButton!
     @IBOutlet private var logoView: UIImageView!
 
     @IBOutlet private var restoreBottomConstraint: NSLayoutConstraint!
@@ -48,6 +49,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
             .usernameSetupTitle20(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         restoreButton.imageWithTitleView?.title = R.string.localizable
             .onboardingRestoreWallet(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        googleBackupButton.imageWithTitleView?.title = R.string.localizable
+            .googleBackupButtonTitle(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
 
         let text = NSAttributedString(string: R.string.localizable
             .onboardingTermsAndConditions1(preferredLanguages: localizationManager?.selectedLocale.rLanguages))
@@ -74,6 +77,10 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
     @IBAction private func actionRestoreAccess(sender _: AnyObject) {
         presenter.activateAccountRestore()
+    }
+
+    @IBAction private func activateGoogleBackup() {
+        presenter.activateGoogleBackup()
     }
 
     @IBAction private func actionTerms(gestureRecognizer: UITapGestureRecognizer) {

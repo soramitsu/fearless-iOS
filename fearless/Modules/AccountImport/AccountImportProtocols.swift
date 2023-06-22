@@ -70,13 +70,16 @@ protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable
 }
 
 protocol AccountImportViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
+    static func createViewForOnboarding(
+        defaultSource: AccountImportSource,
+        flow: AccountImportFlow
+    ) -> AccountImportViewProtocol?
     static func createViewForAdding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
     static func createViewForSwitch() -> AccountImportViewProtocol?
 }
 
 extension AccountImportViewFactoryProtocol {
-    static func createViewForOnboarding() -> AccountImportViewProtocol? {
-        Self.createViewForOnboarding(.wallet(step: .first))
+    static func createViewForOnboarding(defaultSource: AccountImportSource) -> AccountImportViewProtocol? {
+        Self.createViewForOnboarding(defaultSource: defaultSource, flow: .wallet(step: .first))
     }
 }

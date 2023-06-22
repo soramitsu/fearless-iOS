@@ -1075,3 +1075,9 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "wallet.managment.select.wallet.title" = "Select your wallet";
 "xcm.cross.chain.invalid.address.title" = "Is not network address";
 "xcm.cross.chain.invalid.address.message" = "According to the address provided you're trying to make a transfer on the wrong network.";
+"google.backup.button.title" = "Continue with Google";
+"google.backup.choice.title" = "Select source for import";
+"google.backup.choice.mnemonic" = "Mnemonic phrase";
+"google.backup.choice.raw" = "Raw Seed";
+"google.backup.choice.json" = "JSON";
+"google.backup.choice.google" = "Google";

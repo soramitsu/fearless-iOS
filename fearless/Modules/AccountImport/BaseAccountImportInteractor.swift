@@ -14,17 +14,20 @@ class BaseAccountImportInteractor {
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
+    let defaultSource: AccountImportSource
 
     init(
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        defaultSource: AccountImportSource
     ) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.keystoreImportService = keystoreImportService
+        self.defaultSource = defaultSource
     }
 
     private func setupKeystoreImportObserver() {
@@ -53,7 +56,7 @@ class BaseAccountImportInteractor {
     private func provideMetadata() {
         let metadata = MetaAccountImportMetadata(
             availableSources: AccountImportSource.allCases,
-            defaultSource: .mnemonic,
+            defaultSource: defaultSource,
             availableCryptoTypes: CryptoType.allCases,
             defaultCryptoType: .sr25519
         )
