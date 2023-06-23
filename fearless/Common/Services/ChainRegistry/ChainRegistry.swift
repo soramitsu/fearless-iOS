@@ -250,7 +250,7 @@ extension ChainRegistry: ChainRegistryProtocol {
 
 extension ChainRegistry: ConnectionPoolDelegate {
     func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
-        guard let chanhedStateChain = chains.first(where: { chain in
+        guard let changedStateChain = chains.first(where: { chain in
             chain.nodes.first { node in
                 node.url == url
             } != nil
@@ -261,7 +261,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
         switch state {
         case let .waitingReconnection(attempt: attempt):
             if attempt > 1 {
-                connectionNeedsReconnect(for: chanhedStateChain, previusUrl: url, state: state)
+                connectionNeedsReconnect(for: changedStateChain, previusUrl: url, state: state)
             }
         default:
             break
