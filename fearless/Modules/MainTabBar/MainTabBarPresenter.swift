@@ -80,11 +80,8 @@ extension MainTabBarPresenter: ApplicationHandlerDelegate {
 }
 
 extension MainTabBarPresenter: ReachabilityListenerDelegate {
-    func didChangeReachability(by _: ReachabilityManagerProtocol) {
-        guard let isReachable = reachability?.isReachable else {
-            return
-        }
-        isReachable
+    func didChangeReachability(by manager: ReachabilityManagerProtocol) {
+        manager.isReachable
             ? networkStatusPresenter.didDecideReachableStatusPresentation()
             : networkStatusPresenter.didDecideUnreachableStatusPresentation()
     }
