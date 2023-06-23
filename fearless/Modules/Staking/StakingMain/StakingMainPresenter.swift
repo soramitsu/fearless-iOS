@@ -288,13 +288,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func performManageStakingAction() {
         let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
-                return [
-                    .stakingBalance,
-                    .pendingRewards,
-                    .rewardDestination,
-                    .changeValidators(count: nominatorState.nomination.uniqueTargets.count),
-                    .controllerAccount
-                ]
+                var options: [StakingManageOption] = []
+                options.append(.stakingBalance)
+                if nominatorState.commonData.chainAsset?.chain.externalApi?.staking != nil {
+                    options.append(.pendingRewards)
+                }
+                options.append(.rewardDestination)
+                options.append(.changeValidators(count: nominatorState.nomination.uniqueTargets.count))
+                options.append(.controllerAccount)
+                return options
             }
 
             if stateMachine.viewState(using: { (state: BondedState) in state }) != nil {
@@ -306,13 +308,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 ]
             }
 
-            return [
-                .stakingBalance,
-                .pendingRewards,
-                .rewardDestination,
-                .yourValidator,
-                .controllerAccount
-            ]
+            var options: [StakingManageOption] = []
+            options.append(.stakingBalance)
+            if chainAsset?.chain.externalApi?.staking != nil {
+                options.append(.pendingRewards)
+            }
+            options.append(.rewardDestination)
+            options.append(.yourValidator)
+            options.append(.controllerAccount)
+            return options
         }()
 
         wireframe.showManageStaking(
