@@ -33,14 +33,14 @@ final class ParachainRewardCalculatorService {
     private let operationManager: OperationManagerProtocol
     private let providerFactory: SubstrateDataProviderFactoryProtocol
     private let storageFacade: StorageFacadeProtocol
-    private let runtimeCodingService: RuntimeCodingServiceProtocol
+    private let chainRegistry: ChainRegistryProtocol
 
     init(
         chainAsset: ChainAsset,
         assetPrecision: Int16,
         operationManager: OperationManagerProtocol,
         providerFactory: SubstrateDataProviderFactoryProtocol,
-        runtimeCodingService: RuntimeCodingServiceProtocol,
+        chainRegistry: ChainRegistryProtocol,
         storageFacade: StorageFacadeProtocol,
         logger: LoggerProtocol? = nil,
         collatorOperationFactory: ParachainCollatorOperationFactory
@@ -50,7 +50,7 @@ final class ParachainRewardCalculatorService {
         self.storageFacade = storageFacade
         self.providerFactory = providerFactory
         self.operationManager = operationManager
-        self.runtimeCodingService = runtimeCodingService
+        self.chainRegistry = chainRegistry
         self.logger = logger
         self.collatorOperationFactory = collatorOperationFactory
     }
@@ -164,6 +164,11 @@ final class ParachainRewardCalculatorService {
     }
 
     private func didUpdateTotalIssuanceItem(_ totalIssuanceItem: ChainStorageItem?) {
+        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            return
+        }
+
         guard let totalIssuanceItem = totalIssuanceItem else {
             return
         }

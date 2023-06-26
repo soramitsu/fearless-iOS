@@ -35,8 +35,8 @@ final class InflationRewardCalculatorService {
     let operationManager: OperationManagerProtocol
     let providerFactory: SubstrateDataProviderFactoryProtocol
     let storageFacade: StorageFacadeProtocol
-    let runtimeCodingService: RuntimeCodingServiceProtocol
     let stakingDurationFactory: StakingDurationOperationFactoryProtocol
+    let chainRegistry: ChainRegistryProtocol
 
     init(
         chainAsset: ChainAsset,
@@ -44,7 +44,7 @@ final class InflationRewardCalculatorService {
         eraValidatorsService: EraValidatorServiceProtocol,
         operationManager: OperationManagerProtocol,
         providerFactory: SubstrateDataProviderFactoryProtocol,
-        runtimeCodingService: RuntimeCodingServiceProtocol,
+        chainRegistry: ChainRegistryProtocol,
         stakingDurationFactory: StakingDurationOperationFactoryProtocol,
         storageFacade: StorageFacadeProtocol,
         logger: LoggerProtocol? = nil
@@ -56,7 +56,7 @@ final class InflationRewardCalculatorService {
         self.operationManager = operationManager
         self.eraValidatorsService = eraValidatorsService
         self.stakingDurationFactory = stakingDurationFactory
-        self.runtimeCodingService = runtimeCodingService
+        self.chainRegistry = chainRegistry
         self.logger = logger
     }
 
@@ -81,6 +81,11 @@ final class InflationRewardCalculatorService {
         chainId: ChainModel.Id,
         assetPrecision: Int16
     ) {
+        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            return
+        }
+
         let durationWrapper = stakingDurationFactory.createDurationOperation(
             from: runtimeCodingService
         )
@@ -159,6 +164,11 @@ final class InflationRewardCalculatorService {
     }
 
     private func didUpdateTotalIssuanceItem(_ totalIssuanceItem: ChainStorageItem?) {
+        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            return
+        }
+
         guard let totalIssuanceItem = totalIssuanceItem else {
             return
         }
