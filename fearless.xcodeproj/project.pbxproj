@@ -2232,6 +2232,7 @@
 		FA864445276851CF00956D8E /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA864444276851CF00956D8E /* ContainerViewController.swift */; };
 		FA8644472768522000956D8E /* HistoryHeaderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644462768522000956D8E /* HistoryHeaderType.swift */; };
 		FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644502768A13300956D8E /* TwoLabelView.swift */; };
+		FA8A87DA2A49779500ECCFBF /* JSONRPCOperation+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8A87D92A49779500ECCFBF /* JSONRPCOperation+Result.swift */; };
 		FA8ED43328FD960F00EBB712 /* YourValidatorListFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */; };
 		FA8ED43628FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */; };
 		FA8ED43828FD984500EBB712 /* YourValidatorListRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43728FD984500EBB712 /* YourValidatorListRelaychainViewModelState.swift */; };
@@ -4871,6 +4872,7 @@
 		FA864444276851CF00956D8E /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		FA8644462768522000956D8E /* HistoryHeaderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryHeaderType.swift; sourceTree = "<group>"; };
 		FA8644502768A13300956D8E /* TwoLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwoLabelView.swift; sourceTree = "<group>"; };
+		FA8A87D92A49779500ECCFBF /* JSONRPCOperation+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSONRPCOperation+Result.swift"; sourceTree = "<group>"; };
 		FA8C34B051607218638BA851 /* FiltersProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersProtocols.swift; sourceTree = "<group>"; };
 		FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListFlow.swift; sourceTree = "<group>"; };
 		FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListRelaychainStrategy.swift; sourceTree = "<group>"; };
@@ -7944,6 +7946,7 @@
 				C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */,
 				FA60F52329EF9D1F00AB9561 /* NumberFormatter+Default.swift */,
 				FAAF946B2A0CFF90009A4BA5 /* Array+Duplicates.swift */,
+				FA8A87D92A49779500ECCFBF /* JSONRPCOperation+Result.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -14797,6 +14800,7 @@
 				8493D0DF26FE7D7400A28008 /* ChainRepositoryFactory.swift in Sources */,
 				FAA0133E28DA12B6000A5230 /* StakingPoolManagementViewLayout.swift in Sources */,
 				846AF8482525E23C00868F37 /* WalletTotalPriceCell.swift in Sources */,
+				FA8A87DA2A49779500ECCFBF /* JSONRPCOperation+Result.swift in Sources */,
 				FA072C23277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift in Sources */,
 				84585A31251C0B9300390F7A /* NetworkInfoMode.swift in Sources */,
 				847C962825534134002D288F /* ExportGenericProtocols.swift in Sources */,
