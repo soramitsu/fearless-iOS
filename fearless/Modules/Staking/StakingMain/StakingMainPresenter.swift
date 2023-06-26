@@ -15,7 +15,6 @@ final class StakingMainPresenter {
     let networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
-    private let eventCenter: EventCenter
 
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
@@ -60,7 +59,6 @@ final class StakingMainPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol?,
         selectedMetaAccount: MetaAccountModel,
-        eventCenter: EventCenter,
         moduleOutput: StakingMainModuleOutput?
     ) {
         self.stateViewModelFactory = stateViewModelFactory
@@ -68,7 +66,6 @@ final class StakingMainPresenter {
         self.viewModelFacade = viewModelFacade
         self.logger = logger
         self.selectedMetaAccount = selectedMetaAccount
-        self.eventCenter = eventCenter
 
         let stateMachine = StakingStateMachine()
         self.stateMachine = stateMachine
@@ -76,7 +73,6 @@ final class StakingMainPresenter {
         self.dataValidatingFactory = dataValidatingFactory
 
         stateMachine.delegate = self
-        self.eventCenter.add(observer: self, dispatchIn: .main)
         self.moduleOutput = moduleOutput
     }
 
@@ -328,15 +324,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo) {
-        let managedItems: [StakingManageOption] = {
-            [.parachainStakingBalance(info: delegation), .yourCollator(info: delegation)]
-        }()
+        guard let chainAsset = chainAsset else {
+            return
+        }
 
-        wireframe.showManageStaking(
+        wireframe.showStakingBalance(
             from: view,
-            items: managedItems,
-            delegate: self,
-            context: managedItems as NSArray
+            chainAsset: chainAsset,
+            wallet: selectedMetaAccount,
+            flow: .parachain(delegation: delegation.delegation, collator: delegation.collator)
         )
     }
 
@@ -487,6 +483,10 @@ extension StakingMainPresenter: StakingStateMachineDelegate {
 }
 
 extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
+    func didReceive(selectedWallet: MetaAccountModel) {
+        selectedMetaAccount = selectedWallet
+    }
+
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
@@ -890,19 +890,6 @@ extension StakingMainPresenter: AssetSelectionDelegate {
         case .pool:
             moduleOutput?.didSwitchStakingType(type)
         }
-    }
-}
-
-extension StakingMainPresenter: EventVisitorProtocol {
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        selectedMetaAccount = event.account
-        guard
-            let isViewLoaded = view?.controller.isViewLoaded,
-            isViewLoaded
-        else {
-            return
-        }
-        interactor.updatePrices()
     }
 }
 

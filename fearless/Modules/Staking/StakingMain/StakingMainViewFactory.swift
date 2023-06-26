@@ -92,7 +92,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             dataValidatingFactory: dataValidatingFactory,
             logger: logger,
             selectedMetaAccount: selectedAccount,
-            eventCenter: eventCenter,
             moduleOutput: moduleOutput
         )
 
