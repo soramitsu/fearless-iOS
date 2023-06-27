@@ -44,6 +44,7 @@ protocol StakingMainInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
+    func didReceive(selectedWallet: MetaAccountModel)
     func didReceive(selectedAddress: String)
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)
