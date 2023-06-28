@@ -43,7 +43,14 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
 
         presenter.setup()
 
-        didStartLoading()
+        rootView.payoutOptionView.startLoadingIfNeeded()
+        rootView.restakeOptionView.startLoadingIfNeeded()
+    }
+
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        rootView.payoutOptionView.didUpdateSkeletonLayout()
+        rootView.restakeOptionView.didUpdateSkeletonLayout()
     }
 
     // MARK: - Actions
@@ -81,8 +88,6 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
     }
 
     private func applyRewardDestinationType(from viewModel: RewardDestinationViewModelProtocol) {
-        didStopLoading()
-
         let activeTextColor = R.color.colorWhite()!
         let inactiveTextColor = R.color.colorLightGray()!
 
@@ -118,6 +123,9 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
 
     private func applyRewardDestinationContent(from viewModel: RewardDestinationViewModelProtocol) {
         if let reward = viewModel.rewardViewModel {
+            rootView.payoutOptionView.stopLoadingIfNeeded()
+            rootView.restakeOptionView.stopLoadingIfNeeded()
+
             rootView.restakeOptionView.amountTitle = reward.restakeAmount
             rootView.restakeOptionView.priceTitle = reward.restakePrice
             rootView.restakeOptionView.incomeTitle = reward.restakePercentage
@@ -125,12 +133,12 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
             rootView.payoutOptionView.priceTitle = reward.payoutPrice
             rootView.payoutOptionView.incomeTitle = reward.payoutPercentage
         } else {
-            rootView.restakeOptionView.amountTitle = ""
-            rootView.restakeOptionView.priceTitle = ""
-            rootView.restakeOptionView.incomeTitle = ""
-            rootView.payoutOptionView.amountTitle = ""
-            rootView.payoutOptionView.priceTitle = ""
-            rootView.payoutOptionView.incomeTitle = ""
+//            rootView.restakeOptionView.amountTitle = ""
+//            rootView.restakeOptionView.priceTitle = ""
+//            rootView.restakeOptionView.incomeTitle = ""
+//            rootView.payoutOptionView.amountTitle = ""
+//            rootView.payoutOptionView.priceTitle = ""
+//            rootView.payoutOptionView.incomeTitle = ""
         }
     }
 

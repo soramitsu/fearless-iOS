@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 
 // swiftlint:disable type_body_length
-class DetailsTriangularedView: BackgroundedContentControl {
+class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {
     enum LayoutConstants {
         static let actionButtonSize = CGSize(width: 68, height: 24)
         static let cornerRadius: CGFloat = 3

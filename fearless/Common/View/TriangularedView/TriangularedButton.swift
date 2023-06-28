@@ -10,6 +10,8 @@ import UIKit
  */
 @IBDesignable
 class TriangularedButton: BackgroundedContentControl {
+    private var isLoading: Bool = false
+
     /// Returns content view that consists of title and icon
     public var imageWithTitleView: ImageWithTitleView? {
         contentView as? ImageWithTitleView
@@ -73,18 +75,21 @@ class TriangularedButton: BackgroundedContentControl {
     func set(enabled: Bool, changeStyle: Bool = true) {
         isEnabled = enabled
 
-        if changeStyle {
+        if changeStyle, !isLoading {
             isEnabled ? applyEnabledStyle() : applyDisabledStyle()
         }
     }
 
     func set(loading: Bool) {
+        isLoading = loading
+        imageWithTitleView?.isHidden = loading
+
         if loading {
             activityIndicator.startAnimating()
-            applyLoadingStyle()
+            applyDisabledStyle()
         } else {
             activityIndicator.stopAnimating()
-            applyEnabledStyle()
+            set(enabled: isEnabled)
         }
     }
 }
