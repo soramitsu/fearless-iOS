@@ -236,7 +236,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createZeroBalancesViewModel(for locale: Locale, wallet: MetaAccountModel) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileHideZeroBalancesTitle(preferredLanguages: locale.rLanguages)
+            .settingsHideZeroBalances(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconZeroBalances()!,

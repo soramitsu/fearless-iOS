@@ -152,7 +152,7 @@ private extension SelectAssetViewModelFactory {
         let assetInfo = chainAsset.asset.displayInfo
 
         let balance = Decimal.fromSubstrateAmount(
-            accountInfo.data.total,
+            accountInfo.data.sendAvailable,
             precision: assetInfo.assetPrecision
         ) ?? 0
 

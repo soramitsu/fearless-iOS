@@ -19,7 +19,7 @@ protocol StakingServiceFactoryProtocol {
 }
 
 final class StakingServiceFactory: StakingServiceFactoryProtocol {
-    let chainRegisty: ChainRegistryProtocol
+    let chainRegistry: ChainRegistryProtocol
     let storageFacade: StorageFacadeProtocol
     let eventCenter: EventCenterProtocol
     let operationManager: OperationManagerProtocol
@@ -37,7 +37,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
-        self.chainRegisty = chainRegisty
+        chainRegistry = chainRegisty
         self.storageFacade = storageFacade
         self.eventCenter = eventCenter
         self.operationManager = operationManager
@@ -45,22 +45,13 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     }
 
     func createEraValidatorService(for chain: ChainModel) throws -> EraValidatorServiceProtocol {
-        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
-        guard let connection = chainRegisty.getConnection(for: chain.chainId) else {
-            throw ChainRegistryError.connectionUnavailable
-        }
-
-        return EraValidatorService(
+        EraValidatorService(
             chain: chain,
             storageFacade: storageFacade,
-            runtimeCodingService: runtimeService,
-            connection: connection,
             providerFactory: substrateDataProviderFactory,
             operationManager: operationManager,
             eventCenter: eventCenter,
+            chainRegistry: chainRegistry,
             logger: logger
         )
     }
@@ -72,13 +63,6 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         collatorOperationFactory: ParachainCollatorOperationFactory?,
         wallet: MetaAccountModel
     ) throws -> RewardCalculatorServiceProtocol {
-        guard
-            let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId),
-            let connection = chainRegisty.getConnection(for: chainAsset.chain.chainId)
-        else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
         switch chainAsset.stakingType {
         case .relaychain:
             return InflationRewardCalculatorService(
@@ -87,7 +71,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
                 eraValidatorsService: validatorService,
                 operationManager: operationManager,
                 providerFactory: substrateDataProviderFactory,
-                runtimeCodingService: runtimeService,
+                chainRegistry: chainRegistry,
                 stakingDurationFactory: StakingDurationOperationFactory(),
                 storageFacade: storageFacade,
                 logger: logger
@@ -102,7 +86,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
                 assetPrecision: assetPrecision,
                 operationManager: operationManager,
                 providerFactory: substrateDataProviderFactory,
-                runtimeCodingService: runtimeService,
+                chainRegistry: chainRegistry,
                 storageFacade: storageFacade,
                 collatorOperationFactory: collatorOperationFactory
             )
@@ -125,10 +109,9 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
                 eraValidatorsService: validatorService,
                 operationManager: operationManager,
                 providerFactory: substrateDataProviderFactory,
-                runtimeCodingService: runtimeService,
+                chainRegistry: chainRegistry,
                 stakingDurationFactory: StakingDurationOperationFactory(),
                 storageFacade: storageFacade,
-                engine: connection,
                 storageRequestFactory: requestFactory
             )
         case .none:
@@ -144,11 +127,6 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         validatorService: EraValidatorServiceProtocol,
         wallet: MetaAccountModel
     ) throws -> RewardCalculatorServiceProtocol {
-        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId),
-              let connection = chainRegisty.getConnection(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
@@ -178,9 +156,9 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         )
 
         let operationFactory = PolkaswapOperationFactory(
-            engine: connection,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
@@ -203,15 +181,14 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             eraValidatorsService: validatorService,
             operationManager: operationManager,
             providerFactory: substrateDataProviderFactory,
-            runtimeCodingService: runtimeService,
+            chainRegistry: chainRegistry,
             stakingDurationFactory: StakingDurationOperationFactory(),
             storageFacade: storageFacade,
             polkaswapOperationFactory: operationFactory,
             chainAssetFetching: chainAssetFetching,
             settingsRepository: AnyDataProviderRepository(settingsRepository),
             logger: Logger.shared,
-            storageRequestFactory: requestFactory,
-            engine: connection
+            storageRequestFactory: requestFactory
         )
     }
 }

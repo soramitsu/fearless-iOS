@@ -18,6 +18,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case hasCrowdloans(Bool)
         case assetName(String)
         case search(String)
+        case searchEmpty
         case ecosystem(ChainEcosystem)
         case chainIds([ChainModel.Id])
     }
@@ -139,6 +140,8 @@ private extension ChainAssetsFetching {
             }
         case let .chainIds(ids):
             return chainAssets.filter { ids.contains($0.chain.chainId) }
+        case .searchEmpty:
+            return []
         }
     }
 

@@ -3,13 +3,16 @@ import SoraUI
 
 final class ModalSheetBlurPresentationFactory: NSObject {
     private let configuration: ModalSheetPresentationConfiguration
+    private let shouldDissmissWhenTapOnBlurArea: Bool
 
     private var presentation: ModalSheetBlurPresentationController?
 
     init(
-        configuration: ModalSheetPresentationConfiguration
+        configuration: ModalSheetPresentationConfiguration,
+        shouldDissmissWhenTapOnBlurArea: Bool = true
     ) {
         self.configuration = configuration
+        self.shouldDissmissWhenTapOnBlurArea = shouldDissmissWhenTapOnBlurArea
 
         super.init()
     }
@@ -42,7 +45,8 @@ extension ModalSheetBlurPresentationFactory: UIViewControllerTransitioningDelega
         presentation = ModalSheetBlurPresentationController(
             presentedViewController: presented,
             presenting: presenting,
-            configuration: configuration
+            configuration: configuration,
+            shouldDissmissWhenTapOnBlurArea: shouldDissmissWhenTapOnBlurArea
         )
         return presentation
     }

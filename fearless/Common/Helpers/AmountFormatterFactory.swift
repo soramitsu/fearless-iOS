@@ -86,104 +86,13 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
         roundingMode: NumberFormatter.RoundingMode = .down,
         for locale: FormatterLocale
     ) -> LocalizableDecimalFormatting {
-        let abbreviations: [BigNumberAbbreviation]
-        switch locale {
-        case .japanese:
-            abbreviations = [
-                BigNumberAbbreviation(
-                    threshold: 0,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: DynamicPrecisionFormatter(
-                        preferredPrecision: UInt8(preferredPrecision),
-                        roundingMode: roundingMode
-                    )
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: NumberFormatter.decimalFormatter(
-                        precision: preferredPrecision,
-                        rounding: roundingMode,
-                        usesIntGrouping: true
-                    )
-                ),
-                BigNumberAbbreviation(
-                    threshold: 10,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 10000,
-                    divisor: 10000.0,
-                    suffix: "万",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 100_000_000,
-                    divisor: 100_000_000.0,
-                    suffix: "億",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1_000_000_000_000,
-                    divisor: 1_000_000_000_000.0,
-                    suffix: "兆",
-                    formatter: nil
-                )
-            ]
-        case .usual:
-            abbreviations = [
-                BigNumberAbbreviation(
-                    threshold: 0,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: DynamicPrecisionFormatter(
-                        preferredPrecision: UInt8(preferredPrecision),
-                        roundingMode: roundingMode
-                    )
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: NumberFormatter.decimalFormatter(
-                        precision: preferredPrecision,
-                        rounding: roundingMode,
-                        usesIntGrouping: true
-                    )
-                ),
-                BigNumberAbbreviation(
-                    threshold: 10,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1_000_000,
-                    divisor: 1_000_000.0,
-                    suffix: "M",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1_000_000_000,
-                    divisor: 1_000_000_000.0,
-                    suffix: "B",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1_000_000_000_000,
-                    divisor: 1_000_000_000_000.0,
-                    suffix: "T",
-                    formatter: nil
-                )
-            ]
-        }
+        let abbreviationFactory = AbbreviationsFactory(
+            preferredPrecision: preferredPrecision,
+            roundingMode: roundingMode
+        )
 
         return BigNumberFormatter(
-            abbreviations: abbreviations,
+            abbreviations: abbreviationFactory.abbreviations(for: locale),
             precision: 2,
             rounding: roundingMode,
             usesIntGrouping: true

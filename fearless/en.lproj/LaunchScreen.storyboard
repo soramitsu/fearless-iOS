@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="21225" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="21207"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -24,7 +24,10 @@
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logoSoramitsu" translatesAutoresizingMaskIntoConstraints="NO" id="zP0-18-4id">
-                                <rect key="frame" x="87" y="760" width="240" height="62"/>
+                                <rect key="frame" x="121.5" y="801" width="171" height="21"/>
+                            </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="withLoveLogo" translatesAutoresizingMaskIntoConstraints="NO" id="eRr-Ue-Vvg">
+                                <rect key="frame" x="159" y="772" width="96" height="10"/>
                             </imageView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
@@ -34,9 +37,11 @@
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="zP0-18-4id" secondAttribute="bottom" constant="40" id="TSr-YF-Erh"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="eBa-Mk-uzt" secondAttribute="trailing" constant="64" id="YY2-9j-2Bq"/>
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="e3N-fi-1cm"/>
+                            <constraint firstItem="zP0-18-4id" firstAttribute="top" secondItem="eRr-Ue-Vvg" secondAttribute="bottom" constant="19" id="edZ-R6-1qI"/>
                             <constraint firstItem="eBa-Mk-uzt" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="64" id="jT4-bh-2Kg"/>
                             <constraint firstAttribute="bottom" secondItem="uNk-tt-Coo" secondAttribute="bottom" id="m2l-xc-ZRp"/>
                             <constraint firstItem="eBa-Mk-uzt" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="oSK-Pu-J59"/>
+                            <constraint firstItem="eRr-Ue-Vvg" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="rdW-65-KpS"/>
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="tA1-r1-8ya"/>
                             <constraint firstItem="zP0-18-4id" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="v4C-CL-jhR"/>
                         </constraints>
@@ -44,12 +49,13 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="53" y="375"/>
+            <point key="canvasLocation" x="52.173913043478265" y="375"/>
         </scene>
     </scenes>
     <resources>
         <image name="backgroundImage" width="375" height="812"/>
         <image name="logo" width="246" height="158"/>
-        <image name="logoSoramitsu" width="240" height="62"/>
+        <image name="logoSoramitsu" width="171" height="21"/>
+        <image name="withLoveLogo" width="96" height="10"/>
     </resources>
 </document>

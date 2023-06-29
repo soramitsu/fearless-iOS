@@ -129,7 +129,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
                 if chainAssets.isEmpty {
-                    self?.output?.updateViewModel()
+                    self?.output?.updateViewModel(isInitSearchState: true)
                     return
                 }
                 self?.accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet, completionBlock: { [weak self] accountInfosByChainAssets in
@@ -265,15 +265,15 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
-            output?.updateViewModel()
+            output?.updateViewModel(isInitSearchState: false)
         }
 
         if wallet.unusedChainIds != event.account.unusedChainIds {
-            output?.updateViewModel()
+            output?.updateViewModel(isInitSearchState: false)
         }
 
         if wallet.zeroBalanceAssetsHidden != event.account.zeroBalanceAssetsHidden {
-            output?.updateViewModel()
+            output?.updateViewModel(isInitSearchState: false)
         }
 
         wallet = event.account
@@ -285,6 +285,14 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processZeroBalancesSettingChanged() {
         updateChainAssets(using: filters, sorts: sorts)
+    }
+
+    func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent) {
+        accountInfoSubscriptionAdapter.subscribe(
+            chainsAssets: [event.chainAsset],
+            handler: self,
+            deliveryOn: accountInfosDeliveryQueue
+        )
     }
 }
 

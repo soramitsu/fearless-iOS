@@ -69,7 +69,7 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>other</key>
-        <string>+ %i 他</string>
+        <string>+ %li 他</string>
       </dict>
     </dict>
   </dict>

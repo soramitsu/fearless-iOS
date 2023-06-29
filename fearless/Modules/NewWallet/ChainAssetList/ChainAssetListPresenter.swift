@@ -65,6 +65,7 @@ final class ChainAssetListPresenter {
         }
 
         let chainSettings = chainSettings ?? []
+        let accountInfosCopy = accountInfos
 
         factoryOperationQueue.operations.forEach { $0.cancel() }
         factoryOperationQueue.cancelAllOperations()
@@ -79,9 +80,7 @@ final class ChainAssetListPresenter {
                 wallet: self.wallet,
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,
-                accountInfos: self.lock.concurrentlyRead { [unowned self] in
-                    self.accountInfos
-                },
+                accountInfos: accountInfosCopy,
                 prices: self.prices,
                 chainsWithIssues: self.chainsWithNetworkIssues,
                 chainsWithMissingAccounts: self.chainsWithMissingAccounts,
@@ -195,8 +194,6 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 .networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         } else if viewModel.isMissingAccount {
-            message = R.string.localizable
-                .manageAssetsAccountMissingText(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable
                 .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages)
         }
@@ -224,10 +221,12 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
-    func updateViewModel() {
+    func updateViewModel(isInitSearchState: Bool) {
         guard let chainAssets = chainAssets, chainAssets.isNotEmpty else {
             DispatchQueue.main.async { [weak self] in
-                self?.view?.showEmptyState()
+                if !isInitSearchState {
+                    self?.view?.showEmptyState()
+                }
             }
             return
         }

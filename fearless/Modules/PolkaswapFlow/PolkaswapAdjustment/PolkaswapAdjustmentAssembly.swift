@@ -38,9 +38,9 @@ final class PolkaswapAdjustmentAssembly {
         )
 
         let operationFactory = PolkaswapOperationFactory(
-            engine: connection,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService
+            chainRegistry: chainRegistry,
+            chainId: swapChainAsset.chain.chainId
         )
         let logger = Logger.shared
 

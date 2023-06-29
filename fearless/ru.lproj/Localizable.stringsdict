@@ -93,13 +93,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>+%i другой</string>
+        <string>+%li другой</string>
         <key>few</key>
-        <string></string>
+        <string>+%li других</string>
         <key>many</key>
-        <string></string>
+        <string>+%li других</string>
         <key>other</key>
-        <string>+ %i others</string>
+        <string>+%li других</string>
       </dict>
     </dict>
   </dict>
