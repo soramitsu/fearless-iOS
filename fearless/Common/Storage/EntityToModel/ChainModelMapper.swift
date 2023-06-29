@@ -344,6 +344,7 @@ final class ChainModelMapper {
         context: NSManagedObjectContext
     ) {
         guard let xcmConfig = xcmConfig else {
+            entity.xcmConfig = nil
             return
         }
 
