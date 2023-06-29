@@ -297,13 +297,6 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
             payoutView.amountTitle = reward.payoutAmount
             payoutView.incomeTitle = reward.payoutPercentage
             payoutView.priceTitle = reward.payoutPrice
-        } else {
-//            restakeView.amountTitle = ""
-//            restakeView.priceTitle = ""
-//            restakeView.incomeTitle = ""
-//            payoutView.amountTitle = ""
-//            payoutView.priceTitle = ""
-//            payoutView.incomeTitle = ""
         }
 
         restakeView.titleLabel.textColor = restakeColor

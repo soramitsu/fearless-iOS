@@ -86,7 +86,7 @@ protocol UIFactoryProtocol {
     func createTitleValueSelectionView() -> TitleValueSelectionView
     func createHintView() -> HintView
     func createLearnMoreView() -> LearnMoreView
-    func createRewardSelectionView(frame: CGRect) -> RewardSelectionView
+    func createRewardSelectionView() -> RewardSelectionView
     func createInfoIndicatingView() -> ImageWithTitleView
     func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout) -> DetailsTriangularedView
     func createWalletReferralBonusButton() -> GradientButton
@@ -586,8 +586,8 @@ final class UIFactory: UIFactoryProtocol {
         TitleValueSelectionView()
     }
 
-    func createRewardSelectionView(frame: CGRect = .zero) -> RewardSelectionView {
-        let view = RewardSelectionView(frame: frame)
+    func createRewardSelectionView() -> RewardSelectionView {
+        let view = RewardSelectionView()
 
         view.borderWidth = 1.0
         view.fillColor = .clear

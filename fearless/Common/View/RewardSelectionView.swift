@@ -297,25 +297,21 @@ extension RewardSelectionView: SkeletonLoadable {
 
         return [
             SingleSkeleton.createRow(
-                containerView: self,
                 spaceSize: spaceSize,
                 position: CGPoint(x: selectionWidth + UIConstants.defaultOffset, y: spaceSize.height / 2 - titleSize.height / 2 - UIConstants.defaultOffset / 2),
                 size: titleSize
             ),
             SingleSkeleton.createRow(
-                containerView: self,
                 spaceSize: spaceSize,
                 position: CGPoint(x: selectionWidth + UIConstants.defaultOffset, y: spaceSize.height / 2 + incomeSize.height / 2 + UIConstants.defaultOffset / 2),
                 size: incomeSize
             ),
             SingleSkeleton.createRow(
-                containerView: self,
                 spaceSize: spaceSize,
                 position: CGPoint(x: spaceSize.width - UIConstants.defaultOffset - amountSize.width, y: spaceSize.height / 2 - amountSize.height),
                 size: amountSize
             ),
             SingleSkeleton.createRow(
-                containerView: self,
                 spaceSize: spaceSize,
                 position: CGPoint(x: spaceSize.width - UIConstants.defaultOffset - priceSize.width, y: spaceSize.height / 2 + priceSize.height),
                 size: priceSize

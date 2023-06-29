@@ -28,14 +28,13 @@ extension SingleSkeleton {
         inPlaceOf targetView: UIView,
         containerView: UIView,
         spaceSize: CGSize,
-        offset: CGPoint = .zero,
         size: CGSize
     ) -> SingleSkeleton {
         let targetFrame = targetView.convert(targetView.bounds, to: containerView)
 
         let position = CGPoint(
-            x: targetFrame.minX + size.width / 2.0 + offset.x,
-            y: targetFrame.midY + offset.y
+            x: targetFrame.minX + size.width / 2.0,
+            y: targetFrame.midY
         )
 
         let mappedSize = CGSize(
@@ -47,7 +46,6 @@ extension SingleSkeleton {
     }
 
     static func createRow(
-        containerView _: UIView,
         spaceSize: CGSize,
         position: CGPoint,
         size: CGSize

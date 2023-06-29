@@ -98,7 +98,7 @@ final class PolkaswapAdjustmentPresenter {
     // MARK: - Private methods
 
     private func runLoadingState() {
-        guard swapFromInputResult?.absoluteValue(from: .zero) ?? .zero > .zero || swapToInputResult?.absoluteValue(from: .zero) ?? .zero > .zero else {
+        guard swapFromInputResult != nil || swapToInputResult != nil else {
             return
         }
 

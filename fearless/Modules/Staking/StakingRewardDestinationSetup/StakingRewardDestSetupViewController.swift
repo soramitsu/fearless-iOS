@@ -132,13 +132,6 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
             rootView.payoutOptionView.amountTitle = reward.payoutAmount
             rootView.payoutOptionView.priceTitle = reward.payoutPrice
             rootView.payoutOptionView.incomeTitle = reward.payoutPercentage
-        } else {
-//            rootView.restakeOptionView.amountTitle = ""
-//            rootView.restakeOptionView.priceTitle = ""
-//            rootView.restakeOptionView.incomeTitle = ""
-//            rootView.payoutOptionView.amountTitle = ""
-//            rootView.payoutOptionView.priceTitle = ""
-//            rootView.payoutOptionView.incomeTitle = ""
         }
     }
 
