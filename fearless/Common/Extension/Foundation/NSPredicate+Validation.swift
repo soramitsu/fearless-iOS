@@ -13,7 +13,7 @@ extension NSPredicate {
     // TODO: Add deriviationPathHardSoftNumeric?
 
     static var deriviationPathHardSoftNumeric: NSPredicate {
-        let format = "length = 15 or length = 0"
+        let format = "length < 16"
         return NSPredicate(format: format)
     }
 
