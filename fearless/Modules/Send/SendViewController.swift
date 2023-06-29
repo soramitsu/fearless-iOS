@@ -76,11 +76,6 @@ final class SendViewController: UIViewController, ViewHolder {
             action: #selector(backButtonClicked),
             for: .touchUpInside
         )
-        rootView.actionButton.addTarget(
-            self,
-            action: #selector(continueButtonClicked),
-            for: .touchUpInside
-        )
         rootView.scanButton.addTarget(
             self,
             action: #selector(scanButtonClicked),
@@ -174,12 +169,11 @@ extension SendViewController: SendViewInput {
     }
 
     func didStartFeeCalculation() {
-        rootView.actionButton.applyDisabledStyle()
-        rootView.actionButton.isEnabled = false
+        rootView.actionButton.set(loading: true)
     }
 
     func didStopFeeCalculation() {
-        updateActionButton()
+        rootView.actionButton.set(loading: false)
     }
 
     func didStopTipCalculation() {
@@ -188,6 +182,14 @@ extension SendViewController: SendViewInput {
 
     func didReceive(viewModel: RecipientViewModel) {
         rootView.bind(viewModel: viewModel)
+    }
+
+    func didStartLoading() {
+        rootView.actionButton.set(loading: true)
+    }
+
+    func didStopLoading() {
+        rootView.actionButton.set(loading: false)
     }
 }
 

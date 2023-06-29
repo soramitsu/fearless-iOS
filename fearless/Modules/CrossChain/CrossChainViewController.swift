@@ -157,6 +157,14 @@ extension CrossChainViewController: CrossChainViewInput {
         rootView.bind(recipientViewModel: recipientViewModel)
         updatePreviewButton()
     }
+
+    func didStartLoading() {
+        rootView.actionButton.set(loading: true)
+    }
+
+    func didStopLoading() {
+        rootView.actionButton.set(loading: false)
+    }
 }
 
 // MARK: - Localizable

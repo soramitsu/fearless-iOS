@@ -46,6 +46,18 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         updateActionButton()
 
         presenter?.setup()
+
+        rewardDestinationView.startLoadingIfNeeded()
+        restakeView.startLoadingIfNeeded()
+        payoutView.startLoadingIfNeeded()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        rewardDestinationView.didUpdateSkeletonLayout()
+        restakeView.didUpdateSkeletonLayout()
+        payoutView.didUpdateSkeletonLayout()
     }
 
     private func setupNavigationItem() {
@@ -276,19 +288,15 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         let payoutColor = payoutView.isSelected ? R.color.colorWhite()! : R.color.colorLightGray()!
 
         if let reward = viewModel.rewardViewModel {
+            payoutView.stopLoadingIfNeeded()
+            restakeView.stopLoadingIfNeeded()
+
             restakeView.amountTitle = reward.restakeAmount
             restakeView.incomeTitle = reward.restakePercentage
             restakeView.priceTitle = reward.restakePrice
             payoutView.amountTitle = reward.payoutAmount
             payoutView.incomeTitle = reward.payoutPercentage
             payoutView.priceTitle = reward.payoutPrice
-        } else {
-            restakeView.amountTitle = ""
-            restakeView.priceTitle = ""
-            restakeView.incomeTitle = ""
-            payoutView.amountTitle = ""
-            payoutView.priceTitle = ""
-            payoutView.incomeTitle = ""
         }
 
         restakeView.titleLabel.textColor = restakeColor
@@ -319,11 +327,10 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
 
     private func applyYourRewardDestinationViewModel(_ viewModel: LocalizableResource<YourRewardDestinationViewModel>?) {
         yourRewardDestinationContainer.isHidden = yourRewardDestinationViewModel == nil
-
-        guard let localizableViewModel = viewModel?.value(for: selectedLocale) else {
+        guard let localizableViewModel = viewModel?.value(for: selectedLocale), localizableViewModel.payoutPercentage != nil else {
             return
         }
-
+        rewardDestinationView.stopLoadingIfNeeded()
         rewardDestinationView.amountTitle = localizableViewModel.payoutAmount
         rewardDestinationView.incomeTitle = localizableViewModel.payoutPercentage
         rewardDestinationView.priceTitle = localizableViewModel.payoutPrice
@@ -371,6 +378,14 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
 }
 
 extension StakingAmountViewController: StakingAmountViewProtocol {
+    func didStartLoading() {
+        actionButton.set(loading: true)
+    }
+
+    func didStopLoading() {
+        actionButton.set(loading: false)
+    }
+
     func didReceive(viewModel: StakingAmountMainViewModel) {
         self.viewModel = viewModel
 

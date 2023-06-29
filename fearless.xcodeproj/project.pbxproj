@@ -2233,6 +2233,7 @@
 		FA8644472768522000956D8E /* HistoryHeaderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644462768522000956D8E /* HistoryHeaderType.swift */; };
 		FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644502768A13300956D8E /* TwoLabelView.swift */; };
 		FA8A87DA2A49779500ECCFBF /* JSONRPCOperation+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8A87D92A49779500ECCFBF /* JSONRPCOperation+Result.swift */; };
+		FA8A87E42A4A95F200ECCFBF /* PolkaswapAdjustmentViewLoadingCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8A87E32A4A95F200ECCFBF /* PolkaswapAdjustmentViewLoadingCollector.swift */; };
 		FA8ED43328FD960F00EBB712 /* YourValidatorListFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */; };
 		FA8ED43628FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */; };
 		FA8ED43828FD984500EBB712 /* YourValidatorListRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43728FD984500EBB712 /* YourValidatorListRelaychainViewModelState.swift */; };
@@ -4873,6 +4874,7 @@
 		FA8644462768522000956D8E /* HistoryHeaderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryHeaderType.swift; sourceTree = "<group>"; };
 		FA8644502768A13300956D8E /* TwoLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwoLabelView.swift; sourceTree = "<group>"; };
 		FA8A87D92A49779500ECCFBF /* JSONRPCOperation+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "JSONRPCOperation+Result.swift"; sourceTree = "<group>"; };
+		FA8A87E32A4A95F200ECCFBF /* PolkaswapAdjustmentViewLoadingCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapAdjustmentViewLoadingCollector.swift; sourceTree = "<group>"; };
 		FA8C34B051607218638BA851 /* FiltersProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersProtocols.swift; sourceTree = "<group>"; };
 		FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListFlow.swift; sourceTree = "<group>"; };
 		FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListRelaychainStrategy.swift; sourceTree = "<group>"; };
@@ -6085,6 +6087,7 @@
 		3C30D61B22D5AB28B6EBED5C /* PolkaswapAdjustment */ = {
 			isa = PBXGroup;
 			children = (
+				FA8A87E22A4A949E00ECCFBF /* Model */,
 				9A9EBD3B7AEA5EF594DFEB49 /* PolkaswapAdjustmentProtocols.swift */,
 				3D2C2FC3E31C03D08BDEC7A1 /* PolkaswapAdjustmentRouter.swift */,
 				5B5D683E7DE3533CA418BD21 /* PolkaswapAdjustmentPresenter.swift */,
@@ -12004,6 +12007,14 @@
 			path = NewWallet;
 			sourceTree = "<group>";
 		};
+		FA8A87E22A4A949E00ECCFBF /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				FA8A87E32A4A95F200ECCFBF /* PolkaswapAdjustmentViewLoadingCollector.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		FA8ED43128FD8D6200EBB712 /* Flows */ = {
 			isa = PBXGroup;
 			children = (
@@ -14268,6 +14279,7 @@
 				FA256A36274CE7D600875A53 /* CrowdloanBonusServiceProtocol.swift in Sources */,
 				AEAC68F526E9F93B00346599 /* CoingeckoDefinitions.swift in Sources */,
 				FA2569BE274CE74100875A53 /* TextSectionView.swift in Sources */,
+				FA8A87E42A4A95F200ECCFBF /* PolkaswapAdjustmentViewLoadingCollector.swift in Sources */,
 				FAA0138E28DA1303000A5230 /* StakingPayoutConfirmationRelaychainViewModelState.swift in Sources */,
 				8410DBCB26EA31DE00FE1738 /* AccountProviderFactory.swift in Sources */,
 				FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */,
