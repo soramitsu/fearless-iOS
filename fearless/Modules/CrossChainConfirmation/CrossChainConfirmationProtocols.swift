@@ -10,7 +10,8 @@ protocol CrossChainConfirmationRouterInput:
     ErrorPresentable,
     BaseErrorPresentable,
     ModalAlertPresenting,
-    SheetAlertPresentable {
+    SheetAlertPresentable
+{
     func complete(
         on view: ControllerBackedProtocol?,
         title: String,

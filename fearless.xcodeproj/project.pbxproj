@@ -2182,6 +2182,7 @@
 		FA7667E22A4D489B00351D90 /* WalletRemoteSubscriptionWasUpdatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7667E02A4D489B00351D90 /* WalletRemoteSubscriptionWasUpdatedEvent.swift */; };
 		FA7667E32A4D489B00351D90 /* RuntimeSnapshotReady.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7667E12A4D489B00351D90 /* RuntimeSnapshotReady.swift */; };
 		FA7667E62A4D5C0200351D90 /* Abbreviations.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7667E52A4D5C0200351D90 /* Abbreviations.swift */; };
+		FA7667E92A4D6C6400351D90 /* PolkaswapAdjustmentViewLoadingCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7667E82A4D6C6400351D90 /* PolkaswapAdjustmentViewLoadingCollector.swift */; };
 		FA7A4C822A209F3B0051FB4D /* Array+Duplicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C812A209F3B0051FB4D /* Array+Duplicates.swift */; };
 		FA7A4C842A209F4C0051FB4D /* SubstrateCallFactoryV9420.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C832A209F4C0051FB4D /* SubstrateCallFactoryV9420.swift */; };
 		FA7A4C882A209F760051FB4D /* ParachainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C852A209F760051FB4D /* ParachainRewardCalculatorEngine.swift */; };
@@ -4824,6 +4825,7 @@
 		FA7667E02A4D489B00351D90 /* WalletRemoteSubscriptionWasUpdatedEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletRemoteSubscriptionWasUpdatedEvent.swift; sourceTree = "<group>"; };
 		FA7667E12A4D489B00351D90 /* RuntimeSnapshotReady.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RuntimeSnapshotReady.swift; sourceTree = "<group>"; };
 		FA7667E52A4D5C0200351D90 /* Abbreviations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Abbreviations.swift; sourceTree = "<group>"; };
+		FA7667E82A4D6C6400351D90 /* PolkaswapAdjustmentViewLoadingCollector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PolkaswapAdjustmentViewLoadingCollector.swift; sourceTree = "<group>"; };
 		FA7A4C812A209F3B0051FB4D /* Array+Duplicates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Duplicates.swift"; sourceTree = "<group>"; };
 		FA7A4C832A209F4C0051FB4D /* SubstrateCallFactoryV9420.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9420.swift; sourceTree = "<group>"; };
 		FA7A4C852A209F760051FB4D /* ParachainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
@@ -6100,6 +6102,7 @@
 		3C30D61B22D5AB28B6EBED5C /* PolkaswapAdjustment */ = {
 			isa = PBXGroup;
 			children = (
+				FA7667E72A4D6C6400351D90 /* Model */,
 				9A9EBD3B7AEA5EF594DFEB49 /* PolkaswapAdjustmentProtocols.swift */,
 				3D2C2FC3E31C03D08BDEC7A1 /* PolkaswapAdjustmentRouter.swift */,
 				5B5D683E7DE3533CA418BD21 /* PolkaswapAdjustmentPresenter.swift */,
@@ -11891,6 +11894,14 @@
 			path = ChainAccount;
 			sourceTree = "<group>";
 		};
+		FA7667E72A4D6C6400351D90 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				FA7667E82A4D6C6400351D90 /* PolkaswapAdjustmentViewLoadingCollector.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		FA86441B2767193800956D8E /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -15167,6 +15178,7 @@
 				FAA0138028DA12F0000A5230 /* StakingRedeemPoolStrategy.swift in Sources */,
 				84F47D532666F13C00F7647A /* KaruraVerifyInfo.swift in Sources */,
 				FA936BD6286C66B70059B97A /* StakingRebondConfirmationParachainViewModelFactory.swift in Sources */,
+				FA7667E92A4D6C6400351D90 /* PolkaswapAdjustmentViewLoadingCollector.swift in Sources */,
 				FAFFAE7929AC84B10074AF1F /* TxHistoryItem+WalletRemoteHistoryItemProtocol.swift in Sources */,
 				FA38C997275E0AB8005C5577 /* AssetPriceViewModelFactory.swift in Sources */,
 				AE9EF273260A82FB0026910A /* StorySlide.swift in Sources */,

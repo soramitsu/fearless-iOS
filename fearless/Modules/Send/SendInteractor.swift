@@ -145,7 +145,7 @@ extension SendInteractor: SendInteractorInput {
 
         let accountId = accountId(from: address, chain: chainAsset.chain)
         let call = dependencies.callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
-        var identifier = String(amount)
+        var identifier = String(amount) + accountId.toHex()
         if let tip = tip {
             identifier += "_\(String(tip))"
         }
