@@ -237,7 +237,7 @@ final class CrossChainViewLayout: UIView {
         )
 
         navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
-        originSelectNetworkView.title = R.string.localizable.xcmOriginalNetworkTitle(preferredLanguages: locale.rLanguages)
+        originSelectNetworkView.title = R.string.localizable.xcmOriginNetworkTitle(preferredLanguages: locale.rLanguages)
         destSelectNetworkView.title = R.string.localizable.xcmDestinationNetworkTitle(preferredLanguages: locale.rLanguages)
         originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
         destinationNetworkFeeView.titleLabel.text = R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)

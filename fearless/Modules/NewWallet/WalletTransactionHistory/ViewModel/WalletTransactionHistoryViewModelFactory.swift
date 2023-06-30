@@ -258,7 +258,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             transaction: data,
             address: address,
             icon: icon,
-            transactionType: R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages),
+            transactionType: R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages),
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,
             statusIcon: nil,

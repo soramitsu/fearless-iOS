@@ -12,10 +12,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li day</string>
         <key>other</key>
-        <string>%li days</string>
+        <string>%li 日</string>
       </dict>
     </dict>
     <key>common.hours.format</key>
@@ -28,10 +26,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li hour</string>
         <key>other</key>
-        <string>%li hours</string>
+        <string>%li 時間</string>
       </dict>
     </dict>
     <key>common.days.left.format</key>
@@ -44,10 +40,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li day left</string>
         <key>other</key>
-        <string>%li days left</string>
+        <string>残り %li 日</string>
       </dict>
     </dict>
     <key>staking.analytics.validators.eras.counter</key>
@@ -60,10 +54,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>%li era</string>
         <key>other</key>
-        <string>%li eras</string>
+        <string>%li 時代</string>
       </dict>
     </dict>
     <key>plus.others.template</key>
@@ -76,10 +68,8 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
-        <key>one</key>
-        <string>+ %i other</string>
         <key>other</key>
-        <string>+ %i others</string>
+        <string>+ %li 他</string>
       </dict>
     </dict>
   </dict>

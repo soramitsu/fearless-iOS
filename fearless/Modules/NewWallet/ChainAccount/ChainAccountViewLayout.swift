@@ -335,7 +335,7 @@ private extension ChainAccountViewLayout {
 
     func applyLocalization() {
         sendButton.setTitle(R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages), for: .normal)
-        receiveButton.setTitle(R.string.localizable.walletAssetReceive(preferredLanguages: locale.rLanguages), for: .normal)
+        receiveButton.setTitle(R.string.localizable.commonActionReceive(preferredLanguages: locale.rLanguages), for: .normal)
         buyButton.setTitle(R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages), for: .normal)
         polkaswapButton.setTitle(R.string.localizable.polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages), for: .normal)
         transferableBalanceView.titleLabel.text = R.string.localizable.assetdetailsBalanceTransferable(preferredLanguages: locale.rLanguages)
