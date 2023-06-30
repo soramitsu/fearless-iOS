@@ -1005,3 +1005,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "network.issues.resolve.option.title" = "Resolve Option";
 "staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";
 "settings.hide.zero.balances" = "Hide zero balances";
+"common.resolve" = "Resolve";

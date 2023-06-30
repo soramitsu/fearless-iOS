@@ -71,7 +71,7 @@ final class NetworkIssuesNotificationPresenter {
         ].joined(separator: " ")
 
         let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
-        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundPinkText) { [weak self] in
+        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .pinkBackgroundWhiteText) { [weak self] in
             self?.interactor.mute(chain: chain)
         }
         let sheetViewModel = SheetAlertPresentableViewModel(
@@ -86,17 +86,18 @@ final class NetworkIssuesNotificationPresenter {
 
     private func showNodeSelectionAlert(viewModel: NetworkIssuesNotificationCellViewModel) {
         let title = [
+            R.string.localizable.commonResolve(preferredLanguages: selectedLocale.rLanguages),
+            "\n",
             viewModel.chain.name,
-            R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+            R.string.localizable.networkIssueStub(preferredLanguages: selectedLocale.rLanguages)
         ].joined(separator: " ")
-
         let changeNodeAction = SheetAlertPresentableAction(title: R.string.localizable.switchNode(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundWhiteText) {
             self.router.presentNodeSelection(
                 from: self.view,
                 chain: viewModel.chain
             )
         }
-        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .grayBackgroundPinkText) { [weak self] in
+        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .pinkBackgroundWhiteText) { [weak self] in
             self?.interactor.mute(chain: viewModel.chain)
         }
         let sheetViewModel = SheetAlertPresentableViewModel(
