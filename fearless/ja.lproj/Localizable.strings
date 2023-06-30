@@ -995,3 +995,4 @@
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
 "staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";
 "settings.hide.zero.balances" = "Hide zero balances";
+"common.resolve" = "Resolve";
