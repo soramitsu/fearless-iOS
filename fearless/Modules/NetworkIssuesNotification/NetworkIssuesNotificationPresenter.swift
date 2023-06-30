@@ -87,6 +87,7 @@ final class NetworkIssuesNotificationPresenter {
     private func showNodeSelectionAlert(viewModel: NetworkIssuesNotificationCellViewModel) {
         let title = [
             R.string.localizable.commonResolve(preferredLanguages: selectedLocale.rLanguages),
+            "\n",
             viewModel.chain.name,
             R.string.localizable.networkIssueStub(preferredLanguages: selectedLocale.rLanguages)
         ].joined(separator: " ")
