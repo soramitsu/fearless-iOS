@@ -44,6 +44,7 @@ final class NodeSelectionInteractor {
 
 extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
     func setup() {
+        presenter?.didReceive(chain: chain)
         fetchChainModel()
         eventCenter.add(observer: self)
     }
