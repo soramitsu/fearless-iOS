@@ -15,14 +15,14 @@ extension CompoundAttributedStringDecorator {
         ]
 
         let termsConditions = R.string.localizable
-            .onboardingTermsAndConditions2(preferredLanguages: locale?.rLanguages)
+            .commonTermsAndConditions(preferredLanguages: locale?.rLanguages)
         let termDecorator = HighlightingAttributedStringDecorator(
             pattern: termsConditions,
             attributes: highlightAttributes
         )
 
         let privacyPolicy = R.string.localizable
-            .onboardingPrivacyPolicy(preferredLanguages: locale?.rLanguages)
+            .commonPrivacyPolicy(preferredLanguages: locale?.rLanguages)
         let privacyDecorator = HighlightingAttributedStringDecorator(
             pattern: privacyPolicy,
             attributes: highlightAttributes

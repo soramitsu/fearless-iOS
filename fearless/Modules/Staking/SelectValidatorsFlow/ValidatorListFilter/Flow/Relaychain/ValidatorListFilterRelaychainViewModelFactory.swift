@@ -35,7 +35,7 @@ final class ValidatorListFilterRelaychainViewModelFactory {
                 }
             }
 
-        let title = R.string.localizable.walletFiltersHeader(
+        let title = R.string.localizable.commonShow(
             preferredLanguages: locale.rLanguages
         )
 

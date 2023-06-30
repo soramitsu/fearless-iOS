@@ -18,7 +18,7 @@ class SwipeCellButton: VerticalContentButton, SwipeButtonProtocol {
 extension VerticalContentButton {
     static func createSendButton(locale: Locale?) -> SwipeCellButton {
         let title = R.string.localizable
-            .swipableCellButtonSend(preferredLanguages: locale?.rLanguages)
+            .commonActionSend(preferredLanguages: locale?.rLanguages)
         let button = SwipeCellButton(type: .send)
         button.setImage(R.image.iconSwipeSend(), for: .normal)
         button.titleLabel?.font = .p2Paragraph
@@ -28,7 +28,7 @@ extension VerticalContentButton {
 
     static func createReceiveButton(locale: Locale?) -> SwipeCellButton {
         let title = R.string.localizable
-            .swipableCellButtonReceive(preferredLanguages: locale?.rLanguages)
+            .commonActionReceive(preferredLanguages: locale?.rLanguages)
         let button = SwipeCellButton(type: .receive)
         button.setImage(R.image.iconSwipeReceive(), for: .normal)
         button.titleLabel?.font = .p2Paragraph
@@ -58,7 +58,7 @@ extension VerticalContentButton {
 
     static func createShowButton(locale: Locale?) -> SwipeCellButton {
         let title = R.string.localizable
-            .swipableCellButtonShow(preferredLanguages: locale?.rLanguages)
+            .commonShow(preferredLanguages: locale?.rLanguages)
         let button = SwipeCellButton(type: .show)
         button.setImage(R.image.iconSwipeHide(), for: .normal)
         button.titleLabel?.font = .p2Paragraph

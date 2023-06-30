@@ -195,7 +195,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createLanguageViewModel(from language: Language?, locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileLanguageTitle(preferredLanguages: locale.rLanguages)
+            .languageTitle(preferredLanguages: locale.rLanguages)
         let subtitle = language?.title(in: locale)?.capitalized
         let viewModel = ProfileOptionViewModel(
             title: title,
@@ -224,7 +224,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileAboutTitle(preferredLanguages: locale.rLanguages)
+            .aboutTitle(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsWebsite()!,
@@ -236,7 +236,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createZeroBalancesViewModel(for locale: Locale, wallet: MetaAccountModel) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileHideZeroBalancesTitle(preferredLanguages: locale.rLanguages)
+            .settingsHideZeroBalances(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconZeroBalances()!,
