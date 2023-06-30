@@ -31,11 +31,10 @@ final class EraValidatorService {
 
     let chain: ChainModel
     let storageFacade: StorageFacadeProtocol
-    let runtimeCodingService: RuntimeCodingServiceProtocol
-    let connection: JSONRPCEngine
     let providerFactory: SubstrateDataProviderFactoryProtocol
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
+    let chainRegistry: ChainRegistryProtocol
     let logger: LoggerProtocol?
 
     var chainId: ChainModel.Id {
@@ -45,20 +44,18 @@ final class EraValidatorService {
     init(
         chain: ChainModel,
         storageFacade: StorageFacadeProtocol,
-        runtimeCodingService: RuntimeCodingServiceProtocol,
-        connection: JSONRPCEngine,
         providerFactory: SubstrateDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
+        chainRegistry: ChainRegistryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.chain = chain
         self.storageFacade = storageFacade
-        self.runtimeCodingService = runtimeCodingService
-        self.connection = connection
         self.providerFactory = providerFactory
         self.operationManager = operationManager
         self.eventCenter = eventCenter
+        self.chainRegistry = chainRegistry
         self.logger = logger
     }
 

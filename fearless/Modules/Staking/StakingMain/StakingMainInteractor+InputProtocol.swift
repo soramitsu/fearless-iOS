@@ -250,6 +250,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             return
         }
 
+        presenter?.didReceive(selectedWallet: selectedMetaAccount)
+
         selectedAccount = newSelectedAccount
         setupAccountRemoteSubscription()
         performAccountInfoSubscription()

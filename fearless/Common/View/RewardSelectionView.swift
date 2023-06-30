@@ -7,6 +7,7 @@ class RewardSelectionView: BackgroundedContentControl {
     private(set) var amountLabel: UILabel!
     private(set) var priceLabel: UILabel!
     private(set) var iconView: UIImageView!
+    private var skeletonView: SkrullableView?
 
     var triangularedBackgroundView: TriangularedView? {
         backgroundView as? TriangularedView
@@ -196,5 +197,125 @@ class RewardSelectionView: BackgroundedContentControl {
 
     private func applySelectionState() {
         iconView.isHidden = !isSelected
+    }
+}
+
+extension RewardSelectionView: SkeletonLoadable {
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
+
+    func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
+        skeletonView?.startSkrulling()
+    }
+
+    func didUpdateSkeletonLayout() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
+        }
+    }
+
+    func startLoadingIfNeeded() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        titleLabel.alpha = 0.0
+        incomeLabel.alpha = 0.0
+        priceLabel.alpha = 0.0
+        amountLabel.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoadingIfNeeded() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        titleLabel.alpha = 1.0
+        incomeLabel.alpha = 1.0
+        priceLabel.alpha = 1.0
+        amountLabel.alpha = 1.0
+    }
+
+    private func setupSkeleton() {
+        guard let contentView = contentView else {
+            return
+        }
+
+        let spaceSize = frame.size
+
+        guard spaceSize != .zero else {
+            self.skeletonView = Skrull(size: .zero, decorations: [], skeletons: []).build()
+            return
+        }
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        self.skeletonView = skeletonView
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: contentView)
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let defaultBigWidth = 72.0
+        let defaultSmallWidth = 20.0
+        let defaultHeight = 10.0
+
+        let titleWidth = titleLabel.text?.widthOfString(usingFont: titleLabel.font)
+        let incomeWidth = incomeLabel.text?.widthOfString(usingFont: incomeLabel.font)
+        let priceWidth = priceLabel.text?.widthOfString(usingFont: priceLabel.font)
+        let amountWidth = amountLabel.text?.widthOfString(usingFont: amountLabel.font)
+
+        let titleSize = CGSize(width: titleWidth ?? defaultBigWidth, height: defaultHeight)
+        let incomeSize = CGSize(width: incomeWidth ?? defaultBigWidth, height: defaultHeight)
+        let priceSize = CGSize(width: priceWidth ?? defaultSmallWidth, height: defaultHeight)
+        let amountSize = CGSize(width: amountWidth ?? defaultSmallWidth, height: defaultHeight)
+
+        return [
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: selectionWidth + UIConstants.defaultOffset, y: spaceSize.height / 2 - titleSize.height / 2 - UIConstants.defaultOffset / 2),
+                size: titleSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: selectionWidth + UIConstants.defaultOffset, y: spaceSize.height / 2 + incomeSize.height / 2 + UIConstants.defaultOffset / 2),
+                size: incomeSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: spaceSize.width - UIConstants.defaultOffset - amountSize.width, y: spaceSize.height / 2 - amountSize.height),
+                size: amountSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: spaceSize.width - UIConstants.defaultOffset - priceSize.width, y: spaceSize.height / 2 + priceSize.height),
+                size: priceSize
+            )
+        ]
     }
 }

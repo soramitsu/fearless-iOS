@@ -90,7 +90,7 @@ final class CustomValidatorListViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        searchTextField.textField.placeholder = R.string.localizable.manageAssetsSearchHint(
+        searchTextField.textField.placeholder = R.string.localizable.stakingValidatorSearchPlaceholder(
             preferredLanguages: locale.rLanguages
         )
     }

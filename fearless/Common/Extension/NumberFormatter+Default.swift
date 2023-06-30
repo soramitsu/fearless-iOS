@@ -3,6 +3,7 @@ import SoraFoundation
 
 public enum NumberFormatterUsageCase {
     case listCrypto
+    case listCryptoWith(minimumFractionDigits: Int, maximumFractionDigits: Int)
     case detailsCrypto
     case fiat
     case percent
@@ -24,6 +25,14 @@ public extension NumberFormatter {
                 rounding: rounding,
                 usesIntGrouping: usesIntGrouping
             )
+        case let .listCryptoWith(minimumFractionDigits, maximumFractionDigits):
+            return NumberFormatter.defaultListCryptoFormatter(
+                locale: locale,
+                rounding: rounding,
+                usesIntGrouping: usesIntGrouping,
+                minimumFractionDigits: minimumFractionDigits,
+                maximumFractionDigits: maximumFractionDigits
+            )
         case .detailsCrypto:
             return NumberFormatter.defaultDetailsCryptoFormatter(
                 locale: locale,
@@ -44,12 +53,14 @@ public extension NumberFormatter {
     private static func defaultListCryptoFormatter(
         locale: Locale,
         rounding: NumberFormatter.RoundingMode = .down,
-        usesIntGrouping: Bool = false
+        usesIntGrouping: Bool = false,
+        minimumFractionDigits: Int = 3,
+        maximumFractionDigits: Int = 8
     ) -> NumberFormatter {
         let formatter = NumberFormatter()
         formatter.locale = locale
-        formatter.minimumFractionDigits = 3
-        formatter.maximumFractionDigits = 8
+        formatter.minimumFractionDigits = minimumFractionDigits
+        formatter.maximumFractionDigits = maximumFractionDigits
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping
         return formatter

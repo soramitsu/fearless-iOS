@@ -76,6 +76,8 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
             chainsWithIssues.remove(chain)
         case .notConnected:
             chainsWithIssues.insert(chain)
+        case .notReachable:
+            break
         }
     }
 

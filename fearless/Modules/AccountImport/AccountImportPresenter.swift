@@ -97,6 +97,7 @@ struct PreferredData {
 }
 
 final class AccountImportPresenter: NSObject {
+    static let onFlyValidationEnabled: Bool = false
     static let maxMnemonicLength: Int = 250
     static let maxMnemonicSize: Int = 24
     static let maxRawSeedLength: Int = 66
@@ -905,6 +906,11 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
     func validateInput(value: String) {
         input = value
+
+        guard AccountImportPresenter.onFlyValidationEnabled else {
+            inputState = .normal
+            return
+        }
 
         if let error = validateSource(with: value) as? AccountCreateError {
             let message = [error.toErrorContent(for: selectedLocale).title, error.toErrorContent(for: selectedLocale).message].joined(separator: "\n")

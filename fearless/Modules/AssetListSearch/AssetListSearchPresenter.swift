@@ -53,7 +53,7 @@ extension AssetListSearchPresenter: AssetListSearchViewOutput {
         self.view = view
         interactor.setup(with: self)
         assetListModuleInput?.updateChainAssets(
-            using: [],
+            using: [.searchEmpty],
             sorts: []
         )
     }
