@@ -152,6 +152,8 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
             let definition = try? jsonDecoder.decode(KeystoreDefinition.self, from: data),
             let info = try? AccountImportJsonFactory().createInfo(from: definition) {
             presenter.didSuggestKeystore(text: keystore, preferredInfo: info)
+        } else {
+            presenter.didFailToDeriveMetadataFromKeystore()
         }
     }
 

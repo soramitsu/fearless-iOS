@@ -359,6 +359,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
     func didCompleteSourceTypeSelection() {
         rootView.sourceTypeView.actionControl.deactivate(animated: true)
+        rootView.updateInputViewState(.normal)
     }
 
     func didCompleteCryptoTypeSelection() {
@@ -371,6 +372,10 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
     func didValidateEthereumDerivationPath(_ status: FieldStatus) {
         rootView.ethereumDerivationPathImage.image = status.icon
+    }
+
+    func didChangeState(_ state: ErrorPresentableInputField.State) {
+        rootView.updateInputViewState(state)
     }
 }
 
@@ -448,11 +453,7 @@ extension AccountImportViewController: AnimatedTextFieldDelegate {
 }
 
 extension AccountImportViewController: UITextViewDelegate {
-    func textViewDidChange(_ textView: UITextView) {
-        if textView.text != sourceViewModel?.inputHandler.value {
-            textView.text = sourceViewModel?.inputHandler.value
-        }
-
+    func textViewDidChange(_: UITextView) {
         rootView.updateTextViewPlaceholder()
         updateNextButton()
     }
@@ -471,13 +472,11 @@ extension AccountImportViewController: UITextViewDelegate {
             return false
         }
 
-        let shouldApply = model.inputHandler.didReceiveReplacement(text, for: range)
+        _ = model.inputHandler.didReceiveReplacement(text, for: range)
 
-        if !shouldApply, textView.text != model.inputHandler.value {
-            textView.text = model.inputHandler.value
-        }
+        presenter.validateInput(value: model.inputHandler.value)
 
-        return shouldApply
+        return true
     }
 }
 

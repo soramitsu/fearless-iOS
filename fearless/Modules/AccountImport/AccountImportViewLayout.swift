@@ -120,16 +120,23 @@ final class AccountImportViewLayout: UIView {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorLightGray()
+        label.numberOfLines = 0
         return label
     }()
 
-    let textView: UITextView = {
+    lazy var textViewWrapper: ErrorPresentableInputField = {
+        ErrorPresentableInputField(inputField: textView)
+    }()
+
+    var textView: UITextView = {
         let view = UITextView()
         view.textColor = R.color.colorWhite()
         view.font = .p1Paragraph
         view.tintColor = R.color.colorWhite()
         view.keyboardType = .default
         view.autocapitalizationType = .none
+        view.autocorrectionType = .no
+        view.isScrollEnabled = false
         return view
     }()
 
@@ -156,6 +163,7 @@ final class AccountImportViewLayout: UIView {
         detailsView.titleColor = R.color.colorLightGray()
         detailsView.subtitleColor = R.color.colorWhite()
         detailsView.titleLabel.font = .p2Paragraph
+        detailsView.subtitleLabel?.numberOfLines = 0
         detailsView.contentInsets = UIEdgeInsets(
             top: UIConstants.defaultOffset,
             left: UIConstants.bigOffset,
@@ -349,6 +357,10 @@ final class AccountImportViewLayout: UIView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+
+    func updateInputViewState(_ state: ErrorPresentableInputField.State) {
+        textViewWrapper.apply(state: state)
+    }
 }
 
 extension AccountImportViewLayout {
@@ -487,10 +499,20 @@ private extension AccountImportViewLayout {
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.actionHeight)
+            make.height.greaterThanOrEqualTo(UIConstants.actionHeight)
         }
         contentView.stackView.addArrangedSubview(uploadViewContainer)
 
+        uploadView.titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(uploadView.iconView.snp.trailing).offset(UIConstants.defaultOffset)
+            make.top.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        uploadView.subtitleLabel?.snp.makeConstraints { make in
+            make.bottom.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalTo(uploadView.titleLabel.snp.bottom)
+            make.leading.equalTo(uploadView.titleLabel.snp.leading)
+        }
         warningContainerView.addSubview(warningImage)
         warningContainerView.addSubview(warningLabel)
 
@@ -528,8 +550,8 @@ private extension AccountImportViewLayout {
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.leading.trailing.equalToSuperview()
         }
-        textTriangularedView.addSubview(textView)
-        textView.snp.makeConstraints { make in
+        textTriangularedView.addSubview(textViewWrapper)
+        textViewWrapper.snp.makeConstraints { make in
             make.height.greaterThanOrEqualTo(Constants.textViewHeight)
             make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.trailing.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
