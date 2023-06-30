@@ -28,6 +28,7 @@ protocol EventVisitorProtocol: AnyObject {
     func processZeroBalancesSettingChanged()
     func processRuntimeSnapshorReady(event: RuntimeSnapshotReady)
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent)
+    func processChainsSettingsChanged()
 }
 
 extension EventVisitorProtocol {
@@ -58,4 +59,5 @@ extension EventVisitorProtocol {
     func processZeroBalancesSettingChanged() {}
     func processRuntimeSnapshorReady(event _: RuntimeSnapshotReady) {}
     func processRemoteSubscriptionWasUpdated(event _: WalletRemoteSubscriptionWasUpdatedEvent) {}
+    func processChainsSettingsChanged() {}
 }

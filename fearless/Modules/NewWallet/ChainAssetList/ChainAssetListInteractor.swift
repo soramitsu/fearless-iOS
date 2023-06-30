@@ -294,6 +294,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             deliveryOn: accountInfosDeliveryQueue
         )
     }
+
+    func processChainsSettingsChanged() {
+        fetchChainSettings()
+    }
 }
 
 extension ChainAssetListInteractor: ChainsIssuesCenterListener {
