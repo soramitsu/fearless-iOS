@@ -2514,6 +2514,7 @@
 		FAF5E9DE27E46DCC005A3448 /* String+VersionComparsion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9DD27E46DCC005A3448 /* String+VersionComparsion.swift */; };
 		FAF5E9E127E4A4C1005A3448 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */; };
 		FAF648802A4EECFA00B3E7DD /* ChainsSettingsChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF6487F2A4EECFA00B3E7DD /* ChainsSettingsChanged.swift */; };
+		FAF648822A4FE31800B3E7DD /* SubstrateV2toV4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FAF648812A4FE31800B3E7DD /* SubstrateV2toV4.xcmappingmodel */; };
 		FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF92E6527B4275E005467CE /* Bool+ToInt.swift */; };
 		FAFBEE81284621800036D08C /* SelectedValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */; };
 		FAFBEE83284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */; };
@@ -5173,6 +5174,7 @@
 		FAF5E9DD27E46DCC005A3448 /* String+VersionComparsion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+VersionComparsion.swift"; sourceTree = "<group>"; };
 		FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		FAF6487F2A4EECFA00B3E7DD /* ChainsSettingsChanged.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainsSettingsChanged.swift; sourceTree = "<group>"; };
+		FAF648812A4FE31800B3E7DD /* SubstrateV2toV4.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV2toV4.xcmappingmodel; sourceTree = "<group>"; };
 		FAF92E6527B4275E005467CE /* Bool+ToInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
 		FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -8995,6 +8997,7 @@
 				FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */,
 				FA28A9AF29D19A41005AA42E /* MultiassetV9.xcmappingmodel */,
 				07A086E72A32F1B30062BCA4 /* SubstrateV3toV4.xcmappingmodel */,
+				FAF648812A4FE31800B3E7DD /* SubstrateV2toV4.xcmappingmodel */,
 			);
 			path = MigrationMappings;
 			sourceTree = "<group>";
@@ -13566,6 +13569,7 @@
 				F458D3C12642B7D80055CB75 /* LearnMoreView.swift in Sources */,
 				8460E11F25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift in Sources */,
 				AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */,
+				FAF648822A4FE31800B3E7DD /* SubstrateV2toV4.xcmappingmodel in Sources */,
 				076D9D43294051B3002762E3 /* ExpandableSubtitleCell.swift in Sources */,
 				F40966B726B297D6008CD244 /* AnalyticsContainerViewController.swift in Sources */,
 				FA2FC81928B3807D00CC0A42 /* StakingPoolStartViewController.swift in Sources */,
