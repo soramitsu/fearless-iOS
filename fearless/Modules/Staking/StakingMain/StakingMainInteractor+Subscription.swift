@@ -3,6 +3,7 @@ import RobinHood
 import BigInt
 import CommonWallet
 import SSFUtils
+import SSFModels
 
 extension StakingMainInteractor {
     func handle(stashItem: StashItem?) {

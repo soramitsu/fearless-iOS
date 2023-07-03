@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SoraKeystore
+import SSFModels
 
 protocol StakingBondMoreConfirmationRelaychainStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 protocol StakingRedeemViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceiveConfirmation(viewModel: StakingRedeemViewModel)

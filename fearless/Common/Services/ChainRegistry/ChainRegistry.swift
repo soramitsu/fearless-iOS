@@ -1,10 +1,13 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
+    var chainsTypesMap: [String: Data] { get }
 
+    func resetConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func chainsSubscribe(
@@ -34,7 +37,7 @@ final class ChainRegistry {
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
 
     private var chains: [ChainModel] = []
-    private var chainsTypesMap: [String: Data]?
+    var chainsTypesMap: [String: Data] = [:]
 
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
@@ -86,7 +89,7 @@ final class ChainRegistry {
                 switch change {
                 case let .insert(newChain):
                     let connection = try connectionPool.setupConnection(for: newChain)
-                    let chainTypes = chainsTypesMap?[newChain.chainId]
+                    let chainTypes = chainsTypesMap[newChain.chainId]
 
                     runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
                     runtimeSyncService.register(chain: newChain, with: connection)
@@ -97,7 +100,7 @@ final class ChainRegistry {
                     clearRuntimeSubscription(for: updatedChain.chainId)
 
                     let connection = try connectionPool.setupConnection(for: updatedChain)
-                    let chainTypes = chainsTypesMap?[updatedChain.chainId]
+                    let chainTypes = chainsTypesMap[updatedChain.chainId]
 
                     runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
                     setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
@@ -242,24 +245,28 @@ extension ChainRegistry: ChainRegistryProtocol {
     func syncUp() {
         syncUpServices()
     }
+
+    func resetConnection(for chainId: ChainModel.Id) {
+        connectionPool.resetConnection(for: chainId)
+    }
 }
 
 // MARK: - ConnectionPoolDelegate
 
 extension ChainRegistry: ConnectionPoolDelegate {
     func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
-        let failedChain = chains.first { chain in
+        guard let changedStateChain = chains.first(where: { chain in
             chain.nodes.first { node in
                 node.url == url
             } != nil
+        }) else {
+            return
         }
-
-        guard let failedChain = failedChain else { return }
 
         switch state {
         case let .waitingReconnection(attempt: attempt):
-            if attempt > 1 {
-                connectionNeedsReconnect(for: failedChain, previusUrl: url, state: state)
+            if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
+                connectionNeedsReconnect(for: changedStateChain, previusUrl: url, state: state)
             }
         default:
             break

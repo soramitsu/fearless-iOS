@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol RelaychainStakingLocalSubscriptionFactoryProtocol {
     func getMinNominatorBondProvider(for chainId: ChainModel.Id) throws

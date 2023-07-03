@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFUtils
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 struct ChainAccountModule {
     let view: ChainAccountViewProtocol?

@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import SSFModels
 
 extension NSPredicate {
     // TODO: Remove

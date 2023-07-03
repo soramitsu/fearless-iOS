@@ -1,3 +1,6 @@
+
+import SSFModels
+
 typealias PolkaswapSwapConfirmationModuleCreationResult = (
     view: PolkaswapSwapConfirmationViewInput,
     input: PolkaswapSwapConfirmationModuleInput

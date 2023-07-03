@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import SoraFoundation
+import SSFModels
 
 final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol {
     let asset: AssetModel
@@ -78,7 +79,7 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
                 return TitleWithSubtitleViewModel(title: "")
             }
 
-            let title = R.string.localizable.stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
+            let title = R.string.localizable.stakingUnstakingPeriod(preferredLanguages: locale.rLanguages)
             let subtitle = R.string.localizable.commonDaysFormat(
                 format: Int(daysCount),
                 preferredLanguages: locale.rLanguages

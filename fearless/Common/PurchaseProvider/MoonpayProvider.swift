@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 final class MoonpayProvider: PurchaseProviderProtocol {
     enum Constants {

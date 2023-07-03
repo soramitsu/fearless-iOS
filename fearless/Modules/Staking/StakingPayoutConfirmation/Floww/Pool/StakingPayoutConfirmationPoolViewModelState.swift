@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import BigInt
 
 final class StakingPayoutConfirmationPoolViewModelState: StakingPayoutConfirmationViewModelState {

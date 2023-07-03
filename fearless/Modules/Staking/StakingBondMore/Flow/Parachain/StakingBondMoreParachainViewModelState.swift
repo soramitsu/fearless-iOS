@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 final class StakingBondMoreParachainViewModelState {
     var stateListener: StakingBondMoreModelStateListener?
@@ -8,7 +9,7 @@ final class StakingBondMoreParachainViewModelState {
     let wallet: MetaAccountModel
     let candidate: ParachainStakingCandidateInfo
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    var amount: Decimal = 0
+    var amount: Decimal?
     var fee: Decimal?
     var balance: Decimal?
     private var minimalBalance: Decimal?
@@ -34,7 +35,7 @@ final class StakingBondMoreParachainViewModelState {
 
 extension StakingBondMoreParachainViewModelState: StakingBondMoreViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
-        let amountSubstrate = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let amountSubstrate = amount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
 
@@ -138,7 +139,11 @@ extension StakingBondMoreParachainViewModelState: StakingBondMoreViewModelState 
     }
 
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? {
-        .parachain(amount: amount, candidate: candidate)
+        guard let amount = amount else {
+            return nil
+        }
+
+        return .parachain(amount: amount, candidate: candidate)
     }
 }
 

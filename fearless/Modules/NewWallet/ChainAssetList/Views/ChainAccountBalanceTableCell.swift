@@ -152,7 +152,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
-        bindChainIcons(viewModel: viewModel)
+        chainIconsView.bind(viewModel: viewModel.chainIconViewViewModel)
         bindIssues(viewModel.isNetworkIssues || viewModel.isMissingAccount)
         rightMenuButtons = viewModel.isHidden ? [showButton] : [hideButton]
 
@@ -165,18 +165,6 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         issueButton.isHidden = !isNetworkIssues
         balanceView.valueLabel.isHidden = isNetworkIssues
         priceView.valueLabel.isHidden = isNetworkIssues
-    }
-
-    private func bindChainIcons(viewModel: ChainAccountBalanceCellViewModel) {
-        var chainIcons: [RemoteImageViewModel?] = []
-        chainIcons = viewModel.shownChainAssets.map {
-            $0.chain.icon.map { RemoteImageViewModel(url: $0) }
-        }
-        let chainIconsViewModel = ChainCollectionViewModel(
-            maxImagesCount: 5,
-            chainImages: chainIcons
-        )
-        chainIconsView.bind(viewModel: chainIconsViewModel)
     }
 
     private func configure() {
@@ -294,7 +282,7 @@ extension ChainAccountBalanceTableCell: DeactivatableView {
 extension ChainAccountBalanceTableCell {
     private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
         let chainName = viewModel.assetName?.uppercased()
-        let chainSymbol = viewModel.chainAsset.asset.name.uppercased()
+        let chainSymbol = viewModel.chainAsset.asset.symbolUppercased
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))
         assetIconImageView.startShimmeringAnimation()

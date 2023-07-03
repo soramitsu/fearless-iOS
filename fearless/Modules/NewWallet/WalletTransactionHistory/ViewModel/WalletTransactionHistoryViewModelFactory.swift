@@ -2,6 +2,7 @@ import CommonWallet
 import RobinHood
 import SSFUtils
 import UIKit
+import SSFModels
 
 enum TransactionHistoryViewModelFactoryError: Error {
     case missingAsset
@@ -164,7 +165,8 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: .listCrypto)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
         let address: String
 
@@ -236,7 +238,8 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: .listCrypto)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
 
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
@@ -255,7 +258,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             transaction: data,
             address: address,
             icon: icon,
-            transactionType: R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages),
+            transactionType: R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages),
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,
             statusIcon: nil,
@@ -289,7 +292,8 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: .listCrypto)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
         let incoming: Bool
@@ -341,25 +345,27 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
     ) throws -> WalletTransactionHistoryCellViewModel {
         let amountValue = data.amount.decimalValue
 
-        var receiveAmountString = amountValue.toString(locale: locale) ?? ""
+        var receiveAmountString = amountValue.toString(locale: locale, maximumDigits: 3) ?? ""
         let receiveAsset = chainAsset.chain.chainAssets.first {
             $0.asset.currencyId == data.assetId
         }
         if let receiveAsset = receiveAsset {
-            let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: receiveAsset.asset.displayInfo, usageCase: .listCrypto)
+            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+            let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: receiveAsset.asset.displayInfo, usageCase: usageCase)
             receiveAmountString = amountFormatter.value(for: locale).stringFromDecimal(amountValue) ?? ""
         }
 
-        let sendAmountDecimal = AmountDecimal(string: data.details)
+        let sendAmountDecimal = AmountDecimal(string: data.details) ?? AmountDecimal(value: .zero)
         let sendAsset = chainAsset.chain.chainAssets.first(where: {
             $0.asset.currencyId == data.peerId
         })
-        var sendAmount = "\(sendAmountDecimal?.decimalValue ?? .zero)"
+        var sendAmount = sendAmountDecimal.decimalValue.toString(locale: locale, maximumDigits: 3).or("")
         if let sendAsset = sendAsset {
-            let sendAmountFormatter = balanceFormatterFactory.createTokenFormatter(for: sendAsset.asset.displayInfo, usageCase: .listCrypto)
+            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+            let sendAmountFormatter = balanceFormatterFactory.createTokenFormatter(for: sendAsset.asset.displayInfo, usageCase: usageCase)
             sendAmount = sendAmountFormatter
                 .value(for: locale)
-                .stringFromDecimal(sendAmountDecimal?.decimalValue ?? .zero) ?? ""
+                .stringFromDecimal(sendAmountDecimal.decimalValue) ?? ""
         }
 
         let amountString = [sendAmount, receiveAmountString].joined(separator: "-")

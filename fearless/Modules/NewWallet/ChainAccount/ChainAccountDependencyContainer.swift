@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 struct ChainAccountDependencies {
     let connection: JSONRPCEngine

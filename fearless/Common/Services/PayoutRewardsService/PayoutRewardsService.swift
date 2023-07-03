@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import BigInt
 import IrohaCrypto
+import SSFModels
 
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let selectedAccountAddress: String

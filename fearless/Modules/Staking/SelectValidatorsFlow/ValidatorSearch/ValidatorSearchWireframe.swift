@@ -1,3 +1,5 @@
+
+import SSFModels
 final class ValidatorSearchWireframe: ValidatorSearchWireframeProtocol {
     func present(
         flow: ValidatorInfoFlow,

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 typealias StakingPoolInfoModuleCreationResult = (view: StakingPoolInfoViewInput, input: StakingPoolInfoModuleInput)
 

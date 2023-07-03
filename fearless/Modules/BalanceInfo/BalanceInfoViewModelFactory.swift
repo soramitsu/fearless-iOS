@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 protocol BalanceInfoViewModelFactoryProtocol {
     func buildBalanceInfo(

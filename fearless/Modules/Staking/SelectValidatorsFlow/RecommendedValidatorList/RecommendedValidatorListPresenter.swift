@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class RecommendedValidatorListPresenter: RecommendedValidatorListModelStateListener {
     weak var view: RecommendedValidatorListViewProtocol?

@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 enum AssetListDisplayType {
     case chain
@@ -193,8 +194,6 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 .networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         } else if viewModel.isMissingAccount {
-            message = R.string.localizable
-                .manageAssetsAccountMissingText(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable
                 .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages)
         }
@@ -222,10 +221,12 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
-    func updateViewModel() {
+    func updateViewModel(isInitSearchState: Bool) {
         guard let chainAssets = chainAssets, chainAssets.isNotEmpty else {
             DispatchQueue.main.async { [weak self] in
-                self?.view?.showEmptyState()
+                if !isInitSearchState {
+                    self?.view?.showEmptyState()
+                }
             }
             return
         }

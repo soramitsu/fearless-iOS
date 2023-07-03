@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 final class NetworkIssuesNotificationInteractor {
     // MARK: - Private properties
@@ -10,7 +11,7 @@ final class NetworkIssuesNotificationInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenter
-    private let chainsIssuesCenter: ChainsIssuesCenter
+    private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
 
     init(
@@ -18,7 +19,7 @@ final class NetworkIssuesNotificationInteractor {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
-        chainsIssuesCenter: ChainsIssuesCenter,
+        chainsIssuesCenter: ChainsIssuesCenterProtocol,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     ) {
         self.wallet = wallet
@@ -107,6 +108,7 @@ extension NetworkIssuesNotificationInteractor: NetworkIssuesNotificationInteract
 
             chainSettings.setIssueMuted(true)
             self?.save(chainSettings: chainSettings)
+            self?.eventCenter.notify(with: ChainsSettingsChanged())
         }
 
         operationQueue.addOperation(fetchChainSettingsOperation)

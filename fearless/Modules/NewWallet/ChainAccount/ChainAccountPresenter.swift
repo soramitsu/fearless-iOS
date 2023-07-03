@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 final class ChainAccountPresenter {
     weak var view: ChainAccountViewProtocol?
@@ -104,7 +105,7 @@ final class ChainAccountPresenter {
 
         if let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             let allAssets = Array(chainAsset.chain.assets)
-            let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
+            let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
 
             var availableProviders: [PurchaseProviderProtocol] = []
             chainAssetModel?.purchaseProviders?.compactMap { $0 }.forEach {
@@ -234,6 +235,14 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             from: view,
             items: getPurchaseActions(),
             delegate: self
+        )
+    }
+
+    func didTapCrossChainButton() {
+        wireframe.presentCrossChainFlow(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 
@@ -371,7 +380,8 @@ extension ChainAccountPresenter: ModalPickerViewControllerDelegate {
 extension ChainAccountPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         guard let chain = chain else {
             return

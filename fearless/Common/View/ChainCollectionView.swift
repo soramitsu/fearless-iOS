@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-struct ChainCollectionViewModel {
+struct ChainCollectionViewModel: Equatable {
     let maxImagesCount: Int
     let chainImages: [RemoteImageViewModel?]
 }

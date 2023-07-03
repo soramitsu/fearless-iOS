@@ -74,7 +74,8 @@ final class ChainAssetListViewLayout: UIView {
         }
 
         emptyView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.leading.trailing.equalToSuperview()
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
 
         tableView.snp.makeConstraints { make in

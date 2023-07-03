@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 struct ChainSelectionViewFactory {
     // swiftlint:disable function_parameter_count

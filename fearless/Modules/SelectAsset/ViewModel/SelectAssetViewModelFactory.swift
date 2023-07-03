@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class SelectAssetCellViewModel: SelectableViewModelProtocol {
     let name: String
@@ -73,7 +74,6 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
             return buildSelectAssetCellViewModel(
-                chainAssets: chainAssets,
                 chainAsset: chainAsset,
                 priceData: priceData,
                 accountInfos: accountInfos,
@@ -90,7 +90,6 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
 
 private extension SelectAssetViewModelFactory {
     func buildSelectAssetCellViewModel(
-        chainAssets: [ChainAsset],
         chainAsset: ChainAsset,
         priceData: PriceData?,
         accountInfos: [ChainAssetKey: AccountInfo?],
@@ -99,19 +98,15 @@ private extension SelectAssetViewModelFactory {
         locale: Locale,
         selectedAssetId: String?
     ) -> SelectAssetCellViewModel {
-        let containsChainAssets = chainAssets.filter {
-            $0.asset.name == chainAsset.asset.name
-        }
-
         let totalAssetBalance = getBalanceString(
-            for: containsChainAssets,
+            for: chainAsset,
             accountInfos: accountInfos,
             locale: locale,
             wallet: wallet
         )
 
         let totalFiatBalance = getFiatBalanceString(
-            for: containsChainAssets,
+            for: chainAsset,
             accountInfos: accountInfos,
             priceData: priceData,
             locale: locale,
@@ -120,8 +115,8 @@ private extension SelectAssetViewModelFactory {
         )
 
         return SelectAssetCellViewModel(
-            name: chainAsset.chain.name,
-            symbol: chainAsset.asset.name,
+            name: chainAsset.asset.name,
+            symbol: chainAsset.asset.symbolUppercased,
             icon: chainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
             balanceString: totalAssetBalance,
             fiatBalanceString: totalFiatBalance,
@@ -130,19 +125,16 @@ private extension SelectAssetViewModelFactory {
     }
 
     func getBalanceString(
-        for chainAssets: [ChainAsset],
+        for chainAsset: ChainAsset,
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         wallet: MetaAccountModel
     ) -> String? {
-        let totalAssetBalance = chainAssets.compactMap { chainAsset -> Decimal in
-            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-               let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
-                return getBalance(for: chainAsset, accountInfo: accountInfo)
-            }
-
-            return Decimal.zero
-        }.reduce(0, +)
+        var totalAssetBalance: Decimal = .zero
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+           let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
+            totalAssetBalance = getBalance(for: chainAsset, accountInfo: accountInfo)
+        }
 
         let minDigits = totalAssetBalance > 0 ? 3 : 0
         let maxDigits = totalAssetBalance > 0 ? 8 : 0
@@ -160,7 +152,7 @@ private extension SelectAssetViewModelFactory {
         let assetInfo = chainAsset.asset.displayInfo
 
         let balance = Decimal.fromSubstrateAmount(
-            accountInfo.data.total,
+            accountInfo.data.sendAvailable,
             precision: assetInfo.assetPrecision
         ) ?? 0
 
@@ -168,25 +160,22 @@ private extension SelectAssetViewModelFactory {
     }
 
     func getFiatBalanceString(
-        for chainAssets: [ChainAsset],
+        for chainAsset: ChainAsset,
         accountInfos: [ChainAssetKey: AccountInfo?],
         priceData: PriceData?,
         locale: Locale,
         currency: Currency,
         wallet: MetaAccountModel
     ) -> String? {
-        let totalFiatBalance = chainAssets.compactMap { chainAsset -> Decimal? in
-            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-               let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
-                return getFiatBalance(
-                    for: chainAsset,
-                    accountInfo: accountInfo,
-                    priceData: priceData
-                )
-            }
-
-            return nil
-        }.reduce(0, +)
+        var totalFiatBalance: Decimal = .zero
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+           let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
+            totalFiatBalance = getFiatBalance(
+                for: chainAsset,
+                accountInfo: accountInfo,
+                priceData: priceData
+            )
+        }
 
         guard totalFiatBalance != .zero else { return nil }
 

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol NetworkIssuesCenterListener: AnyObject {
     func handleChainsWithIssues(_ chains: [ChainModel])
@@ -75,11 +76,13 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
             chainsWithIssues.remove(chain)
         case .notConnected:
             chainsWithIssues.insert(chain)
+        case .notReachable:
+            break
         }
     }
 
     private func updateIssues(with attempt: Int, for chain: ChainModel) {
-        if attempt > 3 {
+        if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
             chainsWithIssues.insert(chain)
         } else {
             chainsWithIssues.remove(chain)

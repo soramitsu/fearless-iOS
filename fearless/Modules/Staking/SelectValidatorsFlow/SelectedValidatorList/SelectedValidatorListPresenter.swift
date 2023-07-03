@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 final class SelectedValidatorListPresenter {
     weak var view: SelectedValidatorListViewProtocol?

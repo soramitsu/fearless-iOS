@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class ChainSelectionWireframe: ChainSelectionWireframeProtocol {
     weak var delegate: ChainSelectionDelegate?

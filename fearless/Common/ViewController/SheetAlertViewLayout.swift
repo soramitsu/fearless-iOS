@@ -176,6 +176,13 @@ final class SheetAlertViewLayout: UIView {
 
         contentStackView.addArrangedSubview(imageViewContainer)
         contentStackView.setCustomSpacing(24, after: imageViewContainer)
+
+        if !viewModel.isInfo, viewModel.icon != nil {
+            titleLabel.removeFromSuperview()
+            contentStackView.addArrangedSubview(titleLabel)
+            contentStackView.setCustomSpacing(24, after: titleLabel)
+        }
+
         contentStackView.addArrangedSubview(descriptionLabel)
         contentStackView.setCustomSpacing(24, after: descriptionLabel)
 

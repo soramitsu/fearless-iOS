@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import SSFModels
 
 protocol StakingViewModelFacadeProtocol {
     func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, input: ChainAssetListModuleInput)
 
@@ -33,7 +34,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])
-    func updateViewModel()
+    func updateViewModel(isInitSearchState: Bool)
     func didReceive(chainSettings: [ChainSettings])
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
 }

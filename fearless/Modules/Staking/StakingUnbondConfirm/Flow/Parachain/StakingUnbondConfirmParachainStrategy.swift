@@ -3,6 +3,7 @@ import SSFUtils
 import SoraKeystore
 import RobinHood
 import BigInt
+import SSFModels
 
 protocol StakingUnbondConfirmParachainStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

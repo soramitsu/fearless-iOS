@@ -139,7 +139,7 @@ final class ReceiveAssetViewLayout: UIView {
 
         addSubview(addressLabel)
         addressLabel.snp.makeConstraints { make in
-            make.top.equalTo(walletLabel.snp.bottom).offset(UIConstants.hugeOffset)
+            make.top.equalTo(walletLabel.snp.bottom).offset(UIConstants.defaultOffset)
             make.centerX.equalToSuperview()
             make.width.equalTo(LayoutConstants.qrImageSize)
         }
@@ -173,7 +173,7 @@ final class ReceiveAssetViewLayout: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.top.equalTo(addressLabel.snp.bottom).offset(UIConstants.bigOffset)
+            make.top.equalTo(addressLabel.snp.bottom).offset(UIConstants.hugeOffset)
         }
     }
 }

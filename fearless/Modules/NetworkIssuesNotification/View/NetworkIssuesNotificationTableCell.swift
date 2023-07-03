@@ -49,12 +49,6 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         return button
     }()
 
-    let warningButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconWarning(), for: .normal)
-        return button
-    }()
-
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setupLayout()
@@ -93,9 +87,6 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
     // MARK: - Private methods
 
     private func configureSwitchNodeButton(with title: String) {
-        actionButton.isHidden = false
-        warningButton.isHidden = true
-
         actionButton.imageWithTitleView?.title = title
         actionButton.triangularedView?.fillColor = R.color.colorPink()!
         actionButton.triangularedView?.highlightedFillColor = R.color.colorPink()!
@@ -104,19 +95,14 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
     }
 
     private func conficureNetworkUnavailibleButton() {
-        actionButton.isHidden = true
-        warningButton.isHidden = false
+        actionButton.imageWithTitleView?.title = "Resolve"
+        actionButton.triangularedView?.fillColor = R.color.colorPink()!
+        actionButton.triangularedView?.highlightedFillColor = R.color.colorPink()!
 
-        actionButton.triangularedView?.fillColor = .clear
-        actionButton.triangularedView?.highlightedFillColor = .clear
-
-        warningButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
+        actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
     }
 
     private func configureMissingAccounteButton(with title: String) {
-        actionButton.isHidden = false
-        warningButton.isHidden = true
-
         actionButton.imageWithTitleView?.title = title
         actionButton.triangularedView?.fillColor = R.color.colorOrange()!
         actionButton.triangularedView?.highlightedFillColor = R.color.colorPink()!
@@ -159,18 +145,15 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         actionsStackView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(textVStackView.snp.trailing)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.offset12)
+            make.top.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         actionButton.snp.makeConstraints { make in
             make.size.greaterThanOrEqualTo(Constants.actionButtonSize)
         }
-        warningButton.snp.makeConstraints { make in
-            make.size.equalTo(Constants.warningsButtonSize)
-        }
 
         actionsStackView.addArrangedSubview(actionButton)
-        actionsStackView.addArrangedSubview(warningButton)
     }
 
     // MARK: - Actions

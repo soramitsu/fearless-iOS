@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import SSFModels
 
 typealias PolkaswapAdjustmentModuleCreationResult = (
     view: PolkaswapAdjustmentViewInput,
@@ -17,6 +18,7 @@ protocol PolkaswapAdjustmentViewInput: ControllerBackedProtocol {
     func didReceive(variant: SwapVariant)
     func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?)
     func setDisclaimer(visible: Bool)
+    func setButtonLoadingState(isLoading: Bool)
 }
 
 protocol PolkaswapAdjustmentViewOutput: AnyObject {

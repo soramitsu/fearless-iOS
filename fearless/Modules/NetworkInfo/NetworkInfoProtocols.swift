@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol NetworkInfoViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func set(nameViewModel: InputViewModelProtocol)

@@ -44,13 +44,13 @@ final class PolkaswapSwapConfirmationViewModelFactory: PolkaswapSwapConfirmation
         locale: Locale
     ) -> NSMutableAttributedString {
         let fromAmount = params.fromAmount.toString(locale: locale)
-        let fromName = params.swapFromChainAsset.asset.name
+        let fromName = params.swapFromChainAsset.asset.symbolUppercased
         let leftText = [fromAmount, fromName]
             .compactMap { $0 }
             .joined(separator: " ")
 
         let rightAmount = params.toAmount.toString(locale: locale)
-        let rightName = params.swapToChainAsset.asset.name
+        let rightName = params.swapToChainAsset.asset.symbolUppercased
         let rightText = [rightAmount, rightName]
             .compactMap { $0 }
             .joined(separator: " ")

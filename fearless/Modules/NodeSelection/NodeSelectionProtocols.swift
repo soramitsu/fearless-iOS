@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol NodeSelectionViewProtocol: ControllerBackedProtocol {
     func didReceive(state: NodeSelectionViewState)

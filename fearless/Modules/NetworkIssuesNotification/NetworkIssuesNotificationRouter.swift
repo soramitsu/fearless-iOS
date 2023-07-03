@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInput {
     func dismiss(view: ControllerBackedProtocol?) {
@@ -13,9 +14,6 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
         uniqueChainModel: UniqueChainModel,
         skipBlock: @escaping (ChainModel) -> Void
     ) {
-        let cancelTitle = R.string.localizable
-            .commonCancel(preferredLanguages: locale?.rLanguages)
-
         let actions: [SheetAlertPresentableAction] = options.map { option in
             switch option {
             case .create:
@@ -41,7 +39,7 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
             title: title,
             message: nil,
             actions: actions,
-            closeAction: cancelTitle,
+            closeAction: nil,
             icon: nil
         )
 

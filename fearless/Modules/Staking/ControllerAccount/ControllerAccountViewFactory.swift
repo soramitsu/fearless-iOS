@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import SSFUtils
 import RobinHood
+import SSFModels
 
 struct ControllerAccountViewFactory {
     static func createView(

@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import RobinHood
+import SSFModels
 
 protocol StakingAmountRelaychainStrategyOutput: AnyObject {
     func didReceive(error: Error)

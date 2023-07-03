@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
     typealias Model = [PriceData]

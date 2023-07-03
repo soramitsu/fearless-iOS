@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum ChainIssue {
     case network(chains: [ChainModel])
@@ -101,7 +102,12 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
 
 extension ChainsIssuesCenter: NetworkIssuesCenterListener {
     func handleChainsWithIssues(_ chains: [ChainModel]) {
-        filterPositiveBalances(chains: chains)
+        #if F_DEV
+            networkIssuesChains = chains
+            notify()
+        #else
+            filterPositiveBalances(chains: chains)
+        #endif
     }
 }
 

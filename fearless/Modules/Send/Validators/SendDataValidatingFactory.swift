@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 enum BalanceType {
     case utility(balance: Decimal?)
@@ -115,6 +116,9 @@ class SendDataValidatingFactory: NSObject {
                     return false
                 }
             case let .orml(minimumBalance, feeAndTip, utilityBalance):
+                guard minimumBalance ?? 0 > 0 else {
+                    return true
+                }
                 guard let feeAndTip = feeAndTip else {
                     return true
                 }

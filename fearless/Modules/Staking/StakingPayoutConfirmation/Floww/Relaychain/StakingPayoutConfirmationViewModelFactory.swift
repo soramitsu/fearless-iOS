@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import SoraFoundation
+import SSFModels
 
 final class StakingPayoutConfirmationRelaychainViewModelFactory {
     private let chainAsset: ChainAsset
@@ -30,7 +31,7 @@ final class StakingPayoutConfirmationRelaychainViewModelFactory {
 
         return LocalizableResource { locale in
             let title = R.string.localizable
-                .accountInfoTitle(preferredLanguages: locale.rLanguages)
+                .commonAccount(preferredLanguages: locale.rLanguages)
 
             return .accountInfo(.init(
                 title: title,

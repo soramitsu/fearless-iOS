@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 final class ChainRepositoryFactory {
     let storageFacade: StorageFacadeProtocol

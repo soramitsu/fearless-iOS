@@ -3,6 +3,7 @@ import RobinHood
 import SoraKeystore
 import SSFUtils
 import BigInt
+import SSFModels
 
 protocol StakingRedeemPoolStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

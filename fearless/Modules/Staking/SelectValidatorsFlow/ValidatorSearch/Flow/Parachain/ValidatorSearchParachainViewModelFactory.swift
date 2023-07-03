@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import BigInt
+import SSFModels
 
 final class ValidatorSearchParachainViewModelFactory {
     private var iconGenerator: IconGenerating

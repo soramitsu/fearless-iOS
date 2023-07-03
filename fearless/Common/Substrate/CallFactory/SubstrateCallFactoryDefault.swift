@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 /* This version of call factory is based on runtime version v9370 */
 /* If there are some change in new runtime version please create new factory with specified version and override changed call */
@@ -130,12 +131,16 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
                     to: receiver,
                     amount: amount,
                     currencyId: chainAsset.currencyId,
-                    path: .soraAssetTransfer
+                    path: .assetsTransfer
                 )
             }
             return defaultTransfer(to: receiver, amount: amount)
         case .ormlChain:
-            return ormlChainTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+            return ormlChainTransfer(
+                to: receiver,
+                amount: amount,
+                currencyId: chainAsset.currencyId
+            )
         case
             .ormlAsset,
             .foreignAsset,
@@ -143,7 +148,9 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable:
+            .stable,
+            .assetId,
+            .token2:
             return ormlAssetTransfer(
                 to: receiver,
                 amount: amount,
@@ -151,13 +158,24 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
                 path: .ormlAssetTransfer
             )
         case .equilibrium:
-            return equilibriumAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+            return equilibriumAssetTransfer(
+                to: receiver,
+                amount: amount,
+                currencyId: chainAsset.currencyId
+            )
         case .soraAsset:
             return ormlAssetTransfer(
                 to: receiver,
                 amount: amount,
                 currencyId: chainAsset.currencyId,
-                path: .soraAssetTransfer
+                path: .assetsTransfer
+            )
+        case .assets:
+            return assetsTransfer(
+                to: receiver,
+                amount: amount,
+                currencyId: chainAsset.currencyId,
+                isEthereumBased: chainAsset.chain.isEthereumBased
             )
         }
     }
@@ -538,7 +556,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     private func ormlChainTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?
+        currencyId: SSFModels.CurrencyId?
     ) -> any RuntimeCallable {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .ormlChainTransfer
@@ -552,7 +570,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     private func ormlAssetTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?,
+        currencyId: SSFModels.CurrencyId?,
         path: SubstrateCallPath
     ) -> any RuntimeCallable {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
@@ -566,10 +584,26 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     private func equilibriumAssetTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?
+        currencyId: SSFModels.CurrencyId?
     ) -> any RuntimeCallable {
         let args = TransferCall(dest: .accountTo(receiver), value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .equilibriumAssetTransfer
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: args
+        )
+    }
+
+    private func assetsTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: SSFModels.CurrencyId?,
+        isEthereumBased: Bool
+    ) -> any RuntimeCallable {
+        let dest: MultiAddress = isEthereumBased ? .accountTo(receiver) : .accoundId(receiver)
+        let args = TransferCall(dest: dest, value: amount, currencyId: currencyId)
+        let path: SubstrateCallPath = .assetsTransfer
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,

@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 struct RuntimeMetadataItem: Codable & Equatable {
     let chain: String
@@ -49,3 +50,5 @@ struct RuntimeMetadataItem: Codable & Equatable {
 extension RuntimeMetadataItem: Identifiable {
     var identifier: String { chain }
 }
+
+extension RuntimeMetadataItem: RuntimeMetadataItemProtocol {}

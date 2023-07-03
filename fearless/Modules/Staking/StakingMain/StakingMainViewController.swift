@@ -57,7 +57,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return tableView
     }()
 
-    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relayChain)
+    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relaychain)
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
@@ -413,7 +413,7 @@ extension StakingMainViewController: Localizable {
         let languages = locale.rLanguages
 
         titleLabel.text = R.string.localizable
-            .tabbarStakingTitle(preferredLanguages: languages)
+            .commonStaking(preferredLanguages: languages)
         actionButton.imageWithTitleView?.title = R.string.localizable
             .stakingStartTitle(preferredLanguages: languages)
 

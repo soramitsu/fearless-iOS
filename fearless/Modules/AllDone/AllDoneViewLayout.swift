@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 // swiftlint:disable function_body_length
 final class AllDoneViewLayout: UIView {

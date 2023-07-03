@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import CommonWallet
 import IrohaCrypto
+import SSFModels
 
 struct GiantsquidReward: Decodable {
     let amount: String

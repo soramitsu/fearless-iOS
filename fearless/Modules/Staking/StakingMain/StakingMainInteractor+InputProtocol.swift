@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import RobinHood
+import SSFModels
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func updatePrices() {
@@ -91,9 +92,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         }
 
         switch newSelectedChainAsset.stakingType {
-        case .relayChain:
+        case .relaychain, .sora, .ternoa:
             eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
-        case .paraChain:
+        case .parachain:
             eraInfoOperationFactory = ParachainStakingInfoOperationFactory()
 
         case .none:
@@ -248,6 +249,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
             return
         }
+
+        presenter?.didReceive(selectedWallet: selectedMetaAccount)
 
         selectedAccount = newSelectedAccount
         setupAccountRemoteSubscription()

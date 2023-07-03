@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 protocol StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(

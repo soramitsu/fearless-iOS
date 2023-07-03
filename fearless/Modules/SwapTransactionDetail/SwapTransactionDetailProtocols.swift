@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 typealias SwapTransactionDetailModuleCreationResult = (view: SwapTransactionDetailViewInput, input: SwapTransactionDetailModuleInput)
 

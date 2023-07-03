@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import RobinHood
 import BigInt
+import SSFModels
 
 protocol StakingUnbondSetupPoolStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

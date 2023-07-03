@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func present(

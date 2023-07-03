@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import CommonWallet
+import SSFModels
 
 protocol HistoryDataProviderFactoryProtocol {
     func createDataProvider(

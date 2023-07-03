@@ -1,5 +1,6 @@
 import BigInt
 import SoraFoundation
+import SSFModels
 
 protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     var timestamp: Int64 { get }
@@ -197,7 +198,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         return rewardsData.compactMap { itemData in
             let title = getHistoryItemTitle(data: itemData, locale: locale)
-            let subtitle = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
+            let subtitle = R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages)
             let tokenAmountText = getTokenAmountText(data: itemData, locale: locale)
             let txDate = Date(timeIntervalSince1970: TimeInterval(itemData.timestamp))
             let txTimeText = txFormatter.string(from: txDate)

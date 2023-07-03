@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
     let settings: SettingsManagerProtocol
@@ -43,9 +44,9 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
 
             if
                 let selectedChain = chains.first(where: { $0.chainId == maybeChainAssetId?.chainId }),
-                let selectedAsset = selectedChain.assets.first(where: { $0.assetId == maybeChainAssetId?.assetId }),
+                let selectedAsset = selectedChain.assets.first(where: { $0.id == maybeChainAssetId?.assetId }),
                 self?.wallet.fetch(for: selectedChain.accountRequest()) != nil {
-                return ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
+                return ChainAsset(chain: selectedChain, asset: selectedAsset)
             }
 
             let maybeChain = chains.first { chain in
@@ -55,8 +56,8 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
             let maybeAsset = maybeChain?.assets.first { $0.staking != nil }
 
             if let chain = maybeChain, let asset = maybeAsset {
-                self?.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
-                return ChainAsset(chain: chain, asset: asset.asset)
+                self?.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.id)
+                return ChainAsset(chain: chain, asset: asset)
             }
 
             return nil

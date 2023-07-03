@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SnapKit
+import SSFModels
 
 final class StakingPoolMainViewLayout: UIView {
     private enum Constants {
@@ -93,7 +94,7 @@ final class StakingPoolMainViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
+        titleLabel.text = R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages)
         networkInfoView.titleControl.titleLabel.text = R.string.localizable.poolStakingTitle(
             preferredLanguages: locale.rLanguages
         )
@@ -228,7 +229,7 @@ final class StakingPoolMainViewLayout: UIView {
             )
         }
 
-        assetSelectionView.title = chainAsset.asset.name
+        assetSelectionView.title = chainAsset.asset.symbolUppercased
     }
 
     func bind(balanceViewModel: BalanceViewModelProtocol) {

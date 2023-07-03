@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 final class AddCustomNodeInteractor {
     weak var presenter: AddCustomNodeInteractorOutputProtocol?

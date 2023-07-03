@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 final class StakingUnbondConfirmPresenter {
     weak var view: StakingUnbondConfirmViewProtocol?

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 final class StakingPoolMainPresenter {
     // MARK: Private properties
@@ -267,6 +268,8 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         case .open:
             if (nomination?.targets).isNullOrEmpty != false {
                 performChangeValidatorsAction()
+            } else {
+                didTapStakeInfoView()
             }
         case .blocked, .destroying:
             break

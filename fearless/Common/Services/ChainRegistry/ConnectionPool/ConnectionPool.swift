@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import SoraFoundation
+import SSFModels
 
 enum ConnectionPoolError: Error {
     case onlyOneNode
@@ -11,6 +12,7 @@ protocol ConnectionPoolProtocol {
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func setDelegate(_ delegate: ConnectionPoolDelegate)
+    func resetConnection(for chainId: ChainModel.Id)
 }
 
 protocol ConnectionPoolDelegate: AnyObject {
@@ -24,13 +26,14 @@ final class ConnectionPool {
     private let operationQueue: OperationQueue
 
     private let mutex = NSLock()
-    private lazy var readLock = ReaderWriterLock()
+    private lazy var lock = ReaderWriterLock()
+    private lazy var connectionLock = ReaderWriterLock()
 
     private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
     private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
 
     private func clearUnusedConnections() {
-        readLock.exclusivelyWrite {
+        connectionLock.exclusivelyWrite {
             self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.value.target != nil }
         }
     }
@@ -55,8 +58,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
         if ignoredUrl == nil,
-           let connection = getConnection(for: chain.chainId),
-           connection.url?.absoluteString == chain.selectedNode?.url.absoluteString {
+           let connection = getConnection(for: chain.chainId) {
             return connection
         }
 
@@ -66,7 +68,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         })
         chainFailedUrls.insert(ignoredUrl)
 
-        readLock.exclusivelyWrite { [weak self] in
+        lock.exclusivelyWrite { [weak self] in
             self?.failedUrls[chain.chainId] = chainFailedUrls
         }
 
@@ -92,7 +94,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         )
         let wrapper = WeakWrapper(target: connection)
 
-        readLock.exclusivelyWrite { [weak self] in
+        connectionLock.exclusivelyWrite { [weak self] in
             self?.connectionsByChainIds[chain.chainId] = wrapper
         }
 
@@ -100,11 +102,21 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func getFailedUrls(for chainId: ChainModel.Id) -> Set<URL?>? {
-        readLock.concurrentlyRead { failedUrls[chainId] }
+        lock.concurrentlyRead { failedUrls[chainId] }
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        readLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
+        connectionLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
+    }
+
+    func resetConnection(for chainId: ChainModel.Id) {
+        if let connection = getConnection(for: chainId) {
+            connection.disconnectIfNeeded()
+        }
+
+        connectionLock.exclusivelyWrite {
+            self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.key != chainId }
+        }
     }
 }
 

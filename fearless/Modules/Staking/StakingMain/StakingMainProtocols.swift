@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModel)
@@ -43,6 +44,7 @@ protocol StakingMainInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
+    func didReceive(selectedWallet: MetaAccountModel)
     func didReceive(selectedAddress: String)
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)

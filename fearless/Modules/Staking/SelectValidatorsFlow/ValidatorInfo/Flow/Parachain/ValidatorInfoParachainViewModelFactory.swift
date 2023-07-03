@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import BigInt
+import SSFModels
 
 final class ValidatorInfoParachainViewModelFactory {
     private let iconGenerator: IconGenerating
@@ -166,7 +167,7 @@ final class ValidatorInfoParachainViewModelFactory {
 
     private func createTotalTitle() -> LocalizableResource<String> {
         LocalizableResource { locale in
-            R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.commonTotal(preferredLanguages: locale.rLanguages)
         }
     }
 
