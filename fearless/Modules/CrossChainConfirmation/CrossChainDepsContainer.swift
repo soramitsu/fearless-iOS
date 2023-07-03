@@ -83,7 +83,7 @@ final class CrossChainDepsContainer {
             signingWrapperData: signingWrapperData
         )
 
-        let services = try XcmAssembly.createExtrincisServices(fromChainData: fromChainData)
+        let services = XcmAssembly.createExtrincisServices(fromChainData: fromChainData)
 
         return services
     }
