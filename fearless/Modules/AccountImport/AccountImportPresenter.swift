@@ -358,14 +358,13 @@ private extension AccountImportPresenter {
         guard let sourceType = selectedSourceType else {
             return
         }
-        let processor = EthereumDerivationPathProcessor()
+        let processor = NumbersAndSlashesProcessor()
 
         let viewModel = createViewModel(
             for: .ecdsa,
             sourceType: sourceType,
             isEthereum: true,
-            processor: processor,
-            maxLength: AccountImportPresenter.ethereumDerivationPathLength
+            processor: processor
         )
 
         ethereumDerivationPathViewModel = viewModel
@@ -384,8 +383,8 @@ private extension AccountImportPresenter {
         let predicate: NSPredicate?
         let placeholder: String
         if isEthereum {
-            predicate = NSPredicate.deriviationPathHardSoftNumeric
-            placeholder = DerivationPathConstants.defaultEthereum
+            predicate = NSPredicate.deriviationPathHardSoft
+            placeholder = DerivationPathConstants.hardSoftPlaceholder
         } else {
             switch (cryptoType, sourceType) {
             case (.sr25519, .mnemonic):
@@ -421,8 +420,7 @@ private extension AccountImportPresenter {
         let error: AccountCreationError
 
         if isEthereum {
-            error = sourceType == .mnemonic ?
-                .invalidDerivationHardSoftNumericPassword : .invalidDerivationHardSoftNumeric
+            error = .invalidDerivationHardSoftNumeric
         } else {
             switch cryptoType {
             case .sr25519:
@@ -762,7 +760,18 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             return
         }
 
-        if viewModel.inputHandler.completed {
+        if viewModel.inputHandler.value.components(separatedBy: "/").map({ component in
+            component.replacingOccurrences(of: "/", with: "", options: NSString.CompareOptions.literal, range: nil)
+        }).filter({ component in
+            if component.isEmpty {
+                return false
+            }
+            if let _ = UInt32(component) {
+                return false
+            } else {
+                return true
+            }
+        }).isEmpty, viewModel.inputHandler.completed {
             if viewModel.inputHandler.value.isEmpty {
                 view?.didValidateEthereumDerivationPath(.none)
             } else {

@@ -1,8 +1,8 @@
 platform :ios, '13.0'
 
 # Uncomment for CI
-source 'https://github.com/soramitsu/SSFSpecs.git'
-source 'https://github.com/CocoaPods/Specs.git'
+#source 'https://github.com/soramitsu/SSFSpecs.git'
+#source 'https://github.com/CocoaPods/Specs.git'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
@@ -27,44 +27,44 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
 
-  def pods_with_configurations
-      if %r{^true$}i.match ENV['F_DEV']
-          pod 'SSFXCM', :configurations => ['DEBUG']
-      else
-          pod 'SSFXCM'
-          pod 'SSFExtrinsicKit'
-          pod 'SSFCrypto'
-          pod 'SSFSigner'
-          pod 'SSFModels'
-          pod 'SSFEraKit'
-          pod 'SSFLogger'
-          pod 'SSFRuntimeCodingService'
-          pod 'SSFStorageQueryKit'
-          pod 'SSFChainConnection'
-          pod 'SSFNetwork'
-          pod 'SSFUtils'
-          pod 'SSFChainRegistry'
-          pod 'SSFHelpers'
-      end
-  end
-
-  pods_with_configurations
+#  def pods_with_configurations
+#      if %r{^true$}i.match ENV['F_DEV']
+#          pod 'SSFXCM', :configurations => ['DEBUG']
+#      else
+#          pod 'SSFXCM'
+#          pod 'SSFExtrinsicKit'
+#          pod 'SSFCrypto'
+#          pod 'SSFSigner'
+#          pod 'SSFModels'
+#          pod 'SSFEraKit'
+#          pod 'SSFLogger'
+#          pod 'SSFRuntimeCodingService'
+#          pod 'SSFStorageQueryKit'
+#          pod 'SSFChainConnection'
+#          pod 'SSFNetwork'
+#          pod 'SSFUtils'
+#          pod 'SSFChainRegistry'
+#          pod 'SSFHelpers'
+#      end
+#  end
+#
+#  pods_with_configurations
   
   # Development pods
-#  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
-#  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
-#  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
-#  pod 'SSFSigner', :path => '../soramitsu-shared-features-ios/SSFSigner'
-#  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
-#  pod 'SSFEraKit', :path => '../soramitsu-shared-features-ios/SSFEraKit'
-#  pod 'SSFLogger', :path => '../soramitsu-shared-features-ios/SSFLogger'
-#  pod 'SSFRuntimeCodingService', :path => '../soramitsu-shared-features-ios/SSFRuntimeCodingService'
-#  pod 'SSFStorageQueryKit', :path => '../soramitsu-shared-features-ios/SSFStorageQueryKit'
-#  pod 'SSFChainConnection', :path => '../soramitsu-shared-features-ios/SSFChainConnection'
-#  pod 'SSFNetwork', :path => '../soramitsu-shared-features-ios/SSFNetwork'
-#  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
-#  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
-#  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
+  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
+  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
+  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
+  pod 'SSFSigner', :path => '../soramitsu-shared-features-ios/SSFSigner'
+  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
+  pod 'SSFEraKit', :path => '../soramitsu-shared-features-ios/SSFEraKit'
+  pod 'SSFLogger', :path => '../soramitsu-shared-features-ios/SSFLogger'
+  pod 'SSFRuntimeCodingService', :path => '../soramitsu-shared-features-ios/SSFRuntimeCodingService'
+  pod 'SSFStorageQueryKit', :path => '../soramitsu-shared-features-ios/SSFStorageQueryKit'
+  pod 'SSFChainConnection', :path => '../soramitsu-shared-features-ios/SSFChainConnection'
+  pod 'SSFNetwork', :path => '../soramitsu-shared-features-ios/SSFNetwork'
+  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
+  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
+  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -101,3 +101,4 @@ post_install do |installer|
         end
     end
 end
+

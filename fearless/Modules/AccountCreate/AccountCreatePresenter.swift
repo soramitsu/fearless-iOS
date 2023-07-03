@@ -68,7 +68,7 @@ final class AccountCreatePresenter {
         let viewModel = createViewModel(
             for: .ecdsa,
             isEthereum: true,
-            processor: EthereumDerivationPathProcessor(),
+            processor: NumbersAndSlashesProcessor(),
             maxLength: AccountCreatePresenter.maxEthereumDerivationPathLength
         )
         ethereumDerivationPathViewModel = viewModel
@@ -87,8 +87,8 @@ final class AccountCreatePresenter {
         let placeholder: String
 
         if isEthereum {
-            predicate = nil
-            placeholder = DerivationPathConstants.defaultEthereum
+            predicate = NSPredicate.deriviationPathHardSoft
+            placeholder = DerivationPathConstants.hardSoftPlaceholder
         } else {
             switch cryptoType {
             case .sr25519:
@@ -111,23 +111,31 @@ final class AccountCreatePresenter {
         )
     }
 
-    private func presentDerivationPathError(_ cryptoType: CryptoType) {
+    private func presentDerivationPathError(_ cryptoType: CryptoType, isEthereum: Bool) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         // TODO: Check correctness
-        switch cryptoType.utilsType {
-        case .sr25519:
+        if isEthereum {
             _ = wireframe.present(
-                error: AccountCreationError.invalidDerivationHardSoftPassword,
+                error: AccountCreationError.invalidDerivationHardSoftNumeric,
                 from: view,
                 locale: locale
             )
-        case .ed25519, .ecdsa:
-            _ = wireframe.present(
-                error: AccountCreationError.invalidDerivationHardPassword,
-                from: view,
-                locale: locale
-            )
+        } else {
+            switch cryptoType.utilsType {
+            case .sr25519:
+                _ = wireframe.present(
+                    error: AccountCreationError.invalidDerivationHardSoftPassword,
+                    from: view,
+                    locale: locale
+                )
+            case .ed25519, .ecdsa:
+                _ = wireframe.present(
+                    error: AccountCreationError.invalidDerivationHardPassword,
+                    from: view,
+                    locale: locale
+                )
+            }
         }
     }
 }
@@ -172,7 +180,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             view?.didValidateSubstrateDerivationPath(.valid)
         } else {
             view?.didValidateSubstrateDerivationPath(.invalid)
-            presentDerivationPathError(selectedCryptoType)
+            presentDerivationPathError(selectedCryptoType, isEthereum: false)
         }
     }
 
@@ -181,11 +189,22 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             return
         }
 
-        if viewModel.inputHandler.completed {
+        if viewModel.inputHandler.value.components(separatedBy: "/").map({ component in
+            component.replacingOccurrences(of: "/", with: "", options: NSString.CompareOptions.literal, range: nil)
+        }).filter({ component in
+            if component.isEmpty {
+                return false
+            }
+            if let _ = UInt32(component) {
+                return false
+            } else {
+                return true
+            }
+        }).isEmpty, viewModel.inputHandler.completed {
             view?.didValidateEthereumDerivationPath(.valid)
         } else {
             view?.didValidateEthereumDerivationPath(.invalid)
-            presentDerivationPathError(.ecdsa)
+            presentDerivationPathError(.ecdsa, isEthereum: true)
         }
     }
 
@@ -214,13 +233,13 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
         guard substrateViewModel.inputHandler.completed else {
             view?.didValidateSubstrateDerivationPath(.invalid)
-            presentDerivationPathError(selectedCryptoType)
+            presentDerivationPathError(selectedCryptoType, isEthereum: false)
             return
         }
 
         guard ethereumViewModel.inputHandler.completed else {
             view?.didValidateEthereumDerivationPath(.invalid)
-            presentDerivationPathError(.ecdsa)
+            presentDerivationPathError(.ecdsa, isEthereum: true)
             return
         }
         let ethereumDerivationPath = (ethereumDerivationPathViewModel?.inputHandler.value)
