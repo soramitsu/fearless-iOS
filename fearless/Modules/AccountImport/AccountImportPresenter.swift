@@ -726,6 +726,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         let pasteAction = SheetAlertPresentableAction(title: pasteTitle) { [weak self] in
             if let json = UIPasteboard.general.string {
                 self?.interactor.deriveMetadataFromKeystore(json)
+                self?.input = json
             }
         }
         let selectFileTitle = R.string.localizable

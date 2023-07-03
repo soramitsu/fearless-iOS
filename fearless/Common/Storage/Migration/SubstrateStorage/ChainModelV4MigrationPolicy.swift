@@ -24,7 +24,6 @@ class ChainModelV4MigrationPolicy: NSEntityMigrationPolicy {
             guard
                 let assetModel = $0.value(forKey: "asset") as? NSManagedObject,
                 let id = assetModel.value(forKey: "id") as? String,
-                let name = assetModel.value(forKey: "name") as? String,
                 let symbol = assetModel.value(forKey: "symbol") as? String,
                 let precision = assetModel.value(forKey: "precision") as? UInt16
             else {
@@ -50,7 +49,6 @@ class ChainModelV4MigrationPolicy: NSEntityMigrationPolicy {
             )
 
             updatedAssetModel.setValue(id, forKey: "id")
-            updatedAssetModel.setValue(name, forKey: "name")
             updatedAssetModel.setValue(symbol, forKey: "symbol")
             updatedAssetModel.setValue(precision, forKey: "precision")
             updatedAssetModel.setValue(icon, forKey: "icon")

@@ -31,6 +31,8 @@ final class ChainAssetListPresenter {
     private var pricesFetched = false
     private var chainSettings: [ChainSettings]?
 
+    private var activeFilters: [ChainAssetsFetching.Filter] = []
+
     private lazy var factoryOperationQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.maxConcurrentOperationCount = 1
@@ -84,7 +86,8 @@ final class ChainAssetListPresenter {
                 prices: self.prices,
                 chainsWithIssues: self.chainsWithNetworkIssues,
                 chainsWithMissingAccounts: self.chainsWithMissingAccounts,
-                chainSettings: chainSettings
+                chainSettings: chainSettings,
+                activeFilters: self.activeFilters
             )
 
             DispatchQueue.main.async {
@@ -221,15 +224,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
-    func updateViewModel(isInitSearchState: Bool) {
-        guard let chainAssets = chainAssets, chainAssets.isNotEmpty else {
-            DispatchQueue.main.async { [weak self] in
-                if !isInitSearchState {
-                    self?.view?.showEmptyState()
-                }
-            }
-            return
-        }
+    func updateViewModel(isInitSearchState _: Bool) {
         provideViewModel()
     }
 
@@ -340,6 +335,8 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        activeFilters = filters
+
         let filteredByChain = filters.contains(where: { filter in
             if case ChainAssetsFetching.Filter.chainId = filter {
                 return true

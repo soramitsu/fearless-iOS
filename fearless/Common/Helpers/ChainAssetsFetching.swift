@@ -21,6 +21,15 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case searchEmpty
         case ecosystem(ChainEcosystem)
         case chainIds([ChainModel.Id])
+
+        var searchText: String? {
+            switch self {
+            case let .search(text):
+                return text
+            default:
+                return nil
+            }
+        }
     }
 
     enum SortDescriptor {
