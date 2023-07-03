@@ -154,7 +154,7 @@ final class EmptyView: UIView {
                 make.size.equalTo(iconMode.iconSize)
             }
         case .bottom:
-            break
+            preconditionFailure("EmptyView doensn't support .bottom layout")
         }
 
         imageView.snp.makeConstraints { make in
