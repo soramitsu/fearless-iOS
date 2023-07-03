@@ -113,7 +113,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
-                return createAccountListViewModel(for: locale)
+                return createAccountListViewModel(
+                    for: locale,
+                    missingEthAccount: wallet.ethereumAddress == nil
+                )
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
@@ -141,6 +144,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsLogout()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: nil
         )
@@ -162,19 +166,24 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: biometry.availableBiometryType.accessoryIconSettings,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .switcher(settings.biometryEnabled ?? false),
             option: .biometry
         )
         return viewModel
     }
 
-    private func createAccountListViewModel(for locale: Locale) -> ProfileOptionViewModel {
+    private func createAccountListViewModel(
+        for locale: Locale,
+        missingEthAccount: Bool
+    ) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileWalletsTitle(preferredLanguages: locale.rLanguages)
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsWallet()!,
             accessoryTitle: nil,
+            accessoryImage: missingEthAccount ? R.image.iconWarning() : nil,
             accessoryType: .arrow,
             option: .accountList
         )
@@ -188,6 +197,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsPin()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .changePincode
         )
@@ -201,6 +211,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsLanguage()!,
             accessoryTitle: subtitle,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .language
         )
@@ -215,6 +226,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.pinkPolkaswap()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .polkaswapDisclaimer
         )
@@ -229,6 +241,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsWebsite()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .about
         )
@@ -241,6 +254,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconZeroBalances()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .switcher(wallet.zeroBalanceAssetsHidden),
             option: .zeroBalances
         )
@@ -254,6 +268,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconCurrency()!,
             accessoryTitle: subtitle,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .currency
         )
