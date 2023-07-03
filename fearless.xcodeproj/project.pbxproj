@@ -1969,6 +1969,7 @@
 		FA256A51274CEB9800875A53 /* FeePriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A4E274CEB9600875A53 /* FeePriceViewModel.swift */; };
 		FA256A52274CEB9800875A53 /* RichAmountDisplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A4F274CEB9700875A53 /* RichAmountDisplayViewModel.swift */; };
 		FA256A53274CEB9800875A53 /* RichAmountInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A50274CEB9700875A53 /* RichAmountInputViewModel.swift */; };
+		FA2695AB2A52941D007AE3A7 /* ContentAlignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2695AA2A52941D007AE3A7 /* ContentAlignment.swift */; };
 		FA28A9B029D19A41005AA42E /* MultiassetV9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA28A9AF29D19A41005AA42E /* MultiassetV9.xcmappingmodel */; };
 		FA2C997E28645F24007D9675 /* ParachainRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */; };
 		FA2E9B93279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9B92279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift */; };
@@ -4604,6 +4605,7 @@
 		FA256A4E274CEB9600875A53 /* FeePriceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeePriceViewModel.swift; sourceTree = "<group>"; };
 		FA256A4F274CEB9700875A53 /* RichAmountDisplayViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RichAmountDisplayViewModel.swift; sourceTree = "<group>"; };
 		FA256A50274CEB9700875A53 /* RichAmountInputViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RichAmountInputViewModel.swift; sourceTree = "<group>"; };
+		FA2695AA2A52941D007AE3A7 /* ContentAlignment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentAlignment.swift; sourceTree = "<group>"; };
 		FA28A9AF29D19A41005AA42E /* MultiassetV9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MultiassetV9.xcmappingmodel; sourceTree = "<group>"; };
 		FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FA2E9B92279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicOptionsPresentable.swift; sourceTree = "<group>"; };
@@ -8422,6 +8424,7 @@
 				C648FFC728DC43A70072951B /* EmptyView.swift */,
 				C640415C28F507E900845780 /* TriangularedTextField.swift */,
 				076D9D58294C461E002762E3 /* PolkaswapDoubleSymbolView.swift */,
+				FA2695AA2A52941D007AE3A7 /* ContentAlignment.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -13612,6 +13615,7 @@
 				C6FB932C27C8436F00563E61 /* EthereumDerivationPathProcessor.swift in Sources */,
 				84DD5F4C263DE82C00425ACF /* DataValidationRunner.swift in Sources */,
 				84D8F16B24D8263300AF43E9 /* ModalPickerFactory.swift in Sources */,
+				FA2695AB2A52941D007AE3A7 /* ContentAlignment.swift in Sources */,
 				847C965E255363B9002D288F /* ExportRestoreJsonWireframe.swift in Sources */,
 				FAE9EBA3288ABBD4009390B6 /* AnalyticRewardsParachainViewModelFactory.swift in Sources */,
 				8434C9E425401EF3009E4191 /* TransactionHistoryItem.swift in Sources */,

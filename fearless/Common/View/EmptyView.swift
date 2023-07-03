@@ -5,10 +5,73 @@ struct EmptyViewModel {
     let description: String
 }
 
+enum EmptyViewIconMode {
+    case bigFilledShadow
+    case smallFilled
+
+    var iconSize: CGFloat {
+        switch self {
+        case .bigFilledShadow:
+            return 80
+        case .smallFilled:
+            return 56
+        }
+    }
+}
+
 final class EmptyView: UIView {
+    var contentAlignment = ContentAlignment(vertical: .center, horizontal: .center) {
+        didSet {
+            handleLayoutConfigurationChanges()
+        }
+    }
+
+    var image: UIImage? {
+        get {
+            imageView.image
+        }
+
+        set {
+            imageView.image = newValue
+
+            setNeedsLayout()
+        }
+    }
+
+    var title: String? {
+        get {
+            titleLabel.text
+        }
+
+        set {
+            titleLabel.text = newValue
+
+            setNeedsLayout()
+        }
+    }
+
+    var text: String? {
+        get {
+            descriptionLabel.text
+        }
+
+        set {
+            descriptionLabel.text = newValue
+
+            setNeedsLayout()
+        }
+    }
+
+    var iconMode: EmptyViewIconMode = .bigFilledShadow {
+        didSet {
+            handleLayoutConfigurationChanges()
+        }
+    }
+
     private enum LayoutConstants {
         static let imageSize = CGSize(width: 36, height: 32)
-        static let imageBackgroundSize: CGFloat = 80
+        static let imageBackgroundSizeSmall: CGFloat = 56
+        static let imageBackgroundSizeBig: CGFloat = 80
         static let imageOffset: CGFloat = 10
     }
 
@@ -64,9 +127,34 @@ final class EmptyView: UIView {
         addSubview(descriptionLabel)
         imageBackgroundView.addSubview(imageView)
 
-        imageBackgroundView.snp.makeConstraints { make in
-            make.centerX.centerY.equalToSuperview()
-            make.size.equalTo(LayoutConstants.imageBackgroundSize)
+        handleLayoutConfigurationChanges()
+    }
+
+    private func handleLayoutConfigurationChanges() {
+        switch iconMode {
+        case .bigFilledShadow:
+            imageBackgroundView.shadowColor = R.color.colorOrange()!
+            imageBackgroundView.backgroundColor = R.color.colorBlack19()!
+        case .smallFilled:
+            imageBackgroundView.shadowColor = .clear
+            imageBackgroundView.backgroundColor = R.color.colorWhite4()
+        }
+
+        switch contentAlignment.vertical {
+        case .center:
+            imageBackgroundView.snp.remakeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.centerY.equalToSuperview()
+                make.size.equalTo(iconMode.iconSize)
+            }
+        case .top:
+            imageBackgroundView.snp.remakeConstraints { make in
+                make.centerX.equalToSuperview()
+                make.top.equalToSuperview().offset(UIConstants.bigOffset)
+                make.size.equalTo(iconMode.iconSize)
+            }
+        case .bottom:
+            break
         }
 
         imageView.snp.makeConstraints { make in
