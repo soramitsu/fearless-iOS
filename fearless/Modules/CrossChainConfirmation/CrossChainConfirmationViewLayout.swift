@@ -114,7 +114,7 @@ final class CrossChainConfirmationViewLayout: UIView {
         teleportStubLabel.text = R.string.localizable
             .sendConfirmAmountTitle("", preferredLanguages: locale.rLanguages)
         originalNetworkView.titleLabel.text = R.string.localizable
-            .xcmOriginalNetworkTitle(preferredLanguages: locale.rLanguages)
+            .xcmOriginNetworkTitle(preferredLanguages: locale.rLanguages)
         destNetworkView.titleLabel.text = R.string.localizable
             .xcmDestinationNetworkTitle(preferredLanguages: locale.rLanguages)
         sendToView.titleLabel.text = R.string.localizable

@@ -128,10 +128,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             case let .success(chainAssets):
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
-                if chainAssets.isEmpty {
-                    self?.output?.updateViewModel(isInitSearchState: true)
-                    return
-                }
                 self?.accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet, completionBlock: { [weak self] accountInfosByChainAssets in
                     self?.subscribeToAccountInfo(for: chainAssets)
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
@@ -293,6 +289,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             handler: self,
             deliveryOn: accountInfosDeliveryQueue
         )
+    }
+
+    func processChainsSettingsChanged() {
+        fetchChainSettings()
     }
 }
 

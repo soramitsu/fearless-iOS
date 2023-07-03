@@ -32,7 +32,7 @@ final class StakingPayoutConfirmationPoolViewModelFactory {
 
         return LocalizableResource { locale in
             let title = R.string.localizable
-                .accountInfoTitle(preferredLanguages: locale.rLanguages)
+                .commonAccount(preferredLanguages: locale.rLanguages)
 
             return .accountInfo(.init(
                 title: title,

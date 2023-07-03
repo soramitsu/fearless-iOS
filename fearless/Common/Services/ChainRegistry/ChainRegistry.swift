@@ -7,6 +7,7 @@ protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
     var chainsTypesMap: [String: Data] { get }
 
+    func resetConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func chainsSubscribe(
@@ -244,6 +245,10 @@ extension ChainRegistry: ChainRegistryProtocol {
     func syncUp() {
         syncUpServices()
     }
+
+    func resetConnection(for chainId: ChainModel.Id) {
+        connectionPool.resetConnection(for: chainId)
+    }
 }
 
 // MARK: - ConnectionPoolDelegate
@@ -260,7 +265,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
 
         switch state {
         case let .waitingReconnection(attempt: attempt):
-            if attempt > 1 {
+            if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
                 connectionNeedsReconnect(for: changedStateChain, previusUrl: url, state: state)
             }
         default:

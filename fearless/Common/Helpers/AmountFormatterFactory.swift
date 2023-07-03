@@ -27,8 +27,8 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
 
     func createDisplayFormatter(for asset: WalletAsset?) -> LocalizableResource<LocalizableDecimalFormatting> {
         let precision = asset?.identifier == WalletAssetId.usd.rawValue ? usdPrecision : assetPrecision
-        let formatter = createCompoundFormatter(for: precision)
         return LocalizableResource { locale in
+            let formatter = createCompoundFormatter(for: precision, for: FormatterLocale(locale: locale))
             formatter.locale = locale
             return formatter
         }
@@ -47,7 +47,11 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
         roundingMode: NumberFormatter.RoundingMode
     ) -> LocalizableResource<TokenFormatter> {
         let precision = asset?.identifier == WalletAssetId.usd.rawValue ? usdPrecision : assetPrecision
-        let formatter = createCompoundFormatter(for: precision, roundingMode: roundingMode)
+        let formatter = createCompoundFormatter(
+            for: precision,
+            roundingMode: roundingMode,
+            for: .usual
+        )
 
         if asset?.identifier == WalletAssetId.usd.rawValue {
             let tokenFormatter = TokenFormatter(
@@ -79,56 +83,16 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     // swiftlint:disable function_body_length
     private func createCompoundFormatter(
         for preferredPrecision: Int,
-        roundingMode: NumberFormatter.RoundingMode = .down
+        roundingMode: NumberFormatter.RoundingMode = .down,
+        for locale: FormatterLocale
     ) -> LocalizableDecimalFormatting {
-        let abbreviations: [BigNumberAbbreviation] = [
-            BigNumberAbbreviation(
-                threshold: 0,
-                divisor: 1.0,
-                suffix: "",
-                formatter: DynamicPrecisionFormatter(
-                    preferredPrecision: UInt8(preferredPrecision),
-                    roundingMode: roundingMode
-                )
-            ),
-            BigNumberAbbreviation(
-                threshold: 1,
-                divisor: 1.0,
-                suffix: "",
-                formatter: NumberFormatter.decimalFormatter(
-                    precision: preferredPrecision,
-                    rounding: roundingMode,
-                    usesIntGrouping: true
-                )
-            ),
-            BigNumberAbbreviation(
-                threshold: 10,
-                divisor: 1.0,
-                suffix: "",
-                formatter: nil
-            ),
-            BigNumberAbbreviation(
-                threshold: 1_000_000,
-                divisor: 1_000_000.0,
-                suffix: "M",
-                formatter: nil
-            ),
-            BigNumberAbbreviation(
-                threshold: 1_000_000_000,
-                divisor: 1_000_000_000.0,
-                suffix: "B",
-                formatter: nil
-            ),
-            BigNumberAbbreviation(
-                threshold: 1_000_000_000_000,
-                divisor: 1_000_000_000_000.0,
-                suffix: "T",
-                formatter: nil
-            )
-        ]
+        let abbreviationFactory = AbbreviationsFactory(
+            preferredPrecision: preferredPrecision,
+            roundingMode: roundingMode
+        )
 
         return BigNumberFormatter(
-            abbreviations: abbreviations,
+            abbreviations: abbreviationFactory.abbreviations(for: locale),
             precision: 2,
             rounding: roundingMode,
             usesIntGrouping: true

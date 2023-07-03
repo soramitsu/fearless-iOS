@@ -67,6 +67,7 @@ final class NetworkIssuesNotificationViewController: UIViewController, ViewHolde
 extension NetworkIssuesNotificationViewController: NetworkIssuesNotificationViewInput {
     func didReceive(viewModel: [NetworkIssuesNotificationCellViewModel]) {
         self.viewModel = viewModel
+        reloadEmptyState(animated: true)
     }
 }
 
@@ -127,6 +128,9 @@ extension NetworkIssuesNotificationViewController: EmptyStateDataSource {
         let errorView = ErrorStateView()
         errorView.errorDescriptionLabel.text = R.string.localizable.networkIssuesEmptyStateTitle(preferredLanguages: selectedLocale.rLanguages)
         errorView.locale = selectedLocale
+        errorView.retryButton.isHidden = true
+        errorView.iconImageView.isHidden = true
+        errorView.isUserInteractionEnabled = false
         return errorView
     }
 }

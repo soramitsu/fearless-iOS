@@ -413,7 +413,7 @@ extension StakingMainViewController: Localizable {
         let languages = locale.rLanguages
 
         titleLabel.text = R.string.localizable
-            .tabbarStakingTitle(preferredLanguages: languages)
+            .commonStaking(preferredLanguages: languages)
         actionButton.imageWithTitleView?.title = R.string.localizable
             .stakingStartTitle(preferredLanguages: languages)
 

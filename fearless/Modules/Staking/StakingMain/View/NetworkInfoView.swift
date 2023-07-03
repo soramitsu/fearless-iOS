@@ -257,7 +257,7 @@ final class NetworkInfoView: UIView {
             unstakingPeriodView.bind(value: unstakePeriod)
 
             unstakingPeriodView.bind(title: R.string.localizable
-                .stakingMainLockupPeriodTitle_v190(preferredLanguages: languages))
+                .stakingUnstakingPeriod(preferredLanguages: languages))
         }
     }
 

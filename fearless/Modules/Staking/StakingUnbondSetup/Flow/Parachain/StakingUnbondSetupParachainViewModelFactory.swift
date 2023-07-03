@@ -19,7 +19,7 @@ final class StakingUnbondSetupParachainViewModelFactory: StakingUnbondSetupViewM
                 return TitleWithSubtitleViewModel(title: "")
             }
 
-            let title = R.string.localizable.stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
+            let title = R.string.localizable.stakingUnstakingPeriod(preferredLanguages: locale.rLanguages)
             let subtitle = R.string.localizable.commonDaysFormat(
                 format: Int(daysCount),
                 preferredLanguages: locale.rLanguages
@@ -49,7 +49,7 @@ final class StakingUnbondSetupParachainViewModelFactory: StakingUnbondSetupViewM
         }
 
         return accountViewModelFactory.buildViewModel(
-            title: R.string.localizable.accountInfoTitle(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages),
             address: address,
             name: viewModelState.wallet.fetch(for: viewModelState.chainAsset.chain.accountRequest())?.name,
             locale: locale

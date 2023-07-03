@@ -82,7 +82,7 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
     }
 
     private func updateIssues(with attempt: Int, for chain: ChainModel) {
-        if attempt > 3 {
+        if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
             chainsWithIssues.insert(chain)
         } else {
             chainsWithIssues.remove(chain)

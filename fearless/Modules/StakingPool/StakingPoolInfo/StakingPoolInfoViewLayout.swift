@@ -412,7 +412,7 @@ final class StakingPoolInfoViewLayout: UIView {
         indexView.titleLabel.text = R.string.localizable.indexCommon(
             preferredLanguages: locale.rLanguages
         )
-        nameView.titleLabel.text = R.string.localizable.accountInfoNameTitle(
+        nameView.titleLabel.text = R.string.localizable.usernameSetupChooseTitle(
             preferredLanguages: locale.rLanguages
         )
         stateView.titleLabel.text = R.string.localizable.stateCommon(

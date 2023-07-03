@@ -246,9 +246,8 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/Specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - BigInt
-    - RobinHood
     - TweetNacl
     - xxHash-Swift
   https://github.com/soramitsu/SSFSpecs.git:
@@ -278,6 +277,7 @@ SPEC REPOS:
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
+    - RobinHood
     - scrypt.c
     - secp256k1.c
     - SnapKit
