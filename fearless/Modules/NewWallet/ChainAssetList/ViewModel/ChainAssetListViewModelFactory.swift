@@ -14,7 +14,8 @@ protocol ChainAssetListViewModelFactoryProtocol {
         prices: PriceDataUpdated,
         chainsWithIssues: [ChainModel.Id],
         chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings]
+        chainSettings: [ChainSettings],
+        activeFilters: [ChainAssetsFetching.Filter]
     ) -> ChainAssetListViewModel
 }
 
@@ -45,7 +46,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         prices: PriceDataUpdated,
         chainsWithIssues: [ChainModel.Id],
         chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings]
+        chainSettings: [ChainSettings],
+        activeFilters: [ChainAssetsFetching.Filter]
     ) -> ChainAssetListViewModel {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
@@ -130,6 +132,19 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         if hiddenSectionCellModels.isEmpty {
             hiddenSectionState = .empty
         }
+
+        let shouldShowEmptyStatePerFilter = activeFilters.map {
+            if case ChainAssetsFetching.Filter.search = $0 {
+                return true
+            }
+
+            if case ChainAssetsFetching.Filter.searchEmpty = $0 {
+                return false
+            }
+
+            return true
+        }
+        let emptyStateIsActive = activeSectionCellModels.isEmpty && hiddenSectionCellModels.isEmpty && shouldShowEmptyStatePerFilter.contains(where: { $0 == true })
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -140,7 +155,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 .hidden: hiddenSectionCellModels
             ],
             isColdBoot: isColdBoot,
-            hiddenSectionState: hiddenSectionState
+            hiddenSectionState: hiddenSectionState,
+            emptyStateIsActive: emptyStateIsActive
         )
     }
 }
