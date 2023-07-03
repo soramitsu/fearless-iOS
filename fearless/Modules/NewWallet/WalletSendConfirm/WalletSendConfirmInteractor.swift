@@ -46,13 +46,12 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func provideConstants() {
-        guard let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
-              let dependencies = dependencyContainer.prepareDepencies(chainAsset: utilityAsset) else {
+        guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
             return
         }
 
         dependencies.existentialDepositService.fetchExistentialDeposit(
-            chainAsset: utilityAsset
+            chainAsset: chainAsset
         ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
