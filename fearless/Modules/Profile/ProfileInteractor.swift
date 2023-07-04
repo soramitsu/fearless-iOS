@@ -18,6 +18,7 @@ final class ProfileInteractor {
     private var selectedMetaAccount: MetaAccountModel
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let chainsIssuesCenter: ChainsIssuesCenterProtocol
 
     private lazy var currentCurrency: Currency? = {
         selectedMetaAccount.selectedCurrency
@@ -32,7 +33,8 @@ final class ProfileInteractor {
         operationQueue: OperationQueue,
         selectedMetaAccount: MetaAccountModel,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
-        walletRepository: AnyDataProviderRepository<MetaAccountModel>
+        walletRepository: AnyDataProviderRepository<MetaAccountModel>,
+        chainsIssuesCenter: ChainsIssuesCenterProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -41,6 +43,7 @@ final class ProfileInteractor {
         self.selectedMetaAccount = selectedMetaAccount
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.walletRepository = walletRepository
+        self.chainsIssuesCenter = chainsIssuesCenter
     }
 
     // MARK: - Private methods
@@ -80,6 +83,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         provideUserSettings()
         provideSelectedCurrency()
         fetchBalances()
+        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
     }
 
     func updateWallet(_ wallet: MetaAccountModel) {
@@ -144,5 +148,18 @@ extension ProfileInteractor: EventVisitorProtocol {
 extension ProfileInteractor: WalletBalanceSubscriptionHandler {
     func handle(result: WalletBalancesResult) {
         presenter?.didReceiveWalletBalances(result)
+    }
+}
+
+extension ProfileInteractor: ChainsIssuesCenterListener {
+    func handleChainsIssues(_ issues: [ChainIssue]) {
+        let missingAccountIssues = issues.filter { issue in
+            switch issue {
+            case .missingAccount:
+                return true
+            default: return false
+            }
+        }
+        presenter?.didReceiveMissingAccount(issues: missingAccountIssues)
     }
 }
