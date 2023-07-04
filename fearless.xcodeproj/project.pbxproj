@@ -1557,6 +1557,7 @@
 		C603E81128583C2A00007B72 /* StakingMainRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */; };
 		C615668129309D3900391BF3 /* QRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C615668029309D3900391BF3 /* QRService.swift */; };
 		C61566852930A07900391BF3 /* QRCreationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61566842930A07900391BF3 /* QRCreationOperation.swift */; };
+		C61EF1082A5482CF00FD538C /* NumbersAndSlashesProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61EF1072A5482CF00FD538C /* NumbersAndSlashesProcessor.swift */; };
 		C6264C292799A56E00FCA0DB /* WalletDetailsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C282799A56E00FCA0DB /* WalletDetailsTableCell.swift */; };
 		C6264C2C2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C2B2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift */; };
 		C6264C2E2799C7EE00FCA0DB /* WalletDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C2D2799C7EE00FCA0DB /* WalletDetailsViewLayout.swift */; };
@@ -4165,6 +4166,7 @@
 		C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainRelaychainStrategy.swift; sourceTree = "<group>"; };
 		C615668029309D3900391BF3 /* QRService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
 		C61566842930A07900391BF3 /* QRCreationOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCreationOperation.swift; sourceTree = "<group>"; };
+		C61EF1072A5482CF00FD538C /* NumbersAndSlashesProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumbersAndSlashesProcessor.swift; sourceTree = "<group>"; };
 		C6264C282799A56E00FCA0DB /* WalletDetailsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableCell.swift; sourceTree = "<group>"; };
 		C6264C2B2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsCellViewModel.swift; sourceTree = "<group>"; };
 		C6264C2D2799C7EE00FCA0DB /* WalletDetailsViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsViewLayout.swift; sourceTree = "<group>"; };
@@ -7083,6 +7085,7 @@
 				843C49DA24DF373000B71DDA /* AccountImportRequest.swift */,
 				84BEE0EF2562897100D05EB3 /* AccountImportJsonFactory.swift */,
 				F4AE12A0268DD69B0097D1C7 /* MnemonicTextNormalizer.swift */,
+				C61EF1072A5482CF00FD538C /* NumbersAndSlashesProcessor.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -14906,6 +14909,7 @@
 				07DFA471289B8D8E0035A8AB /* EducationStoriesAssembly.swift in Sources */,
 				F43A8A9E265BA03500A8A5A8 /* CustomValidatorListViewModel.swift in Sources */,
 				FAA0133528DA12B6000A5230 /* StakingPoolMainPresenter.swift in Sources */,
+				C61EF1082A5482CF00FD538C /* NumbersAndSlashesProcessor.swift in Sources */,
 				070944292A303F5700508B42 /* AssetDetail.swift in Sources */,
 				AEA2C1BC2681E9CD0069492E /* ValidatorSearchPresenter.swift in Sources */,
 				845B821D26EF80DB00D25C72 /* ChainAccountModel.swift in Sources */,
