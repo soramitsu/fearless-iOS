@@ -60,6 +60,8 @@ class PinViewFactory: PinViewFactoryProtocol {
         let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
         let wireframe = PinSetupWireframe()
 
+        pinVerifyView.modalPresentationStyle = .fullScreen
+
         pinVerifyView.mode = .securedInput
 
         let interactor = LocalAuthInteractor(
