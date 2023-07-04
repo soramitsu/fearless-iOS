@@ -74,7 +74,7 @@ extension MainTabBarInteractor: EventVisitorProtocol {
     }
 
     func processUserInactive(event _: UserInactiveEvent) {
-        presenter?.handleLongInactivity()
+//        presenter?.handleLongInactivity()
     }
 }
 

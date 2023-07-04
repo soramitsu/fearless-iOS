@@ -29,9 +29,12 @@ class FearlessApplication: UIApplication {
     @objc private func dropSession() {
         EventCenter.shared.notify(with: UserInactiveEvent())
         if let window = UIApplication.shared.windows.first {
-            window.rootViewController?.dismiss(animated: true, completion: nil)
-            let presenter = RootPresenterFactory.createPresenter(with: window)
-            presenter.reload()
+            guard let pincodeViewController = PinViewFactory.createSecuredPinView()?.controller else {
+                return
+            }
+
+            window.rootViewController?.dismiss(animated: false)
+            window.rootViewController?.present(pincodeViewController, animated: false)
         }
     }
 }
