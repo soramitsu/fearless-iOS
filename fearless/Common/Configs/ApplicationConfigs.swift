@@ -118,7 +118,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var learnControllerAccountURL: URL {
         // swiftlint:disable:next line_length
-        URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
+        URL(string: "https://forum.polkadot.network/t/the-future-of-polkadot-staking/1848?ref=cms.polkadot.network#deprecating-controller-6")!
     }
 
     var twitter: URL {
