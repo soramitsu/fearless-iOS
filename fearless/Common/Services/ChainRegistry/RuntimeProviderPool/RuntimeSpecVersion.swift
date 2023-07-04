@@ -5,6 +5,7 @@ enum RuntimeSpecVersion: UInt32 {
     case v9380 = 9380
     case v9390 = 9390
     case v9420 = 9420
+    case v9430 = 9430
 
     static let defaultVersion: RuntimeSpecVersion = .v9390
 
@@ -18,6 +19,8 @@ enum RuntimeSpecVersion: UInt32 {
             self = .v9390
         case 9420:
             self = .v9420
+        case 9430:
+            self = .v9430
         default:
             self = RuntimeSpecVersion.defaultVersion
         }
