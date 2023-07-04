@@ -11,7 +11,8 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
         locale: Locale,
         language: Language,
         currency: Currency,
-        balance: WalletBalanceInfo?
+        balance: WalletBalanceInfo?,
+        missingAccountIssue: [ChainIssue]
     ) -> ProfileViewModelProtocol
 }
 
@@ -53,7 +54,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         locale: Locale,
         language: Language,
         currency: Currency,
-        balance: WalletBalanceInfo?
+        balance: WalletBalanceInfo?,
+        missingAccountIssue: [ChainIssue]
     ) -> ProfileViewModelProtocol {
         let profileUserViewModel = createUserViewModel(
             from: wallet,
@@ -64,7 +66,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             language: language,
             currency: currency,
             locale: locale,
-            wallet: wallet
+            wallet: wallet,
+            missingAccountIssue: missingAccountIssue
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         let viewModel = ProfileViewModel(
@@ -108,14 +111,15 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         language: Language,
         currency: Currency,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        missingAccountIssue: [ChainIssue]
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
                 return createAccountListViewModel(
                     for: locale,
-                    missingEthAccount: wallet.ethereumAddress == nil
+                    missingEthAccount: missingAccountIssue.isNotEmpty
                 )
             case .changePincode:
                 return createChangePincode(for: locale)
