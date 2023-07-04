@@ -45,17 +45,6 @@ extension AddAccount {
                 return item
             }
 
-            let persistentOperation = accountRepository.saveOperation({
-                if try checkOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
-                    throw AccountCreateError.duplicated
-                }
-
-                return [item]
-            }, { [] })
-
-            persistentOperation.addDependency(checkOperation)
-
             saveOperation.completionBlock = { [weak self] in
                 DispatchQueue.main.async {
                     switch saveOperation.result {
@@ -74,10 +63,10 @@ extension AddAccount {
                 }
             }
 
-            saveOperation.addDependency(persistentOperation)
+            saveOperation.addDependency(checkOperation)
 
             operationManager.enqueue(
-                operations: [checkOperation, persistentOperation, saveOperation],
+                operations: [checkOperation, saveOperation],
                 in: .transient
             )
         }
