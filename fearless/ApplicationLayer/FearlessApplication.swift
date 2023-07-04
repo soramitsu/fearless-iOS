@@ -27,7 +27,6 @@ class FearlessApplication: UIApplication {
     }
 
     @objc private func dropSession() {
-        EventCenter.shared.notify(with: UserInactiveEvent())
         if let window = UIApplication.shared.windows.first {
             guard let pincodeViewController = PinViewFactory.createSecuredPinView()?.controller else {
                 return
