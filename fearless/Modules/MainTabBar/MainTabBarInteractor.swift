@@ -62,10 +62,6 @@ extension MainTabBarInteractor: EventVisitorProtocol {
             self.presenter?.didReloadSelectedAccount()
         }
     }
-
-    func processUserInactive(event _: UserInactiveEvent) {
-        presenter?.handleLongInactivity()
-    }
 }
 
 extension MainTabBarInteractor: KeystoreImportObserver {
@@ -81,12 +77,5 @@ extension MainTabBarInteractor: KeystoreImportObserver {
 extension MainTabBarInteractor: ApplicationHandlerDelegate {
     func didReceiveDidEnterBackground(notification _: Notification) {
         goneBackgroundTimestamp = Date().timeIntervalSince1970
-    }
-
-    func didReceiveWillEnterForeground(notification _: Notification) {
-        if let goneBackgroundTimestamp = goneBackgroundTimestamp,
-           Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
-            presenter?.handleLongInactivity()
-        }
     }
 }
