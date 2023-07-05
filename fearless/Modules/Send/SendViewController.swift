@@ -174,6 +174,7 @@ extension SendViewController: SendViewInput {
 
     func didStopFeeCalculation() {
         rootView.actionButton.set(loading: false)
+        updateActionButton()
     }
 
     func didStopTipCalculation() {
