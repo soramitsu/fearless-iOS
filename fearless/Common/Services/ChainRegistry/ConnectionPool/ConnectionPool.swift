@@ -41,7 +41,6 @@ final class ConnectionPool {
     init(connectionFactory: ConnectionFactoryProtocol, operationQueue: OperationQueue) {
         self.connectionFactory = connectionFactory
         self.operationQueue = operationQueue
-        applicationHandler.delegate = self
     }
 }
 
@@ -133,33 +132,5 @@ extension ConnectionPool: WebSocketEngineDelegate {
         }
 
         delegate?.webSocketDidChangeState(url: previousUrl, state: newState)
-    }
-}
-
-// MARK: - ApplicationHandlerDelegate
-
-extension ConnectionPool: ApplicationHandlerDelegate {
-    func didReceiveDidEnterBackground(notification _: Notification) {
-        let operations: [DisconnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
-            guard let connection = wrapper.target as? ChainConnection else {
-                return nil
-            }
-
-            return DisconnectOperation(connection: connection)
-        }
-
-        operationQueue.addOperations(operations, waitUntilFinished: true)
-    }
-
-    func didReceiveWillEnterForeground(notification _: Notification) {
-        let operations: [ConnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
-            guard let connection = wrapper.target as? ChainConnection else {
-                return nil
-            }
-
-            return ConnectOperation(connection: connection)
-        }
-
-        operationQueue.addOperations(operations, waitUntilFinished: true)
     }
 }

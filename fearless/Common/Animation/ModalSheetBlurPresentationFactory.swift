@@ -5,8 +5,6 @@ final class ModalSheetBlurPresentationFactory: NSObject {
     private let configuration: ModalSheetPresentationConfiguration
     private let shouldDissmissWhenTapOnBlurArea: Bool
 
-    private var presentation: ModalSheetBlurPresentationController?
-
     init(
         configuration: ModalSheetPresentationConfiguration,
         shouldDissmissWhenTapOnBlurArea: Bool = true
@@ -42,18 +40,11 @@ extension ModalSheetBlurPresentationFactory: UIViewControllerTransitioningDelega
         presenting: UIViewController?,
         source _: UIViewController
     ) -> UIPresentationController? {
-        presentation = ModalSheetBlurPresentationController(
+        ModalSheetBlurPresentationController(
             presentedViewController: presented,
             presenting: presenting,
             configuration: configuration,
             shouldDissmissWhenTapOnBlurArea: shouldDissmissWhenTapOnBlurArea
         )
-        return presentation
-    }
-
-    public func interactionControllerForDismissal(
-        using _: UIViewControllerAnimatedTransitioning
-    ) -> UIViewControllerInteractiveTransitioning? {
-        presentation?.interactiveDismissal
     }
 }

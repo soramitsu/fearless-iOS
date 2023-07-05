@@ -137,6 +137,9 @@ final class ChainSyncService {
         }
 
         let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+            guard !item.disabled else {
+                return
+            }
             mapping[item.chainId] = item
         }
 

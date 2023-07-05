@@ -243,7 +243,9 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func syncUp() {
-        syncUpServices()
+        DispatchQueue.global().async {
+            self.syncUpServices()
+        }
     }
 
     func resetConnection(for chainId: ChainModel.Id) {
