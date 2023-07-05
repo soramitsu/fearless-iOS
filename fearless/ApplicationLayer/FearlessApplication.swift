@@ -28,7 +28,7 @@ class FearlessApplication: UIApplication {
 
     @objc private func dropSession() {
         if let window = UIApplication.shared.windows.first {
-            guard let pincodeViewController = PinViewFactory.createSecuredPinView()?.controller else {
+            guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
                 return
             }
 
