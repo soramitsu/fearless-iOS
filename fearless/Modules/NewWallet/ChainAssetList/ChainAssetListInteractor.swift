@@ -285,7 +285,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent) {
         accountInfoSubscriptionAdapter.subscribe(
-            chainsAssets: [event.chainAsset],
+            chainsAssets: event.chainModel.chainAssets,
             handler: self,
             deliveryOn: accountInfosDeliveryQueue
         )

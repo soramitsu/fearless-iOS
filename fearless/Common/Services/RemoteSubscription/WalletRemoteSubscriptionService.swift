@@ -3,15 +3,15 @@ import SSFModels
 
 protocol WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
-        of accountId: AccountId,
-        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        chainModel: ChainModel,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) -> UUID?
 
     func detachFromAccountInfo(
         for subscriptionId: UUID,
-        chainAssetKey: ChainAssetKey,
+        chainId: ChainModel.Id,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     )
@@ -19,54 +19,57 @@ protocol WalletRemoteSubscriptionServiceProtocol {
 
 class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStorageWrapper>, WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
-        of accountId: AccountId,
-        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        chainModel: ChainModel,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) -> UUID? {
         do {
-            let storagePath = chainAsset.storagePath
+            let requests: [SubscriptionRequestProtocol] = try chainModel.chainAssets.compactMap { chainAsset in
+                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                    return nil
+                }
+                let storagePath = chainAsset.storagePath
 
-            let localKey = try LocalStorageKeyFactory().createFromStoragePath(
-                storagePath,
-                chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
-            )
+                let localKey = try LocalStorageKeyFactory().createFromStoragePath(
+                    storagePath,
+                    chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+                )
 
-            var request: SubscriptionRequestProtocol
-
-            switch chainAsset.currencyId {
-            case .soraAsset:
-                if chainAsset.isUtility {
-                    request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
+                switch chainAsset.currencyId {
+                case .soraAsset:
+                    if chainAsset.isUtility {
+                        return MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
+                            accountId
+                        }
+                    } else {
+                        return NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
+                            [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: chainAsset.currencyId)]]
+                        })
+                    }
+                case .equilibrium:
+                    return MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
                         accountId
                     }
-                } else {
-                    request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
+                case .assets:
+                    return NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
+                        [[NMapKeyParam(value: chainAsset.currencyId)], [NMapKeyParam(value: accountId)]]
+                    })
+                case .none:
+                    return MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
+                        accountId
+                    }
+                default:
+                    return NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
                         [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: chainAsset.currencyId)]]
                     })
                 }
-            case .equilibrium:
-                request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
-                    accountId
-                }
-            case .assets:
-                request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
-                    [[NMapKeyParam(value: chainAsset.currencyId)], [NMapKeyParam(value: accountId)]]
-                })
-            case .none:
-                request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
-                    accountId
-                }
-            default:
-                request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
-                    [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: chainAsset.currencyId)]]
-                })
             }
 
             return attachToSubscription(
-                with: [request],
-                chainId: chainAsset.chain.chainId,
-                cacheKey: localKey,
+                with: requests,
+                chainId: chainModel.chainId,
+                cacheKey: chainModel.chainId,
                 queue: queue,
                 closure: closure
             )
@@ -78,20 +81,10 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
 
     func detachFromAccountInfo(
         for subscriptionId: UUID,
-        chainAssetKey: ChainAssetKey,
+        chainId: ChainModel.Id,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) {
-        do {
-            let storagePath = StorageCodingPath.account
-            let localKey = try LocalStorageKeyFactory().createFromStoragePath(
-                storagePath,
-                chainAssetKey: chainAssetKey
-            )
-
-            detachFromSubscription(localKey, subscriptionId: subscriptionId, queue: queue, closure: closure)
-        } catch {
-            callbackClosureIfProvided(closure, queue: queue, result: .failure(error))
-        }
+        detachFromSubscription(chainId, subscriptionId: subscriptionId, queue: queue, closure: closure)
     }
 }

@@ -9,7 +9,6 @@ protocol AccountInfoUpdatingServiceProtocol: ApplicationServiceProtocol {
 final class AccountInfoUpdatingService {
     struct SubscriptionInfo {
         let subscriptionId: UUID
-        let accountId: AccountId
     }
 
     private(set) var selectedMetaAccount: MetaAccountModel
@@ -19,7 +18,7 @@ final class AccountInfoUpdatingService {
     private let eventCenter: EventCenterProtocol
     private var chains: [ChainModel.Id: ChainModel] = [:]
 
-    private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
+    private var subscribedChains: [ChainModel.Id: SubscriptionInfo] = [:]
 
     private let mutex = NSLock()
     private lazy var readLock = ReaderWriterLock()
@@ -53,9 +52,7 @@ final class AccountInfoUpdatingService {
             switch change {
             case let .insert(newItem):
                 if chainRegistry.availableChainIds.or([]).contains(newItem.chainId) {
-                    newItem.chainAssets.forEach {
-                        addSubscriptionIfNeeded(for: $0)
-                    }
+                    addSubscriptionIfNeeded(for: newItem)
                 } else {
                     chains[newItem.chainId] = newItem
                 }
@@ -67,31 +64,21 @@ final class AccountInfoUpdatingService {
         }
     }
 
-    private func addSubscriptionIfNeeded(for chainAsset: ChainAsset, closure: RemoteSubscriptionClosure? = nil) {
-        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            logger?.error("Couldn't create account for chain \(chainAsset.chain.chainId)")
-            return
-        }
-
-        let key = chainAsset.uniqueKey(accountId: accountId)
-        guard getSubscription(for: key) == nil else {
+    private func addSubscriptionIfNeeded(for chainModel: ChainModel, closure: RemoteSubscriptionClosure? = nil) {
+        guard getSubscription(for: chainModel.chainId) == nil else {
             return
         }
 
         let maybeSubscriptionId = remoteSubscriptionService.attachToAccountInfo(
-            of: accountId,
-            chainAsset: chainAsset,
+            wallet: selectedMetaAccount,
+            chainModel: chainModel,
             queue: nil,
             closure: closure
         )
 
         if let subsciptionId = maybeSubscriptionId {
-            let subscription = SubscriptionInfo(
-                subscriptionId: subsciptionId,
-                accountId: accountId
-            )
-
-            setSubscription(subscription, for: chainAsset.uniqueKey(accountId: accountId))
+            let subscription = SubscriptionInfo(subscriptionId: subsciptionId)
+            setSubscription(subscription, for: chainModel.chainId)
         }
     }
 
@@ -101,31 +88,26 @@ final class AccountInfoUpdatingService {
         }
     }
 
-    private func getSubscription(for key: ChainAssetKey) -> SubscriptionInfo? {
+    private func getSubscription(for key: ChainModel.Id) -> SubscriptionInfo? {
         readLock.concurrentlyRead { subscribedChains[key] }
     }
 
-    private func updateSubscription(for chainAsset: ChainAsset) {
-        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            return
-        }
-        let key = chainAsset.uniqueKey(accountId: accountId)
-
-        guard let subscriptionInfo = getSubscription(for: key) else {
-            logger?.error("Expected to update subscription but not found for \(key)")
+    private func updateSubscription(for chainModel: ChainModel) {
+        guard let subscriptionInfo = getSubscription(for: chainModel.chainId) else {
+            logger?.error("Expected to update subscription but not found for \(chainModel.name)")
             return
         }
 
         remoteSubscriptionService.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
-            chainAssetKey: key,
+            chainId: chainModel.chainId,
             queue: nil
         ) { [weak self] _ in
-            self?.setSubscription(nil, for: key)
-            self?.addSubscriptionIfNeeded(for: chainAsset) { result in
+            self?.setSubscription(nil, for: chainModel.chainId)
+            self?.addSubscriptionIfNeeded(for: chainModel) { result in
                 switch result {
                 case .success:
-                    let event = WalletRemoteSubscriptionWasUpdatedEvent(chainAsset: chainAsset)
+                    let event = WalletRemoteSubscriptionWasUpdatedEvent(chainModel: chainModel)
                     self?.eventCenter.notify(with: event)
                 case let .failure(error):
                     self?.logger?.error("Can't add subscription if nedded error: \(error)")
@@ -134,17 +116,17 @@ final class AccountInfoUpdatingService {
         }
     }
 
-    private func removeSubscription(for key: ChainAssetKey) {
-        guard let subscriptionInfo = getSubscription(for: key) else {
-            logger?.error("Expected to remove subscription but not found for \(key)")
+    private func removeSubscription(for chainId: ChainModel.Id) {
+        guard let subscriptionInfo = getSubscription(for: chainId) else {
+            logger?.error("Expected to remove subscription but not found for \(chainId)")
             return
         }
 
-        setSubscription(nil, for: key)
+        setSubscription(nil, for: chainId)
 
         remoteSubscriptionService.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
-            chainAssetKey: key,
+            chainId: chainId,
             queue: nil,
             closure: nil
         )
@@ -188,16 +170,11 @@ extension AccountInfoUpdatingService: AccountInfoUpdatingServiceProtocol {
 extension AccountInfoUpdatingService: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         event.updatedChains.forEach { chain in
-            chain.chainAssets.forEach {
-                updateSubscription(for: $0)
-            }
+            updateSubscription(for: chain)
         }
     }
 
     func processRuntimeSnapshorReady(event: RuntimeSnapshotReady) {
-        let chainAssets = event.chainModel.chainAssets
-        chainAssets.forEach {
-            updateSubscription(for: $0)
-        }
+        updateSubscription(for: event.chainModel)
     }
 }
