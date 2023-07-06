@@ -70,6 +70,14 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         } ?? false
     }
 
+    func logout(from _: MainTabBarViewProtocol?) {
+        if let window = UIApplication.shared.windows.first {
+            window.rootViewController?.dismiss(animated: true, completion: nil)
+            let presenter = RootPresenterFactory.createPresenter(with: window)
+            presenter.reload()
+        }
+    }
+
     func replaceStaking(
         on view: MainTabBarViewProtocol?,
         type: AssetSelectionStakingType,
