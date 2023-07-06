@@ -13,7 +13,7 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
         EventCenter.shared
     }()
 
-    private let mutex = NSLock()
+    private let readWriterLock = ReaderWriterLock()
 
     init(pricesIds: [AssetModel.PriceId], currency: Currency? = nil) {
         self.pricesIds = pricesIds
@@ -22,7 +22,11 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
-        if let currency = self.currency ?? SelectedWalletSettings.shared.value?.selectedCurrency {
+        let currency = readWriterLock.concurrentlyRead {
+            self.currency ?? SelectedWalletSettings.shared.value?.selectedCurrency
+        }
+
+        if let currency = currency {
             let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(
                 for: pricesIds,
                 currency: currency
@@ -50,14 +54,10 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
 
 extension CoingeckoPricesSource: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        if currency != event.account.selectedCurrency {
-            currency = event.account.selectedCurrency
+        readWriterLock.exclusivelyWrite { [unowned self] in
+            if self.currency != event.account.selectedCurrency {
+                self.currency = event.account.selectedCurrency
+            }
         }
     }
 }

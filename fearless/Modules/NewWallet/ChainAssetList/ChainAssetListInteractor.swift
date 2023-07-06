@@ -316,7 +316,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         self.wallet = wallet
-        output?.didReceiveWallet(wallet: wallet)
+        output?.handleWalletChanged(wallet: wallet)
         updateChainAssets(using: filters, sorts: sorts)
     }
 }

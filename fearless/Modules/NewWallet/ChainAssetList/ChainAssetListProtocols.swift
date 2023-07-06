@@ -36,6 +36,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func updateViewModel(isInitSearchState: Bool)
     func didReceive(chainSettings: [ChainSettings])
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
+    func handleWalletChanged(wallet: MetaAccountModel)
 }
 
 protocol ChainAssetListRouterInput:

@@ -221,6 +221,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     }
 
     func didReceiveWallet(wallet: MetaAccountModel) {
+        self.wallet = wallet
+    }
+
+    func handleWalletChanged(wallet: MetaAccountModel) {
         accountInfos = [:]
         self.wallet = wallet
     }
