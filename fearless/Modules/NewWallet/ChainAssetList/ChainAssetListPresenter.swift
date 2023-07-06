@@ -31,6 +31,7 @@ final class ChainAssetListPresenter: NSObject {
     private var chainSettings: [ChainSettings]?
 
     private var activeFilters: [ChainAssetsFetching.Filter] = []
+    private var provideModelWorkItem: DispatchWorkItem?
 
     // MARK: - Constructors
 
@@ -52,12 +53,7 @@ final class ChainAssetListPresenter: NSObject {
     // MARK: - Private methods
 
     private func scheduleProvideViewModel() {
-        NSObject.cancelPreviousPerformRequests(
-            withTarget: self,
-            selector: #selector(provideViewModel),
-            object: nil
-        )
-        perform(#selector(provideViewModel), with: nil, afterDelay: 0.5)
+        provideViewModel()
     }
 
     @objc private func provideViewModel() {
