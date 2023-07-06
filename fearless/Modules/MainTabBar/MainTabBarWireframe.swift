@@ -70,15 +70,17 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         } ?? false
     }
 
-    func logout(from _: MainTabBarViewProtocol?) {
-        if let window = UIApplication.shared.windows.first {
-            guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
-                return
-            }
-
-            window.rootViewController?.dismiss(animated: false)
-            window.rootViewController?.present(pincodeViewController, animated: false)
+    func logout(from view: MainTabBarViewProtocol?) {
+        guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
+            return
         }
+
+        guard let tabBarController = view?.controller else {
+            return
+        }
+
+        let presentingController = tabBarController.topModalViewController
+        presentingController.present(pincodeViewController, animated: true, completion: nil)
     }
 
     func replaceStaking(
