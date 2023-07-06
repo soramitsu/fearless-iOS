@@ -114,6 +114,12 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
         self.filters = filters
         self.sorts = sorts
 
