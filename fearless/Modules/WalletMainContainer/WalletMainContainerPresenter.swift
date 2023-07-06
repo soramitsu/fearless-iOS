@@ -6,6 +6,7 @@ import SSFModels
 final class WalletMainContainerPresenter {
     // MARK: Private properties
 
+    private weak var balanceInfoModuleInput: BalanceInfoModuleInput?
     private weak var assetListModuleInput: ChainAssetListModuleInput?
     private weak var view: WalletMainContainerViewInput?
     private let router: WalletMainContainerRouterInput
@@ -23,6 +24,7 @@ final class WalletMainContainerPresenter {
     // MARK: - Constructors
 
     init(
+        balanceInfoModuleInput: BalanceInfoModuleInput?,
         assetListModuleInput: ChainAssetListModuleInput?,
         wallet: MetaAccountModel,
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
@@ -30,6 +32,7 @@ final class WalletMainContainerPresenter {
         router: WalletMainContainerRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.balanceInfoModuleInput = balanceInfoModuleInput
         self.assetListModuleInput = assetListModuleInput
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
@@ -128,6 +131,8 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     func didReceiveAccount(_ account: MetaAccountModel) {
         wallet = account
         provideViewModel()
+
+        balanceInfoModuleInput?.replace(infoType: .wallet(wallet: account))
     }
 
     func didReceiveChainsIssues(chainsIssues: [ChainIssue]) {
