@@ -62,10 +62,6 @@ extension MainTabBarInteractor: EventVisitorProtocol {
             self.presenter?.didReloadSelectedAccount()
         }
     }
-
-    func processUserInactive(event _: UserInactiveEvent) {
-        presenter?.handleLongInactivity()
-    }
 }
 
 extension MainTabBarInteractor: KeystoreImportObserver {
