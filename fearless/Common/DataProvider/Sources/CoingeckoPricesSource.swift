@@ -13,6 +13,8 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
         EventCenter.shared
     }()
 
+    private let mutex = NSLock()
+
     init(pricesIds: [AssetModel.PriceId], currency: Currency? = nil) {
         self.pricesIds = pricesIds
         self.currency = currency
@@ -48,6 +50,14 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
 
 extension CoingeckoPricesSource: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        currency = event.account.selectedCurrency
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        if currency != event.account.selectedCurrency {
+            currency = event.account.selectedCurrency
+        }
     }
 }

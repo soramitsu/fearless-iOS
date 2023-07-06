@@ -25,6 +25,8 @@ final class ChainAssetListInteractor {
     private var filters: [ChainAssetsFetching.Filter] = []
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
+    private let mutex = NSLock()
+
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
     }()
@@ -112,6 +114,12 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
         self.filters = filters
         self.sorts = sorts
 
@@ -204,6 +212,12 @@ private extension ChainAssetListInteractor {
     }
 
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,
             handler: self,
