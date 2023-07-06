@@ -8,8 +8,6 @@ final class ChainAssetListInteractor {
 
     private weak var output: ChainAssetListInteractorOutput?
 
-    private let chainAssetFetching: ChainAssetFetchingProtocol
-    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let assetRepository: AnyDataProviderRepository<AssetModel>
     private let operationQueue: OperationQueue
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
@@ -20,6 +18,7 @@ final class ChainAssetListInteractor {
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     private let accountInfoFetching: AccountInfoFetchingProtocol
     private let settings: SettingsManagerProtocol
+    private let dependencyContainer: ChainAssetListDependencyContainer
 
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
@@ -36,8 +35,6 @@ final class ChainAssetListInteractor {
 
     init(
         wallet: MetaAccountModel,
-        chainAssetFetching: ChainAssetFetchingProtocol,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
@@ -46,11 +43,10 @@ final class ChainAssetListInteractor {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
         accountInfoFetching: AccountInfoFetchingProtocol,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        dependencyContainer: ChainAssetListDependencyContainer
     ) {
         self.wallet = wallet
-        self.chainAssetFetching = chainAssetFetching
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
@@ -60,6 +56,7 @@ final class ChainAssetListInteractor {
         self.chainSettingsRepository = chainSettingsRepository
         self.accountInfoFetching = accountInfoFetching
         self.settings = settings
+        self.dependencyContainer = dependencyContainer
     }
 
     // MARK: - Private methods
@@ -123,6 +120,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         self.filters = filters
         self.sorts = sorts
 
+        let chainAssetFetching = dependencyContainer.buildDependencies(for: wallet).chainAssetFetching
         chainAssetFetching.fetch(
             filters: filters,
             sortDescriptors: sorts
@@ -218,6 +216,8 @@ private extension ChainAssetListInteractor {
             mutex.unlock()
         }
 
+        let accountInfoSubscriptionAdapter = dependencyContainer.buildDependencies(for: wallet).accountInfoSubscriptionAdapter
+
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,
             handler: self,
@@ -298,6 +298,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent) {
+        let accountInfoSubscriptionAdapter = dependencyContainer.buildDependencies(for: wallet).accountInfoSubscriptionAdapter
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: [event.chainAsset],
             handler: self,
@@ -307,6 +308,16 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processChainsSettingsChanged() {
         fetchChainSettings()
+    }
+
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        guard let wallet = SelectedWalletSettings.shared.value else {
+            return
+        }
+
+        self.wallet = wallet
+        output?.handleWalletChanged(wallet: wallet)
+        updateChainAssets(using: filters, sorts: sorts)
     }
 }
 

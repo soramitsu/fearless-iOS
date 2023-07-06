@@ -169,6 +169,14 @@ final class StakingMainPresenter {
 // MARK: - StakingMainPresenterProtocol
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
+    func didTriggerViewWillAppear() {
+        interactor.changeActiveState(true)
+    }
+
+    func didTriggerViewWillDisappear() {
+        interactor.changeActiveState(false)
+    }
+
     func setup() {
         if setupDone {
             return
