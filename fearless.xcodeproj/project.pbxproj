@@ -2418,6 +2418,7 @@
 		FAB0EDE027AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDDF27AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift */; };
 		FAB0EDE227AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */; };
 		FAB94BF22A568D1800B3B66B /* ChainAssetListDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB94BF12A568D1800B3B66B /* ChainAssetListDependencyContainer.swift */; };
+		FAB94BF62A57253900B3B66B /* AwaitOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB94BF52A57253900B3B66B /* AwaitOperation.swift */; };
 		FABC71AA29DD72C10074A31E /* CrossChainRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABC719629DD72C00074A31E /* CrossChainRouter.swift */; };
 		FABC71AB29DD72C10074A31E /* CrossChainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABC719729DD72C00074A31E /* CrossChainViewController.swift */; };
 		FABC71AC29DD72C10074A31E /* CrossChainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABC719829DD72C00074A31E /* CrossChainInteractor.swift */; };
@@ -5080,6 +5081,7 @@
 		FAB0EDDF27AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewModelFactory.swift; sourceTree = "<group>"; };
 		FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionTableCellViewModel.swift; sourceTree = "<group>"; };
 		FAB94BF12A568D1800B3B66B /* ChainAssetListDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListDependencyContainer.swift; sourceTree = "<group>"; };
+		FAB94BF52A57253900B3B66B /* AwaitOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AwaitOperation.swift; sourceTree = "<group>"; };
 		FABC719629DD72C00074A31E /* CrossChainRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainRouter.swift; sourceTree = "<group>"; };
 		FABC719729DD72C00074A31E /* CrossChainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainViewController.swift; sourceTree = "<group>"; };
 		FABC719829DD72C00074A31E /* CrossChainInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainInteractor.swift; sourceTree = "<group>"; };
@@ -8536,6 +8538,7 @@
 		8490150124AB6BEA008F705E /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				FAB94BF42A57253200B3B66B /* Operations */,
 				FAFFAE4129AC84B10074AF1F /* BlockExplorer */,
 				FAC0BBB0291D074400E6F106 /* RuntimeCall */,
 				FA25698C274CE65100875A53 /* Requests */,
@@ -12644,6 +12647,14 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		FAB94BF42A57253200B3B66B /* Operations */ = {
+			isa = PBXGroup;
+			children = (
+				FAB94BF52A57253900B3B66B /* AwaitOperation.swift */,
+			);
+			path = Operations;
+			sourceTree = "<group>";
+		};
 		FABC719529DD72C00074A31E /* CrossChain */ = {
 			isa = PBXGroup;
 			children = (
@@ -15150,6 +15161,7 @@
 				84BAFCD226AF5EE700871E86 /* IconDetailsView.swift in Sources */,
 				B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */,
 				607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */,
+				FAB94BF62A57253900B3B66B /* AwaitOperation.swift in Sources */,
 				FA8F63B1298273FE004B8CD4 /* DecodedTypes.swift in Sources */,
 				8401AEC62642A71D000B03E3 /* StakingRebondConfirmationLayout.swift in Sources */,
 				84981CC32666D95F00C4C691 /* GradientButton+Style.swift in Sources */,

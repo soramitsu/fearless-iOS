@@ -152,6 +152,17 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
     func processChainsSettingsChanged() {
         fetchChainSettings()
     }
+
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        guard let wallet = SelectedWalletSettings.shared.value else {
+            return
+        }
+
+        self.wallet = wallet
+        output?.didReceiveAccount(wallet)
+
+        fetchSelectedChainName()
+    }
 }
 
 // MARK: - ChainsIssuesCenterListener
