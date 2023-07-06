@@ -29,17 +29,6 @@ final class ChainAssetListAssembly {
         )
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .userInitiated
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
-        )
-
-        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            selectedMetaAccount: wallet
-        )
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
@@ -65,10 +54,10 @@ final class ChainAssetListAssembly {
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepository = chainSettingsRepositoryFactory.createRepository()
 
+        let dependencyContainer = ChainAssetListDependencyContainer()
+
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
-            chainAssetFetching: chainAssetFetching,
-            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
@@ -77,7 +66,8 @@ final class ChainAssetListAssembly {
             accountRepository: AnyDataProviderRepository(accountRepository),
             chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepository),
             accountInfoFetching: accountInfoFetching,
-            settings: SettingsManager.shared
+            settings: SettingsManager.shared,
+            dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

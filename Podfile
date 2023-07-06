@@ -42,7 +42,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection'
           pod 'SSFNetwork'
-          pod 'SSFUtils'
+#          pod 'SSFUtils'
           pod 'SSFChainRegistry'
           pod 'SSFHelpers'
       end
@@ -62,7 +62,7 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFStorageQueryKit', :path => '../soramitsu-shared-features-ios/SSFStorageQueryKit'
 #  pod 'SSFChainConnection', :path => '../soramitsu-shared-features-ios/SSFChainConnection'
 #  pod 'SSFNetwork', :path => '../soramitsu-shared-features-ios/SSFNetwork'
-#  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
+  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
 #  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
 #  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
 

@@ -51,6 +51,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
     }
 
+    var isActive: Bool = false
+
     private var chainSubscriptionId: UUID?
     private var accountSubscriptionId: UUID?
 

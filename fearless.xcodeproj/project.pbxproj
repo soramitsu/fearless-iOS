@@ -2417,6 +2417,7 @@
 		FAB0EDDE27AA6DDC003D93C2 /* NodeSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDDD27AA6DDC003D93C2 /* NodeSelectionViewModel.swift */; };
 		FAB0EDE027AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDDF27AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift */; };
 		FAB0EDE227AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */; };
+		FAB94BF22A568D1800B3B66B /* ChainAssetListDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB94BF12A568D1800B3B66B /* ChainAssetListDependencyContainer.swift */; };
 		FABC71AA29DD72C10074A31E /* CrossChainRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABC719629DD72C00074A31E /* CrossChainRouter.swift */; };
 		FABC71AB29DD72C10074A31E /* CrossChainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABC719729DD72C00074A31E /* CrossChainViewController.swift */; };
 		FABC71AC29DD72C10074A31E /* CrossChainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FABC719829DD72C00074A31E /* CrossChainInteractor.swift */; };
@@ -5079,6 +5080,7 @@
 		FAB0EDDD27AA6DDC003D93C2 /* NodeSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewModel.swift; sourceTree = "<group>"; };
 		FAB0EDDF27AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewModelFactory.swift; sourceTree = "<group>"; };
 		FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionTableCellViewModel.swift; sourceTree = "<group>"; };
+		FAB94BF12A568D1800B3B66B /* ChainAssetListDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListDependencyContainer.swift; sourceTree = "<group>"; };
 		FABC719629DD72C00074A31E /* CrossChainRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainRouter.swift; sourceTree = "<group>"; };
 		FABC719729DD72C00074A31E /* CrossChainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainViewController.swift; sourceTree = "<group>"; };
 		FABC719829DD72C00074A31E /* CrossChainInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainInteractor.swift; sourceTree = "<group>"; };
@@ -10306,6 +10308,7 @@
 				C6267B8A28BDF6A5001E31BF /* ChainAssetListPresenter.swift */,
 				C6267B8B28BDF6A5001E31BF /* Views */,
 				C6267B8C28BDF6A5001E31BF /* ChainAssetListInteractor.swift */,
+				FAB94BF12A568D1800B3B66B /* ChainAssetListDependencyContainer.swift */,
 			);
 			path = ChainAssetList;
 			sourceTree = "<group>";
@@ -14980,6 +14983,7 @@
 				846CA77A27099B1E0011124C /* StakingAnalyticsLocalSubscriptionFactory.swift in Sources */,
 				FAADC1B62926597400DA9903 /* ScanQRAssembly.swift in Sources */,
 				C67E780F27B3163B0053346B /* CheckPincodeProtocols.swift in Sources */,
+				FAB94BF22A568D1800B3B66B /* ChainAssetListDependencyContainer.swift in Sources */,
 				8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */,
 				E14F809C3917EFA4B5388AC8 /* AccountConfirmViewFactory.swift in Sources */,
 				9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */,
