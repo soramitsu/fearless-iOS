@@ -31,7 +31,6 @@ final class ChainAssetListPresenter: NSObject {
     private var chainSettings: [ChainSettings]?
 
     private var activeFilters: [ChainAssetsFetching.Filter] = []
-    private var provideModelWorkItem: DispatchWorkItem?
 
     // MARK: - Constructors
 
