@@ -70,6 +70,19 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         } ?? false
     }
 
+    func logout(from view: MainTabBarViewProtocol?) {
+        guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
+            return
+        }
+
+        guard let tabBarController = view?.controller else {
+            return
+        }
+
+        let presentingController = tabBarController.topModalViewController
+        presentingController.present(pincodeViewController, animated: true, completion: nil)
+    }
+
     func replaceStaking(
         on view: MainTabBarViewProtocol?,
         type: AssetSelectionStakingType,

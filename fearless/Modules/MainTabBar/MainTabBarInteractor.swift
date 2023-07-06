@@ -78,4 +78,11 @@ extension MainTabBarInteractor: ApplicationHandlerDelegate {
     func didReceiveDidEnterBackground(notification _: Notification) {
         goneBackgroundTimestamp = Date().timeIntervalSince1970
     }
+
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        if let goneBackgroundTimestamp = goneBackgroundTimestamp,
+           Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
+            presenter?.handleLongInactivity()
+        }
+    }
 }

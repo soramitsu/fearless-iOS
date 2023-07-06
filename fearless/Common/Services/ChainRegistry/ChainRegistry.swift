@@ -257,6 +257,12 @@ extension ChainRegistry: ChainRegistryProtocol {
 
 extension ChainRegistry: ConnectionPoolDelegate {
     func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
         guard let changedStateChain = chains.first(where: { chain in
             chain.nodes.first { node in
                 node.url == url
