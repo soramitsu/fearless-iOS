@@ -216,27 +216,17 @@ final class RuntimeProvider {
     }
 
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        ClosureOperation { [weak self] in
-            guard let strongSelf = self else {
-                throw RuntimeProviderError.providerUnavailable
+        AwaitOperation { [weak self] in
+            try await withCheckedThrowingContinuation { continuation in
+                self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+                    guard let factory = factory else {
+                        continuation.resume(with: .failure(RuntimeProviderError.providerUnavailable))
+                        return
+                    }
+
+                    continuation.resume(with: .success(factory))
+                }
             }
-
-            var fetchedFactory: RuntimeCoderFactoryProtocol?
-
-            let semaphore = DispatchSemaphore(value: 0)
-
-            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
-                fetchedFactory = factory
-                semaphore.signal()
-            }
-
-            semaphore.wait()
-
-            guard let factory = fetchedFactory else {
-                throw RuntimeProviderError.providerUnavailable
-            }
-
-            return factory
         }
     }
 
@@ -244,26 +234,17 @@ final class RuntimeProvider {
         with _: TimeInterval,
         closure _: RuntimeMetadataClosure?
     ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        ClosureOperation { [weak self] in
-            guard let strongSelf = self else {
-                throw RuntimeProviderError.providerUnavailable
+        AwaitOperation { [weak self] in
+            try await withCheckedThrowingContinuation { continuation in
+                self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+                    guard let factory = factory else {
+                        continuation.resume(with: .failure(RuntimeProviderError.providerUnavailable))
+                        return
+                    }
+
+                    continuation.resume(with: .success(factory))
+                }
             }
-
-            var fetchedFactory: RuntimeCoderFactoryProtocol?
-            let semaphore = DispatchSemaphore(value: 0)
-
-            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
-                fetchedFactory = factory
-                semaphore.signal()
-            }
-
-            semaphore.wait()
-
-            guard let factory = fetchedFactory else {
-                throw RuntimeProviderError.providerUnavailable
-            }
-
-            return factory
         }
     }
 }
