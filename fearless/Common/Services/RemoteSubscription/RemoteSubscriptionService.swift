@@ -82,6 +82,7 @@ class RemoteSubscriptionService<T: StorageWrapper> {
         let subscriptionId = UUID()
 
         if let active = activeSubscriptions[cacheKey] {
+            print("Found active subscription")
             active.subscriptionIds.insert(subscriptionId)
 
             callbackClosureIfProvided(closure, queue: queue, result: .success(()))
@@ -90,6 +91,7 @@ class RemoteSubscriptionService<T: StorageWrapper> {
         }
 
         if let pending = pendingSubscriptions[cacheKey] {
+            print("Found pending subscription")
             pending.subscriptionIds.insert(subscriptionId)
 
             if let closure = closure {
@@ -99,9 +101,13 @@ class RemoteSubscriptionService<T: StorageWrapper> {
             return subscriptionId
         }
 
+        print("Start creating wrapper")
         let wrapper = subscriptionOperation(using: requests, chainId: chainId)
+        print("Finish creating wrapper")
 
         wrapper.targetOperation.completionBlock = { [weak self] in
+            print("Did enter wrapper.targetOperation completionBlock")
+
             switch wrapper.targetOperation.result {
             case let .failure(error):
                 self?.logger.error("\(error)")
@@ -176,14 +182,17 @@ class RemoteSubscriptionService<T: StorageWrapper> {
         using requests: [SubscriptionRequestProtocol],
         chainId: ChainModel.Id
     ) -> CompoundOperationWrapper<StorageSubscriptionContainer> {
+        print("Trying to get runtimeProvider")
         guard let runtimeProvider = chainRegistry.getRuntimeProvider(for: chainId) else {
             return CompoundOperationWrapper.createWithError(
                 ChainRegistryError.runtimeMetadaUnavailable
             )
         }
 
+        print("Trying to get coderFactoryOperation")
         let coderFactoryOperation = runtimeProvider.fetchCoderFactoryOperation()
 
+        print("Trying to get keyEncodingWrappers")
         let keyEncodingWrappers: [CompoundOperationWrapper<Data>] = requests.map { request in
             let wrapper = request.createKeyEncodingWrapper(using: remoteStorageKeyFactory) {
                 try coderFactoryOperation.extractNoCancellableResultData()
@@ -194,7 +203,11 @@ class RemoteSubscriptionService<T: StorageWrapper> {
             return wrapper
         }
 
+        print("Trying to get containerOperation")
+
         let containerOperation = ClosureOperation<StorageSubscriptionContainer> { [weak self] in
+            print("containerOperation start executing")
+
             guard let strongSelf = self else {
                 throw BaseOperationError.unexpectedDependentResult
             }
@@ -206,6 +219,8 @@ class RemoteSubscriptionService<T: StorageWrapper> {
                 remoteKeys: remoteKeys,
                 localKeys: localKeys
             )
+
+            print("containerOperation trying to return container")
 
             return container
         }
