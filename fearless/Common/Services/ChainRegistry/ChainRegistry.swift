@@ -252,8 +252,10 @@ extension ChainRegistry: ConnectionPoolDelegate {
             return
         }
 
-        let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
-        eventCenter.notify(with: reconnectedEvent)
+        if case .connected = state {
+            let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
+            eventCenter.notify(with: reconnectedEvent)
+        }
 
         switch state {
         case let .waitingReconnection(attempt: attempt):
