@@ -64,11 +64,9 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainSto
         stakingType: StakingType?
     ) -> UUID? {
         do {
-            print("Creating localKeyFactory")
             let localKeyFactory = LocalStorageKeyFactory()
 
             //   RelaychainKeys + ParachainKeys - All ParachainStakingKeys
-            print("Creating localKeys")
             let localKeys = try Self.globalDataStoragePaths(stakingType: stakingType).map { storagePath in
                 try localKeyFactory.createFromStoragePath(
                     storagePath,
@@ -76,15 +74,12 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainSto
                 )
             }
 
-            print("Creating cacheKey")
             let cacheKey = try Self.globalDataParamsCacheKey(for: chainId, stakingType: stakingType)
 
-            print("Creating requests")
             let requests = zip(Self.globalDataStoragePaths(stakingType: stakingType), localKeys).map {
                 UnkeyedSubscriptionRequest(storagePath: $0.0, localKey: $0.1)
             }
 
-            print("Start attachToSubscription")
             return attachToSubscription(
                 with: requests,
                 chainId: chainId,
