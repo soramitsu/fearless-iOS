@@ -64,9 +64,7 @@ final class ChainAssetListAssembly {
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepository),
             accountInfoFetching: accountInfoFetching,
-            settings: SettingsManager.shared,
             dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()
