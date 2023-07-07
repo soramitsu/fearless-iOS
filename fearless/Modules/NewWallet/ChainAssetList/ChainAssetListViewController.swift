@@ -231,21 +231,7 @@ extension ChainAssetListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         cell.delegate = self
-        cell.issueDelegate = self
         return cell
-    }
-}
-
-extension ChainAssetListViewController: ChainAccountBalanceTableCellDelegate {
-    func issueButtonTapped(with indexPath: IndexPath?) {
-        guard
-            let indexPath = indexPath,
-            let viewModel = cellViewModel(for: indexPath)
-        else {
-            return
-        }
-
-        output.didTapOnIssueButton(viewModel: viewModel)
     }
 }
 
