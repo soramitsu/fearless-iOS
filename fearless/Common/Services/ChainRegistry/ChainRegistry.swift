@@ -252,6 +252,9 @@ extension ChainRegistry: ConnectionPoolDelegate {
             return
         }
 
+        let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
+        eventCenter.notify(with: reconnectedEvent)
+
         switch state {
         case let .waitingReconnection(attempt: attempt):
             if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
@@ -262,7 +265,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
         }
     }
 
-    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL, state: WebSocketEngine.State) {
+    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL, state _: WebSocketEngine.State) {
         guard chain.selectedNode == nil else {
             return
         }
@@ -274,7 +277,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
             eventCenter.notify(with: event)
         } catch {
             logger?.error("\(chain.name) error: \(error.localizedDescription)")
-            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: state)
+            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: .notConnected)
             eventCenter.notify(with: reconnectedEvent)
         }
     }
