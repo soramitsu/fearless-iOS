@@ -548,7 +548,7 @@ private extension ChainAssetListViewModelFactory {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.symbolUppercased })
 
         return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssets.filter { $0.asset.symbolUppercased == name }
+            let assetChainAssets = chainAssets.filter { $0.asset.symbolUppercased == name && wallet.fetch(for: $0.chain.accountRequest()) != nil }
             let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
                 sortChainAssets(ca1: ca1, ca2: ca2)
             })

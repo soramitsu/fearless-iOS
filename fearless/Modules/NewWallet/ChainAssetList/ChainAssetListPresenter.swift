@@ -118,24 +118,6 @@ final class ChainAssetListPresenter: NSObject {
             actions: actions
         )
     }
-
-    private func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
-        let title = viewModel.chainAsset.chain.name + " "
-            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
-
-        let sheetViewModel = SheetAlertPresentableViewModel(
-            title: title,
-            message: "",
-            actions: [],
-            closeAction: R.string.localizable
-                .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages),
-            dismissCompletion: { [weak self] in
-                self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
-            },
-            icon: nil
-        )
-        router.present(viewModel: sheetViewModel, from: view)
-    }
 }
 
 // MARK: - ChainAssetListViewOutput
@@ -147,9 +129,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        if viewModel.isMissingAccount {
-            didTapOnIssueButton(viewModel: viewModel)
-        } else if viewModel.chainAsset.chain.isSupported {
+        if viewModel.chainAsset.chain.isSupported {
             router.showChainAccount(
                 from: view,
                 chainAsset: viewModel.chainAsset
