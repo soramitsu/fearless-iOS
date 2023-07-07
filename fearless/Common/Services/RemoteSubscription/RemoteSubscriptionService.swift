@@ -99,22 +99,12 @@ class RemoteSubscriptionService<T: StorageWrapper> {
             return subscriptionId
         }
 
-        let wrapper = subscriptionOperation(using: requests, chainId: chainId)
+        let wrapper = subscriptionOperation(using: requests, chainId: chainId, cacheKey: cacheKey)
 
         wrapper.targetOperation.completionBlock = { [weak self] in
             switch wrapper.targetOperation.result {
             case let .failure(error):
                 self?.logger.error("\(error)")
-            case let .success(container):
-                DispatchQueue.global(qos: .default).async {
-                    self?.mutex.lock()
-
-                    defer {
-                        self?.mutex.unlock()
-                    }
-
-                    self?.handleSubscriptionInitResult(.success(container), cacheKey: cacheKey)
-                }
             default:
                 break
             }
@@ -174,7 +164,8 @@ class RemoteSubscriptionService<T: StorageWrapper> {
 
     private func subscriptionOperation(
         using requests: [SubscriptionRequestProtocol],
-        chainId: ChainModel.Id
+        chainId: ChainModel.Id,
+        cacheKey: String
     ) -> CompoundOperationWrapper<StorageSubscriptionContainer> {
         guard let runtimeProvider = chainRegistry.getRuntimeProvider(for: chainId) else {
             return CompoundOperationWrapper.createWithError(

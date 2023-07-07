@@ -28,12 +28,17 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         setupSelectedAccountAndChainAsset()
 
         //  Only relaychain, check if it ever needed for parachain
+        print("starting setupChainRemoteSubscription")
         setupChainRemoteSubscription()
+        print("starting setupAccountRemoteSubscription")
         setupAccountRemoteSubscription()
 
+        print("starting sharedState.eraValidatorService.setup()")
         sharedState.eraValidatorService.setup()
+        print("starting sharedState.rewardCalculationService.setup()")
         sharedState.rewardCalculationService.setup()
 
+        print("building eraInfoOperationFactory")
         eraInfoOperationFactory = selectedChainAsset?.stakingType?.isParachain == true
             ? ParachainStakingInfoOperationFactory()
             : RelaychainStakingInfoOperationFactory()
