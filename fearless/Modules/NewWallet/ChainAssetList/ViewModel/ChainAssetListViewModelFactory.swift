@@ -12,9 +12,7 @@ protocol ChainAssetListViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel.Id],
         chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings],
         activeFilters: [ChainAssetsFetching.Filter]
     ) -> ChainAssetListViewModel
 }
@@ -44,9 +42,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel.Id],
         chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings],
         activeFilters: [ChainAssetsFetching.Filter]
     ) -> ChainAssetListViewModel {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
@@ -100,9 +96,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 locale: locale,
                 currency: wallet.selectedCurrency,
                 wallet: wallet,
-                chainsWithIssues: chainsWithIssues,
-                chainsWithMissingAccounts: chainsWithMissingAccounts,
-                chainSettings: chainSettings
+                chainsWithMissingAccounts: chainsWithMissingAccounts
             )
         }
 
@@ -181,9 +175,7 @@ private extension ChainAssetListViewModelFactory {
         locale: Locale,
         currency: Currency,
         wallet: MetaAccountModel,
-        chainsWithIssues: [ChainModel.Id],
-        chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings]
+        chainsWithMissingAccounts: [ChainModel.Id]
     ) -> ChainAccountBalanceCellViewModel? {
         let priceAttributedString = getPriceAttributedString(
             priceData: priceData,
@@ -205,12 +197,7 @@ private extension ChainAssetListViewModelFactory {
             return false
         }
 
-        let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
         let notUtilityChainsWithBalance = chainsAssetsWithBalance.filter { $0 != chainAsset }
-        let isNetworkIssues = chainAssets.first(where: {
-            chainsWithIssues.contains($0.chain.chainId) && !mutedIssuesChainIds.contains($0.chain.chainId)
-
-        }) != nil
         let isMissingAccount = chainAssets.first(where: {
             chainsWithMissingAccounts.contains($0.chain.chainId)
                 || wallet.unusedChainIds.or([]).contains($0.chain.chainId)
@@ -284,7 +271,6 @@ private extension ChainAssetListViewModelFactory {
             options: options,
             isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated,
-            isNetworkIssues: isNetworkIssues,
             isMissingAccount: isMissingAccount,
             isHidden: checkForHide(
                 chainAsset: chainAsset,

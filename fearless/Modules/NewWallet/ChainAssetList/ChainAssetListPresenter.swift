@@ -26,9 +26,7 @@ final class ChainAssetListPresenter: NSObject {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
-    private var chainsWithNetworkIssues: [ChainModel.Id] = []
     private var chainsWithMissingAccounts: [ChainModel.Id] = []
-    private var chainSettings: [ChainSettings]?
 
     private var activeFilters: [ChainAssetsFetching.Filter] = []
 
@@ -61,11 +59,9 @@ final class ChainAssetListPresenter: NSObject {
         }
 
         lock.concurrentlyRead {
-            let chainSettings = self.chainSettings ?? []
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
             let chainsWithMissingAccounts = self.chainsWithMissingAccounts
-            let chainsWithNetworkIssues = self.chainsWithNetworkIssues
 
             let viewModel = self.viewModelFactory.buildViewModel(
                 wallet: self.wallet,
@@ -73,9 +69,7 @@ final class ChainAssetListPresenter: NSObject {
                 locale: self.selectedLocale,
                 accountInfos: accountInfosCopy,
                 prices: prices,
-                chainsWithIssues: chainsWithNetworkIssues,
                 chainsWithMissingAccounts: chainsWithMissingAccounts,
-                chainSettings: chainSettings,
                 activeFilters: self.activeFilters
             )
 
@@ -124,6 +118,24 @@ final class ChainAssetListPresenter: NSObject {
             actions: actions
         )
     }
+
+    private func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
+        let title = viewModel.chainAsset.chain.name + " "
+            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+
+        let sheetViewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: "",
+            actions: [],
+            closeAction: R.string.localizable
+                .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages),
+            dismissCompletion: { [weak self] in
+                self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
+            },
+            icon: nil
+        )
+        router.present(viewModel: sheetViewModel, from: view)
+    }
 }
 
 // MARK: - ChainAssetListViewOutput
@@ -135,7 +147,9 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        if viewModel.chainAsset.chain.isSupported {
+        if viewModel.isMissingAccount {
+            didTapOnIssueButton(viewModel: viewModel)
+        } else if viewModel.chainAsset.chain.isSupported {
             router.showChainAccount(
                 from: view,
                 chainAsset: viewModel.chainAsset
@@ -171,36 +185,6 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         case .show:
             interactor.showChainAsset(viewModel.chainAsset)
         }
-    }
-
-    func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
-        let title = viewModel.chainAsset.chain.name + " "
-            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
-
-        var message: String = ""
-        var closeActionTitle: String = ""
-        if viewModel.isNetworkIssues {
-            message = R.string.localizable
-                .networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
-            closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
-        } else if viewModel.isMissingAccount {
-            closeActionTitle = R.string.localizable
-                .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages)
-        }
-
-        let sheetViewModel = SheetAlertPresentableViewModel(
-            title: title,
-            message: message,
-            actions: [],
-            closeAction: closeActionTitle,
-            dismissCompletion: { [weak self] in
-                if viewModel.isMissingAccount {
-                    self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
-                }
-            },
-            icon: nil
-        )
-        router.present(viewModel: sheetViewModel, from: view)
     }
 
     func didTapExpandSections(state: HiddenSectionState) {
@@ -281,7 +265,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
     func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
         guard issues.isNotEmpty else {
-            chainsWithNetworkIssues = []
             chainsWithMissingAccounts = []
             scheduleProvideViewModel()
             return
@@ -289,19 +272,11 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         lock.exclusivelyWrite { [weak self] in
             guard let self = self else { return }
             issues.forEach { chainIssue in
-                switch chainIssue {
-                case let .network(chains):
-                    self.chainsWithNetworkIssues = chains.map { $0.chainId }
-                case let .missingAccount(chains):
+                if case let .missingAccount(chains) = chainIssue {
                     self.chainsWithMissingAccounts = chains.map { $0.chainId }
                 }
             }
         }
-        scheduleProvideViewModel()
-    }
-
-    func didReceive(chainSettings: [ChainSettings]) {
-        self.chainSettings = chainSettings
         scheduleProvideViewModel()
     }
 
