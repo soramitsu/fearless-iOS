@@ -9,10 +9,6 @@ final class ChainAssetListAssembly {
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
         )
@@ -38,22 +34,6 @@ final class ChainAssetListAssembly {
             mapper: AnyCoreDataMapper(AssetModelMapper())
         )
 
-        let missingAccountHelper = MissingAccountFetcher(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let chainsIssuesCenter = ChainsIssuesCenter(
-            wallet: wallet,
-            networkIssuesCenter: NetworkIssuesCenter.shared,
-            eventCenter: EventCenter.shared,
-            missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetching
-        )
-
-        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let chainSettingsRepository = chainSettingsRepositoryFactory.createRepository()
-
         let dependencyContainer = ChainAssetListDependencyContainer()
 
         let interactor = ChainAssetListInteractor(
@@ -62,11 +42,8 @@ final class ChainAssetListAssembly {
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            chainsIssuesCenter: chainsIssuesCenter,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepository),
             accountInfoFetching: accountInfoFetching,
-            settings: SettingsManager.shared,
             dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()

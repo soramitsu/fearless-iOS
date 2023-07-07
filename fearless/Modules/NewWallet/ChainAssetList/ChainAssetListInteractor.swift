@@ -12,12 +12,9 @@ final class ChainAssetListInteractor {
     private let operationQueue: OperationQueue
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
-    private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     private let accountInfoFetching: AccountInfoFetchingProtocol
-    private let settings: SettingsManagerProtocol
     private let dependencyContainer: ChainAssetListDependencyContainer
 
     private var chainAssets: [ChainAsset]?
@@ -39,11 +36,8 @@ final class ChainAssetListInteractor {
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
-        chainsIssuesCenter: ChainsIssuesCenterProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
         accountInfoFetching: AccountInfoFetchingProtocol,
-        settings: SettingsManagerProtocol,
         dependencyContainer: ChainAssetListDependencyContainer
     ) {
         self.wallet = wallet
@@ -51,11 +45,8 @@ final class ChainAssetListInteractor {
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
-        self.chainsIssuesCenter = chainsIssuesCenter
         self.accountRepository = accountRepository
-        self.chainSettingsRepository = chainSettingsRepository
         self.accountInfoFetching = accountInfoFetching
-        self.settings = settings
         self.dependencyContainer = dependencyContainer
     }
 
@@ -81,19 +72,6 @@ final class ChainAssetListInteractor {
 
         operationQueue.addOperation(saveOperation)
     }
-
-    private func fetchChainSettings() {
-        let fetchChainSettingsOperation = chainSettingsRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchChainSettingsOperation.completionBlock = { [weak self] in
-            let chainSettings = (try? fetchChainSettingsOperation.extractNoCancellableResultData()) ?? []
-            DispatchQueue.main.async {
-                self?.output?.didReceive(chainSettings: chainSettings)
-            }
-        }
-
-        operationQueue.addOperation(fetchChainSettingsOperation)
-    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -103,8 +81,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         self.output = output
 
         eventCenter.add(observer: self, dispatchIn: .main)
-        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
-        fetchChainSettings()
     }
 
     func updateChainAssets(
@@ -306,10 +282,6 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         )
     }
 
-    func processChainsSettingsChanged() {
-        fetchChainSettings()
-    }
-
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         guard let wallet = SelectedWalletSettings.shared.value else {
             return
@@ -318,11 +290,5 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         self.wallet = wallet
         output?.handleWalletChanged(wallet: wallet)
         updateChainAssets(using: filters, sorts: sorts)
-    }
-}
-
-extension ChainAssetListInteractor: ChainsIssuesCenterListener {
-    func handleChainsIssues(_ issues: [ChainIssue]) {
-        output?.didReceiveChainsWithIssues(issues)
     }
 }
