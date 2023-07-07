@@ -139,9 +139,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         guard
             let wallet = selectedWalletSettings.value,
-            let chainAsset = selectedChainAsset,
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+            let chainAsset = selectedChainAsset
         else {
             return
         }
