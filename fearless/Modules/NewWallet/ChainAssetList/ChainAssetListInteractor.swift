@@ -189,6 +189,11 @@ private extension ChainAssetListInteractor {
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 
+    func resetAccountInfoSubscription() {
+        let accountInfoSubscriptionAdapter = dependencyContainer.buildDependencies(for: wallet).accountInfoSubscriptionAdapter
+        accountInfoSubscriptionAdapter.reset()
+    }
+
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
         mutex.lock()
 
@@ -291,6 +296,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             return
         }
 
+        resetAccountInfoSubscription()
         self.wallet = wallet
         output?.handleWalletChanged(wallet: wallet)
         updateChainAssets(using: filters, sorts: sorts)
