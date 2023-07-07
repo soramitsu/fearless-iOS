@@ -11,6 +11,7 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
+    func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel)
     func didTapExpandSections(state: HiddenSectionState)
 }
 
@@ -31,7 +32,9 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
+    func didReceiveChainsWithIssues(_ issues: [ChainIssue])
     func updateViewModel(isInitSearchState: Bool)
+    func didReceive(chainSettings: [ChainSettings])
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
     func handleWalletChanged(wallet: MetaAccountModel)
 }
