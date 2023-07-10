@@ -23,8 +23,6 @@ final class HistoryOperationFactoriesAssembly {
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         case .sora:
             return SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
-        case .alchemy:
-            return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
         case .none:
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         }

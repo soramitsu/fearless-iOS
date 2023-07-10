@@ -22,8 +22,6 @@ enum ParachainHistoryOperationFactoryAssembly {
             return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
         case .sora:
             return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
-        case .alchemy:
-            return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
         }
     }
 }

@@ -16,8 +16,6 @@ protocol MainTabBarInteractorInputProtocol: AnyObject {
 
 protocol MainTabBarInteractorOutputProtocol: AnyObject {
     func didReloadSelectedAccount()
-    func didReloadSelectedNetwork()
-    func didUpdateWalletInfo()
     func didRequestImportAccount()
     func handleLongInactivity()
 }

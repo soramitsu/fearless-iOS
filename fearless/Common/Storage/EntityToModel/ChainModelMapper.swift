@@ -32,9 +32,9 @@ final class ChainModelMapper {
             return nil
         }
 
-        let staking: SSFModels.StakingType?
+        let staking: SSFModels.RawStakingType?
         if let entityStaking = entity.staking {
-            staking = SSFModels.StakingType(rawValue: entityStaking)
+            staking = SSFModels.RawStakingType(rawValue: entityStaking)
         } else {
             staking = nil
         }
@@ -276,13 +276,18 @@ final class ChainModelMapper {
 
         return XcmChain(
             xcmVersion: version,
+            destWeightIsPrimitive: entity.xcmConfig?.destWeightIsPrimitive,
             availableAssets: assets,
             availableDestinations: destinations
         )
     }
 
     private func createExplorers(from entity: CDChain) -> [ChainModel.ExternalApiExplorer]? {
-        let explorers: [ChainModel.ExternalApiExplorer]? = entity.explorers?.compactMap {
+        guard let entityExplorers = entity.explorers, !entityExplorers.allObjects.isEmpty else {
+            return nil
+        }
+
+        let explorers: [ChainModel.ExternalApiExplorer]? = entityExplorers.compactMap {
             guard let explorer = $0 as? CDExternalApi,
                   let type = explorer.type,
                   let types = explorer.types as? [String],
@@ -344,12 +349,14 @@ final class ChainModelMapper {
         context: NSManagedObjectContext
     ) {
         guard let xcmConfig = xcmConfig else {
+            entity.xcmConfig = nil
             return
         }
 
         let configEntity = CDChainXcmConfig(context: context)
         configEntity.xcmVersion = xcmConfig.xcmVersion?.rawValue
         configEntity.availableAssets = xcmConfig.availableAssets
+        configEntity.destWeightIsPrimitive = xcmConfig.destWeightIsPrimitive ?? false
         let destinationEntities = xcmConfig.availableDestinations.compactMap {
             let destinationEntity = CDXcmAvailableDestination(context: context)
             destinationEntity.chainId = $0.chainId
@@ -372,17 +379,19 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             return createChainNode(from: node)
         } ?? []
 
-        let customNodes: [ChainNodeModel]? = entity.customNodes?.compactMap { anyNode in
-            guard let node = anyNode as? CDChainNode else {
-                return nil
+        var customNodesSet: Set<ChainNodeModel>?
+        if let entityCustomNodes = entity.customNodes, !entityCustomNodes.allObjects.isEmpty {
+            let customNodes: [ChainNodeModel]? = entityCustomNodes.compactMap { anyNode in
+                guard let node = anyNode as? CDChainNode else {
+                    return nil
+                }
+
+                return createChainNode(from: node)
             }
 
-            return createChainNode(from: node)
-        }
-
-        var customNodesSet: Set<ChainNodeModel>?
-        if let nodes = customNodes {
-            customNodesSet = Set(nodes)
+            if let nodes = customNodes {
+                customNodesSet = Set(nodes)
+            }
         }
 
         var selectedNode: ChainNodeModel?

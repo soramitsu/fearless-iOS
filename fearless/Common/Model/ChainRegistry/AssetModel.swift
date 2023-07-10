@@ -10,7 +10,7 @@ extension AssetModel: Identifiable {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
-            symbol: symbol,
+            symbol: symbolUppercased,
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
             icon: icon
@@ -21,7 +21,7 @@ extension AssetModel: Identifiable {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
-            symbol: symbol,
+            symbol: symbolUppercased,
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
             icon: icon ?? chainIcon

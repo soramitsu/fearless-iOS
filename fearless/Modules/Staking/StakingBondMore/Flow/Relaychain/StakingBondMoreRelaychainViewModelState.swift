@@ -7,7 +7,7 @@ final class StakingBondMoreRelaychainViewModelState {
     private let callFactory: SubstrateCallFactoryProtocol
     let chainAsset: ChainAsset
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    var amount: Decimal = 0
+    var amount: Decimal?
     var fee: Decimal?
     var balance: Decimal?
     private var stashItem: StashItem?
@@ -27,7 +27,7 @@ final class StakingBondMoreRelaychainViewModelState {
 
 extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
-        let amountSubstrate = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let amountSubstrate = amount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
 
@@ -111,7 +111,11 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState
     }
 
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? {
-        .relaychain(amount: amount)
+        guard let amount = amount else {
+            return nil
+        }
+
+        return .relaychain(amount: amount)
     }
 }
 

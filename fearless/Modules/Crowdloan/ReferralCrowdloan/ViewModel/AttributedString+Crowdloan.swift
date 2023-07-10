@@ -13,7 +13,7 @@ extension NSAttributedString {
             .foregroundColor: R.color.colorPink()!
         ]
 
-        let termsConditions = R.string.localizable.crowdloanTermsValue(preferredLanguages: locale?.rLanguages)
+        let termsConditions = R.string.localizable.commonTermsAndConditions(preferredLanguages: locale?.rLanguages)
         let termDecorator = HighlightingAttributedStringDecorator(
             pattern: termsConditions,
             attributes: highlightAttributes

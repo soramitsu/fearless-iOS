@@ -71,7 +71,7 @@ final class WalletsManagmentViewLayout: UIView {
     private func applyLocale() {
         switch type {
         case .wallets:
-            titleLabel.text = R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
+            titleLabel.text = R.string.localizable.commonWallet(preferredLanguages: locale.rLanguages)
         case .selectYourWallet:
             titleLabel.text = R.string.localizable.walletManagmentSelectWalletTitle(preferredLanguages: locale.rLanguages)
         }

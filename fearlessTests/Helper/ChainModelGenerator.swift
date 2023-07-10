@@ -5,7 +5,7 @@ enum ChainModelGenerator {
     static func generate(
         count: Int,
         withTypes: Bool = true,
-        staking: StakingType? = nil,
+        staking: RawStakingType? = nil,
         hasCrowdloans: Bool = false
     ) -> [ChainModel] {
         (0..<count).map { index in
@@ -60,7 +60,7 @@ enum ChainModelGenerator {
         generatingAssets count: Int,
         addressPrefix: UInt16,
         assetPresicion: UInt16 = (9...18).randomElement()!,
-        staking: StakingType? = nil,
+        staking: RawStakingType? = nil,
         hasCrowdloans: Bool = false
     ) -> ChainModel {
         let chainId = Data.random(of: 32)!.toHex()
@@ -112,7 +112,7 @@ enum ChainModelGenerator {
         return chain
     }
     
-    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: StakingType? = nil, chainAssetType: ChainAssetType = .normal) -> ChainAssetModel {
+    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: RawStakingType? = nil, chainAssetType: ChainAssetType = .normal) -> ChainAssetModel {
         ChainAssetModel(
             assetId: asset.id,
             type: chainAssetType,
@@ -147,7 +147,7 @@ enum ChainModelGenerator {
 
     private static func generateExternaApis(
         for chainId: ChainModel.Id,
-        staking: StakingType?,
+        staking: RawStakingType?,
         hasCrowdloans: Bool
     ) -> ChainModel.ExternalApiSet? {
         let crowdloanApi: ChainModel.ExternalResource?

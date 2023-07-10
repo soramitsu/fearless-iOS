@@ -163,7 +163,7 @@ extension SendInteractor: SendInteractorInput {
 
         let accountId = accountId(from: address, chain: chainAsset.chain)
         let call = dependencies.callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
-        var identifier = String(amount)
+        var identifier = String(amount) + accountId.toHex()
         if let tip = tip {
             identifier += "_\(String(tip))"
         }
@@ -199,8 +199,7 @@ extension SendInteractor: SendInteractorInput {
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
-           let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+        if let utilityAsset = chainAsset.chain.utilityChainAssets().first {
             return utilityAsset
         }
         return chainAsset

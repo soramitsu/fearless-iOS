@@ -27,12 +27,12 @@ class BaseStakingState: StakingStateProtocol {
 
             let newState: BaseStakingState
             switch chainAsset?.stakingType {
-            case .relayChain:
+            case .relaychain, .sora, .ternoa:
                 newState = InitialRelaychainStakingState(
                     stateMachine: stateMachine,
                     commonData: commonData
                 )
-            case .paraChain:
+            case .parachain:
                 newState = ParachainState(
                     stateMachine: stateMachine,
                     commonData: commonData
@@ -57,7 +57,7 @@ class BaseStakingState: StakingStateProtocol {
             }
 
             let newState: BaseStakingState
-            if case .paraChain = commonData.chainAsset?.stakingType {
+            if case .parachain = commonData.chainAsset?.stakingType {
                 newState = ParachainState(
                     stateMachine: stateMachine,
                     commonData: commonData

@@ -129,6 +129,11 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     // MARK: - Public methods
 
+    func bind(fee: BalanceViewModelProtocol?) {
+        networkFeeView.bindBalance(viewModel: fee)
+        networkFeeView.isHidden = false
+    }
+
     func bindSwapFrom(assetViewModel: AssetBalanceViewModelProtocol?) {
         swapFromInputView.bind(viewModel: assetViewModel)
     }

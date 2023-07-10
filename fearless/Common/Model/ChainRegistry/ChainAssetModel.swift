@@ -5,7 +5,7 @@ import SSFModels
 
 class ChainAssetModel: Codable {
     let assetId: String
-    let staking: StakingType?
+    let staking: RawStakingType?
     let purchaseProviders: [PurchaseProvider]?
     let type: ChainAssetType
     let isUtility: Bool
@@ -16,7 +16,7 @@ class ChainAssetModel: Codable {
 
     init(
         assetId: String,
-        staking: StakingType? = nil,
+        staking: RawStakingType? = nil,
         purchaseProviders: [PurchaseProvider]? = nil,
         type: ChainAssetType,
         asset: AssetModel,
@@ -38,7 +38,7 @@ class ChainAssetModel: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         assetId = try container.decode(String.self, forKey: .assetId)
-        staking = try? container.decode(StakingType.self, forKey: .staking)
+        staking = try? container.decode(RawStakingType.self, forKey: .staking)
         purchaseProviders = try? container.decode([PurchaseProvider]?.self, forKey: .purchaseProviders)
         let type = try? container.decode(ChainAssetType?.self, forKey: .type)
         self.type = type ?? ChainAssetType.normal

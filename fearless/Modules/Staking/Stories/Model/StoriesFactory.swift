@@ -166,9 +166,9 @@ final class StoriesFactory {
 extension StoriesFactory: StoriesFactoryProtocol {
     func createModel(for stakingType: StakingType?) -> LocalizableResource<StoriesModel>? {
         switch stakingType {
-        case .relayChain:
+        case .relaychain, .sora, .ternoa:
             return relaychainStories
-        case .paraChain:
+        case .parachain:
             return parachainStories
         case .none:
             return nil

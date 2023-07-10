@@ -12,6 +12,7 @@ protocol ConnectionPoolProtocol {
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func setDelegate(_ delegate: ConnectionPoolDelegate)
+    func resetConnection(for chainId: ChainModel.Id)
 }
 
 protocol ConnectionPoolDelegate: AnyObject {
@@ -26,12 +27,13 @@ final class ConnectionPool {
 
     private let mutex = NSLock()
     private lazy var lock = ReaderWriterLock()
+    private lazy var connectionLock = ReaderWriterLock()
 
     private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
     private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
 
     private func clearUnusedConnections() {
-        lock.exclusivelyWrite {
+        connectionLock.exclusivelyWrite {
             self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.value.target != nil }
         }
     }
@@ -39,7 +41,6 @@ final class ConnectionPool {
     init(connectionFactory: ConnectionFactoryProtocol, operationQueue: OperationQueue) {
         self.connectionFactory = connectionFactory
         self.operationQueue = operationQueue
-        applicationHandler.delegate = self
     }
 }
 
@@ -56,8 +57,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
         if ignoredUrl == nil,
-           let connection = getConnection(for: chain.chainId),
-           connection.url?.absoluteString == chain.selectedNode?.url.absoluteString {
+           let connection = getConnection(for: chain.chainId) {
             return connection
         }
 
@@ -93,7 +93,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         )
         let wrapper = WeakWrapper(target: connection)
 
-        lock.exclusivelyWrite { [weak self] in
+        connectionLock.exclusivelyWrite { [weak self] in
             self?.connectionsByChainIds[chain.chainId] = wrapper
         }
 
@@ -105,7 +105,17 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        lock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
+        connectionLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
+    }
+
+    func resetConnection(for chainId: ChainModel.Id) {
+        if let connection = getConnection(for: chainId) {
+            connection.disconnectIfNeeded()
+        }
+
+        connectionLock.exclusivelyWrite {
+            self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.key != chainId }
+        }
     }
 }
 
@@ -122,33 +132,5 @@ extension ConnectionPool: WebSocketEngineDelegate {
         }
 
         delegate?.webSocketDidChangeState(url: previousUrl, state: newState)
-    }
-}
-
-// MARK: - ApplicationHandlerDelegate
-
-extension ConnectionPool: ApplicationHandlerDelegate {
-    func didReceiveDidEnterBackground(notification _: Notification) {
-        let operations: [DisconnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
-            guard let connection = wrapper.target as? ChainConnection else {
-                return nil
-            }
-
-            return DisconnectOperation(connection: connection)
-        }
-
-        operationQueue.addOperations(operations, waitUntilFinished: true)
-    }
-
-    func didReceiveWillEnterForeground(notification _: Notification) {
-        let operations: [ConnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
-            guard let connection = wrapper.target as? ChainConnection else {
-                return nil
-            }
-
-            return ConnectOperation(connection: connection)
-        }
-
-        operationQueue.addOperations(operations, waitUntilFinished: true)
     }
 }

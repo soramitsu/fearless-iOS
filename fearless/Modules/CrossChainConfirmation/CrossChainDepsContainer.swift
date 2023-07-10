@@ -77,13 +77,13 @@ final class CrossChainDepsContainer {
 
         let fromChainData = XcmAssembly.FromChainData(
             chainId: originalChainAsset.chain.chainId,
-            cryptoType: SFCryptoType(cryptoType.utilsType),
+            cryptoType: SFCryptoType(utilsType: cryptoType.utilsType, isEthereum: response.isEthereumBased),
             chainMetadata: originalRuntimeMetadataItem,
             accountId: accountId,
             signingWrapperData: signingWrapperData
         )
 
-        let services = try XcmAssembly.createExtrincisServices(fromChainData: fromChainData)
+        let services = XcmAssembly.createExtrincisServices(fromChainData: fromChainData)
 
         return services
     }

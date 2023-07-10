@@ -7,6 +7,7 @@ final class ProfileTableViewCell: UITableViewCell {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var subtitleLabel: UILabel!
     @IBOutlet var switcher: UISwitch!
+    @IBOutlet var accessoryImageView: UIImageView!
     private(set) var viewModel: ProfileOptionViewModelProtocol?
 
     override func awakeFromNib() {
@@ -30,6 +31,9 @@ final class ProfileTableViewCell: UITableViewCell {
         titleLabel.text = viewModel.title
 
         subtitleLabel.text = viewModel.accessoryTitle
+
+        accessoryImageView.isHidden = viewModel.accessoryImage == nil
+        accessoryImageView.image = viewModel.accessoryImage
 
         guard case let .switcher(isOn) = viewModel.accessoryType else {
             switcher.isHidden = true

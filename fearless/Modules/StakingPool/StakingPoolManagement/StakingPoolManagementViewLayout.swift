@@ -208,8 +208,15 @@ final class StakingPoolManagementViewLayout: UIView {
         view.iconImage = R.image.iconAttention()
         view.titleLabel.font = .h6Title
         view.titleLabel.textColor = R.color.colorPink1()!
-        view.subtitleLabel?.font = .p1Paragraph
+        view.subtitleLabel?.font = .p3Paragraph
         view.subtitleLabel?.textColor = R.color.colorTransparentText()
+        view.iconShouldCenterVertically = true
+        view.contentInsets = UIEdgeInsets(
+            top: UIConstants.offset12,
+            left: UIConstants.offset12,
+            bottom: UIConstants.offset12,
+            right: UIConstants.offset12
+        )
         view.layout = .smallIconTitleSubtitleButton
         view.isUserInteractionEnabled = true
         view.contentView?.isUserInteractionEnabled = true
@@ -223,7 +230,7 @@ final class StakingPoolManagementViewLayout: UIView {
         func makeDefaultConstraints(for view: UIView) {
             view.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
-                make.height.equalTo(UIConstants.cellHeight)
+                make.height.equalTo(UIConstants.cellHeight54)
             }
         }
 

@@ -131,7 +131,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
                     to: receiver,
                     amount: amount,
                     currencyId: chainAsset.currencyId,
-                    path: .soraAssetTransfer
+                    path: .assetsTransfer
                 )
             }
             return defaultTransfer(to: receiver, amount: amount)
@@ -168,7 +168,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
                 to: receiver,
                 amount: amount,
                 currencyId: chainAsset.currencyId,
-                path: .soraAssetTransfer
+                path: .assetsTransfer
             )
         case .assets:
             return assetsTransfer(
@@ -603,7 +603,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     ) -> any RuntimeCallable {
         let dest: MultiAddress = isEthereumBased ? .accountTo(receiver) : .accoundId(receiver)
         let args = TransferCall(dest: dest, value: amount, currencyId: currencyId)
-        let path: SubstrateCallPath = .soraAssetTransfer
+        let path: SubstrateCallPath = .assetsTransfer
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,

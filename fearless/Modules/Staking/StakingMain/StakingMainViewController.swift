@@ -57,7 +57,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return tableView
     }()
 
-    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relayChain)
+    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relaychain)
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
@@ -90,6 +90,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         if keyboardHandler == nil {
             setupKeyboardHandler()
         }
+
+        presenter?.didTriggerViewWillAppear()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -103,6 +105,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         }
 
         presenter?.setup()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        presenter?.didTriggerViewWillDisappear()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -413,7 +421,7 @@ extension StakingMainViewController: Localizable {
         let languages = locale.rLanguages
 
         titleLabel.text = R.string.localizable
-            .tabbarStakingTitle(preferredLanguages: languages)
+            .commonStaking(preferredLanguages: languages)
         actionButton.imageWithTitleView?.title = R.string.localizable
             .stakingStartTitle(preferredLanguages: languages)
 

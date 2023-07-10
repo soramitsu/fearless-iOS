@@ -232,7 +232,6 @@ final class RuntimeSyncService {
 
         let buildRuntimeMetadataOperation = ClosureOperation<RuntimeMetadataItem> {
             let hexMetadata = try remoteMetadaOperation.extractNoCancellableResultData()
-
             let rawMetadata = try Data(hexStringSSF: hexMetadata)
             let metadataItem = RuntimeMetadataItem(
                 chain: chainId,

@@ -32,6 +32,12 @@ final class ControllerAccountViewLayout: UIView {
         return accountView
     }()
 
+    let feeView: NetworkFeeView = {
+        let view = UIFactory.default.createNetworkFeeView()
+        view.borderType = .bottom
+        return view
+    }()
+
     let controllerHintView = UIFactory.default.createHintView()
 
     let learnMoreView = UIFactory.default.createFearlessLearnMoreView()
@@ -104,6 +110,12 @@ final class ControllerAccountViewLayout: UIView {
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
 
+        containerView.stackView.addArrangedSubview(feeView)
+        feeView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(52)
+        }
+
         containerView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
             make.width.equalTo(self)
@@ -133,7 +145,7 @@ final class ControllerAccountViewLayout: UIView {
 
     private func applyLocalization() {
         descriptionLabel.text = R.string.localizable
-            .stakingSetSeparateAccountController(preferredLanguages: locale.rLanguages)
+            .stakingControllerDeprecatedDescription(preferredLanguages: locale.rLanguages)
         stashHintView.titleLabel.text = R.string.localizable
             .stakingStashCanHint(preferredLanguages: locale.rLanguages)
         controllerHintView.titleLabel.text = R.string.localizable
@@ -144,5 +156,6 @@ final class ControllerAccountViewLayout: UIView {
             .stakingSwitchAccountToStash(preferredLanguages: locale.rLanguages)
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
+        feeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
     }
 }

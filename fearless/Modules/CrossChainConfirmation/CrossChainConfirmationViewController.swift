@@ -60,6 +60,14 @@ extension CrossChainConfirmationViewController: CrossChainConfirmationViewInput 
     func didReceive(viewModel: CrossChainConfirmationViewModel) {
         rootView.bind(confirmViewModel: viewModel)
     }
+
+    func didStartLoading() {
+        rootView.confirmButton.set(loading: true)
+    }
+
+    func didStopLoading() {
+        rootView.confirmButton.set(loading: false)
+    }
 }
 
 // MARK: - Localizable

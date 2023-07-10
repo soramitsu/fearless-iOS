@@ -180,7 +180,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
         nominatorView.titleLabel.text = R.string.localizable.stakingPoolCreateNominator(
             preferredLanguages: locale.rLanguages
         )
-        bouncerView.titleLabel.text = R.string.localizable.stakingPoolCreateBouncer(
+        bouncerView.titleLabel.text = R.string.localizable.stakingPoolCreateStateToggler(
             preferredLanguages: locale.rLanguages
         )
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(

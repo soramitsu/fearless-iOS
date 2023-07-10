@@ -94,6 +94,21 @@ final class StakingBalanceUnbondingItemView: UIView {
     deinit {
         timer.stop()
     }
+
+    private func updateTimeleftLabel(with remainedInterval: TimeInterval) {
+        let timeLeftText: String = {
+            let daysLeft = remainedInterval.daysFromSeconds
+
+            if daysLeft == 0 {
+                return (try? timeFormatter.string(from: remainedInterval)) ?? ""
+            } else {
+                return R.string.localizable
+                    .commonDaysLeftFormat(format: daysLeft, preferredLanguages: locale.rLanguages)
+            }
+        }()
+
+        daysLeftLabel.text = timeLeftText
+    }
 }
 
 extension StakingBalanceUnbondingItemView {
@@ -116,15 +131,11 @@ extension StakingBalanceUnbondingItemView {
 
 extension StakingBalanceUnbondingItemView: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
-        let intervalString = (try? timeFormatter.string(from: interval)) ?? ""
-        daysLeftLabel.text =
-            "\(intervalString)"
+        updateTimeleftLabel(with: interval)
     }
 
     func didCountdown(remainedInterval: TimeInterval) {
-        let intervalString = (try? timeFormatter.string(from: remainedInterval)) ?? ""
-        daysLeftLabel.text =
-            "\(intervalString)"
+        updateTimeleftLabel(with: remainedInterval)
     }
 
     func didStop(with _: TimeInterval) {

@@ -75,7 +75,7 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
         accountView.addTarget(self, action: #selector(actionOnAccount), for: .touchUpInside)
 
         rootView.addSectionHeader(
-            with: R.string.localizable.stakingTitle(preferredLanguages: selectedLocale.rLanguages)
+            with: R.string.localizable.commonStaking(preferredLanguages: selectedLocale.rLanguages)
         )
         rootView.addStakingStatusView(viewModel.staking, locale: selectedLocale)
 

@@ -268,6 +268,8 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         case .open:
             if (nomination?.targets).isNullOrEmpty != false {
                 performChangeValidatorsAction()
+            } else {
+                didTapStakeInfoView()
             }
         case .blocked, .destroying:
             break

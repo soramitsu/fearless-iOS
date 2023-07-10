@@ -4,7 +4,7 @@ import Web3
 import CommonWallet
 import SSFModels
 
-protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable {
+protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceive(viewModel: StakingAmountMainViewModel)
 
     func didReceiveYourRewardDestination(viewModel: LocalizableResource<YourRewardDestinationViewModel>)

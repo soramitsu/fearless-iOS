@@ -46,7 +46,7 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
         presenter = output
 
         applicationHandler.delegate = self
-        eventCenter.add(observer: self, dispatchIn: .main)
+        eventCenter.add(observer: self, dispatchIn: nil)
         keystoreImportService.add(observer: self)
 
         if keystoreImportService.definition != nil {
@@ -58,23 +58,9 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 extension MainTabBarInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         serviceCoordinator.updateOnAccountChange()
-        presenter?.didReloadSelectedAccount()
-    }
-
-    func processBalanceChanged(event _: WalletBalanceChanged) {
-        presenter?.didUpdateWalletInfo()
-    }
-
-    func processStakingChanged(event _: WalletStakingInfoChanged) {
-        presenter?.didUpdateWalletInfo()
-    }
-
-    func processNewTransaction(event _: WalletNewTransactionInserted) {
-        presenter?.didUpdateWalletInfo()
-    }
-
-    func processUserInactive(event _: UserInactiveEvent) {
-        presenter?.handleLongInactivity()
+        DispatchQueue.main.async {
+            self.presenter?.didReloadSelectedAccount()
+        }
     }
 }
 

@@ -9,6 +9,6 @@ struct ControllerAccountViewModel {
 
 extension ControllerAccountViewModel {
     var canChooseOtherController: Bool {
-        !currentAccountIsController
+        false
     }
 }

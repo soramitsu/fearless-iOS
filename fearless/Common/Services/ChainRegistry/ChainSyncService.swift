@@ -137,6 +137,9 @@ final class ChainSyncService {
         }
 
         let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+            guard !item.disabled else {
+                return
+            }
             mapping[item.chainId] = item
         }
 
@@ -145,6 +148,9 @@ final class ChainSyncService {
         }
 
         let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
+            guard !remoteItem.disabled else {
+                return nil
+            }
             if let localItem = localMapping[remoteItem.chainId] {
                 return localItem != remoteItem ? remoteItem : nil
             } else {
@@ -185,12 +191,6 @@ final class ChainSyncService {
     }
 
     private func complete(result: Result<SyncChanges, Error>?) {
-//        mutex.lock()
-//
-//        defer {
-//            mutex.unlock()
-//        }
-
         isSyncing = false
 
         switch result {

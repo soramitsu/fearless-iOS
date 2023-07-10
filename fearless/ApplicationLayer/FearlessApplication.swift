@@ -1,9 +1,16 @@
 import UIKit
+import SoraFoundation
 
 class FearlessApplication: UIApplication {
     private var timerToDetectInactivity: Timer?
+    private var applicationHandler: ApplicationHandler?
 
     override func sendEvent(_ event: UIEvent) {
+        if applicationHandler == nil {
+            applicationHandler = ApplicationHandler()
+            applicationHandler?.delegate = self
+        }
+
         super.sendEvent(event)
         if let touches = event.allTouches {
             for touch in touches where touch.phase == UITouch.Phase.began {
@@ -27,11 +34,23 @@ class FearlessApplication: UIApplication {
     }
 
     @objc private func dropSession() {
-        EventCenter.shared.notify(with: UserInactiveEvent())
         if let window = UIApplication.shared.windows.first {
-            window.rootViewController?.dismiss(animated: true, completion: nil)
-            let presenter = RootPresenterFactory.createPresenter(with: window)
-            presenter.reload()
+            guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
+                return
+            }
+
+            window.rootViewController?.dismiss(animated: false)
+            window.rootViewController?.present(pincodeViewController, animated: false)
         }
+    }
+}
+
+extension FearlessApplication: ApplicationHandlerDelegate {
+    func didReceiveDidEnterBackground(notification _: Notification) {
+        timerToDetectInactivity?.invalidate()
+    }
+
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        resetTimer()
     }
 }

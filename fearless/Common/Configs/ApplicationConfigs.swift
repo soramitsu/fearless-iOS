@@ -118,7 +118,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var learnControllerAccountURL: URL {
         // swiftlint:disable:next line_length
-        URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
+        URL(string: "https://forum.polkadot.network/t/the-future-of-polkadot-staking/1848?ref=cms.polkadot.network#deprecating-controller-6")!
     }
 
     var twitter: URL {
@@ -161,9 +161,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json", branch: .newAssets)
+            GitHubUrl.url(suffix: "chains/v1/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/chains.json")
+            GitHubUrl.url(suffix: "chains/v1/chains.json")
         #endif
     }
 
@@ -192,7 +192,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: .master)
+        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv")
     }
 }
 
@@ -206,10 +206,10 @@ private enum GitHubUrl {
         case master
         case develop
         case v4
-        case newAssets = "new-assets"
+        case developFree = "develop-free"
     }
 
-    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .develop) -> URL? {
+    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL? {
         URL(string: url.rawValue)?.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
     }
 }

@@ -119,7 +119,7 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
             case .email:
                 return createAboutItem(
                     title: R.string.localizable
-                        .aboutContactUs(preferredLanguages: rLanguages),
+                        .aboutContactEmail(preferredLanguages: rLanguages),
                     subtitle: about.writeUs.email,
                     icon: R.image.iconAboutEmail(),
                     url: nil
@@ -127,7 +127,7 @@ final class AboutViewModelFactory: AboutViewModelFactoryProtocol {
             case .terms:
                 return createAboutItem(
                     title: R.string.localizable
-                        .aboutTerms(preferredLanguages: rLanguages),
+                        .commonTermsAndConditions(preferredLanguages: rLanguages),
                     subtitle: nil,
                     icon: R.image.iconCheckMark(),
                     url: about.legal.termsUrl

@@ -60,6 +60,8 @@ class PinViewFactory: PinViewFactoryProtocol {
         let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
         let wireframe = PinSetupWireframe()
 
+        pinVerifyView.modalPresentationStyle = .fullScreen
+
         pinVerifyView.mode = .securedInput
 
         let interactor = LocalAuthInteractor(
@@ -98,6 +100,32 @@ class PinViewFactory: PinViewFactoryProtocol {
         let presenter = ScreenAuthorizationPresenter(
             wireframe: wireframe,
             interactor: interactor
+        )
+
+        pinVerifyView.presenter = presenter
+        pinVerifyView.localizationManager = LocalizationManager.shared
+
+        return pinVerifyView
+    }
+
+    static func createPinCheckView() -> PinSetupViewProtocol? {
+        let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
+        let wireframe = CheckPincodeWireframe()
+
+        pinVerifyView.modalPresentationStyle = .fullScreen
+
+        pinVerifyView.mode = .securedInput
+
+        let interactor = LocalAuthInteractor(
+            secretManager: KeychainManager.shared(with: .userInteractive),
+            settingsManager: SettingsManager.shared,
+            biometryAuth: BiometryAuth(),
+            locale: LocalizationManager.shared.selectedLocale
+        )
+        let presenter = LocalAuthPresenter(
+            wireframe: wireframe,
+            interactor: interactor,
+            userDefaultsStorage: SettingsManager.shared
         )
 
         pinVerifyView.presenter = presenter
