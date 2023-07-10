@@ -41,7 +41,6 @@ final class ChainRegistry {
 
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
-    private let mutex = NSLock()
     private lazy var readLock = ReaderWriterLock()
 
     init(
@@ -74,50 +73,50 @@ final class ChainRegistry {
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         guard !changes.isEmpty else {
             return
         }
 
-        changes.forEach { change in
-            do {
-                switch change {
-                case let .insert(newChain):
-                    let connection = try connectionPool.setupConnection(for: newChain)
-                    let chainTypes = chainsTypesMap[newChain.chainId]
+        readLock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
 
-                    runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
-                    runtimeSyncService.register(chain: newChain, with: connection)
-                    setupRuntimeVersionSubscription(for: newChain, connection: connection)
+            changes.forEach { change in
+                do {
+                    switch change {
+                    case let .insert(newChain):
+                        let connection = try strongSelf.connectionPool.setupConnection(for: newChain)
+                        let chainTypes = strongSelf.chainsTypesMap[newChain.chainId]
 
-                    chains.append(newChain)
-                case let .update(updatedChain):
-                    clearRuntimeSubscription(for: updatedChain.chainId)
+                        strongSelf.runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
+                        strongSelf.runtimeSyncService.register(chain: newChain, with: connection)
+                        strongSelf.setupRuntimeVersionSubscription(for: newChain, connection: connection)
 
-                    let connection = try connectionPool.setupConnection(for: updatedChain)
-                    let chainTypes = chainsTypesMap[updatedChain.chainId]
+                        strongSelf.chains.append(newChain)
+                    case let .update(updatedChain):
+                        strongSelf.clearRuntimeSubscription(for: updatedChain.chainId)
 
-                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
-                    setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
+                        let connection = try strongSelf.connectionPool.setupConnection(for: updatedChain)
+                        let chainTypes = strongSelf.chainsTypesMap[updatedChain.chainId]
 
-                    chains = chains.filter { $0.chainId != updatedChain.chainId }
-                    chains.append(updatedChain)
+                        strongSelf.runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
+                        strongSelf.setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
-                case let .delete(chainId):
-                    runtimeProviderPool.destroyRuntimeProvider(for: chainId)
-                    clearRuntimeSubscription(for: chainId)
+                        strongSelf.chains = strongSelf.chains.filter { $0.chainId != updatedChain.chainId }
+                        strongSelf.chains.append(updatedChain)
 
-                    runtimeSyncService.unregister(chainId: chainId)
+                    case let .delete(chainId):
+                        strongSelf.runtimeProviderPool.destroyRuntimeProvider(for: chainId)
+                        strongSelf.clearRuntimeSubscription(for: chainId)
 
-                    chains = chains.filter { $0.chainId != chainId }
+                        strongSelf.runtimeSyncService.unregister(chainId: chainId)
+
+                        strongSelf.chains = strongSelf.chains.filter { $0.chainId != chainId }
+                    }
+                } catch {
+                    strongSelf.logger?.error("Unexpected error on handling chains update: \(error)")
                 }
-            } catch {
-                logger?.error("Unexpected error on handling chains update: \(error)")
             }
         }
     }
@@ -151,13 +150,7 @@ final class ChainRegistry {
 
 extension ChainRegistry: ChainRegistryProtocol {
     var availableChainIds: Set<ChainModel.Id>? {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        return Set(runtimeVersionSubscriptions.keys)
+        readLock.concurrentlyRead { Set(runtimeVersionSubscriptions.keys) }
     }
 
     func performColdBoot() {
@@ -199,13 +192,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        return runtimeProviderPool.getRuntimeProvider(for: chainId)
+        readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
     }
 
     func chainsSubscribe(
@@ -265,6 +252,11 @@ extension ChainRegistry: ConnectionPoolDelegate {
             return
         }
 
+        if case .connected = state {
+            let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
+            eventCenter.notify(with: reconnectedEvent)
+        }
+
         switch state {
         case let .waitingReconnection(attempt: attempt):
             if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
@@ -275,7 +267,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
         }
     }
 
-    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL, state: WebSocketEngine.State) {
+    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL, state _: WebSocketEngine.State) {
         guard chain.selectedNode == nil else {
             return
         }
@@ -287,7 +279,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
             eventCenter.notify(with: event)
         } catch {
             logger?.error("\(chain.name) error: \(error.localizedDescription)")
-            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: state)
+            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: .notConnected)
             eventCenter.notify(with: reconnectedEvent)
         }
     }

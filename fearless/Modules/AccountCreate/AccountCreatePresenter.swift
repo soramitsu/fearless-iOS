@@ -114,7 +114,6 @@ final class AccountCreatePresenter {
     private func presentDerivationPathError(_ cryptoType: CryptoType, isEthereum: Bool) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        // TODO: Check correctness
         if isEthereum {
             _ = wireframe.present(
                 error: AccountCreationError.invalidDerivationHardSoftNumeric,

@@ -1,7 +1,16 @@
 import UIKit
+import SoraFoundation
 
 class FearlessApplication: UIApplication {
+    private lazy var goneBackgroundTimestamp = Date().timeIntervalSince1970
     private var timerToDetectInactivity: Timer?
+    private var applicationHandler: ApplicationHandler?
+
+    override init() {
+        super.init()
+        applicationHandler = ApplicationHandler()
+        applicationHandler?.delegate = self
+    }
 
     override func sendEvent(_ event: UIEvent) {
         super.sendEvent(event)
@@ -28,12 +37,26 @@ class FearlessApplication: UIApplication {
 
     @objc private func dropSession() {
         if let window = UIApplication.shared.windows.first {
-            guard let pincodeViewController = PinViewFactory.createSecuredPinView()?.controller else {
+            guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
                 return
             }
 
             window.rootViewController?.dismiss(animated: false)
             window.rootViewController?.present(pincodeViewController, animated: false)
+        }
+    }
+}
+
+extension FearlessApplication: ApplicationHandlerDelegate {
+    func didReceiveDidEnterBackground(notification _: Notification) {
+        timerToDetectInactivity?.invalidate()
+        goneBackgroundTimestamp = Date().timeIntervalSince1970
+    }
+
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        resetTimer()
+        if Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
+            dropSession()
         }
     }
 }

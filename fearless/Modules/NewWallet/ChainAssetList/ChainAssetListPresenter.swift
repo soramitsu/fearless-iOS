@@ -26,17 +26,9 @@ final class ChainAssetListPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
-    private var chainsWithNetworkIssues: [ChainModel.Id] = []
     private var chainsWithMissingAccounts: [ChainModel.Id] = []
-    private var chainSettings: [ChainSettings]?
 
     private var activeFilters: [ChainAssetsFetching.Filter] = []
-
-    private lazy var factoryOperationQueue: OperationQueue = {
-        let queue = OperationQueue()
-        queue.maxConcurrentOperationCount = 1
-        return queue
-    }()
 
     // MARK: - Constructors
 
@@ -57,28 +49,14 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        factoryOperationQueue.operations.forEach { $0.cancel() }
-        factoryOperationQueue.cancelAllOperations()
+        guard let chainAssets = self.chainAssets else {
+            return
+        }
 
-        let operationBlock = BlockOperation()
-        operationBlock.addExecutionBlock { [unowned operationBlock] in
-            guard !operationBlock.isCancelled else {
-                return
-            }
-
-            let additionalDataReceived = self.displayType != .search || self.displayType == .search
-            guard
-                let chainAssets = self.chainAssets,
-                additionalDataReceived
-            else {
-                return
-            }
-
-            let chainSettings = self.chainSettings ?? []
+        lock.concurrentlyRead {
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
             let chainsWithMissingAccounts = self.chainsWithMissingAccounts
-            let chainsWithNetworkIssues = self.chainsWithNetworkIssues
 
             let viewModel = self.viewModelFactory.buildViewModel(
                 wallet: self.wallet,
@@ -86,9 +64,7 @@ final class ChainAssetListPresenter {
                 locale: self.selectedLocale,
                 accountInfos: accountInfosCopy,
                 prices: prices,
-                chainsWithIssues: chainsWithNetworkIssues,
                 chainsWithMissingAccounts: chainsWithMissingAccounts,
-                chainSettings: chainSettings,
                 activeFilters: self.activeFilters
             )
 
@@ -96,8 +72,6 @@ final class ChainAssetListPresenter {
                 self.view?.didReceive(viewModel: viewModel)
             }
         }
-
-        factoryOperationQueue.addOperation(operationBlock)
     }
 
     private func showMissingAccountOptions(chain: ChainModel) {
@@ -188,36 +162,6 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         }
     }
 
-    func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
-        let title = viewModel.chainAsset.chain.name + " "
-            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
-
-        var message: String = ""
-        var closeActionTitle: String = ""
-        if viewModel.isNetworkIssues {
-            message = R.string.localizable
-                .networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
-            closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
-        } else if viewModel.isMissingAccount {
-            closeActionTitle = R.string.localizable
-                .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages)
-        }
-
-        let sheetViewModel = SheetAlertPresentableViewModel(
-            title: title,
-            message: message,
-            actions: [],
-            closeAction: closeActionTitle,
-            dismissCompletion: { [weak self] in
-                if viewModel.isMissingAccount {
-                    self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
-                }
-            },
-            icon: nil
-        )
-        router.present(viewModel: sheetViewModel, from: view)
-    }
-
     func didTapExpandSections(state: HiddenSectionState) {
         interactor.saveHiddenSection(state: state)
     }
@@ -234,16 +178,20 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         self.wallet = wallet
     }
 
+    func handleWalletChanged(wallet: MetaAccountModel) {
+        accountInfos = [:]
+        self.wallet = wallet
+    }
+
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
         case let .success(chainAssets):
-            lock.exclusivelyWrite { [unowned self] in
+            lock.exclusivelyWrite { [weak self] in
+                guard let self = self else { return }
                 self.chainAssets = chainAssets
             }
         case let .failure(error):
-            DispatchQueue.main.async {
-                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
-            }
+            Logger.shared.customError(error)
         }
     }
 
@@ -255,59 +203,55 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
 
-            let previousAccountInfo = accountInfos[key] ?? nil
+            let previousAccountInfo = lock.concurrentlyRead {
+                accountInfos[key] ?? nil
+            }
             let bothNil = (previousAccountInfo == nil && accountInfo == nil)
 
             guard previousAccountInfo != accountInfo, !bothNil else {
                 return
             }
 
-            accountInfos[key] = accountInfo
-
+            lock.exclusivelyWrite { [weak self] in
+                guard let self = self else { return }
+                self.accountInfos[key] = accountInfo
+            }
             provideViewModel()
 
         case let .failure(error):
-            DispatchQueue.main.async {
-                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
-            }
+            Logger.shared.customError(error)
         }
     }
 
     func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(priceDataResult):
-            let priceDataUpdated = (pricesData: priceDataResult, updated: true)
-            prices = priceDataUpdated
-        case .failure:
-            let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
-            prices = priceDataUpdated
+        lock.exclusivelyWrite { [weak self] in
+            guard let self = self else { return }
+            switch result {
+            case let .success(priceDataResult):
+                let priceDataUpdated = (pricesData: priceDataResult, updated: true)
+                self.prices = priceDataUpdated
+            case .failure:
+                let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
+                self.prices = priceDataUpdated
+            }
         }
-
         provideViewModel()
     }
 
     func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
         guard issues.isNotEmpty else {
-            chainsWithNetworkIssues = []
             chainsWithMissingAccounts = []
             provideViewModel()
             return
         }
-        lock.exclusivelyWrite { [unowned self] in
+        lock.exclusivelyWrite { [weak self] in
+            guard let self = self else { return }
             issues.forEach { chainIssue in
-                switch chainIssue {
-                case let .network(chains):
-                    self.chainsWithNetworkIssues = chains.map { $0.chainId }
-                case let .missingAccount(chains):
-                    chainsWithMissingAccounts = chains.map { $0.chainId }
+                if case let .missingAccount(chains) = chainIssue {
+                    self.chainsWithMissingAccounts = chains.map { $0.chainId }
                 }
             }
         }
-        provideViewModel()
-    }
-
-    func didReceive(chainSettings: [ChainSettings]) {
-        self.chainSettings = chainSettings
         provideViewModel()
     }
 
@@ -322,7 +266,8 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             newDict[key] = initialDict.value
         }
 
-        lock.exclusivelyWrite { [unowned self] in
+        lock.exclusivelyWrite { [weak self] in
+            guard let self = self else { return }
             self.accountInfos = balances
         }
         provideViewModel()

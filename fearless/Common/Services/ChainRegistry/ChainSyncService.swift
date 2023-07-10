@@ -148,6 +148,9 @@ final class ChainSyncService {
         }
 
         let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
+            guard !remoteItem.disabled else {
+                return nil
+            }
             if let localItem = localMapping[remoteItem.chainId] {
                 return localItem != remoteItem ? remoteItem : nil
             } else {

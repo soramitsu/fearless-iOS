@@ -195,6 +195,7 @@ class RemoteSubscriptionService<T: StorageWrapper> {
         }
 
         let containerOperation = ClosureOperation<StorageSubscriptionContainer> { [weak self] in
+
             guard let strongSelf = self else {
                 throw BaseOperationError.unexpectedDependentResult
             }

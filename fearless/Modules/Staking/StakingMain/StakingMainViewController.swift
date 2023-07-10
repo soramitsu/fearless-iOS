@@ -90,6 +90,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         if keyboardHandler == nil {
             setupKeyboardHandler()
         }
+
+        presenter?.didTriggerViewWillAppear()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -103,6 +105,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         }
 
         presenter?.setup()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        presenter?.didTriggerViewWillDisappear()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
