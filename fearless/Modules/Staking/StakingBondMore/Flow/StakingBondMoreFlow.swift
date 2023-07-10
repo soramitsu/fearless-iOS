@@ -19,7 +19,7 @@ protocol StakingBondMoreModelStateListener: AnyObject {
 }
 
 protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
-    var amount: Decimal { get }
+    var amount: Decimal? { get }
     var fee: Decimal? { get }
     var balance: Decimal? { get }
     var stateListener: StakingBondMoreModelStateListener? { get set }

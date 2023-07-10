@@ -191,7 +191,7 @@ final class StakingPoolCreateViewLayout: UIView {
         nominatorView.title = R.string.localizable.stakingPoolCreateNominator(
             preferredLanguages: locale.rLanguages
         )
-        bouncerView.title = R.string.localizable.stakingPoolCreateBouncer(
+        bouncerView.title = R.string.localizable.stakingPoolCreateStateToggler(
             preferredLanguages: locale.rLanguages
         )
     }

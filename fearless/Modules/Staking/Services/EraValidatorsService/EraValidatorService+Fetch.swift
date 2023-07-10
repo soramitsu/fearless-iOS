@@ -51,6 +51,10 @@ extension EraValidatorService {
         identifiersClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let keys: () throws -> [Data] = {
             try identifiersClosure()
         }
@@ -72,6 +76,10 @@ extension EraValidatorService {
         keysClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -86,6 +94,10 @@ extension EraValidatorService {
     }
 
     private func createRemoteValidatorsFetch(for prefixKey: Data) -> BaseOperation<[String]> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return BaseOperation.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let request = PagedKeysRequest(key: prefixKey.toHex(includePrefix: true))
         return JSONRPCOperation<PagedKeysRequest, [String]>(
             engine: connection,
@@ -355,6 +367,10 @@ extension EraValidatorService {
     }
 
     private func preparePrefixKeyAndUpdateIfNeeded(activeEra: UInt32) {
+        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
+            return
+        }
         guard activeEra == self.activeEra else {
             logger?.warning("Prefix key for formed but parameters changed. Cancelled.")
             return
@@ -421,6 +437,11 @@ extension EraValidatorService {
     }
 
     func didUpdateActiveEraItem(_ eraItem: ChainStorageItem?) {
+        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            logger?.error(ConvenienceError(error: ChainRegistryError.runtimeMetadaUnavailable.localizedDescription).localizedDescription)
+            return
+        }
+
         guard let eraItem = eraItem else {
             return
         }

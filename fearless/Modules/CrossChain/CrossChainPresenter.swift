@@ -6,7 +6,7 @@ import SSFExtrinsicKit
 import SSFUtils
 import SSFModels
 
-protocol CrossChainViewInput: ControllerBackedProtocol {
+protocol CrossChainViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceive(amountInputViewModel: IAmountInputViewModel?)
     func didReceive(originSelectNetworkViewModel: SelectNetworkViewModel)
@@ -378,6 +378,7 @@ final class CrossChainPresenter {
 
 extension CrossChainPresenter: CrossChainViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
+        view?.didStartLoading()
         amountInputResult = .rate(Decimal(Double(percentage)))
         provideAssetViewModel()
         provideInputViewModel()
@@ -385,6 +386,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
     }
 
     func updateAmount(_ newValue: Decimal) {
+        view?.didStartLoading()
         amountInputResult = .absolute(newValue)
         provideAssetViewModel()
         estimateFee()
@@ -468,28 +470,25 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             guard let feeInPlanks = response.feeInPlanks else {
                 return
             }
+            var precision = Int16(selectedAmountChainAsset.asset.precision)
+            if let destinationPrecision = response.precision,
+               let intDestPrecision = Int16(destinationPrecision) {
+                precision = intDestPrecision
+            }
             destNetworkFee = Decimal.fromSubstrateAmount(
                 feeInPlanks,
-                precision: Int16(selectedAmountChainAsset.asset.precision)
+                precision: precision
             )
 
         case let .failure(error):
             destNetworkFee = nil
             logger.customError(error)
-            #if F_DEV
-                router.present(
-                    message: "\(error)",
-                    title: "\(#function)",
-                    closeAction: nil,
-                    from: view,
-                    actions: []
-                )
-            #endif
         }
         provideDestNetworkFeeViewModel()
     }
 
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult) {
+        view?.didStopLoading()
         switch result {
         case let .success(response):
             guard
@@ -503,15 +502,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         case let .failure(error):
             originNetworkFee = nil
             logger.customError(error)
-            #if F_DEV
-                router.present(
-                    message: "\(error)",
-                    title: "\(#function)",
-                    closeAction: nil,
-                    from: view,
-                    actions: []
-                )
-            #endif
         }
         provideOriginNetworkFeeViewModel()
     }
@@ -524,15 +514,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             providePrices()
         case let .failure(error):
             logger.customError(error)
-            #if F_DEV
-                router.present(
-                    message: "\(error)",
-                    title: "\(#function)",
-                    closeAction: nil,
-                    from: view,
-                    actions: []
-                )
-            #endif
         }
     }
 
@@ -561,15 +542,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             }
         case let .failure(failure):
             logger.customError(failure)
-            #if F_DEV
-                router.present(
-                    message: "\(failure)",
-                    title: "\(#function)",
-                    closeAction: nil,
-                    from: view,
-                    actions: []
-                )
-            #endif
         }
     }
 
@@ -601,15 +573,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             self.existentialDeposit = existentialDeposit
         case let .failure(error):
             logger.customError(error)
-            #if F_DEV
-                router.present(
-                    message: "\(error)",
-                    title: "\(#function)",
-                    closeAction: nil,
-                    from: view,
-                    actions: []
-                )
-            #endif
         }
     }
 }
@@ -632,6 +595,9 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
         guard let chainAsset = chainAsset else {
             return
         }
+
+        view?.didStartLoading()
+
         destNetworkFee = nil
         originNetworkFee = nil
         provideOriginNetworkFeeViewModel()
@@ -656,6 +622,8 @@ extension CrossChainPresenter: SelectNetworkDelegate {
         guard let chain = chain else {
             return
         }
+
+        view?.didStartLoading()
 
         destNetworkFee = nil
         originNetworkFee = nil

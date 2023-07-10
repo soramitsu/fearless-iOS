@@ -1,7 +1,7 @@
 import Foundation
 import SSFCloudStorage
 
-protocol OnboardingMainViewProtocol: ControllerBackedProtocol, CloudStorageUIDelegate, LoadableViewProtocol {}
+protocol OnboardingMainViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {}
 
 protocol OnboardingMainPresenterProtocol: AnyObject {
     func setup()

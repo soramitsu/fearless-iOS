@@ -66,6 +66,7 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
 #  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
 #  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
+#  pod 'SSFCloudStorage', :path => '../soramitsu-shared-features-ios/SSFCloudStorage'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -87,4 +88,21 @@ abstract_target 'fearlessAll' do
 
   target 'fearless'
 
+end
+
+post_install do |installer|
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+            config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+          end
+        if target.name == 'SSFXCM'
+            target.build_configurations.each do |config|
+                if config.name == 'Dev'
+                    config.build_settings['OTHER_SWIFT_FLAGS'] = '-DF_DEV -D COCOAPODS'
+                    else
+                    config.build_settings['OTHER_SWIFT_FLAGS'] = '-D COCOAPODS'
+                end
+            end
+        end
+    end
 end

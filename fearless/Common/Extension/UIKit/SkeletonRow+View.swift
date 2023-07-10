@@ -44,4 +44,22 @@ extension SingleSkeleton {
 
         return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
     }
+
+    static func createRow(
+        spaceSize: CGSize,
+        position: CGPoint,
+        size: CGSize
+    ) -> SingleSkeleton {
+        let position = CGPoint(
+            x: position.x + size.width / 2,
+            y: position.y
+        )
+
+        let mappedSize = CGSize(
+            width: spaceSize.skrullMapX(size.width),
+            height: spaceSize.skrullMapY(size.height)
+        )
+
+        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
+    }
 }

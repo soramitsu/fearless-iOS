@@ -1,4 +1,10 @@
 PODS:
+  - AppAuth (1.6.2):
+    - AppAuth/Core (= 1.6.2)
+    - AppAuth/ExternalUserAgent (= 1.6.2)
+  - AppAuth/Core (1.6.2)
+  - AppAuth/ExternalUserAgent (1.6.2):
+    - AppAuth/Core
   - BigInt (5.2.0)
   - Charts (4.1.0):
     - Charts/Core (= 4.1.0)
@@ -23,26 +29,18 @@ PODS:
   - GoogleAPIClientForREST/Drive (1.2.1):
     - GoogleAPIClientForREST/Core
     - GTMSessionFetcher (>= 1.1.7)
-  - GoogleSignIn (4.1.2):
-    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
-    - "GoogleToolboxForMac/NSString+URLArguments (~> 2.1)"
-    - GTMOAuth2 (~> 1.0)
-    - GTMSessionFetcher/Core (~> 1.1)
-  - GoogleToolboxForMac/DebugUtils (2.3.2):
-    - GoogleToolboxForMac/Defines (= 2.3.2)
-  - GoogleToolboxForMac/Defines (2.3.2)
-  - "GoogleToolboxForMac/NSDictionary+URLArguments (2.3.2)":
-    - GoogleToolboxForMac/DebugUtils (= 2.3.2)
-    - GoogleToolboxForMac/Defines (= 2.3.2)
-    - "GoogleToolboxForMac/NSString+URLArguments (= 2.3.2)"
-  - "GoogleToolboxForMac/NSString+URLArguments (2.3.2)"
-  - GTMOAuth2 (1.1.6):
-    - GTMSessionFetcher (~> 1.1)
-  - GTMSessionFetcher (1.7.2):
-    - GTMSessionFetcher/Full (= 1.7.2)
-  - GTMSessionFetcher/Core (1.7.2)
-  - GTMSessionFetcher/Full (1.7.2):
-    - GTMSessionFetcher/Core (= 1.7.2)
+  - GoogleSignIn (7.0.0):
+    - AppAuth (~> 1.5)
+    - GTMAppAuth (< 3.0, >= 1.3)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.1)
+  - GTMAppAuth (2.0.0):
+    - AppAuth/Core (~> 1.6)
+    - GTMSessionFetcher/Core (< 4.0, >= 1.5)
+  - GTMSessionFetcher (3.1.1):
+    - GTMSessionFetcher/Full (= 3.1.1)
+  - GTMSessionFetcher/Core (3.1.1)
+  - GTMSessionFetcher/Full (3.1.1):
+    - GTMSessionFetcher/Core
   - IrohaCrypto (0.10.0):
     - IrohaCrypto/BIP39 (= 0.10.0)
     - IrohaCrypto/blake2 (= 0.10.0)
@@ -147,7 +145,7 @@ PODS:
     - SSFUtils
   - SSFCloudStorage (0.1.0):
     - GoogleAPIClientForREST/Drive (~> 1.2.1)
-    - GoogleSignIn (~> 4.1.1)
+    - GoogleSignIn (~> 7.0.0)
     - IrohaCrypto/Scrypt
     - TweetNacl (~> 1.0.0)
   - SSFCrypto (0.1.0):
@@ -185,7 +183,7 @@ PODS:
     - IrohaCrypto
   - SSFNetwork (0.1.0):
     - RobinHood
-  - SSFRuntimeCodingService (0.1.0):
+  - SSFRuntimeCodingService (0.1.1):
     - RobinHood
     - SSFModels
     - SSFUtils
@@ -196,12 +194,12 @@ PODS:
     - IrohaCrypto/sr25519
     - IrohaCrypto/ss58
     - SSFCrypto
-  - SSFStorageQueryKit (0.1.0):
+  - SSFStorageQueryKit (0.1.1):
     - SSFChainConnection
     - SSFCrypto
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFUtils (0.1.0):
+  - SSFUtils (0.1.1):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -278,6 +276,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
+    - AppAuth
     - BigInt
     - Charts
     - CocoaLumberjack
@@ -286,8 +285,7 @@ SPEC REPOS:
     - FireMock
     - GoogleAPIClientForREST
     - GoogleSignIn
-    - GoogleToolboxForMac
-    - GTMOAuth2
+    - GTMAppAuth
     - GTMSessionFetcher
     - IrohaCrypto
     - keccak.c
@@ -345,6 +343,7 @@ CHECKOUT OPTIONS:
     :tag: 4.0.8
 
 SPEC CHECKSUMS:
+  AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
@@ -352,10 +351,9 @@ SPEC CHECKSUMS:
   Cuckoo: 930598bd4ae95860c658b3eea30903d946ebef36
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   GoogleAPIClientForREST: a8b95a252014ce2e618df6b75dc72eca2c00b4af
-  GoogleSignIn: d9ef55b10f0aa401a5de2747f59b725e4b9732ac
-  GoogleToolboxForMac: 8bef7c7c5cf7291c687cf5354f39f9db6399ad34
-  GTMOAuth2: e8b6512c896235149df975c41d9a36c868ab7fba
-  GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
+  GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
+  GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
+  GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
   Kingfisher: f043ac666dfc96c1f37604f93effb45a7ee3a3e1
@@ -372,7 +370,7 @@ SPEC CHECKSUMS:
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SSFChainConnection: a232b35cc083e9e9e79ff6ed228812cddd11ace6
   SSFChainRegistry: bb26ac38e4c43aeaf29f1a959603aa5fd6889d7e
-  SSFCloudStorage: 5027f8379d186a3790cf0684eb23e8359aceff97
+  SSFCloudStorage: 165a033d4656b25bf67e3d61b472423666ab6b03
   SSFCrypto: 1d82ecd49dc44d47e155bdecd7b873348f5bdd16
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
@@ -380,10 +378,10 @@ SPEC CHECKSUMS:
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
   SSFModels: 11a6bad13319a03093c50c9278efda185331f70d
   SSFNetwork: 1dacdbd3db8bddd808de87a707a4e27f18a78de8
-  SSFRuntimeCodingService: 6eb94c6336d47e86b19588524ca75c71c83f53a9
+  SSFRuntimeCodingService: d67154d18789604a448b4e9f1c261ade291629e8
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
-  SSFStorageQueryKit: edb0af3dbed5520f2821d07bb460099430b4f261
-  SSFUtils: 994c698425074c773f001bb0dc5eade36ac2e08c
+  SSFStorageQueryKit: 3063fdf0a84c9b7c1c2a2a08b862162bd0d38694
+  SSFUtils: f6422d909cb57a85cd5784b3f399aead69b26a6b
   SSFXCM: b5bc8e60248bf2bf7a6e984cc1733d54801b8d41
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
@@ -395,6 +393,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 9d89ed68979dd2ab40f145cd564d012f2f273708
+PODFILE CHECKSUM: 555ee3f8f43d43778b29a7e4c1e1872a8caa5948
 
 COCOAPODS: 1.11.3

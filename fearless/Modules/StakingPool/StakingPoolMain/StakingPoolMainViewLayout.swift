@@ -94,7 +94,7 @@ final class StakingPoolMainViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
+        titleLabel.text = R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages)
         networkInfoView.titleControl.titleLabel.text = R.string.localizable.poolStakingTitle(
             preferredLanguages: locale.rLanguages
         )

@@ -16,7 +16,7 @@ enum LockType: String {
                     preferredLanguages: locale.rLanguages
                 )
             case .staking:
-                return R.string.localizable.stakingTitle(
+                return R.string.localizable.commonStaking(
                     preferredLanguages: locale.rLanguages
                 )
             case .democracy:

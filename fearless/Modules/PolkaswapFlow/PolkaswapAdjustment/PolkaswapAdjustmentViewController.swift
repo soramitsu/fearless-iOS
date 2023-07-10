@@ -172,6 +172,10 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 // MARK: - PolkaswapAdjustmentViewInput
 
 extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
+    func setButtonLoadingState(isLoading: Bool) {
+        rootView.previewButton.set(loading: isLoading)
+    }
+
     func didReceive(market: LiquiditySourceType) {
         rootView.marketButton.setTitle(market.name)
     }
@@ -201,8 +205,7 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
     }
 
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?) {
-        rootView.networkFeeView.bindBalance(viewModel: fee)
-        rootView.networkFeeView.isHidden = false
+        rootView.bind(fee: fee)
         updatePreviewButton()
     }
 

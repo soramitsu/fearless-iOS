@@ -5,14 +5,12 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
-    func showEmptyState()
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
-    func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel)
     func didTapExpandSections(state: HiddenSectionState)
 }
 
@@ -34,9 +32,9 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])
-    func updateViewModel()
-    func didReceive(chainSettings: [ChainSettings])
+    func updateViewModel(isInitSearchState: Bool)
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
+    func handleWalletChanged(wallet: MetaAccountModel)
 }
 
 protocol ChainAssetListRouterInput:

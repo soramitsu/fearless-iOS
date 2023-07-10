@@ -174,7 +174,7 @@ final class SelectableAmountInputView: UIView {
                 .walletSendTitle(preferredLanguages: locale.rLanguages)
         case .swapReceive:
             titleLabel.text = R.string.localizable
-                .walletAssetReceive(preferredLanguages: locale.rLanguages)
+                .commonActionReceive(preferredLanguages: locale.rLanguages)
         }
     }
 

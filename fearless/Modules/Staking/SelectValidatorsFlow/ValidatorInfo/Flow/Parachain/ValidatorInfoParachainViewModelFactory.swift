@@ -167,7 +167,7 @@ final class ValidatorInfoParachainViewModelFactory {
 
     private func createTotalTitle() -> LocalizableResource<String> {
         LocalizableResource { locale in
-            R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.commonTotal(preferredLanguages: locale.rLanguages)
         }
     }
 

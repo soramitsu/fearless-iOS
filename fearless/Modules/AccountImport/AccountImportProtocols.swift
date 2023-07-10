@@ -12,6 +12,7 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func bind(ethereumViewModel: InputViewModelProtocol)
     func setUploadWarning(message: String)
     func setUniqueChain(viewModel: UniqueChainViewModel)
+    func didChangeState(_ state: ErrorPresentableInputField.State)
 
     func didCompleteSourceTypeSelection()
     func didCompleteCryptoTypeSelection()
@@ -30,6 +31,7 @@ protocol AccountImportPresenterProtocol: AnyObject {
     func validateSubstrateDerivationPath()
     func validateEthereumDerivationPath()
     func proceed()
+    func validateInput(value: String)
 }
 
 protocol AccountImportInteractorInputProtocol: AnyObject {
@@ -45,6 +47,7 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
     func didCompleteAccountImport()
     func didReceiveAccountImport(error: Error)
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?)
+    func didFailToDeriveMetadataFromKeystore()
 }
 
 protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable, DocumentPickerPresentable {

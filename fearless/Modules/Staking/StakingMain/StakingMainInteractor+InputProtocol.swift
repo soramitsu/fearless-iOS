@@ -4,6 +4,17 @@ import RobinHood
 import SSFModels
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
+    func changeActiveState(_ isActive: Bool) {
+        self.isActive = isActive
+
+        if let selectedChain = selectedChainAsset?.chain,
+           let selectedMetaAccount = selectedWalletSettings.value,
+           let newSelectedAccount = selectedMetaAccount.fetch(for: selectedChain.accountRequest()),
+           newSelectedAccount != selectedAccount {
+            updateAfterSelectedAccountChange()
+        }
+    }
+
     func updatePrices() {
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
@@ -226,6 +237,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     }
 
     private func updateAfterSelectedAccountChange() {
+        guard isActive else {
+            return
+        }
+
         clearAccountRemoteSubscription()
         accountInfoSubscriptionAdapter.reset()
         clearStashControllerSubscription()
@@ -249,6 +264,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
             return
         }
+
+        presenter?.didReceive(selectedWallet: selectedMetaAccount)
 
         selectedAccount = newSelectedAccount
         setupAccountRemoteSubscription()

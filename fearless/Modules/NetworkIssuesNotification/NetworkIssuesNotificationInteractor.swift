@@ -11,7 +11,7 @@ final class NetworkIssuesNotificationInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenter
-    private let chainsIssuesCenter: ChainsIssuesCenter
+    private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
 
     init(
@@ -19,7 +19,7 @@ final class NetworkIssuesNotificationInteractor {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
-        chainsIssuesCenter: ChainsIssuesCenter,
+        chainsIssuesCenter: ChainsIssuesCenterProtocol,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     ) {
         self.wallet = wallet

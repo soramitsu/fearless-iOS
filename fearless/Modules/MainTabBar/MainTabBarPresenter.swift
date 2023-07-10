@@ -49,23 +49,11 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
 
 extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
     func didReloadSelectedAccount() {
-        wireframe.showNewWalletView(on: view)
         crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
     }
-
-    func didReloadSelectedNetwork() {
-        wireframe.showNewWalletView(on: view)
-        crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
-    }
-
-    func didUpdateWalletInfo() {}
 
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
-    }
-
-    func handleLongInactivity() {
-        wireframe.logout(from: view)
     }
 }
 
@@ -80,11 +68,8 @@ extension MainTabBarPresenter: ApplicationHandlerDelegate {
 }
 
 extension MainTabBarPresenter: ReachabilityListenerDelegate {
-    func didChangeReachability(by _: ReachabilityManagerProtocol) {
-        guard let isReachable = reachability?.isReachable else {
-            return
-        }
-        isReachable
+    func didChangeReachability(by manager: ReachabilityManagerProtocol) {
+        manager.isReachable
             ? networkStatusPresenter.didDecideReachableStatusPresentation()
             : networkStatusPresenter.didDecideUnreachableStatusPresentation()
     }

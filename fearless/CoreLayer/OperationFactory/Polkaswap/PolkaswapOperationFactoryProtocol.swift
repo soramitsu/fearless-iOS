@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import RobinHood
+import SSFModels
 
 protocol PolkaswapOperationFactoryProtocol {
     func createIsPathAvailableOperation(
@@ -26,17 +27,17 @@ protocol PolkaswapOperationFactoryProtocol {
 }
 
 final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
-    private let engine: JSONRPCEngine
     private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let runtimeService: RuntimeCodingServiceProtocol
+    private let chainRegistry: ChainRegistryProtocol
+    private let chainId: ChainModel.Id
     init(
-        engine: JSONRPCEngine,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        chainRegistry: ChainRegistryProtocol,
+        chainId: ChainModel.Id
     ) {
-        self.engine = engine
         self.storageRequestFactory = storageRequestFactory
-        self.runtimeService = runtimeService
+        self.chainRegistry = chainRegistry
+        self.chainId = chainId
     }
 
     func createIsPathAvailableOperation(
@@ -44,6 +45,10 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         from fromAssetId: String,
         to toAssetId: String
     ) -> JSONRPCOperation<[PolkaswapJSON], Bool> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return JSONRPCOperation.failureOperation(ChainRegistryError.connectionUnavailable)
+        }
+
         let parameters: [PolkaswapJSON] = [
             PolkaswapJSON(dexId),
             PolkaswapJSON(fromAssetId),
@@ -51,7 +56,7 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         ]
 
         return JSONRPCOperation<[PolkaswapJSON], Bool>(
-            engine: engine,
+            engine: connection,
             method: RPCMethod.checkIsSwapPossible,
             parameters: parameters
         )
@@ -62,6 +67,10 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         from fromAssetId: String,
         to toAssetId: String
     ) -> JSONRPCOperation<[PolkaswapJSON], [String]> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return JSONRPCOperation<[PolkaswapJSON], [String]>.failureOperation(ChainRegistryError.connectionUnavailable)
+        }
+
         let parameters: [PolkaswapJSON] = [
             PolkaswapJSON(dexId),
             PolkaswapJSON(fromAssetId),
@@ -69,7 +78,7 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         ]
 
         return JSONRPCOperation<[PolkaswapJSON], [String]>(
-            engine: engine,
+            engine: connection,
             method: RPCMethod.availableMarketAlgorithms,
             parameters: parameters
         )
@@ -118,6 +127,10 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         dexId: UInt32,
         params: PolkaswapQuoteParams
     ) -> JSONRPCOperation<[PolkaswapJSON], SwapValues> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return JSONRPCOperation.failureOperation(ChainRegistryError.connectionUnavailable)
+        }
+
         let paramsArray: [PolkaswapJSON] = [
             PolkaswapJSON(dexId),
             PolkaswapJSON(params.fromAssetId),
@@ -129,13 +142,17 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         ]
 
         return JSONRPCOperation<[PolkaswapJSON], SwapValues>(
-            engine: engine,
+            engine: connection,
             method: RPCMethod.recalculateSwapValues,
             parameters: paramsArray
         )
     }
 
     func createDexInfosOperation() -> CompoundOperationWrapper<[UInt32]> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let dexInfosOperation = createDexInfosOperation(dependingOn: runtimeOperation)
 
@@ -157,9 +174,13 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
     private func createDexInfosOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<DexIdInfo>]> {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let dexInfosWrapper: CompoundOperationWrapper<[StorageResponse<DexIdInfo>]> =
             storageRequestFactory.queryItemsByPrefix(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .polkaswapDexManagerDesInfos)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .polkaswapDexManagerDesInfos

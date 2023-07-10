@@ -3,6 +3,7 @@ import SSFModels
 
 protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
     func reload(with viewModel: ControllerAccountViewModel)
+    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>)
 }
 
 protocol ControllerAccountViewModelFactoryProtocol: AnyObject {

@@ -4,15 +4,16 @@ import BigInt
 import SSFModels
 
 final class ControllerAccountPresenter {
-    let wireframe: ControllerAccountWireframeProtocol
-    let interactor: ControllerAccountInteractorInputProtocol
-    let viewModelFactory: ControllerAccountViewModelFactoryProtocol
-    let applicationConfig: ApplicationConfigProtocol
-    let chain: ChainModel
-    let asset: AssetModel
-    let selectedAccount: MetaAccountModel
-    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let wireframe: ControllerAccountWireframeProtocol
+    private let interactor: ControllerAccountInteractorInputProtocol
+    private let viewModelFactory: ControllerAccountViewModelFactoryProtocol
+    private let applicationConfig: ApplicationConfigProtocol
+    private let chain: ChainModel
+    private let asset: AssetModel
+    private let selectedAccount: MetaAccountModel
+    private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     weak var view: ControllerAccountViewProtocol?
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private let logger: LoggerProtocol?
     private var stashAccountItem: ChainAccountResponse?
@@ -24,6 +25,7 @@ final class ControllerAccountPresenter {
     private var balance: Decimal?
     private var controllerBalance: Decimal?
     private var stakingLedger: StakingLedger?
+    private var priceData: PriceData?
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
@@ -34,7 +36,8 @@ final class ControllerAccountPresenter {
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
@@ -45,6 +48,7 @@ final class ControllerAccountPresenter {
         self.selectedAccount = selectedAccount
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     private func updateView() {
@@ -80,6 +84,14 @@ final class ControllerAccountPresenter {
             interactor.fetchLedger(controllerAddress: chosenControllerAddress)
             interactor.fetchControllerAccountInfo(controllerAddress: chosenControllerAddress)
         }
+    }
+
+    private func provideFeeViewModel() {
+        guard let fee = fee else {
+            return
+        }
+        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
+        view?.didReceive(feeViewModel: feeViewModel)
     }
 }
 
@@ -219,6 +231,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
                 self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
+                provideFeeViewModel()
             }
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")

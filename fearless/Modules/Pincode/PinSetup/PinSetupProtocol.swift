@@ -42,6 +42,7 @@ protocol PinViewFactoryProtocol: AnyObject {
     static func createSecuredPinView() -> PinSetupViewProtocol?
     static func createScreenAuthorizationView(with wireframe: ScreenAuthorizationWireframeProtocol, cancellable: Bool)
         -> PinSetupViewProtocol?
+    static func createPinCheckView() -> PinSetupViewProtocol?
 }
 
 enum PinAppearanceAnimationConstants {

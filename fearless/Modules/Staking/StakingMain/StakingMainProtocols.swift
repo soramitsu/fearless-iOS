@@ -14,6 +14,8 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
+    func didTriggerViewWillAppear()
+    func didTriggerViewWillDisappear()
     func setup()
     func performAssetSelection()
     func performMainAction()
@@ -41,9 +43,11 @@ protocol StakingMainInteractorInputProtocol: AnyObject {
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
     func save(chainAsset: ChainAsset)
     func updatePrices()
+    func changeActiveState(_ isActive: Bool)
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
+    func didReceive(selectedWallet: MetaAccountModel)
     func didReceive(selectedAddress: String)
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)

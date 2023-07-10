@@ -20,12 +20,12 @@ protocol EventVisitorProtocol: AnyObject {
 
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted)
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted)
-
-    func processUserInactive(event: UserInactiveEvent)
+    func processRuntimeSnapshorReady(event: RuntimeSnapshotReady)
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
     func processStakingUpdatedEvent()
     func processZeroBalancesSettingChanged()
+    func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent)
 }
 
 extension EventVisitorProtocol {
@@ -48,10 +48,10 @@ extension EventVisitorProtocol {
 
     func processRuntimeChainsTypesSyncCompleted(event _: RuntimeChainsTypesSyncCompleted) {}
     func processRuntimeChainMetadataSyncCompleted(event _: RuntimeMetadataSyncCompleted) {}
-
-    func processUserInactive(event _: UserInactiveEvent) {}
+    func processRuntimeSnapshorReady(event _: RuntimeSnapshotReady) {}
 
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
     func processStakingUpdatedEvent() {}
     func processZeroBalancesSettingChanged() {}
+    func processRemoteSubscriptionWasUpdated(event _: WalletRemoteSubscriptionWasUpdatedEvent) {}
 }
