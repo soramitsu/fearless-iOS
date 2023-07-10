@@ -536,8 +536,8 @@
 "about.medium" = "Читать на Medium";
 "about.announcement" = "Следить за новостями в Telegram";
 "about.support" = "Обратиться за поддержкой";
-"common.invalid.hard.soft.numeric.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.";
-"common.invalid.hard.soft.numeric.password.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и /'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.  Путь может оканчиваться ///'password'. Например, //0/1//0///mypass";
+"common.invalid.hard.soft.numeric.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью чисел, не включая /.";
+"common.invalid.hard.soft.numeric.password.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и /'soft' где 'hard' и 'soft' могут быть любой последовательностью чисел, не включая /.  Путь может оканчиваться ///'password'. Например, //0/1//0///mypass";
 "wallet.asset.receive.template" = "Получить %s";
 "username.setup.hint.2.0" = "Пример: Сбережения, инвестиции, краудлоуны, стейкинг. Данное имя будет отображаться только для вас и храниться только на вашем мобильном устройстве.";
 "username.setup.title.2.0" = "Создать новый кошелек";
@@ -1004,3 +1004,4 @@
 "staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";
 "settings.hide.zero.balances" = "Скрыть нулевые балансы";
 "common.resolve" = "Resolve";
+"staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";

@@ -202,16 +202,17 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
             )
         }
 
-        var edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
-            .utility(
-                spendingAmount: spendingValue,
-                totalAmount: totalBalanceValue,
-                minimumBalance: minimumBalance
-            ) :
+        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
+        var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
             .orml(
                 minimumBalance: minimumBalanceDecimal,
                 feeAndTip: (fee ?? 0) + (tip ?? 0),
                 utilityBalance: utilityBalance
+            ) :
+            .utility(
+                spendingAmount: spendingValue,
+                totalAmount: totalBalanceValue,
+                minimumBalance: minimumBalance
             )
         if chainAsset.chain.isEquilibrium {
             edParameters = .equilibrium(

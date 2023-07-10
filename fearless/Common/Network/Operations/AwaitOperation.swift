@@ -1,8 +1,8 @@
 import Foundation
 import RobinHood
 
-class LongrunOperation<T>: BaseOperation<T> {
-    private let lockQueue = DispatchQueue(label: "co.jp.soramitsu.longrunOperation", attributes: .concurrent)
+final class AwaitOperation<ResultType>: BaseOperation<ResultType> {
+    private let lockQueue = DispatchQueue(label: "com.swiftlee.asyncoperation", attributes: .concurrent)
 
     override var isAsynchronous: Bool {
         true
@@ -40,10 +40,18 @@ class LongrunOperation<T>: BaseOperation<T> {
         }
     }
 
-    let longrun: AnyLongrun<T>
+    /// Closure to execute to produce operation result.
+    public let closure: () async throws -> ResultType
 
-    init(longrun: AnyLongrun<T>) {
-        self.longrun = longrun
+    /**
+     *  Create closure operation.
+     *
+     *  - parameters:
+     *    - closure: Closure to execute to produce operation result.
+     */
+
+    public init(closure: @escaping () async throws -> ResultType) {
+        self.closure = closure
     }
 
     override func start() {
@@ -66,9 +74,13 @@ class LongrunOperation<T>: BaseOperation<T> {
         }
 
         Task {
-            longrun.start { [weak self] result in
-                self?.result = result
-                self?.finish()
+            do {
+                let executionResult = try await closure()
+                result = .success(executionResult)
+                finish()
+            } catch {
+                result = .failure(error)
+                finish()
             }
         }
     }
@@ -76,13 +88,5 @@ class LongrunOperation<T>: BaseOperation<T> {
     func finish() {
         isExecuting = false
         isFinished = true
-    }
-
-    override func cancel() {
-        super.cancel()
-
-        longrun.cancel()
-
-        finish()
     }
 }

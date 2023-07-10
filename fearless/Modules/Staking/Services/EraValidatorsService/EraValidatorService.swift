@@ -170,29 +170,12 @@ extension EraValidatorService: EraValidatorServiceProtocol {
     }
 
     func fetchInfoOperation() -> BaseOperation<EraStakersInfo> {
-        ClosureOperation {
-            var fetchedInfo: EraStakersInfo?
-
-            let semaphore = DispatchSemaphore(value: 0)
-            let queue = DispatchQueue(
-                label: "jp.co.soramitsu.fearless.fetchInfo.\(self.chainId)",
-                qos: .userInteractive
-            )
-
-            self.syncQueue.async {
-                self.fetchInfoFactory(runCompletionIn: queue) { [weak semaphore] info in
-                    fetchedInfo = info
-                    semaphore?.signal()
+        AwaitOperation { [weak self] in
+            await withCheckedContinuation { continuation in
+                self?.fetchInfoFactory(runCompletionIn: nil) { info in
+                    continuation.resume(with: .success(info))
                 }
             }
-
-            semaphore.wait()
-
-            guard let info = fetchedInfo else {
-                throw EraValidatorServiceError.unexpectedInfo
-            }
-
-            return info
         }
     }
 }

@@ -14,6 +14,7 @@ final class ProfilePresenter {
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
     private var balance: WalletBalanceInfo?
+    private var missingAccountIssue: [ChainIssue] = []
 
     init(
         viewModelFactory: ProfileViewModelFactoryProtocol,
@@ -50,7 +51,8 @@ final class ProfilePresenter {
             locale: selectedLocale,
             language: language,
             currency: currency,
-            balance: balance
+            balance: balance,
+            missingAccountIssue: missingAccountIssue
         )
         let state = ProfileViewState.loaded(viewModel)
         view?.didReceive(state: state)
@@ -187,6 +189,13 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
             }
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
+        }
+    }
+
+    func didReceiveMissingAccount(issues: [ChainIssue]) {
+        missingAccountIssue = issues
+        DispatchQueue.main.async {
+            self.receiveState()
         }
     }
 }
