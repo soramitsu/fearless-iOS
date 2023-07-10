@@ -38,8 +38,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
             serviceCoordinator: serviceCoordinator,
-            keystoreImportService: keystoreImportService,
-            applicationHandler: ApplicationHandler()
+            keystoreImportService: keystoreImportService
         )
 
         let networkStatusPresenter = NetworkAvailabilityLayerPresenter(

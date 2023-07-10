@@ -10,7 +10,7 @@ enum AssetListDisplayType {
 
 typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
 
-final class ChainAssetListPresenter: NSObject {
+final class ChainAssetListPresenter {
     // MARK: Private properties
 
     private let lock = ReaderWriterLock()
@@ -43,17 +43,12 @@ final class ChainAssetListPresenter: NSObject {
         self.router = router
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
-        super.init()
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
 
-    private func scheduleProvideViewModel() {
-        provideViewModel()
-    }
-
-    @objc private func provideViewModel() {
+    private func provideViewModel() {
         guard let chainAssets = self.chainAssets else {
             return
         }
@@ -176,7 +171,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func updateViewModel(isInitSearchState _: Bool) {
-        scheduleProvideViewModel()
+        provideViewModel()
     }
 
     func didReceiveWallet(wallet: MetaAccountModel) {
@@ -221,7 +216,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 guard let self = self else { return }
                 self.accountInfos[key] = accountInfo
             }
-            scheduleProvideViewModel()
+            provideViewModel()
 
         case let .failure(error):
             Logger.shared.customError(error)
@@ -240,13 +235,13 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 self.prices = priceDataUpdated
             }
         }
-        scheduleProvideViewModel()
+        provideViewModel()
     }
 
     func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
         guard issues.isNotEmpty else {
             chainsWithMissingAccounts = []
-            scheduleProvideViewModel()
+            provideViewModel()
             return
         }
         lock.exclusivelyWrite { [weak self] in
@@ -257,7 +252,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 }
             }
         }
-        scheduleProvideViewModel()
+        provideViewModel()
     }
 
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?]) {
@@ -275,7 +270,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             guard let self = self else { return }
             self.accountInfos = balances
         }
-        scheduleProvideViewModel()
+        provideViewModel()
     }
 }
 
@@ -283,7 +278,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
 extension ChainAssetListPresenter: Localizable {
     func applyLocalization() {
-        scheduleProvideViewModel()
+        provideViewModel()
     }
 }
 
