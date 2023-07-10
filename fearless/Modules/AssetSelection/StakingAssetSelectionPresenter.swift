@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class StakingAssetSelectionPresenter {
     weak var view: ChainSelectionViewProtocol?
@@ -152,7 +153,7 @@ extension StakingAssetSelectionPresenter: ChainSelectionInteractorOutputProtocol
             assets = chains.reduce(into: []) { result, item in
                 let assets: [(ChainModel.Id, AssetModel)] = item.assets.compactMap { asset in
                     if assetFilter(asset), selectedMetaAccount.fetch(for: item.accountRequest()) != nil {
-                        return (item.chainId, asset.asset)
+                        return (item.chainId, asset)
                     } else {
                         return nil
                     }

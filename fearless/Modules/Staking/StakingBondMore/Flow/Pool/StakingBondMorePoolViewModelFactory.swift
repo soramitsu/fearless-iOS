@@ -38,7 +38,7 @@ extension StakingBondMorePoolViewModelFactory: StakingBondMoreViewModelFactoryPr
         }
 
         return accountViewModelFactory.buildViewModel(
-            title: R.string.localizable.accountInfoTitle(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages),
             address: address,
             name: viewModelState.wallet.fetch(for: viewModelState.chainAsset.chain.accountRequest())?.name,
             locale: locale

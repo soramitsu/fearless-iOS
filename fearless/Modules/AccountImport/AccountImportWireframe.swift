@@ -22,11 +22,9 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
             }
             rootAnimator.animateTransition(to: pincodeViewController)
         case .chain:
-            guard let mainViewController = MainTabBarViewFactory.createView()?.controller else {
-                return
+            DispatchQueue.main.async {
+                UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true)
             }
-
-            rootAnimator.animateTransition(to: mainViewController)
         }
     }
 

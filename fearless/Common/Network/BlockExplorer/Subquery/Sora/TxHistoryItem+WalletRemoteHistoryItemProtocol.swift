@@ -4,6 +4,7 @@ import BigInt
 import CommonWallet
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
     var identifier: String { id }
@@ -20,7 +21,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
 
     func createTransactionForAddress(
         _ address: String,
-        chain: ChainModel,
+        chain: SSFModels.ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         var dict = [String: JSON]()
@@ -98,7 +99,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
     private func createTransactionForTransfer(
         _ transfer: SoraSubqueryTransfer,
         address: String,
-        chain: ChainModel,
+        chain: SSFModels.ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let status = success ? AssetTransactionStatus.commited : AssetTransactionStatus.rejected

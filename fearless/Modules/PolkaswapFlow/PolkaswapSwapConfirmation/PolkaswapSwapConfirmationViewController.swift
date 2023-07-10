@@ -69,6 +69,14 @@ extension PolkaswapSwapConfirmationViewController: PolkaswapSwapConfirmationView
     func didReceive(viewModel: PolkaswapSwapConfirmationViewModel) {
         rootView.bind(viewModel: viewModel)
     }
+
+    func didStartLoading() {
+        rootView.confirmButton.set(loading: true)
+    }
+
+    func didStopLoading() {
+        rootView.confirmButton.set(loading: false)
+    }
 }
 
 // MARK: - Localizable

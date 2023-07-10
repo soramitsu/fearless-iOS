@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import IrohaCrypto
+import SSFModels
 
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     weak var presenter: WalletSendConfirmInteractorOutputProtocol?
@@ -45,13 +46,12 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func provideConstants() {
-        guard let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
-              let dependencies = dependencyContainer.prepareDepencies(chainAsset: utilityAsset) else {
+        guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
             return
         }
 
         dependencies.existentialDepositService.fetchExistentialDeposit(
-            chainAsset: utilityAsset
+            chainAsset: chainAsset
         ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
@@ -147,9 +147,8 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
-           let utilityAsset = chainAsset.chain.utilityAssets().first {
-            return ChainAsset(chain: chainAsset.chain, asset: utilityAsset.asset)
+        if let utilityAsset = chainAsset.chain.utilityAssets().first {
+            return ChainAsset(chain: chainAsset.chain, asset: utilityAsset)
         }
         return chainAsset
     }

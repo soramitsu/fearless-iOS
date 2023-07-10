@@ -2,6 +2,7 @@ import Foundation
 import IrohaCrypto
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 protocol StakingRewardDetailsViewModelFactoryProtocol {
     func createViewModel(

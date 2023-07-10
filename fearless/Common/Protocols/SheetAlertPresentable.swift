@@ -140,7 +140,10 @@ extension SheetAlertPresentable {
 
         let sheetController = SheetAletViewController(viewModel: viewModel)
         sheetController.modalPresentationStyle = .custom
-        let factory = ModalSheetBlurPresentationFactory(configuration: .fearlessBlur)
+        let factory = ModalSheetBlurPresentationFactory(
+            configuration: .fearlessBlur,
+            shouldDissmissWhenTapOnBlurArea: viewModel.dismissCompletion == nil
+        )
         sheetController.modalTransitioningFactory = factory
 
         controller.present(sheetController, animated: true)

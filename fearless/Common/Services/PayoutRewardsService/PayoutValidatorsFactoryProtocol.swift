@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 enum PayoutValidatorsFactoryAssembly {
     static func createPayoutValidatorsFactory(chainAsset: ChainAsset) -> PayoutValidatorsFactoryProtocol? {

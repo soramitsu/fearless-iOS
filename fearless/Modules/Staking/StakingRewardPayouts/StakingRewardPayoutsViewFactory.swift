@@ -3,6 +3,7 @@ import SoraKeystore
 import SoraFoundation
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
     static func createViewForNominator(

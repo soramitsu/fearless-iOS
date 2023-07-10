@@ -1,13 +1,15 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         [
             findInactiveAlert(state: state),
             findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
-            findWaitingNextEraAlert(nominationStatus: state.status)
+            findWaitingNextEraAlert(nominationStatus: state.status),
+            findMinNominatorBondAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
     }
 
@@ -19,7 +21,7 @@ extension StakingStateViewModelFactory {
 
     func stakingAlertsForBondedState(_ state: BondedState) -> [StakingAlert] {
         [
-            findMinNominatorBondAlert(state: state),
+            findMinNominatorBondAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
             .bondedSetValidators,
             findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
@@ -55,10 +57,10 @@ extension StakingStateViewModelFactory {
         return .redeemUnbonded(localizedString)
     }
 
-    private func findMinNominatorBondAlert(state: BondedState) -> StakingAlert? {
-        let commonData = state.commonData
-        let ledgerInfo = state.ledgerInfo
-
+    private func findMinNominatorBondAlert(
+        commonData: StakingStateCommonData,
+        ledgerInfo: StakingLedger
+    ) -> StakingAlert? {
         guard let minStake = commonData.minStake else {
             return nil
         }

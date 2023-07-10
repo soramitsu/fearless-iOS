@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 final class ChainSelectionInteractor {
     weak var presenter: ChainSelectionInteractorOutputProtocol!

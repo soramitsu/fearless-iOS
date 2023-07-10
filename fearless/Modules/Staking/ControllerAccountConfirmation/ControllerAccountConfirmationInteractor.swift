@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class ControllerAccountConfirmationInteractor {
     weak var presenter: ControllerAccountConfirmationInteractorOutputProtocol!

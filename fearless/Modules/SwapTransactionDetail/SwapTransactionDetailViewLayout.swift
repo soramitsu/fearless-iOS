@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 final class SwapTransactionDetailViewLayout: UIView {
     private enum Constants {

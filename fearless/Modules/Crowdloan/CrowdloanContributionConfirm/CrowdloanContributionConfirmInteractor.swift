@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import BigInt
+import SSFModels
 
 final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {

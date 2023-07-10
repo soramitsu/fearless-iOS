@@ -4,6 +4,7 @@ import SoraFoundation
 import BigInt
 import IrohaCrypto
 import SoraKeystore
+import SSFModels
 
 protocol StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState
@@ -299,8 +300,8 @@ final class StakingStateViewModelFactory {
 
         let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year, type: .max())
 
-        let yearlyReturnAmount = calculator.calculateMaxEarnings(amount: amount ?? .zero, isCompound: true, period: .year)
-        let monthlyReturnAmount = calculator.calculateMaxEarnings(amount: amount ?? .zero, isCompound: true, period: .month)
+        let yearlyReturnAmount = yearlyReturn * (amount ?? 1.0)
+        let monthlyReturnAmount = monthlyReturn * (amount ?? 1.0)
 
         let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
             reward: monthlyReturnAmount,

@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SoraKeystore
+import SSFModels
 
 protocol GetBalanceMetaAccountHandler: AnyObject {
     func handleMetaAccountBalance(metaAccount: MetaAccountModel, balance: String?)
@@ -224,7 +225,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     }
 
     private func subscribeToPrices(for chains: [ChainModel]) {
-        let pricesIds = chains.compactMap { $0.assets.compactMap(\.asset.priceId) }.reduce([], +)
+        let pricesIds = chains.compactMap { $0.assets.compactMap(\.priceId) }.reduce([], +)
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 

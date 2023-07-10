@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol ChainOptionsViewModelFactoryProtocol {
     func buildChainOptionsViewModel(chainAsset: ChainAsset) -> [ChainOptionsViewModel]?

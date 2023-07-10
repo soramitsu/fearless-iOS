@@ -31,7 +31,6 @@ protocol ApplicationConfigProtocol {
     // MARK: - GitHub
 
     var chainListURL: URL? { get }
-    var assetListURL: URL? { get }
     var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
@@ -119,7 +118,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var learnControllerAccountURL: URL {
         // swiftlint:disable:next line_length
-        URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
+        URL(string: "https://forum.polkadot.network/t/the-future-of-polkadot-staking/1848?ref=cms.polkadot.network#deprecating-controller-6")!
     }
 
     var twitter: URL {
@@ -162,34 +161,26 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/v1/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/chains.json")
-        #endif
-    }
-
-    var assetListURL: URL? {
-        #if F_DEV
-            GitHubUrl.url(suffix: "chains/assets_dev.json")
-        #else
-            GitHubUrl.url(suffix: "chains/assets.json")
+            GitHubUrl.url(suffix: "chains/v1/chains.json")
         #endif
     }
 
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
+        GitHubUrl.url(suffix: "chains/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "ios_app_support_dev.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support_dev.json")
         #else
-            GitHubUrl.url(suffix: "ios_app_support.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support.json")
         #endif
     }
 
     var polkaswapSettingsURL: URL? {
-        GitHubUrl.url(suffix: "polkaswapSettings.json")
+        GitHubUrl.url(suffix: "polkaswapSettings.json", url: .fearlessUtils, branch: .v4)
     }
 
     var fiatsURL: URL? {
@@ -201,26 +192,24 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.sharedFeaturesUrl(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "develop")
+        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv")
     }
 }
 
 private enum GitHubUrl {
-    private static var baseUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
+    enum BaseUrl: String {
+        case sharedUtils = "https://raw.githubusercontent.com/soramitsu/shared-features-utils/"
+        case fearlessUtils = "https://raw.githubusercontent.com/soramitsu/fearless-utils/"
     }
 
-    private static var sharedUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")
+    enum DefaultBranch: String {
+        case master
+        case develop
+        case v4
+        case developFree = "develop-free"
     }
 
-    private static let defaultBranch = "v5"
-
-    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
-        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
-    }
-
-    static func sharedFeaturesUrl(suffix: String, branch: String) -> URL? {
-        sharedUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
+    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL? {
+        URL(string: url.rawValue)?.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
     }
 }

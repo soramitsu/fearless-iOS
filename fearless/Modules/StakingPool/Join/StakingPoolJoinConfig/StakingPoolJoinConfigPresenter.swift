@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 final class StakingPoolJoinConfigPresenter {
     // MARK: Private properties

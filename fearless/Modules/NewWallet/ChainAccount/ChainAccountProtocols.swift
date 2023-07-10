@@ -1,4 +1,5 @@
 import BigInt
+import SSFModels
 
 protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
     func didReceiveState(_ state: ChainAccountViewState)
@@ -13,6 +14,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapReceiveButton()
     func didTapBuyButton()
     func didTapOptionsButton()
+    func didTapCrossChainButton()
     func didTapSelectNetwork()
     func addressDidCopied()
     func didTapPolkaswapButton()
@@ -114,6 +116,11 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         balanceContext: BalanceContext,
         info: AssetBalanceDisplayInfo,
         currency: Currency
+    )
+    func presentCrossChainFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

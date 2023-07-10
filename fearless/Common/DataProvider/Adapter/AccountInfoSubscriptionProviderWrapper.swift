@@ -1,4 +1,5 @@
 import RobinHood
+import SSFModels
 
 final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber {
     var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import SoraKeystore
+import SSFModels
 import RobinHood
 
 // swiftlint:disable function_body_length
@@ -44,14 +45,12 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         // MARK: - Interactor
 
-        guard let interactor = createInteractor(
+        let interactor = createInteractor(
             state: sharedState,
             settings: settings,
             selectedAccount: selectedAccount,
             chainAsset: chainAsset
-        ) else {
-            return nil
-        }
+        )
 
         // MARK: - Router
 
@@ -91,7 +90,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             dataValidatingFactory: dataValidatingFactory,
             logger: logger,
             selectedMetaAccount: selectedAccount,
-            eventCenter: eventCenter,
             moduleOutput: moduleOutput
         )
 
@@ -111,7 +109,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         settings: SettingsManagerProtocol,
         selectedAccount: MetaAccountModel,
         chainAsset: ChainAsset
-    ) -> StakingMainInteractor? {
+    ) -> StakingMainInteractor {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let operationManager = OperationManagerFacade.sharedManager

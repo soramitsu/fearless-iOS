@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol RuntimeProviderPoolProtocol {
     @discardableResult
@@ -22,7 +23,7 @@ final class RuntimeProviderPool {
     private var usedRuntimeModules = UsedRuntimePaths()
     private(set) var runtimeProviders: [ChainModel.Id: RuntimeProviderProtocol] = [:]
 
-    private let mutex = NSLock()
+    private let lock = ReaderWriterLock()
 
     init(runtimeProviderFactory: RuntimeProviderFactoryProtocol) {
         self.runtimeProviderFactory = runtimeProviderFactory
@@ -43,7 +44,9 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
             usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
         )
 
-        runtimeProviders[chain.chainId] = runtimeProvider
+        lock.exclusivelyWrite { [weak self] in
+            self?.runtimeProviders[chain.chainId] = runtimeProvider
+        }
 
         runtimeProvider.setupHot()
 
@@ -55,12 +58,6 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         for chain: ChainModel,
         chainTypes: Data?
     ) -> RuntimeProviderProtocol {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         if let runtimeProvider = runtimeProviders[chain.chainId] {
             return runtimeProvider
         } else {
@@ -70,32 +67,27 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
                 usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
             )
 
-            runtimeProviders[chain.chainId] = runtimeProvider
+            lock.exclusivelyWrite { [weak self] in
+                self?.runtimeProviders[chain.chainId] = runtimeProvider
+            }
+
             runtimeProvider.setup()
             return runtimeProvider
         }
     }
 
     func destroyRuntimeProvider(for chainId: ChainModel.Id) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         let runtimeProvider = runtimeProviders[chainId]
         runtimeProvider?.cleanup()
 
-        runtimeProviders[chainId] = nil
+        lock.exclusivelyWrite { [weak self] in
+            self?.runtimeProviders[chainId] = nil
+        }
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
+        lock.concurrentlyRead {
+            runtimeProviders[chainId]
         }
-
-        return runtimeProviders[chainId]
     }
 }

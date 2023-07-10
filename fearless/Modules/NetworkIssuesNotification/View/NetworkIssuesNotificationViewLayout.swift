@@ -19,15 +19,6 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         return button
     }()
 
-    private let networkIssueLabel: UILabel = {
-        let label = UILabel()
-        label.font = .h4Title
-        label.textColor = R.color.colorStrokeGray()
-        label.textAlignment = .center
-        label.setContentHuggingPriority(.defaultHigh, for: .vertical)
-        return label
-    }()
-
     private let imageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconWarningBig()
@@ -36,7 +27,7 @@ final class NetworkIssuesNotificationViewLayout: UIView {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .h2Title
+        label.font = .h4Title
         return label
     }()
 
@@ -55,7 +46,7 @@ final class NetworkIssuesNotificationViewLayout: UIView {
 
     let bottomCloseButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDisabledStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -79,12 +70,11 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         bottomCloseButton.imageWithTitleView?.title = R.string.localizable.commonClose(
             preferredLanguages: locale.rLanguages
         )
-        titleLabel.text = R.string.localizable.networkIssueNotofication(preferredLanguages: locale.rLanguages)
-        networkIssueLabel.text = R.string.localizable.networkIssueStub(preferredLanguages: locale.rLanguages)
+        titleLabel.text = R.string.localizable.networkIssueStub(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = R.color.colorBlack19()
         layer.cornerRadius = Constants.cornerRadius
         clipsToBounds = true
 
@@ -98,7 +88,7 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         closeButton.snp.makeConstraints { make in
             make.size.equalTo(Constants.closeButtonSize)
             make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         navView.addSubview(titleLabel)
@@ -129,15 +119,9 @@ final class NetworkIssuesNotificationViewLayout: UIView {
             make.centerX.equalToSuperview()
         }
 
-        addSubview(networkIssueLabel)
-        networkIssueLabel.snp.makeConstraints { make in
-            make.top.equalTo(imageViewContainer.snp.bottom).offset(16)
-            make.leading.trailing.equalToSuperview()
-        }
-
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(networkIssueLabel.snp.bottom).offset(24)
+            make.top.equalTo(imageViewContainer.snp.bottom).offset(44)
             make.leading.trailing.equalToSuperview().inset(UIConstants.verticalInset)
             make.bottom.greaterThanOrEqualToSuperview().inset(UIConstants.bigOffset)
         }
@@ -146,7 +130,7 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         bottomCloseButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
             make.leading.trailing.equalToSuperview().inset(UIConstants.verticalInset)
-            make.bottom.equalToSuperview().inset(UIConstants.actionBottomInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
     }
 }

@@ -1,9 +1,10 @@
 import CommonWallet
 import BigInt
+import SSFModels
 
 typealias SendModuleCreationResult = (view: SendViewInput, input: SendModuleInput)
 
-protocol SendViewInput: ControllerBackedProtocol {
+protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceive(amountInputViewModel: IAmountInputViewModel?)
     func didReceive(selectNetworkViewModel: SelectNetworkViewModel)

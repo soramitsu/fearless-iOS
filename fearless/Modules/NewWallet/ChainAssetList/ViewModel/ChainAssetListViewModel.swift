@@ -8,4 +8,5 @@ struct ChainAssetListViewModel {
     let cellsForSections: [ChainAssetListTableSection: [ChainAccountBalanceCellViewModel]]
     let isColdBoot: Bool
     let hiddenSectionState: HiddenSectionState
+    let emptyStateIsActive: Bool
 }

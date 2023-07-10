@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import BigInt
 import SSFUtils
+import SSFModels
 
 final class SendPresenter {
     enum State {
@@ -99,13 +100,20 @@ extension SendPresenter: SendViewOutput {
             refreshFee(for: chainAsset, address: nil)
         case let .address(address):
             recipientAddress = address
-            let viewModel = viewModelFactory.buildRecipientViewModel(
-                address: address,
-                isValid: true
-            )
-            view.didReceive(viewModel: viewModel)
             interactor.getPossibleChains(for: address) { [weak self] possibleChains in
-                self?.didReceive(possibleChains: possibleChains)
+                guard let strongSelf = self else {
+                    return
+                }
+                guard possibleChains?.isNotEmpty == true else {
+                    strongSelf.showIncorrectAddressAlert()
+                    return
+                }
+                let viewModel = strongSelf.viewModelFactory.buildRecipientViewModel(
+                    address: address,
+                    isValid: true
+                )
+                strongSelf.view?.didReceive(viewModel: viewModel)
+                strongSelf.didReceive(possibleChains: possibleChains)
             }
         }
     }
@@ -168,16 +176,17 @@ extension SendPresenter: SendViewOutput {
             )
         }
 
-        var edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
-            .utility(
-                spendingAmount: spendingValue,
-                totalAmount: totalBalanceValue,
-                minimumBalance: minimumBalance
-            ) :
+        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
+        var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
             .orml(
                 minimumBalance: minimumBalanceDecimal,
                 feeAndTip: (fee ?? 0) + (tip ?? 0),
                 utilityBalance: utilityBalance
+            ) :
+            .utility(
+                spendingAmount: spendingValue,
+                totalAmount: totalBalanceValue,
+                minimumBalance: minimumBalance
             )
         if chainAsset.chain.isEquilibrium {
             edParameters = .equilibrium(
@@ -306,6 +315,7 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
+            logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
         }
@@ -418,7 +428,7 @@ extension SendPresenter: SelectAssetModuleOutput {
         if let asset = chainAsset?.asset {
             if let chain = selectedChain {
                 state = .normal
-                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })
+                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.symbol == asset.symbol })
                 if let selectedChainAsset = selectedChainAsset {
                     handle(selectedChainAsset: selectedChainAsset)
                 }
@@ -449,7 +459,8 @@ extension SendPresenter: SelectAssetModuleOutput {
 extension SendPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         handle(selectedChain: chain)
     }
@@ -573,7 +584,7 @@ private extension SendPresenter {
                 let selectedChain = selectedChain,
                 let selectedAsset = optionalAsset,
                 let selectedChainAsset = selectedChain.chainAssets.first(where: {
-                    $0.asset.name == selectedAsset.name
+                    $0.asset.symbol == selectedAsset.symbol
                 }) {
                 self.selectedChainAsset = selectedChainAsset
                 handle(selectedChainAsset: selectedChainAsset)
@@ -655,6 +666,24 @@ private extension SendPresenter {
             from: view,
             actions: [action]
         )
+    }
+
+    private func showIncorrectAddressAlert() {
+        let dissmissAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            self?.router.dismiss(view: self?.view)
+        }
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+            actions: [dissmissAction],
+            closeAction: nil,
+            dismissCompletion: { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
+        )
+        router.present(viewModel: alertViewModel, from: view)
     }
 }
 

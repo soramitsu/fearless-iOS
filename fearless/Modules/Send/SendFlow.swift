@@ -1,3 +1,6 @@
+
+import SSFModels
+
 enum SendFlowType {
     case token
     case nft

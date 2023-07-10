@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 protocol SubstrateCallFactoryProtocol {
     func transfer(

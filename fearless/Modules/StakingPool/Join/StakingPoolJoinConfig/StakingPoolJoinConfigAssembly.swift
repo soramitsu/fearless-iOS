@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 // swiftlint:disable function_body_length
 final class StakingPoolJoinConfigAssembly {

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import Rswift
 import SSFUtils
+import SSFModels
 
 // swiftlint:disable function_body_length file_length
 enum AccountImportContext: String {
@@ -96,6 +97,7 @@ struct PreferredData {
 }
 
 final class AccountImportPresenter: NSObject {
+    static let onFlyValidationEnabled: Bool = false
     static let maxMnemonicLength: Int = 250
     static let maxMnemonicSize: Int = 24
     static let maxRawSeedLength: Int = 66
@@ -119,6 +121,12 @@ final class AccountImportPresenter: NSObject {
     private(set) var ethereumDerivationPathViewModel: InputViewModelProtocol?
 
     private lazy var jsonDeserializer = JSONSerialization()
+    private var input: String?
+    private var inputState: ErrorPresentableInputField.State = .normal {
+        didSet {
+            view?.didChangeState(inputState)
+        }
+    }
 
     init(
         wireframe: AccountImportWireframeProtocol,
@@ -189,9 +197,6 @@ private extension AccountImportPresenter {
             let normalizer = MnemonicTextNormalizer()
             let inputHandler = InputHandler(
                 value: value,
-                maxLength: AccountImportPresenter.maxMnemonicLength,
-                validCharacterSet: CharacterSet.englishMnemonic,
-                predicate: NSPredicate.notEmpty,
                 normalizer: normalizer
             )
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
@@ -205,18 +210,14 @@ private extension AccountImportPresenter {
                     .accountImportSubstrateRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
             }
             let inputHandler = InputHandler(
-                value: value,
-                maxLength: Self.maxRawSeedLength,
-                predicate: NSPredicate.seed
+                value: value
             )
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .keystore:
             let placeholder = R.string.localizable
                 .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale.rLanguages)
             let inputHandler = InputHandler(
-                value: value,
-                maxLength: Self.maxKeystoreLength,
-                predicate: NSPredicate.notEmpty
+                value: value
             )
             viewModel = InputViewModel(
                 inputHandler: inputHandler,
@@ -357,14 +358,13 @@ private extension AccountImportPresenter {
         guard let sourceType = selectedSourceType else {
             return
         }
-        let processor = EthereumDerivationPathProcessor()
+        let processor = NumbersAndSlashesProcessor()
 
         let viewModel = createViewModel(
             for: .ecdsa,
             sourceType: sourceType,
             isEthereum: true,
-            processor: processor,
-            maxLength: AccountImportPresenter.ethereumDerivationPathLength
+            processor: processor
         )
 
         ethereumDerivationPathViewModel = viewModel
@@ -383,8 +383,8 @@ private extension AccountImportPresenter {
         let predicate: NSPredicate?
         let placeholder: String
         if isEthereum {
-            predicate = NSPredicate.deriviationPathHardSoftNumeric
-            placeholder = DerivationPathConstants.defaultEthereum
+            predicate = NSPredicate.deriviationPathHardSoft
+            placeholder = DerivationPathConstants.hardSoftPlaceholder
         } else {
             switch (cryptoType, sourceType) {
             case (.sr25519, .mnemonic):
@@ -420,8 +420,7 @@ private extension AccountImportPresenter {
         let error: AccountCreationError
 
         if isEthereum {
-            error = sourceType == .mnemonic ?
-                .invalidDerivationHardSoftNumericPassword : .invalidDerivationHardSoftNumeric
+            error = .invalidDerivationHardSoftNumeric
         } else {
             switch cryptoType {
             case .sr25519:
@@ -437,29 +436,35 @@ private extension AccountImportPresenter {
         _ = wireframe.present(error: error, from: view, locale: locale)
     }
 
-    func validateSourceViewModel() -> Error? {
-        guard let viewModel = sourceViewModel, let selectedSourceType = selectedSourceType else {
-            return nil
-        }
-
-        switch selectedSourceType {
-        case .mnemonic:
-            return validateMnemonic(value: viewModel.inputHandler.normalizedValue)
-        case .seed:
-            return viewModel.inputHandler.completed ? nil : AccountCreateError.invalidSeed
-        case .keystore:
-            return validateKeystore(value: viewModel.inputHandler.value)
-        }
-    }
-
     func validateMnemonic(value: String) -> Error? {
+        if value.rangeOfCharacter(from: CharacterSet.englishMnemonic.inverted) != nil {
+            return AccountCreateError.invalidMnemonicFormat
+        }
+
         let mnemonicSize = value.components(separatedBy: CharacterSet.whitespaces).count
         return mnemonicSize > AccountImportPresenter.maxMnemonicSize ?
             AccountCreateError.invalidMnemonicSize : nil
     }
 
+    func validateSeed(value: String) -> Error? {
+        guard !value.isEmpty else {
+            return nil
+        }
+
+        let validFormat = NSPredicate.seed.evaluate(with: value)
+        if !validFormat {
+            return AccountCreateError.invalidSeed
+        }
+
+        if value.count > Self.maxRawSeedLength {
+            return AccountCreateError.invalidSeed
+        }
+
+        return nil
+    }
+
     func validateKeystore(value: String) -> Error? {
-        guard let data = value.data(using: .utf8) else {
+        guard value.count < Self.maxKeystoreLength, value.isNotEmpty, let data = value.data(using: .utf8) else {
             return AccountCreateError.invalidKeystore
         }
 
@@ -647,6 +652,21 @@ private extension AccountImportPresenter {
         )
         interactor.importUniqueChain(request: request)
     }
+
+    func validateSource(with value: String) -> Error? {
+        guard let selectedSourceType = selectedSourceType else {
+            return nil
+        }
+
+        switch selectedSourceType {
+        case .mnemonic:
+            return validateMnemonic(value: value)
+        case .seed:
+            return validateSeed(value: value)
+        case .keystore:
+            return validateKeystore(value: value)
+        }
+    }
 }
 
 extension AccountImportPresenter: AccountImportPresenterProtocol {
@@ -704,6 +724,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         let pasteAction = SheetAlertPresentableAction(title: pasteTitle) { [weak self] in
             if let json = UIPasteboard.general.string {
                 self?.interactor.deriveMetadataFromKeystore(json)
+                self?.input = json
             }
         }
         let selectFileTitle = R.string.localizable
@@ -761,7 +782,18 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             return
         }
 
-        if viewModel.inputHandler.completed {
+        if viewModel.inputHandler.value.components(separatedBy: "/").map({ component in
+            component.replacingOccurrences(of: "/", with: "", options: NSString.CompareOptions.literal, range: nil)
+        }).filter({ component in
+            if component.isEmpty {
+                return false
+            }
+            if let _ = UInt32(component) {
+                return false
+            } else {
+                return true
+            }
+        }).isEmpty, viewModel.inputHandler.completed {
             if viewModel.inputHandler.value.isEmpty {
                 view?.didValidateEthereumDerivationPath(.none)
             } else {
@@ -827,13 +859,13 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         guard
             let selectedSourceType = selectedSourceType,
             let selectedCryptoType = selectedCryptoType,
-            let sourceViewModel = sourceViewModel,
-            let usernameViewModel = usernameViewModel
+            let usernameViewModel = usernameViewModel,
+            let input = input
         else {
             return
         }
 
-        if let error = validateSourceViewModel() {
+        if let error = validateSource(with: input) {
             _ = wireframe.present(
                 error: error,
                 from: view,
@@ -867,7 +899,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
         let data = AccountImportRequestData(
             selectedSourceType: selectedSourceType,
-            source: sourceViewModel.inputHandler.normalizedValue,
+            source: input,
             username: usernameViewModel.inputHandler.value,
             ethereumDerivationPath: (ethereumDerivationPathViewModel?.inputHandler.value)
                 .nonEmpty(or: DerivationPathConstants.defaultEthereum),
@@ -880,6 +912,22 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             return
         }
         createAccount(data: data)
+    }
+
+    func validateInput(value: String) {
+        input = value
+
+        guard AccountImportPresenter.onFlyValidationEnabled else {
+            inputState = .normal
+            return
+        }
+
+        if let error = validateSource(with: value) as? AccountCreateError {
+            let message = [error.toErrorContent(for: selectedLocale).title, error.toErrorContent(for: selectedLocale).message].joined(separator: "\n")
+            inputState = .error(text: message)
+        } else {
+            inputState = .normal
+        }
     }
 }
 
@@ -925,6 +973,15 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         selectedSourceType = .keystore
         let preferredData = PreferredData(jsonData: preferredInfo)
         applySourceType(text, preferredData: preferredData)
+    }
+
+    func didFailToDeriveMetadataFromKeystore() {
+        let error = AccountCreateError.invalidKeystore
+        _ = wireframe.present(
+            error: error,
+            from: view,
+            locale: localizationManager?.selectedLocale
+        )
     }
 }
 

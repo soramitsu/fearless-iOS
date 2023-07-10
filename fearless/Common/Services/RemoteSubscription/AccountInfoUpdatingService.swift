@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol AccountInfoUpdatingServiceProtocol: ApplicationServiceProtocol {
     func update(selectedMetaAccount: MetaAccountModel)

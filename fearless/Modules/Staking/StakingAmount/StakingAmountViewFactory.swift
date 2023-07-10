@@ -3,6 +3,7 @@ import SoraKeystore
 import RobinHood
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
     static func createView(

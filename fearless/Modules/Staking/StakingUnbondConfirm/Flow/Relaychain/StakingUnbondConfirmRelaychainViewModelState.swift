@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import SSFUtils
+import SSFModels
 
 final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmViewModelState {
     var stateListener: StakingUnbondConfirmModelStateListener?

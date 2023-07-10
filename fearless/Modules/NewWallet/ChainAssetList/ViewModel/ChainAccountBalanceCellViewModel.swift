@@ -1,9 +1,10 @@
 import Foundation
 import Kingfisher
+import SSFModels
 
 struct ChainAccountBalanceCellViewModel: Hashable {
     let assetContainsChainAssets: [ChainAsset]
-    let shownChainAssets: [ChainAsset]
+    let chainIconViewViewModel: ChainCollectionViewModel
     let chainAsset: ChainAsset
     let assetName: String?
     let assetInfo: AssetBalanceDisplayInfo?
@@ -14,7 +15,6 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let options: [ChainOptionsViewModel]?
     var isColdBoot: Bool
     var priceDataWasUpdated: Bool
-    let isNetworkIssues: Bool
     let isMissingAccount: Bool
     let isHidden: Bool
     let isUnused: Bool
@@ -30,7 +30,7 @@ struct ChainAccountBalanceCellViewModel: Hashable {
 extension ChainAccountBalanceCellViewModel: Equatable {
     static func == (lhs: ChainAccountBalanceCellViewModel, rhs: ChainAccountBalanceCellViewModel) -> Bool {
         lhs.assetContainsChainAssets == rhs.assetContainsChainAssets &&
-            lhs.shownChainAssets == rhs.shownChainAssets &&
+            lhs.chainIconViewViewModel == rhs.chainIconViewViewModel &&
             lhs.chainAsset == rhs.chainAsset &&
             lhs.assetName == rhs.assetName &&
             lhs.assetInfo == rhs.assetInfo &&
@@ -38,7 +38,6 @@ extension ChainAccountBalanceCellViewModel: Equatable {
             lhs.priceAttributedString == rhs.priceAttributedString &&
             lhs.totalAmountString == rhs.totalAmountString &&
             lhs.options == rhs.options &&
-            lhs.priceDataWasUpdated == rhs.priceDataWasUpdated &&
-            lhs.isNetworkIssues == rhs.isNetworkIssues
+            lhs.priceDataWasUpdated == rhs.priceDataWasUpdated
     }
 }

@@ -1,4 +1,5 @@
 import RobinHood
+import SSFModels
 
 class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     weak var presenter: ValidatorInfoInteractorOutputProtocol!

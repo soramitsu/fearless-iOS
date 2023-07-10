@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 final class NodeSelectionInteractor {
     weak var presenter: NodeSelectionInteractorOutputProtocol?
@@ -8,17 +9,20 @@ final class NodeSelectionInteractor {
     let repository: AnyDataProviderRepository<ChainModel>
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
+    private let chainRegistry: ChainRegistryProtocol
 
     init(
         chain: ChainModel,
         repository: AnyDataProviderRepository<ChainModel>,
         operationManager: OperationManagerProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.chain = chain
         self.repository = repository
         self.operationManager = operationManager
         self.eventCenter = eventCenter
+        self.chainRegistry = chainRegistry
     }
 
     private func fetchChainModel() {
@@ -40,6 +44,7 @@ final class NodeSelectionInteractor {
 
 extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
     func setup() {
+        presenter?.didReceive(chain: chain)
         fetchChainModel()
         eventCenter.add(observer: self)
     }
@@ -74,6 +79,8 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
     }
 
     func selectNode(_ node: ChainNodeModel?) {
+        chainRegistry.resetConnection(for: chain.chainId)
+
         let saveOperation = repository.saveOperation { [weak self] in
             guard let self = self else {
                 return []

@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol CrowdloanListViewProtocol: ControllerBackedProtocol {
     func didReceive(chainInfo: CrowdloansChainViewModel, wikiCrowdloan: LearnMoreViewModel)

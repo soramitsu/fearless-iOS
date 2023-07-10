@@ -41,19 +41,23 @@ extension AssetListSearchPresenter: AssetListSearchViewOutput {
         var filters: [ChainAssetsFetching.Filter] = []
         if text.isNotEmpty {
             filters.append(.search(text))
+            assetListModuleInput?.updateChainAssets(
+                using: filters,
+                sorts: []
+            )
+        } else {
+            assetListModuleInput?.updateChainAssets(
+                using: [.searchEmpty],
+                sorts: []
+            )
         }
-
-        assetListModuleInput?.updateChainAssets(
-            using: filters,
-            sorts: []
-        )
     }
 
     func didLoad(view: AssetListSearchViewInput) {
         self.view = view
         interactor.setup(with: self)
         assetListModuleInput?.updateChainAssets(
-            using: [],
+            using: [.searchEmpty],
             sorts: []
         )
     }

@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import RobinHood
 import IrohaCrypto
+import SSFModels
 
 protocol IdentityOperationFactoryProtocol {
     func createIdentityWrapper(

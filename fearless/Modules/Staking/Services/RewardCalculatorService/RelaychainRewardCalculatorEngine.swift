@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import IrohaCrypto
+import SSFModels
 
 // For all the cases we suggest that parachains are disabled
 // Thus, i_ideal = 0.1 and x_ideal = 0.75

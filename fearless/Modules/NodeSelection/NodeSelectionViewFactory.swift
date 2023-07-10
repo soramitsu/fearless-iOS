@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import RobinHood
+import SSFModels
 
 struct NodeSelectionViewFactory {
     static func createView(chain: ChainModel) -> NodeSelectionViewProtocol? {
@@ -12,7 +13,8 @@ struct NodeSelectionViewFactory {
             chain: chain,
             repository: AnyDataProviderRepository(repository),
             operationManager: OperationManagerFacade.sharedManager,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            chainRegistry: ChainRegistryFacade.sharedRegistry
         )
         let wireframe = NodeSelectionWireframe()
 

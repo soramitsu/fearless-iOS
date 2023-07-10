@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 final class StakingBondMorePoolViewModelState {
     var stateListener: StakingBondMoreModelStateListener?
@@ -7,7 +8,7 @@ final class StakingBondMorePoolViewModelState {
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    var amount: Decimal = 0
+    var amount: Decimal?
     var fee: Decimal?
     var balance: Decimal?
     private var minimalBalance: Decimal?
@@ -31,7 +32,7 @@ final class StakingBondMorePoolViewModelState {
 
 extension StakingBondMorePoolViewModelState: StakingBondMoreViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
-        let amountSubstrate = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let amountSubstrate = amount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
 
@@ -113,7 +114,11 @@ extension StakingBondMorePoolViewModelState: StakingBondMoreViewModelState {
     }
 
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? {
-        .pool(amount: amount)
+        guard let amount = amount else {
+            return nil
+        }
+
+        return .pool(amount: amount)
     }
 }
 

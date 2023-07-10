@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFUtils
 import IrohaCrypto
 import SoraKeystore
+import SSFModels
 
 protocol ProfileViewModelFactoryProtocol: AnyObject {
     func createProfileViewModel(
@@ -10,7 +11,8 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
         locale: Locale,
         language: Language,
         currency: Currency,
-        balance: WalletBalanceInfo?
+        balance: WalletBalanceInfo?,
+        missingAccountIssue: [ChainIssue]
     ) -> ProfileViewModelProtocol
 }
 
@@ -52,7 +54,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         locale: Locale,
         language: Language,
         currency: Currency,
-        balance: WalletBalanceInfo?
+        balance: WalletBalanceInfo?,
+        missingAccountIssue: [ChainIssue]
     ) -> ProfileViewModelProtocol {
         let profileUserViewModel = createUserViewModel(
             from: wallet,
@@ -63,7 +66,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             language: language,
             currency: currency,
             locale: locale,
-            wallet: wallet
+            wallet: wallet,
+            missingAccountIssue: missingAccountIssue
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         let viewModel = ProfileViewModel(
@@ -107,12 +111,16 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         language: Language,
         currency: Currency,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        missingAccountIssue: [ChainIssue]
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
-                return createAccountListViewModel(for: locale)
+                return createAccountListViewModel(
+                    for: locale,
+                    missingEthAccount: missingAccountIssue.isNotEmpty
+                )
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
@@ -140,6 +148,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsLogout()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: nil
         )
@@ -161,19 +170,24 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: biometry.availableBiometryType.accessoryIconSettings,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .switcher(settings.biometryEnabled ?? false),
             option: .biometry
         )
         return viewModel
     }
 
-    private func createAccountListViewModel(for locale: Locale) -> ProfileOptionViewModel {
+    private func createAccountListViewModel(
+        for locale: Locale,
+        missingEthAccount: Bool
+    ) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileWalletsTitle(preferredLanguages: locale.rLanguages)
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsWallet()!,
             accessoryTitle: nil,
+            accessoryImage: missingEthAccount ? R.image.iconWarning() : nil,
             accessoryType: .arrow,
             option: .accountList
         )
@@ -187,6 +201,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsPin()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .changePincode
         )
@@ -194,12 +209,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createLanguageViewModel(from language: Language?, locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileLanguageTitle(preferredLanguages: locale.rLanguages)
+            .languageTitle(preferredLanguages: locale.rLanguages)
         let subtitle = language?.title(in: locale)?.capitalized
         let viewModel = ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsLanguage()!,
             accessoryTitle: subtitle,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .language
         )
@@ -214,6 +230,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.pinkPolkaswap()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .polkaswapDisclaimer
         )
@@ -223,11 +240,12 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileAboutTitle(preferredLanguages: locale.rLanguages)
+            .aboutTitle(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconSettingsWebsite()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .about
         )
@@ -235,11 +253,12 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func createZeroBalancesViewModel(for locale: Locale, wallet: MetaAccountModel) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profileHideZeroBalancesTitle(preferredLanguages: locale.rLanguages)
+            .settingsHideZeroBalances(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconZeroBalances()!,
             accessoryTitle: nil,
+            accessoryImage: nil,
             accessoryType: .switcher(wallet.zeroBalanceAssetsHidden),
             option: .zeroBalances
         )
@@ -253,6 +272,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconCurrency()!,
             accessoryTitle: subtitle,
+            accessoryImage: nil,
             accessoryType: .arrow,
             option: .currency
         )

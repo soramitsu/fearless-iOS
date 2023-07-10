@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import IrohaCrypto
+import SSFModels
 
 final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol {
     private let addressFactory = SS58AddressFactory()

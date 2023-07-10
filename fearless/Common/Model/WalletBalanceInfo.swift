@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct WalletBalanceInfo {
     let totalFiatValue: Decimal

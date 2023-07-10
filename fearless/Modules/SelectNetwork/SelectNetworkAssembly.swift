@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraUI
+import SSFModels
 
 enum SelectNetworkAssembly {
     static func configureModule(
@@ -10,7 +11,8 @@ enum SelectNetworkAssembly {
         chainModels: [ChainModel]?,
         includingAllNetworks: Bool = true,
         searchTextsViewModel: TextSearchViewModel?,
-        delegate: SelectNetworkDelegate?
+        delegate: SelectNetworkDelegate?,
+        contextTag: Int? = nil
     ) -> SelectNetworkModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -33,6 +35,7 @@ enum SelectNetworkAssembly {
             selectedChainId: selectedChainId,
             includingAllNetworks: includingAllNetworks,
             searchTextsViewModel: searchTextsViewModel,
+            contextTag: contextTag,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager

@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import SSFUtils
 import RobinHood
+import SSFModels
 
 struct ControllerAccountViewFactory {
     static func createView(
@@ -29,6 +30,7 @@ struct ControllerAccountViewFactory {
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: asset.displayInfo, selectedMetaAccount: selectedAccount)
 
         let presenter = ControllerAccountPresenter(
             wireframe: wireframe,
@@ -38,7 +40,8 @@ struct ControllerAccountViewFactory {
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            dataValidatingFactory: dataValidatingFactory
+            dataValidatingFactory: dataValidatingFactory,
+            balanceViewModelFactory: balanceViewModelFactory
         )
 
         let view = ControllerAccountViewController(

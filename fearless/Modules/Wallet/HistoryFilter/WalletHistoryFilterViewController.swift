@@ -91,7 +91,7 @@ final class WalletHistoryFilterViewController: UIViewController, ViewHolder {
             .commonApply(preferredLanguages: languages)
         rootView.applyButton.invalidateLayout()
 
-        let title = R.string.localizable.walletFiltersHeader(preferredLanguages: languages)
+        let title = R.string.localizable.commonShow(preferredLanguages: languages)
         rootView.headerView.bind(title: title, icon: nil)
     }
 

@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 enum StakingBalanceFlow {
     case relaychain

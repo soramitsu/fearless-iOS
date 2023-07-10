@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import SSFUtils
 import RobinHood
+import SSFModels
 
 final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewFactoryProtocol {
     static func createView(

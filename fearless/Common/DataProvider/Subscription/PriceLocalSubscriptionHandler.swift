@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol PriceLocalSubscriptionHandler {
     func handlePrice(

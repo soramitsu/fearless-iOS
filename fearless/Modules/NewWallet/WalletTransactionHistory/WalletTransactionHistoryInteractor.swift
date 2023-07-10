@@ -2,6 +2,7 @@ import UIKit
 import CommonWallet
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 final class WalletTransactionHistoryInteractor {
     private enum Constants {

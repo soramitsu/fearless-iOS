@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 final class WalletMainContainerInteractor {
     // MARK: - Private properties
@@ -146,6 +147,21 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         wallet = event.account
         output?.didReceiveAccount(event.account)
+    }
+
+    func processChainsSettingsChanged() {
+        fetchChainSettings()
+    }
+
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        guard let wallet = SelectedWalletSettings.shared.value else {
+            return
+        }
+
+        self.wallet = wallet
+        output?.didReceiveAccount(wallet)
+
+        fetchSelectedChainName()
     }
 }
 

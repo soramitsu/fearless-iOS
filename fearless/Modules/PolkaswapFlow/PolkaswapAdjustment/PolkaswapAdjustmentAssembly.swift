@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFUtils
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(
@@ -37,9 +38,9 @@ final class PolkaswapAdjustmentAssembly {
         )
 
         let operationFactory = PolkaswapOperationFactory(
-            engine: connection,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService
+            chainRegistry: chainRegistry,
+            chainId: swapChainAsset.chain.chainId
         )
         let logger = Logger.shared
 

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct WalletRemoteSubscriptionWasUpdatedEvent: EventProtocol {
     let chainAsset: ChainAsset

@@ -2,12 +2,12 @@ import UIKit
 import SoraUI
 
 // swiftlint:disable type_body_length
-class DetailsTriangularedView: BackgroundedContentControl {
+class DetailsTriangularedView: BackgroundedContentControl, ShimmeredProtocol {
     enum LayoutConstants {
         static let actionButtonSize = CGSize(width: 68, height: 24)
         static let cornerRadius: CGFloat = 3
         static let iconRadius: CGFloat = 16
-        static let iconSize: CGFloat = 13
+        static let iconSize: CGFloat = 20
         static let labelVerticalOffset: CGFloat = 2
         static let titleVerticalOffset: CGFloat = 6
     }
@@ -246,9 +246,11 @@ class DetailsTriangularedView: BackgroundedContentControl {
             subtitleWidth = actionButton.frame.minX - labelX - UIConstants.defaultOffset
         }
 
+        let titleY = bounds.midY - LayoutConstants.labelVerticalOffset / 2 - titleHeight
+
         titleLabel.frame = CGRect(
             x: labelX,
-            y: UIConstants.defaultOffset,
+            y: titleY,
             width: titleWidth,
             height: titleHeight
         )

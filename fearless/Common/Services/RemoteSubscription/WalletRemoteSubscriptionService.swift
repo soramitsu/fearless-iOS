@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
@@ -32,31 +33,34 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
             )
 
             var request: SubscriptionRequestProtocol
-            if let currencyId = chainAsset.currencyId {
-                switch currencyId {
-                case .soraAsset:
-                    if chainAsset.isUtility {
-                        request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
-                            accountId
-                        }
-                    } else {
-                        request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
-                            [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: currencyId)]]
-                        })
-                    }
-                case .equilibrium:
+
+            switch chainAsset.currencyId {
+            case .soraAsset:
+                if chainAsset.isUtility {
                     request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
                         accountId
                     }
-                default:
+                } else {
                     request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
-                        [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: currencyId)]]
+                        [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: chainAsset.currencyId)]]
                     })
                 }
-            } else {
+            case .equilibrium:
                 request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
                     accountId
                 }
+            case .assets:
+                request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
+                    [[NMapKeyParam(value: chainAsset.currencyId)], [NMapKeyParam(value: accountId)]]
+                })
+            case .none:
+                request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
+                    accountId
+                }
+            default:
+                request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {
+                    [[NMapKeyParam(value: accountId)], [NMapKeyParam(value: chainAsset.currencyId)]]
+                })
             }
 
             return attachToSubscription(

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 // swiftlint:disable file_length type_body_length
 final class PolkaswapAdjustmentPresenter {
@@ -59,6 +60,8 @@ final class PolkaswapAdjustmentPresenter {
         (xorBalance ?? 0) - (networkFee ?? 0)
     }
 
+    private var loadingCollector = PolkaswapAdjustmentViewLoadingCollector()
+
     // MARK: - Constructors
 
     init(
@@ -94,6 +97,21 @@ final class PolkaswapAdjustmentPresenter {
 
     // MARK: - Private methods
 
+    private func runLoadingState() {
+        guard swapFromInputResult != nil || swapToInputResult != nil else {
+            return
+        }
+
+        view?.setButtonLoadingState(isLoading: true)
+        loadingCollector.reset()
+    }
+
+    private func checkLoadingState() {
+        if loadingCollector.isReady {
+            view?.setButtonLoadingState(isLoading: false)
+        }
+    }
+
     private func provideFromAssetVewModel() {
         var balance: Decimal? = swapFromBalance
         if swapFromChainAsset == xorChainAsset {
@@ -122,6 +140,9 @@ final class PolkaswapAdjustmentPresenter {
 
         view?.didReceiveSwapFrom(viewModel: viewModel)
         view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+
+        loadingCollector.fromReady = true
+        checkLoadingState()
     }
 
     private func provideToAssetVewModel() {
@@ -148,6 +169,9 @@ final class PolkaswapAdjustmentPresenter {
 
         view?.didReceiveSwapTo(viewModel: viewModel)
         view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+
+        loadingCollector.toReady = true
+        checkLoadingState()
     }
 
     private func buildBalanceSwapToViewModelFactory(
@@ -285,6 +309,10 @@ final class PolkaswapAdjustmentPresenter {
             locale: selectedLocale
         )
         view?.didReceiveDetails(viewModel: detailsViewModel)
+
+        loadingCollector.detailsReady = true
+        checkLoadingState()
+
         return detailsViewModel
     }
 
@@ -346,6 +374,9 @@ final class PolkaswapAdjustmentPresenter {
             self.view?.didReceiveNetworkFee(fee: feeViewModel)
         }
         networkFeeViewModel = feeViewModel
+
+        loadingCollector.feeReady = true
+        checkLoadingState()
     }
 
     private func invalidateParams() {
@@ -529,6 +560,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func selectFromAmountPercentage(_ percentage: Float) {
+        runLoadingState()
+
         swapVariant = .desiredInput
         swapFromInputResult = .rate(Decimal(Double(percentage)))
         provideFromAssetVewModel()
@@ -542,6 +575,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func updateFromAmount(_ newValue: Decimal) {
+        runLoadingState()
+
         swapVariant = .desiredInput
         swapFromInputResult = .absolute(newValue)
         provideFromAssetVewModel()
@@ -549,6 +584,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func selectToAmountPercentage(_ percentage: Float) {
+        runLoadingState()
+
         swapVariant = .desiredOutput
         swapToInputResult = .rate(Decimal(Double(percentage)))
         provideToAssetVewModel()
@@ -556,6 +593,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func updateToAmount(_ newValue: Decimal) {
+        runLoadingState()
+
         swapVariant = .desiredOutput
         swapToInputResult = .absolute(newValue)
         provideToAssetVewModel()
@@ -563,6 +602,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapSwitchInputsButton() {
+        runLoadingState()
+
         let fromChainAsset = swapFromChainAsset
         let toChainAsset = swapToChainAsset
         swapToChainAsset = fromChainAsset
@@ -741,6 +782,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         case let .failure(error):
             router.present(error: error, from: view, locale: selectedLocale)
         }
+
+        fetchQuotes()
     }
 
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
@@ -868,6 +911,8 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
             provideToAssetVewModel()
         }
 
+        runLoadingState()
+
         marketSource = SwapMarketSource(
             fromAssetId: swapFromChainAsset?.asset.currencyId,
             toAssetId: swapToChainAsset?.asset.currencyId,
@@ -894,6 +939,9 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
 
 extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput {
     func didReceive(market: LiquiditySourceType, slippadgeTolerance: Float) {
+        loadingCollector.detailsReady = false
+        view?.setButtonLoadingState(isLoading: true)
+
         if selectedLiquiditySourceType != market {
             selectedLiquiditySourceType = market
             subscribeToPoolUpdates()

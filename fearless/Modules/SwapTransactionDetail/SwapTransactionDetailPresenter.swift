@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
+import SSFModels
 
 final class SwapTransactionDetailPresenter {
     // MARK: Private properties

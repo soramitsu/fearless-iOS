@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SnapKit
+import SoraUI
 
 enum HiddenSectionState {
     case hidden
@@ -17,6 +18,8 @@ final class ChainAssetListViewController:
     }
 
     typealias RootViewType = ChainAssetListViewLayout
+
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: Private properties
 
@@ -54,7 +57,6 @@ final class ChainAssetListViewController:
         super.viewDidLoad()
         output.didLoad(view: self)
         configureTableView()
-        configureEmptyView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -88,14 +90,6 @@ private extension ChainAssetListViewController {
         }
     }
 
-    func configureEmptyView() {
-        let viewModel = EmptyViewModel(
-            title: R.string.localizable.emptyViewTitle(preferredLanguages: locale.rLanguages),
-            description: R.string.localizable.emptyViewDescription(preferredLanguages: locale.rLanguages)
-        )
-        rootView.bind(emptyViewModel: viewModel)
-    }
-
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
         if
             let section = viewModel?.sections[indexPath.section],
@@ -126,7 +120,6 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
         let isInitialReload = self.viewModel == nil
 
         self.viewModel = viewModel
-        rootView.apply(state: .normal)
         hiddenSectionState = viewModel.hiddenSectionState
 
         if isInitialReload {
@@ -134,22 +127,17 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
         } else {
             let debounce = debounce(delay: DispatchTimeInterval.milliseconds(250)) { [weak self] in
                 self?.rootView.tableView.reloadData()
+                self?.reloadEmptyState(animated: false)
             }
             debounce()
         }
-    }
-
-    func showEmptyState() {
-        rootView.apply(state: .empty)
     }
 }
 
 // MARK: - Localizable
 
 extension ChainAssetListViewController: Localizable {
-    func applyLocalization() {
-        configureEmptyView()
-    }
+    func applyLocalization() {}
 }
 
 extension ChainAssetListViewController: SwipableTableViewCellDelegate {
@@ -243,20 +231,41 @@ extension ChainAssetListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         cell.delegate = self
-        cell.issueDelegate = self
         return cell
     }
 }
 
-extension ChainAssetListViewController: ChainAccountBalanceTableCellDelegate {
-    func issueButtonTapped(with indexPath: IndexPath?) {
-        guard
-            let indexPath = indexPath,
-            let viewModel = cellViewModel(for: indexPath)
-        else {
-            return
-        }
+// MARK: - EmptyStateViewOwnerProtocol
 
-        output.didTapOnIssueButton(viewModel: viewModel)
+extension ChainAssetListViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+// MARK: - EmptyStateDataSource
+
+extension ChainAssetListViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarningGray()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable.emptyViewDescription(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .smallFilled
+        emptyView.contentAlignment = ContentAlignment(vertical: .top, horizontal: .center)
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension ChainAssetListViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let viewModel = viewModel else { return false }
+        return viewModel.emptyStateIsActive
     }
 }

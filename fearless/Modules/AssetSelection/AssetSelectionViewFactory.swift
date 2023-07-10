@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 enum AssetSelectionType {
     case normal

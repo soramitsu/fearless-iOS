@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
+import SSFModels
 
 final class ContactsPresenter {
     // MARK: Private properties

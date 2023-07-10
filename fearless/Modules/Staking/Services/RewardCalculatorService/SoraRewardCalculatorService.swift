@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import BigInt
+import SSFModels
 
 enum SoraCalculatorServiceError: Error {
     case timedOut
@@ -42,13 +43,12 @@ final class SoraRewardCalculatorService {
     private let operationManager: OperationManagerProtocol
     private let providerFactory: SubstrateDataProviderFactoryProtocol
     private let storageFacade: StorageFacadeProtocol
-    private let runtimeCodingService: RuntimeCodingServiceProtocol
+    private let chainRegistry: ChainRegistryProtocol
     private let stakingDurationFactory: StakingDurationOperationFactoryProtocol
     private let polkaswapOperationFactory: PolkaswapOperationFactoryProtocol
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>
     private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let engine: JSONRPCEngine
 
     init(
         chainAsset: ChainAsset,
@@ -56,15 +56,14 @@ final class SoraRewardCalculatorService {
         eraValidatorsService: EraValidatorServiceProtocol,
         operationManager: OperationManagerProtocol,
         providerFactory: SubstrateDataProviderFactoryProtocol,
-        runtimeCodingService: RuntimeCodingServiceProtocol,
+        chainRegistry: ChainRegistryProtocol,
         stakingDurationFactory: StakingDurationOperationFactoryProtocol,
         storageFacade: StorageFacadeProtocol,
         polkaswapOperationFactory: PolkaswapOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
         logger: LoggerProtocol? = nil,
-        storageRequestFactory: StorageRequestFactoryProtocol,
-        engine: JSONRPCEngine
+        storageRequestFactory: StorageRequestFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.assetPrecision = assetPrecision
@@ -73,13 +72,12 @@ final class SoraRewardCalculatorService {
         self.operationManager = operationManager
         self.eraValidatorsService = eraValidatorsService
         self.stakingDurationFactory = stakingDurationFactory
-        self.runtimeCodingService = runtimeCodingService
+        self.chainRegistry = chainRegistry
         self.polkaswapOperationFactory = polkaswapOperationFactory
         self.chainAssetFetching = chainAssetFetching
         self.settingsRepository = settingsRepository
         self.logger = logger
         self.storageRequestFactory = storageRequestFactory
-        self.engine = engine
     }
 
     // MARK: - Polkaswap quoutes
@@ -190,7 +188,7 @@ final class SoraRewardCalculatorService {
         chainAssetFetching.fetch(filters: [.assetName(assetName), .chainId(chainAsset.chain.chainId)], sortDescriptors: []) { [weak self] result in
             switch result {
             case let .success(chainAssets):
-                let rewardChainAsset = chainAssets.first(where: { $0.asset.name.lowercased() == assetName.lowercased() })
+                let rewardChainAsset = chainAssets.first(where: { $0.asset.symbol.lowercased() == assetName.lowercased() })
                 self?.rewardChainAsset = rewardChainAsset
 
                 self?.fetchPolkaswapSettings()
@@ -223,6 +221,11 @@ final class SoraRewardCalculatorService {
         chainId: ChainModel.Id,
         assetPrecision: Int16
     ) {
+        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            return
+        }
+
         let durationWrapper = stakingDurationFactory.createDurationOperation(
             from: runtimeCodingService
         )
@@ -290,9 +293,12 @@ final class SoraRewardCalculatorService {
     private func createTotalValidatorRewardsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
         let totalValidatorRewardsWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
             storageRequestFactory.queryItemsByPrefix(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .totalValidatorReward)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .totalValidatorReward
@@ -304,6 +310,11 @@ final class SoraRewardCalculatorService {
     }
 
     private func fetchTotalValidatorRewards() {
+        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
+            return
+        }
+
         let runtimeOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let totalValidatorRewardsOperation = createTotalValidatorRewardsOperation(dependingOn: runtimeOperation)
 
@@ -350,27 +361,12 @@ extension SoraRewardCalculatorService: RewardCalculatorServiceProtocol {
     }
 
     func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {
-        ClosureOperation {
-            var fetchedInfo: RewardCalculatorEngineProtocol?
-
-            let semaphore = DispatchSemaphore(value: 0)
-
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCalculator.\(self.chainAsset.chain.chainId)", qos: .userInitiated)
-
-            self.syncQueue.async {
-                self.fetchInfoFactory(runCompletionIn: queue) { [weak semaphore] info in
-                    fetchedInfo = info
-                    semaphore?.signal()
+        AwaitOperation { [weak self] in
+            await withCheckedContinuation { continuation in
+                self?.fetchInfoFactory(runCompletionIn: nil) { info in
+                    continuation.resume(with: .success(info))
                 }
             }
-
-            semaphore.wait()
-
-            guard let info = fetchedInfo else {
-                throw RewardCalculatorServiceError.unexpectedInfo
-            }
-
-            return info
         }
     }
 }

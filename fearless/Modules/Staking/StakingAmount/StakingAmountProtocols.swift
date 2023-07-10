@@ -2,8 +2,9 @@ import Foundation
 import SoraFoundation
 import BigInt
 import CommonWallet
+import SSFModels
 
-protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable {
+protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceive(viewModel: StakingAmountMainViewModel)
 
     func didReceiveYourRewardDestination(viewModel: LocalizableResource<YourRewardDestinationViewModel>)

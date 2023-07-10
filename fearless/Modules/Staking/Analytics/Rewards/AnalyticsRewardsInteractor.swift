@@ -1,5 +1,6 @@
 import RobinHood
 import BigInt
+import SSFModels
 
 final class AnalyticsRewardsInteractor {
     weak var presenter: AnalyticsRewardsInteractorOutputProtocol!

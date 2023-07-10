@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import BigInt
+import SSFModels
 
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
@@ -11,9 +12,8 @@ protocol ChainAssetListViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel.Id],
         chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings]
+        activeFilters: [ChainAssetsFetching.Filter]
     ) -> ChainAssetListViewModel
 }
 
@@ -42,9 +42,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel.Id],
         chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings]
+        activeFilters: [ChainAssetsFetching.Filter]
     ) -> ChainAssetListViewModel {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
@@ -97,9 +96,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 locale: locale,
                 currency: wallet.selectedCurrency,
                 wallet: wallet,
-                chainsWithIssues: chainsWithIssues,
-                chainsWithMissingAccounts: chainsWithMissingAccounts,
-                chainSettings: chainSettings
+                chainsWithMissingAccounts: chainsWithMissingAccounts
             )
         }
 
@@ -129,6 +126,19 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         if hiddenSectionCellModels.isEmpty {
             hiddenSectionState = .empty
         }
+
+        let shouldShowEmptyStatePerFilter = activeFilters.map {
+            if case ChainAssetsFetching.Filter.search = $0 {
+                return true
+            }
+
+            if case ChainAssetsFetching.Filter.searchEmpty = $0 {
+                return false
+            }
+
+            return true
+        }
+        let emptyStateIsActive = activeSectionCellModels.isEmpty && hiddenSectionCellModels.isEmpty && shouldShowEmptyStatePerFilter.contains(where: { $0 == true })
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -139,7 +149,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 .hidden: hiddenSectionCellModels
             ],
             isColdBoot: isColdBoot,
-            hiddenSectionState: hiddenSectionState
+            hiddenSectionState: hiddenSectionState,
+            emptyStateIsActive: emptyStateIsActive
         )
     }
 }
@@ -164,9 +175,7 @@ private extension ChainAssetListViewModelFactory {
         locale: Locale,
         currency: Currency,
         wallet: MetaAccountModel,
-        chainsWithIssues: [ChainModel.Id],
-        chainsWithMissingAccounts: [ChainModel.Id],
-        chainSettings: [ChainSettings]
+        chainsWithMissingAccounts: [ChainModel.Id]
     ) -> ChainAccountBalanceCellViewModel? {
         let priceAttributedString = getPriceAttributedString(
             priceData: priceData,
@@ -188,12 +197,7 @@ private extension ChainAssetListViewModelFactory {
             return false
         }
 
-        let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
         let notUtilityChainsWithBalance = chainsAssetsWithBalance.filter { $0 != chainAsset }
-        let isNetworkIssues = chainAssets.first(where: {
-            chainsWithIssues.contains($0.chain.chainId) && !mutedIssuesChainIds.contains($0.chain.chainId)
-
-        }) != nil
         let isMissingAccount = chainAssets.first(where: {
             chainsWithMissingAccounts.contains($0.chain.chainId)
                 || wallet.unusedChainIds.or([]).contains($0.chain.chainId)
@@ -232,11 +236,24 @@ private extension ChainAssetListViewModelFactory {
             wallet: wallet
         )
 
+        let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }
+        var chainImages = Array(Set(shownChainAssetsIconsArray))
+            .map { $0.map { RemoteImageViewModel(url: $0) }}
+        if !shownChainAssetsIconsArray.contains(chainAsset.chain.icon) {
+            let chainImageUrl = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
+            chainImages.insert(chainImageUrl, at: 0)
+        }
+
+        let chainIconsViewModel = ChainCollectionViewModel(
+            maxImagesCount: 5,
+            chainImages: chainImages
+        )
+
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: chainAssets,
-            shownChainAssets: notUtilityChainsWithBalance,
+            chainIconViewViewModel: chainIconsViewModel,
             chainAsset: chainAsset,
-            assetName: chainAsset.asset.displayName,
+            assetName: chainAsset.asset.name,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) },
             balanceString: .init(
@@ -254,7 +271,6 @@ private extension ChainAssetListViewModelFactory {
             options: options,
             isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated,
-            isNetworkIssues: isNetworkIssues,
             isMissingAccount: isMissingAccount,
             isHidden: checkForHide(
                 chainAsset: chainAsset,
@@ -315,14 +331,14 @@ private extension ChainAssetListViewModelFactory {
                 aca1.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca1.mainChainAsset.chain.name,
-                aca1.mainChainAsset.asset.name
+                aca1.mainChainAsset.asset.symbolUppercased
             ) > (
                 aca2.totalFiatBalance,
                 aca2.totalBalance,
                 aca2.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca2.mainChainAsset.chain.name,
-                aca2.mainChainAsset.asset.name
+                aca2.mainChainAsset.asset.symbolUppercased
             )
         }
 
@@ -529,10 +545,10 @@ private extension ChainAssetListViewModelFactory {
         pricesData: [PriceData],
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
-        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
+        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.symbolUppercased })
 
         return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssets.filter { $0.asset.name == name }
+            let assetChainAssets = chainAssets.filter { $0.asset.symbolUppercased == name && wallet.fetch(for: $0.chain.accountRequest()) != nil }
             let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
                 sortChainAssets(ca1: ca1, ca2: ca2)
             })

@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol ParachainStakingLocalStorageSubscriber where Self: AnyObject {
     var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol { get }

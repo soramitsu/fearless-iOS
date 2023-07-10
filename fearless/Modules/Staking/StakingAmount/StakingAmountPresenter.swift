@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 final class StakingAmountPresenter {
     weak var view: StakingAmountViewProtocol?
@@ -80,6 +81,8 @@ final class StakingAmountPresenter {
     }
 
     private func provideFee() {
+        view?.didStopLoading()
+
         if let fee = viewModelState?.fee {
             let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
             view?.didReceiveFee(viewModel: feeViewModel)
@@ -99,6 +102,8 @@ final class StakingAmountPresenter {
 
     private func estimateFee() {
         if let extrinsicBuilderClosure = viewModelState?.feeExtrinsicBuilderClosure {
+            view?.didStartLoading()
+
             loadingFee = true
             interactor.estimateFee(extrinsicBuilderClosure: extrinsicBuilderClosure)
         }
@@ -197,7 +202,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             )
         ]
 
-        DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
+        DataValidationRunner(validators: commonValidators + customValidators).runValidation { [weak self] in
             guard
                 let strongSelf = self,
                 let bonding = strongSelf.viewModelState?.bonding
@@ -308,12 +313,16 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
 
 extension StakingAmountPresenter: StakingAmountModelStateListener {
     func modelStateDidChanged(viewModelState: StakingAmountViewModelState) {
+        view?.didStopLoading()
+
         if let viewModel = viewModelFactory?.buildViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) {
             view?.didReceive(viewModel: viewModel)
         }
     }
 
     func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState) {
+        view?.didStopLoading()
+
         guard let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) else {
             return
         }

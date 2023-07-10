@@ -1,6 +1,7 @@
 import RobinHood
 import Foundation
 import SSFUtils
+import SSFModels
 
 protocol ChainAssetFetchingProtocol {
     func fetch(
@@ -17,7 +18,18 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case hasCrowdloans(Bool)
         case assetName(String)
         case search(String)
+        case searchEmpty
         case ecosystem(ChainEcosystem)
+        case chainIds([ChainModel.Id])
+
+        var searchText: String? {
+            switch self {
+            case let .search(text):
+                return text
+            default:
+                return nil
+            }
+        }
     }
 
     enum SortDescriptor {
@@ -125,16 +137,20 @@ private extension ChainAssetsFetching {
                 chainAsset.hasStaking == hasStaking
             }
         case let .assetName(name):
-            return chainAssets.filter { $0.asset.name.lowercased() == name.lowercased() }
+            return chainAssets.filter { $0.asset.symbol.lowercased() == name.lowercased() }
         case let .search(name):
             return chainAssets.filter {
-                $0.asset.name.lowercased().contains(name.lowercased())
+                $0.asset.symbol.lowercased().contains(name.lowercased())
                     || $0.chain.name.lowercased().contains(name.lowercased())
             }
         case let .ecosystem(ecosystem):
             return chainAssets.filter {
                 return $0.defineEcosystem() == ecosystem
             }
+        case let .chainIds(ids):
+            return chainAssets.filter { ids.contains($0.chain.chainId) }
+        case .searchEmpty:
+            return []
         }
     }
 
@@ -368,9 +384,9 @@ private extension ChainAssetsFetching {
         chainAssets.sorted {
             switch order {
             case .ascending:
-                return $0.asset.name < $1.asset.name
+                return $0.asset.symbol < $1.asset.symbol
             case .descending:
-                return $0.asset.name > $1.asset.name
+                return $0.asset.symbol > $1.asset.symbol
             }
         }
     }
