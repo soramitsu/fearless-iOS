@@ -44,6 +44,29 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             logger: logger
         )
 
+        let missingAccountHelper = MissingAccountFetcher(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainsIssuesCenter = ChainsIssuesCenter(
+            wallet: selectedMetaAccount,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetching
+        )
+
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
             eventCenter: EventCenter.shared,
@@ -51,7 +74,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             selectedMetaAccount: selectedMetaAccount,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
-            walletRepository: accountRepository
+            walletRepository: accountRepository,
+            chainsIssuesCenter: chainsIssuesCenter
         )
 
         let presenter = ProfilePresenter(

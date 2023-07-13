@@ -25,6 +25,7 @@ protocol ProfileInteractorOutputProtocol: AnyObject {
     func didReceiveUserDataProvider(error: Error)
     func didRecieve(selectedCurrency: Currency)
     func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>)
+    func didReceiveMissingAccount(issues: [ChainIssue])
 }
 
 protocol ProfileWireframeProtocol: ErrorPresentable,

@@ -68,15 +68,13 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
         let state = event.state
 
         switch state {
-        case let .connecting(attempt):
-            updateIssues(with: attempt, for: chain)
-        case let .waitingReconnection(attempt):
-            updateIssues(with: attempt, for: chain)
         case .connected:
-            chainsWithIssues.remove(chain)
+            if chainsWithIssues.contains(chain) {
+                chainsWithIssues.remove(chain)
+            }
         case .notConnected:
             chainsWithIssues.insert(chain)
-        case .notReachable:
+        default:
             break
         }
     }

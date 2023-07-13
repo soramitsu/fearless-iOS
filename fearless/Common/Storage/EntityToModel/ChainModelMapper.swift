@@ -282,7 +282,11 @@ final class ChainModelMapper {
     }
 
     private func createExplorers(from entity: CDChain) -> [ChainModel.ExternalApiExplorer]? {
-        let explorers: [ChainModel.ExternalApiExplorer]? = entity.explorers?.compactMap {
+        guard let entityExplorers = entity.explorers, !entityExplorers.allObjects.isEmpty else {
+            return nil
+        }
+
+        let explorers: [ChainModel.ExternalApiExplorer]? = entityExplorers.compactMap {
             guard let explorer = $0 as? CDExternalApi,
                   let type = explorer.type,
                   let types = explorer.types as? [String],
@@ -374,17 +378,19 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             return createChainNode(from: node)
         } ?? []
 
-        let customNodes: [ChainNodeModel]? = entity.customNodes?.compactMap { anyNode in
-            guard let node = anyNode as? CDChainNode else {
-                return nil
+        var customNodesSet: Set<ChainNodeModel>?
+        if let entityCustomNodes = entity.customNodes, !entityCustomNodes.allObjects.isEmpty {
+            let customNodes: [ChainNodeModel]? = entityCustomNodes.compactMap { anyNode in
+                guard let node = anyNode as? CDChainNode else {
+                    return nil
+                }
+
+                return createChainNode(from: node)
             }
 
-            return createChainNode(from: node)
-        }
-
-        var customNodesSet: Set<ChainNodeModel>?
-        if let nodes = customNodes {
-            customNodesSet = Set(nodes)
+            if let nodes = customNodes {
+                customNodesSet = Set(nodes)
+            }
         }
 
         var selectedNode: ChainNodeModel?

@@ -8,11 +8,6 @@ final class ChainAssetListAssembly {
         wallet: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
         )
@@ -27,19 +22,6 @@ final class ChainAssetListAssembly {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let operationQueue = OperationQueue()
-        operationQueue.qualityOfService = .userInitiated
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
-        )
-
-        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            selectedMetaAccount: wallet
-        )
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
@@ -49,35 +31,17 @@ final class ChainAssetListAssembly {
             mapper: AnyCoreDataMapper(AssetModelMapper())
         )
 
-        let missingAccountHelper = MissingAccountFetcher(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let chainsIssuesCenter = ChainsIssuesCenter(
-            wallet: wallet,
-            networkIssuesCenter: NetworkIssuesCenter.shared,
-            eventCenter: EventCenter.shared,
-            missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetching
-        )
-
-        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let chainSettingsRepository = chainSettingsRepositoryFactory.createRepository()
+        let dependencyContainer = ChainAssetListDependencyContainer()
 
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
-            chainAssetFetching: chainAssetFetching,
-            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            chainsIssuesCenter: chainsIssuesCenter,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepository),
             accountInfoFetching: accountInfoFetching,
-            settings: SettingsManager.shared
+            dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

@@ -782,6 +782,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         case let .failure(error):
             router.present(error: error, from: view, locale: selectedLocale)
         }
+
+        fetchQuotes()
     }
 
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {

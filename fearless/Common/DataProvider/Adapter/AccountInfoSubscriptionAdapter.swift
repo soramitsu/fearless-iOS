@@ -111,11 +111,11 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        self.handler = handler
-        deliveryQueue = queue
-
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
+            strongSelf.handler = handler
+            strongSelf.deliveryQueue = queue
+
             chainsAssets.forEach { chainAsset in
 
                 strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)

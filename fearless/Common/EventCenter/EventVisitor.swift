@@ -21,8 +21,6 @@ protocol EventVisitorProtocol: AnyObject {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted)
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted)
 
-    func processUserInactive(event: UserInactiveEvent)
-
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
     func processStakingUpdatedEvent()
     func processZeroBalancesSettingChanged()
@@ -51,8 +49,6 @@ extension EventVisitorProtocol {
 
     func processRuntimeChainsTypesSyncCompleted(event _: RuntimeChainsTypesSyncCompleted) {}
     func processRuntimeChainMetadataSyncCompleted(event _: RuntimeMetadataSyncCompleted) {}
-
-    func processUserInactive(event _: UserInactiveEvent) {}
 
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
     func processStakingUpdatedEvent() {}
