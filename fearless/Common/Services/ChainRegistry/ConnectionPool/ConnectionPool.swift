@@ -63,10 +63,15 @@ extension ConnectionPool: ConnectionPoolProtocol {
         }
 
         var chainFailedUrls = getFailedUrls(for: chain.chainId).or([])
+        chainFailedUrls.insert(ignoredUrl)
+
+//        If all available nodes are in blacklist => Remove all nodes except last one checked
+        if chainFailedUrls.count == chain.nodes.count {
+            failedUrls[chain.chainId] = [ignoredUrl]
+        }
         let node = chain.selectedNode ?? chain.nodes.first(where: {
             ($0.url != ignoredUrl) && !chainFailedUrls.contains($0.url)
         })
-        chainFailedUrls.insert(ignoredUrl)
 
         lock.exclusivelyWrite { [weak self] in
             self?.failedUrls[chain.chainId] = chainFailedUrls
