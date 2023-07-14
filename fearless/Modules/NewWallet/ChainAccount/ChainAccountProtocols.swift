@@ -37,6 +37,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
     func didReceiveWalletBalancesResult(_ result: WalletBalancesResult)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
+    func didReceive(accountInfo: AccountInfo?, for chainAsset: ChainAsset, accountId: AccountId)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,

@@ -70,12 +70,22 @@ final class ChainAccountInteractor {
             using: dependencies.existentialDepositService
         )
 
-        walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
-            walletId: wallet.metaId,
-            chainAsset: chainAsset,
-            deliverOn: .main,
-            handler: self
-        )
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
+                self?.presenter?.didReceive(accountInfo: accountInfo, for: chainAsset, accountId: accountId)
+
+                guard let strongSelf = self else {
+                    return
+                }
+
+                self?.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
+                    walletId: strongSelf.wallet.metaId,
+                    chainAsset: chainAsset,
+                    deliverOn: .main,
+                    handler: strongSelf
+                )
+            }
+        }
     }
 
     private func fetchBalanceLocks(

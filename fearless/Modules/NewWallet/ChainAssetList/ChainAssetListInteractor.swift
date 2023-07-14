@@ -17,7 +17,7 @@ final class ChainAssetListInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    private let accountInfoFetching: AccountInfoFetchingProtocol
+    private let accountInfoFetching: [AccountInfoFetchingProtocol]
     private let dependencyContainer: ChainAssetListDependencyContainer
 
     private var chainAssets: [ChainAsset]?
@@ -41,7 +41,7 @@ final class ChainAssetListInteractor {
         eventCenter: EventCenter,
         chainsIssuesCenter: ChainsIssuesCenterProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        accountInfoFetching: AccountInfoFetchingProtocol,
+        accountInfoFetching: [AccountInfoFetchingProtocol],
         dependencyContainer: ChainAssetListDependencyContainer
     ) {
         self.wallet = wallet
@@ -87,31 +87,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
-
-        queryEthereumBalances()
-    }
-
-    func queryEthereumBalances() {
-        do {
-            let web3 = Web3(rpcURL: "https://rpc.sepolia.org")
-            web3.eth.getBalance(address: try EthereumAddress(hex: "0xd7330e4152c2FEC60a3631682F98b8043E7c538C", eip55: true), block: .latest) { resp in
-                print("Ethereum balance response: ", resp)
-            }
-
-//            let contractAddress = try EthereumAddress(hex: "0x6B175474E89094C44Da98b954EedeAC495271d0F", eip55: true)
-//            let contract = web3.eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
-//
-//            // Get balance of some address
-//            try contract.balanceOf(address: EthereumAddress(hex: "0xd7330e4152c2FEC60a3631682F98b8043E7c538C", eip55: true)).call(completion: { response, error in
-//                guard let response = response else {
-//                    print("DAI Balance Error: ", error)
-//                    return
-//                }
-//                print("DAI Balance: ", response["_balance"] as? BigUInt)
-//            })
-        } catch {
-            print("Ethereum balance error: ", error)
-        }
     }
 
     func updateChainAssets(
@@ -141,10 +116,16 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             case let .success(chainAssets):
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
-                self?.accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet, completionBlock: { [weak self] accountInfosByChainAssets in
-                    self?.subscribeToAccountInfo(for: chainAssets)
-                    self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-                })
+
+                self?.accountInfoFetching.forEach { accountInfoFetching in
+                    accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
+                        self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+
+                        if accountInfoFetching.supportSubscribing {
+                            self?.subscribeToAccountInfo(for: chainAssets)
+                        }
+                    }
+                }
                 self?.subscribeToPrice(for: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))

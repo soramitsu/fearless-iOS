@@ -22,9 +22,12 @@ final class ChainAssetListAssembly {
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
-        let accountInfoFetching = AccountInfoFetching(
+        let substrateAccountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let operationQueue = OperationQueue()
@@ -48,11 +51,10 @@ final class ChainAssetListAssembly {
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
             missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetching
+            accountInfoFetcher: substrateAccountInfoFetching
         )
 
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let chainSettingsRepository = chainSettingsRepositoryFactory.createRepository()
 
         let dependencyContainer = ChainAssetListDependencyContainer()
 
@@ -64,7 +66,7 @@ final class ChainAssetListAssembly {
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetching: accountInfoFetching,
+            accountInfoFetching: [substrateAccountInfoFetching, ethereumAccountInfoFetching],
             dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()

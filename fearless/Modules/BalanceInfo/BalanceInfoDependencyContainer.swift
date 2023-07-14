@@ -5,6 +5,7 @@ struct BalanceInfoDependencies {
     let connection: JSONRPCEngine
     let runtimeService: RuntimeCodingServiceProtocol
     let existentialDepositService: ExistentialDepositServiceProtocol
+    let accountInfoFetching: AccountInfoFetchingProtocol
 }
 
 final class BalanceInfoDepencyContainer {
@@ -27,7 +28,30 @@ final class BalanceInfoDepencyContainer {
         return BalanceInfoDependencies(
             connection: connection,
             runtimeService: runtimeService,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            accountInfoFetching: createAccountInfoFetching(for: chainAsset)
         )
+    }
+
+    private func createAccountInfoFetching(for chainAsset: ChainAsset) -> AccountInfoFetchingProtocol {
+        if chainAsset.chain.isEthereum {
+            return EthereumAccountInfoFetching(
+                operationQueue: OperationManagerFacade.sharedDefaultQueue
+            )
+        } else {
+            let substrateRepositoryFactory = SubstrateRepositoryFactory(
+                storageFacade: UserDataStorageFacade.shared
+            )
+
+            let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+            let substrateAccountInfoFetching = AccountInfoFetching(
+                accountInfoRepository: accountInfoRepository,
+                chainRegistry: ChainRegistryFacade.sharedRegistry,
+                operationQueue: OperationManagerFacade.sharedDefaultQueue
+            )
+
+            return substrateAccountInfoFetching
+        }
     }
 }

@@ -16,6 +16,13 @@ struct AccountInfo: Codable, Equatable {
     @StringCodable var providers: UInt32
     let data: AccountData
 
+    init(ethBalance: BigUInt) {
+        nonce = 0
+        consumers = 0
+        providers = 0
+        data = AccountData(ethBalance: ethBalance)
+    }
+
     init(nonce: UInt32, consumers: UInt32, providers: UInt32, data: AccountData) {
         self.nonce = nonce
         self.consumers = consumers
@@ -93,6 +100,13 @@ struct AccountData: Codable, Equatable {
     @StringCodable var reserved: BigUInt
     @StringCodable var frozen: BigUInt
     @StringCodable var flags: BigUInt
+
+    init(ethBalance: BigUInt) {
+        free = ethBalance
+        reserved = 0
+        frozen = 0
+        flags = 0
+    }
 
     init(free: BigUInt, reserved: BigUInt, frozen: BigUInt, flags: BigUInt? = .zero) {
         self.free = free

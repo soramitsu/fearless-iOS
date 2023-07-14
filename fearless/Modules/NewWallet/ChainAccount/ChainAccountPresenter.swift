@@ -30,6 +30,7 @@ final class ChainAccountPresenter {
     private var balanceLocks: BalanceLocks?
     private var balance: WalletBalanceInfo?
     private var minimumBalance: BigUInt?
+    private var accountInfo: AccountInfo?
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
@@ -66,7 +67,7 @@ final class ChainAccountPresenter {
     }
 
     private func provideBalanceViewModel() {
-        var accountInfo: AccountInfo?
+        var accountInfo: AccountInfo? = self.accountInfo
 
         if
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
@@ -97,7 +98,10 @@ final class ChainAccountPresenter {
             lockedValue: lockedValue,
             hasLockedTokens: lockedBalance > Decimal.zero
         )
-        view?.didReceive(balanceViewModel: balanceViewModel)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(balanceViewModel: balanceViewModel)
+        }
     }
 
     private func getPurchaseActions() -> [PurchaseAction] {
@@ -362,6 +366,11 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         case let .failure(error):
             logger.error("Did receive minimum balance error: \(error)")
         }
+    }
+
+    func didReceive(accountInfo: AccountInfo?, for _: ChainAsset, accountId _: AccountId) {
+        self.accountInfo = accountInfo
+        provideBalanceViewModel()
     }
 }
 

@@ -47,35 +47,52 @@ final class SendInteractor: RuntimeConstantFetching {
     // MARK: - Private methods
 
     private func provideConstants(for chainAsset: ChainAsset) {
-        guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
-            return
-        }
-        dependencies.existentialDepositService.fetchExistentialDeposit(
-            chainAsset: chainAsset
-        ) { [weak self] result in
-            self?.output?.didReceiveMinimumBalance(result: result)
-        }
-
-        if chainAsset.chain.isTipRequired {
-            fetchConstant(
-                for: .defaultTip,
-                runtimeCodingService: dependencies.runtimeService,
-                operationManager: operationManager
-            ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
-                self?.output?.didReceiveTip(result: result)
+        Task {
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+            guard let runtimeService = dependencies.runtimeService else {
+                return
             }
-        }
-        if chainAsset.chain.isEquilibrium {
-            equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
+
+            dependencies.existentialDepositService.fetchExistentialDeposit(
+                chainAsset: chainAsset
+            ) { [weak self] result in
+                self?.output?.didReceiveMinimumBalance(result: result)
+            }
+
+            if chainAsset.chain.isTipRequired {
+                fetchConstant(
+                    for: .defaultTip,
+                    runtimeCodingService: runtimeService,
+                    operationManager: operationManager
+                ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
+                    self?.output?.didReceiveTip(result: result)
+                }
+            }
+            if chainAsset.chain.isEquilibrium {
+                equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
+            }
         }
     }
 
     private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
-        let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
-        accountInfoSubscriptionAdapter.subscribe(
-            chainsAssets: chainAssets,
-            handler: self
-        )
+        Task {
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+
+            if let accountId = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+                dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
+
+                    self?.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
+
+                    if dependencies.accountInfoFetching.supportSubscribing {
+                        let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
+                        self?.accountInfoSubscriptionAdapter.subscribe(
+                            chainsAssets: chainAssets,
+                            handler: self
+                        )
+                    }
+                }
+            }
+        }
     }
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
@@ -130,50 +147,22 @@ extension SendInteractor: SendInteractorInput {
     }
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
-        func accountId(from address: String?, chain: ChainModel) -> AccountId {
-            guard let address = address,
-                  let accountId = try? AddressFactory.accountId(from: address, chain: chain)
-            else {
-                return AddressFactory.randomAccountId(for: chain)
+        Task {
+            let address = try AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat)
+
+            let transfer = Transfer(
+                chainAsset: chainAsset,
+                amount: amount,
+                receiver: address,
+                tip: tip
+            )
+
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+            let fee = try await dependencies.transferService.estimateFee(for: transfer)
+
+            await MainActor.run {
+                output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
             }
-
-            return accountId
-        }
-
-        let web3 = Web3(rpcURL: "https://rpc.sepolia.org")
-
-        if let address = address, let ethAddress = try? EthereumAddress(hex: address, eip55: true) {
-            let call = EthereumCall(to: ethAddress)
-
-            web3.eth.estimateGas(call: call) { [weak self] resp in
-                DispatchQueue.main.async {
-                    if let fee = resp.result?.quantity {
-                        let runtimeDispatchInfo = RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))
-                        self?.output?.didReceiveFee(result: .success(runtimeDispatchInfo))
-                    } else if let error = resp.error {
-                        self?.output?.didReceiveFee(result: .failure(error))
-                    }
-                }
-            }
-        }
-
-        guard
-            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset)
-        else { return }
-
-        let accountId = accountId(from: address, chain: chainAsset.chain)
-        let call = dependencies.callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
-        var identifier = String(amount) + accountId.toHex()
-        if let tip = tip {
-            identifier += "_\(String(tip))"
-        }
-
-        feeProxy.estimateFee(using: dependencies.extrinsicService, reuseIdentifier: identifier) { builder in
-            var nextBuilder = try builder.adding(call: call)
-            if let tip = tip {
-                nextBuilder = builder.with(tip: tip)
-            }
-            return nextBuilder
         }
     }
 

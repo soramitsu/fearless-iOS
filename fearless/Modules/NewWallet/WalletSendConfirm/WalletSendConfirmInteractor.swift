@@ -55,14 +55,14 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func provideConstants() {
-        guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
-            return
-        }
+        Task {
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
 
-        dependencies.existentialDepositService.fetchExistentialDeposit(
-            chainAsset: chainAsset
-        ) { [weak self] result in
-            self?.presenter?.didReceiveMinimumBalance(result: result)
+            dependencies.existentialDepositService.fetchExistentialDeposit(
+                chainAsset: chainAsset
+            ) { [weak self] result in
+                self?.presenter?.didReceiveMinimumBalance(result: result)
+            }
         }
     }
 
@@ -102,115 +102,41 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 }
 
 extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol {
-    func estimateFee(for _: BigUInt, tip _: BigUInt?) {
-//        guard let accountId = try? AddressFactory.accountId(
-//            from: receiverAddress,
-//            chain: chainAsset.chain
-//        ),
-//            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
-//
-//        let call = dependencies.callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
-//        var identifier = String(amount)
-//        if let tip = tip {
-//            identifier += "_\(String(tip))"
-//        }
-//        feeProxy.estimateFee(using: dependencies.extrinsicService, reuseIdentifier: identifier) { builder in
-//            var nextBuilder = try builder.adding(call: call)
-//            if let tip = tip {
-//                nextBuilder = builder.with(tip: tip)
-//            }
-//            return nextBuilder
-//        }
-        let web3 = Web3(rpcURL: "https://rpc.sepolia.org")
+    func estimateFee(for amount: BigUInt, tip: BigUInt?) {
+        Task {
+            do {
+                let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
+                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
+                let fee = try await transferService.estimateFee(for: transfer)
+                let runtimeDispatchInfo = RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))
 
-        if let ethAddress = try? EthereumAddress(hex: "0x5a4e4c9F2Bae446Ee6c7867A6f11d398246Af203", eip55: true) {
-            let call = EthereumCall(to: ethAddress)
-
-            web3.eth.gasPrice { resp in
-                self.gasPrice = resp.result
-            }
-
-            web3.eth.estimateGas(call: call) { [weak self] resp in
-                self?.gasCount = resp.result
-                DispatchQueue.main.async {
-                    if let fee = resp.result?.quantity {
-                        let runtimeDispatchInfo = RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))
-                        self?.presenter?.didReceiveFee(result: .success(runtimeDispatchInfo))
-                    } else if let error = resp.error {
-                        self?.presenter?.didReceiveFee(result: .failure(error))
-                    }
+                await MainActor.run {
+                    presenter?.didReceiveFee(result: .success(runtimeDispatchInfo))
+                }
+            } catch {
+                await MainActor.run {
+                    presenter?.didReceiveFee(result: .failure(error))
                 }
             }
         }
     }
 
-    func submitExtrinsic(for _: BigUInt, tip _: BigUInt?, receiverAddress _: String) {
-        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
-            return
-        }
+    func submitExtrinsic(for amount: BigUInt, tip: BigUInt?, receiverAddress: String) {
+        Task {
+            do {
+                let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
+                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
+                let txHash = try await transferService.submit(transfer: transfer)
 
-        let web3 = Web3(rpcURL: "https://rpc.sepolia.org")
-
-        let tag: String = KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: nil)
-        do {
-            let secretKey = try Keychain().fetchKey(for: tag)
-
-            let keypairFactory = EcdsaKeypairFactory()
-            let privateKey = try keypairFactory
-                .createKeypairFromSeed(secretKey.miniSeed, chaincodeList: [])
-                .privateKey()
-
-            firstly {
-                web3.eth.getTransactionCount(address: try EthereumAddress(hex: "0xd7330e4152c2FEC60a3631682F98b8043E7c538C", eip55: true), block: .latest)
-            }.then { nonce in
-                let tx = try EthereumTransaction(
-                    nonce: nonce,
-                    gasPrice: self.gasPrice!,
-                    gasLimit: self.gasCount!,
-                    to: EthereumAddress(hex: "0x5a4e4c9F2Bae446Ee6c7867A6f11d398246Af203", eip55: true),
-                    value: EthereumQuantity(quantity: 100_000.gwei)
-                )
-
-                return try tx.sign(with: EthereumPrivateKey(privateKey.rawData().bytes), chainId: 11_155_111).promise
-            }.then { tx in
-                web3.eth.sendRawTransaction(transaction: tx)
-            }.done { hash in
-                print(hash)
-                self.presenter?.didTransfer(result: .success(hash.hex()))
-            }.catch { error in
-                self.presenter?.didTransfer(result: .failure(error))
+                await MainActor.run {
+                    presenter?.didTransfer(result: .success(txHash))
+                }
+            } catch {
+                await MainActor.run {
+                    presenter?.didTransfer(result: .failure(error))
+                }
             }
-        } catch {
-            presenter?.didTransfer(result: .failure(error))
         }
-//        guard let accountId = try? AddressFactory.accountId(
-//            from: receiverAddress,
-//            chain: chainAsset.chain
-//        ),
-//            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
-//
-//        let call = dependencies.callFactory.transfer(
-//            to: accountId,
-//            amount: transferAmount,
-//            chainAsset: chainAsset
-//        )
-//
-//        let builderClosure: ExtrinsicBuilderClosure = { builder in
-//            var nextBuilder = try builder.adding(call: call)
-//            if let tip = tip {
-//                nextBuilder = builder.with(tip: tip)
-//            }
-//            return nextBuilder
-//        }
-//
-//        dependencies.extrinsicService.submit(
-//            builderClosure,
-//            signer: signingWrapper,
-//            runningIn: .main,
-//            completion: { [weak self] result in
-//                self?.presenter?.didTransfer(result: result)
-//            }
-//        )
     }
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
@@ -223,14 +149,16 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
 
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal) {
         if chainAsset.chain.isEquilibrium {
-            let service = dependencyContainer
-                .prepareDepencies(chainAsset: chainAsset)?
-                .equilibruimTotalBalanceService
-            equilibriumTotalBalanceService = service
+            Task {
+                let service = try await dependencyContainer
+                    .prepareDepencies(chainAsset: chainAsset)
+                    .equilibruimTotalBalanceService
+                equilibriumTotalBalanceService = service
 
-            let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
-                .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
-            presenter?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+                let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
+                    .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
+                presenter?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+            }
         }
     }
 }

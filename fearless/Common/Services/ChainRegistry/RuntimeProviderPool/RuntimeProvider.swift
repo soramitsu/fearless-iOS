@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 // swiftlint:disable file_length
 protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {

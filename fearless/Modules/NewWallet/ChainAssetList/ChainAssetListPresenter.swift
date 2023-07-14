@@ -273,7 +273,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
         lock.exclusivelyWrite { [weak self] in
             guard let self = self else { return }
-            self.accountInfos = balances
+            self.accountInfos = balances.merging(self.accountInfos, uniquingKeysWith: { old, _ in
+                old
+            })
         }
         scheduleProvideViewModel()
     }

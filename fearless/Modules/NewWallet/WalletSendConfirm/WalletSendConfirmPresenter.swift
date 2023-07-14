@@ -58,25 +58,27 @@ final class WalletSendConfirmPresenter {
     }
 
     private func provideViewModel() {
-        let parameters = WalletSendConfirmViewModelFactoryParameters(
-            amount: amount,
-            senderAccountViewModel: provideSenderAccountViewModel(),
-            receiverAccountViewModel: provideReceiverAccountViewModel(),
-            assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chainAsset.chain.isTipRequired,
-            tipViewModel: provideTipViewModel(),
-            feeViewModel: provideFeeViewModel(),
-            wallet: wallet,
-            locale: selectedLocale,
-            scamInfo: scamInfo,
-            assetModel: chainAsset.asset
-        )
-        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
-            parameters: parameters
-        )
+        Task {
+            let parameters = WalletSendConfirmViewModelFactoryParameters(
+                amount: amount,
+                senderAccountViewModel: provideSenderAccountViewModel(),
+                receiverAccountViewModel: provideReceiverAccountViewModel(),
+                assetBalanceViewModel: try await provideAssetVewModel(),
+                tipRequired: chainAsset.chain.isTipRequired,
+                tipViewModel: try await provideTipViewModel(),
+                feeViewModel: try await provideFeeViewModel(),
+                wallet: wallet,
+                locale: selectedLocale,
+                scamInfo: scamInfo,
+                assetModel: chainAsset.asset
+            )
+            let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+                parameters: parameters
+            )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(state: .loaded(viewModel))
+            await MainActor.run {
+                self.view?.didReceive(state: .loaded(viewModel))
+            }
         }
     }
 
@@ -108,10 +110,11 @@ final class WalletSendConfirmPresenter {
         )
     }
 
-    private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
-        guard let balanceViewModelFactory = interactor
+    private func provideAssetVewModel() async throws -> AssetBalanceViewModelProtocol? {
+        let balanceViewModelFactory = try await interactor
             .dependencyContainer
-            .prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory else { return nil }
+            .prepareDepencies(chainAsset: chainAsset)
+            .balanceViewModelFactory
         return balanceViewModelFactory.createAssetBalanceViewModel(
             amount,
             balance: balance,
@@ -119,23 +122,25 @@ final class WalletSendConfirmPresenter {
         ).value(for: selectedLocale)
     }
 
-    private func provideTipViewModel() -> BalanceViewModelProtocol? {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory else { return nil }
+    private func provideTipViewModel() async throws -> BalanceViewModelProtocol? {
+        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return nil }
+        let balanceViewModelFactory = try await interactor
+            .dependencyContainer
+            .prepareDepencies(chainAsset: utilityAsset)
+            .balanceViewModelFactory
+
         return tip
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 
-    private func provideFeeViewModel() -> BalanceViewModelProtocol? {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory else { return nil }
+    private func provideFeeViewModel() async throws -> BalanceViewModelProtocol? {
+        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset)
+        else { return nil }
+        let balanceViewModelFactory = try await interactor
+            .dependencyContainer
+            .prepareDepencies(chainAsset: utilityAsset)
+            .balanceViewModelFactory
         return fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)

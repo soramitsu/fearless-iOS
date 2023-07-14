@@ -1,8 +1,13 @@
 import Foundation
 import RobinHood
 import SSFModels
+import Web3
+import Web3ContractABI
+import Web3PromiseKit
 
 protocol AccountInfoFetchingProtocol {
+    var supportSubscribing: Bool { get }
+
     func fetch(
         for chainAsset: ChainAsset,
         accountId: AccountId,
@@ -16,10 +21,124 @@ protocol AccountInfoFetchingProtocol {
     )
 }
 
+final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
+    private let operationQueue: OperationQueue
+    var supportSubscribing: Bool { false }
+
+    init(operationQueue: OperationQueue) {
+        self.operationQueue = operationQueue
+    }
+
+    func fetch(
+        for chainAsset: ChainAsset,
+        accountId: AccountId,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        Task {
+            guard let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) else {
+                completionBlock(chainAsset, nil)
+                return
+            }
+
+            let accountInfo = try await chainAsset.asset.isUtility ? fetchETHBalance(for: chainAsset, address: address) : fetchERC20Balance(for: chainAsset, address: address)
+            completionBlock(chainAsset, accountInfo)
+        }
+    }
+
+    func fetch(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel,
+        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+    ) {
+        let accountInfoOperations: [AwaitOperation<[ChainAsset: AccountInfo?]>] = chainAssets.filter { $0.chain.isEthereum }.compactMap { chainAsset in
+            guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+                return nil
+            }
+
+            if chainAsset.asset.isUtility {
+                return fetchEthereumBalanceOperation(for: chainAsset, address: address)
+            } else {
+                return fetchErc20BalanceOperation(for: chainAsset, address: address)
+            }
+        }
+
+        let finishOperation = ClosureOperation {
+            let accountInfos = accountInfoOperations.compactMap { try? $0.extractNoCancellableResultData() }.flatMap { $0 }
+            let accountInfoByChainAsset = Dictionary(accountInfos, uniquingKeysWith: { _, last in last })
+
+            completionBlock(accountInfoByChainAsset)
+        }
+
+        accountInfoOperations.forEach { finishOperation.addDependency($0) }
+
+        operationQueue.addOperations([finishOperation] + accountInfoOperations, waitUntilFinished: true)
+    }
+
+    private func fetchEthereumBalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
+        AwaitOperation { [weak self] in
+            let accountInfo = try await self?.fetchETHBalance(for: chainAsset, address: address)
+            return [chainAsset: accountInfo]
+        }
+    }
+
+    private func fetchErc20BalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
+        AwaitOperation { [weak self] in
+            let accountInfo = try await self?.fetchERC20Balance(for: chainAsset, address: address)
+            return [chainAsset: accountInfo]
+        }
+    }
+
+    private func fetchETHBalance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
+        try await withCheckedThrowingContinuation { continuation in
+            do {
+                let eth = try chainAsset.eth()
+                let ethereumAddress = try EthereumAddress(hex: address, eip55: false)
+                eth.getBalance(address: ethereumAddress, block: .latest) { resp in
+                    if let balance = resp.result {
+                        let accountInfo = AccountInfo(ethBalance: balance.quantity)
+                        return continuation.resume(with: .success(accountInfo))
+                    } else if let error = resp.error {
+                        return continuation.resume(with: .failure(error))
+                    } else {
+                        return continuation.resume(with: .success(nil))
+                    }
+                }
+            } catch {
+                return continuation.resume(with: .failure(error))
+            }
+        }
+    }
+
+    private func fetchERC20Balance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
+        let eth = try chainAsset.eth()
+        let contractAddress = try EthereumAddress(hex: chainAsset.asset.id, eip55: false)
+        let contract = eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try contract.balanceOf(address: EthereumAddress(hex: address, eip55: false)).call(completion: { response, error in
+
+                    if let response = response, let balance = response["_balance"] as? BigUInt {
+                        let accountInfo = AccountInfo(ethBalance: balance)
+                        return continuation.resume(with: .success(accountInfo))
+                    } else if let error = error {
+                        return continuation.resume(with: .failure(error))
+                    } else {
+                        return continuation.resume(with: .success(nil))
+                    }
+                })
+            } catch {
+                return continuation.resume(with: .failure(error))
+            }
+        }
+    }
+}
+
 final class AccountInfoFetching: AccountInfoFetchingProtocol {
     private let accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>
     private let chainRegistry: ChainRegistryProtocol
     private let operationQueue: OperationQueue
+    var supportSubscribing: Bool { true }
 
     init(
         accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>,
@@ -36,6 +155,7 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
         wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
+        let chainAssets = chainAssets.filter { !$0.chain.isEthereum }
         let createAccountInfoOperationsOperation = prepareAccountInfoOperationsOperation(
             chainAssets: chainAssets,
             wallet: wallet
@@ -593,7 +713,7 @@ private extension AccountInfoFetching {
     }
 
     private func handleEquilibrium(
-        result: Result<EquilibriumAccountInfo?, Error>,
+        result: Swift.Result<EquilibriumAccountInfo?, Error>,
         chainAsset: ChainAsset,
         accountId _: AccountId,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
