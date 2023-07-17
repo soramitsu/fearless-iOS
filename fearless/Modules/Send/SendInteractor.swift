@@ -148,7 +148,7 @@ extension SendInteractor: SendInteractorInput {
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
         Task {
-            let address = try AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat)
+            let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
 
             let transfer = Transfer(
                 chainAsset: chainAsset,

@@ -125,23 +125,22 @@ class EthereumTransferService: TransferServiceProtocol {
 
     func estimateFee(for transfer: Transfer) async throws -> BigUInt {
         if transfer.chainAsset.asset.isUtility {
-            let address = try EthereumAddress(hex: transfer.receiver, eip55: true)
+            let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
             let call = EthereumCall(to: address)
 
             let gasPrice = try await queryGasPrice()
-//            let gasLimit = try await queryGasLimit(call: call)
-            let gasLimit = EthereumQuantity(quantity: 21000)
+            let gasLimit = try await queryGasLimit(call: call)
             return gasPrice.quantity * gasLimit.quantity
         } else {
             let amount = EthereumQuantity(quantity: transfer.amount)
-            let senderAddress = try EthereumAddress(hex: self.senderAddress, eip55: false)
-            let address = try EthereumAddress(hex: transfer.receiver, eip55: false)
-            let contractAddress = try EthereumAddress(hex: transfer.chainAsset.asset.id, eip55: false)
+            let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+            let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
+            let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())
             let contract = eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
-            let transfer = contract.transfer(to: address, value: transfer.amount)
+            let transfer = contract.transfer(to: contractAddress, value: transfer.amount)
             let gasPrice = try await queryGasPrice()
-//            let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: amount, transfer: transfer)
-            let transferGasLimit = EthereumQuantity(quantity: 50000)
+            let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: BigUInt.zero), transfer: transfer)
+
             return (gasPrice.quantity * transferGasLimit.quantity)
         }
     }
@@ -153,8 +152,8 @@ class EthereumTransferService: TransferServiceProtocol {
     // MARK: Transfers
 
     private func transferNative(transfer: Transfer) async throws -> String {
-        let receiverAddress = try EthereumAddress(hex: transfer.receiver, eip55: true)
-        let senderAddress = try EthereumAddress(hex: self.senderAddress, eip55: true)
+        let receiverAddress = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
+        let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let quantity = EthereumQuantity(quantity: transfer.amount)
 
         let call = EthereumCall(to: receiverAddress, value: quantity)
@@ -192,9 +191,9 @@ class EthereumTransferService: TransferServiceProtocol {
         guard let chainIdValue = BigUInt(transfer.chainAsset.chain.chainId) else {
             throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
         }
-        let senderAddress = try EthereumAddress(hex: self.senderAddress, eip55: false)
-        let address = try EthereumAddress(hex: transfer.receiver, eip55: false)
-        let contractAddress = try EthereumAddress(hex: transfer.chainAsset.asset.id, eip55: false)
+        let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
+        let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
+        let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())
         let contract = eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
         let transferCall = contract.transfer(to: address, value: transfer.amount)
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
@@ -265,7 +264,7 @@ class EthereumTransferService: TransferServiceProtocol {
 
     private func queryGasLimit(from: EthereumAddress?, amount: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
-            transfer.estimateGas(from: from, gas: nil, value: amount) { quantity, error in
+            transfer.estimateGas(from: from, gas: 50000, value: amount) { quantity, error in
                 if let gas = quantity {
                     return continuation.resume(with: .success(gas))
                 } else if let error = error {
