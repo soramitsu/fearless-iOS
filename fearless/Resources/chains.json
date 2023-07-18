@@ -4958,6 +4958,10 @@
         "chainId": "0x1",
         "name": "Ethereum",
         "externalApi": {
+            "history": {
+                "type": "alchemy",
+                "url": "https://eth-mainnet.g.alchemy.com/v2/hkF1wbbTz0G2lKoqb4R09OwkcVl6uGqp"
+            },
             "explorers": [{
                 "type": "etherscan",
                 "types": [
@@ -4990,6 +4994,17 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
                 "color": "FF0066",
                 "type": "normal"
+            },
+            {
+                "isUtility": false,
+                "id": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+                "name": "usdt stablecoin",
+                "symbol": "usdt",
+                "precision": 18,
+                "priceId": "usdt",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDT.svg",
+                "color": "FF0066",
+                "type": "normal"
             }
         ],
         "nodes": [
@@ -5017,6 +5032,10 @@
         "chainId": "11155111",
         "name": "Sepolia",
         "externalApi": {
+            "history": {
+                "type": "alchemy",
+                "url": "https://eth-sepolia.g.alchemy.com/v2/16bz4S4bROJsWH-eDpiJ21cx_c-KAAaP"
+            },
             "explorers": [{
                 "type": "etherscan",
                 "types": [

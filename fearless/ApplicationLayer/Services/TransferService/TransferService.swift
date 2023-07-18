@@ -152,6 +152,10 @@ class EthereumTransferService: TransferServiceProtocol {
     // MARK: Transfers
 
     private func transferNative(transfer: Transfer) async throws -> String {
+        guard let chainIdValue = BigUInt(transfer.chainAsset.chain.chainId) else {
+            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
+        }
+
         let receiverAddress = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let quantity = EthereumQuantity(quantity: transfer.amount)
@@ -163,12 +167,17 @@ class EthereumTransferService: TransferServiceProtocol {
         let tx = EthereumTransaction(
             nonce: nonce,
             gasPrice: gasPrice,
+            maxFeePerGas: gasPrice,
+            maxPriorityFeePerGas: gasPrice,
             gasLimit: gasLimit,
+            from: senderAddress,
             to: receiverAddress,
-            value: quantity
+            value: quantity,
+            accessList: [:],
+            transactionType: .eip1559
         )
 
-        let rawTransaction = try tx.sign(with: privateKey)
+        let rawTransaction = try tx.sign(with: privateKey, chainId: EthereumQuantity(quantity: chainIdValue))
 
         let result = try await withCheckedThrowingContinuation { continuation in
             do {
