@@ -5,5 +5,5 @@ OTHER_SWIFT_FLAGS = $(inherited) "-DF_DEV"
 APP_NAME = Fearless Dev
 ICON_SUFFIX = Dev
 
-GOOGLE_URL_SCHEME = $(GoogleBackupDebug.googleUrlSchemeDebug)
-GOOGLE_TOKEN = $(GoogleBackupDebug.webClientIdDebug)
+GOOGLE_URL_SCHEME = $(GoogleBackupDebug.googleUrlScheme)
+GOOGLE_TOKEN = $(GoogleBackupDebug.googleToken)
