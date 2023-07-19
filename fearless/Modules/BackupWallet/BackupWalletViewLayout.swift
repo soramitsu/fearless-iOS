@@ -47,6 +47,8 @@ final class BackupWalletViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Backup wallet")
+        let title = R.string.localizable
+            .backupWalletTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(title)
     }
 }

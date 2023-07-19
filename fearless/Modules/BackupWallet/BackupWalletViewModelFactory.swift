@@ -66,7 +66,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         exportOptions: [ExportOption],
         backupAccounts: [OpenBackupAccount],
-        locale _: Locale
+        locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
         var backupOptions: [BackupWalletOptions] = exportOptions.map { BackupWalletOptions(exportOptions: $0) }
         if exportOptions.contains(.mnemonic), backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
@@ -78,8 +78,10 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         let optionViewModels = backupOptions.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .phrase:
+                let title = R.string.localizable
+                    .backupRisksWarningsContinueButton(preferredLanguages: locale.rLanguages)
                 return ProfileOptionViewModel(
-                    title: "Show mnemonic phrase",
+                    title: title,
                     icon: R.image.iconPassPhrase(),
                     accessoryTitle: nil,
                     accessoryImage: nil,
@@ -87,8 +89,10 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
                     option: nil
                 )
             case .seed:
+                let title = R.string.localizable
+                    .backupWalletSeed(preferredLanguages: locale.rLanguages)
                 return ProfileOptionViewModel(
-                    title: "Show Raw Seed",
+                    title: title,
                     icon: R.image.iconKey(),
                     accessoryTitle: nil,
                     accessoryImage: nil,
@@ -96,8 +100,10 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
                     option: nil
                 )
             case .json:
+                let title = R.string.localizable
+                    .backupWalletJson(preferredLanguages: locale.rLanguages)
                 return ProfileOptionViewModel(
-                    title: "Export JSON",
+                    title: title,
                     icon: R.image.arrowUpRectangle(),
                     accessoryTitle: nil,
                     accessoryImage: nil,
@@ -105,8 +111,10 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
                     option: nil
                 )
             case .backupGoogle:
+                let title = R.string.localizable
+                    .backupWalletBackupGoogle(preferredLanguages: locale.rLanguages)
                 return ProfileOptionViewModel(
-                    title: "Backup to Google",
+                    title: title,
                     icon: R.image.iconGoogle(),
                     accessoryTitle: nil,
                     accessoryImage: nil,
@@ -114,8 +122,10 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
                     option: nil
                 )
             case .removeGoogle:
+                let title = R.string.localizable
+                    .backupWalletDeleteGoogle(preferredLanguages: locale.rLanguages)
                 return ProfileOptionViewModel(
-                    title: "Delete Google backup",
+                    title: title,
                     icon: R.image.iconGoogle(),
                     accessoryTitle: nil,
                     accessoryImage: nil,

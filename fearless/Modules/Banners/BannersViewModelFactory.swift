@@ -19,7 +19,7 @@ protocol BannersViewModelFactoryProtocol {
 final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
     func createViewModel(
         wallet: MetaAccountModel,
-        locale _: Locale
+        locale: Locale
     ) -> BannersViewModel {
         var banners: [Banners] = []
         if !wallet.isBackuped {
@@ -28,17 +28,29 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
         let bannersViewModel: [BannerCellViewModel] = banners.map {
             switch $0 {
             case .backup:
+                let title = R.string.localizable
+                    .bannersViewFactoryBackupTitle(preferredLanguages: locale.rLanguages)
+                let subtitle = R.string.localizable
+                    .bannersViewFactoryBackupSubtitle(preferredLanguages: locale.rLanguages)
+                let buttonAction = R.string.localizable
+                    .bannersViewFactoryBackupActionTitle(preferredLanguages: locale.rLanguages)
                 return BannerCellViewModel(
-                    title: "Backup your wallet",
-                    subtitle: "If you loose your device, you will lose your funds forever",
-                    buttonTitle: "Backup now",
+                    title: title,
+                    subtitle: subtitle,
+                    buttonTitle: buttonAction,
                     image: R.image.fearlessBanner()!
                 )
             case .buyXor:
+                let title = R.string.localizable
+                    .bannersViewFactoryXorTitle(preferredLanguages: locale.rLanguages)
+                let subtitle = R.string.localizable
+                    .bannersViewFactoryXorSubtitle(preferredLanguages: locale.rLanguages)
+                let buttonAction = R.string.localizable
+                    .bannersViewFactoryXorActionTitle(preferredLanguages: locale.rLanguages)
                 return BannerCellViewModel(
-                    title: "Buy XOR token",
-                    subtitle: "Buy or sell XOR token with Euro cash",
-                    buttonTitle: "Buy XOR",
+                    title: title,
+                    subtitle: subtitle,
+                    buttonTitle: buttonAction,
                     image: R.image.xorBanner()!
                 )
             }

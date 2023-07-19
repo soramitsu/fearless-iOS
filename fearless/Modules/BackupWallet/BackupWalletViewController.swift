@@ -113,12 +113,14 @@ final class BackupWalletViewController: UIViewController, ViewHolder {
     }
 
     private func createFooterView() -> UIView {
+        let footerViewText = R.string.localizable
+            .backupWalletFooterViewText(preferredLanguages: selectedLocale.rLanguages)
         let container = UIView()
         let label = UILabel()
         label.numberOfLines = 0
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite50()
-        label.text = "If you loose access to this device, your funds will be lost, unless you back up!"
+        label.text = footerViewText
         container.addSubview(label)
         label.snp.makeConstraints { make in
             make.top.leading.trailing.bottom.equalToSuperview().inset(UIConstants.bigOffset)

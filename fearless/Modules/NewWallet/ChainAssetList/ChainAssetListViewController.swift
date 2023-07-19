@@ -135,7 +135,6 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     func reloadBanners() {
         rootView.tableView.beginUpdates()
         rootView.tableView.tableHeaderView = rootView.headerViewContainer
-        rootView.tableView.layoutIfNeeded()
         rootView.tableView.endUpdates()
     }
 

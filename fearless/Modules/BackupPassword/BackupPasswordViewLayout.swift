@@ -133,9 +133,14 @@ final class BackupPasswordViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Enter backup password")
-        descriptionLabel.text = "Enter backup password for the selected wallet to import"
-        passwordTextField.title = "Enter password"
-        continueButton.imageWithTitleView?.title = "continue"
+        let title = R.string.localizable
+            .backupPasswordTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(title)
+        descriptionLabel.text = R.string.localizable
+            .backupCreatePasswordDescription(preferredLanguages: locale.rLanguages)
+        passwordTextField.title = R.string.localizable
+            .backupCreatePasswordConfirmFieldTitle(preferredLanguages: locale.rLanguages)
+        continueButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: locale.rLanguages)
     }
 }

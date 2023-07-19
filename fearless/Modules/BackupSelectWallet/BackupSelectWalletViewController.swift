@@ -90,10 +90,6 @@ extension BackupSelectWalletViewController: Localizable {
 // MARK: - UITableViewDataSource
 
 extension BackupSelectWalletViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        1
-    }
-
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         viewModels.count
     }

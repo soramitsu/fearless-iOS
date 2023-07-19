@@ -134,9 +134,14 @@ final class BackupWalletImportedViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Wallet imported")
-        descriptionLabel.text = "You have successfully imported wallet"
-        importMoreButton.imageWithTitleView?.title = "Import more"
-        continueButton.imageWithTitleView?.title = "Continue"
+        let title = R.string.localizable
+            .backupWalletImportedTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(title)
+        descriptionLabel.text = R.string.localizable
+            .backupWalletImportedDescription(preferredLanguages: locale.rLanguages)
+        importMoreButton.imageWithTitleView?.title = R.string.localizable
+            .backupWalletImportedImportMore(preferredLanguages: locale.rLanguages)
+        continueButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: locale.rLanguages)
     }
 }

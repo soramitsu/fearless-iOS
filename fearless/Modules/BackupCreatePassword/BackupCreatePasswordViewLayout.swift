@@ -32,34 +32,12 @@ final class BackupCreatePasswordViewLayout: UIView {
         return label
     }()
 
-    let passwordTextField: CommonInputView = {
-        let inputView = CommonInputView()
-        inputView.backgroundView.fillColor = R.color.colorSemiBlack()!
-        inputView.backgroundView.highlightedFillColor = R.color.colorSemiBlack()!
-        inputView.backgroundView.strokeColor = R.color.colorWhite8()!
-        inputView.backgroundView.highlightedStrokeColor = R.color.colorPink()!
-        inputView.backgroundView.strokeWidth = 0.5
-        inputView.backgroundView.shadowOpacity = 0
-        inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
-        inputView.defaultSetup()
-        inputView.animatedInputField.textField.isSecureTextEntry = true
-        inputView.animatedInputField.textField.returnKeyType = .done
-        return inputView
+    lazy var passwordTextField: CommonInputView = {
+        createPasswordTextField()
     }()
 
-    let confirmPasswordTextField: CommonInputView = {
-        let inputView = CommonInputView()
-        inputView.backgroundView.fillColor = R.color.colorSemiBlack()!
-        inputView.backgroundView.highlightedFillColor = R.color.colorSemiBlack()!
-        inputView.backgroundView.strokeColor = R.color.colorWhite8()!
-        inputView.backgroundView.highlightedStrokeColor = R.color.colorPink()!
-        inputView.backgroundView.strokeWidth = 0.5
-        inputView.backgroundView.shadowOpacity = 0
-        inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
-        inputView.defaultSetup()
-        inputView.animatedInputField.textField.isSecureTextEntry = true
-        inputView.animatedInputField.textField.returnKeyType = .done
-        return inputView
+    lazy var confirmPasswordTextField: CommonInputView = {
+        createPasswordTextField()
     }()
 
     let passwordMatchLabel: UILabel = {
@@ -99,10 +77,12 @@ final class BackupCreatePasswordViewLayout: UIView {
 
     func setPassword(isMatched: Bool) {
         if isMatched {
-            passwordMatchLabel.text = "Password matched"
+            passwordMatchLabel.text = R.string.localizable
+                .backupCreatePasswordMatched(preferredLanguages: locale.rLanguages)
             passwordMatchLabel.textColor = R.color.colorStrokeGray()!
         } else {
-            passwordMatchLabel.text = "Password doesn’t matched"
+            passwordMatchLabel.text = R.string.localizable
+                .backupCreatePasswordNotMatched(preferredLanguages: locale.rLanguages)
             passwordMatchLabel.textColor = R.color.colorRed()!
         }
     }
@@ -167,12 +147,34 @@ final class BackupCreatePasswordViewLayout: UIView {
         return stack
     }
 
+    private func createPasswordTextField() -> CommonInputView {
+        let inputView = CommonInputView()
+        inputView.backgroundView.fillColor = R.color.colorSemiBlack()!
+        inputView.backgroundView.highlightedFillColor = R.color.colorSemiBlack()!
+        inputView.backgroundView.strokeColor = R.color.colorWhite8()!
+        inputView.backgroundView.highlightedStrokeColor = R.color.colorPink()!
+        inputView.backgroundView.strokeWidth = 0.5
+        inputView.backgroundView.shadowOpacity = 0
+        inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
+        inputView.defaultSetup()
+        inputView.animatedInputField.textField.isSecureTextEntry = true
+        inputView.animatedInputField.textField.returnKeyType = .done
+        return inputView
+    }
+
     private func applyLocalization() {
-        navigationBar.setTitle("Create backup password")
-        descriptionLabel.text = "Setting a password will encrypt your Google backup. You’ll need to enter this when restoring your wallet"
-        passwordTextField.title = "Set password"
-        confirmPasswordTextField.title = "Confirm password"
-        warningLabel.text = "I understand that if I forget my password there is no way to retrieve it"
-        continueButton.imageWithTitleView?.title = "Set backup password"
+        let title = R.string.localizable
+            .backupCreatePasswordConfirmFieldTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(title)
+        descriptionLabel.text = R.string.localizable
+            .backupCreatePasswordDescription(preferredLanguages: locale.rLanguages)
+        passwordTextField.title = R.string.localizable
+            .backupCreatePasswordPasswordFieldTitle(preferredLanguages: locale.rLanguages)
+        confirmPasswordTextField.title = R.string.localizable
+            .backupCreatePasswordConfirmFieldTitle(preferredLanguages: locale.rLanguages)
+        warningLabel.text = R.string.localizable
+            .backupCreatePasswordWarning(preferredLanguages: locale.rLanguages)
+        continueButton.imageWithTitleView?.title = R.string.localizable
+            .backupCreatePasswordContinueButton(preferredLanguages: locale.rLanguages)
     }
 }

@@ -103,17 +103,26 @@ final class BackupWalletNameViewLayout: UIView {
     private func applyLocalization() {
         switch mode {
         case .editing:
-            navigationBar.setTitle("Change wallet name")
-            descriptionLabel.text = "Example: Savings, Investments, Crowdloans, Staking. This account name will be displayed only for you and stored locally on your mobile device"
-            nameTextField.title = "Wallet name"
+            let title = R.string.localizable
+                .backupWalletNameEditingTitle(preferredLanguages: locale.rLanguages)
+            navigationBar.setTitle(title)
+            descriptionLabel.text = R.string.localizable
+                .backupWalletNameEditingDescription(preferredLanguages: locale.rLanguages)
             bottomDescriptionLabel.text = nil
-            continueButton.imageWithTitleView?.title = "Save"
+            continueButton.imageWithTitleView?.title = R.string.localizable
+                .commonSave(preferredLanguages: locale.rLanguages)
         case .create:
-            navigationBar.setTitle("Name your new wallet")
-            descriptionLabel.text = "Make a name for your new wallet, so you can easily indentify it. This is optional and will be visible only for you"
-            nameTextField.title = "Wallet name"
-            bottomDescriptionLabel.text = "Visible only for you and stored locally"
-            continueButton.imageWithTitleView?.title = "Continue"
+            let title = R.string.localizable
+                .backupWalletNameCreateTitle(preferredLanguages: locale.rLanguages)
+            navigationBar.setTitle(title)
+            descriptionLabel.text = R.string.localizable
+                .backupWalletNameCreateDescription(preferredLanguages: locale.rLanguages)
+            bottomDescriptionLabel.text = R.string.localizable
+                .backupWalletNameCreateBottomDecription(preferredLanguages: locale.rLanguages)
+            continueButton.imageWithTitleView?.title = R.string.localizable
+                .commonContinue(preferredLanguages: locale.rLanguages)
         }
+        nameTextField.title = R.string.localizable
+            .backupWalletNameFieldNameTitle(preferredLanguages: locale.rLanguages)
     }
 }

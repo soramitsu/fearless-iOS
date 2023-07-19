@@ -2747,6 +2747,9 @@
 		0761DEB328E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModelFactory.swift; sourceTree = "<group>"; };
 		07633BB52A27038000958BB8 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
 		0765D7162A6680A900730F45 /* ExportRestoreJsonInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportRestoreJsonInteractor.swift; sourceTree = "<group>"; };
+		0765D72C2A67D28700730F45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		0765D72D2A67D28700730F45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		0765D72E2A67D28800730F45 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		07696A2C28BDC81F00B17040 /* ReaderWriterLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReaderWriterLock.swift; sourceTree = "<group>"; };
 		076D9D2B29370C33002762E3 /* MarketButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketButton.swift; sourceTree = "<group>"; };
 		076D9D2D2939B77F002762E3 /* PolkaswapOperationFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapOperationFactoryProtocol.swift; sourceTree = "<group>"; };
@@ -13550,6 +13553,7 @@
 			knownRegions = (
 				en,
 				ru,
+				ja,
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -16523,6 +16527,7 @@
 			children = (
 				8490145F24A94373008F705E /* en */,
 				8490146224A9438E008F705E /* ru */,
+				0765D72D2A67D28700730F45 /* ja */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -16540,6 +16545,7 @@
 			children = (
 				84C07EDD24AF1935008FC35B /* en */,
 				84C07EE524AF1990008FC35B /* ru */,
+				0765D72C2A67D28700730F45 /* ja */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -16549,6 +16555,7 @@
 			children = (
 				AE74EC1625FCF09000C494E7 /* en */,
 				AE74EC1F25FCF0A600C494E7 /* ru */,
+				0765D72E2A67D28800730F45 /* ja */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";

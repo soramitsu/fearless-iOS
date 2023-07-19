@@ -17,6 +17,7 @@ final class BannersPresenter {
     private let interactor: BannersInteractorInput
     private weak var moduleOutput: BannersModuleOutput?
 
+    private let logger: LoggerProtocol
     private lazy var viewModelFactory: BannersViewModelFactoryProtocol = {
         BannersViewModelFactory()
     }()
@@ -26,11 +27,13 @@ final class BannersPresenter {
     // MARK: - Constructors
 
     init(
+        logger: LoggerProtocol,
         moduleOutput: BannersModuleOutput?,
         interactor: BannersInteractorInput,
         router: BannersRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.logger = logger
         self.moduleOutput = moduleOutput
         self.interactor = interactor
         self.router = router
@@ -79,7 +82,7 @@ extension BannersPresenter: BannersViewOutput {
 
 extension BannersPresenter: BannersInteractorOutput {
     func didReceive(error: Error) {
-        print(error)
+        logger.customError(error)
     }
 
     func didReceive(wallet: MetaAccountModel) {

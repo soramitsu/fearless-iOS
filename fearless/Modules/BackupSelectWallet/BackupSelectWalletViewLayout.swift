@@ -66,7 +66,10 @@ final class BackupSelectWalletViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Select wallet to import")
-        createButton.imageWithTitleView?.title = "Create new account"
+        let title = R.string.localizable
+            .backupSelectWalletTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(title)
+        createButton.imageWithTitleView?.title = R.string.localizable
+            .backupSelectWalletCreateButton(preferredLanguages: locale.rLanguages)
     }
 }

@@ -112,11 +112,18 @@ final class BackupRiskWarningsViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Back up your mnemonic")
-        descriptionLabel.text = "Your mnemonic phrase is the key to your wallet. Back it up so you can restore your wallet if you lose or damage your device."
-        warning1Label.text = "If I lose my mnemonic phrase, my funds will be lost forever"
-        warning2Label.text = "If  I expose or share my mnemonic phrase to anybody, my funds can get stolen"
-        warning3Label.text = "It is my full responsibility to keep my mnemonic phrase secure"
-        continueButton.imageWithTitleView?.title = "Show mnemonic phrase"
+        let title = R.string.localizable
+            .backupRisksWarningsTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(title)
+        descriptionLabel.text = R.string.localizable
+            .backupRisksWarningsDescription(preferredLanguages: locale.rLanguages)
+        warning1Label.text = R.string.localizable
+            .backupRisksWarnings1(preferredLanguages: locale.rLanguages)
+        warning2Label.text = R.string.localizable
+            .backupRisksWarnings2(preferredLanguages: locale.rLanguages)
+        warning3Label.text = R.string.localizable
+            .backupRisksWarnings3(preferredLanguages: locale.rLanguages)
+        continueButton.imageWithTitleView?.title = R.string.localizable
+            .backupRisksWarningsContinueButton(preferredLanguages: locale.rLanguages)
     }
 }

@@ -19,6 +19,7 @@ final class BannersAssembly {
         let router = BannersRouter()
 
         let presenter = BannersPresenter(
+            logger: Logger.shared,
             moduleOutput: output,
             interactor: interactor,
             router: router,

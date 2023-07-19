@@ -106,19 +106,28 @@ final class BackupWalletPresenter {
     }
 
     private func removeBackupFromGoogle() {
-        let closeAction = SheetAlertPresentableAction(title: "Cancel")
-        let removeAction = SheetAlertPresentableAction(
-            title: "Delete",
+        let closeActionTitle = R.string.localizable
+            .commonCancel(preferredLanguages: selectedLocale.rLanguages)
+        let closeAction = SheetAlertPresentableAction(title: closeActionTitle)
+
+        let delecteActionTitle = R.string.localizable
+            .connectionDeleteConfirm(preferredLanguages: selectedLocale.rLanguages)
+        let deleteAction = SheetAlertPresentableAction(
+            title: delecteActionTitle,
             style: .pinkBackgroundWhiteText,
             button: UIFactory.default.createMainActionButton()
         ) { [weak self] in
             self?.view?.didStartLoading()
             self?.interactor.removeBackupFromGoogle()
         }
-        let action = [closeAction, removeAction]
+        let action = [closeAction, deleteAction]
+        let alertTitle = R.string.localizable
+            .commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
+        let alertMessage = R.string.localizable
+            .backupWalletDeleteMessage(preferredLanguages: selectedLocale.rLanguages)
         let alertViewModel = SheetAlertPresentableViewModel(
-            title: "Are you sure?",
-            message: "If you delete your Google backup, you’ll only be able to recover your wallet with a manual backup of your passphrase",
+            title: alertTitle,
+            message: alertMessage,
             actions: action,
             closeAction: nil,
             actionAxis: .horizontal
