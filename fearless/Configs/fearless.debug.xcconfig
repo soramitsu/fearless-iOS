@@ -4,3 +4,6 @@ OTHER_SWIFT_FLAGS = $(inherited) "-DENABLE_UITUNNEL" "-DF_DEV"
 
 APP_NAME = Fearless Dev
 ICON_SUFFIX = Dev
+
+GOOGLE_URL_SCHEME = com.googleusercontent.apps.621183184145-jla1mrbl3soobt85btt2nebon8s3d30b
+GOOGLE_TOKEN = 621183184145-jla1mrbl3soobt85btt2nebon8s3d30b.apps.googleusercontent.com

@@ -27,3 +27,13 @@ enum XOneCIKeys {
     static var x1EndpointUrlDebug: String = "{{ argument.x1EndpointUrlDebug }}"
     static var x1WidgetIdDebug: String = "{{ argument.x1WidgetIdDebug }}"
 }
+
+enum GoogleBackup {
+    static var googleToken: String = "{{ argument.webClientId }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeRelease }}"
+}
+
+enum GoogleBackupDebug {
+    static var googleToken: String = "{{ argument.webClientIdDebug }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeDebug }}"
+}

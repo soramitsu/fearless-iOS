@@ -48,12 +48,14 @@
             <string>Editor</string>
             <key>CFBundleURLSchemes</key>
             <array>
-                <string>com.googleusercontent.apps.621183184145-jla1mrbl3soobt85btt2nebon8s3d30b</string>
+                <string>$(GOOGLE_URL_SCHEME)</string>
             </array>
         </dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+    <key>GIDClientID</key>
+    <string>$(GOOGLE_TOKEN)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
