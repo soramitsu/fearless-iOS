@@ -1021,42 +1021,33 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "backup.create.password.confirm.field.title" = "Confirm password";
 "backup.create.password.warning" = "I understand that if I forget my password there is no way to retrieve it";
 "backup.create.password.continue.button" = "Set backup password";
-
 "backup.password.title" = "Enter backup password";
 "backup.password.description" = "Enter backup password for the selected wallet to import";
 "backup.password.password.field.title" = "Enter password";
-
 "backup.risks.warnings.title" = "Back up your mnemonic";
 "backup.risks.warnings.description" = "Your mnemonic phrase is the key to your wallet. Back it up so you can restore your wallet if you lose or damage your device.";
 "backup.risks.warnings.1" = "If I lose my mnemonic phrase, my funds will be lost forever";
 "backup.risks.warnings.2" = "If  I expose or share my mnemonic phrase to anybody, my funds can get stolen";
 "backup.risks.warnings.3" = "It is my full responsibility to keep my mnemonic phrase secure";
 "backup.risks.warnings.continue.button" = "Show mnemonic phrase";
-
 "backup.select.wallet.title" = "Select wallet to import";
 "backup.select.wallet.create.button" = "Create new account";
-
 "backup.wallet.delete.message" = "If you delete your Google backup, you’ll only be able to recover your wallet with a manual backup of your passphrase";
-
 "backup.wallet.footer.view.text" = "If you loose access to this device, your funds will be lost, unless you back up!";
 "backup.wallet.title" = "Backup wallet";
-
 "backup.wallet.seed" = "Show Raw Seed";
 "backup.wallet.json" = "Export JSON";
 "backup.wallet.backup.google" = "Backup to Google";
 "backup.wallet.delete.google" = "Delete Google backup";
-
 "backup.wallet.imported.title" = "Wallet imported";
 "backup.wallet.imported.description" = "You have successfully imported wallet";
 "backup.wallet.imported.import.more" = "Import more";
-
 "backup.wallet.name.editing.title" = "Change wallet name";
 "backup.wallet.name.editing.description" = "Example: Savings, Investments, Crowdloans, Staking. This account name will be displayed only for you and stored locally on your mobile device";
 "backup.wallet.name.create.title" = "Name your new wallet";
 "backup.wallet.name.create.description" = "Make a name for your new wallet, so you can easily indentify it. This is optional and will be visible only for you";
 "backup.wallet.name.create.bottom.decription" = "Visible only for you and stored locally";
 "backup.wallet.name.field.name.title" = "Wallet name";
-
 "banners.view.factory.backup.title" = "Backup your wallet";
 "banners.view.factory.backup.subtitle" = "If you loose your device, you will lose your funds forever";
 "banners.view.factory.backup.action.title" = "Backup now";
