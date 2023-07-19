@@ -13,25 +13,45 @@ enum ExportSeedInteractorError: Error {
 final class ExportSeedInteractor {
     weak var presenter: ExportSeedInteractorOutputProtocol!
 
-    let keystore: KeystoreProtocol
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    let chainRepository: AnyDataProviderRepository<ChainModel>
-    let operationManager: OperationManagerProtocol
+    private let keystore: KeystoreProtocol
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let chainRepository: AnyDataProviderRepository<ChainModel>
+    private let operationManager: OperationManagerProtocol
+    private let eventCenter: EventCenterProtocol
 
     init(
         keystore: KeystoreProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
-        chainRepository: AnyDataProviderRepository<ChainModel>
+        chainRepository: AnyDataProviderRepository<ChainModel>,
+        eventCenter: EventCenterProtocol
     ) {
         self.keystore = keystore
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.chainRepository = chainRepository
+        self.eventCenter = eventCenter
     }
 }
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
+    func seedDidBackuped(wallet: MetaAccountModel) {
+        let backupedWallet = wallet.replacingIsBackuped(true)
+
+        let saveOperation = accountRepository.saveOperation {
+            [backupedWallet]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            let event = MetaAccountModelChangedEvent(account: backupedWallet)
+            self?.eventCenter.notify(with: event)
+        }
+
+        operationManager.enqueue(operations: [saveOperation], in: .transient)
+    }
+
     func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountInfo]) {
         var seeds: [ExportSeedData] = []
 

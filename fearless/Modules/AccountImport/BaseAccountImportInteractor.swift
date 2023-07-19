@@ -84,7 +84,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 ethereumDerivationPath: data.ethereumDerivationPath,
                 cryptoType: request.cryptoType
             )
-            operation = accountOperationFactory.newMetaAccountOperation(request: request)
+            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: false)
         case let .seed(data):
             let request = MetaAccountImportSeedRequest(
                 substrateSeed: data.substrateSeed,

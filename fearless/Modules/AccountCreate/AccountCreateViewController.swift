@@ -26,7 +26,7 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = AccountCreateViewLayout()
+        view = AccountCreateViewLayout(flow: presenter.flow)
     }
 
     override func viewDidLoad() {
@@ -105,6 +105,9 @@ private extension AccountCreateViewController {
             action: #selector(actionOpenCryptoType),
             for: .valueChanged
         )
+        rootView.backupButton.addAction { [weak self] in
+            self?.presenter.didTapBackupButton()
+        }
     }
 
     private func updateSubstrateDerivationPath(status: FieldStatus) {

@@ -91,14 +91,12 @@ final class ProfileViewController: UIViewController, ViewHolder {
 
     private func prepareProfileDetailsCell(
         _ tableView: UITableView,
-        indexPath: IndexPath,
-        with viewModel: ProfileUserViewModelProtocol
+        indexPath _: IndexPath,
+        with viewModel: WalletsManagmentCellViewModel
     ) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCell(
-            withIdentifier: R.reuseIdentifier.profileDetailsCellId,
-            for: indexPath
-        ) {
-            cell.bind(model: viewModel, icon: R.image.iconBirdGreen())
+        if let cell = tableView.dequeueReusableCellWithType(WalletsManagmentTableCell.self) {
+            cell.bind(to: viewModel)
+            cell.delegate = self
             return cell
         } else {
             assertionFailure("Profile details cell creation failed")
@@ -247,5 +245,11 @@ extension ProfileViewController: Localizable {
             setupLocalization()
             view.setNeedsLayout()
         }
+    }
+}
+
+extension ProfileViewController: WalletsManagmentTableCellDelegate {
+    func didTapOptionsCell(with _: IndexPath?) {
+        presenter.activateAccountDetails()
     }
 }

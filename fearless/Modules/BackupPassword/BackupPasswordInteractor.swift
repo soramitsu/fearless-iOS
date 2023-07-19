@@ -9,12 +9,14 @@ protocol BackupPasswordInteractorOutput: AnyObject {
 }
 
 final class BackupPasswordInteractor: BaseAccountImportInteractor {
+    var cloudStorage: CloudStorageServiceProtocol?
+
     // MARK: - Private properties
 
     private weak var output: BackupPasswordInteractorOutput?
 
     private let settings: SelectedWalletSettings
-    var cloudStorage: CloudStorageServiceProtocol?
+    private let eventCenter: EventCenterProtocol
 
     init(
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
@@ -22,10 +24,11 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
         operationManager: OperationManagerProtocol,
         settings: SelectedWalletSettings,
         keystoreImportService: KeystoreImportServiceProtocol,
-        eventCenter _: EventCenterProtocol,
+        eventCenter: EventCenterProtocol,
         defaultSource: AccountImportSource
     ) {
         self.settings = settings
+        self.eventCenter = eventCenter
         super.init(
             accountOperationFactory: accountOperationFactory,
             accountRepository: accountRepository,
@@ -39,9 +42,10 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
         let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation { [weak self] in
             let accountItem = try importOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            self?.settings.save(value: accountItem)
+            let updatedWallet = accountItem.replacingIsBackuped(true)
+            self?.settings.save(value: updatedWallet)
 
-            return accountItem
+            return updatedWallet
         }
 
         saveOperation.completionBlock = { [weak self] in
@@ -50,6 +54,7 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
                 case .success:
                     self?.settings.setup()
                     self?.output?.didCompleteAccountImport()
+                    self?.eventCenter.notify(with: SelectedAccountChanged())
 
                 case let .failure(error):
                     self?.output?.didReceiveAccountImport(error: error)

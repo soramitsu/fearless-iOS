@@ -51,8 +51,11 @@ final class BackupWalletNameViewLayout: UIView {
         }
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    let mode: WalletNameScreenMode
+
+    init(mode: WalletNameScreenMode) {
+        self.mode = mode
+        super.init(frame: .zero)
         backgroundColor = R.color.colorBlack19()
         setupLayout()
     }
@@ -98,10 +101,19 @@ final class BackupWalletNameViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Name your new wallet")
-        descriptionLabel.text = "Make a name for your new wallet, so you can easily indentify it. This is optional and will be visible only for you"
-        nameTextField.title = "Wallet name"
-        bottomDescriptionLabel.text = "Visible only for you and stored locally"
-        continueButton.imageWithTitleView?.title = "Continue"
+        switch mode {
+        case .editing:
+            navigationBar.setTitle("Change wallet name")
+            descriptionLabel.text = "Example: Savings, Investments, Crowdloans, Staking. This account name will be displayed only for you and stored locally on your mobile device"
+            nameTextField.title = "Wallet name"
+            bottomDescriptionLabel.text = nil
+            continueButton.imageWithTitleView?.title = "Save"
+        case .create:
+            navigationBar.setTitle("Name your new wallet")
+            descriptionLabel.text = "Make a name for your new wallet, so you can easily indentify it. This is optional and will be visible only for you"
+            nameTextField.title = "Wallet name"
+            bottomDescriptionLabel.text = "Visible only for you and stored locally"
+            continueButton.imageWithTitleView?.title = "Continue"
+        }
     }
 }

@@ -15,6 +15,8 @@ final class AccountCreateViewLayout: UIView {
         static let contentBottomOffset: CGFloat = 92
     }
 
+    let flow: AccountCreateFlow
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -36,6 +38,21 @@ final class AccountCreateViewLayout: UIView {
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
+        return button
+    }()
+
+    let backupButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.triangularedView?.shadowOpacity = 0
+        button.triangularedView?.fillColor = R.color.colorBlack()!
+        button.triangularedView?.highlightedFillColor = R.color.colorBlack()!
+        button.triangularedView?.strokeColor = R.color.colorWhite50()!
+        button.triangularedView?.highlightedStrokeColor = R.color.colorWhite50()!
+        button.triangularedView?.strokeWidth = 1
+
+        button.imageWithTitleView?.iconImage = R.image.googleBackup()
+        button.imageWithTitleView?.titleColor = R.color.colorWhite()
+        button.imageWithTitleView?.titleFont = .h4Title
         return button
     }()
 
@@ -198,9 +215,9 @@ final class AccountCreateViewLayout: UIView {
 
     var keyboardAdoptableConstraint: Constraint?
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
+    init(flow: AccountCreateFlow) {
+        self.flow = flow
+        super.init(frame: .zero)
         setupLayout()
         configure()
 
@@ -361,12 +378,28 @@ private extension AccountCreateViewLayout {
 
         contentView.stackView.addArrangedSubview(advancedContainerView)
 
-        addSubview(nextButton)
-        nextButton.snp.makeConstraints { make in
+        let buttonVStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
+        addSubview(buttonVStackView)
+        buttonVStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.actionHeight)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+        }
+
+        buttonVStackView.addArrangedSubview(nextButton)
+        nextButton.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+            make.leading.trailing.equalToSuperview()
+        }
+
+        switch flow {
+        case .wallet, .chain:
+            buttonVStackView.addArrangedSubview(backupButton)
+            backupButton.snp.makeConstraints { make in
+                make.height.equalTo(UIConstants.actionHeight)
+            }
+        case .backup:
+            advancedContainerView.isHidden = true
         }
     }
 
@@ -378,5 +411,6 @@ private extension AccountCreateViewLayout {
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
+        backupButton.imageWithTitleView?.title = "Backup with Google"
     }
 }

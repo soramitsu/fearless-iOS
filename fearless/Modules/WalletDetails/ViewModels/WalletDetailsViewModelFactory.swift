@@ -43,7 +43,6 @@ class WalletDetailsViewModelFactory {
                     chainImageViewModel: icon,
                     account: account,
                     chain: chain,
-                    addressImage: addressImage,
                     address: address,
                     accountMissing: flow.wallet.fetch(
                         for: chain.accountRequest()
@@ -120,6 +119,7 @@ extension WalletDetailsViewModelFactory: WalletDetailsViewModelFactoryProtocol {
         let sections = buildSections(flow: flow, chains: chains, locale: locale)
         return WalletDetailsViewModel(
             navigationTitle: R.string.localizable.commonWallet(preferredLanguages: locale.rLanguages),
+            walletName: flow.wallet.name,
             sections: sections
         )
     }
@@ -132,6 +132,7 @@ extension WalletDetailsViewModelFactory: WalletDetailsViewModelFactoryProtocol {
         let sections = buildSections(flow: flow, chains: chains, locale: locale)
         return WalletExportViewModel(
             navigationTitle: R.string.localizable.accountsForExport(preferredLanguages: locale.rLanguages),
+            walletName: flow.wallet.name,
             sections: sections
         )
     }

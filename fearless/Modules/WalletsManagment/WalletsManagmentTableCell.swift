@@ -22,6 +22,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         view.strokeColor = .clear
         view.highlightedStrokeColor = R.color.colorPink()!
         view.strokeWidth = 0.5
+        view.shadowOpacity = 0
         return view
     }()
 
@@ -73,6 +74,9 @@ final class WalletsManagmentTableCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         optionsButton.rounded()
+        if delegate == nil {
+            optionsButton.isHidden = true
+        }
     }
 
     func bind(to viewModel: WalletsManagmentCellViewModel) {
@@ -93,7 +97,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
 
     private func setupLayout() {
         selectionStyle = .none
-        backgroundColor = R.color.colorBlack()!
+        backgroundColor = .clear
 
         contentView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in

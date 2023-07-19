@@ -56,7 +56,7 @@ final class BackupWalletImportedPresenter {
 
 extension BackupWalletImportedPresenter: BackupWalletImportedViewOutput {
     func didBackButtonTapped() {
-        router.dismiss(view: view)
+        router.backButtonDidTapped(from: view)
     }
 
     func didContinueButtonTapped() {

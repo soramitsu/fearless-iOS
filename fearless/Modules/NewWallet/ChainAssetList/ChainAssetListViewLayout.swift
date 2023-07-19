@@ -19,9 +19,10 @@ final class ChainAssetListViewLayout: UIView {
 
     var keyboardAdoptableConstraint: Constraint?
 
-    private var cardContainer: UIView? = {
-        let view = UIView()
-        return view
+    var bannersView: UIView?
+
+    var headerViewContainer: UIStackView = {
+        UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
     }()
 
     let tableView: UITableView = {
@@ -42,15 +43,22 @@ final class ChainAssetListViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupLayout() {
-        addSubview(tableView)
-        tableView.tableHeaderView = cardContainer
+    func addBanners(view: UIView) {
+        bannersView = view
+        headerViewContainer.addArrangedSubview(view)
+        view.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+    }
 
-        cardContainer?.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.trailing.equalTo(self).inset(UIConstants.bigOffset)
+    private func setupLayout() {
+        tableView.tableHeaderView = headerViewContainer
+        headerViewContainer.snp.makeConstraints { make in
+            make.width.equalToSuperview().inset(UIConstants.bigOffset)
+            make.centerX.equalToSuperview()
         }
 
+        addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

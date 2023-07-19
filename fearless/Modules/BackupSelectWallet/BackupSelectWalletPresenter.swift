@@ -2,12 +2,13 @@ import Foundation
 import SoraFoundation
 import SSFCloudStorage
 
-protocol BackupSelectWalletViewInput: ControllerBackedProtocol, HiddableBarWhenPushed {
+protocol BackupSelectWalletViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func didReceive(viewModels: [String])
 }
 
 protocol BackupSelectWalletInteractorInput: AnyObject {
     func setup(with output: BackupSelectWalletInteractorOutput)
+    func fetchBackupAccounts()
 }
 
 final class BackupSelectWalletPresenter {
@@ -17,12 +18,13 @@ final class BackupSelectWalletPresenter {
     private let router: BackupSelectWalletRouterInput
     private let interactor: BackupSelectWalletInteractorInput
 
-    private let accounts: [OpenBackupAccount]
+    private var accounts: [OpenBackupAccount]?
+    private var backupedAddresses: [String]?
 
     // MARK: - Constructors
 
     init(
-        accounts: [OpenBackupAccount],
+        accounts: [OpenBackupAccount]?,
         interactor: BackupSelectWalletInteractorInput,
         router: BackupSelectWalletRouterInput,
         localizationManager: LocalizationManagerProtocol
@@ -36,7 +38,12 @@ final class BackupSelectWalletPresenter {
     // MARK: - Private methods
 
     private func provideViewModels() {
-        let names = accounts.map { $0.name ?? $0.address }
+        guard let accounts = accounts else {
+            interactor.fetchBackupAccounts()
+            return
+        }
+        let filtredAccounts = accounts.filter { !backupedAddresses.or([]).contains($0.address) }
+        let names = filtredAccounts.map { $0.name ?? $0.address }
         view?.didReceive(viewModels: names)
     }
 }
@@ -49,6 +56,13 @@ struct BackupAccount {
 }
 
 extension BackupSelectWalletPresenter: BackupSelectWalletViewOutput {
+    func viewDidAppear() {
+        if accounts == nil {
+            view?.didStartLoading()
+            provideViewModels()
+        }
+    }
+
     func didLoad(view: BackupSelectWalletViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -56,6 +70,9 @@ extension BackupSelectWalletPresenter: BackupSelectWalletViewOutput {
     }
 
     func didTap(on indexPath: IndexPath) {
+        guard let accounts = accounts else {
+            return
+        }
         let backupAccounts = accounts.enumerated().map {
             BackupAccount(
                 account: $0.1,
@@ -69,12 +86,36 @@ extension BackupSelectWalletPresenter: BackupSelectWalletViewOutput {
         router.dismiss(view: view)
     }
 
-    func didCreateNewAccountButtonTapped() {}
+    func didCreateNewAccountButtonTapped() {
+        router.showWalletNameScreen(from: view)
+    }
 }
 
 // MARK: - BackupSelectWalletInteractorOutput
 
-extension BackupSelectWalletPresenter: BackupSelectWalletInteractorOutput {}
+extension BackupSelectWalletPresenter: BackupSelectWalletInteractorOutput {
+    func didReceiveWallets(result: Result<[ManagedMetaAccountModel], Error>) {
+        switch result {
+        case let .success(wallets):
+            backupedAddresses = wallets.map { $0.info.substrateAccountId.toHex() }
+            provideViewModels()
+        case .failure:
+            break
+        }
+    }
+
+    func didReceiveBackupAccounts(result: Result<[SSFCloudStorage.OpenBackupAccount], Error>) {
+        view?.didStopLoading()
+        switch result {
+        case let .success(accounts):
+            self.accounts = accounts
+            provideViewModels()
+        case let .failure(failure):
+            let error = ConvenienceError(error: failure.localizedDescription)
+            router.present(error: error, from: view, locale: selectedLocale)
+        }
+    }
+}
 
 // MARK: - Localizable
 
@@ -83,7 +124,3 @@ extension BackupSelectWalletPresenter: Localizable {
 }
 
 extension BackupSelectWalletPresenter: BackupSelectWalletModuleInput {}
-
-protocol BackupSelectWalletViewModelFactoryProtocol {}
-
-final class BackupSelectWalletViewModelFactory: BackupSelectWalletViewModelFactoryProtocol {}

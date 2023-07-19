@@ -3,7 +3,12 @@ typealias BackupRiskWarningsModuleCreationResult = (
     input: BackupRiskWarningsModuleInput
 )
 
-protocol BackupRiskWarningsRouterInput: AnyDismissable {}
+protocol BackupRiskWarningsRouterInput: AnyDismissable {
+    func showCreateAccount(
+        usernameModel: UsernameSetupModel,
+        from view: ControllerBackedProtocol?
+    )
+}
 
 protocol BackupRiskWarningsModuleInput: AnyObject {}
 

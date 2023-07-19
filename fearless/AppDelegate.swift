@@ -14,8 +14,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         guard !isUnitTesting else { return true }
 
-        GIDSignIn.sharedInstance().clientID = "621183184145-jla1mrbl3soobt85btt2nebon8s3d30b.apps.googleusercontent.com"
-
         let rootWindow = FearlessWindow()
         window = rootWindow
 

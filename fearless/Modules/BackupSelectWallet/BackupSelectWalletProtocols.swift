@@ -6,11 +6,12 @@ typealias BackupSelectWalletModuleCreationResult = (
     input: BackupSelectWalletModuleInput
 )
 
-protocol BackupSelectWalletRouterInput: PresentDismissable {
+protocol BackupSelectWalletRouterInput: PresentDismissable, SheetAlertPresentable, ErrorPresentable {
     func presentBackupPasswordScreen(
         for backupAccounts: [BackupAccount],
         from view: ControllerBackedProtocol?
     )
+    func showWalletNameScreen(from view: ControllerBackedProtocol?)
 }
 
 protocol BackupSelectWalletModuleInput: AnyObject {}

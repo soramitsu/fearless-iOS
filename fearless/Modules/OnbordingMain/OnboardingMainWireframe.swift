@@ -49,7 +49,7 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     }
 
     func showCreateFlow(from view: ControllerBackedProtocol?) {
-        guard let controller = BackupWalletNameAssembly.configureModule()?.view.controller else {
+        guard let controller = BackupWalletNameAssembly.configureModule(with: nil)?.view.controller else {
             return
         }
         let navigation = FearlessNavigationController(rootViewController: controller)

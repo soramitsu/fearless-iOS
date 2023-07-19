@@ -5,6 +5,7 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
+    func reloadBanners()
 }
 
 protocol ChainAssetListViewOutput: AnyObject {

@@ -6,6 +6,7 @@ protocol BackupSelectWalletViewOutput: AnyObject {
     func didTap(on indexPath: IndexPath)
     func didBackButtonTapped()
     func didCreateNewAccountButtonTapped()
+    func viewDidAppear()
 }
 
 final class BackupSelectWalletViewController: UIViewController, ViewHolder {
@@ -44,6 +45,11 @@ final class BackupSelectWalletViewController: UIViewController, ViewHolder {
         output.didLoad(view: self)
         bindAction()
         configureTableView()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        output.viewDidAppear()
     }
 
     // MARK: - Private methods

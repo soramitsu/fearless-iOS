@@ -5,12 +5,13 @@ typealias BackupWalletImportedModuleCreationResult = (
     input: BackupWalletImportedModuleInput
 )
 
-protocol BackupWalletImportedRouterInput: AnyDismissable {
+protocol BackupWalletImportedRouterInput: PresentDismissable {
     func showBackupSelectWallet(
         for accounts: [OpenBackupAccount],
         from view: ControllerBackedProtocol?
     )
     func showSetupPin(from view: ControllerBackedProtocol?)
+    func backButtonDidTapped(from view: ControllerBackedProtocol?)
 }
 
 protocol BackupWalletImportedModuleInput: AnyObject {}

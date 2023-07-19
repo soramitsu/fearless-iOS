@@ -21,6 +21,7 @@ struct MetaAccountModel: Equatable, Codable {
     let chainIdForFilter: ChainModel.Id?
     let assetsVisibility: [AssetVisibility]
     let zeroBalanceAssetsHidden: Bool
+    let isBackuped: Bool
 }
 
 extension MetaAccountModel {
@@ -57,7 +58,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -78,7 +80,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -99,7 +102,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -120,7 +124,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -141,7 +146,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -162,7 +168,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -183,7 +190,8 @@ extension MetaAccountModel {
             selectedCurrency: currency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -204,7 +212,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -225,7 +234,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainId,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -246,7 +256,8 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: newAssetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 
@@ -267,7 +278,30 @@ extension MetaAccountModel {
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: newZeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: newZeroBalanceAssetsHidden,
+            isBackuped: isBackuped
+        )
+    }
+
+    func replacingIsBackuped(_ isBackuped: Bool) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetFilterOptions: assetFilterOptions,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            isBackuped: isBackuped
         )
     }
 }

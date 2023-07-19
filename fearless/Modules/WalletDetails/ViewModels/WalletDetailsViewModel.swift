@@ -5,11 +5,13 @@ enum WalletDetailsViewState {
 
 struct WalletDetailsViewModel {
     let navigationTitle: String
+    let walletName: String
     let sections: [WalletDetailsSection]
 }
 
 struct WalletExportViewModel {
     let navigationTitle: String
+    let walletName: String
     let sections: [WalletDetailsSection]
 }
 

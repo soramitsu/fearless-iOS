@@ -1,14 +1,24 @@
 import UIKit
 import SoraFoundation
 import SSFCloudStorage
+import RobinHood
 
 final class BackupSelectWalletAssembly {
     static func configureModule(
-        accounts: [OpenBackupAccount]
+        accounts: [OpenBackupAccount]?
     ) -> BackupSelectWalletModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = BackupSelectWalletInteractor()
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let managedMetaAccountRepository = accountRepositoryFactory.createManagedMetaAccountRepository(
+            for: nil,
+            sortDescriptors: []
+        )
+
+        let interactor = BackupSelectWalletInteractor(
+            walletRepository: AnyDataProviderRepository(managedMetaAccountRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
         let router = BackupSelectWalletRouter()
 
         let presenter = BackupSelectWalletPresenter(
@@ -22,6 +32,8 @@ final class BackupSelectWalletAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
+        let cloudStorageService = CloudStorageService(uiDelegate: view)
+        interactor.cloudStorageService = cloudStorageService
 
         return (view, presenter)
     }

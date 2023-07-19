@@ -74,4 +74,35 @@ class UserDataStorageFacade: StorageFacadeProtocol {
             sortDescriptors: sortDescriptors
         )
     }
+
+    func createStreamableProvider<T, U>(
+        filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor],
+        mapper: AnyCoreDataMapper<T, U>
+    ) -> StreamableProvider<T> {
+        let repository = createRepository(
+            filter: filter,
+            sortDescriptors: sortDescriptors,
+            mapper: mapper
+        )
+
+        let observer = CoreDataContextObservable(
+            service: databaseService,
+            mapper: repository.dataMapper,
+            predicate: { _ in true }
+        )
+
+        observer.start { error in
+            if let error = error {
+                Logger.shared.error("UserDataStorage database observer unexpectedly failed: \(error)")
+            }
+        }
+
+        return StreamableProvider(
+            source: AnyStreamableSource(EmptyStreamableSource<T>()),
+            repository: AnyDataProviderRepository(repository),
+            observable: AnyDataProviderRepositoryObservable(observer),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+    }
 }

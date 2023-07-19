@@ -40,7 +40,10 @@ extension BackupRiskWarningsPresenter: BackupRiskWarningsViewOutput {
         router.dismiss(view: view)
     }
 
-    func didContinueButtonTapped() {}
+    func didContinueButtonTapped() {
+        let usernameModel = UsernameSetupModel(username: walletName)
+        router.showCreateAccount(usernameModel: usernameModel, from: view)
+    }
 
     func didLoad(view: BackupRiskWarningsViewInput) {
         self.view = view

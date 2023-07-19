@@ -30,4 +30,8 @@ final class BackupWalletImportedRouter: BackupWalletImportedRouterInput {
             }
         }
     }
+
+    func backButtonDidTapped(from view: ControllerBackedProtocol?) {
+        view?.controller.navigationController?.dismiss(animated: true)
+    }
 }

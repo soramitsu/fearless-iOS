@@ -2,24 +2,22 @@ import UIKit
 import SnapKit
 
 final class WalletDetailsViewLayout: UIView {
-    var walletView: CommonInputView = {
-        let view = CommonInputView()
-        view.animatedInputField.textField.returnKeyType = .done
-        view.isHidden = true
+    var walletView: DetailsTriangularedView = {
+        let view = DetailsTriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.titleLabel.font = .p1Paragraph
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.iconView.image = R.image.iconBirdGreen()
+        view.strokeColor = R.color.colorWhite8()!
+        view.borderWidth = 1
+        view.layout = .singleTitle
         return view
-    }()
-
-    var subtitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .h3Title
-        label.textColor = R.color.colorWhite()
-        label.isHidden = true
-        return label
     }()
 
     let tableView: UITableView = {
         let view = UITableView(frame: .zero, style: .grouped)
-        view.backgroundColor = .clear
+        view.backgroundColor = R.color.colorBlack19()
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
 
@@ -37,7 +35,7 @@ final class WalletDetailsViewLayout: UIView {
 
     lazy var navigationBar: BaseNavigationBar = {
         let navBar = BaseNavigationBar()
-        navBar.set(.present)
+        navBar.set(.push)
         return navBar
     }()
 
@@ -54,13 +52,10 @@ final class WalletDetailsViewLayout: UIView {
         }
     }
 
-    var keyboardAdoptableConstraint: Constraint?
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         setupLayout()
-        configureTextField()
         applyLocalization()
     }
 
@@ -75,13 +70,13 @@ final class WalletDetailsViewLayout: UIView {
 
     func bind(to viewModel: WalletDetailsViewModel) {
         navigationLabel.text = viewModel.navigationTitle
+        walletView.title = viewModel.walletName
         walletView.isHidden = false
     }
 
     func bind(to viewModel: WalletExportViewModel) {
-        subtitleLabel.text = viewModel.navigationTitle
-
-        subtitleLabel.isHidden = false
+        navigationLabel.text = viewModel.navigationTitle
+        walletView.title = viewModel.walletName
         exportButton.isHidden = false
 
         tableView.contentInset = UIEdgeInsets(
@@ -94,16 +89,8 @@ final class WalletDetailsViewLayout: UIView {
 }
 
 private extension WalletDetailsViewLayout {
-    func configureTextField() {
-        walletView.animatedInputField.textField.returnKeyType = .done
-        walletView.animatedInputField.textField.textContentType = .nickname
-        walletView.animatedInputField.textField.autocapitalizationType = .none
-        walletView.animatedInputField.textField.autocorrectionType = .no
-        walletView.animatedInputField.textField.spellCheckingType = .no
-    }
-
     func setupLayout() {
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = R.color.colorBlack19()
 
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
@@ -117,20 +104,14 @@ private extension WalletDetailsViewLayout {
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(52)
-        }
-
-        addSubview(subtitleLabel)
-        subtitleLabel.snp.makeConstraints { make in
-            make.edges.equalTo(walletView.snp.edges)
+            make.height.equalTo(72)
         }
 
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview()
             make.top.equalTo(walletView.snp.bottom).offset(UIConstants.bigOffset)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.hugeOffset).constraint
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
 
         addSubview(exportButton)

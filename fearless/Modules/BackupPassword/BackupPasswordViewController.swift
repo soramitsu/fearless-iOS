@@ -6,7 +6,6 @@ protocol BackupPasswordViewOutput: AnyObject {
     func didLoad(view: BackupPasswordViewInput)
     func didBackButtonTapped()
     func didContinueButtonTapped()
-    func passwordDidChainged(password: String)
 }
 
 final class BackupPasswordViewController: UIViewController, ViewHolder {
@@ -15,6 +14,8 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: BackupPasswordViewOutput
+
+    private var passwordInputViewModel: InputViewModelProtocol?
 
     // MARK: - Constructor
 
@@ -49,6 +50,11 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
 
     private func configure() {
         rootView.passwordTextField.animatedInputField.delegate = self
+        rootView.passwordTextField.animatedInputField.addTarget(
+            self,
+            action: #selector(actionPasswordInputChange),
+            for: .editingChanged
+        )
     }
 
     private func bindActions() {
@@ -59,11 +65,26 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
             self?.output.didContinueButtonTapped()
         }
     }
+
+    // MARK: - Private actions
+
+    @objc private func actionPasswordInputChange() {
+        if passwordInputViewModel?.inputHandler.value != rootView.passwordTextField.text {
+            rootView.passwordTextField.text = passwordInputViewModel?.inputHandler.value
+        }
+
+        let enabled = passwordInputViewModel?.inputHandler.completed ?? false
+        rootView.continueButton.set(enabled: enabled)
+    }
 }
 
 // MARK: - BackupPasswordViewInput
 
 extension BackupPasswordViewController: BackupPasswordViewInput {
+    func setPasswordInputViewModel(_ viewModel: SoraFoundation.InputViewModelProtocol) {
+        passwordInputViewModel = viewModel
+    }
+
     func didReceive(walletName: String) {
         rootView.bind(walletName: walletName)
     }
@@ -86,12 +107,21 @@ extension BackupPasswordViewController: AnimatedTextFieldDelegate {
         return false
     }
 
-    func animatedTextField(_ textField: SoraUI.AnimatedTextField, shouldChangeCharactersIn _: NSRange, replacementString _: String) -> Bool {
-        guard let text = textField.text else {
-            return false
+    func animatedTextField(
+        _ textField: SoraUI.AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        guard let currentViewModel = passwordInputViewModel else {
+            return true
         }
-        output.passwordDidChainged(password: text)
-        rootView.continueButton.isEnabled = text.isNotEmpty
-        return true
+
+        let shouldApply = currentViewModel.inputHandler.didReceiveReplacement(string, for: range)
+
+        if !shouldApply, textField.text != currentViewModel.inputHandler.value {
+            textField.text = currentViewModel.inputHandler.value
+        }
+
+        return shouldApply
     }
 }

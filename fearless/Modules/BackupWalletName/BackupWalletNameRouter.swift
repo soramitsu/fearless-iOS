@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 final class BackupWalletNameRouter: BackupWalletNameRouterInput {
     func showWarningsScreen(
@@ -9,5 +10,9 @@ final class BackupWalletNameRouter: BackupWalletNameRouterInput {
             return
         }
         view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
+
+    func complete(view _: ControllerBackedProtocol?) {
+        UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true, completion: nil)
     }
 }

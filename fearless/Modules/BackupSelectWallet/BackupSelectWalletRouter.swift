@@ -12,4 +12,12 @@ final class BackupSelectWalletRouter: BackupSelectWalletRouterInput {
 
         view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
+
+    func showWalletNameScreen(from view: ControllerBackedProtocol?) {
+        guard let module = BackupWalletNameAssembly.configureModule(with: nil) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
+    }
 }

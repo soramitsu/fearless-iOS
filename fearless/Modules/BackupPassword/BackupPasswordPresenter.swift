@@ -2,8 +2,9 @@ import Foundation
 import SoraFoundation
 import SSFCloudStorage
 
-protocol BackupPasswordViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol, CloudStorageUIDelegate {
+protocol BackupPasswordViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func didReceive(walletName: String)
+    func setPasswordInputViewModel(_ viewModel: InputViewModelProtocol)
 }
 
 protocol BackupPasswordInteractorInput: AccountImportInteractorInputProtocol {
@@ -20,7 +21,9 @@ final class BackupPasswordPresenter {
 
     private let backupAccounts: [BackupAccount]
 
-    private var password: String?
+    private let passwordInputViewModel = {
+        InputViewModel(inputHandler: InputHandler(predicate: NSPredicate.notEmpty))
+    }()
 
     // MARK: - Constructors
 
@@ -49,20 +52,26 @@ final class BackupPasswordPresenter {
     private func proceed(with backup: OpenBackupAccount) {
         guard
             let passphrase = backup.passphrase,
-            let mnemonic = interactor.createMnemonicFromString(passphrase) else {
+            let mnemonic = interactor.createMnemonicFromString(passphrase),
+            let substrateDerivationPath = backup.substrateDerivationPath,
+            let ethDerivationPath = backup.ethDerivationPath,
+            let backupCryptoType = backup.cryptoType,
+            let rawValue = UInt8(backupCryptoType),
+            let cryptoType = CryptoType(rawValue: rawValue),
+            let name = backup.name
+        else {
             return
         }
-        // TODO: - paste ethereumDerivationPath from account
+
         let sourceData = MetaAccountImportRequestSource.MnemonicImportRequestData(
             mnemonic: mnemonic,
-            substrateDerivationPath: backup.derivationPath ?? "",
-            ethereumDerivationPath: "//44//60//0/0/0"
+            substrateDerivationPath: substrateDerivationPath,
+            ethereumDerivationPath: ethDerivationPath
         )
         let source = MetaAccountImportRequestSource.mnemonic(data: sourceData)
-        let cryptoType = CryptoType(rawValue: backup.cryptoType ?? 0) ?? .sr25519
         let request = MetaAccountImportRequest(
             source: source,
-            username: backup.name ?? backup.address,
+            username: name,
             cryptoType: cryptoType
         )
         interactor.importMetaAccount(request: request)
@@ -76,6 +85,7 @@ extension BackupPasswordPresenter: BackupPasswordViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
+        view.setPasswordInputViewModel(passwordInputViewModel)
     }
 
     func didBackButtonTapped() {
@@ -83,18 +93,12 @@ extension BackupPasswordPresenter: BackupPasswordViewOutput {
     }
 
     func didContinueButtonTapped() {
-        guard let password = password else {
-            return
-        }
+        let password = passwordInputViewModel.inputHandler.normalizedValue
         view?.didStartLoading()
         guard let account = backupAccounts.first(where: { $0.current })?.account else {
             return
         }
         interactor.importBackup(account: account, password: password)
-    }
-
-    func passwordDidChainged(password: String) {
-        self.password = password
     }
 }
 
@@ -115,7 +119,8 @@ extension BackupPasswordPresenter: BackupPasswordInteractorOutput {
         case let .success(success):
             proceed(with: success)
         case let .failure(failure):
-            router.present(error: failure, from: view, locale: selectedLocale)
+            let error = ConvenienceError(error: failure.localizedDescription)
+            router.present(error: error, from: view, locale: selectedLocale)
         }
     }
 }
