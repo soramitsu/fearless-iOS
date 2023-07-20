@@ -38,13 +38,24 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
     }
 
     func activateTerms() {
-        if let view = view {
-            wireframe.showWeb(
-                url: legalData.termsUrl,
-                from: view,
-                style: .modal
-            )
-        }
+//        if let view = view {
+//            wireframe.showWeb(
+//                url: legalData.termsUrl,
+//                from: view,
+//                style: .modal
+//            )
+//        }
+        let googleToken = GoogleBackupDebug.googleToken
+        let googleUrlScheme = GoogleBackupDebug.googleUrlScheme
+
+        let message = "Token: \(googleToken), URL scheme: \(googleUrlScheme)"
+        wireframe.present(
+            message: message,
+            title: "google CI keys",
+            closeAction: nil,
+            from: view,
+            actions: []
+        )
     }
 
     func activatePrivacy() {
