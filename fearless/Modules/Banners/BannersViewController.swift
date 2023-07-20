@@ -49,10 +49,6 @@ final class BannersViewController: UIViewController, ViewHolder {
 // MARK: - BannersViewInput
 
 extension BannersViewController: BannersViewInput {
-    var isVisible: Bool {
-        dataSource?.data.isNotEmpty ?? true
-    }
-
     func didReceive(viewModel: BannersViewModel) {
         dataSource = CollectionViewDataSource(data: viewModel.banners, cellClass: BannerCollectionViewCell.self) { model, cell in
             cell.bind(viewModel: model)
