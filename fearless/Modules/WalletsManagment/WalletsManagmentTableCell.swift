@@ -55,10 +55,15 @@ final class WalletsManagmentTableCell: UITableViewCell {
         button.setImage(R.image.iconHorMore(), for: .normal)
         button.backgroundColor = R.color.colorWhite8()!
         button.clipsToBounds = true
+        button.isHidden = true
         return button
     }()
 
-    weak var delegate: WalletsManagmentTableCellDelegate?
+    weak var delegate: WalletsManagmentTableCellDelegate? {
+        didSet {
+            optionsButton.isHidden = false
+        }
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -74,9 +79,6 @@ final class WalletsManagmentTableCell: UITableViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         optionsButton.rounded()
-        if delegate == nil {
-            optionsButton.isHidden = true
-        }
     }
 
     func bind(to viewModel: WalletsManagmentCellViewModel) {

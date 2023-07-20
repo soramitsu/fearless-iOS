@@ -1,5 +1,4 @@
 import UIKit
-import GoogleSignIn
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?

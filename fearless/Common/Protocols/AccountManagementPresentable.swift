@@ -31,7 +31,7 @@ extension AccountManagementPresentable {
         else {
             return
         }
-
+        restorationController.hidesBottomBarWhenPushed = true
         if let navigationController = view?.controller.navigationController {
             navigationController.pushViewController(restorationController, animated: true)
         }

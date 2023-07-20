@@ -105,7 +105,7 @@ final class SheetAlertViewLayout: UIView {
                     make.leading.trailing.equalToSuperview()
                 }
             @unknown default:
-                fatalError()
+                preconditionFailure()
             }
         }
     }

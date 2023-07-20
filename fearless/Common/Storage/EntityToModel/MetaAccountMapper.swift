@@ -71,7 +71,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainIdForFilter: entity.chainIdForFilter,
             assetsVisibility: assetsVisibility ?? [],
             zeroBalanceAssetsHidden: entity.zeroBalanceAssetsHidden,
-            isBackuped: entity.isBackuped
+            hasBackup: entity.hasBackup
         )
     }
 
@@ -94,7 +94,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.assetFilterOptions = assetFilterOptions
         entity.chainIdForFilter = model.chainIdForFilter
         entity.zeroBalanceAssetsHidden = model.zeroBalanceAssetsHidden
-        entity.isBackuped = model.isBackuped
+        entity.hasBackup = model.hasBackup
 
         for assetVisibility in model.assetsVisibility {
             var assetVisibilityEntity = entity.assetsVisibility?.first { entity in

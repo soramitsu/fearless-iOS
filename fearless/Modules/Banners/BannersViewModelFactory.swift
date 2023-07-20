@@ -22,7 +22,7 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
         locale: Locale
     ) -> BannersViewModel {
         var banners: [Banners] = []
-        if !wallet.isBackuped {
+        if !wallet.hasBackup {
             banners.insert(.backup, at: 0)
         }
         let bannersViewModel: [BannerCellViewModel] = banners.map {

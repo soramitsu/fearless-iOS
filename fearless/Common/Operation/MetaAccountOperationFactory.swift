@@ -248,7 +248,7 @@ private extension MetaAccountOperationFactory {
             chainIdForFilter: nil,
             assetsVisibility: [],
             zeroBalanceAssetsHidden: false,
-            isBackuped: isBackuped
+            hasBackup: isBackuped
         )
     }
 }
@@ -423,7 +423,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 chainIdForFilter: nil,
                 assetsVisibility: [],
                 zeroBalanceAssetsHidden: false,
-                isBackuped: true
+                hasBackup: true
             )
         }
     }

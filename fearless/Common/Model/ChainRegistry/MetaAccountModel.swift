@@ -21,7 +21,7 @@ struct MetaAccountModel: Equatable, Codable {
     let chainIdForFilter: ChainModel.Id?
     let assetsVisibility: [AssetVisibility]
     let zeroBalanceAssetsHidden: Bool
-    let isBackuped: Bool
+    let hasBackup: Bool
 }
 
 extension MetaAccountModel {
@@ -59,7 +59,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -81,7 +81,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -103,7 +103,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -125,7 +125,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -147,7 +147,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -169,7 +169,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -191,7 +191,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -213,7 +213,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -235,7 +235,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainId,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -257,7 +257,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: newAssetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -279,7 +279,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: newZeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: hasBackup
         )
     }
 
@@ -301,7 +301,7 @@ extension MetaAccountModel {
             chainIdForFilter: chainIdForFilter,
             assetsVisibility: assetsVisibility,
             zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            isBackuped: isBackuped
+            hasBackup: isBackuped
         )
     }
 }

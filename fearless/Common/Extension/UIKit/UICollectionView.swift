@@ -1,11 +1,3 @@
-//
-//  UICollectionView+Reuse.swift
-//  fearless
-//
-//  Created by Soramitsu on 14.07.2023.
-//  Copyright © 2023 Soramitsu. All rights reserved.
-//
-
 import Foundation
 import UIKit
 
