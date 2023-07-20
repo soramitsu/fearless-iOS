@@ -25,7 +25,7 @@ final class WalletOptionRouter: WalletOptionRouterInput {
         from view: ControllerBackedProtocol?,
         for wallet: MetaAccountModel
     ) {
-        guard let controller = BackupWalletNameAssembly.configureModule(with: wallet)?.view.controller else {
+        guard let controller = WalletNameAssembly.configureModule(with: wallet)?.view.controller else {
             return
         }
         view?.controller.present(controller, animated: true)

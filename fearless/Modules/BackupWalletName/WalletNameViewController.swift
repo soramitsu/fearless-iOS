@@ -2,18 +2,18 @@ import UIKit
 import SoraFoundation
 import SoraUI
 
-protocol BackupWalletNameViewOutput: AnyObject {
-    func didLoad(view: BackupWalletNameViewInput)
+protocol WalletNameViewOutput: AnyObject {
+    func didLoad(view: WalletNameViewInput)
     func didBackButtonTapped()
     func didContinueButtonTapped()
 }
 
-final class BackupWalletNameViewController: UIViewController, ViewHolder {
-    typealias RootViewType = BackupWalletNameViewLayout
+final class WalletNameViewController: UIViewController, ViewHolder {
+    typealias RootViewType = WalletNameViewLayout
 
     // MARK: Private properties
 
-    private let output: BackupWalletNameViewOutput
+    private let output: WalletNameViewOutput
 
     private let mode: WalletNameScreenMode
     private var nameInputViewModel: InputViewModelProtocol?
@@ -22,7 +22,7 @@ final class BackupWalletNameViewController: UIViewController, ViewHolder {
 
     init(
         mode: WalletNameScreenMode,
-        output: BackupWalletNameViewOutput,
+        output: WalletNameViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
@@ -39,7 +39,7 @@ final class BackupWalletNameViewController: UIViewController, ViewHolder {
     // MARK: - Life cycle
 
     override func loadView() {
-        view = BackupWalletNameViewLayout(mode: mode)
+        view = WalletNameViewLayout(mode: mode)
     }
 
     override func viewDidLoad() {
@@ -81,7 +81,7 @@ final class BackupWalletNameViewController: UIViewController, ViewHolder {
 
 // MARK: - BackupWalletNameViewInput
 
-extension BackupWalletNameViewController: BackupWalletNameViewInput {
+extension WalletNameViewController: WalletNameViewInput {
     func setInputViewModel(_ viewModel: InputViewModelProtocol) {
         nameInputViewModel = viewModel
         rootView.nameTextField.animatedInputField.text = viewModel.inputHandler.value
@@ -90,7 +90,7 @@ extension BackupWalletNameViewController: BackupWalletNameViewInput {
 
 // MARK: - Localizable
 
-extension BackupWalletNameViewController: Localizable {
+extension WalletNameViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
     }
@@ -98,7 +98,7 @@ extension BackupWalletNameViewController: Localizable {
 
 // MARK: - AnimatedTextFieldDelegate
 
-extension BackupWalletNameViewController: AnimatedTextFieldDelegate {
+extension WalletNameViewController: AnimatedTextFieldDelegate {
     func animatedTextFieldShouldReturn(_ textField: SoraUI.AnimatedTextField) -> Bool {
         textField.resignFirstResponder()
         rootView.nameTextField.backgroundView.set(highlighted: false, animated: false)

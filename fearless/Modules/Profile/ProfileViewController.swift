@@ -91,7 +91,6 @@ final class ProfileViewController: UIViewController, ViewHolder {
 
     private func prepareProfileDetailsCell(
         _ tableView: UITableView,
-        indexPath _: IndexPath,
         with viewModel: WalletsManagmentCellViewModel
     ) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCellWithType(WalletsManagmentTableCell.self) {
@@ -180,7 +179,7 @@ extension ProfileViewController: UITableViewDataSource {
             case 0:
                 return prepareProfileSectionCell(tableView, indexPath: indexPath)
             case 1:
-                return prepareProfileDetailsCell(tableView, indexPath: indexPath, with: viewModel.profileUserViewModel)
+                return prepareProfileDetailsCell(tableView, with: viewModel.profileUserViewModel)
             default:
                 let optionViewModel = viewModel.profileOptionViewModel[indexPath.row - 2]
                 return prepareProfileCell(tableView, indexPath: indexPath, with: optionViewModel)

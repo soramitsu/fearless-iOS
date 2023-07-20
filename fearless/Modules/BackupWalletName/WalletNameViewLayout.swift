@@ -1,6 +1,6 @@
 import UIKit
 
-final class BackupWalletNameViewLayout: UIView {
+final class WalletNameViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let view = BaseNavigationBar()
         view.backgroundColor = R.color.colorBlack19()

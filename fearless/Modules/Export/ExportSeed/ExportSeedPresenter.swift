@@ -56,7 +56,7 @@ final class ExportSeedPresenter {
         guard valueForBackup.or([]).isEmpty else {
             return
         }
-        interactor.seedDidBackuped(wallet: flow.wallet)
+        interactor.didBackupSeed(wallet: flow.wallet)
     }
 }
 

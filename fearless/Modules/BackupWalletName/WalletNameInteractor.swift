@@ -1,14 +1,14 @@
 import UIKit
 import RobinHood
 
-protocol BackupWalletNameInteractorOutput: AnyObject {
+protocol WalletNameInteractorOutput: AnyObject {
     func didReceiveSaveOperation(result: Result<MetaAccountModel, Error>)
 }
 
-final class BackupWalletNameInteractor {
+final class WalletNameInteractor {
     // MARK: - Private properties
 
-    private weak var output: BackupWalletNameInteractorOutput?
+    private weak var output: WalletNameInteractorOutput?
 
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
@@ -27,7 +27,7 @@ final class BackupWalletNameInteractor {
 
 // MARK: - BackupWalletNameInteractorInput
 
-extension BackupWalletNameInteractor: BackupWalletNameInteractorInput {
+extension WalletNameInteractor: WalletNameInteractorInput {
     func save(wallet: MetaAccountModel) {
         let saveOperation = repository.saveOperation {
             [wallet]
@@ -53,7 +53,7 @@ extension BackupWalletNameInteractor: BackupWalletNameInteractorInput {
         operationManager.enqueue(operations: [saveOperation], in: .transient)
     }
 
-    func setup(with output: BackupWalletNameInteractorOutput) {
+    func setup(with output: WalletNameInteractorOutput) {
         self.output = output
     }
 }

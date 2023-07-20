@@ -1,26 +1,26 @@
 import UIKit
 import SoraFoundation
 
-final class BackupWalletNameAssembly {
-    static func configureModule(with wallet: MetaAccountModel?) -> BackupWalletNameModuleCreationResult? {
+final class WalletNameAssembly {
+    static func configureModule(with wallet: MetaAccountModel?) -> WalletNameModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = BackupWalletNameInteractor(
+        let interactor = WalletNameInteractor(
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared,
             repository: AccountRepositoryFactory.createRepository()
         )
-        let router = BackupWalletNameRouter()
+        let router = WalletNameRouter()
 
         let mode = WalletNameScreenMode(wallet: wallet)
-        let presenter = BackupWalletNamePresenter(
+        let presenter = WalletNamePresenter(
             mode: mode,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager
         )
 
-        let view = BackupWalletNameViewController(
+        let view = WalletNameViewController(
             mode: mode,
             output: presenter,
             localizationManager: localizationManager

@@ -14,7 +14,7 @@ final class BackupSelectWalletRouter: BackupSelectWalletRouterInput {
     }
 
     func showWalletNameScreen(from view: ControllerBackedProtocol?) {
-        guard let module = BackupWalletNameAssembly.configureModule(with: nil) else {
+        guard let module = WalletNameAssembly.configureModule(with: nil) else {
             return
         }
 

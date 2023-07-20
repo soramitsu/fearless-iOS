@@ -32,7 +32,7 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
             let navigationController = view?.controller.navigationController,
             navigationController.viewControllers.count == 1,
             navigationController.presentedViewController == nil {
-            showAccountRestore(defaultSource: .mnemonic, from: view)
+            showAccountRestore(defaultSource: .keystore, from: view)
         }
     }
 
@@ -49,7 +49,7 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     }
 
     func showCreateFlow(from view: ControllerBackedProtocol?) {
-        guard let controller = BackupWalletNameAssembly.configureModule(with: nil)?.view.controller else {
+        guard let controller = WalletNameAssembly.configureModule(with: nil)?.view.controller else {
             return
         }
         let navigation = FearlessNavigationController(rootViewController: controller)

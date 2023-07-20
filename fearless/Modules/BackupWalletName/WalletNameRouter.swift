@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-final class BackupWalletNameRouter: BackupWalletNameRouterInput {
+final class WalletNameRouter: WalletNameRouterInput {
     func showWarningsScreen(
         walletName: String,
         from view: ControllerBackedProtocol?

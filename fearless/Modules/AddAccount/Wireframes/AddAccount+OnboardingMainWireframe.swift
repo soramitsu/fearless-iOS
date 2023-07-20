@@ -49,7 +49,7 @@ extension AddAccount {
         }
 
         func showCreateFlow(from view: ControllerBackedProtocol?) {
-            guard let controller = BackupWalletNameAssembly.configureModule(with: nil)?.view.controller else {
+            guard let controller = WalletNameAssembly.configureModule(with: nil)?.view.controller else {
                 return
             }
             view?.controller.navigationController?.pushViewController(controller, animated: true)

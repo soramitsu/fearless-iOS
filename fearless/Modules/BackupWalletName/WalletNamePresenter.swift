@@ -1,12 +1,12 @@
 import Foundation
 import SoraFoundation
 
-protocol BackupWalletNameViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
+protocol WalletNameViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func setInputViewModel(_ viewModel: InputViewModelProtocol)
 }
 
-protocol BackupWalletNameInteractorInput: AnyObject {
-    func setup(with output: BackupWalletNameInteractorOutput)
+protocol WalletNameInteractorInput: AnyObject {
+    func setup(with output: WalletNameInteractorOutput)
     func save(wallet: MetaAccountModel)
 }
 
@@ -23,12 +23,12 @@ enum WalletNameScreenMode {
     }
 }
 
-final class BackupWalletNamePresenter {
+final class WalletNamePresenter {
     // MARK: Private properties
 
-    private weak var view: BackupWalletNameViewInput?
-    private let router: BackupWalletNameRouterInput
-    private let interactor: BackupWalletNameInteractorInput
+    private weak var view: WalletNameViewInput?
+    private let router: WalletNameRouterInput
+    private let interactor: WalletNameInteractorInput
 
     private var mode: WalletNameScreenMode
 
@@ -40,8 +40,8 @@ final class BackupWalletNamePresenter {
 
     init(
         mode: WalletNameScreenMode,
-        interactor: BackupWalletNameInteractorInput,
-        router: BackupWalletNameRouterInput,
+        interactor: WalletNameInteractorInput,
+        router: WalletNameRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.mode = mode
@@ -55,7 +55,7 @@ final class BackupWalletNamePresenter {
 
 // MARK: - BackupWalletNameViewOutput
 
-extension BackupWalletNamePresenter: BackupWalletNameViewOutput {
+extension WalletNamePresenter: WalletNameViewOutput {
     func didBackButtonTapped() {
         router.dismiss(view: view)
     }
@@ -72,7 +72,7 @@ extension BackupWalletNamePresenter: BackupWalletNameViewOutput {
         }
     }
 
-    func didLoad(view: BackupWalletNameViewInput) {
+    func didLoad(view: WalletNameViewInput) {
         self.view = view
         interactor.setup(with: self)
         switch mode {
@@ -87,7 +87,7 @@ extension BackupWalletNamePresenter: BackupWalletNameViewOutput {
 
 // MARK: - BackupWalletNameInteractorOutput
 
-extension BackupWalletNamePresenter: BackupWalletNameInteractorOutput {
+extension WalletNamePresenter: WalletNameInteractorOutput {
     func didReceiveSaveOperation(result: Result<MetaAccountModel, Error>) {
         view?.didStopLoading()
         switch result {
@@ -101,8 +101,8 @@ extension BackupWalletNamePresenter: BackupWalletNameInteractorOutput {
 
 // MARK: - Localizable
 
-extension BackupWalletNamePresenter: Localizable {
+extension WalletNamePresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension BackupWalletNamePresenter: BackupWalletNameModuleInput {}
+extension WalletNamePresenter: WalletNameModuleInput {}

@@ -35,7 +35,7 @@ final class ExportSeedInteractor {
 }
 
 extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
-    func seedDidBackuped(wallet: MetaAccountModel) {
+    func didBackupSeed(wallet: MetaAccountModel) {
         let backupedWallet = wallet.replacingIsBackuped(true)
 
         let saveOperation = accountRepository.saveOperation {
