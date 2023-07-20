@@ -44,7 +44,9 @@ final class BackupSelectWalletPresenter {
         }
         let filtredAccounts = accounts.filter { !backupedAddresses.or([]).contains($0.address) }
         let names = filtredAccounts.map { $0.name ?? $0.address }
-        view?.didReceive(viewModels: names)
+        DispatchQueue.main.async {
+            self.view?.didReceive(viewModels: names)
+        }
     }
 }
 
@@ -112,7 +114,9 @@ extension BackupSelectWalletPresenter: BackupSelectWalletInteractorOutput {
             provideViewModels()
         case let .failure(failure):
             let error = ConvenienceError(error: failure.localizedDescription)
-            router.present(error: error, from: view, locale: selectedLocale)
+            DispatchQueue.main.async {
+                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
+            }
         }
     }
 }
