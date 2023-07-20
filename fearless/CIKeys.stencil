@@ -29,11 +29,11 @@ enum XOneCIKeys {
 }
 
 enum GoogleBackup {
-    static var googleToken: String = "{{ argument.WEB_CLIENT_ID_RELEASE }}"
-    static var googleUrlScheme: String = "{{ argument.FEARLESS_GOOGLE_URL_SCHEME_RELEASE }}"
+    static var googleToken: String = "{{ argument.webClientId }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeRelease }}"
 }
 
 enum GoogleBackupDebug {
-    static var googleToken: String = "{{ argument.WEB_CLIENT_ID_DEBUG }}"
-    static var googleUrlScheme: String = "{{ argument.FEARLESS_GOOGLE_URL_SCHEME_DEBUG }}"
+    static var googleToken: String = "{{ argument.webClientIdDebug }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeDebug }}"
 }
