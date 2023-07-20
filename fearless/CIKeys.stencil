@@ -29,7 +29,7 @@ enum XOneCIKeys {
 }
 
 enum GoogleBackup {
-    static var googleToken: String = "{{ argument.webClientId }}"
+    static var googleToken: String = "{{ argument.webClientIdRelease }}"
     static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeRelease }}"
 }
 
