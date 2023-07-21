@@ -62,8 +62,11 @@ final class BackupWalletInteractor {
             switch fetchOperation.result {
             case let .success(chains):
                 self?.output?.didReceive(chains: chains)
-            default:
-                break
+            case let .failure(error):
+                self?.output?.didReceive(error: error)
+            case .none:
+                let error = BaseOperationError.parentOperationCancelled
+                self?.output?.didReceive(error: error)
             }
         }
 

@@ -149,6 +149,7 @@ final class BackupCreatePasswordViewLayout: UIView {
 
     private func createPasswordTextField() -> CommonInputView {
         let inputView = CommonInputView()
+        inputView.defaultSetup()
         inputView.backgroundView.fillColor = R.color.colorSemiBlack()!
         inputView.backgroundView.highlightedFillColor = R.color.colorSemiBlack()!
         inputView.backgroundView.strokeColor = R.color.colorWhite8()!
@@ -156,7 +157,6 @@ final class BackupCreatePasswordViewLayout: UIView {
         inputView.backgroundView.strokeWidth = 0.5
         inputView.backgroundView.shadowOpacity = 0
         inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
-        inputView.defaultSetup()
         inputView.animatedInputField.textField.isSecureTextEntry = true
         inputView.animatedInputField.textField.returnKeyType = .done
         return inputView

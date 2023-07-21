@@ -40,7 +40,7 @@ final class BackupWalletImportedPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        let importMoreButtomIsHidden = backupAccounts.filter { $0.current == false }.count == 0
+        let importMoreButtomIsHidden = backupAccounts.filter { $0.current == false }.isEmpty
         guard let current = backupAccounts.first(where: { $0.current })?.account else {
             return
         }

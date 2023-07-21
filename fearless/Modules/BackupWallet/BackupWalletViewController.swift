@@ -99,7 +99,6 @@ final class BackupWalletViewController: UIViewController, ViewHolder {
 
     private func prepareProfileDetailsCell(
         _ tableView: UITableView,
-        indexPath _: IndexPath,
         with viewModel: WalletsManagmentCellViewModel?
     ) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCellWithType(WalletsManagmentTableCell.self),
@@ -179,7 +178,6 @@ extension BackupWalletViewController: UITableViewDataSource {
         case (0, 0):
             return prepareProfileDetailsCell(
                 tableView,
-                indexPath: indexPath,
                 with: viewModel?.profileUserViewModel
             )
         default:
