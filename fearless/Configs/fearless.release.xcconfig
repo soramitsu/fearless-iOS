@@ -4,5 +4,5 @@ OTHER_SWIFT_FLAGS = $(inherited) "-DF_RELEASE"
 
 APP_NAME = Fearless
 
-GOOGLE_URL_SCHEME = $(GoogleBackup.googleUrlScheme)
-GOOGLE_TOKEN = $(GoogleBackup.googleToken)
+GOOGLE_TOKEN = 
+GOOGLE_URL_SCHEME = 
