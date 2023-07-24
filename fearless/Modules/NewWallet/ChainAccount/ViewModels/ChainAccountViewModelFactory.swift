@@ -31,7 +31,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         let polkaswapButtonVisible = chainAsset.chain.options?.contains(.polkaswap) == true
 
         var xcmButtomVisible: Bool = false
-        if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.lowercased() }) {
+        if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.symbol.lowercased() }) {
             let symbol = chainAsset.asset.symbol.lowercased()
             xcmButtomVisible = availableAssets.contains(symbol)
             if availableAssets.contains(symbol) {
