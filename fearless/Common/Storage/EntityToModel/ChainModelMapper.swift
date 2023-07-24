@@ -260,15 +260,15 @@ final class ChainModelMapper {
         }
 
         let version = XcmCallFactoryVersion(rawValue: versionRaw)
-        let assetsEntities = entity.xcmConfig?.availableAssets?.allObjects as? [CDXcmAvailableAsset] ?? []
-        let assets: [XcmAvailableAsset] = assetsEntities.compactMap { entity in
+        let availableXcmAssets = entity.xcmConfig?.availableAssets?.allObjects as? [CDXcmAvailableAsset] ?? []
+        let assets: [XcmAvailableAsset] = availableXcmAssets.compactMap { entity in
             guard let id = entity.id, let symbol = entity.symbol else {
                 return nil
             }
             return XcmAvailableAsset(id: id, symbol: symbol)
         }
-        let destinationEntities = entity.xcmConfig?.availableDestinations?.allObjects as? [CDXcmAvailableDestination] ?? []
-        let destinations: [XcmAvailableDestination] = destinationEntities.compactMap {
+        let availableXcmAssetDestinations = entity.xcmConfig?.availableDestinations?.allObjects as? [CDXcmAvailableDestination] ?? []
+        let destinations: [XcmAvailableDestination] = availableXcmAssetDestinations.compactMap {
             guard let chainId = $0.chainId else {
                 return nil
             }
