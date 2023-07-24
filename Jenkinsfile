@@ -1,4 +1,4 @@
-@Library('jenkins-library@feature/fearless_vars') _
+@Library('jenkins-library') _
 
 // Job properties
 def jobParams = [
