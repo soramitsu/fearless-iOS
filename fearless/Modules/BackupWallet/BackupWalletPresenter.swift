@@ -102,7 +102,7 @@ final class BackupWalletPresenter {
     private func startGoogleBackup(for accounts: [ChainAccountInfo]) {
         guard
             let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }),
-            let ethereum = accounts.first(where: { $0.chain.chainBaseType == .ethereum })
+            let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
         else {
             return
         }

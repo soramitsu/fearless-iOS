@@ -125,7 +125,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         password: String
     ) {
         let substrateRestoreSeed = seeds.first(where: { $0.chain.chainBaseType == .substrate })
-        let ethereumRestoreSeed = seeds.first(where: { $0.chain.chainBaseType == .ethereum })
+        let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
         let seed = OpenBackupAccount.Seed(
             substrateSeed: substrateRestoreSeed?.seed.toUTF8String(),
@@ -151,7 +151,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         password: String
     ) {
         let substrateRestoreJson = jsons.first(where: { $0.chain.chainBaseType == .substrate })
-        let ethereumRestoreJson = jsons.first(where: { $0.chain.chainBaseType == .ethereum })
+        let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
         let json = OpenBackupAccount.Json(
             substrateJson: substrateRestoreJson?.data.asSecretData(),
@@ -180,7 +180,8 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             passphrase: request.mnemonic.toString(),
             cryptoType: request.cryptoType.stringValue,
             substrateDerivationPath: request.substrateDerivationPath,
-            ethDerivationPath: request.ethereumDerivationPath
+            ethDerivationPath: request.ethereumDerivationPath,
+            backupAccountTypes: [.passphrase]
         )
         saveBackupAccountToCloudStorage(account: account, password: password, wallet: wallet)
     }
