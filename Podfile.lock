@@ -143,7 +143,7 @@ PODS:
     - SSFNetwork
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFCloudStorage (0.1.0):
+  - SSFCloudStorage (0.1.3):
     - GoogleAPIClientForREST/Drive (~> 1.2.1)
     - GoogleSignIn (~> 7.0.0)
     - IrohaCrypto/Scrypt
@@ -370,7 +370,7 @@ SPEC CHECKSUMS:
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SSFChainConnection: a232b35cc083e9e9e79ff6ed228812cddd11ace6
   SSFChainRegistry: bb26ac38e4c43aeaf29f1a959603aa5fd6889d7e
-  SSFCloudStorage: 165a033d4656b25bf67e3d61b472423666ab6b03
+  SSFCloudStorage: 1fc1b7ccc68ebbda44e9c0d6446caac08d8a9280
   SSFCrypto: 1d82ecd49dc44d47e155bdecd7b873348f5bdd16
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
