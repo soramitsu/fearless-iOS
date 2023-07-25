@@ -137,9 +137,9 @@ final class BackupPasswordViewLayout: UIView {
             .backupPasswordTitle(preferredLanguages: locale.rLanguages)
         navigationBar.setTitle(title)
         descriptionLabel.text = R.string.localizable
-            .backupCreatePasswordDescription(preferredLanguages: locale.rLanguages)
+            .backupPasswordDescription(preferredLanguages: locale.rLanguages)
         passwordTextField.title = R.string.localizable
-            .backupCreatePasswordConfirmFieldTitle(preferredLanguages: locale.rLanguages)
+            .backupPasswordPasswordFieldTitle(preferredLanguages: locale.rLanguages)
         continueButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
     }
