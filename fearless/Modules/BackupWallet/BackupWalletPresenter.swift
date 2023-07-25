@@ -35,6 +35,7 @@ final class BackupWalletPresenter {
     private var chains: [ChainModel] = []
     private var exportOptions: [ExportOption] = []
     private var backupAccounts: [OpenBackupAccount]?
+    private var googleAuthorized = false
 
     // MARK: - Constructors
 
@@ -60,7 +61,7 @@ final class BackupWalletPresenter {
             locale: selectedLocale,
             balance: balanceInfo,
             exportOptions: exportOptions,
-            backupAccounts: backupAccounts ?? []
+            backupAccounts: backupAccounts
         )
         DispatchQueue.main.async {
             self.view?.didReceive(viewModel: viewModel)
@@ -151,6 +152,9 @@ final class BackupWalletPresenter {
 
 extension BackupWalletPresenter: BackupWalletViewOutput {
     func viewDidAppear() {
+        guard !googleAuthorized else {
+            return
+        }
         view?.didStartLoading()
         interactor.viewDidAppear()
     }
@@ -194,8 +198,10 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
     func didReceiveBackupAccounts(result: Result<[SSFCloudStorage.OpenBackupAccount], Error>) {
         switch result {
         case let .success(accounts):
+            googleAuthorized = true
             backupAccounts = accounts
         case let .failure(failure):
+            googleAuthorized = false
             backupAccounts = []
             logger.error(failure.localizedDescription)
             let error = ConvenienceError(error: failure.localizedDescription)
@@ -243,7 +249,8 @@ extension BackupWalletPresenter: Localizable {
 
 extension BackupWalletPresenter: BackupCreatePasswordModuleOutput {
     func backupDidComplete() {
-        view?.didStopLoading()
+        view?.didStartLoading()
+        interactor.viewDidAppear()
     }
 }
 

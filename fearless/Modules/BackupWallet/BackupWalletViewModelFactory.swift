@@ -8,7 +8,7 @@ protocol BackupWalletViewModelFactoryProtocol {
         locale: Locale,
         balance: WalletBalanceInfo?,
         exportOptions: [ExportOption],
-        backupAccounts: [OpenBackupAccount]
+        backupAccounts: [OpenBackupAccount]?
     ) -> ProfileViewModelProtocol
 }
 
@@ -39,7 +39,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         locale: Locale,
         balance: WalletBalanceInfo?,
         exportOptions: [ExportOption],
-        backupAccounts: [OpenBackupAccount]
+        backupAccounts: [OpenBackupAccount]?
     ) -> ProfileViewModelProtocol {
         let profileUserViewModel = createUserViewModel(
             from: wallet,
@@ -65,13 +65,13 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
     private func createOptionViewModels(
         wallet: MetaAccountModel,
         exportOptions: [ExportOption],
-        backupAccounts: [OpenBackupAccount],
+        backupAccounts: [OpenBackupAccount]?,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
         var backupOptions: [BackupWalletOptions] = exportOptions.map { BackupWalletOptions(exportOptions: $0) }
-        if backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
+        if backupAccounts?.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) == true {
             backupOptions.append(.removeGoogle)
-        } else if !backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
+        } else if let backupAccounts = backupAccounts, !backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
             backupOptions.append(.backupGoogle)
         }
 
