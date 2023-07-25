@@ -73,7 +73,7 @@ final class BackupWalletRouter: BackupWalletRouterInput {
 
     func showCreatePassword(
         wallet: MetaAccountModel,
-        request: MetaAccountImportMnemonicRequest,
+        request: BackupCreatePasswordFlow.RequestType,
         from view: ControllerBackedProtocol?,
         moduleOutput: BackupCreatePasswordModuleOutput?
     ) {

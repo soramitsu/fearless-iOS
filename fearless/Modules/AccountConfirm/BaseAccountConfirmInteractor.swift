@@ -13,13 +13,13 @@ class BaseAccountConfirmInteractor {
     let operationManager: OperationManagerProtocol
 
     init(
-        flow: AccountConfirmFlow,
+        flow: AccountConfirmFlow?,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
         self.flow = flow
-        shuffledWords = flow.mnemonic.allWords().shuffled()
+        shuffledWords = flow?.mnemonic.allWords().shuffled() ?? []
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager

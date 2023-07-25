@@ -35,7 +35,8 @@ final class BackupWalletAssembly {
             availableExportOptionsProvider: AvailableExportOptionsProvider(),
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationManager: OperationManagerFacade.sharedManager,
-            keystore: Keychain()
+            keystore: Keychain(),
+            exportJsonWrapper: KeystoreExportWrapper(keystore: Keychain())
         )
         let router = BackupWalletRouter()
 

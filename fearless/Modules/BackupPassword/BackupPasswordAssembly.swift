@@ -37,7 +37,8 @@ final class BackupPasswordAssembly {
             backupAccounts: backupAccounts,
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            logger: Logger.shared
         )
 
         let view = BackupPasswordViewController(

@@ -9,7 +9,11 @@ protocol BackupWalletViewInput: ControllerBackedProtocol, HiddableBarWhenPushed,
 
 protocol BackupWalletInteractorInput: AnyObject {
     func setup(with output: BackupWalletInteractorOutput)
-    func backup(substrate: ChainAccountInfo, ethereum: ChainAccountInfo)
+    func backup(
+        substrate: ChainAccountInfo,
+        ethereum: ChainAccountInfo,
+        option: ExportOption
+    )
     func removeBackupFromGoogle()
     func viewDidAppear()
 }
@@ -102,7 +106,14 @@ final class BackupWalletPresenter {
         else {
             return
         }
-        interactor.backup(substrate: substrate, ethereum: ethereum)
+
+        if exportOptions.contains(.mnemonic) {
+            interactor.backup(substrate: substrate, ethereum: ethereum, option: .mnemonic)
+        } else if exportOptions.contains(.keystore) {
+            interactor.backup(substrate: substrate, ethereum: ethereum, option: .keystore)
+        } else if exportOptions.contains(.seed) {
+            interactor.backup(substrate: substrate, ethereum: ethereum, option: .seed)
+        }
     }
 
     private func removeBackupFromGoogle() {
@@ -192,8 +203,8 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
         provideViewModel()
     }
 
-    func didReceive(mnemonicRequest: MetaAccountImportMnemonicRequest) {
-        router.showCreatePassword(wallet: wallet, request: mnemonicRequest, from: view, moduleOutput: self)
+    func didReceive(request: BackupCreatePasswordFlow.RequestType) {
+        router.showCreatePassword(wallet: wallet, request: request, from: view, moduleOutput: self)
     }
 
     func didReceive(error: Error) {
