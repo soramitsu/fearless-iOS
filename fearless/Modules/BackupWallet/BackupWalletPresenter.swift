@@ -198,6 +198,8 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
         case let .failure(failure):
             backupAccounts = []
             logger.error(failure.localizedDescription)
+            let error = ConvenienceError(error: failure.localizedDescription)
+            router.present(error: error, from: view, locale: selectedLocale)
         }
         view?.didStopLoading()
         provideViewModel()
@@ -241,7 +243,7 @@ extension BackupWalletPresenter: Localizable {
 
 extension BackupWalletPresenter: BackupCreatePasswordModuleOutput {
     func backupDidComplete() {
-        print()
+        view?.didStopLoading()
     }
 }
 
