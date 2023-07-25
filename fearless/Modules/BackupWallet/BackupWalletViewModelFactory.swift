@@ -69,9 +69,9 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
         var backupOptions: [BackupWalletOptions] = exportOptions.map { BackupWalletOptions(exportOptions: $0) }
-        if exportOptions.contains(.mnemonic), backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
+        if backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
             backupOptions.append(.removeGoogle)
-        } else if exportOptions.contains(.mnemonic), backupAccounts.isNotEmpty, !backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
+        } else if !backupAccounts.contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
             backupOptions.append(.backupGoogle)
         }
 

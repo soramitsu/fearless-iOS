@@ -57,8 +57,7 @@ final class BackupPasswordPresenter {
             guard
                 let backupAccountTypes = backup.backupAccountTypes,
                 let backupCryptoType = backup.cryptoType,
-                let rawValue = UInt8(backupCryptoType),
-                let cryptoType = CryptoType(rawValue: rawValue),
+                let cryptoType = CryptoType(rawValue: backupCryptoType),
                 let name = backup.name
             else {
                 throw ConvenienceError(error: "Missing backup types or crypto type")
