@@ -1031,3 +1031,4 @@
 "banners.view.factory.xor.title" = "Buy XOR token";
 "banners.view.factory.xor.subtitle" = "Buy or sell XOR token with Euro cash";
 "banners.view.factory.xor.action.title" = "Buy XOR";
+"import.wallets.not.found" = "No import wallets were found :(";

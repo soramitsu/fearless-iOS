@@ -38,47 +38,23 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
     }
 
     func activateTerms() {
-//        if let view = view {
-//            wireframe.showWeb(
-//                url: legalData.termsUrl,
-//                from: view,
-//                style: .modal
-//            )
-//        }
-        let googleToken = GoogleBackupDebug.googleToken
-        let googleUrlScheme = GoogleBackupDebug.googleUrlScheme
-
-        let message = "Token: \(googleToken), URL scheme: \(googleUrlScheme)"
-        wireframe.present(
-            message: message,
-            title: "google CI keys",
-            closeAction: nil,
-            from: view,
-            actions: []
-        )
+        if let view = view {
+            wireframe.showWeb(
+                url: legalData.termsUrl,
+                from: view,
+                style: .modal
+            )
+        }
     }
 
     func activatePrivacy() {
-//        if let view = view {
-//            wireframe.showWeb(
-//                url: legalData.privacyPolicyUrl,
-//                from: view,
-//                style: .modal
-//            )
-//        }
-        let bundleUrlsTypes = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]]
-        let firstUrl = bundleUrlsTypes?[0]["CFBundleURLSchemes"] ?? "first empty"
-        let secondUrl = bundleUrlsTypes?[1]["CFBundleURLSchemes"] ?? "second empty"
-        let clientId = (Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String) ?? "empty"
-
-        let message = "clientId: \(clientId), URL scheme1: \(firstUrl), URL scheme2: \(secondUrl)"
-        wireframe.present(
-            message: message,
-            title: "google CI keys",
-            closeAction: nil,
-            from: view,
-            actions: []
-        )
+        if let view = view {
+            wireframe.showWeb(
+                url: legalData.privacyPolicyUrl,
+                from: view,
+                style: .modal
+            )
+        }
     }
 
     func activateSignup() {

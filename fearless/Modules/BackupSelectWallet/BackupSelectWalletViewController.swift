@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 protocol BackupSelectWalletViewOutput: AnyObject {
     func didLoad(view: BackupSelectWalletViewInput)
@@ -76,6 +77,7 @@ extension BackupSelectWalletViewController: BackupSelectWalletViewInput {
     func didReceive(viewModels: [String]) {
         self.viewModels = viewModels
         rootView.tableView.reloadData()
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -115,5 +117,39 @@ extension BackupSelectWalletViewController: UITableViewDelegate {
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         output.didTap(on: indexPath)
+    }
+}
+
+// MARK: - EmptyStateViewOwnerProtocol
+
+extension BackupSelectWalletViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+// MARK: - EmptyStateDataSource
+
+extension BackupSelectWalletViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarning()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable.importWalletsNotFound(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .bigFilledShadow
+        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView.container
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension BackupSelectWalletViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        viewModels.isEmpty
     }
 }

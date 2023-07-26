@@ -19,7 +19,7 @@ final class ChainAssetListViewLayout: UIView {
 
     var keyboardAdoptableConstraint: Constraint?
 
-    var bannersView: UIView?
+    weak var bannersView: UIView?
 
     var headerViewContainer: UIStackView = {
         UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)

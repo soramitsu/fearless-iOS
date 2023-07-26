@@ -9,16 +9,7 @@ final class BackupSelectWalletAssembly {
     ) -> BackupSelectWalletModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let managedMetaAccountRepository = accountRepositoryFactory.createManagedMetaAccountRepository(
-            for: nil,
-            sortDescriptors: []
-        )
-
-        let interactor = BackupSelectWalletInteractor(
-            walletRepository: AnyDataProviderRepository(managedMetaAccountRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
+        let interactor = BackupSelectWalletInteractor()
         let router = BackupSelectWalletRouter()
 
         let presenter = BackupSelectWalletPresenter(

@@ -19,7 +19,6 @@ final class BackupSelectWalletPresenter {
     private let interactor: BackupSelectWalletInteractorInput
 
     private var accounts: [OpenBackupAccount]?
-    private var backupedAddresses: [String]?
 
     // MARK: - Constructors
 
@@ -42,8 +41,7 @@ final class BackupSelectWalletPresenter {
             interactor.fetchBackupAccounts()
             return
         }
-        let filtredAccounts = accounts.filter { !backupedAddresses.or([]).contains($0.address) }
-        let names = filtredAccounts.map { $0.name ?? $0.address }
+        let names = accounts.map { $0.name ?? $0.address }
         DispatchQueue.main.async {
             self.view?.didReceive(viewModels: names)
         }
@@ -96,16 +94,6 @@ extension BackupSelectWalletPresenter: BackupSelectWalletViewOutput {
 // MARK: - BackupSelectWalletInteractorOutput
 
 extension BackupSelectWalletPresenter: BackupSelectWalletInteractorOutput {
-    func didReceiveWallets(result: Result<[ManagedMetaAccountModel], Error>) {
-        switch result {
-        case let .success(wallets):
-            backupedAddresses = wallets.map { $0.info.substrateAccountId.toHex() }
-            provideViewModels()
-        case .failure:
-            break
-        }
-    }
-
     func didReceiveBackupAccounts(result: Result<[SSFCloudStorage.OpenBackupAccount], Error>) {
         view?.didStopLoading()
         switch result {

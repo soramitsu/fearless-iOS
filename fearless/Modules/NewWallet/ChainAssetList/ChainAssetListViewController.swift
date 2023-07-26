@@ -25,7 +25,7 @@ final class ChainAssetListViewController:
 
     private let output: ChainAssetListViewOutput
 
-    private let bannersViewController: UIViewController?
+    private weak var bannersViewController: UIViewController?
 
     private var viewModel: ChainAssetListViewModel?
     private var hiddenSectionState: HiddenSectionState = .expanded

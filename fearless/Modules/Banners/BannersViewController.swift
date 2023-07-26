@@ -50,7 +50,7 @@ final class BannersViewController: UIViewController, ViewHolder {
 
 extension BannersViewController: BannersViewInput {
     func didReceive(viewModel: BannersViewModel) {
-        dataSource = CollectionViewDataSource(data: viewModel.banners, cellClass: BannerCollectionViewCell.self) { model, cell in
+        dataSource = CollectionViewDataSource(data: viewModel.banners, cellClass: BannerCollectionViewCell.self) { [weak self] model, cell in
             cell.bind(viewModel: model)
             cell.delegate = self
         }

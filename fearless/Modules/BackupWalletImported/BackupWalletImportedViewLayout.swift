@@ -3,6 +3,7 @@ import UIKit
 final class BackupWalletImportedViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let view = BaseNavigationBar()
+        view.backButton.isHidden = true
         view.backgroundColor = R.color.colorBlack19()
         return view
     }()

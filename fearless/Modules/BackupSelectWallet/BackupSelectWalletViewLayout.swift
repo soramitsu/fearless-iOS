@@ -7,6 +7,8 @@ final class BackupSelectWalletViewLayout: UIView {
         return view
     }()
 
+    let container = UIView()
+
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = R.color.colorBlack19()
@@ -50,15 +52,20 @@ final class BackupSelectWalletViewLayout: UIView {
             make.leading.top.trailing.equalToSuperview()
         }
 
-        addSubview(tableView)
-        tableView.snp.makeConstraints { make in
+        addSubview(container)
+        container.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
             make.leading.trailing.equalToSuperview()
         }
 
+        container.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
         addSubview(createButton)
         createButton.snp.makeConstraints { make in
-            make.top.equalTo(tableView.snp.bottom).offset(UIConstants.bigOffset)
+            make.top.equalTo(container.snp.bottom).offset(UIConstants.bigOffset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
