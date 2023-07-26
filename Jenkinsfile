@@ -10,5 +10,11 @@ def appPipline = new org.ios.AppPipeline(
     appTests: false,
     appPushNoti: true,
     jobParams: jobParams,
-    label: 'macos-ios-1-2')
+    label: 'macos-ios-1-2',
+    sonar: true,
+    sonarProjectName: 'fearless-ios',
+    sonarProjectKey: 'fearless:fearless-ios',
+    sonarTestsDirs: './fearlessTests,./fearlessIntegrationTests',
+    dojoProductType: 'fearless'
+)
 appPipline.runPipeline('fearless')
