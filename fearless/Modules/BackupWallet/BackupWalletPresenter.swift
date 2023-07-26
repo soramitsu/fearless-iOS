@@ -79,7 +79,7 @@ final class BackupWalletPresenter {
         case .json:
             router.showKeystoreExport(flow: flow, from: view)
         case .backupGoogle, .removeGoogle:
-            if backupAccounts.or([]).contains(where: { $0.address == wallet.substrateAccountId.toHex() }) {
+            if backupAccounts.or([]).contains(where: { $0.address == wallet.substratePublicKey.toHex() }) {
                 removeBackupFromGoogle()
             } else {
                 startGoogleBackup(for: accounts)
@@ -187,7 +187,7 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
         view?.didStopLoading()
         switch result {
         case .success:
-            backupAccounts?.removeAll(where: { $0.address == wallet.substrateAccountId.toHex() })
+            backupAccounts?.removeAll(where: { $0.address == wallet.substratePublicKey.toHex() })
             provideViewModel()
         case let .failure(failure):
             let error = ConvenienceError(error: failure.localizedDescription)

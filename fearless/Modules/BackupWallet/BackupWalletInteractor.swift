@@ -211,7 +211,7 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
     }
 
     func removeBackupFromGoogle() {
-        let account = OpenBackupAccount(address: wallet.substrateAccountId.toHex())
+        let account = OpenBackupAccount(address: wallet.substratePublicKey.toHex())
         cloudStorage?.deleteBackupAccount(account: account, completion: { [weak self] result in
             self?.output?.didReceiveRemove(result: result)
         })

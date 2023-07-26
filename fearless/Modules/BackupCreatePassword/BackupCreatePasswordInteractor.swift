@@ -86,7 +86,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
                     name: request.username,
                     address: wallet.substratePublicKey.toHex(),
                     passphrase: request.mnemonic.toString(),
-                    cryptoType: String(request.cryptoType.rawValue),
+                    cryptoType: request.cryptoType.stringValue,
                     substrateDerivationPath: request.substrateDerivationPath,
                     ethDerivationPath: request.ethereumDerivationPath
                 )
