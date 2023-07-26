@@ -25,6 +25,8 @@ final class HistoryOperationFactoriesAssembly {
             return SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
         case .alchemy:
             return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
+        case .etherscan:
+            return EtherscanHistoryOperationFactory()
         case .none:
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         }

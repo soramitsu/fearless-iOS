@@ -24,6 +24,8 @@ final class SendInteractor: RuntimeConstantFetching {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
 
+    private var subscriptionId: UInt16?
+
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -148,20 +150,28 @@ extension SendInteractor: SendInteractorInput {
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
         Task {
-            let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
+            do {
+                let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
 
-            let transfer = Transfer(
-                chainAsset: chainAsset,
-                amount: amount,
-                receiver: address,
-                tip: tip
-            )
+                let transfer = Transfer(
+                    chainAsset: chainAsset,
+                    amount: amount,
+                    receiver: address,
+                    tip: tip
+                )
 
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
-            let fee = try await dependencies.transferService.estimateFee(for: transfer)
+                let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+                let fee = try await dependencies.transferService.estimateFee(for: transfer)
 
-            await MainActor.run {
-                output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+                await MainActor.run(body: {
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+                })
+
+                dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
+            } catch {
+                await MainActor.run(body: {
+                    output?.didReceiveFee(result: .failure(error))
+                })
             }
         }
     }
@@ -232,5 +242,17 @@ extension SendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHan
 extension SendInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Swift.Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         output?.didReceiveFee(result: result)
+    }
+}
+
+extension SendInteractor: TransferFeeEstimationListener {
+    func didReceiveFee(fee: BigUInt) {
+        DispatchQueue.main.async { [weak self] in
+            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+        }
+    }
+
+    func didReceiveFeeError(feeError: Error) {
+        output?.didReceiveFee(result: .failure(feeError))
     }
 }

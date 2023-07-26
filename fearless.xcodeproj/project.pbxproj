@@ -1876,9 +1876,6 @@
 		FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */; };
 		FA072C23277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */; };
 		FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */; };
-		FA08B35B2A31930300D9D126 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA08B35A2A31930300D9D126 /* Web3 */; };
-		FA08B35D2A31930300D9D126 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA08B35C2A31930300D9D126 /* Web3ContractABI */; };
-		FA08B35F2A31930300D9D126 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA08B35E2A31930300D9D126 /* Web3PromiseKit */; };
 		FA08B3652A31A09E00D9D126 /* BigUInt+StringInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */; };
 		FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1109EA27A92D56003C2158 /* ChainAction.swift */; };
 		FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */; };
@@ -2340,6 +2337,14 @@
 		FA99C934283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C933283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift */; };
 		FA99C936283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C935283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift */; };
 		FA99C938283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C937283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift */; };
+		FA9A8EF92A67E0B6008FA99F /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8EF82A67E0B6008FA99F /* Web3 */; };
+		FA9A8EFB2A67E0B6008FA99F /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8EFA2A67E0B6008FA99F /* Web3ContractABI */; };
+		FA9A8EFD2A67E0B6008FA99F /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8EFC2A67E0B6008FA99F /* Web3PromiseKit */; };
+		FA9A8F002A692890008FA99F /* EthereumBalanceSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8EFF2A692890008FA99F /* EthereumBalanceSubscription.swift */; };
+		FA9A8F022A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */; };
+		FA9A8F052A6FADBD008FA99F /* EtherscanHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F042A6FADBD008FA99F /* EtherscanHistoryResponse.swift */; };
+		FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F062A6FADFB008FA99F /* EtherscanHistoryElement.swift */; };
+		FA9A8F092A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */; };
 		FAA0131028DA1277000A5230 /* StakingBondMoreViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0130F28DA1277000A5230 /* StakingBondMoreViewLayout.swift */; };
 		FAA0131328DA1291000A5230 /* StakingPoolManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0131228DA1291000A5230 /* StakingPoolManagementTests.swift */; };
 		FAA0132E28DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0131628DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift */; };
@@ -4552,6 +4557,9 @@
 		FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+StringInitializable.swift"; sourceTree = "<group>"; };
 		FA0B7C9F68A6BF3D3A6D8234 /* StakingPoolInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoInteractor.swift; sourceTree = "<group>"; };
 		FA1109EA27A92D56003C2158 /* ChainAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAction.swift; sourceTree = "<group>"; };
+		FA145C512A67DF3000362DE5 /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
+		FA145C522A67DFDF00362DE5 /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
+		FA145C532A67E00500362DE5 /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
 		FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalSubscriptionFactory.swift; sourceTree = "<group>"; };
 		FA15BC0E2823AE4D0037C023 /* ParachainStakingCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingCandidate.swift; sourceTree = "<group>"; };
@@ -5037,6 +5045,13 @@
 		FA99C933283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift; sourceTree = "<group>"; };
 		FA99C935283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingViewModelState.swift; sourceTree = "<group>"; };
 		FA99C937283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingStrategy.swift; sourceTree = "<group>"; };
+		FA9A8EEF2A67E06E008FA99F /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
+		FA9A8EFE2A67E145008FA99F /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
+		FA9A8EFF2A692890008FA99F /* EthereumBalanceSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumBalanceSubscription.swift; sourceTree = "<group>"; };
+		FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryOperationFactory.swift; sourceTree = "<group>"; };
+		FA9A8F042A6FADBD008FA99F /* EtherscanHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryResponse.swift; sourceTree = "<group>"; };
+		FA9A8F062A6FADFB008FA99F /* EtherscanHistoryElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryElement.swift; sourceTree = "<group>"; };
+		FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+EtherscanHistory.swift"; sourceTree = "<group>"; };
 		FAA0130F28DA1277000A5230 /* StakingBondMoreViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingBondMoreViewLayout.swift; sourceTree = "<group>"; };
 		FAA0131228DA1291000A5230 /* StakingPoolManagementTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingPoolManagementTests.swift; sourceTree = "<group>"; };
 		FAA0131628DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingPoolNetworkInfoViewModel.swift; sourceTree = "<group>"; };
@@ -5340,10 +5355,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA08B35D2A31930300D9D126 /* Web3ContractABI in Frameworks */,
+				FA9A8EFB2A67E0B6008FA99F /* Web3ContractABI in Frameworks */,
 				E24B8FD5EE2A75EC6C3DD49D /* Pods_fearlessAll_fearless.framework in Frameworks */,
-				FA08B35F2A31930300D9D126 /* Web3PromiseKit in Frameworks */,
-				FA08B35B2A31930300D9D126 /* Web3 in Frameworks */,
+				FA9A8EFD2A67E0B6008FA99F /* Web3PromiseKit in Frameworks */,
+				FA9A8EF92A67E0B6008FA99F /* Web3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7848,6 +7863,7 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
+				FA145C502A67DF2F00362DE5 /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -8670,6 +8686,7 @@
 				84FAB0682542EBDE00319F74 /* SearchData+Contacts.swift */,
 				8475AE38258B958300B058F3 /* ErrorContent+Wallet.swift */,
 				FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */,
+				FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -11245,6 +11262,26 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		FA145C4B2A66878100362DE5 /* Ethereum */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A8EFF2A692890008FA99F /* EthereumBalanceSubscription.swift */,
+			);
+			path = Ethereum;
+			sourceTree = "<group>";
+		};
+		FA145C502A67DF2F00362DE5 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				FA145C512A67DF3000362DE5 /* Web3.swift */,
+				FA145C522A67DFDF00362DE5 /* Web3.swift */,
+				FA145C532A67E00500362DE5 /* Web3.swift */,
+				FA9A8EEF2A67E06E008FA99F /* Web3.swift */,
+				FA9A8EFE2A67E145008FA99F /* Web3.swift */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
 		FA176BB62851B41900258125 /* Parachain */ = {
 			isa = PBXGroup;
 			children = (
@@ -11790,6 +11827,7 @@
 		FA38C9A227606FDD005C5577 /* ApplicationLayer */ = {
 			isa = PBXGroup;
 			children = (
+				FA145C4B2A66878100362DE5 /* Ethereum */,
 				FA7336EC2A0E3D570096A291 /* Alchemy */,
 				FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */,
 				FA2FC82C28B3816D00CC0A42 /* StorageKeyDataExtractor.swift */,
@@ -11916,6 +11954,7 @@
 				FA5137B629AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift */,
 				FA5137B729AC76EB00560EBA /* HistoryOperationFactory.swift */,
 				FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */,
+				FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -12500,6 +12539,15 @@
 				FA99C937283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift */,
 			);
 			path = RelaychainExisting;
+			sourceTree = "<group>";
+		};
+		FA9A8F032A6FAB69008FA99F /* Etherscan */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A8F042A6FADBD008FA99F /* EtherscanHistoryResponse.swift */,
+				FA9A8F062A6FADFB008FA99F /* EtherscanHistoryElement.swift */,
+			);
+			path = Etherscan;
 			sourceTree = "<group>";
 		};
 		FAA0131128DA1291000A5230 /* StakingPoolManagement */ = {
@@ -13188,6 +13236,7 @@
 		FAFFAE4129AC84B10074AF1F /* BlockExplorer */ = {
 			isa = PBXGroup;
 			children = (
+				FA9A8F032A6FAB69008FA99F /* Etherscan */,
 				FAFFAE4229AC84B10074AF1F /* RewardOrSlashData.swift */,
 				FAFFAE4329AC84B10074AF1F /* Subquery */,
 				FAFFAE6429AC84B10074AF1F /* RewardOrSlash.swift */,
@@ -13343,9 +13392,9 @@
 			);
 			name = fearless;
 			packageProductDependencies = (
-				FA08B35A2A31930300D9D126 /* Web3 */,
-				FA08B35C2A31930300D9D126 /* Web3ContractABI */,
-				FA08B35E2A31930300D9D126 /* Web3PromiseKit */,
+				FA9A8EF82A67E0B6008FA99F /* Web3 */,
+				FA9A8EFA2A67E0B6008FA99F /* Web3ContractABI */,
+				FA9A8EFC2A67E0B6008FA99F /* Web3PromiseKit */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -13408,7 +13457,7 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FA08B3592A31930300D9D126 /* XCRemoteSwiftPackageReference "Web3.swift" */,
+				FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -13772,6 +13821,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */,
+				FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */,
 				FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */,
 				8434C9E625403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift in Sources */,
 				FA5137B229AC6F2F00560EBA /* PolkaswapDisclaimerPresenter.swift in Sources */,
@@ -14618,6 +14668,7 @@
 				F43A8A95265B9CF400A8A5A8 /* CustomValidatorCell.swift in Sources */,
 				84FB1F672526920B00E0242B /* SubscanTransferData.swift in Sources */,
 				FA5137AE29AC6F2F00560EBA /* PolkaswapDisclaimerAssembly.swift in Sources */,
+				FA9A8F052A6FADBD008FA99F /* EtherscanHistoryResponse.swift in Sources */,
 				8406B5AB26FBD9EB00635B61 /* AccountInfoUpdatingService.swift in Sources */,
 				FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */,
 				FA86442A276743BB00956D8E /* WalletTransactionHistoryDataState.swift in Sources */,
@@ -15045,6 +15096,7 @@
 				84CFF1E626526FBC00DB7CF7 /* StakingBondMoreInteractor.swift in Sources */,
 				FAA0134028DA12B6000A5230 /* StakingPoolManagementAssembly.swift in Sources */,
 				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
+				FA9A8F002A692890008FA99F /* EthereumBalanceSubscription.swift in Sources */,
 				FAADC1BA2926597400DA9903 /* ScanQRPresenter.swift in Sources */,
 				FACD42A02A5BE811009975AA /* SingleToMultiassetMigrationPolicy.swift in Sources */,
 				84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */,
@@ -15112,6 +15164,7 @@
 				FA2FC85928B389EB00CC0A42 /* StakingChainSelectionViewController.swift in Sources */,
 				FA99C92D283B4AB5007B1F83 /* SelectValidatorsConfirmRelaychainInitiatedViewModelFactory.swift in Sources */,
 				4448B591D4A193DBC9E2E3BF /* AccountCreateInteractor.swift in Sources */,
+				FA9A8F092A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift in Sources */,
 				FA93A3062834FBF60021330F /* ValidatorSearchFlow.swift in Sources */,
 				84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */,
 				84E6D57C262E2CE8000EA3F5 /* OperationCombiningService.swift in Sources */,
@@ -15586,6 +15639,7 @@
 				F20C8D17ABF18B7104E14394 /* StakingAmountInteractor.swift in Sources */,
 				EF02C9661F03C8EF58182997 /* StakingAmountViewController.swift in Sources */,
 				D8581E5440A19D977E17BFDE /* StakingAmountViewFactory.swift in Sources */,
+				FA9A8F022A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift in Sources */,
 				C6CA307F286190630087776D /* DelegationStateView.swift in Sources */,
 				F40966C626B297D6008CD244 /* AnalyticsRewardsInteractor.swift in Sources */,
 				3250F2C0E12ED42A355853BE /* SelectValidatorsStartProtocols.swift in Sources */,
@@ -16829,7 +16883,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FA08B3592A31930300D9D126 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+		FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
@@ -16840,19 +16894,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FA08B35A2A31930300D9D126 /* Web3 */ = {
+		FA9A8EF82A67E0B6008FA99F /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA08B3592A31930300D9D126 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
-		FA08B35C2A31930300D9D126 /* Web3ContractABI */ = {
+		FA9A8EFA2A67E0B6008FA99F /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA08B3592A31930300D9D126 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
-		FA08B35E2A31930300D9D126 /* Web3PromiseKit */ = {
+		FA9A8EFC2A67E0B6008FA99F /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA08B3592A31930300D9D126 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
 		};
 /* End XCSwiftPackageProductDependency section */

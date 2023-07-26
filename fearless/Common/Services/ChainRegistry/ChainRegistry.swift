@@ -86,6 +86,10 @@ final class ChainRegistry {
                 do {
                     switch change {
                     case let .insert(newChain):
+                        if newChain.isEthereum {
+                            return
+                        }
+
                         let connection = try strongSelf.connectionPool.setupConnection(for: newChain)
                         let chainTypes = strongSelf.chainsTypesMap[newChain.chainId]
 
@@ -95,6 +99,10 @@ final class ChainRegistry {
 
                         strongSelf.chains.append(newChain)
                     case let .update(updatedChain):
+                        if updatedChain.isEthereum {
+                            return
+                        }
+
                         strongSelf.clearRuntimeSubscription(for: updatedChain.chainId)
 
                         let connection = try strongSelf.connectionPool.setupConnection(for: updatedChain)

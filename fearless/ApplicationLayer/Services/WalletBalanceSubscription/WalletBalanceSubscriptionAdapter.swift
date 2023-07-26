@@ -70,6 +70,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private var deliverQueue: DispatchQueue?
     private weak var delegate: WalletBalanceSubscriptionHandler?
 
+    private lazy var ethBalanceSubscriptions: [String: EthereumBalanceSubscription] = [:]
     private lazy var accountInfosAdapters: [String: AccountInfoSubscriptionAdapter] = [:]
     private lazy var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private lazy var chainAssets: [ChainAssetId: ChainAsset] = [:]
@@ -265,6 +266,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             )
             accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
             accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
+
+//            if ethBalanceSubscriptions[wallet.identifier] == nil {
+//                let ethereumBalanceSubscription = EthereumBalanceSubscription(wallet: wallet, accountInfoFetching: EthereumAccountInfoFetching(operationQueue: OperationQueue()))
+//                ethBalanceSubscriptions[wallet.identifier] = ethereumBalanceSubscription
+//                ethereumBalanceSubscription.handler = self
+//                ethereumBalanceSubscription.subscribe(chainAssets: chainAssets.filter { $0.chain.isEthereum })
+//            }
         }
     }
 

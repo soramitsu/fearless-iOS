@@ -91,7 +91,7 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
     private func fetchETHBalance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
         try await withCheckedThrowingContinuation { continuation in
             do {
-                let eth = try chainAsset.eth()
+                let eth = try chainAsset.chain.rpcEth()
                 let ethereumAddress = try EthereumAddress(hex: address, eip55: false)
                 eth.getBalance(address: ethereumAddress, block: .latest) { resp in
                     if let balance = resp.result {
@@ -110,26 +110,21 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
     }
 
     private func fetchERC20Balance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
-        let eth = try chainAsset.eth()
+        let eth = try chainAsset.chain.rpcEth()
         let contractAddress = try EthereumAddress(hex: chainAsset.asset.id, eip55: false)
         let contract = eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
-
+        let ethAddress = try EthereumAddress(rawAddress: address.hexToBytes())
         return try await withCheckedThrowingContinuation { continuation in
-            do {
-                try contract.balanceOf(address: EthereumAddress(hex: address, eip55: false)).call(completion: { response, error in
-
-                    if let response = response, let balance = response["_balance"] as? BigUInt {
-                        let accountInfo = AccountInfo(ethBalance: balance)
-                        return continuation.resume(with: .success(accountInfo))
-                    } else if let error = error {
-                        return continuation.resume(with: .failure(error))
-                    } else {
-                        return continuation.resume(with: .success(nil))
-                    }
-                })
-            } catch {
-                return continuation.resume(with: .failure(error))
-            }
+            contract.balanceOf(address: ethAddress).call(completion: { response, error in
+                if let response = response, let balance = response["_balance"] as? BigUInt {
+                    let accountInfo = AccountInfo(ethBalance: balance)
+                    return continuation.resume(with: .success(accountInfo))
+                } else if let error = error {
+                    return continuation.resume(with: .failure(error))
+                } else {
+                    return continuation.resume(with: .success(nil))
+                }
+            })
         }
     }
 }

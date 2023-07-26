@@ -39,9 +39,9 @@ final class SendDepencyContainer {
             throw ChainAccountFetchingError.accountNotExists
         }
 
-        if let dependencies = cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] {
-            return dependencies
-        }
+//        if let dependencies = cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] {
+//            return dependencies
+//        }
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let runtimeService = chainRegistry.getRuntimeProvider(
@@ -76,7 +76,7 @@ final class SendDepencyContainer {
             accountInfoFetching: accountInfoFetching
         )
 
-//        cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies
+        cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies
 
         return dependencies
     }
@@ -108,13 +108,9 @@ final class SendDepencyContainer {
             throw ChainAccountFetchingError.accountNotExists
         }
         let keystore = Keychain()
+
         switch chainAsset.chain.chainBaseType {
         case .substrate:
-            let operationManager = OperationManagerFacade.sharedManager
-            let tag: String = KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountResponse.accountId)
-
-            let secretKey = try keystore.fetchKey(for: tag)
-
             let chainSyncService = SSFChainRegistry.ChainSyncService(
                 chainsUrl: ApplicationConfig.shared.chainListURL!,
                 operationQueue: OperationQueue(),
@@ -137,11 +133,16 @@ final class SendDepencyContainer {
                 runtimeSyncService: runtimeSyncService
             )
             let connection = try chainRegistry.getConnection(for: chainAsset.chain)
+
+            let accId = !accountResponse.isChainAccount ? nil : accountResponse.accountId
+            let tag: String = KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accId)
+
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,
                 usedRuntimePaths: [:],
                 runtimeItem: nil
             )
+            let operationManager = OperationManagerFacade.sharedManager
 
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
                 accountId: accountResponse.accountId,
@@ -151,7 +152,7 @@ final class SendDepencyContainer {
                 engine: connection,
                 operationManager: operationManager
             )
-
+            let secretKey = try keystore.fetchKey(for: tag)
             let signer = TransactionSigner(publicKeyData: accountResponse.publicKey, secretKeyData: secretKey, cryptoType: SFCryptoType(accountResponse.cryptoType.utilsType))
             let callFactory = SubstrateCallFactoryAssembly.createCallFactory(forSSF: runtimeService.runtimeSpecVersion)
             return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
@@ -161,17 +162,16 @@ final class SendDepencyContainer {
 
             let secretKey = try keystore.fetchKey(for: tag)
 
-            guard let rpcURL = chainAsset.chain.nodes.randomElement()?.url.absoluteString else {
-                throw ConvenienceError(error: "Cannot fetch node from chain")
-            }
-
-            let web3 = Web3(rpcURL: rpcURL)
-
             guard let address = accountResponse.toAddress() else {
                 throw ConvenienceError(error: "Cannot fetch address from chain account")
             }
 
-            return EthereumTransferService(eth: try chainAsset.eth(), privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes), senderAddress: address)
+            return EthereumTransferService(
+                eth: try chainAsset.chain.rpcEth(),
+                ws: try chainAsset.chain.wsEth(),
+                privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
+                senderAddress: address
+            )
         }
     }
 

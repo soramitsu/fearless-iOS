@@ -4955,12 +4955,12 @@
     },
     {
         "disabled": false,
-        "chainId": "0x1",
+        "chainId": "1",
         "name": "Ethereum",
         "externalApi": {
             "history": {
-                "type": "alchemy",
-                "url": "https://eth-mainnet.g.alchemy.com/v2/hkF1wbbTz0G2lKoqb4R09OwkcVl6uGqp"
+                "type": "etherscan",
+                "url": "https://api.etherscan.io/api"
             },
             "explorers": [{
                 "type": "etherscan",
@@ -5019,6 +5019,10 @@
             {
                 "url": "https://ethereum.publicnode.com",
                 "name": "ethereum publicnode"
+            },
+            {
+                "url": "wss://mainnet.infura.io/ws/v3/550f1aa1e8a147f8b43184507686569b",
+                "name": "Infura.io ws"
             }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
@@ -5082,6 +5086,10 @@
             {
                 "url": "https://eth-sepolia-public.unifra.io",
                 "name": "unifra"
+            },
+            {
+                "url" : "wss://sepolia.infura.io/ws/v3/550f1aa1e8a147f8b43184507686569b",
+                "name": "infura.io wss"
             }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
