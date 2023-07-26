@@ -84,7 +84,7 @@ private extension AccountCreateViewController {
 
         mnemonicView.indexFontInColumn = .p0Digits
         mnemonicView.wordFontInColumn = .p0Paragraph
-        mnemonicView.backgroundColor = R.color.colorBlack()
+        mnemonicView.backgroundColor = R.color.colorBlack19()
 
         rootView.contentView.stackView.insertArrangedSubview(mnemonicView, at: 1)
 

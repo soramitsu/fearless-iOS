@@ -60,7 +60,7 @@ extension BackupWalletImportedPresenter: BackupWalletImportedViewOutput {
     }
 
     func didContinueButtonTapped() {
-        router.showSetupPin(from: view)
+        router.showSetupPin()
     }
 
     func didImportMoreButtonTapped() {

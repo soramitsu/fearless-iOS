@@ -44,8 +44,8 @@ final class AccountCreateViewLayout: UIView {
     let backupButton: TriangularedButton = {
         let button = TriangularedButton()
         button.triangularedView?.shadowOpacity = 0
-        button.triangularedView?.fillColor = R.color.colorBlack()!
-        button.triangularedView?.highlightedFillColor = R.color.colorBlack()!
+        button.triangularedView?.fillColor = R.color.colorBlack19()!
+        button.triangularedView?.highlightedFillColor = R.color.colorBlack19()!
         button.triangularedView?.strokeColor = R.color.colorWhite50()!
         button.triangularedView?.highlightedStrokeColor = R.color.colorWhite50()!
         button.triangularedView?.strokeWidth = 1
@@ -142,7 +142,7 @@ final class AccountCreateViewLayout: UIView {
 
     private let expandableControlContainerView: BorderedContainerView = {
         let view = UIFactory().createBorderedContainerView()
-        view.backgroundColor = R.color.colorBlack()
+        view.backgroundColor = R.color.colorBlack19()
         view.borderType = .bottom
         view.strokeWidth = 1.0
         view.strokeColor = R.color.colorGray()!
@@ -151,7 +151,7 @@ final class AccountCreateViewLayout: UIView {
 
     private let expandableControl: ExpandableActionControl = {
         let view = UIFactory().createExpandableActionControl()
-        view.backgroundColor = .black
+        view.backgroundColor = R.color.colorBlack19()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -168,7 +168,7 @@ final class AccountCreateViewLayout: UIView {
 
     private let detailsLabelView: UIView = {
         let view = UIView()
-        view.backgroundColor = R.color.colorBlack()!
+        view.backgroundColor = R.color.colorBlack19()!
         return view
     }()
 
@@ -221,7 +221,7 @@ final class AccountCreateViewLayout: UIView {
         setupLayout()
         configure()
 
-        backgroundColor = .black
+        backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)
@@ -254,7 +254,7 @@ extension AccountCreateViewLayout {
 
 private extension AccountCreateViewLayout {
     private func configure() {
-        contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
+        contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack19() }
         advancedContainerView.isHidden = !expandableControl.isActivated
         expandableControl.addTarget(self, action: #selector(actionExpand), for: .touchUpInside)
         setupEthereumDerivationPathTextField()
@@ -399,7 +399,7 @@ private extension AccountCreateViewLayout {
                 make.height.equalTo(UIConstants.actionHeight)
             }
         case .backup:
-            advancedContainerView.isHidden = true
+            expandableControl.isHidden = true
         }
     }
 

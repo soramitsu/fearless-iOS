@@ -10,7 +10,7 @@ protocol BackupWalletImportedRouterInput: PresentDismissable {
         for accounts: [OpenBackupAccount],
         from view: ControllerBackedProtocol?
     )
-    func showSetupPin(from view: ControllerBackedProtocol?)
+    func showSetupPin()
     func backButtonDidTapped(from view: ControllerBackedProtocol?)
 }
 

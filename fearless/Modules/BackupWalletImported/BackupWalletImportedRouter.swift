@@ -2,6 +2,8 @@ import Foundation
 import SSFCloudStorage
 
 final class BackupWalletImportedRouter: BackupWalletImportedRouterInput {
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
+
     func showBackupSelectWallet(
         for accounts: [OpenBackupAccount],
         from view: ControllerBackedProtocol?
@@ -19,16 +21,11 @@ final class BackupWalletImportedRouter: BackupWalletImportedRouterInput {
         }
     }
 
-    func showSetupPin(from view: ControllerBackedProtocol?) {
+    func showSetupPin() {
         guard let controller = PinViewFactory.createPinSetupView()?.controller else {
             return
         }
-        let presenter = view?.controller.navigationController?.presentingViewController
-        view?.controller.navigationController?.dismiss(animated: true) {
-            if let presenter = presenter as? FearlessNavigationController {
-                presenter.pushViewController(controller, animated: true)
-            }
-        }
+        rootAnimator.animateTransition(to: controller)
     }
 
     func backButtonDidTapped(from view: ControllerBackedProtocol?) {
