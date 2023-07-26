@@ -39,9 +39,9 @@ final class SendDepencyContainer {
             throw ChainAccountFetchingError.accountNotExists
         }
 
-//        if let dependencies = cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] {
-//            return dependencies
-//        }
+        if let dependencies = cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] {
+            return dependencies
+        }
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let runtimeService = chainRegistry.getRuntimeProvider(

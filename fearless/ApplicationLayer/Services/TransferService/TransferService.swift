@@ -45,82 +45,81 @@ class SubstrateTransferService: TransferServiceProtocol {
         self.signer = signer
     }
 
-    func subscribeForFee(transfer _: Transfer, listener _: TransferFeeEstimationListener) {
-//        func accountId(from address: String?, chain: ChainModel) -> AccountId {
-//            guard let address = address,
-//                  let accountId = try? AddressFactory.accountId(from: address, chain: chain)
-//            else {
-//                return AddressFactory.randomAccountId(for: chain)
-//            }
-//
-//            return accountId
-//        }
-//
-//        let accountId = accountId(from: transfer.receiver, chain: transfer.chainAsset.chain)
-//        let call = callFactory.transfer(
-//            to: accountId,
-//            amount: transfer.amount,
-//            chainAsset: transfer.chainAsset
-//        )
-//        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
-//            var nextBuilder = try builder.adding(call: call)
-//            if let tip = transfer.tip {
-//                nextBuilder = builder.with(tip: tip)
-//            }
-//            return nextBuilder
-//        }
-//
-//        extrinsicService.estimateFee(extrinsicBuilderClosure, runningIn: .main) { feeResult in
-//            switch feeResult {
-//            case let .success(runtimeDispatchInfo):
-//                listener.didReceiveFee(fee: runtimeDispatchInfo.feeValue)
-//            case let .failure(error):
-//                listener.didReceiveFeeError(feeError: error)
-//            }
-//        }
+    func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
+        func accountId(from address: String?, chain: ChainModel) -> AccountId {
+            guard let address = address,
+                  let accountId = try? AddressFactory.accountId(from: address, chain: chain)
+            else {
+                return AddressFactory.randomAccountId(for: chain)
+            }
+
+            return accountId
+        }
+
+        let accountId = accountId(from: transfer.receiver, chain: transfer.chainAsset.chain)
+        let call = callFactory.transfer(
+            to: accountId,
+            amount: transfer.amount,
+            chainAsset: transfer.chainAsset
+        )
+        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
+            var nextBuilder = try builder.adding(call: call)
+            if let tip = transfer.tip {
+                nextBuilder = builder.with(tip: tip)
+            }
+            return nextBuilder
+        }
+
+        extrinsicService.estimateFee(extrinsicBuilderClosure, runningIn: .main) { feeResult in
+            switch feeResult {
+            case let .success(runtimeDispatchInfo):
+                listener.didReceiveFee(fee: runtimeDispatchInfo.feeValue)
+            case let .failure(error):
+                listener.didReceiveFeeError(feeError: error)
+            }
+        }
     }
 
-    func estimateFee(for _: Transfer) async throws -> BigUInt {
-        BigUInt.zero
-//        func accountId(from address: String?, chain: ChainModel) -> AccountId {
-//            guard let address = address,
-//                  let accountId = try? AddressFactory.accountId(from: address, chain: chain)
-//            else {
-//                return AddressFactory.randomAccountId(for: chain)
-//            }
-//
-//            return accountId
-//        }
-//
-//        let accountId = accountId(from: transfer.receiver, chain: transfer.chainAsset.chain)
-//        let call = callFactory.transfer(
-//            to: accountId,
-//            amount: transfer.amount,
-//            chainAsset: transfer.chainAsset
-//        )
-//        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
-//            var nextBuilder = try builder.adding(call: call)
-//            if let tip = transfer.tip {
-//                nextBuilder = builder.with(tip: tip)
-//            }
-//            return nextBuilder
-//        }
-//
-//        let feeResult = try await withCheckedThrowingContinuation { continuation in
-//            extrinsicService.estimateFee(
-//                extrinsicBuilderClosure,
-//                runningIn: .main
-//            ) { result in
-//                switch result {
-//                case let .success(fee):
-//                    continuation.resume(with: .success(fee.feeValue))
-//                case let .failure(error):
-//                    continuation.resume(with: .failure(error))
-//                }
-//            }
-//        }
-//
-//        return feeResult
+    func estimateFee(for transfer: Transfer) async throws -> BigUInt {
+        func accountId(from address: String?, chain: ChainModel) -> AccountId {
+            guard let address = address,
+                  let accountId = try? AddressFactory.accountId(from: address, chain: chain)
+            else {
+                return AddressFactory.randomAccountId(for: chain)
+            }
+
+            return accountId
+        }
+
+        let accountId = accountId(from: transfer.receiver, chain: transfer.chainAsset.chain)
+        let call = callFactory.transfer(
+            to: accountId,
+            amount: transfer.amount,
+            chainAsset: transfer.chainAsset
+        )
+        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
+            var nextBuilder = try builder.adding(call: call)
+            if let tip = transfer.tip {
+                nextBuilder = builder.with(tip: tip)
+            }
+            return nextBuilder
+        }
+
+        let feeResult = try await withCheckedThrowingContinuation { continuation in
+            extrinsicService.estimateFee(
+                extrinsicBuilderClosure,
+                runningIn: .main
+            ) { result in
+                switch result {
+                case let .success(fee):
+                    continuation.resume(with: .success(fee.feeValue))
+                case let .failure(error):
+                    continuation.resume(with: .failure(error))
+                }
+            }
+        }
+
+        return feeResult
     }
 
     func submit(transfer: Transfer) async throws -> String {
