@@ -12,14 +12,9 @@ final class WalletNameRouter: WalletNameRouterInput {
         view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
 
-    func complete(view: ControllerBackedProtocol?) {
-        guard let navigationController = view?.controller.navigationController else {
-            return
+    func complete() {
+        if let window = UIApplication.shared.windows.first {
+            window.rootViewController?.dismiss(animated: true)
         }
-
-        MainTransitionHelper.transitToMainTabBarController(
-            closing: navigationController,
-            animated: true
-        )
     }
 }

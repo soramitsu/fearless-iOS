@@ -92,7 +92,7 @@ extension WalletNamePresenter: WalletNameInteractorOutput {
         view?.didStopLoading()
         switch result {
         case .success:
-            router.complete(view: view)
+            router.complete()
         case let .failure(failure):
             router.present(error: failure, from: view, locale: selectedLocale)
         }

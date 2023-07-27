@@ -8,7 +8,7 @@ protocol WalletNameRouterInput: AnyDismissable, SheetAlertPresentable, ErrorPres
         walletName: String,
         from view: ControllerBackedProtocol?
     )
-    func complete(view: ControllerBackedProtocol?)
+    func complete()
 }
 
 protocol WalletNameModuleInput: AnyObject {}
