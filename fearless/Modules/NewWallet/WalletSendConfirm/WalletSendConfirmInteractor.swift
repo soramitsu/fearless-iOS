@@ -20,10 +20,6 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
-
-    private var gasPrice: EthereumQuantity?
-    private var gasCount: EthereumQuantity?
-
     let dependencyContainer: SendDepencyContainer
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?

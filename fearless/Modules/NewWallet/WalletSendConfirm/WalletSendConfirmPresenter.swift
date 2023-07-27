@@ -237,21 +237,21 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
         }
 
         DataValidationRunner(validators: [
-            //            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-//                self?.refreshFee()
-//            }),
-//            dataValidatingFactory.canPayFeeAndAmount(
-//                balanceType: balanceType,
-//                feeAndTip: (fee ?? 0) + (tip ?? 0),
-//                sendAmount: amount,
-//                locale: selectedLocale
-//            ),
-//
-//            dataValidatingFactory.exsitentialDepositIsNotViolated(
-//                parameters: edParameters,
-//                locale: selectedLocale,
-//                chainAsset: chainAsset
-//            )
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                self?.refreshFee()
+            }),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: balanceType,
+                feeAndTip: (fee ?? 0) + (tip ?? 0),
+                sendAmount: amount,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                parameters: edParameters,
+                locale: selectedLocale,
+                chainAsset: chainAsset
+            )
 
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }

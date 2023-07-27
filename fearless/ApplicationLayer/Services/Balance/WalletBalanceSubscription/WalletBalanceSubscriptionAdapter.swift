@@ -266,13 +266,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             )
             accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
             accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
-
-//            if ethBalanceSubscriptions[wallet.identifier] == nil {
-//                let ethereumBalanceSubscription = EthereumBalanceSubscription(wallet: wallet, accountInfoFetching: EthereumAccountInfoFetching(operationQueue: OperationQueue()))
-//                ethBalanceSubscriptions[wallet.identifier] = ethereumBalanceSubscription
-//                ethereumBalanceSubscription.handler = self
-//                ethereumBalanceSubscription.subscribe(chainAssets: chainAssets.filter { $0.chain.isEthereum })
-//            }
         }
     }
 

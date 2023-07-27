@@ -2199,18 +2199,8 @@
 		FA7336E62A0E3B880096A291 /* RESTNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336D82A0E3B870096A291 /* RESTNetworkClient.swift */; };
 		FA7336E92A0E3CCC0096A291 /* HTTPMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336E82A0E3CCC0096A291 /* HTTPMethod.swift */; };
 		FA7336EB2A0E3D0A0096A291 /* HTTPHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336EA2A0E3D0A0096A291 /* HTTPHeader.swift */; };
-		FA7336F22A0E3D570096A291 /* AlchemyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336ED2A0E3D570096A291 /* AlchemyService.swift */; };
-		FA7336F32A0E3D570096A291 /* AlchemyResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336EE2A0E3D570096A291 /* AlchemyResponse.swift */; };
-		FA7336F42A0E3D570096A291 /* AlchemyBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336EF2A0E3D570096A291 /* AlchemyBalance.swift */; };
-		FA7336F52A0E3D570096A291 /* AlchemyEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336F02A0E3D570096A291 /* AlchemyEndpoint.swift */; };
-		FA7336F62A0E3D570096A291 /* AlchemyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336F12A0E3D570096A291 /* AlchemyRequest.swift */; };
 		FA7336F82A0E3E1B0096A291 /* NetworkingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336F72A0E3E1B0096A291 /* NetworkingError.swift */; };
-		FA7336FB2A1214470096A291 /* AlchemyTokenMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336FA2A1214470096A291 /* AlchemyTokenMetadata.swift */; };
 		FA7336FD2A132F740096A291 /* AlchemyHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */; };
-		FA7336FF2A13302E0096A291 /* AlchemyHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336FE2A13302E0096A291 /* AlchemyHistory.swift */; };
-		FA7337032A1333F70096A291 /* AlchemyHistoryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7337022A1333F70096A291 /* AlchemyHistoryRequest.swift */; };
-		FA7337052A1335020096A291 /* AlchemyTokenCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7337042A1335020096A291 /* AlchemyTokenCategory.swift */; };
-		FA7337072A13361F0096A291 /* AlchemySortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7337062A13361F0096A291 /* AlchemySortOrder.swift */; };
 		FA7337092A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */; };
 		FA74359529C0733E0085A47E /* Array+Difference.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359429C0733E0085A47E /* Array+Difference.swift */; };
 		FA74359729C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359629C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift */; };
@@ -2345,6 +2335,16 @@
 		FA9A8F052A6FADBD008FA99F /* EtherscanHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F042A6FADBD008FA99F /* EtherscanHistoryResponse.swift */; };
 		FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F062A6FADFB008FA99F /* EtherscanHistoryElement.swift */; };
 		FA9A8F092A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */; };
+		FA9A8F192A72573C008FA99F /* AlchemyService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F0B2A72573C008FA99F /* AlchemyService.swift */; };
+		FA9A8F1A2A72573C008FA99F /* AlchemyEndpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F0C2A72573C008FA99F /* AlchemyEndpoint.swift */; };
+		FA9A8F1B2A72573C008FA99F /* AlchemyRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F0D2A72573C008FA99F /* AlchemyRequest.swift */; };
+		FA9A8F1C2A72573C008FA99F /* AlchemyResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F102A72573C008FA99F /* AlchemyResponse.swift */; };
+		FA9A8F1F2A72573C008FA99F /* AlchemyHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F132A72573C008FA99F /* AlchemyHistory.swift */; };
+		FA9A8F222A72573C008FA99F /* AlchemyHistoryRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F172A72573C008FA99F /* AlchemyHistoryRequest.swift */; };
+		FA9A8F262A72579D008FA99F /* AlchemySortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F242A72579D008FA99F /* AlchemySortOrder.swift */; };
+		FA9A8F272A72579D008FA99F /* AlchemyTokenCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F252A72579D008FA99F /* AlchemyTokenCategory.swift */; };
+		FA9A8F2B2A725B30008FA99F /* SubstrateAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */; };
+		FA9A8F2D2A725B3A008FA99F /* EthereumAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */; };
 		FAA0131028DA1277000A5230 /* StakingBondMoreViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0130F28DA1277000A5230 /* StakingBondMoreViewLayout.swift */; };
 		FAA0131328DA1291000A5230 /* StakingPoolManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0131228DA1291000A5230 /* StakingPoolManagementTests.swift */; };
 		FAA0132E28DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0131628DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift */; };
@@ -2539,7 +2539,6 @@
 		FADB9DB529D551A100303F7D /* SoraRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */; };
 		FADF526E2A00F85E00D66933 /* DisconnectOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADF526C2A00F85E00D66933 /* DisconnectOperation.swift */; };
 		FADF526F2A00F85E00D66933 /* ConnectOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADF526D2A00F85E00D66933 /* ConnectOperation.swift */; };
-		FAE358A42A14B16300D9D851 /* AlchemyEstimateGasRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE358A32A14B16300D9D851 /* AlchemyEstimateGasRequest.swift */; };
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
@@ -4886,18 +4885,8 @@
 		FA7336D82A0E3B870096A291 /* RESTNetworkClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTNetworkClient.swift; sourceTree = "<group>"; };
 		FA7336E82A0E3CCC0096A291 /* HTTPMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPMethod.swift; sourceTree = "<group>"; };
 		FA7336EA2A0E3D0A0096A291 /* HTTPHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPHeader.swift; sourceTree = "<group>"; };
-		FA7336ED2A0E3D570096A291 /* AlchemyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyService.swift; sourceTree = "<group>"; };
-		FA7336EE2A0E3D570096A291 /* AlchemyResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyResponse.swift; sourceTree = "<group>"; };
-		FA7336EF2A0E3D570096A291 /* AlchemyBalance.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyBalance.swift; sourceTree = "<group>"; };
-		FA7336F02A0E3D570096A291 /* AlchemyEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyEndpoint.swift; sourceTree = "<group>"; };
-		FA7336F12A0E3D570096A291 /* AlchemyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyRequest.swift; sourceTree = "<group>"; };
 		FA7336F72A0E3E1B0096A291 /* NetworkingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingError.swift; sourceTree = "<group>"; };
-		FA7336FA2A1214470096A291 /* AlchemyTokenMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyTokenMetadata.swift; sourceTree = "<group>"; };
 		FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyHistoryOperationFactory.swift; sourceTree = "<group>"; };
-		FA7336FE2A13302E0096A291 /* AlchemyHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyHistory.swift; sourceTree = "<group>"; };
-		FA7337022A1333F70096A291 /* AlchemyHistoryRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyHistoryRequest.swift; sourceTree = "<group>"; };
-		FA7337042A1335020096A291 /* AlchemyTokenCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyTokenCategory.swift; sourceTree = "<group>"; };
-		FA7337062A13361F0096A291 /* AlchemySortOrder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemySortOrder.swift; sourceTree = "<group>"; };
 		FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+AlchemyHistory.swift"; sourceTree = "<group>"; };
 		FA74359429C0733E0085A47E /* Array+Difference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Difference.swift"; sourceTree = "<group>"; };
 		FA74359629C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CDAccountInfo+CoreDataCodable.swift"; sourceTree = "<group>"; };
@@ -5052,6 +5041,16 @@
 		FA9A8F042A6FADBD008FA99F /* EtherscanHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryResponse.swift; sourceTree = "<group>"; };
 		FA9A8F062A6FADFB008FA99F /* EtherscanHistoryElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryElement.swift; sourceTree = "<group>"; };
 		FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+EtherscanHistory.swift"; sourceTree = "<group>"; };
+		FA9A8F0B2A72573C008FA99F /* AlchemyService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyService.swift; sourceTree = "<group>"; };
+		FA9A8F0C2A72573C008FA99F /* AlchemyEndpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyEndpoint.swift; sourceTree = "<group>"; };
+		FA9A8F0D2A72573C008FA99F /* AlchemyRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyRequest.swift; sourceTree = "<group>"; };
+		FA9A8F102A72573C008FA99F /* AlchemyResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyResponse.swift; sourceTree = "<group>"; };
+		FA9A8F132A72573C008FA99F /* AlchemyHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyHistory.swift; sourceTree = "<group>"; };
+		FA9A8F172A72573C008FA99F /* AlchemyHistoryRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyHistoryRequest.swift; sourceTree = "<group>"; };
+		FA9A8F242A72579D008FA99F /* AlchemySortOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemySortOrder.swift; sourceTree = "<group>"; };
+		FA9A8F252A72579D008FA99F /* AlchemyTokenCategory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyTokenCategory.swift; sourceTree = "<group>"; };
+		FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateAccountInfoFetching.swift; sourceTree = "<group>"; };
+		FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAccountInfoFetching.swift; sourceTree = "<group>"; };
 		FAA0130F28DA1277000A5230 /* StakingBondMoreViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingBondMoreViewLayout.swift; sourceTree = "<group>"; };
 		FAA0131228DA1291000A5230 /* StakingPoolManagementTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingPoolManagementTests.swift; sourceTree = "<group>"; };
 		FAA0131628DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingPoolNetworkInfoViewModel.swift; sourceTree = "<group>"; };
@@ -5247,7 +5246,6 @@
 		FADF526C2A00F85E00D66933 /* DisconnectOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisconnectOperation.swift; sourceTree = "<group>"; };
 		FADF526D2A00F85E00D66933 /* ConnectOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectOperation.swift; sourceTree = "<group>"; };
 		FAE152D16E6C78D297BFFC3C /* WalletSendConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmInteractor.swift; sourceTree = "<group>"; };
-		FAE358A32A14B16300D9D851 /* AlchemyEstimateGasRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyEstimateGasRequest.swift; sourceTree = "<group>"; };
 		FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewState.swift; sourceTree = "<group>"; };
 		FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModelFactory.swift; sourceTree = "<group>"; };
 		FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsFlow.swift; sourceTree = "<group>"; };
@@ -8342,7 +8340,6 @@
 				844CB57926FA706C00396E13 /* ChainAssetDisplayInfo.swift */,
 				FAD7EAD92861AE60004BD139 /* UniversalIconGenerator.swift */,
 				C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */,
-				C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */,
 				07F2B75E28AA183C00280C38 /* PrintTimer.swift */,
 				C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */,
 				C665E4EF29C35801001946D1 /* TimeFormatter.swift */,
@@ -11827,8 +11824,8 @@
 		FA38C9A227606FDD005C5577 /* ApplicationLayer */ = {
 			isa = PBXGroup;
 			children = (
+				FA9A8F0A2A72573C008FA99F /* Alchemy */,
 				FA145C4B2A66878100362DE5 /* Ethereum */,
-				FA7336EC2A0E3D570096A291 /* Alchemy */,
 				FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */,
 				FA2FC82C28B3816D00CC0A42 /* StorageKeyDataExtractor.swift */,
 				FA17B4D027E9CF21006E0735 /* FearlessApplication.swift */,
@@ -11843,15 +11840,14 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FA9A8F282A725AE9008FA99F /* Balance */,
 				FACD42C02A5C10BB009975AA /* TransferService.swift */,
 				073417AE298BA28300104F41 /* Equilibrium */,
 				0713097B28C6387B002B17D0 /* ScamService */,
-				FA99426E2805524200D771E5 /* GetBalanceProvider */,
 				FA072C17277B02D900731718 /* QRService */,
 				FA38C9A727607213005C5577 /* BaseService.swift */,
 				FA38C9A52760701F005C5577 /* SearchService.swift */,
 				FA8644322767AB2300956D8E /* HistoryService.swift */,
-				07E346D2288E614C00A8FAEC /* WalletBalanceSubscription */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -12111,48 +12107,6 @@
 				FA7336F72A0E3E1B0096A291 /* NetworkingError.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		FA7336EC2A0E3D570096A291 /* Alchemy */ = {
-			isa = PBXGroup;
-			children = (
-				FA7336F92A12142C0096A291 /* Model */,
-				FA7336ED2A0E3D570096A291 /* AlchemyService.swift */,
-				FA7336F02A0E3D570096A291 /* AlchemyEndpoint.swift */,
-				FA7336F12A0E3D570096A291 /* AlchemyRequest.swift */,
-			);
-			path = Alchemy;
-			sourceTree = "<group>";
-		};
-		FA7336F92A12142C0096A291 /* Model */ = {
-			isa = PBXGroup;
-			children = (
-				FA7337012A1333DE0096A291 /* Response */,
-				FA7337002A1333D90096A291 /* Request */,
-				FA7337042A1335020096A291 /* AlchemyTokenCategory.swift */,
-				FA7337062A13361F0096A291 /* AlchemySortOrder.swift */,
-			);
-			path = Model;
-			sourceTree = "<group>";
-		};
-		FA7337002A1333D90096A291 /* Request */ = {
-			isa = PBXGroup;
-			children = (
-				FA7337022A1333F70096A291 /* AlchemyHistoryRequest.swift */,
-				FAE358A32A14B16300D9D851 /* AlchemyEstimateGasRequest.swift */,
-			);
-			path = Request;
-			sourceTree = "<group>";
-		};
-		FA7337012A1333DE0096A291 /* Response */ = {
-			isa = PBXGroup;
-			children = (
-				FA7336EE2A0E3D570096A291 /* AlchemyResponse.swift */,
-				FA7336EF2A0E3D570096A291 /* AlchemyBalance.swift */,
-				FA7336FA2A1214470096A291 /* AlchemyTokenMetadata.swift */,
-				FA7336FE2A13302E0096A291 /* AlchemyHistory.swift */,
-			);
-			path = Response;
 			sourceTree = "<group>";
 		};
 		FA86441B2767193800956D8E /* Views */ = {
@@ -12548,6 +12502,65 @@
 				FA9A8F062A6FADFB008FA99F /* EtherscanHistoryElement.swift */,
 			);
 			path = Etherscan;
+			sourceTree = "<group>";
+		};
+		FA9A8F0A2A72573C008FA99F /* Alchemy */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A8F0B2A72573C008FA99F /* AlchemyService.swift */,
+				FA9A8F0C2A72573C008FA99F /* AlchemyEndpoint.swift */,
+				FA9A8F0D2A72573C008FA99F /* AlchemyRequest.swift */,
+				FA9A8F0E2A72573C008FA99F /* Model */,
+			);
+			path = Alchemy;
+			sourceTree = "<group>";
+		};
+		FA9A8F0E2A72573C008FA99F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A8F242A72579D008FA99F /* AlchemySortOrder.swift */,
+				FA9A8F252A72579D008FA99F /* AlchemyTokenCategory.swift */,
+				FA9A8F0F2A72573C008FA99F /* Response */,
+				FA9A8F162A72573C008FA99F /* Request */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		FA9A8F0F2A72573C008FA99F /* Response */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A8F102A72573C008FA99F /* AlchemyResponse.swift */,
+				FA9A8F132A72573C008FA99F /* AlchemyHistory.swift */,
+			);
+			path = Response;
+			sourceTree = "<group>";
+		};
+		FA9A8F162A72573C008FA99F /* Request */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A8F172A72573C008FA99F /* AlchemyHistoryRequest.swift */,
+			);
+			path = Request;
+			sourceTree = "<group>";
+		};
+		FA9A8F282A725AE9008FA99F /* Balance */ = {
+			isa = PBXGroup;
+			children = (
+				FA9A8F292A725AFC008FA99F /* AccountInfo */,
+				07E346D2288E614C00A8FAEC /* WalletBalanceSubscription */,
+				FA99426E2805524200D771E5 /* GetBalanceProvider */,
+			);
+			path = Balance;
+			sourceTree = "<group>";
+		};
+		FA9A8F292A725AFC008FA99F /* AccountInfo */ = {
+			isa = PBXGroup;
+			children = (
+				C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */,
+				FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */,
+				FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */,
+			);
+			path = AccountInfo;
 			sourceTree = "<group>";
 		};
 		FAA0131128DA1291000A5230 /* StakingPoolManagement */ = {
@@ -13865,6 +13878,7 @@
 				076D9D55294AC3E3002762E3 /* DexIdInfo.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
 				84DBEA47265E98C300FDF73C /* AmountInputResult.swift in Sources */,
+				FA9A8F192A72573C008FA99F /* AlchemyService.swift in Sources */,
 				07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */,
 				FAFFAE3C29AC84480074AF1F /* NumberedLabel.swift in Sources */,
 				FA7A4C802A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift in Sources */,
@@ -14372,6 +14386,7 @@
 				84CFF1ED26526FBC00DB7CF7 /* StakingBondMoreConfirmationWireframe.swift in Sources */,
 				847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */,
 				846A2C50252A063800731018 /* WalletSelectAccountCommandFactory.swift in Sources */,
+				FA9A8F2B2A725B30008FA99F /* SubstrateAccountInfoFetching.swift in Sources */,
 				AEF507BA262486F80098574D /* MoonpayProviderFactory.swift in Sources */,
 				FA9942722805524200D771E5 /* GetBalanceProvider.swift in Sources */,
 				84100F3826A6085C00A5054E /* YourValidatorListDescSectionView.swift in Sources */,
@@ -14415,6 +14430,7 @@
 				FA8F6386298253ED004B8CD4 /* AddConnectionError.swift in Sources */,
 				84A8FD8E265FDA76002ADB58 /* CrowdloanContributionConfirmData.swift in Sources */,
 				8428768B24AE046300D91AD8 /* AboutViewFactory.swift in Sources */,
+				FA9A8F2D2A725B3A008FA99F /* EthereumAccountInfoFetching.swift in Sources */,
 				FAFFAEA229AC84D30074AF1F /* HexColorConverter.swift in Sources */,
 				84F98D9625E3E2B10040418E /* InMemoryDataProviderRepository.swift in Sources */,
 				FA2FC82B28B3814000CC0A42 /* DetailsTriangularedViewModel.swift in Sources */,
@@ -14447,6 +14463,7 @@
 				FA2FC84128B3879900CC0A42 /* InsettedLabel.swift in Sources */,
 				FAADC1AD29261F7000DA9903 /* PoolRolesConfirmRouter.swift in Sources */,
 				F4871DF326D63E8700D27F23 /* AnalyticsRewardDetailsViewModelFactory.swift in Sources */,
+				FA9A8F1F2A72573C008FA99F /* AlchemyHistory.swift in Sources */,
 				84873B0426029B75000A83EE /* StakingEstimationViewModel.swift in Sources */,
 				AE6F7FE32685E812002BBC3E /* ValidatorListFilterViewLayout.swift in Sources */,
 				FA169FA928BCBA1F00E8D2DC /* PoolStakingAccountSubscription.swift in Sources */,
@@ -14467,7 +14484,6 @@
 				FAADC1AA29261F7000DA9903 /* PoolRolesConfirmInteractor.swift in Sources */,
 				84F4A9A42551A8F3000CF0A3 /* AccountExportPasswordError.swift in Sources */,
 				FA7336DE2A0E3B880096A291 /* RequestSigningType.swift in Sources */,
-				FA7336F52A0E3D570096A291 /* AlchemyEndpoint.swift in Sources */,
 				84CA68DB26BEA33F003B9453 /* ChainRegistryFactory.swift in Sources */,
 				AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */,
 				8463A72D25E3A8E1003B8160 /* ChainStorageDecodedItem.swift in Sources */,
@@ -14530,7 +14546,6 @@
 				FA38C9C32761E77A005C5577 /* AccountViewModelFactory.swift in Sources */,
 				8494D8632524753400614D8F /* WalletCopyCommand.swift in Sources */,
 				84F51060263AE530005D15AE /* TitleValueView.swift in Sources */,
-				FA7336FB2A1214470096A291 /* AlchemyTokenMetadata.swift in Sources */,
 				FACD427B2A5BE7C6009975AA /* RuntimeSnapshotReady.swift in Sources */,
 				84DB4E5C25EA71C100A6DF41 /* StringScaleMapper.swift in Sources */,
 				843C49D824DD98CC00B71DDA /* DerivationPathConstants.swift in Sources */,
@@ -14656,7 +14671,6 @@
 				C68130DF275FD0A0007B573A /* ReceiveAssetPresenter.swift in Sources */,
 				84786E1525FA57B90089DFF7 /* StakingLedger.swift in Sources */,
 				8497FC6026317783002FEAA7 /* AccountInfoViewModel.swift in Sources */,
-				FA7336F32A0E3D570096A291 /* AlchemyResponse.swift in Sources */,
 				FAC0BBDD291D0EB000E6F106 /* SelectAssetViewModelFactory.swift in Sources */,
 				84B677D626AED45500863DC6 /* SharedList.swift in Sources */,
 				FA37AE252859A996001DCA96 /* StakingBondMoreParachainViewModelState.swift in Sources */,
@@ -14701,6 +14715,7 @@
 				84FAB07425436D6300319F74 /* ContactsConstants.swift in Sources */,
 				FA8122E329CC374B00F43560 /* AssetVisibility.swift in Sources */,
 				FA99426C28053CFA00D771E5 /* WalletDetailsFlow.swift in Sources */,
+				FA9A8F262A72579D008FA99F /* AlchemySortOrder.swift in Sources */,
 				FAFFAEAC29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift in Sources */,
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
 				FAA013B328DA1355000A5230 /* StakingPoolRewards.swift in Sources */,
@@ -14820,7 +14835,6 @@
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */,
 				C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */,
 				FA2E9BBD27A293DA0023FAD2 /* FilterSet.swift in Sources */,
-				FA7336F22A0E3D570096A291 /* AlchemyService.swift in Sources */,
 				849ECD3926DF792800F542A3 /* SkeletonRow+View.swift in Sources */,
 				AE1000F426679946004753B7 /* InitiatedBondingRecommendationWireframe.swift in Sources */,
 				FACD42C12A5C10BB009975AA /* TransferService.swift in Sources */,
@@ -14905,7 +14919,6 @@
 				FAD646C4284DD2DA007CCB92 /* StakingBalanceRelaychainViewModelState.swift in Sources */,
 				0702B355297948C8003519F5 /* SwapTransactionViewModel.swift in Sources */,
 				FAA0131028DA1277000A5230 /* StakingBondMoreViewLayout.swift in Sources */,
-				FA7336FF2A13302E0096A291 /* AlchemyHistory.swift in Sources */,
 				C67E781E27B4D7870053346B /* PinViewConfigurator.swift in Sources */,
 				AEE5FB0326415E40002B8FDC /* StakingRebondSetupWireframe.swift in Sources */,
 				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
@@ -15000,7 +15013,6 @@
 				8498430326592D29006BBB9F /* CrowdloanStatusSectionView.swift in Sources */,
 				840D891D26242AE500AB231B /* StorageRequest.swift in Sources */,
 				8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */,
-				FA7337052A1335020096A291 /* AlchemyTokenCategory.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				F418E887264D308700699085 /* StakingAlert.swift in Sources */,
 				FAA0139E28DA131B000A5230 /* StakingBondMorePoolViewModelFactory.swift in Sources */,
@@ -15028,6 +15040,7 @@
 				FA851FF127917494004F5979 /* WalletTransactionDetailsViewState.swift in Sources */,
 				FAEDC13D2820F59100E6582C /* StakingAmountViewModel.swift in Sources */,
 				FA256A2F274CE7D600875A53 /* MoonbeamAgreeRemarkRequest.swift in Sources */,
+				FA9A8F1A2A72573C008FA99F /* AlchemyEndpoint.swift in Sources */,
 				F40966CC26B297D6008CD244 /* AnalyticsStakeWireframe.swift in Sources */,
 				AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */,
 				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,
@@ -15090,7 +15103,6 @@
 				FA2569C1274CE74100875A53 /* AttentionView.swift in Sources */,
 				7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */,
 				FAA0133428DA12B6000A5230 /* StakingPoolNetworkInfo.swift in Sources */,
-				FA7336F42A0E3D570096A291 /* AlchemyBalance.swift in Sources */,
 				FA256A37274CE7D600875A53 /* CrowdloanAgreementServiceError.swift in Sources */,
 				84E1CCFA260DCBF9001E81B5 /* SwitchAccount+UsernameSetupWireframe.swift in Sources */,
 				84CFF1E626526FBC00DB7CF7 /* StakingBondMoreInteractor.swift in Sources */,
@@ -15300,7 +15312,6 @@
 				E14F809C3917EFA4B5388AC8 /* AccountConfirmViewFactory.swift in Sources */,
 				9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */,
 				FAC0BBD3291D0EB000E6F106 /* SendDependencyContainer.swift in Sources */,
-				FAE358A42A14B16300D9D851 /* AlchemyEstimateGasRequest.swift in Sources */,
 				AE9EF264260A82B80026910A /* StoriesWireframe.swift in Sources */,
 				848EAEB02659310A00676CEA /* CrowdloanStatus.swift in Sources */,
 				841185E7263F3B6D00E8A8B6 /* HintView.swift in Sources */,
@@ -15340,7 +15351,6 @@
 				84FB29942639ABD700BE0FCD /* YourValidatorList+SelectionStart.swift in Sources */,
 				84DB9E8A26409E8200F23DD3 /* StakingRedeemLayout.swift in Sources */,
 				84644A2B2567222A004EAA4B /* TriangularedBlurButton.swift in Sources */,
-				FA7337072A13361F0096A291 /* AlchemySortOrder.swift in Sources */,
 				844D22A325EE7E4600C022F7 /* AnySingleValueProvider.swift in Sources */,
 				FA936BD2286C41F00059B97A /* StakingRebondConfirmationRelaychainViewModelFactory.swift in Sources */,
 				844DB624262D9C710025A8F0 /* ErasRewardDistribution.swift in Sources */,
@@ -15510,6 +15520,7 @@
 				FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */,
 				AEF5071E262369C00098574D /* PurchaseProviderProtocol.swift in Sources */,
 				FAA0138028DA12F0000A5230 /* StakingRedeemPoolStrategy.swift in Sources */,
+				FA9A8F1C2A72573C008FA99F /* AlchemyResponse.swift in Sources */,
 				84F47D532666F13C00F7647A /* KaruraVerifyInfo.swift in Sources */,
 				FA936BD6286C66B70059B97A /* StakingRebondConfirmationParachainViewModelFactory.swift in Sources */,
 				FAFFAE7929AC84B10074AF1F /* TxHistoryItem+WalletRemoteHistoryItemProtocol.swift in Sources */,
@@ -15524,6 +15535,7 @@
 				FA99422A27FE927800D771E5 /* AssetModelMapper.swift in Sources */,
 				AE89720825F12143008EC414 /* ValidatorInfoViewModel.swift in Sources */,
 				FA864445276851CF00956D8E /* ContainerViewController.swift in Sources */,
+				FA9A8F272A72579D008FA99F /* AlchemyTokenCategory.swift in Sources */,
 				845B821726EF7FED00D25C72 /* SelectedWalletSettings.swift in Sources */,
 				848FFE9A25E6E0E400652AA5 /* ValidatorExposure.swift in Sources */,
 				FA2FC80B28B3807C00CC0A42 /* StakingPoolJoinConfirmViewModel.swift in Sources */,
@@ -15644,6 +15656,7 @@
 				F40966C626B297D6008CD244 /* AnalyticsRewardsInteractor.swift in Sources */,
 				3250F2C0E12ED42A355853BE /* SelectValidatorsStartProtocols.swift in Sources */,
 				2E57C70D27E9ED5400AF075A /* ProfileViewModel.swift in Sources */,
+				FA9A8F222A72573C008FA99F /* AlchemyHistoryRequest.swift in Sources */,
 				EC978E6C4FBF39BE9ED10C86 /* SelectValidatorsStartWireframe.swift in Sources */,
 				FA2FC81828B3807D00CC0A42 /* StakingPoolStartRouter.swift in Sources */,
 				0713098128C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift in Sources */,
@@ -15654,7 +15667,6 @@
 				846CA77E2709A34D0011124C /* StakingAnalyticsLocalStorageSubscriber.swift in Sources */,
 				FA2FC84328B3886900CC0A42 /* StakingRewardCalculatorView.swift in Sources */,
 				A8F69AC9D7294E7DCBA50470 /* SelectValidatorsStartPresenter.swift in Sources */,
-				FA7336F62A0E3D570096A291 /* AlchemyRequest.swift in Sources */,
 				849ABE6826278A4100011A2A /* NominateMapper.swift in Sources */,
 				FA38C995275E0A70005C5577 /* RemoteImageViewModelFactory.swift in Sources */,
 				07DFA46F289B8D8E0035A8AB /* EducationStoriesSlideView.swift in Sources */,
@@ -15732,7 +15744,6 @@
 				84BB3CEE267CD6B500676FFE /* CrowdloanContributionDict.swift in Sources */,
 				849842EC26587B20006BBB9F /* YourCrowdloansTableViewCell.swift in Sources */,
 				845B821B26EF80BC00D25C72 /* MetaAccountModel.swift in Sources */,
-				FA7337032A1333F70096A291 /* AlchemyHistoryRequest.swift in Sources */,
 				F409673326B29C9B008CD244 /* RewardAnalyticsWidgetViewModel.swift in Sources */,
 				C63CB322285077640071AF26 /* DelegationInfoCellModel.swift in Sources */,
 				5869563D0EA593FBD02C169C /* StakingPayoutConfirmationProtocols.swift in Sources */,
@@ -16104,6 +16115,7 @@
 				CFAC59D34B15A2FAC4CD8256 /* WalletMainContainerInteractor.swift in Sources */,
 				6FA6FA6944AD6519FB8A2AC0 /* WalletMainContainerViewController.swift in Sources */,
 				D403B7725ED25E20A20F9D6A /* WalletMainContainerViewLayout.swift in Sources */,
+				FA9A8F1B2A72573C008FA99F /* AlchemyRequest.swift in Sources */,
 				76214649137E7061F701FE38 /* WalletMainContainerAssembly.swift in Sources */,
 				FC9BD9BC4722D8B17B7A7ACC /* MainNftContainerProtocols.swift in Sources */,
 				FA286B132A3043DB008BD527 /* CrossChainConfirmationViewController.swift in Sources */,

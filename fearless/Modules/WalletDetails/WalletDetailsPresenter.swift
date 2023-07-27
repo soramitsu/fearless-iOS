@@ -150,6 +150,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 self.wireframe.present(from: view, url: url)
             case let .polkascan(url):
                 self.wireframe.present(from: view, url: url)
+            case let .etherscan(url):
+                self.wireframe.present(from: view, url: url)
             case .replace:
                 let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
                 let options: [ReplaceChainOption] = ReplaceChainOption.allCases
@@ -222,7 +224,7 @@ private extension WalletDetailsPresenter {
                     }
                 case .etherscan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .subscan(url: url)
+                        return .etherscan(url: url)
                     }
                 case .unknown:
                     return nil

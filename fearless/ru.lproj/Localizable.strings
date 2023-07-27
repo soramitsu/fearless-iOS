@@ -1005,3 +1005,4 @@
 "settings.hide.zero.balances" = "Скрыть нулевые балансы";
 "common.resolve" = "Resolve";
 "staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";
+"transaction.details.view.etherscan" = "Посмотреть в Etherscan";

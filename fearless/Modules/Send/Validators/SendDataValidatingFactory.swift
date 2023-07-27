@@ -97,6 +97,9 @@ class SendDataValidatingFactory: NSObject {
             )
 
         }, preservesCondition: {
+            guard !chainAsset.chain.isEthereum else {
+                return true
+            }
             switch parameters {
             case let .utility(spendingAmount, totalAmount, minimumBalance):
                 guard let spendingAmount = spendingAmount else {

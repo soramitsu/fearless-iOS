@@ -63,7 +63,6 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
         var chainFailedUrls = getFailedUrls(for: chain.chainId).or([])
         let node = chain.selectedNode ?? chain.nodes
-            .filter { $0.url.absoluteString.contains("wss") }
             .first(where: {
                 ($0.url != ignoredUrl) && !chainFailedUrls.contains($0.url)
             })
