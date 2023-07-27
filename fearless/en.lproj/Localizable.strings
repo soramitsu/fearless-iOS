@@ -1055,3 +1055,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "banners.view.factory.xor.subtitle" = "Buy or sell XOR token with Euro cash";
 "banners.view.factory.xor.action.title" = "Buy XOR";
 "import.wallets.not.found" = "No import wallets were found :(";
+"backup.not.backed.up.title" = "Not backed up!";
+"backup.not.backed.up.message" = "If your device gets lost or stolen, you will loose your wallet and all your funds forever";
+"backup.not.backed.up.confirm" = "I will risk it";

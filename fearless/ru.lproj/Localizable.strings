@@ -1047,3 +1047,12 @@
 "banners.view.factory.xor.subtitle" = "Buy or sell XOR token with Euro cash";
 "banners.view.factory.xor.action.title" = "Buy XOR";
 "import.wallets.not.found" = "No import wallets were found :(";
+"backup.not.backed.up.title" = "Not backed up!";
+"backup.not.backed.up.message" = "If your device gets lost or stolen, you will loose your wallet and all your funds forever";
+"backup.not.backed.up.confirm" = "I will risk it";
+"backup.wallet.name.editing.title" = "Change wallet name";
+"backup.wallet.name.editing.description" = "Example: Savings, Investments, Crowdloans, Staking. This account name will be displayed only for you and stored locally on your mobile device";
+"backup.wallet.name.create.title" = "Name your new wallet";
+"backup.wallet.name.create.description" = "Make a name for your new wallet, so you can easily indentify it. This is optional and will be visible only for you";
+"backup.wallet.name.create.bottom.decription" = "Visible only for you and stored locally";
+"backup.wallet.name.field.name.title" = "Wallet name";
