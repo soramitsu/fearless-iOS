@@ -83,6 +83,10 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
         rootView.continueButton.addAction { [weak self] in
             self?.output.didTapContinueButton()
         }
+        rootView.confirmButton.addAction { [weak self] in
+            self?.rootView.confirmButton.isChecked.toggle()
+            self?.updateNextButton()
+        }
     }
 
     private func setupTextFields() {
@@ -102,7 +106,8 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
     }
 
     private func updateNextButton() {
-        rootView.continueButton.set(enabled: inputCompleted)
+        let enabled = inputCompleted && rootView.confirmButton.isChecked
+        rootView.continueButton.set(enabled: enabled)
     }
 
     // MARK: - Private actions

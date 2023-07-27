@@ -52,6 +52,10 @@ final class BackupCreatePasswordViewLayout: UIView {
         return label
     }()
 
+    let confirmButton: CheckboxButton = {
+        CheckboxButton()
+    }()
+
     let continueButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
@@ -112,7 +116,7 @@ final class BackupCreatePasswordViewLayout: UIView {
         contentView.stackView.addArrangedSubview(confirmPasswordTextField)
         contentView.stackView.setCustomSpacing(UIConstants.defaultOffset, after: confirmPasswordTextField)
         contentView.stackView.addArrangedSubview(passwordMatchLabel)
-        let warningView = createWarningView(with: warningLabel)
+        let warningView = createWarningView(with: warningLabel, confirmButton: confirmButton)
         contentView.stackView.addArrangedSubview(warningView)
 
         [
@@ -132,14 +136,14 @@ final class BackupCreatePasswordViewLayout: UIView {
         }
     }
 
-    private func createWarningView(with label: UILabel) -> UIView {
+    private func createWarningView(with label: UILabel, confirmButton: UIButton) -> UIView {
         let stack = UIFactory.default.createHorizontalStackView(spacing: UIConstants.bigOffset)
         stack.alignment = .center
-        let imageView = UIImageView(image: R.image.iconCheckMark())
-        imageView.snp.makeConstraints { make in
+
+        confirmButton.snp.makeConstraints { make in
             make.size.equalTo(20)
         }
-        stack.addArrangedSubview(imageView)
+        stack.addArrangedSubview(confirmButton)
         stack.addArrangedSubview(label)
         label.snp.makeConstraints { make in
             make.trailing.equalToSuperview()

@@ -16,33 +16,34 @@ final class BackupRiskWarningsViewLayout: UIView {
         return label
     }()
 
-    let warning1Label: UILabel = {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()!
-        label.numberOfLines = 0
-        return label
+    lazy var warning1Label: UILabel = {
+        createWarningLabel()
     }()
 
-    let warning2Label: UILabel = {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()!
-        label.numberOfLines = 0
-        return label
+    lazy var warning2Label: UILabel = {
+        createWarningLabel()
     }()
 
-    let warning3Label: UILabel = {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()!
-        label.numberOfLines = 0
-        return label
+    lazy var warning3Label: UILabel = {
+        createWarningLabel()
+    }()
+
+    let confirm1Button: CheckboxButton = {
+        CheckboxButton()
+    }()
+
+    let confirm2Button: CheckboxButton = {
+        CheckboxButton()
+    }()
+
+    let confirm3Button: CheckboxButton = {
+        CheckboxButton()
     }()
 
     let continueButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
+        button.isEnabled = false
         return button
     }()
 
@@ -84,9 +85,9 @@ final class BackupRiskWarningsViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        warningsStack.addArrangedSubview(createWarningView(with: warning1Label))
-        warningsStack.addArrangedSubview(createWarningView(with: warning2Label))
-        warningsStack.addArrangedSubview(createWarningView(with: warning3Label))
+        warningsStack.addArrangedSubview(createWarningView(with: warning1Label, confirmButton: confirm1Button))
+        warningsStack.addArrangedSubview(createWarningView(with: warning2Label, confirmButton: confirm2Button))
+        warningsStack.addArrangedSubview(createWarningView(with: warning3Label, confirmButton: confirm3Button))
 
         addSubview(continueButton)
         continueButton.snp.makeConstraints { make in
@@ -96,14 +97,21 @@ final class BackupRiskWarningsViewLayout: UIView {
         }
     }
 
-    private func createWarningView(with label: UILabel) -> UIView {
+    private func createWarningLabel() -> UILabel {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()!
+        label.numberOfLines = 0
+        return label
+    }
+
+    private func createWarningView(with label: UILabel, confirmButton: UIButton) -> UIView {
         let stack = UIFactory.default.createHorizontalStackView(spacing: UIConstants.bigOffset)
         stack.alignment = .center
-        let imageView = UIImageView(image: R.image.iconCheckMark())
-        imageView.snp.makeConstraints { make in
+        confirmButton.snp.makeConstraints { make in
             make.size.equalTo(20)
         }
-        stack.addArrangedSubview(imageView)
+        stack.addArrangedSubview(confirmButton)
         stack.addArrangedSubview(label)
         label.snp.makeConstraints { make in
             make.trailing.equalToSuperview()

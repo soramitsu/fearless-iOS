@@ -51,6 +51,25 @@ final class BackupRiskWarningsViewController: UIViewController, ViewHolder {
         rootView.continueButton.addAction { [weak self] in
             self?.output.didContinueButtonTapped()
         }
+        rootView.confirm1Button.addAction { [weak self] in
+            self?.rootView.confirm1Button.isChecked.toggle()
+            self?.checkContinueButton()
+        }
+        rootView.confirm2Button.addAction { [weak self] in
+            self?.rootView.confirm2Button.isChecked.toggle()
+            self?.checkContinueButton()
+        }
+        rootView.confirm3Button.addAction { [weak self] in
+            self?.rootView.confirm3Button.isChecked.toggle()
+            self?.checkContinueButton()
+        }
+    }
+
+    private func checkContinueButton() {
+        let isEnabled = rootView.confirm1Button.isChecked
+            && rootView.confirm2Button.isChecked
+            && rootView.confirm3Button.isChecked
+        rootView.continueButton.isEnabled = isEnabled
     }
 }
 
