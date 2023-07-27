@@ -25,6 +25,7 @@ final class SendInteractor: RuntimeConstantFetching {
     private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
 
     private var subscriptionId: UInt16?
+    private var dependencies: SendDependencies?
 
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -49,8 +50,11 @@ final class SendInteractor: RuntimeConstantFetching {
     // MARK: - Private methods
 
     private func provideConstants(for chainAsset: ChainAsset) {
+        guard let dependencies = dependencies else {
+            return
+        }
+
         Task {
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
             guard let runtimeService = dependencies.runtimeService else {
                 return
             }
@@ -77,9 +81,11 @@ final class SendInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
-        Task {
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+        guard let dependencies = dependencies else {
+            return
+        }
 
+        Task {
             if let accountId = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
                 dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
 
@@ -111,6 +117,24 @@ final class SendInteractor: RuntimeConstantFetching {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
     }
+
+    private func updateDependencies(for chainAsset: ChainAsset) {
+        Task {
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+            self.dependencies = dependencies
+
+            if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
+               let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
+                subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
+                provideConstants(for: utilityAsset)
+            } else {
+                subscribeToAccountInfo(for: chainAsset)
+                provideConstants(for: chainAsset)
+            }
+
+            output?.didReceiveDependencies(for: chainAsset)
+        }
+    }
 }
 
 extension SendInteractor: SendInteractorInput {
@@ -121,14 +145,7 @@ extension SendInteractor: SendInteractorInput {
 
     func updateSubscriptions(for chainAsset: ChainAsset) {
         subscribeToPrice(for: chainAsset)
-        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
-           let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
-            provideConstants(for: utilityAsset)
-        } else {
-            subscribeToAccountInfo(for: chainAsset)
-            provideConstants(for: chainAsset)
-        }
+        updateDependencies(for: chainAsset)
     }
 
     func defineAvailableChains(
@@ -149,6 +166,10 @@ extension SendInteractor: SendInteractorInput {
     }
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
+        guard let dependencies = dependencies else {
+            return
+        }
+
         Task {
             do {
                 let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
@@ -160,7 +181,6 @@ extension SendInteractor: SendInteractorInput {
                     tip: tip
                 )
 
-                let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
                 let fee = try await dependencies.transferService.estimateFee(for: transfer)
 
                 await MainActor.run(body: {

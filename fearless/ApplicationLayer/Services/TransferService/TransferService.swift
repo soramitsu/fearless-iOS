@@ -215,14 +215,14 @@ class EthereumTransferService: TransferServiceProtocol {
         do {
             try ws.subscribeToNewHeads(subscribed: {
                 _ in
-                print("sub")
-            }, onEvent: { result in
-                if let blockObject = result.result {
-                    self.handle(newHead: blockObject, listener: listener, transfer: transfer)
+
+            }, onEvent: { [weak self, weak listener] result in
+                if let blockObject = result.result, let listener = listener {
+                    self?.handle(newHead: blockObject, listener: listener, transfer: transfer)
                 } else if let error = result.error {
-                    listener.didReceiveFeeError(feeError: error)
+                    listener?.didReceiveFeeError(feeError: error)
                 } else {
-                    listener.didReceiveFeeError(feeError: TransferServiceError.cannotEstimateFee("unexpected new block head response"))
+                    listener?.didReceiveFeeError(feeError: TransferServiceError.cannotEstimateFee("unexpected new block head response"))
                 }
             })
         } catch {
@@ -231,7 +231,6 @@ class EthereumTransferService: TransferServiceProtocol {
     }
 
     private func handle(newHead: EthereumBlockObject, listener: TransferFeeEstimationListener, transfer: Transfer) {
-        print("Block transactions: \(newHead.transactions?.compactMap { ($0.object?.from, $0.object?.to) })")
         guard let baseFeePerGas = newHead.baseFeePerGas else {
             listener.didReceiveFeeError(feeError: TransferServiceError.cannotEstimateFee("unexpected new block head response"))
             return

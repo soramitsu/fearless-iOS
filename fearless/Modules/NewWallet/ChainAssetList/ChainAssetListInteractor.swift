@@ -14,7 +14,6 @@ final class ChainAssetListInteractor {
     private let operationQueue: OperationQueue
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
-    private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoFetching: [AccountInfoFetchingProtocol]
@@ -39,7 +38,6 @@ final class ChainAssetListInteractor {
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
-        chainsIssuesCenter: ChainsIssuesCenterProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoFetching: [AccountInfoFetchingProtocol],
         dependencyContainer: ChainAssetListDependencyContainer
@@ -49,7 +47,6 @@ final class ChainAssetListInteractor {
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
-        self.chainsIssuesCenter = chainsIssuesCenter
         self.accountRepository = accountRepository
         self.accountInfoFetching = accountInfoFetching
         self.dependencyContainer = dependencyContainer
@@ -86,7 +83,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         self.output = output
 
         eventCenter.add(observer: self, dispatchIn: .main)
-        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
     }
 
     func updateChainAssets(

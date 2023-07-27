@@ -57,6 +57,7 @@ protocol SendInteractorOutput: AnyObject {
     func didReceive(scamInfo: ScamInfo?)
     func didReceive(possibleChains: [ChainModel]?)
     func didReceive(eqTotalBalance: Decimal)
+    func didReceiveDependencies(for chainAsset: ChainAsset)
 }
 
 protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {

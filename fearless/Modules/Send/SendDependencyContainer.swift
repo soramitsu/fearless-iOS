@@ -14,7 +14,6 @@ struct SendDependencies {
     let chainAsset: ChainAsset
     let runtimeService: RuntimeCodingServiceProtocol?
     let existentialDepositService: ExistentialDepositServiceProtocol
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let equilibruimTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     let transferService: TransferServiceProtocol
     let accountInfoFetching: AccountInfoFetchingProtocol
@@ -54,12 +53,6 @@ final class SendDepencyContainer {
             chainId: chainAsset.chain.chainId
         )
 
-        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
-        )
-
         let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
         let transferService = try await createTransferService(for: chainAsset)
@@ -70,7 +63,6 @@ final class SendDepencyContainer {
             chainAsset: chainAsset,
             runtimeService: runtimeService,
             existentialDepositService: existentialDepositService,
-            balanceViewModelFactory: balanceViewModelFactory,
             equilibruimTotalBalanceService: equilibruimTotalBalanceService,
             transferService: transferService,
             accountInfoFetching: accountInfoFetching
