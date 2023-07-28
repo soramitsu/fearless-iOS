@@ -33,11 +33,17 @@ final class BackupCreatePasswordViewLayout: UIView {
     }()
 
     lazy var passwordTextField: CommonInputView = {
-        createPasswordTextField()
+        let view = createPasswordTextField()
+        view.rightButton.isHidden = false
+        view.rightButton.setImage(R.image.iconEye(), for: .normal)
+        return view
     }()
 
     lazy var confirmPasswordTextField: CommonInputView = {
-        createPasswordTextField()
+        let view = createPasswordTextField()
+        view.rightButton.isHidden = false
+        view.rightButton.setImage(R.image.iconEye(), for: .normal)
+        return view
     }()
 
     let passwordMatchLabel: UILabel = {

@@ -87,6 +87,20 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
             self?.rootView.confirmButton.isChecked.toggle()
             self?.updateNextButton()
         }
+        rootView.passwordTextField.rightButton.addAction { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.toggleSecurity(
+                strongSelf.rootView.passwordTextField.animatedInputField.textField,
+                eyeButton: strongSelf.rootView.passwordTextField.rightButton
+            )
+        }
+        rootView.confirmPasswordTextField.rightButton.addAction { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.toggleSecurity(
+                strongSelf.rootView.confirmPasswordTextField.animatedInputField.textField,
+                eyeButton: strongSelf.rootView.confirmPasswordTextField.rightButton
+            )
+        }
     }
 
     private func setupTextFields() {
@@ -108,6 +122,18 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
     private func updateNextButton() {
         let enabled = inputCompleted && rootView.confirmButton.isChecked
         rootView.continueButton.set(enabled: enabled)
+    }
+
+    private func toggleSecurity(_ textField: UITextField, eyeButton: UIButton) {
+        let isSecure = !textField.isSecureTextEntry
+
+        if isSecure {
+            eyeButton.setImage(R.image.iconEye(), for: .normal)
+        } else {
+            eyeButton.setImage(R.image.iconNoEye(), for: .normal)
+        }
+
+        textField.isSecureTextEntry = isSecure
     }
 
     // MARK: - Private actions
