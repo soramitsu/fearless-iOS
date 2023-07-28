@@ -36,6 +36,7 @@ final class BackupWalletPresenter {
     private var exportOptions: [ExportOption] = []
     private var backupAccounts: [OpenBackupAccount]?
     private var googleAuthorized = false
+    private var backupIsCompleted = false
 
     // MARK: - Constructors
 
@@ -152,6 +153,11 @@ final class BackupWalletPresenter {
 
 extension BackupWalletPresenter: BackupWalletViewOutput {
     func viewDidAppear() {
+        if backupIsCompleted {
+            let text = R.string.localizable
+                .backupWalletBackupGoogle(preferredLanguages: selectedLocale.rLanguages)
+            router.presentSuccessNotification(text, from: view)
+        }
         guard !googleAuthorized else {
             return
         }
@@ -196,6 +202,7 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
     }
 
     func didReceiveBackupAccounts(result: Result<[SSFCloudStorage.OpenBackupAccount], Error>) {
+        view?.didStopLoading()
         switch result {
         case let .success(accounts):
             googleAuthorized = true
@@ -207,7 +214,6 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
             let error = ConvenienceError(error: failure.localizedDescription)
             router.present(error: error, from: view, locale: selectedLocale)
         }
-        view?.didStopLoading()
         provideViewModel()
     }
 
@@ -249,7 +255,7 @@ extension BackupWalletPresenter: Localizable {
 
 extension BackupWalletPresenter: BackupCreatePasswordModuleOutput {
     func backupDidComplete() {
-        view?.didStartLoading()
+        backupIsCompleted = true
         interactor.viewDidAppear()
     }
 }

@@ -3,7 +3,7 @@ typealias BackupWalletModuleCreationResult = (
     input: BackupWalletModuleInput
 )
 
-protocol BackupWalletRouterInput: AnyDismissable, SheetAlertPresentable, ErrorPresentable, AuthorizationPresentable {
+protocol BackupWalletRouterInput: AnyDismissable, SheetAlertPresentable, ErrorPresentable, AuthorizationPresentable, ModalAlertPresenting {
     func showMnemonicExport(
         flow: ExportFlow,
         from view: ControllerBackedProtocol?
