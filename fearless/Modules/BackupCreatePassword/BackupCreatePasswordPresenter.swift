@@ -10,6 +10,7 @@ protocol BackupCreatePasswordViewInput: ControllerBackedProtocol, LoadableViewPr
 protocol BackupCreatePasswordInteractorInput: AnyObject {
     func setup(with output: BackupCreatePasswordInteractorOutput)
     func createAndBackupAccount(password: String)
+    func hasPincode() -> Bool
 }
 
 final class BackupCreatePasswordPresenter {
@@ -64,7 +65,7 @@ final class BackupCreatePasswordPresenter {
 
 extension BackupCreatePasswordPresenter: BackupCreatePasswordViewOutput {
     func didTapBackButton() {
-        router.dismiss(view: view)
+        router.pop(from: view)
     }
 
     func didTapContinueButton() {
@@ -91,10 +92,14 @@ extension BackupCreatePasswordPresenter: BackupCreatePasswordInteractorOutput {
         view?.didStopLoading()
         switch flow {
         case .createWallet:
-            router.showPinSetup()
+            if interactor.hasPincode() {
+                router.dismiss(from: view)
+            } else {
+                router.showPinSetup()
+            }
         case .backupWallet:
             moduleOutput?.backupDidComplete()
-            router.dismiss(view: view)
+            router.pop(from: view)
         }
     }
 }

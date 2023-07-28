@@ -9,4 +9,12 @@ final class BackupCreatePasswordRouter: BackupCreatePasswordRouterInput {
         }
         rootAnimator.animateTransition(to: pincodeViewController)
     }
+
+    func dismiss(from view: ControllerBackedProtocol?) {
+        view?.controller.navigationController?.dismiss(animated: true)
+    }
+
+    func pop(from view: ControllerBackedProtocol?) {
+        view?.controller.navigationController?.popViewController(animated: true)
+    }
 }

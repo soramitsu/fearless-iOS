@@ -48,7 +48,8 @@ enum BackupCreatePasswordAssembly {
             accountRepository: accountRepository,
             settings: settings,
             operationManager: OperationManagerFacade.sharedManager,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            secretManager: KeychainManager.shared
         )
 
         let router = BackupCreatePasswordRouter()

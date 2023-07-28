@@ -1,6 +1,7 @@
 import UIKit
 import SSFCloudStorage
 import RobinHood
+import SoraKeystore
 
 protocol BackupCreatePasswordInteractorOutput: AnyObject {
     func didReceive(error: Error)
@@ -13,6 +14,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     // MARK: - Private properties
 
     private weak var output: BackupCreatePasswordInteractorOutput?
+    private let secretManager: SecretStoreManagerProtocol
 
     private let settings: SelectedWalletSettings
     private let eventCenter: EventCenterProtocol
@@ -27,11 +29,13 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         settings: SelectedWalletSettings,
         operationManager: OperationManagerProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        secretManager: SecretStoreManagerProtocol
     ) {
         self.settings = settings
         self.eventCenter = eventCenter
         self.createPasswordFlow = createPasswordFlow
+        self.secretManager = secretManager
 
         var flow: AccountConfirmFlow?
         if let mnemonicRequest = createPasswordFlow.mnemonicRequest {
@@ -231,5 +235,9 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
         case let .backupWallet(wallet, requestType):
             saveBackupAccount(wallet: wallet, requestType: requestType)
         }
+    }
+
+    func hasPincode() -> Bool {
+        secretManager.checkSecret(for: KeystoreTag.pincode.rawValue)
     }
 }

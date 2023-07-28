@@ -3,8 +3,10 @@ typealias BackupCreatePasswordModuleCreationResult = (
     input: BackupCreatePasswordModuleInput
 )
 
-protocol BackupCreatePasswordRouterInput: AnyDismissable, SheetAlertPresentable, ErrorPresentable {
+protocol BackupCreatePasswordRouterInput: SheetAlertPresentable, ErrorPresentable {
     func showPinSetup()
+    func pop(from view: ControllerBackedProtocol?)
+    func dismiss(from view: ControllerBackedProtocol?)
 }
 
 protocol BackupCreatePasswordModuleInput: AnyObject {}

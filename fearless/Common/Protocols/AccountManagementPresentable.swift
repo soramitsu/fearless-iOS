@@ -15,11 +15,9 @@ extension AccountManagementPresentable {
             return
         }
 
-        usernameSetup.controller.hidesBottomBarWhenPushed = true
+        let navigation = FearlessNavigationController(rootViewController: usernameSetup.controller)
 
-        if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(usernameSetup.controller, animated: true)
-        }
+        view?.controller.present(navigation, animated: true)
     }
 
     func showImportWallet(
