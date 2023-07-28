@@ -2327,9 +2327,6 @@
 		FA99C934283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C933283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift */; };
 		FA99C936283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C935283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift */; };
 		FA99C938283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C937283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift */; };
-		FA9A8EF92A67E0B6008FA99F /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8EF82A67E0B6008FA99F /* Web3 */; };
-		FA9A8EFB2A67E0B6008FA99F /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8EFA2A67E0B6008FA99F /* Web3ContractABI */; };
-		FA9A8EFD2A67E0B6008FA99F /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8EFC2A67E0B6008FA99F /* Web3PromiseKit */; };
 		FA9A8F002A692890008FA99F /* EthereumBalanceSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8EFF2A692890008FA99F /* EthereumBalanceSubscription.swift */; };
 		FA9A8F022A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */; };
 		FA9A8F052A6FADBD008FA99F /* EtherscanHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F042A6FADBD008FA99F /* EtherscanHistoryResponse.swift */; };
@@ -2345,6 +2342,9 @@
 		FA9A8F272A72579D008FA99F /* AlchemyTokenCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F252A72579D008FA99F /* AlchemyTokenCategory.swift */; };
 		FA9A8F2B2A725B30008FA99F /* SubstrateAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */; };
 		FA9A8F2D2A725B3A008FA99F /* EthereumAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */; };
+		FA9A8F332A738E37008FA99F /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8F322A738E37008FA99F /* Web3 */; };
+		FA9A8F352A738E37008FA99F /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8F342A738E37008FA99F /* Web3ContractABI */; };
+		FA9A8F372A738E37008FA99F /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8F362A738E37008FA99F /* Web3PromiseKit */; };
 		FAA0131028DA1277000A5230 /* StakingBondMoreViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0130F28DA1277000A5230 /* StakingBondMoreViewLayout.swift */; };
 		FAA0131328DA1291000A5230 /* StakingPoolManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0131228DA1291000A5230 /* StakingPoolManagementTests.swift */; };
 		FAA0132E28DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0131628DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift */; };
@@ -5353,10 +5353,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA9A8EFB2A67E0B6008FA99F /* Web3ContractABI in Frameworks */,
+				FA9A8F352A738E37008FA99F /* Web3ContractABI in Frameworks */,
 				E24B8FD5EE2A75EC6C3DD49D /* Pods_fearlessAll_fearless.framework in Frameworks */,
-				FA9A8EFD2A67E0B6008FA99F /* Web3PromiseKit in Frameworks */,
-				FA9A8EF92A67E0B6008FA99F /* Web3 in Frameworks */,
+				FA9A8F372A738E37008FA99F /* Web3PromiseKit in Frameworks */,
+				FA9A8F332A738E37008FA99F /* Web3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -13405,9 +13405,9 @@
 			);
 			name = fearless;
 			packageProductDependencies = (
-				FA9A8EF82A67E0B6008FA99F /* Web3 */,
-				FA9A8EFA2A67E0B6008FA99F /* Web3ContractABI */,
-				FA9A8EFC2A67E0B6008FA99F /* Web3PromiseKit */,
+				FA9A8F322A738E37008FA99F /* Web3 */,
+				FA9A8F342A738E37008FA99F /* Web3ContractABI */,
+				FA9A8F362A738E37008FA99F /* Web3PromiseKit */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -13470,7 +13470,7 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */,
+				FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -16895,7 +16895,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+		FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
@@ -16906,19 +16906,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FA9A8EF82A67E0B6008FA99F /* Web3 */ = {
+		FA9A8F322A738E37008FA99F /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
-		FA9A8EFA2A67E0B6008FA99F /* Web3ContractABI */ = {
+		FA9A8F342A738E37008FA99F /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
-		FA9A8EFC2A67E0B6008FA99F /* Web3PromiseKit */ = {
+		FA9A8F362A738E37008FA99F /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA9A8EF72A67E0B6008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
 		};
 /* End XCSwiftPackageProductDependency section */
