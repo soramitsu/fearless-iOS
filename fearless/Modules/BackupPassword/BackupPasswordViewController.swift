@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraUI
+import SnapKit
 
 protocol BackupPasswordViewOutput: AnyObject {
     func didLoad(view: BackupPasswordViewInput)
@@ -44,6 +45,19 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
         output.didLoad(view: self)
         bindActions()
         configure()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -124,4 +138,13 @@ extension BackupPasswordViewController: AnimatedTextFieldDelegate {
 
         return shouldApply
     }
+}
+
+// MARK: - KeyboardViewAdoptable
+
+extension BackupPasswordViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { UIConstants.bigOffset }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }

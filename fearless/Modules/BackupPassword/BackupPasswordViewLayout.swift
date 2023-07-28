@@ -1,6 +1,9 @@
 import UIKit
+import SnapKit
 
 final class BackupPasswordViewLayout: UIView {
+    var keyboardAdoptableConstraint: Constraint?
+
     let navigationBar: BaseNavigationBar = {
         let view = BaseNavigationBar()
         view.backgroundColor = R.color.colorBlack19()
@@ -127,7 +130,7 @@ final class BackupPasswordViewLayout: UIView {
         addSubview(continueButton)
         continueButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
             make.height.equalTo(UIConstants.actionHeight)
         }
     }

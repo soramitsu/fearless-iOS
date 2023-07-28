@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraUI
+import SnapKit
 
 protocol WalletNameViewOutput: AnyObject {
     func didLoad(view: WalletNameViewInput)
@@ -47,6 +48,19 @@ final class WalletNameViewController: UIViewController, ViewHolder {
         output.didLoad(view: self)
         bindActions()
         configure()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -122,4 +136,13 @@ extension WalletNameViewController: AnimatedTextFieldDelegate {
 
         return shouldApply
     }
+}
+
+// MARK: - KeyboardViewAdoptable
+
+extension WalletNameViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { UIConstants.bigOffset }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
