@@ -69,6 +69,11 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        rootView.passwordTextField.animatedInputField.textField.becomeFirstResponder()
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()

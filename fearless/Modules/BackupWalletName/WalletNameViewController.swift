@@ -58,6 +58,11 @@ final class WalletNameViewController: UIViewController, ViewHolder {
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        rootView.nameTextField.animatedInputField.textField.becomeFirstResponder()
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()

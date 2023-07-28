@@ -55,6 +55,11 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        rootView.passwordTextField.animatedInputField.textField.becomeFirstResponder()
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
@@ -78,6 +83,25 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
         rootView.continueButton.addAction { [weak self] in
             self?.output.didContinueButtonTapped()
         }
+        rootView.passwordTextField.rightButton.addAction { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.toggleSecurity(
+                strongSelf.rootView.passwordTextField.animatedInputField.textField,
+                eyeButton: strongSelf.rootView.passwordTextField.rightButton
+            )
+        }
+    }
+
+    private func toggleSecurity(_ textField: UITextField, eyeButton: UIButton) {
+        let isSecure = !textField.isSecureTextEntry
+
+        if isSecure {
+            eyeButton.setImage(R.image.iconEye(), for: .normal)
+        } else {
+            eyeButton.setImage(R.image.iconNoEye(), for: .normal)
+        }
+
+        textField.isSecureTextEntry = isSecure
     }
 
     // MARK: - Private actions
