@@ -4,29 +4,29 @@ import UIKit
 class CheckboxButton: UIButton {
     var isChecked: Bool = false {
         didSet {
-            if isChecked == true {
+            if isChecked {
                 self.setImage(R.image.iconCheckMark(), for: UIControl.State.normal)
             } else {
-                self.setImage(nil, for: UIControl.State.normal)
+                self.setImage(R.image.iconListSelectionOff(), for: UIControl.State.normal)
             }
         }
     }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        isChecked = false
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        rounded()
-        layer.borderWidth = 1
-        layer.borderColor = R.color.colorWhite8()?.cgColor
+        configure()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func configure() {
+        let insetAmount = UIConstants.bigOffset / 2
+        imageEdgeInsets = UIEdgeInsets(top: 0, left: -insetAmount, bottom: 0, right: insetAmount)
+        titleEdgeInsets = UIEdgeInsets(top: 0, left: insetAmount, bottom: 0, right: -insetAmount)
+        contentEdgeInsets = UIEdgeInsets(top: 0, left: insetAmount, bottom: 0, right: insetAmount)
     }
 
     @objc func buttonClicked(sender: UIButton) {

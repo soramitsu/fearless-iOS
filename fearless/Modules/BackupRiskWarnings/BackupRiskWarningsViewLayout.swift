@@ -16,28 +16,16 @@ final class BackupRiskWarningsViewLayout: UIView {
         return label
     }()
 
-    lazy var warning1Label: UILabel = {
-        createWarningLabel()
+    lazy var confirm1Button: CheckboxButton = {
+        createConfirmButton()
     }()
 
-    lazy var warning2Label: UILabel = {
-        createWarningLabel()
+    lazy var confirm2Button: CheckboxButton = {
+        createConfirmButton()
     }()
 
-    lazy var warning3Label: UILabel = {
-        createWarningLabel()
-    }()
-
-    let confirm1Button: CheckboxButton = {
-        CheckboxButton()
-    }()
-
-    let confirm2Button: CheckboxButton = {
-        CheckboxButton()
-    }()
-
-    let confirm3Button: CheckboxButton = {
-        CheckboxButton()
+    lazy var confirm3Button: CheckboxButton = {
+        createConfirmButton()
     }()
 
     let continueButton: TriangularedButton = {
@@ -79,15 +67,22 @@ final class BackupRiskWarningsViewLayout: UIView {
         }
 
         let warningsStack = UIFactory.default.createVerticalStackView(spacing: UIConstants.hugeOffset)
+        warningsStack.alignment = .leading
         addSubview(warningsStack)
         warningsStack.snp.makeConstraints { make in
             make.top.equalTo(descriptionLabel.snp.bottom).offset(UIConstants.hugeOffset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        warningsStack.addArrangedSubview(createWarningView(with: warning1Label, confirmButton: confirm1Button))
-        warningsStack.addArrangedSubview(createWarningView(with: warning2Label, confirmButton: confirm2Button))
-        warningsStack.addArrangedSubview(createWarningView(with: warning3Label, confirmButton: confirm3Button))
+        warningsStack.addArrangedSubview(confirm1Button)
+        warningsStack.addArrangedSubview(confirm2Button)
+        warningsStack.addArrangedSubview(confirm3Button)
+
+        [confirm1Button, confirm2Button, confirm3Button].forEach {
+            $0.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+            }
+        }
 
         addSubview(continueButton)
         continueButton.snp.makeConstraints { make in
@@ -97,26 +92,14 @@ final class BackupRiskWarningsViewLayout: UIView {
         }
     }
 
-    private func createWarningLabel() -> UILabel {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()!
-        label.numberOfLines = 0
-        return label
-    }
-
-    private func createWarningView(with label: UILabel, confirmButton: UIButton) -> UIView {
-        let stack = UIFactory.default.createHorizontalStackView(spacing: UIConstants.bigOffset)
-        stack.alignment = .center
-        confirmButton.snp.makeConstraints { make in
-            make.size.equalTo(20)
-        }
-        stack.addArrangedSubview(confirmButton)
-        stack.addArrangedSubview(label)
-        label.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-        }
-        return stack
+    private func createConfirmButton() -> CheckboxButton {
+        let button = CheckboxButton()
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.font = .p1Paragraph
+        button.titleLabel?.textColor = R.color.colorWhite()!
+        button.contentHorizontalAlignment = .leading
+        button.isChecked = false
+        return button
     }
 
     private func applyLocalization() {
@@ -125,12 +108,15 @@ final class BackupRiskWarningsViewLayout: UIView {
         navigationBar.setTitle(title)
         descriptionLabel.text = R.string.localizable
             .backupRisksWarningsDescription(preferredLanguages: locale.rLanguages)
-        warning1Label.text = R.string.localizable
+        let confirm1Title = R.string.localizable
             .backupRisksWarnings1(preferredLanguages: locale.rLanguages)
-        warning2Label.text = R.string.localizable
+        confirm1Button.setTitle(confirm1Title, for: .normal)
+        let confirm2title = R.string.localizable
             .backupRisksWarnings2(preferredLanguages: locale.rLanguages)
-        warning3Label.text = R.string.localizable
+        confirm2Button.setTitle(confirm2title, for: .normal)
+        let confirm3Title = R.string.localizable
             .backupRisksWarnings3(preferredLanguages: locale.rLanguages)
+        confirm3Button.setTitle(confirm3Title, for: .normal)
         continueButton.imageWithTitleView?.title = R.string.localizable
             .backupRisksWarningsContinueButton(preferredLanguages: locale.rLanguages)
     }

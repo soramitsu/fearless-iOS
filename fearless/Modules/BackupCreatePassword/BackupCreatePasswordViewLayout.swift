@@ -46,14 +46,14 @@ final class BackupCreatePasswordViewLayout: UIView {
         return label
     }()
 
-    let warningLabel: UILabel = {
-        let label = UILabel()
-        label.numberOfLines = 0
-        return label
-    }()
-
     let confirmButton: CheckboxButton = {
-        CheckboxButton()
+        let button = CheckboxButton()
+        button.titleLabel?.numberOfLines = 0
+        button.titleLabel?.font = .p1Paragraph
+        button.titleLabel?.textColor = R.color.colorWhite()!
+        button.contentHorizontalAlignment = .leading
+        button.isChecked = false
+        return button
     }()
 
     let continueButton: TriangularedButton = {
@@ -116,15 +116,14 @@ final class BackupCreatePasswordViewLayout: UIView {
         contentView.stackView.addArrangedSubview(confirmPasswordTextField)
         contentView.stackView.setCustomSpacing(UIConstants.defaultOffset, after: confirmPasswordTextField)
         contentView.stackView.addArrangedSubview(passwordMatchLabel)
-        let warningView = createWarningView(with: warningLabel, confirmButton: confirmButton)
-        contentView.stackView.addArrangedSubview(warningView)
+        contentView.stackView.addArrangedSubview(confirmButton)
 
         [
             descriptionLabel,
             passwordTextField,
             confirmPasswordTextField,
             passwordMatchLabel,
-            warningView
+            confirmButton
         ].forEach { makeCommonConstraint(for: $0) }
 
         addSubview(continueButton)
@@ -134,21 +133,6 @@ final class BackupCreatePasswordViewLayout: UIView {
             keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
             make.height.equalTo(UIConstants.actionHeight)
         }
-    }
-
-    private func createWarningView(with label: UILabel, confirmButton: UIButton) -> UIView {
-        let stack = UIFactory.default.createHorizontalStackView(spacing: UIConstants.bigOffset)
-        stack.alignment = .center
-
-        confirmButton.snp.makeConstraints { make in
-            make.size.equalTo(20)
-        }
-        stack.addArrangedSubview(confirmButton)
-        stack.addArrangedSubview(label)
-        label.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-        }
-        return stack
     }
 
     private func createPasswordTextField() -> CommonInputView {
@@ -176,8 +160,9 @@ final class BackupCreatePasswordViewLayout: UIView {
             .backupCreatePasswordPasswordFieldTitle(preferredLanguages: locale.rLanguages)
         confirmPasswordTextField.title = R.string.localizable
             .backupCreatePasswordConfirmFieldTitle(preferredLanguages: locale.rLanguages)
-        warningLabel.text = R.string.localizable
+        let warningText = R.string.localizable
             .backupCreatePasswordWarning(preferredLanguages: locale.rLanguages)
+        confirmButton.setTitle(warningText, for: .normal)
         continueButton.imageWithTitleView?.title = R.string.localizable
             .backupCreatePasswordContinueButton(preferredLanguages: locale.rLanguages)
     }
