@@ -90,6 +90,9 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
             subscription.removeObserver(substrateWrapper)
         }
 
+        ethereumWrapper.unsubsribe()
+        ethereumWrapper.handler = nil
+
         subscriptions = [:]
     }
 

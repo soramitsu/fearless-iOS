@@ -43,4 +43,8 @@ final class EthereumBalanceSubscription {
             }
         }
     }
+
+    func unsubsribe() {
+        timer?.invalidate()
+    }
 }
