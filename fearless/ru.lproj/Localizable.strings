@@ -1056,3 +1056,4 @@
 "backup.wallet.name.create.description" = "Make a name for your new wallet, so you can easily indentify it. This is optional and will be visible only for you";
 "backup.wallet.name.create.bottom.decription" = "Visible only for you and stored locally";
 "backup.wallet.name.field.name.title" = "Wallet name";
+"accounts.with.shared.secret" = "Account with shared secret";

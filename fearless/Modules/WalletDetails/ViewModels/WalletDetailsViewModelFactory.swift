@@ -100,7 +100,7 @@ class WalletDetailsViewModelFactory {
             let nativeSection = buildSection(
                 flow: flow,
                 chains: nativeAccounts,
-                title: R.string.localizable.accountsWithOneKey(preferredLanguages: locale.rLanguages),
+                title: R.string.localizable.accountsWithSharedSecret(preferredLanguages: locale.rLanguages),
                 locale: locale
             )
             sections.append(nativeSection)
