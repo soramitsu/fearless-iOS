@@ -34,7 +34,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFExtrinsicKit'
           pod 'SSFCrypto'
           pod 'SSFSigner'
-#          pod 'SSFModels'
+          pod 'SSFModels'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
@@ -43,7 +43,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFNetwork'
           pod 'SSFUtils'
           pod 'SSFChainRegistry'
-#          pod 'SSFHelpers'
+          pod 'SSFHelpers'
       end
   end
 
@@ -54,7 +54,7 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
 #  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
 #  pod 'SSFSigner', :path => '../soramitsu-shared-features-ios/SSFSigner'
-  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
+#  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
 #  pod 'SSFEraKit', :path => '../soramitsu-shared-features-ios/SSFEraKit'
 #  pod 'SSFLogger', :path => '../soramitsu-shared-features-ios/SSFLogger'
 #  pod 'SSFRuntimeCodingService', :path => '../soramitsu-shared-features-ios/SSFRuntimeCodingService'
@@ -63,7 +63,7 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFNetwork', :path => '../soramitsu-shared-features-ios/SSFNetwork'
 #  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
 #  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
-  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
+#  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
 #  pod 'web3swift-bnsports', :path => '../web3swift-bnsports'
 
   target 'fearlessTests' do
