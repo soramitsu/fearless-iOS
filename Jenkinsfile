@@ -1,4 +1,4 @@
-@Library('jenkins-library@feature/DOPS-1646/frontend_sonar') _
+@Library('jenkins-library@feature/DOPS-2262/sonar-apple') _
 
 // Job properties
 def jobParams = [
