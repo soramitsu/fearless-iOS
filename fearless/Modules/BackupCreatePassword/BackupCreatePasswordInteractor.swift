@@ -9,7 +9,7 @@ protocol BackupCreatePasswordInteractorOutput: AnyObject {
 }
 
 final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
-    var cloudStorage: CloudStorageServiceProtocol?
+    var cloudStorage: FearlessCompatibilityProtocol?
 
     // MARK: - Private properties
 
@@ -86,14 +86,6 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             eventCenter.notify(with: SelectedAccountChanged())
             switch flow {
             case let .wallet(request):
-                let account = OpenBackupAccount(
-                    name: request.username,
-                    address: wallet.substratePublicKey.toHex(),
-                    passphrase: request.mnemonic.toString(),
-                    cryptoType: request.cryptoType.stringValue,
-                    substrateDerivationPath: request.substrateDerivationPath,
-                    ethDerivationPath: request.ethereumDerivationPath
-                )
                 saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
             default:
                 break
@@ -136,10 +128,11 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethSeed: ethereumRestoreSeed?.seed.toUTF8String()
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
+        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: wallet.substratePublicKey.toHex(),
+            address: address42 ?? wallet.substratePublicKey.toHex(),
             cryptoType: cryptoType?.stringValue,
             substrateDerivationPath: substrateRestoreSeed?.derivationPath,
             ethDerivationPath: ethereumRestoreSeed?.derivationPath,
@@ -162,10 +155,11 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             ethJson: ethereumRestoreJson?.data.asSecretData()
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
+        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: wallet.substratePublicKey.toHex(),
+            address: address42 ?? wallet.substratePublicKey.toHex(),
             cryptoType: cryptoType?.stringValue,
             backupAccountTypes: [.json],
             json: json
@@ -178,9 +172,10 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         request: MetaAccountImportMnemonicRequest,
         password: String
     ) {
+        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
         let account = OpenBackupAccount(
             name: request.username,
-            address: wallet.substratePublicKey.toHex(),
+            address: address42 ?? wallet.substratePublicKey.toHex(),
             passphrase: request.mnemonic.toString(),
             cryptoType: request.cryptoType.stringValue,
             substrateDerivationPath: request.substrateDerivationPath,

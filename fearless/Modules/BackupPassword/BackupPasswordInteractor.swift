@@ -9,7 +9,7 @@ protocol BackupPasswordInteractorOutput: AnyObject {
 }
 
 final class BackupPasswordInteractor: BaseAccountImportInteractor {
-    var cloudStorage: CloudStorageServiceProtocol?
+    var cloudStorage: FearlessCompatibilityProtocol?
 
     // MARK: - Private properties
 
@@ -83,8 +83,20 @@ extension BackupPasswordInteractor: BackupPasswordInteractorInput {
     }
 
     func importBackup(account: OpenBackupAccount, password: String) {
-        cloudStorage?.importBackupAccount(account: account, password: password) { [weak self] result in
-            self?.output?.didReceiveBackup(result: result)
+        Task {
+            do {
+                guard let cloudStorage = cloudStorage else {
+                    throw ConvenienceError(error: "Cloud storage not init")
+                }
+                let account = try await cloudStorage.importBackup(account: account, password: password)
+                await MainActor.run {
+                    output?.didReceiveBackup(result: .success(account))
+                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceiveBackup(result: .failure(error))
+                }
+            }
         }
     }
 }

@@ -16,7 +16,7 @@ protocol BackupWalletInteractorOutput: AnyObject {
 }
 
 final class BackupWalletInteractor {
-    var cloudStorage: CloudStorageServiceProtocol?
+    var cloudStorage: FearlessCompatibilityProtocol?
 
     // MARK: - Private properties
 
@@ -85,9 +85,21 @@ final class BackupWalletInteractor {
     }
 
     private func getBackupAccounts() {
-        cloudStorage?.getBackupAccounts(completion: { [weak self] result in
-            self?.output?.didReceiveBackupAccounts(result: result)
-        })
+        Task {
+            do {
+                guard let cloudStorage = cloudStorage else {
+                    throw ConvenienceError(error: "Cloud storage not init")
+                }
+                let accounts = try await cloudStorage.getFearlessBackupAccounts()
+                await MainActor.run {
+                    output?.didReceiveBackupAccounts(result: .success(accounts))
+                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceiveBackupAccounts(result: .failure(error))
+                }
+            }
+        }
     }
 
     private func createMnemonicRequest(substrate: ChainAccountInfo, ethereum: ChainAccountInfo) {
@@ -211,7 +223,8 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
     }
 
     func removeBackupFromGoogle() {
-        let account = OpenBackupAccount(address: wallet.substratePublicKey.toHex())
+        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let account = OpenBackupAccount(address: address42 ?? wallet.substratePublicKey.toHex())
         cloudStorage?.deleteBackupAccount(account: account, completion: { [weak self] result in
             self?.output?.didReceiveRemove(result: result)
         })

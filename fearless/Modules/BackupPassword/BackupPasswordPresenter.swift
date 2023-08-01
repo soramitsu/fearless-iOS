@@ -125,11 +125,17 @@ final class BackupPasswordPresenter {
             ethereumKeystore = ethereumKeystoreData.toUTF8String()
         }
 
+        var substratePassword = ""
+        var ethereumPassword = ""
+        if let password = backup.passphrase {
+            substratePassword = password
+            ethereumPassword = password
+        }
         let sourceData = MetaAccountImportRequestSource.KeystoreImportRequestData(
             substrateKeystore: substrateKeystore,
             ethereumKeystore: ethereumKeystore,
-            substratePassword: "",
-            ethereumPassword: ethereumKeystore == nil ? nil : ""
+            substratePassword: substratePassword,
+            ethereumPassword: ethereumKeystore == nil ? nil : ethereumPassword
         )
         return sourceData
     }

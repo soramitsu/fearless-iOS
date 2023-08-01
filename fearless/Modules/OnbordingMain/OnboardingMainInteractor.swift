@@ -6,11 +6,11 @@ final class OnboardingMainInteractor {
     weak var presenter: OnboardingMainInteractorOutputProtocol?
 
     private let keystoreImportService: KeystoreImportServiceProtocol
-    private let cloudStorage: CloudStorageServiceProtocol
+    private let cloudStorage: FearlessCompatibilityProtocol
 
     init(
         keystoreImportService: KeystoreImportServiceProtocol,
-        cloudStorage: CloudStorageServiceProtocol
+        cloudStorage: FearlessCompatibilityProtocol
     ) {
         self.keystoreImportService = keystoreImportService
         self.cloudStorage = cloudStorage
@@ -27,8 +27,17 @@ extension OnboardingMainInteractor: OnboardingMainInteractorInputProtocol {
     }
 
     func activateGoogleBackup() {
-        cloudStorage.getBackupAccounts { [weak self] result in
-            self?.presenter?.didReceiveBackupAccounts(result: result)
+        Task {
+            do {
+                let accounts = try await cloudStorage.getFearlessBackupAccounts()
+                await MainActor.run {
+                    presenter?.didReceiveBackupAccounts(result: .success(accounts))
+                }
+            } catch {
+                await MainActor.run {
+                    presenter?.didReceiveBackupAccounts(result: .failure(error))
+                }
+            }
         }
     }
 }

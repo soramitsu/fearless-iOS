@@ -7,7 +7,7 @@ protocol BackupSelectWalletInteractorOutput: AnyObject {
 }
 
 final class BackupSelectWalletInteractor {
-    var cloudStorageService: CloudStorageServiceProtocol?
+    var cloudStorageService: FearlessCompatibilityProtocol?
 
     // MARK: - Private properties
 
@@ -20,9 +20,17 @@ final class BackupSelectWalletInteractor {
 
 extension BackupSelectWalletInteractor: BackupSelectWalletInteractorInput {
     func fetchBackupAccounts() {
-        cloudStorageService?.getBackupAccounts(completion: { [weak self] result in
-            self?.output?.didReceiveBackupAccounts(result: result)
-        })
+        Task {
+            do {
+                guard let cloudStorageService = cloudStorageService else {
+                    throw ConvenienceError(error: "Cloud storage not init")
+                }
+                let accounts = try await cloudStorageService.getFearlessBackupAccounts()
+                self.output?.didReceiveBackupAccounts(result: .success(accounts))
+            } catch {
+                self.output?.didReceiveBackupAccounts(result: .failure(error))
+            }
+        }
     }
 
     func setup(with output: BackupSelectWalletInteractorOutput) {
