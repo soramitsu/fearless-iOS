@@ -1,5 +1,5 @@
 import CommonWallet
-import Web3
+import BigInt
 import SSFModels
 
 typealias SendModuleCreationResult = (view: SendViewInput, input: SendModuleInput)

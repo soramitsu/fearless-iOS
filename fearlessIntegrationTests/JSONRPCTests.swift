@@ -3,7 +3,7 @@ import XCTest
 import SSFUtils
 import RobinHood
 import IrohaCrypto
-import Web3
+import BigInt
 import xxHash_Swift
 import SoraKeystore
 import SoraFoundation

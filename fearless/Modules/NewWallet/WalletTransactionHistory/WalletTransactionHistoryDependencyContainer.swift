@@ -16,16 +16,13 @@ final class WalletTransactionHistoryDependencyContainer {
     }
 
     func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
-        let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
 
         guard
             let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
                 chainAsset: chainAsset,
-                txStorage: AnyDataProviderRepository(txStorage),
-                runtimeService: runtimeService
+                txStorage: AnyDataProviderRepository(txStorage)
             )
         else {
             return

@@ -1,6 +1,6 @@
 import Foundation
 import XNetworking
-import Web3
+import BigInt
 import CommonWallet
 import IrohaCrypto
 import SSFUtils

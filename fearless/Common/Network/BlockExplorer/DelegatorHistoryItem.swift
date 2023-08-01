@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 
 protocol DelegatorHistoryItem {
     var type: SubqueryDelegationAction { get }

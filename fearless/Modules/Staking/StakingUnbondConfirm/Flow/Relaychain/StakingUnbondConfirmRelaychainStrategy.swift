@@ -2,7 +2,7 @@ import Foundation
 import SSFUtils
 import SoraKeystore
 import RobinHood
-import Web3
+import BigInt
 import SSFModels
 
 protocol StakingUnbondConfirmRelaychainStrategyOutput: AnyObject {

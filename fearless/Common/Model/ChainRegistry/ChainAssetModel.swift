@@ -7,7 +7,7 @@ class ChainAssetModel: Codable {
     let assetId: String
     let staking: RawStakingType?
     let purchaseProviders: [PurchaseProvider]?
-    let type: ChainAssetType
+    let type: SubstrateAssetType?
     let isUtility: Bool
     let isNative: Bool
 
@@ -18,7 +18,7 @@ class ChainAssetModel: Codable {
         assetId: String,
         staking: RawStakingType? = nil,
         purchaseProviders: [PurchaseProvider]? = nil,
-        type: ChainAssetType,
+        type: SubstrateAssetType?,
         asset: AssetModel,
         chain: ChainModel,
         isUtility: Bool,
@@ -40,9 +40,7 @@ class ChainAssetModel: Codable {
         assetId = try container.decode(String.self, forKey: .assetId)
         staking = try? container.decode(RawStakingType.self, forKey: .staking)
         purchaseProviders = try? container.decode([PurchaseProvider]?.self, forKey: .purchaseProviders)
-        let type = try? container.decode(ChainAssetType?.self, forKey: .type)
-        self.type = type ?? ChainAssetType.normal
-
+        type = try? container.decode(SubstrateAssetType?.self, forKey: .type)
         isUtility = (try? container.decode(Bool?.self, forKey: .isUtility)) ?? false
         isNative = (try? container.decode(Bool?.self, forKey: .isNative)) ?? false
     }

@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 
 typealias DecodedOrmlAccountInfo = ChainStorageDecodedItem<OrmlAccountInfo>
 typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>

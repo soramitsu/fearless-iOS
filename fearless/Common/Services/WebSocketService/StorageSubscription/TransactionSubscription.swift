@@ -2,7 +2,7 @@ import Foundation
 import SSFUtils
 import IrohaCrypto
 import RobinHood
-import Web3
+import BigInt
 import SSFModels
 
 struct TransactionSubscriptionResult {

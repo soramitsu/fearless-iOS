@@ -1,6 +1,6 @@
 import Foundation
 @testable import fearless
-import Web3
+import BigInt
 import SSFUtils
 
 final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {    

@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import Web3
+import BigInt
 import SSFModels
 
 // swiftlint:disable type_name

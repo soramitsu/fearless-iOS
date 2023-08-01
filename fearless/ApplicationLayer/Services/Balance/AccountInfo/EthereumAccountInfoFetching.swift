@@ -24,8 +24,16 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
                 return
             }
 
-            let accountInfo = try await chainAsset.asset.isUtility ? fetchETHBalance(for: chainAsset, address: address) : fetchERC20Balance(for: chainAsset, address: address)
-            completionBlock(chainAsset, accountInfo)
+            switch chainAsset.asset.ethereumType {
+            case .normal:
+                let accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
+                completionBlock(chainAsset, accountInfo)
+            case .erc20:
+                let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
+                completionBlock(chainAsset, accountInfo)
+            case .none:
+                completionBlock(chainAsset, nil)
+            }
         }
     }
 
@@ -76,7 +84,7 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
         try await withCheckedThrowingContinuation { continuation in
             do {
                 let eth = try chainAsset.chain.rpcEth()
-                let ethereumAddress = try EthereumAddress(hex: address, eip55: false)
+                let ethereumAddress = try EthereumAddress(rawAddress: address.hexToBytes())
                 eth.getBalance(address: ethereumAddress, block: .latest) { resp in
                     if let balance = resp.result {
                         let accountInfo = AccountInfo(ethBalance: balance.quantity)

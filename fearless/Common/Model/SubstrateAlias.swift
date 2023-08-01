@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 
 typealias AccountAddress = String
 typealias AccountId = Data

@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 import IrohaCrypto
-import Web3
+import BigInt
 import SSFModels
 
 protocol SubstrateCallFactoryProtocol {

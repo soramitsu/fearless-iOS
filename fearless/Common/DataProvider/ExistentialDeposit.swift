@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 import RobinHood
 import SSFUtils
 import SSFModels
@@ -78,6 +78,8 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             }
         case .assets:
             fetchAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
+        case .none:
+            break
         }
     }
 

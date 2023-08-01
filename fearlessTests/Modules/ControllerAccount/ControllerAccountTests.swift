@@ -5,7 +5,7 @@ import SSFUtils
 import SoraKeystore
 import SoraFoundation
 @testable import fearless
-import Web3
+import BigInt
 
 class ControllerAccountTests: XCTestCase {
 

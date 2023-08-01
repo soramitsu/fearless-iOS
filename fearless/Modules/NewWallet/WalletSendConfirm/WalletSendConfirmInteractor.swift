@@ -109,6 +109,8 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
                 await MainActor.run {
                     presenter?.didReceiveFee(result: .success(runtimeDispatchInfo))
                 }
+
+                transferService.subscribeForFee(transfer: transfer, listener: self)
             } catch {
                 await MainActor.run {
                     presenter?.didReceiveFee(result: .failure(error))
@@ -178,5 +180,19 @@ extension WalletSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSu
 extension WalletSendConfirmInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Swift.Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         presenter?.didReceiveFee(result: result)
+    }
+}
+
+extension WalletSendConfirmInteractor: TransferFeeEstimationListener {
+    func didReceiveFee(fee: BigUInt) {
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+        }
+    }
+
+    func didReceiveFeeError(feeError: Error) {
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didReceiveFee(result: .failure(feeError))
+        }
     }
 }

@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import Web3
+import BigInt
 
 final class StakingPayoutConfirmationPoolViewModelState: StakingPayoutConfirmationViewModelState {
     var stateListener: StakingPayoutConfirmationModelStateListener?

@@ -1,4 +1,4 @@
-import Web3
+import BigInt
 
 struct StakingBalanceData {
     let stakingLedger: StakingLedger

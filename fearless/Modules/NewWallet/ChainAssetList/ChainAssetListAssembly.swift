@@ -25,8 +25,6 @@ final class ChainAssetListAssembly {
         let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let operationQueue = OperationQueue()
-        operationQueue.qualityOfService = .userInitiated
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared

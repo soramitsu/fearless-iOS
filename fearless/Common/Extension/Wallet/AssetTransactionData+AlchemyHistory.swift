@@ -20,7 +20,7 @@ extension AssetTransactionData {
             }
 
             let locale = LocalizationManager.shared.selectedLocale
-            let dateFormatter = DateFormatter.giantsquidDate
+            let dateFormatter = DateFormatter.alchemyDate
             let date = dateFormatter.value(for: locale).date(from: metadata.blockTimestamp)
             let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
             return timestamp

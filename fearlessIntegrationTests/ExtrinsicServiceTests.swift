@@ -1,6 +1,6 @@
 //import XCTest
 //import SoraKeystore
-//import Web3
+//import BigInt
 //import IrohaCrypto
 //@testable import fearless
 //

@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
-import Web3
+import BigInt
 import IrohaCrypto
 import SoraKeystore
 import SSFModels

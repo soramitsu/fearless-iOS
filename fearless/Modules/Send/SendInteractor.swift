@@ -273,6 +273,8 @@ extension SendInteractor: TransferFeeEstimationListener {
     }
 
     func didReceiveFeeError(feeError: Error) {
-        output?.didReceiveFee(result: .failure(feeError))
+        DispatchQueue.main.async { [weak self] in
+            self?.output?.didReceiveFee(result: .failure(feeError))
+        }
     }
 }

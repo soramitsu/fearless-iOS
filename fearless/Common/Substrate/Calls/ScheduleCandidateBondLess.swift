@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 
 struct ScheduleCandidateBondLessCall: Codable {
     @StringCodable var less: BigUInt

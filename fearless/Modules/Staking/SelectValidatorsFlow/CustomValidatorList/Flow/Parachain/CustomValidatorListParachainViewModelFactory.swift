@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 import SSFModels
-import Web3
+import BigInt
 
 final class CustomValidatorListParachainViewModelFactory {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol

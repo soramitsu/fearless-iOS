@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import Web3
+import BigInt
 import SSFUtils
 import SoraKeystore
 import SSFModels
@@ -72,13 +72,13 @@ final class ChainAccountInteractor {
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
-                self?.presenter?.didReceive(accountInfo: accountInfo, for: chainAsset, accountId: accountId)
-
                 guard let strongSelf = self else {
                     return
                 }
 
-                self?.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
+                strongSelf.presenter?.didReceive(accountInfo: accountInfo, for: chainAsset, accountId: accountId)
+
+                strongSelf.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
                     walletId: strongSelf.wallet.metaId,
                     chainAsset: chainAsset,
                     deliverOn: .main,

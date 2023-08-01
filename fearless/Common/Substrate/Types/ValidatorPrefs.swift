@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 
 struct ValidatorPrefs: Codable, Equatable {
     @StringCodable var commission: BigUInt

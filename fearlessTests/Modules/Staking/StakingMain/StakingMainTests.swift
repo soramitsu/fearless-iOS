@@ -5,7 +5,7 @@
 //import RobinHood
 //import IrohaCrypto
 //import SoraFoundation
-//import Web3
+//import BigInt
 //
 //class StakingMainTests: XCTestCase {
 //    func testNominatorStateSetup() throws {

@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import Web3
+import BigInt
 import SSFModels
 
 protocol WalletLocalStorageSubscriber where Self: AnyObject {
@@ -105,6 +105,8 @@ extension WalletLocalStorageSubscriber {
             } else {
                 handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
             }
+        case .none:
+            break
         }
     }
 

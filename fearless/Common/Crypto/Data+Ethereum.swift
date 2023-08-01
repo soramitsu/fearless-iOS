@@ -1,7 +1,7 @@
 import Foundation
 import keccak
 import secp256k1
-import Web3
+import BigInt
 
 // TODO: Move to library
 extension Data {

@@ -2,7 +2,7 @@ import UIKit
 import RobinHood
 import SoraKeystore
 import IrohaCrypto
-import Web3
+import BigInt
 import SSFUtils
 import SSFModels
 

@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 
 struct TreasuryDepositEvent: Decodable {
     let amount: BigUInt

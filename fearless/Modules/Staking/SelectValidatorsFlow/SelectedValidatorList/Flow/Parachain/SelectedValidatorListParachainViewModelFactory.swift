@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 import SoraFoundation
-import Web3
+import BigInt
 import SSFModels
 
 final class SelectedValidatorListParachainViewModelFactory {

@@ -9,12 +9,12 @@ final class AlchemyRequestSigner {
 }
 
 extension AlchemyRequestSigner: RequestSigner {
-    func sign(request: inout URLRequest, config: RequestConfig) {
+    func sign(request: inout URLRequest, config: RequestConfig) throws {
         guard
             var urlString = request.url?.absoluteString,
             let baseUrlBound = urlString.range(of: config.baseURL.absoluteString)?.upperBound
         else {
-            return
+            throw RequestSignerError.badURL
         }
 
         urlString.insert(contentsOf: apiKey, at: baseUrlBound)

@@ -6,7 +6,7 @@ import RobinHood
 import SoraFoundation
 import SSFUtils
 import Cuckoo
-import Web3
+import BigInt
 
 class CrowdloanContributionConfirmTests: XCTestCase {
 //    static let currentBlockNumber: BlockNumber = 1337

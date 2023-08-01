@@ -1,7 +1,6 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import BigInt
 
 typealias RuntimeVersionUpdate = JSONRPCSubscriptionUpdate<RuntimeVersion>
 typealias StorageSubscriptionUpdate = JSONRPCSubscriptionUpdate<StorageUpdate>

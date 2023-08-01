@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 import RobinHood
-import Web3
+import BigInt
 import SSFModels
 
 protocol StakingUnbondSetupParachainStrategyOutput: AnyObject {

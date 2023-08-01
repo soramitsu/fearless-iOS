@@ -19,10 +19,10 @@ final class JSONResponseDecoder: ResponseDecoder {
 
         let obj = try jsonDecoder.decode(type, from: data)
 
-        guard let qwerty = obj as? T else {
+        guard let decoded = obj as? T else {
             throw JSONResponseDecoderError.typeNotDecodable
         }
 
-        return qwerty
+        return decoded
     }
 }

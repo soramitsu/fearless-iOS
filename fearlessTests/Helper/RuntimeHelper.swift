@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 @testable import fearless
 
 enum RuntimeHelperError: Error {

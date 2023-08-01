@@ -1,6 +1,6 @@
 import SoraFoundation
 import CommonWallet
-import Web3
+import BigInt
 import SSFModels
 
 protocol StakingBondMoreConfirmationViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {

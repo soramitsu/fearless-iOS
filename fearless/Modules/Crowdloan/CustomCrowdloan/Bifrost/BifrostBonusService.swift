@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import Web3
+import BigInt
 
 final class BifrostBonusService {
     static let defaultReferralCode = "FRLS69"

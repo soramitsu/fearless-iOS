@@ -159,7 +159,6 @@ final class SendDepencyContainer {
             }
 
             return EthereumTransferService(
-                eth: try chainAsset.chain.rpcEth(),
                 ws: try chainAsset.chain.wsEth(),
                 privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
                 senderAddress: address

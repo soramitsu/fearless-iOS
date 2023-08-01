@@ -46,7 +46,7 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             staking: staking,
             purchaseProviders: purchaseProviders,
             type: createChainAssetModelType(from: entity.type),
-            smartContract: entity.smartContract
+            ethereumType: createEthereumAssetType(from: entity.ethereumType)
         )
     }
 
@@ -64,13 +64,22 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.symbol = model.symbol
         entity.existentialDeposit = model.existentialDeposit
         entity.color = model.color
-        entity.smartContract = model.smartContract
+        entity.ethereumType = model.ethereumType?.rawValue
+        entity.type = model.type?.rawValue
+        entity.ethereumType = model.ethereumType?.rawValue
     }
 
-    private func createChainAssetModelType(from rawValue: String?) -> ChainAssetType {
+    private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {
         guard let rawValue = rawValue else {
-            return .normal
+            return nil
         }
-        return ChainAssetType(rawValue: rawValue) ?? .normal
+        return SubstrateAssetType(rawValue: rawValue)
+    }
+
+    private func createEthereumAssetType(from rawValue: String?) -> EthereumAssetType? {
+        guard let rawValue = rawValue else {
+            return nil
+        }
+        return EthereumAssetType(rawValue: rawValue)
     }
 }

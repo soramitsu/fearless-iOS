@@ -1,5 +1,5 @@
 import SSFUtils
-import Web3
+import BigInt
 import Foundation
 
 class SwapAmount: Codable {

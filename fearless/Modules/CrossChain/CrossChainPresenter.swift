@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFXCM
-import Web3
+import BigInt
 import SSFExtrinsicKit
 import SSFUtils
 import SSFModels

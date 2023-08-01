@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 import IrohaCrypto
-import Web3
+import BigInt
 import SSFModels
 
 /* This version of call factory is based on runtime version v9370 */
@@ -125,7 +125,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         chainAsset: ChainAsset
     ) -> any RuntimeCallable {
         switch chainAsset.chainAssetType {
-        case .normal:
+        case .normal, .none:
             if chainAsset.chain.isSora {
                 return ormlAssetTransfer(
                     to: receiver,

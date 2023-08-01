@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import Web3
+import BigInt
 
 final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFactory {
     private func deriveTotalStake(from eraStakersInfo: EraStakersInfo) -> BigUInt {

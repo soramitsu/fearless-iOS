@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import IrohaCrypto
-import Web3
+import BigInt
 import SoraKeystore
 import SSFModels
 

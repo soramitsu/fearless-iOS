@@ -1,7 +1,7 @@
 // swiftlint:disable file_length
 import Foundation
 import CommonWallet
-import Web3
+import BigInt
 import SwiftUI
 import SoraFoundation
 import SSFModels

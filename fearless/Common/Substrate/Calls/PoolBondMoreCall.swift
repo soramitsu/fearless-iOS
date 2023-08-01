@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 
 enum BondExtra: Codable {
     case freeBalance(amount: BigUInt)

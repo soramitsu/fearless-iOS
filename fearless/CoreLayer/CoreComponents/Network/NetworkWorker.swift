@@ -8,7 +8,7 @@ final class NetworkWorker {
         let responseDecoder = BaseResponseDecoderFactory().buildResponseDecoder(with: config.decoderType)
 
         var request = try requestConfigurator.buildRequest(with: config)
-        requestSigner?.sign(request: &request, config: config)
+        try requestSigner?.sign(request: &request, config: config)
         let response = await networkClient.perform(request: request)
 
         switch response {

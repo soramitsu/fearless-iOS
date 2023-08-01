@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 
 final class ParachainState: BaseStakingState {
     private(set) var rewardEstimationAmount: Decimal?

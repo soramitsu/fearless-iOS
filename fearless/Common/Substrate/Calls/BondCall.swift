@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 
 struct BondCall: Codable {
     var controller: MultiAddress

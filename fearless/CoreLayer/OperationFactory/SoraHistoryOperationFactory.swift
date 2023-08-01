@@ -3,7 +3,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import XNetworking
-import Web3
+import BigInt
 import SSFModels
 
 final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {

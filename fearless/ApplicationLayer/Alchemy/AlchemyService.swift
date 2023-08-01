@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 
 struct EthereumBalanceRequestParams: Encodable {
     let address: String
@@ -15,7 +15,7 @@ struct EthereumBalanceRequestParams: Encodable {
 
 final class AlchemyService {
     func fetchTransactionHistory(request: AlchemyHistoryRequest) async throws -> AlchemyResponse<AlchemyHistory> {
-        let body = JSONRPCInfo(identifier: 4, jsonrpc: "2.0", method: AlchemyEndpoint.getAssetTransfers.rawValue, params: [request])
+        let body = JSONRPCInfo(identifier: 1, jsonrpc: "2.0", method: AlchemyEndpoint.getAssetTransfers.rawValue, params: [request])
         let paramsEncoded = try JSONEncoder().encode(body)
         let request = AlchemyRequest(body: paramsEncoded)
         let worker = NetworkWorker()

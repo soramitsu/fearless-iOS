@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import Web3
+import BigInt
 
 extension NominatorState {
     var status: NominationViewStatus {

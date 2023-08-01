@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
-import Web3
+import BigInt
 import SSFModels
 
 // swiftlint:disable function_parameter_count function_body_length

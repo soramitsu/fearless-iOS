@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 
 extension BigUInt {
     static func fromHexString(_ hex: String) -> BigUInt? {

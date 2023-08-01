@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 
 struct FeeDetails: Codable {
     let baseFee: BigUInt

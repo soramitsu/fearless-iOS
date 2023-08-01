@@ -1,5 +1,5 @@
 import Foundation
-import Web3
+import BigInt
 import SSFUtils
 
 class SubstrateCallFactoryV9390: SubstrateCallFactoryDefault {

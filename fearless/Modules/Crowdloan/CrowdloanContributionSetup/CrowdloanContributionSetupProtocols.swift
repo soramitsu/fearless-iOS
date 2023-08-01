@@ -1,6 +1,6 @@
 import Foundation
 import CommonWallet
-import Web3
+import BigInt
 import SoraFoundation
 
 protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol, Localizable {

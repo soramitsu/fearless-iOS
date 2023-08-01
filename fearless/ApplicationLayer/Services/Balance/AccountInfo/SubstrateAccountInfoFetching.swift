@@ -128,6 +128,8 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                             completionBlock: completionBlock
                         )
                     }
+                case .none:
+                    break
                 }
             default:
                 completionBlock(chainAsset, nil)
@@ -207,6 +209,8 @@ private extension AccountInfoFetching {
         }
 
         switch chainAsset.chainAssetType {
+        case .none:
+            return ClosureOperation { [chainAsset: nil] }
         case .normal:
             guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,

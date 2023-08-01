@@ -1,7 +1,7 @@
 import UIKit
 import RobinHood
 import SSFModels
-import Web3
+import BigInt
 
 final class PolkaswapSwapConfirmationInteractor: RuntimeConstantFetching {
     // MARK: - Private properties

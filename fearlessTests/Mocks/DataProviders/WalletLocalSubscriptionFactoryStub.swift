@@ -1,7 +1,7 @@
 import Foundation
 @testable import fearless
 import RobinHood
-import Web3
+import BigInt
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
     var operationManager: RobinHood.OperationManagerProtocol

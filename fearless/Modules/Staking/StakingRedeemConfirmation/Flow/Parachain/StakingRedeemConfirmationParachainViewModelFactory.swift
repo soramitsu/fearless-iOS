@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
-import Web3
+import BigInt
 import SSFModels
 
 final class StakingRedeemConfirmationParachainViewModelFactory: StakingRedeemConfirmationViewModelFactoryProtocol {

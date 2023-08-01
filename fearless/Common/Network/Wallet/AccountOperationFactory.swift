@@ -2,7 +2,7 @@ import Foundation
 import CommonWallet
 import RobinHood
 import IrohaCrypto
-import Web3
+import BigInt
 import SSFUtils
 import SSFModels
 

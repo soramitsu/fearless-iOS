@@ -94,8 +94,7 @@ enum WalletTransactionHistoryViewFactory {
         guard
             let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
                 chainAsset: chainAsset,
-                txStorage: AnyDataProviderRepository(txStorage),
-                runtimeService: runtimeService
+                txStorage: AnyDataProviderRepository(txStorage)
             )
         else {
             return nil

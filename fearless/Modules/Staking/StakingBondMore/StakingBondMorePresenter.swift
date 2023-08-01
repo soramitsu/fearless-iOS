@@ -1,6 +1,6 @@
 import SoraFoundation
 import CommonWallet
-import Web3
+import BigInt
 import SSFModels
 
 final class StakingBondMorePresenter {

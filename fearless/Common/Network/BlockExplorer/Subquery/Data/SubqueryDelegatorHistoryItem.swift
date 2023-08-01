@@ -2,7 +2,7 @@ import Foundation
 import SSFUtils
 import CommonWallet
 import IrohaCrypto
-import Web3
+import BigInt
 
 struct SubqueryDelegatorHistoryItem: Decodable, RewardHistoryItemProtocol, DelegatorHistoryItem {
     let id: String

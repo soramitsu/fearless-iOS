@@ -1,6 +1,6 @@
 import SoraFoundation
 import SSFUtils
-import Web3
+import BigInt
 import IrohaCrypto
 import SSFModels
 

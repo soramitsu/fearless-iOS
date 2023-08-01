@@ -1,6 +1,6 @@
 import Foundation
 import CommonWallet
-import Web3
+import BigInt
 import SSFModels
 
 final class StakingAmountPresenter {

@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import Web3
+import BigInt
 
 struct CrowdloanContribution: Decodable {
     enum CodingKeys: String, CodingKey {
