@@ -23,6 +23,27 @@ final class OnboardingMainPresenter {
         self.wireframe = wireframe
         self.interactor = interactor
     }
+
+    private func showGoogleIssueAlert() {
+        let title = R.string.localizable
+            .noAccessToGoogle(preferredLanguages: locale.rLanguages)
+        let retryTitle = R.string.localizable
+            .tryAgain(preferredLanguages: locale.rLanguages)
+        let retryAction = SheetAlertPresentableAction(
+            title: retryTitle,
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            self?.interactor.activateGoogleBackup()
+        }
+        wireframe.present(
+            message: nil,
+            title: title,
+            closeAction: nil,
+            from: view,
+            actions: [retryAction]
+        )
+    }
 }
 
 extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
@@ -144,12 +165,8 @@ extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
             } else {
                 wireframe.showCreateFlow(from: view)
             }
-        case let .failure(failure):
-            wireframe.present(
-                error: failure,
-                from: view,
-                locale: locale
-            )
+        case .failure:
+            showGoogleIssueAlert()
         }
     }
 }

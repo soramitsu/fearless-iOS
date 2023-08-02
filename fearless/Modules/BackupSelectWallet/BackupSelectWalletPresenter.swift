@@ -42,9 +42,28 @@ final class BackupSelectWalletPresenter {
             return
         }
         let names = accounts.map { $0.name ?? $0.address }
-        DispatchQueue.main.async {
-            self.view?.didReceive(viewModels: names)
+        view?.didReceive(viewModels: names)
+    }
+
+    private func showGoogleIssueAlert() {
+        let title = R.string.localizable
+            .noAccessToGoogle(preferredLanguages: selectedLocale.rLanguages)
+        let retryTitle = R.string.localizable
+            .tryAgain(preferredLanguages: selectedLocale.rLanguages)
+        let retryAction = SheetAlertPresentableAction(
+            title: retryTitle,
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            self?.interactor.fetchBackupAccounts()
         }
+        router.present(
+            message: nil,
+            title: title,
+            closeAction: nil,
+            from: view,
+            actions: [retryAction]
+        )
     }
 }
 
@@ -100,11 +119,8 @@ extension BackupSelectWalletPresenter: BackupSelectWalletInteractorOutput {
         case let .success(accounts):
             self.accounts = accounts
             provideViewModels()
-        case let .failure(failure):
-            let error = ConvenienceError(error: failure.localizedDescription)
-            DispatchQueue.main.async {
-                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
-            }
+        case .failure:
+            showGoogleIssueAlert()
         }
     }
 }

@@ -85,7 +85,9 @@ extension BackupCreatePasswordPresenter: BackupCreatePasswordViewOutput {
 
 extension BackupCreatePasswordPresenter: BackupCreatePasswordInteractorOutput {
     func didReceive(error: Error) {
-        router.present(error: error, from: view, locale: selectedLocale)
+        DispatchQueue.main.async {
+            self.router.present(error: error, from: self.view, locale: self.selectedLocale)
+        }
     }
 
     func didComplete() {

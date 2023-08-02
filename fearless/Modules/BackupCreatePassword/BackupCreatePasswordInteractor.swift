@@ -197,7 +197,9 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             switch result {
             case .success:
                 self?.didBackuped(wallet: wallet)
-                self?.output?.didComplete()
+                DispatchQueue.main.async {
+                    self?.output?.didComplete()
+                }
             case let .failure(failure):
                 self?.output?.didReceive(error: failure)
             }

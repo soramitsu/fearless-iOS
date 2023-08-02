@@ -1042,3 +1042,5 @@
 "backup.wallet.name.create.bottom.decription" = "Visible only for you and stored locally";
 "backup.wallet.name.field.name.title" = "Wallet name";
 "accounts.with.shared.secret" = "Account with shared secret";
+"try.again" = "Try again";
+"no.access.to.google" = "No access to Google";

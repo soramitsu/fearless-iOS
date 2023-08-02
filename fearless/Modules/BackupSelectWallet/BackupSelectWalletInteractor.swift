@@ -22,13 +22,17 @@ extension BackupSelectWalletInteractor: BackupSelectWalletInteractorInput {
     func fetchBackupAccounts() {
         Task {
             do {
-                guard let cloudStorageService = cloudStorageService else {
-                    throw ConvenienceError(error: "Cloud storage not init")
+                if let cloudStorageService = cloudStorageService {
+                    let accounts = try await cloudStorageService.getFearlessBackupAccounts()
+                    await MainActor.run {
+                        output?.didReceiveBackupAccounts(result: .success(accounts))
+                    }
                 }
-                let accounts = try await cloudStorageService.getFearlessBackupAccounts()
-                self.output?.didReceiveBackupAccounts(result: .success(accounts))
             } catch {
-                self.output?.didReceiveBackupAccounts(result: .failure(error))
+                cloudStorageService?.disconnect()
+                await MainActor.run {
+                    output?.didReceiveBackupAccounts(result: .failure(error))
+                }
             }
         }
     }

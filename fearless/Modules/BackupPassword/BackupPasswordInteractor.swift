@@ -6,6 +6,7 @@ protocol BackupPasswordInteractorOutput: AnyObject {
     func didReceiveBackup(result: Result<OpenBackupAccount, Error>)
     func didReceiveAccountImport(error: Error)
     func didCompleteAccountImport()
+    func showGoogleIssueError()
 }
 
 final class BackupPasswordInteractor: BaseAccountImportInteractor {
@@ -73,6 +74,28 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
             in: .transient
         )
     }
+
+    private func handle(error: Error) {
+        if let error = error as? CloudStorageServiceError {
+            switch error {
+            case .notFound, .notAuthorized:
+                cloudStorage?.disconnect()
+                DispatchQueue.main.async {
+                    self.output?.showGoogleIssueError()
+                }
+            case .incorectPassword, .incorectJson:
+                DispatchQueue.main.async {
+                    self.output?.didReceiveBackup(result: .failure(error))
+                }
+            }
+            return
+        } else {
+            cloudStorage?.disconnect()
+            DispatchQueue.main.async {
+                self.output?.showGoogleIssueError()
+            }
+        }
+    }
 }
 
 // MARK: - BackupPasswordInteractorInput
@@ -85,18 +108,19 @@ extension BackupPasswordInteractor: BackupPasswordInteractorInput {
     func importBackup(account: OpenBackupAccount, password: String) {
         Task {
             do {
-                guard let cloudStorage = cloudStorage else {
-                    throw ConvenienceError(error: "Cloud storage not init")
-                }
-                let account = try await cloudStorage.importBackup(account: account, password: password)
-                await MainActor.run {
-                    output?.didReceiveBackup(result: .success(account))
+                if let cloudStorage = cloudStorage {
+                    let account = try await cloudStorage.importBackup(account: account, password: password)
+                    await MainActor.run {
+                        output?.didReceiveBackup(result: .success(account))
+                    }
                 }
             } catch {
-                await MainActor.run {
-                    output?.didReceiveBackup(result: .failure(error))
-                }
+                handle(error: error)
             }
         }
+    }
+
+    func signInIfNeeded() {
+        cloudStorage?.signInIfNeeded(completion: nil)
     }
 }

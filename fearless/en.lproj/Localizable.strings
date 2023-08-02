@@ -1059,3 +1059,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "backup.not.backed.up.message" = "If your device gets lost or stolen, you will loose your wallet and all your funds forever";
 "backup.not.backed.up.confirm" = "I will risk it";
 "accounts.with.shared.secret" = "Account with shared secret";
+"try.again" = "Try again";
+"no.access.to.google" = "No access to Google";

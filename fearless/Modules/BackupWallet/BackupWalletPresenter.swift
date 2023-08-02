@@ -148,6 +148,27 @@ final class BackupWalletPresenter {
         )
         router.present(viewModel: alertViewModel, from: view)
     }
+
+    private func showGoogleIssueAlert() {
+        let title = R.string.localizable
+            .noAccessToGoogle(preferredLanguages: selectedLocale.rLanguages)
+        let retryTitle = R.string.localizable
+            .tryAgain(preferredLanguages: selectedLocale.rLanguages)
+        let retryAction = SheetAlertPresentableAction(
+            title: retryTitle,
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            self?.interactor.viewDidAppear()
+        }
+        router.present(
+            message: nil,
+            title: title,
+            closeAction: nil,
+            from: view,
+            actions: [retryAction]
+        )
+    }
 }
 
 // MARK: - BackupWalletViewOutput
@@ -211,10 +232,9 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
             backupAccounts = accounts
         case let .failure(failure):
             googleAuthorized = false
-            backupAccounts = []
+            backupAccounts = nil
             logger.error(failure.localizedDescription)
-            let error = ConvenienceError(error: failure.localizedDescription)
-            router.present(error: error, from: view, locale: selectedLocale)
+            showGoogleIssueAlert()
         }
         provideViewModel()
     }

@@ -10,6 +10,7 @@ protocol BackupPasswordViewInput: ControllerBackedProtocol, HiddableBarWhenPushe
 protocol BackupPasswordInteractorInput: AccountImportInteractorInputProtocol {
     func setup(with output: BackupPasswordInteractorOutput)
     func importBackup(account: OpenBackupAccount, password: String)
+    func signInIfNeeded()
 }
 
 final class BackupPasswordPresenter {
@@ -171,6 +172,27 @@ final class BackupPasswordPresenter {
             actions: []
         )
     }
+
+    private func showGoogleIssueAlert() {
+        let title = R.string.localizable
+            .noAccessToGoogle(preferredLanguages: selectedLocale.rLanguages)
+        let retryTitle = R.string.localizable
+            .tryAgain(preferredLanguages: selectedLocale.rLanguages)
+        let retryAction = SheetAlertPresentableAction(
+            title: retryTitle,
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            self?.interactor.signInIfNeeded()
+        }
+        router.present(
+            message: nil,
+            title: title,
+            closeAction: nil,
+            from: view,
+            actions: [retryAction]
+        )
+    }
 }
 
 // MARK: - BackupPasswordViewOutput
@@ -200,6 +222,10 @@ extension BackupPasswordPresenter: BackupPasswordViewOutput {
 // MARK: - BackupPasswordInteractorOutput
 
 extension BackupPasswordPresenter: BackupPasswordInteractorOutput {
+    func showGoogleIssueError() {
+        showGoogleIssueAlert()
+    }
+
     func didReceiveAccountImport(error: Error) {
         router.present(error: error, from: view, locale: selectedLocale)
     }

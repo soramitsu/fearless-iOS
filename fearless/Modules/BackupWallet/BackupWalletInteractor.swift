@@ -87,14 +87,14 @@ final class BackupWalletInteractor {
     private func getBackupAccounts() {
         Task {
             do {
-                guard let cloudStorage = cloudStorage else {
-                    throw ConvenienceError(error: "Cloud storage not init")
-                }
-                let accounts = try await cloudStorage.getFearlessBackupAccounts()
-                await MainActor.run {
-                    output?.didReceiveBackupAccounts(result: .success(accounts))
+                if let cloudStorage = cloudStorage {
+                    let accounts = try await cloudStorage.getFearlessBackupAccounts()
+                    await MainActor.run {
+                        output?.didReceiveBackupAccounts(result: .success(accounts))
+                    }
                 }
             } catch {
+                cloudStorage?.disconnect()
                 await MainActor.run {
                     output?.didReceiveBackupAccounts(result: .failure(error))
                 }

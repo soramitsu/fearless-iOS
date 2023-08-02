@@ -34,6 +34,7 @@ extension OnboardingMainInteractor: OnboardingMainInteractorInputProtocol {
                     presenter?.didReceiveBackupAccounts(result: .success(accounts))
                 }
             } catch {
+                cloudStorage.disconnect()
                 await MainActor.run {
                     presenter?.didReceiveBackupAccounts(result: .failure(error))
                 }
