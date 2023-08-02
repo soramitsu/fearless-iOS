@@ -42,15 +42,19 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
         wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
+        let chainAssets = chainAssets.filter { $0.chain.isEthereum }
         let accountInfoOperations: [AwaitOperation<[ChainAsset: AccountInfo?]>] = chainAssets.filter { $0.chain.isEthereum }.compactMap { chainAsset in
             guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
                 return nil
             }
 
-            if chainAsset.asset.isUtility {
+            switch chainAsset.asset.ethereumType {
+            case .normal:
                 return fetchEthereumBalanceOperation(for: chainAsset, address: address)
-            } else {
+            case .erc20:
                 return fetchErc20BalanceOperation(for: chainAsset, address: address)
+            case .none:
+                return nil
             }
         }
 
