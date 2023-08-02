@@ -78,12 +78,12 @@ final class BackupPasswordInteractor: BaseAccountImportInteractor {
     private func handle(error: Error) {
         if let error = error as? CloudStorageServiceError {
             switch error {
-            case .notFound, .notAuthorized:
+            case .notAuthorized:
                 cloudStorage?.disconnect()
                 DispatchQueue.main.async {
                     self.output?.showGoogleIssueError()
                 }
-            case .incorectPassword, .incorectJson:
+            case .incorectPassword, .incorectJson, .notFound:
                 DispatchQueue.main.async {
                     self.output?.didReceiveBackup(result: .failure(error))
                 }
