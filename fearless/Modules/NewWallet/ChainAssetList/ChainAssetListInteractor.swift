@@ -110,19 +110,18 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
             switch result {
             case let .success(chainAssets):
+                self?.subscribeToPrice(for: chainAssets)
+
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
                 self?.accountInfoFetching.forEach { accountInfoFetching in
                     accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
                         self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-
-                        if accountInfoFetching.supportSubscribing {
-                            self?.subscribeToAccountInfo(for: chainAssets)
-                        }
+                        self?.subscribeToAccountInfo(for: chainAssets)
                     }
                 }
-                self?.subscribeToPrice(for: chainAssets)
+
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
@@ -186,6 +185,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 private extension ChainAssetListInteractor {
     func subscribeToPrice(for chainAssets: [ChainAsset]) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
+        print("pricesIds: \(pricesIds)")
         guard pricesIds.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))
             return

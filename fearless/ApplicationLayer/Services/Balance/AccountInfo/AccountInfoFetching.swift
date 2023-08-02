@@ -2,8 +2,6 @@ import Foundation
 import SSFModels
 
 protocol AccountInfoFetchingProtocol {
-    var supportSubscribing: Bool { get }
-
     func fetch(
         for chainAsset: ChainAsset,
         accountId: AccountId,

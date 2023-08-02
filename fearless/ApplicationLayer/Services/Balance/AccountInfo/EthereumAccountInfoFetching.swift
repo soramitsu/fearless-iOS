@@ -7,7 +7,6 @@ import RobinHood
 
 final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
     private let operationQueue: OperationQueue
-    var supportSubscribing: Bool { false }
 
     init(operationQueue: OperationQueue) {
         self.operationQueue = operationQueue

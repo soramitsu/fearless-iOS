@@ -6,7 +6,6 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
     private let accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>
     private let chainRegistry: ChainRegistryProtocol
     private let operationQueue: OperationQueue
-    var supportSubscribing: Bool { true }
 
     init(
         accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>,

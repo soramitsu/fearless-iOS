@@ -91,13 +91,11 @@ final class SendInteractor: RuntimeConstantFetching {
 
                     self?.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
 
-                    if dependencies.accountInfoFetching.supportSubscribing {
-                        let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
-                        self?.accountInfoSubscriptionAdapter.subscribe(
-                            chainsAssets: chainAssets,
-                            handler: self
-                        )
-                    }
+                    let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
+                    self?.accountInfoSubscriptionAdapter.subscribe(
+                        chainsAssets: chainAssets,
+                        handler: self
+                    )
                 }
             }
         }
