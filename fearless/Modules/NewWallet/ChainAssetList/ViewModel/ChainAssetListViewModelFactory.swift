@@ -91,7 +91,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 chainAssets: assetChainAssets.chainAssets,
                 chainAsset: assetChainAssets.mainChainAsset,
                 priceData: priceData,
-                priceDataUpdated: prices.updated,
+                priceDataUpdated: true,
                 accountInfos: accountInfos,
                 locale: locale,
                 currency: wallet.selectedCurrency,
