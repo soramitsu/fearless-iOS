@@ -32,7 +32,7 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
                 let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
                 completionBlock(chainAsset, accountInfo)
             case .none:
-                completionBlock(chainAsset, nil)
+                break
             }
         }
     }

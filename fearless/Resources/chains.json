@@ -1,6 +1,7 @@
 [{
     "disabled": false,
     "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "rank": 3,
     "name": "Polkadot",
     "externalApi": {
         "staking": {
@@ -52,22 +53,48 @@
     }],
     "xcm": {
         "xcmVersion": "v3",
-        "availableAssets": ["DOT"],
-        "availableDestinations": [{
-            "chainId": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
-            "assets": ["DOT"]
-        },
+        "availableAssets": [
+            {
+                "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                "symbol": "DOT"
+            }
+        ],
+        "availableDestinations": [
+            {
+                "chainId": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
+                "assets": [
+                    {
+                        "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                        "symbol": "DOT"
+                    }
+                ]
+            },
             {
                 "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
-                "assets": ["DOT"]
+                "assets": [
+                    {
+                        "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                        "symbol": "DOT"
+                    }
+                ]
             },
             {
                 "chainId": "fc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
-                "assets": ["DOT"]
+                "assets": [
+                    {
+                        "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                        "symbol": "DOT"
+                    }
+                ]
             },
             {
                 "chainId": "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
-                "assets": ["DOT"]
+                "assets": [
+                    {
+                        "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                        "symbol": "DOT"
+                    }
+                ]
             }
         ]
     },
@@ -94,6 +121,7 @@
     {
         "disabled": false,
         "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+        "rank": 4,
         "name": "Kusama",
         "externalApi": {
             "staking": {
@@ -144,18 +172,39 @@
         }],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["KSM"],
-            "availableDestinations": [{
-                "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
-                "assets": ["KSM"]
-            },
+            "availableAssets": [
+                {
+                    "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                    "symbol": "KSM"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
+                },
                 {
                     "chainId": "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
-                    "assets": ["KSM"]
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
                 },
                 {
                     "chainId": "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
-                    "assets": ["KSM"]
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
                 }
             ]
         },
@@ -299,22 +348,64 @@
         "xcm": {
             "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
             "xcmVersion": "v3",
-            "availableAssets": ["KSM", "RMRK", "USDt"],
-            "availableDestinations": [{
-                "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-                "assets": ["KSM"]
-            },
+            "availableAssets": [
+                {
+                    "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                    "symbol": "KSM"
+                },
+                {
+                    "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                    "symbol": "RMRK"
+                },
+                {
+                    "id": "043a5aba-075a-4b14-91ae-f5bffe640477",
+                    "symbol": "USDt"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
+                },
                 {
                     "chainId": "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
-                    "assets": ["RMRK"]
+                    "assets": [
+                        {
+                            "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                            "symbol": "RMRK"
+                        }
+                    ]
                 },
                 {
                     "chainId": "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
-                    "assets": ["RMRK", "USDt"]
+                    "assets": [
+                        {
+                            "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                            "symbol": "RMRK"
+                        },
+                        {
+                            "id": "043a5aba-075a-4b14-91ae-f5bffe640477",
+                            "symbol": "USDt"
+                        }
+                    ]
                 },
                 {
                     "chainId": "9f28c6a68e0fc9646eff64935684f6eeeece527e37bbe1f213d22caa1d9d6bed",
-                    "assets": ["RMRK", "USDt"]
+                    "assets": [
+                        {
+                            "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                            "symbol": "RMRK"
+                        },
+                        {
+                            "id": "043a5aba-075a-4b14-91ae-f5bffe640477",
+                            "symbol": "USDt"
+                        }
+                    ]
                 }
             ]
         },
@@ -383,18 +474,42 @@
         ],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["DOT", "USDt"],
+            "availableAssets": [
+                {
+                    "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                    "symbol": "DOT"
+                },
+                {
+                    "id": "1c9cea4c-f369-4bfa-a8c4-3d3264d3d7c2",
+                    "symbol": "USDt"
+                }
+            ],
             "availableDestinations": [{
                 "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-                "assets": ["DOT"]
+                "assets": [
+                    {
+                        "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                        "symbol": "DOT"
+                    }
+                ]
             },
                 {
                     "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
-                    "assets": ["USDt"]
+                    "assets": [
+                        {
+                            "id": "1c9cea4c-f369-4bfa-a8c4-3d3264d3d7c2",
+                            "symbol": "USDt"
+                        }
+                    ]
                 },
                 {
                     "chainId": "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
-                    "assets": ["USDt"]
+                    "assets": [
+                        {
+                            "id": "1c9cea4c-f369-4bfa-a8c4-3d3264d3d7c2",
+                            "symbol": "USDt"
+                        }
+                    ]
                 }
             ]
         },
@@ -568,19 +683,68 @@
             }
         ],
         "xcm": {
-            "xcmVersion": "v1",
-            "availableAssets": ["DOT", "AUSD", "ACA", "GLMR", "lcDOT"],
-            "availableDestinations": [{
-                "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-                "assets": ["DOT"]
-            },
+            "xcmVersion": "v3",
+            "availableAssets": [
+                {
+                    "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                    "symbol": "DOT"
+                },
+                {
+                    "id": "91912dbb-65f3-48c1-8ec1-4bb584e5ff2e",
+                    "symbol": "aUSD"
+                },
+                {
+                    "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
+                    "symbol": "ACA"
+                },
+                {
+                    "id": "e9be3a4f-77c8-4861-8607-b7a76a690ac7",
+                    "symbol": "GLMR"
+                },
+                {
+                    "id": "163a89b9-d140-44ca-b119-218a54e4235b",
+                    "symbol": "lcDOT"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+                    "assets": [
+                        {
+                            "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                            "symbol": "DOT"
+                        }
+                    ]
+                },
                 {
                     "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
-                    "assets": ["AUSD", "ACA", "GLMR"]
+                    "assets": [
+                        {
+                            "id": "91912dbb-65f3-48c1-8ec1-4bb584e5ff2e",
+                            "symbol": "aUSD"
+                        },
+                        {
+                            "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
+                            "symbol": "ACA"
+                        },
+                        {
+                            "id": "e9be3a4f-77c8-4861-8607-b7a76a690ac7",
+                            "symbol": "GLMR"
+                        }
+                    ]
                 },
                 {
                     "chainId": "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
-                    "assets": ["lcDOT", "ACA"]
+                    "assets": [
+                        {
+                            "id": "163a89b9-d140-44ca-b119-218a54e4235b",
+                            "symbol": "lcDOT"
+                        },
+                        {
+                            "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
+                            "symbol": "ACA"
+                        }
+                    ]
                 }
             ]
         },
@@ -960,22 +1124,100 @@
         ],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["KSM", "BNC", "AUSD", "KAR", "RMRK", "USDT", "MOVR"],
-            "availableDestinations": [{
-                "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-                "assets": ["KSM"]
-            },
+            "availableAssets": [
+                {
+                    "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                    "symbol": "KSM"
+                },
+                {
+                    "id": "cf0019d7-bbf7-48ca-b818-47f644ad97f6",
+                    "symbol": "BNC"
+                },
+                {
+                    "id": "a7e923a9-41d6-4d08-a4e2-2cf3efbb1061",
+                    "symbol": "AUSD"
+                },
+                {
+                    "id": "0fef7483-1f4c-4339-a12c-1b537e8e62ba",
+                    "symbol": "KAR"
+                },
+                {
+                    "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                    "symbol": "RMRK"
+                },
+                {
+                    "id": "af3ac245-db18-4d40-aa1c-6b70e724fc5e",
+                    "symbol": "USDt"
+                },
+                {
+                    "id": "d5647f60-f838-4343-a33a-83c6e9fe1845",
+                    "symbol": "MOVR"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
+                },
                 {
                     "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
-                    "assets": ["RMRK", "USDt"]
+                    "assets": [
+                        {
+                            "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                            "symbol": "RMRK"
+                        },
+                        {
+                            "id": "af3ac245-db18-4d40-aa1c-6b70e724fc5e",
+                            "symbol": "USDt"
+                        }
+                    ]
                 },
                 {
                     "chainId": "9f28c6a68e0fc9646eff64935684f6eeeece527e37bbe1f213d22caa1d9d6bed",
-                    "assets": ["KSM", "BNC", "AUSD", "KAR"]
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        },
+                        {
+                            "id": "cf0019d7-bbf7-48ca-b818-47f644ad97f6",
+                            "symbol": "BNC"
+                        },
+                        {
+                            "id": "a7e923a9-41d6-4d08-a4e2-2cf3efbb1061",
+                            "symbol": "AUSD"
+                        },
+                        {
+                            "id": "0fef7483-1f4c-4339-a12c-1b537e8e62ba",
+                            "symbol": "KAR"
+                        }
+                    ]
                 },
                 {
                     "chainId": "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
-                    "assets": ["KSM", "MOVR", "KAR", "AUSD"]
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        },
+                        {
+                            "id": "d5647f60-f838-4343-a33a-83c6e9fe1845",
+                            "symbol": "MOVR"
+                        },
+                        {
+                            "id": "0fef7483-1f4c-4339-a12c-1b537e8e62ba",
+                            "symbol": "KAR"
+                        },
+                        {
+                            "id": "a7e923a9-41d6-4d08-a4e2-2cf3efbb1061",
+                            "symbol": "AUSD"
+                        }
+                    ]
                 }
             ]
         },
@@ -1119,26 +1361,79 @@
                 "priceId": "kintsugi",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/KINT.svg",
                 "color": "FFFFFF"
+            },
+            {
+                "id": "1854feda-ca0c-4e82-9076-af2c7978f042",
+                "type": "assets",
+                "name": "karura",
+                "symbol": "xckar",
+                "currencyId": "10810581592933651521121702237638664357",
+                "precision": 12,
+                "priceId": "karura",
+                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/KAR.svg",
+                "color": "FFFFFF"
             }
         ],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["MOVR", "KSM", "AUSD", "RMRK"],
-            "availableDestinations": [{
-                "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-                "assets": ["KSM"]
-            },
+            "availableAssets": [
+                {
+                    "id": "5b1a0b8f-74c9-4073-b288-0d2ca16dfb77",
+                    "symbol": "MOVR"
+                },
+                {
+                    "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                    "symbol": "KSM"
+                },
+                {
+                    "id": "a7e923a9-41d6-4d08-a4e2-2cf3efbb1061",
+                    "symbol": "AUSD"
+                },
+                {
+                    "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                    "symbol": "RMRK"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
+                },
                 {
                     "chainId": "9f28c6a68e0fc9646eff64935684f6eeeece527e37bbe1f213d22caa1d9d6bed",
-                    "assets": ["MOVR", "KSM"]
+                    "assets": [
+                        {
+                            "id": "5b1a0b8f-74c9-4073-b288-0d2ca16dfb77",
+                            "symbol": "MOVR"
+                        },
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
                 },
                 {
                     "chainId": "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
-                    "assets": ["AUSD"]
+                    "assets": [
+                        {
+                            "id": "a7e923a9-41d6-4d08-a4e2-2cf3efbb1061",
+                            "symbol": "AUSD"
+                        }
+                    ]
                 },
                 {
                     "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
-                    "assets": ["RMRK"]
+                    "assets": [
+                        {
+                            "id": "c62c16f5-ac6b-410f-8804-4100dfb1bf33",
+                            "symbol": "RMRK"
+                        }
+                    ]
                 }
             ]
         },
@@ -1390,22 +1685,80 @@
         ],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["KSM", "BNC", "MOVR", "AUSD", "USDt"],
-            "availableDestinations": [{
-                "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-                "assets": ["KSM"]
-            },
+            "availableAssets": [
+                {
+                    "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                    "symbol": "KSM"
+                },
+                {
+                    "id": "cf0019d7-bbf7-48ca-b818-47f644ad97f6",
+                    "symbol": "BNC"
+                },
+                {
+                    "id": "d5647f60-f838-4343-a33a-83c6e9fe1845",
+                    "symbol": "MOVR"
+                },
+                {
+                    "id": "a7e923a9-41d6-4d08-a4e2-2cf3efbb1061",
+                    "symbol": "AUSD"
+                },
+                {
+                    "id": "af3ac245-db18-4d40-aa1c-6b70e724fc5e",
+                    "symbol": "USDt"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                    ]
+                },
                 {
                     "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
-                    "assets": ["USDt"]
+                    "assets": [
+                        {
+                            "id": "af3ac245-db18-4d40-aa1c-6b70e724fc5e",
+                            "symbol": "USDt"
+                        }
+                    ]
                 },
                 {
                     "chainId": "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
-                    "assets": ["KSM", "BNC", "AUSD"]
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        },
+                        {
+                            "id": "cf0019d7-bbf7-48ca-b818-47f644ad97f6",
+                            "symbol": "BNC"
+                        },
+                        {
+                            "id": "a7e923a9-41d6-4d08-a4e2-2cf3efbb1061",
+                            "symbol": "AUSD"
+                        }
+                    ]
                 },
                 {
                     "chainId": "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
-                    "assets": ["KSM", "BNC", "MOVR"]
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        },
+                        {
+                            "id": "cf0019d7-bbf7-48ca-b818-47f644ad97f6",
+                            "symbol": "BNC"
+                        },
+                        {
+                            "id": "d5647f60-f838-4343-a33a-83c6e9fe1845",
+                            "symbol": "MOVR"
+                        }
+                    ]
                 }
             ]
         },
@@ -2208,22 +2561,76 @@
         ],
         "xcm": {
             "xcmVersion": "v1",
-            "availableAssets": ["DOT", "GLMR", "lcDOT", "ACA", "LDOT", "USDt"],
-            "availableDestinations": [{
-                "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-                "assets": ["DOT"]
-            },
+            "availableAssets": [
+                {
+                    "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                    "symbol": "DOT"
+                },
+                {
+                    "id": "e9be3a4f-77c8-4861-8607-b7a76a690ac7",
+                    "symbol": "GLMR"
+                },
+                {
+                    "id": "bc05b313-67f2-454d-bdfa-78a4feb82259",
+                    "symbol": "lcDOT"
+                },
+                {
+                    "id": "0c7df36b-4ebd-4e66-a78b-77fa08b54c54",
+                    "symbol": "ACA"
+                },
+                {
+                    "id": "a3ecbda6-80b6-492f-a656-5ab0bdcc9d1f",
+                    "symbol": "LDOT"
+                },
+                {
+                    "id": "886db77c-ce4a-430c-9e53-81c57ffa7d74",
+                    "symbol": "USDt"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+                    "assets": [
+                        {
+                            "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                            "symbol": "DOT"
+                        }
+                    ]
+                },
                 {
                     "chainId": "fc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
-                    "assets": ["lcDOT", "ACA", "LDOT"]
+                    "assets": [
+                        {
+                            "id": "bc05b313-67f2-454d-bdfa-78a4feb82259",
+                            "symbol": "lcDOT"
+                        },
+                        {
+                            "id": "0c7df36b-4ebd-4e66-a78b-77fa08b54c54",
+                            "symbol": "ACA"
+                        },
+                        {
+                            "id": "a3ecbda6-80b6-492f-a656-5ab0bdcc9d1f",
+                            "symbol": "LDOT"
+                        }
+                    ]
                 },
                 {
                     "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
-                    "assets": ["GLMR"]
+                    "assets": [
+                        {
+                            "id": "e9be3a4f-77c8-4861-8607-b7a76a690ac7",
+                            "symbol": "GLMR"
+                        }
+                    ]
                 },
                 {
                     "chainId": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
-                    "assets": ["USDt"]
+                    "assets": [
+                        {
+                            "id": "886db77c-ce4a-430c-9e53-81c57ffa7d74",
+                            "symbol": "USDt"
+                        }
+                    ]
                 }
                 
             ]
@@ -2436,22 +2843,71 @@
         ],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["DOT", "GLMR", "AUSD", "ACA", "USDt"],
+            "availableAssets": [
+                {
+                    "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                    "symbol": "DOT"
+                },
+                {
+                    "id": "31b03360-5c73-4733-a72d-65daf4600315",
+                    "symbol": "GLMR"
+                },
+                {
+                    "id": "91912dbb-65f3-48c1-8ec1-4bb584e5ff2e",
+                    "symbol": "aUSD"
+                },
+                {
+                    "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
+                    "symbol": "ACA"
+                },
+                {
+                    "id": "886db77c-ce4a-430c-9e53-81c57ffa7d74",
+                    "symbol": "USDt"
+                }
+            ],
             "availableDestinations": [{
                 "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-                "assets": ["DOT"]
+                "assets": [
+                    {
+                        "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
+                        "symbol": "DOT"
+                    }
+                ]
             },
                 {
                     "chainId": "fc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
-                    "assets": ["AUSD", "ACA", "IBTC", "GLMR"]
+                    "assets": [
+                        {
+                            "id": "91912dbb-65f3-48c1-8ec1-4bb584e5ff2e",
+                            "symbol": "aUSD"
+                        },
+                        {
+                            "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
+                            "symbol": "ACA"
+                        },
+                        {
+                            "id": "31b03360-5c73-4733-a72d-65daf4600315",
+                            "symbol": "GLMR"
+                        }
+                    ]
                 },
                 {
                     "chainId": "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
-                    "assets": ["GLMR"]
+                    "assets": [
+                        {
+                            "id": "31b03360-5c73-4733-a72d-65daf4600315",
+                            "symbol": "GLMR"
+                        }
+                    ]
                 },
                 {
                     "chainId": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
-                    "assets": ["USDt"]
+                    "assets": [
+                        {
+                            "id": "886db77c-ce4a-430c-9e53-81c57ffa7d74",
+                            "symbol": "USDt"
+                        }
+                    ]
                 }
             ]
         },
@@ -3780,10 +4236,16 @@
             "isUtility": true,
             "type": "normal"
         }],
-        "nodes": [{
-            "url": "wss://polkadot.api.integritee.network",
-            "name": "Integritee node"
-        }],
+        "nodes": [
+            {
+                "url": "wss://integritee-rpc.dwellir.com",
+                "name": "Dwellir node"
+            },
+            {
+                "url": "wss://polkadot.api.integritee.network",
+                "name": "Integritee node"
+            }
+        ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/integritee.svg",
         "addressPrefix": 13
     },
@@ -4387,6 +4849,7 @@
     {
         "disabled": false,
         "chainId": "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5",
+        "rank": 0,
         "name": "SORA Mainnet",
         "externalApi": {
             "history": {
@@ -4955,13 +5418,10 @@
     },
     {
         "disabled": false,
-        "chainId": "1",
+        "chainId": "0x1",
+        "rank": 1,
         "name": "Ethereum",
         "externalApi": {
-            "history": {
-                "type": "etherscan",
-                "url": "https://api.etherscan.io/api"
-            },
             "explorers": [{
                 "type": "etherscan",
                 "types": [
@@ -4970,7 +5430,11 @@
                 ],
                 "url": "https://etherscan.io/{type}/{value}"
             }
-            ]
+            ],
+            "history": {
+                "type": "etherscan",
+                    "url": "https://api.etherscan.io/api"
+            }
         },
         "assets": [
             {
@@ -4982,7 +5446,8 @@
                 "priceId": "ethereum",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
                 "color": "FF0066",
-                "type": "normal"
+                "type": "normal",
+                "ethereumType": "normal"
             },
             {
                 "isUtility": false,
@@ -4993,18 +5458,8 @@
                 "priceId": "dai",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
                 "color": "FF0066",
-                "type": "normal"
-            },
-            {
-                "isUtility": false,
-                "id": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
-                "name": "usdt stablecoin",
-                "symbol": "usdt",
-                "precision": 18,
-                "priceId": "usdt",
-                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDT.svg",
-                "color": "FF0066",
-                "type": "normal"
+                "type": "normal",
+                "ethereumType": "erc20"
             }
         ],
         "nodes": [
@@ -5021,11 +5476,19 @@
                 "name": "ethereum publicnode"
             },
             {
+                "url": "https://rpc.mevblocker.io",
+                "name": "mevblocker node"
+            },
+            {
+               "url": "https://eth-mainnet.public.blastapi.io",
+               "name": "blastapi node"
+            },
+            {
                 "url": "wss://mainnet.infura.io/ws/v3/550f1aa1e8a147f8b43184507686569b",
                 "name": "Infura.io ws"
             }
         ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/ETH.svg",
         "addressPrefix": 0,
         "options": [
             "ethereum"
@@ -5033,69 +5496,273 @@
     },
     {
         "disabled": false,
-        "chainId": "11155111",
-        "name": "Sepolia",
+        "chainId": "0x65",
+        "name": "Ethereum Goerli",
         "externalApi": {
-            "history": {
-                "type": "alchemy",
-                "url": "https://eth-sepolia.g.alchemy.com/v2/16bz4S4bROJsWH-eDpiJ21cx_c-KAAaP"
-            },
             "explorers": [{
                 "type": "etherscan",
                 "types": [
                     "tx",
                     "address"
                 ],
-                "url": "https://sepolia.etherscan.io/{type}/{value}"
+                "url": "https://goerli.etherscan.io/{type}/{value}"
             }
-            ]
+            ],
+            "history": {
+                "type": "etherscan",
+                    "url": "https://api-goerli.etherscan.io/api"
+            }
         },
         "assets": [
             {
                 "isUtility": true,
-                "id": "c2a6c062-d511-4bde-9ce6-ea775d2a302s",
-                "name": "sepolia eth",
-                "symbol": "seth",
+                "id": "a31e35a9-5026-4816-9b8b-08029627b256",
+                "name": "ethereum",
+                "symbol": "eth",
                 "precision": 18,
                 "priceId": "ethereum",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
                 "color": "FF0066",
-                "type": "normal"
+                "type": "normal",
+                "ethereumType": "normal"
             },
             {
                 "isUtility": false,
-                "id": "0x7AF17A48a6336F7dc1beF9D485139f7B6f4FB5C8",
+                "id": "0x11fE4B6AE13d2a6055C8D9cF65c55bac32B5d844",
                 "name": "dai stablecoin",
                 "symbol": "dai",
                 "precision": 18,
                 "priceId": "dai",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
                 "color": "FF0066",
-                "type": "normal"
+                "type": "normal",
+                "ethereumType": "erc20"
+            },
+            {
+                "isUtility": false,
+                "id": "0x07865c6e87b9f70255377e024ace6630c1eaa37f",
+                "name": "usdc stablecoin",
+                "symbol": "usdc",
+                "precision": 6,
+                "priceId": "usd-coin",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDC.svg",
+                "color": "3E73C4",
+                "type": "normal",
+                "ethereumType": "erc20"
             }
         ],
         "nodes": [
             {
-                "url": "https://rpc.sepolia.org",
-                "name": "rpc.sepolia.org node"
-            },
-            {
-                "url": "https://eth-sepolia.public.blastapi.io",
-                "name": "blastapi node"
-            },
-            {
-                "url": "https://eth-sepolia-public.unifra.io",
-                "name": "unifra"
-            },
-            {
-                "url" : "wss://sepolia.infura.io/ws/v3/550f1aa1e8a147f8b43184507686569b",
-                "name": "infura.io wss"
+                "url": "https://ethereum-goerli.publicnode.com",
+                "name": "ethereum publicnode"
             }
         ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/ETH.svg",
         "addressPrefix": 0,
         "options": [
             "ethereum"
         ]
-    }
+    },
+    {
+        "disabled": false,
+        "chainId": "0x38",
+        "rank": 2,
+        "name": "Binance Smart Chain",
+        "externalApi": {
+          "history": {
+            "type": "etherscan",
+            "url": "https://api.bscscan.com/api"
+          },
+          "explorers": [
+            {
+              "type": "etherscan",
+              "types": [
+                "tx",
+                "address"
+              ],
+              "url": "https://bscscan.com/{type}/{value}"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "6e43f1b7-1ec3-48a7-8ecd-8d680578d2b8",
+            "name": "BNB",
+            "symbol": "BNB",
+            "precision": 18,
+            "priceId": "binancecoin",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BNB.svg",
+            "color": "FF0066",
+            "type": "normal",
+            "ethereumType": "normal"
+          },
+          {
+            "isUtility": false,
+            "id": "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3",
+            "name": "DAI",
+            "symbol": "DAI",
+            "precision": 18,
+            "priceId": "dai",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
+            "color": "FF0066",
+            "type": "normal",
+            "ethereumType": "erc20"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "https://bsc-dataseed.binance.org/",
+            "name": "Binance"
+          },
+          {
+            "url": "https://bsc-dataseed1.defibit.io",
+            "name": "Defibit"
+          },
+          {
+            "url": "https://bsc-dataseed1.ninicoin.io/",
+            "name": "Ninicoin"
+          },
+          {
+            "url": "https://bsc.nodereal.io/",
+            "name": "Nodereal"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/ETH.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "0x61",
+        "name": "Binance Smart Chain Testnet",
+        "externalApi": {
+          "history": {
+            "type": "etherscan",
+            "url": "https://testnet.bscscan.com/api"
+          },
+          "explorers": [
+            {
+              "type": "etherscan",
+              "types": [
+                "tx",
+                "address"
+              ],
+              "url": "https://testnet.bscscan.com/{type}/{value}"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "49e67f26-e01b-4aeb-b741-f0bd727c51e4",
+            "name": "tBNB",
+            "symbol": "tBNB",
+            "precision": 18,
+            "priceId": "binancecoin",
+            "color": "FF0066",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BNB.svg",
+            "type": "normal",
+            "ethereumType": "normal"
+          },
+          {
+            "isUtility": false,
+            "id": "0x05a137f9f66b974a0fbaff4ea2e69b8186d6b03a",
+            "name": "DAI",
+            "symbol": "DAI",
+            "precision": 18,
+            "priceId": "dai",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
+            "color": "FF0066",
+            "type": "normal",
+            "ethereumType": "erc20"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "https://data-seed-prebsc-1-s1.binance.org:8545/",
+            "name": "Binance"
+          },
+          {
+            "url": "https://data-seed-prebsc-2-s1.binance.org:8545/",
+            "name": "Binance 2"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/ETH.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum"
+        ]
+      },
+      {
+          "disabled": false,
+          "chainId": "11155111",
+          "name": "Sepolia",
+          "externalApi": {
+              "history": {
+                  "type": "alchemy",
+                  "url": "https://eth-sepolia.g.alchemy.com/v2/16bz4S4bROJsWH-eDpiJ21cx_c-KAAaP"
+              },
+              "explorers": [{
+                  "type": "etherscan",
+                  "types": [
+                      "tx",
+                      "address"
+                  ],
+                  "url": "https://sepolia.etherscan.io/{type}/{value}"
+              }
+              ]
+          },
+          "assets": [
+              {
+                  "isUtility": true,
+                  "id": "c2a6c062-d511-4bde-9ce6-ea775d2a302s",
+                  "name": "sepolia eth",
+                  "symbol": "seth",
+                  "precision": 18,
+                  "priceId": "ethereum",
+                  "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+                  "color": "FF0066",
+                  "type": "normal",
+                  "ethereumType": "normal"
+              },
+              {
+                  "isUtility": false,
+                  "id": "0x7AF17A48a6336F7dc1beF9D485139f7B6f4FB5C8",
+                  "name": "dai stablecoin",
+                  "symbol": "dai",
+                  "precision": 18,
+                  "priceId": "dai",
+                  "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
+                  "color": "FF0066",
+                  "type": "normal",
+                  "ethereumType": "erc20"
+              }
+          ],
+          "nodes": [
+              {
+                  "url": "https://rpc.sepolia.org",
+                  "name": "rpc.sepolia.org node"
+              },
+              {
+                  "url": "https://eth-sepolia.public.blastapi.io",
+                  "name": "blastapi node"
+              },
+              {
+                  "url": "https://eth-sepolia-public.unifra.io",
+                  "name": "unifra"
+              },
+              {
+                  "url" : "wss://sepolia.infura.io/ws/v3/550f1aa1e8a147f8b43184507686569b",
+                  "name": "infura.io wss"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+          "addressPrefix": 0,
+          "options": [
+              "ethereum"
+          ]
+      }
 ]

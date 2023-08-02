@@ -2,7 +2,6 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
-import SSFRuntimeCodingService
 
 // swiftlint:disable file_length
 protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
@@ -305,13 +304,14 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 
 extension RuntimeProvider: EventVisitorProtocol {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
-        guard
-            let chainTypes = event.versioningMap[chainId],
-            let oldChainTypes = self.chainTypes,
-            let oldChainTypesJson = try? JSONDecoder().decode(JSON.self, from: oldChainTypes),
-            let updatedChainTypes = try? JSONDecoder().decode(JSON.self, from: chainTypes),
-            oldChainTypesJson.runtime_id?.unsignedIntValue != updatedChainTypes.runtime_id?.unsignedIntValue
-        else {
+        guard let chainTypes = event.versioningMap[chainId] else {
+            return
+        }
+
+        if let oldChainTypes = self.chainTypes,
+           let oldChainTypesJson = try? JSONDecoder().decode(JSON.self, from: oldChainTypes),
+           let updatedChainTypes = try? JSONDecoder().decode(JSON.self, from: chainTypes),
+           oldChainTypesJson.runtime_id?.unsignedIntValue == updatedChainTypes.runtime_id?.unsignedIntValue {
             return
         }
 
