@@ -137,7 +137,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             return
         }
         rootView.tableView.beginUpdates()
-        rootView.tableView.tableHeaderView = rootView.headerViewContainer
+        rootView.tableView.setAndLayoutTableHeaderView(header: rootView.headerViewContainer)
         rootView.tableView.endUpdates()
     }
 

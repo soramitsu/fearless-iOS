@@ -55,6 +55,7 @@ enum BackupCreatePasswordAssembly {
         let router = BackupCreatePasswordRouter()
 
         let presenter = BackupCreatePasswordPresenter(
+            logger: Logger.shared,
             flow: flow,
             moduleOutput: moduleOutput,
             interactor: interactor,

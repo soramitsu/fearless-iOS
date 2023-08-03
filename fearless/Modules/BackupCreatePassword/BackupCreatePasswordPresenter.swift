@@ -19,6 +19,7 @@ final class BackupCreatePasswordPresenter {
     private weak var view: BackupCreatePasswordViewInput?
     private let router: BackupCreatePasswordRouterInput
     private let interactor: BackupCreatePasswordInteractorInput
+    private let logger: LoggerProtocol
 
     private let flow: BackupCreatePasswordFlow
     private weak var moduleOutput: BackupCreatePasswordModuleOutput?
@@ -34,12 +35,14 @@ final class BackupCreatePasswordPresenter {
     // MARK: - Constructors
 
     init(
+        logger: LoggerProtocol,
         flow: BackupCreatePasswordFlow,
         moduleOutput: BackupCreatePasswordModuleOutput?,
         interactor: BackupCreatePasswordInteractorInput,
         router: BackupCreatePasswordRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.logger = logger
         self.flow = flow
         self.moduleOutput = moduleOutput
         self.interactor = interactor
@@ -58,6 +61,33 @@ final class BackupCreatePasswordPresenter {
         }
 
         interactor.createAndBackupAccount(password: password)
+    }
+
+    private func showGoogleIssueAlert() {
+        let title = R.string.localizable
+            .noAccessToGoogle(preferredLanguages: selectedLocale.rLanguages)
+        let retryTitle = R.string.localizable
+            .tryAgain(preferredLanguages: selectedLocale.rLanguages)
+        let retryAction = SheetAlertPresentableAction(
+            title: retryTitle,
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            self?.proceed()
+        }
+        let viewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: [retryAction],
+            closeAction: nil,
+            dismissCompletion: { [weak self] in
+                self?.view?.didStopLoading()
+            }
+        )
+        router.present(
+            viewModel: viewModel,
+            from: view
+        )
     }
 }
 
@@ -85,8 +115,9 @@ extension BackupCreatePasswordPresenter: BackupCreatePasswordViewOutput {
 
 extension BackupCreatePasswordPresenter: BackupCreatePasswordInteractorOutput {
     func didReceive(error: Error) {
+        logger.customError(error)
         DispatchQueue.main.async {
-            self.router.present(error: error, from: self.view, locale: self.selectedLocale)
+            self.showGoogleIssueAlert()
         }
     }
 
