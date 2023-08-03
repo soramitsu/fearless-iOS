@@ -105,16 +105,18 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         self.handler = handler
         deliveryQueue = queue
 
-        ethereumWrapper.handler = handler
-        ethereumWrapper.subscribe(chainAssets: [chainAsset])
-
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.substrateWrapper)
-            strongSelf.subscriptions[chainAsset.chainAssetId] = nil
+            if chainAsset.chain.isEthereum {
+                strongSelf.ethereumWrapper.handler = handler
+                strongSelf.ethereumWrapper.subscribe(chainAssets: [chainAsset])
+            } else {
+                strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.substrateWrapper)
+                strongSelf.subscriptions[chainAsset.chainAssetId] = nil
 
-            if let subscription = strongSelf.substrateWrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
-                strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
+                if let subscription = strongSelf.substrateWrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
+                    strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
+                }
             }
         }
     }
@@ -124,15 +126,15 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        ethereumWrapper.subscribe(chainAssets: chainsAssets)
-        ethereumWrapper.handler = handler
-
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
+            strongSelf.ethereumWrapper.subscribe(chainAssets: chainsAssets.filter { $0.chain.isEthereum })
+            strongSelf.ethereumWrapper.handler = handler
+
             strongSelf.handler = handler
             strongSelf.deliveryQueue = queue
 
-            chainsAssets.forEach { chainAsset in
+            chainsAssets.filter { !$0.chain.isEthereum }.forEach { chainAsset in
 
                 strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.substrateWrapper)
                 strongSelf.subscriptions[chainAsset.chainAssetId] = nil

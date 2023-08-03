@@ -77,6 +77,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private lazy var metaAccounts: [MetaAccountModel] = []
     private lazy var prices: [PriceData] = []
 
+    private let lock = ReaderWriterLock()
+
     // MARK: - Constructor
 
     init(
@@ -316,15 +318,20 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-
-            accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
-            guard chainAssets.count == accountInfos.keys.count else {
-                if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
-                    buildBalance()
-                }
-                return
+            lock.exclusivelyWrite {
+                self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             }
-            buildBalance()
+
+            lock.concurrentlyRead {
+                guard chainAssets.count == accountInfos.keys.count else {
+                    if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
+                        buildBalance()
+                    }
+                    return
+                }
+
+                buildBalance()
+            }
         case let .failure(error):
             logger.error("""
                 WalletBalanceFetcher error: \(error.localizedDescription)

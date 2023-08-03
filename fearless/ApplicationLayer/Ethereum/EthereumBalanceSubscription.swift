@@ -18,7 +18,7 @@ final class EthereumBalanceSubscription {
 
     func subscribe(chainAssets: [ChainAsset]) {
         DispatchQueue.main.async { [weak self] in
-            self?.timer = Timer(timeInterval: 10.0, repeats: true, block: { _ in
+            self?.timer = Timer(timeInterval: 30.0, repeats: true, block: { _ in
                 chainAssets.filter { $0.chain.isEthereum }.forEach { chainAsset in
                     if let accountId = self?.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
                         self?.accountInfoFetching.fetch(

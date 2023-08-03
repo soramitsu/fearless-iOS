@@ -43,7 +43,7 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetching: [substrateAccountInfoFetching, ethereumAccountInfoFetching],
+            accountInfoFetchingProviders: [substrateAccountInfoFetching, ethereumAccountInfoFetching],
             dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()

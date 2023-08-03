@@ -16,7 +16,7 @@ final class ChainAssetListInteractor {
     private let eventCenter: EventCenter
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    private let accountInfoFetching: [AccountInfoFetchingProtocol]
+    private let accountInfoFetchingProviders: [AccountInfoFetchingProtocol]
     private let dependencyContainer: ChainAssetListDependencyContainer
 
     private var chainAssets: [ChainAsset]?
@@ -39,7 +39,7 @@ final class ChainAssetListInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        accountInfoFetching: [AccountInfoFetchingProtocol],
+        accountInfoFetchingProviders: [AccountInfoFetchingProtocol],
         dependencyContainer: ChainAssetListDependencyContainer
     ) {
         self.wallet = wallet
@@ -48,7 +48,7 @@ final class ChainAssetListInteractor {
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.accountRepository = accountRepository
-        self.accountInfoFetching = accountInfoFetching
+        self.accountInfoFetchingProviders = accountInfoFetchingProviders
         self.dependencyContainer = dependencyContainer
     }
 
@@ -115,10 +115,16 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
-                self?.accountInfoFetching.forEach { accountInfoFetching in
+                var responseReceivedCounter: Int = 0
+                self?.accountInfoFetchingProviders.forEach { accountInfoFetching in
                     accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
                         self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-                        self?.subscribeToAccountInfo(for: chainAssets)
+
+                        responseReceivedCounter += 1
+
+                        if responseReceivedCounter == self?.accountInfoFetchingProviders.count {
+                            self?.subscribeToAccountInfo(for: chainAssets)
+                        }
                     }
                 }
 
