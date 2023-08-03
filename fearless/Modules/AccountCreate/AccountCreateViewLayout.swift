@@ -408,9 +408,14 @@ private extension AccountCreateViewLayout {
         expandableControl.titleLabel.text = R.string.localizable
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
-        nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
-        nextButton.invalidateLayout()
+        switch flow {
+        case .wallet, .chain:
+            nextButton.imageWithTitleView?.title = R.string.localizable
+                .accountConfirmationTitle(preferredLanguages: locale.rLanguages)
+        case .backup:
+            nextButton.imageWithTitleView?.title = R.string.localizable
+                .commonContinue(preferredLanguages: locale.rLanguages)
+        }
         backupButton.imageWithTitleView?.title = R.string.localizable
             .btnBackupWithGoogle(preferredLanguages: locale.rLanguages)
     }
