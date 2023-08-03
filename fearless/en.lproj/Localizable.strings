@@ -1061,3 +1061,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "accounts.with.shared.secret" = "Account with shared secret";
 "try.again" = "Try again";
 "no.access.to.google" = "No access to Google";
+"btn.backup.with.google" = "Backup with Google";

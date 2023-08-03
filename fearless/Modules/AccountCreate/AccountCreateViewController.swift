@@ -287,7 +287,7 @@ extension AccountCreateViewController: KeyboardViewAdoptable {
                 inset.bottom = 0
                 rootView.contentView.scrollView.contentInset = inset
             } else {
-                inset.bottom = frame.height
+                inset.bottom = frame.height + rootView.buttonVStackView.frame.height
                 rootView.contentView.scrollView.contentInset = inset
             }
             rootView.contentView.scrollView.scrollRectToVisible(responderFrame, animated: true)

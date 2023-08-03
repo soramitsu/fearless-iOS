@@ -1044,3 +1044,4 @@
 "accounts.with.shared.secret" = "Account with shared secret";
 "try.again" = "Try again";
 "no.access.to.google" = "No access to Google";
+"btn.backup.with.google" = "Backup with Google";

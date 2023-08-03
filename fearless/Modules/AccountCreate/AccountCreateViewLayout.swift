@@ -119,7 +119,6 @@ final class AccountCreateViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
-        view.keyboardType = .decimalPad
         view.returnKeyType = .done
         return view
     }()
@@ -212,6 +211,8 @@ final class AccountCreateViewLayout: UIView {
         subtype: .fromTop,
         curve: .easeIn
     )
+
+    let buttonVStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
 
     var keyboardAdoptableConstraint: Constraint?
 
@@ -378,12 +379,11 @@ private extension AccountCreateViewLayout {
 
         contentView.stackView.addArrangedSubview(advancedContainerView)
 
-        let buttonVStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
         addSubview(buttonVStackView)
         buttonVStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
         }
 
         buttonVStackView.addArrangedSubview(nextButton)
@@ -411,6 +411,7 @@ private extension AccountCreateViewLayout {
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
-        backupButton.imageWithTitleView?.title = "Backup with Google"
+        backupButton.imageWithTitleView?.title = R.string.localizable
+            .btnBackupWithGoogle(preferredLanguages: locale.rLanguages)
     }
 }

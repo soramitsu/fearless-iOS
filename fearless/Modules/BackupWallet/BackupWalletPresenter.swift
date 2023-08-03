@@ -161,12 +161,18 @@ final class BackupWalletPresenter {
         ) { [weak self] in
             self?.interactor.viewDidAppear()
         }
-        router.present(
-            message: nil,
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
+            message: nil,
+            actions: [retryAction],
             closeAction: nil,
-            from: view,
-            actions: [retryAction]
+            dismissCompletion: { [weak self] in
+                self?.googleAuthorized = true
+            }
+        )
+        router.present(
+            viewModel: viewModel,
+            from: view
         )
     }
 }
