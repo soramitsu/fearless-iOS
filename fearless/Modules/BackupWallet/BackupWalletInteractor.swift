@@ -230,14 +230,17 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
         })
     }
 
-    func backup(substrate: ChainAccountInfo, ethereum: ChainAccountInfo, option: ExportOption) {
+    func backup(substrate: ChainAccountInfo, ethereum: ChainAccountInfo?, option: ExportOption) {
         switch option {
         case .mnemonic:
+            guard let ethereum = ethereum else {
+                return
+            }
             createMnemonicRequest(substrate: substrate, ethereum: ethereum)
         case .seed:
-            createKeystoreRequest(accounts: [substrate, ethereum])
+            createSeedRequest(accounts: [substrate, ethereum].compactMap { $0 })
         case .keystore:
-            createSeedRequest(accounts: [substrate, ethereum])
+            createKeystoreRequest(accounts: [substrate, ethereum].compactMap { $0 })
         }
     }
 

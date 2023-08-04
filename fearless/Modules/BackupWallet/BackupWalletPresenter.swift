@@ -11,7 +11,7 @@ protocol BackupWalletInteractorInput: AnyObject {
     func setup(with output: BackupWalletInteractorOutput)
     func backup(
         substrate: ChainAccountInfo,
-        ethereum: ChainAccountInfo,
+        ethereum: ChainAccountInfo?,
         option: ExportOption
     )
     func removeBackupFromGoogle()
@@ -103,10 +103,8 @@ final class BackupWalletPresenter {
     }
 
     private func startGoogleBackup(for accounts: [ChainAccountInfo]) {
-        guard
-            let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }),
-            let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-        else {
+        let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
+        guard let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }) else {
             return
         }
 
@@ -198,13 +196,16 @@ extension BackupWalletPresenter: BackupWalletViewOutput {
     }
 
     func didSelectRowAt(_ indexPath: IndexPath) {
-        guard
-            indexPath.section == 1,
-            let option = BackupWalletOptions(rawValue: indexPath.row)
-        else {
+        guard indexPath.section == 1 else {
             return
         }
-        startBackup(with: option)
+        if
+            let exportOption = exportOptions[safe: indexPath.row] {
+            let backupOptions = BackupWalletOptions(exportOptions: exportOption)
+            startBackup(with: backupOptions)
+        } else {
+            startBackup(with: .backupGoogle)
+        }
     }
 
     func didLoad(view: BackupWalletViewInput) {

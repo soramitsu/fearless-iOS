@@ -136,8 +136,8 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             cryptoType: cryptoType?.stringValue,
             substrateDerivationPath: substrateRestoreSeed?.derivationPath,
             ethDerivationPath: ethereumRestoreSeed?.derivationPath,
-            backupAccountTypes: [.seed],
-            seed: seed
+            backupAccountType: [.seed],
+            encryptedSeed: seed
         )
         saveBackupAccountToCloudStorage(account: account, password: password, wallet: wallet)
     }
@@ -151,8 +151,8 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
         let json = OpenBackupAccount.Json(
-            substrateJson: substrateRestoreJson?.data.asSecretData(),
-            ethJson: ethereumRestoreJson?.data.asSecretData()
+            substrateJson: substrateRestoreJson?.data,
+            ethJson: ethereumRestoreJson?.data
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
         let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
@@ -161,7 +161,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             name: wallet.name,
             address: address42 ?? wallet.substratePublicKey.toHex(),
             cryptoType: cryptoType?.stringValue,
-            backupAccountTypes: [.json],
+            backupAccountType: [.json],
             json: json
         )
         saveBackupAccountToCloudStorage(account: account, password: password, wallet: wallet)
@@ -180,7 +180,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             cryptoType: request.cryptoType.stringValue,
             substrateDerivationPath: request.substrateDerivationPath,
             ethDerivationPath: request.ethereumDerivationPath,
-            backupAccountTypes: [.passphrase]
+            backupAccountType: [.passphrase]
         )
         saveBackupAccountToCloudStorage(account: account, password: password, wallet: wallet)
     }

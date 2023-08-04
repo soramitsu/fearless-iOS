@@ -56,8 +56,8 @@ final class BackupPasswordPresenter {
     private func proceed(with backup: OpenBackupAccount) {
         do {
             guard
-                let backupAccountTypes = backup.backupAccountTypes,
-                let backupCryptoType = backup.cryptoType,
+                let backupAccountTypes = backup.backupAccountType,
+                let backupCryptoType = backup.cryptoType?.lowercased(),
                 let cryptoType = CryptoType(rawValue: backupCryptoType),
                 let name = backup.name
             else {
@@ -96,7 +96,7 @@ final class BackupPasswordPresenter {
         from backup: OpenBackupAccount
     ) throws -> MetaAccountImportRequestSource.SeedImportRequestData {
         guard
-            let substrateSeed = backup.seed?.substrateSeed,
+            let substrateSeed = backup.encryptedSeed?.substrateSeed,
             let substrateDerivationPath = backup.substrateDerivationPath
         else {
             throw ConvenienceError(error: "Can't create SeedImportRequestData")
@@ -104,7 +104,7 @@ final class BackupPasswordPresenter {
 
         let sourceData = MetaAccountImportRequestSource.SeedImportRequestData(
             substrateSeed: substrateSeed,
-            ethereumSeed: backup.seed?.ethSeed,
+            ethereumSeed: backup.encryptedSeed?.ethSeed,
             substrateDerivationPath: substrateDerivationPath,
             ethereumDerivationPath: backup.ethDerivationPath
         )
