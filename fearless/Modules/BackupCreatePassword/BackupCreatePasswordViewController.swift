@@ -7,6 +7,7 @@ protocol BackupCreatePasswordViewOutput: AnyObject {
     func didLoad(view: BackupCreatePasswordViewInput)
     func didTapBackButton()
     func didTapContinueButton()
+    func viewDidAppear()
 }
 
 final class BackupCreatePasswordViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -71,6 +72,7 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        output.viewDidAppear()
         rootView.passwordTextField.animatedInputField.textField.becomeFirstResponder()
         rootView.passwordTextField.backgroundView.set(highlighted: true, animated: true)
     }

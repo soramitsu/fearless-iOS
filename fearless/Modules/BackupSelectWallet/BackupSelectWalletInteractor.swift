@@ -23,6 +23,7 @@ extension BackupSelectWalletInteractor: BackupSelectWalletInteractorInput {
         Task {
             do {
                 if let cloudStorageService = cloudStorageService {
+                    cloudStorageService.disconnect()
                     let accounts = try await cloudStorageService.getFearlessBackupAccounts()
                     await MainActor.run {
                         output?.didReceiveBackupAccounts(result: .success(accounts))

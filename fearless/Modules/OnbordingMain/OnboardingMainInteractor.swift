@@ -29,6 +29,7 @@ extension OnboardingMainInteractor: OnboardingMainInteractorInputProtocol {
     func activateGoogleBackup() {
         Task {
             do {
+                cloudStorage.disconnect()
                 let accounts = try await cloudStorage.getFearlessBackupAccounts()
                 await MainActor.run {
                     presenter?.didReceiveBackupAccounts(result: .success(accounts))

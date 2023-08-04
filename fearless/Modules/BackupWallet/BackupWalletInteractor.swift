@@ -88,6 +88,7 @@ final class BackupWalletInteractor {
         Task {
             do {
                 if let cloudStorage = cloudStorage {
+                    cloudStorage.disconnect()
                     let accounts = try await cloudStorage.getFearlessBackupAccounts()
                     await MainActor.run {
                         output?.didReceiveBackupAccounts(result: .success(accounts))

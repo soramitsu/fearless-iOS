@@ -11,6 +11,7 @@ protocol BackupCreatePasswordInteractorInput: AnyObject {
     func setup(with output: BackupCreatePasswordInteractorOutput)
     func createAndBackupAccount(password: String)
     func hasPincode() -> Bool
+    func viewDidAppear()
 }
 
 final class BackupCreatePasswordPresenter {
@@ -108,6 +109,10 @@ extension BackupCreatePasswordPresenter: BackupCreatePasswordViewOutput {
         interactor.setup(with: self)
         view.setPasswordInputViewModel(passwordInputViewModel)
         view.setPasswordConfirmationViewModel(confirmationViewModel)
+    }
+
+    func viewDidAppear() {
+        interactor.viewDidAppear()
     }
 }
 

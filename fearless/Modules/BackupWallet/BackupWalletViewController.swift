@@ -54,7 +54,8 @@ final class BackupWalletViewController: UIViewController, ViewHolder {
         bindActions()
     }
 
-    override func viewDidAppear(_: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         output.viewDidAppear()
     }
 
