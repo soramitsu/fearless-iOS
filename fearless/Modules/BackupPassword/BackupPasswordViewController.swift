@@ -58,6 +58,7 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         rootView.passwordTextField.animatedInputField.textField.becomeFirstResponder()
+        rootView.passwordTextField.backgroundView.set(highlighted: true, animated: true)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -89,6 +90,9 @@ final class BackupPasswordViewController: UIViewController, ViewHolder {
                 strongSelf.rootView.passwordTextField.animatedInputField.textField,
                 eyeButton: strongSelf.rootView.passwordTextField.rightButton
             )
+        }
+        rootView.passwordTextField.animatedInputField.addAction(for: .touchUpInside) { [weak self] in
+            self?.rootView.passwordTextField.backgroundView.set(highlighted: true, animated: true)
         }
     }
 

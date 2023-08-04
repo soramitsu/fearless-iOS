@@ -61,6 +61,7 @@ final class WalletNameViewController: UIViewController, ViewHolder {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         rootView.nameTextField.animatedInputField.textField.becomeFirstResponder()
+        rootView.nameTextField.backgroundView.set(highlighted: true, animated: true)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -85,6 +86,9 @@ final class WalletNameViewController: UIViewController, ViewHolder {
         }
         rootView.continueButton.addAction { [weak self] in
             self?.output.didContinueButtonTapped()
+        }
+        rootView.nameTextField.animatedInputField.addAction(for: .touchUpInside) { [weak self] in
+            self?.rootView.nameTextField.backgroundView.set(highlighted: true, animated: true)
         }
     }
 
@@ -120,7 +124,7 @@ extension WalletNameViewController: Localizable {
 extension WalletNameViewController: AnimatedTextFieldDelegate {
     func animatedTextFieldShouldReturn(_ textField: SoraUI.AnimatedTextField) -> Bool {
         textField.resignFirstResponder()
-        rootView.nameTextField.backgroundView.set(highlighted: false, animated: false)
+        rootView.nameTextField.backgroundView.set(highlighted: false, animated: true)
         return false
     }
 

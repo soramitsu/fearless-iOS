@@ -72,6 +72,7 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         rootView.passwordTextField.animatedInputField.textField.becomeFirstResponder()
+        rootView.passwordTextField.backgroundView.set(highlighted: true, animated: true)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -105,6 +106,18 @@ final class BackupCreatePasswordViewController: UIViewController, ViewHolder, Hi
                 strongSelf.rootView.confirmPasswordTextField.animatedInputField.textField,
                 eyeButton: strongSelf.rootView.confirmPasswordTextField.rightButton
             )
+        }
+        rootView.passwordTextField.animatedInputField.addAction(for: .touchUpInside) { [weak self] in
+            self?.rootView.passwordTextField.backgroundView.set(highlighted: true, animated: true)
+            if self?.rootView.confirmPasswordTextField.backgroundView.isHighlighted == true {
+                self?.rootView.confirmPasswordTextField.backgroundView.set(highlighted: false, animated: true)
+            }
+        }
+        rootView.confirmPasswordTextField.animatedInputField.addAction(for: .touchUpInside) { [weak self] in
+            self?.rootView.confirmPasswordTextField.backgroundView.set(highlighted: true, animated: true)
+            if self?.rootView.passwordTextField.backgroundView.isHighlighted == true {
+                self?.rootView.passwordTextField.backgroundView.set(highlighted: false, animated: true)
+            }
         }
     }
 
@@ -202,6 +215,8 @@ extension BackupCreatePasswordViewController: AnimatedTextFieldDelegate {
         if textField === rootView.passwordTextField.animatedInputField,
            passwordConfirmViewModel?.inputHandler.value.isEmpty == true {
             rootView.confirmPasswordTextField.animatedInputField.becomeFirstResponder()
+            rootView.confirmPasswordTextField.backgroundView.set(highlighted: true, animated: false)
+            rootView.passwordTextField.backgroundView.set(highlighted: false, animated: true)
         } else if textField === rootView.confirmPasswordTextField.animatedInputField,
                   inputCompleted {
             textField.resignFirstResponder()
@@ -209,6 +224,7 @@ extension BackupCreatePasswordViewController: AnimatedTextFieldDelegate {
             output.didTapContinueButton()
         } else {
             textField.resignFirstResponder()
+            rootView.confirmPasswordTextField.backgroundView.set(highlighted: false, animated: true)
         }
 
         return false
