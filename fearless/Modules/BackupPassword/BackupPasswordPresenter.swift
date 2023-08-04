@@ -68,10 +68,10 @@ final class BackupPasswordPresenter {
             if backupAccountTypes.contains(.passphrase) {
                 let mnemonicRequestData = try createMnemonicRequestData(from: backup)
                 source = .mnemonic(data: mnemonicRequestData)
-            } else if backupAccountTypes.contains(.json) {
+            } else if backupAccountTypes.contains(.seed) {
                 let keystoreData = try createJsonRequestData(from: backup)
                 source = .keystore(data: keystoreData)
-            } else if backupAccountTypes.contains(.seed) {
+            } else if backupAccountTypes.contains(.json) {
                 let seedData = try createSeedRequestData(from: backup)
                 source = .seed(data: seedData)
             }
