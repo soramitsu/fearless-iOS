@@ -404,15 +404,16 @@ private extension AccountCreateViewLayout {
     }
 
     private func applyLocalization() {
-        detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
         expandableControl.titleLabel.text = R.string.localizable
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
         switch flow {
         case .wallet, .chain:
+            detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
             nextButton.imageWithTitleView?.title = R.string.localizable
                 .accountConfirmationTitle(preferredLanguages: locale.rLanguages)
         case .backup:
+            detailsLabel.text = R.string.localizable.backupMnemonicDescription(preferredLanguages: locale.rLanguages)
             nextButton.imageWithTitleView?.title = R.string.localizable
                 .commonContinue(preferredLanguages: locale.rLanguages)
         }
