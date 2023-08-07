@@ -1063,3 +1063,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "no.access.to.google" = "No access to Google";
 "btn.backup.with.google" = "Backup with Google";
 "backup.mnemonic.description" = "Remember to record your words in the same order as they appear below. Use a non-digital way to backup.";
+"backup.mnemonic.title" = "Write down your mnemonic";

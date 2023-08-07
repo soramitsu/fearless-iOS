@@ -64,7 +64,12 @@ private extension AccountCreateViewController {
             action: #selector(actionOpenInfo)
         )
         navigationItem.rightBarButtonItem = infoItem
-        title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
+        switch presenter.flow {
+        case .wallet, .chain:
+            title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
+        case .backup:
+            title = R.string.localizable.backupMnemonicTitle(preferredLanguages: locale.rLanguages)
+        }
     }
 
     func setupMnemonicViewIfNeeded() {
