@@ -77,7 +77,10 @@ protocol AccountImportViewFactoryProtocol: AnyObject {
         defaultSource: AccountImportSource,
         flow: AccountImportFlow
     ) -> AccountImportViewProtocol?
-    static func createViewForAdding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
+    static func createViewForAdding(
+        defaultSource: AccountImportSource,
+        _ flow: AccountImportFlow
+    ) -> AccountImportViewProtocol?
     static func createViewForSwitch() -> AccountImportViewProtocol?
 }
 

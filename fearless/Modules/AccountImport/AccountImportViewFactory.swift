@@ -17,8 +17,11 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe, flow: flow)
     }
 
-    static func createViewForAdding(_ flow: AccountImportFlow = .wallet(step: .first)) -> AccountImportViewProtocol? {
-        guard let interactor = createAddAccountImportInteractor() else {
+    static func createViewForAdding(
+        defaultSource: AccountImportSource,
+        _ flow: AccountImportFlow = .wallet(step: .first)
+    ) -> AccountImportViewProtocol? {
+        guard let interactor = createAddAccountImportInteractor(defaultSource: defaultSource) else {
             return nil
         }
 
@@ -28,7 +31,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     }
 
     static func createViewForSwitch() -> AccountImportViewProtocol? {
-        guard let interactor = createAddAccountImportInteractor() else {
+        guard let interactor = createAddAccountImportInteractor(defaultSource: .mnemonic) else {
             return nil
         }
 
@@ -90,7 +93,9 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         return interactor
     }
 
-    private static func createAddAccountImportInteractor() -> BaseAccountImportInteractor? {
+    private static func createAddAccountImportInteractor(
+        defaultSource: AccountImportSource
+    ) -> BaseAccountImportInteractor? {
         guard let keystoreImportService: KeystoreImportServiceProtocol =
             URLHandlingService.shared.findService()
         else {
@@ -113,7 +118,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
                 settings: SelectedWalletSettings.shared,
                 keystoreImportService: keystoreImportService,
                 eventCenter: eventCenter,
-                defaultSource: .mnemonic
+                defaultSource: defaultSource
             )
 
         return interactor

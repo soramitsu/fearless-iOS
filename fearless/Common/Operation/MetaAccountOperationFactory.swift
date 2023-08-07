@@ -6,8 +6,8 @@ import SoraKeystore
 
 protocol MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(request: MetaAccountImportMnemonicRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
-    func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
-    func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(request: MetaAccountImportSeedRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
 
     func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel>
     func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
@@ -300,7 +300,10 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     }
 
     //  We use seed vs seed.miniSeed for mnemonic. Check if it works for SeedRequest.
-    func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
+    func newMetaAccountOperation(
+        request: MetaAccountImportSeedRequest,
+        isBackuped: Bool
+    ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let substrateSeed = try Data(hexStringSSF: request.substrateSeed)
             let substrateQuery = try getQuery(
@@ -327,7 +330,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substratePublicKey: substrateQuery.publicKey,
                 substrateCryptoType: request.cryptoType,
                 ethereumPublicKey: ethereumQuery?.publicKey,
-                isBackuped: true
+                isBackuped: isBackuped
             )
 
             let metaId = metaAccount.metaId
@@ -346,7 +349,10 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         }
     }
 
-    func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
+    func newMetaAccountOperation(
+        request: MetaAccountImportKeystoreRequest,
+        isBackuped: Bool
+    ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
 
@@ -423,7 +429,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 chainIdForFilter: nil,
                 assetsVisibility: [],
                 zeroBalanceAssetsHidden: false,
-                hasBackup: true
+                hasBackup: isBackuped
             )
         }
     }

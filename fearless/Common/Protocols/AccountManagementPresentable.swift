@@ -25,7 +25,7 @@ extension AccountManagementPresentable {
         from view: ControllerBackedProtocol?
     ) {
         guard let restorationController = AccountImportViewFactory
-            .createViewForOnboarding(defaultSource: defaultSource)?.controller
+            .createViewForAdding(defaultSource: defaultSource)?.controller
         else {
             return
         }

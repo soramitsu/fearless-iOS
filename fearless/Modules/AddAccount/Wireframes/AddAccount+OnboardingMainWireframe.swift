@@ -25,11 +25,11 @@ extension AddAccount {
         }
 
         func showAccountRestore(
-            defaultSource _: AccountImportSource,
+            defaultSource: AccountImportSource,
             from view: OnboardingMainViewProtocol?
         ) {
             guard let restorationController = AccountImportViewFactory
-                .createViewForAdding()?.controller
+                .createViewForAdding(defaultSource: defaultSource)?.controller
             else {
                 return
             }
