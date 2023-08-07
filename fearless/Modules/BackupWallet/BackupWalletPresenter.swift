@@ -111,9 +111,9 @@ final class BackupWalletPresenter {
         if exportOptions.contains(.mnemonic) {
             interactor.backup(substrate: substrate, ethereum: ethereum, option: .mnemonic)
         } else if exportOptions.contains(.seed) {
-            interactor.backup(substrate: substrate, ethereum: ethereum, option: .keystore)
-        } else if exportOptions.contains(.keystore) {
             interactor.backup(substrate: substrate, ethereum: ethereum, option: .seed)
+        } else if exportOptions.contains(.keystore) {
+            interactor.backup(substrate: substrate, ethereum: ethereum, option: .keystore)
         }
     }
 
