@@ -41,7 +41,7 @@ final class BackupSelectWalletPresenter {
             interactor.fetchBackupAccounts()
             return
         }
-        let names = accounts.map { $0.name ?? $0.address }
+        let names = accounts.compactMap { $0.name }
         view?.didReceive(viewModels: names)
     }
 

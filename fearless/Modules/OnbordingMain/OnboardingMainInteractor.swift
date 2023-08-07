@@ -15,6 +15,10 @@ final class OnboardingMainInteractor {
         self.keystoreImportService = keystoreImportService
         self.cloudStorage = cloudStorage
     }
+
+    deinit {
+        cloudStorage.disconnect()
+    }
 }
 
 extension OnboardingMainInteractor: OnboardingMainInteractorInputProtocol {
