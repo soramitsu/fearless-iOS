@@ -237,8 +237,4 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
     func hasPincode() -> Bool {
         secretManager.checkSecret(for: KeystoreTag.pincode.rawValue)
     }
-
-    func viewDidAppear() {
-        cloudStorage?.disconnect()
-    }
 }
