@@ -13,6 +13,10 @@ final class BackupSelectWalletInteractor {
 
     private weak var output: BackupSelectWalletInteractorOutput?
 
+    deinit {
+        cloudStorageService?.disconnect()
+    }
+
     // MARK: - Private methods
 }
 

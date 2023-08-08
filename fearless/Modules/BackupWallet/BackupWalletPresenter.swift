@@ -173,6 +173,23 @@ final class BackupWalletPresenter {
             from: view
         )
     }
+    
+    private func showDelete(error: Error) {
+        let presentingError: ConvenienceError
+        if let error = error as? FearlessCompatibilityError {
+            switch error {
+            case .cantRemoveExtensionBackup:
+                let message = R.string.localizable
+                    .removeBackupExtensionErrorMessage(preferredLanguages: selectedLocale.rLanguages)
+                presentingError = ConvenienceError(error: message)
+            case .backupNotFound:
+                presentingError = ConvenienceError(error: error.localizedDescription)
+            }
+        } else {
+            presentingError = ConvenienceError(error: error.localizedDescription)
+        }
+        router.present(error: presentingError, from: view, locale: selectedLocale)
+    }
 }
 
 // MARK: - BackupWalletViewOutput
@@ -222,12 +239,15 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
         view?.didStopLoading()
         switch result {
         case .success:
+            let text = R.string.localizable
+                .commonDone(preferredLanguages: selectedLocale.rLanguages)
+            router.presentSuccessNotification(text, from: view)
+
             let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
             backupAccounts?.removeAll(where: { $0.address == address42 })
             provideViewModel()
         case let .failure(failure):
-            let error = ConvenienceError(error: failure.localizedDescription)
-            router.present(error: error, from: view, locale: selectedLocale)
+            showDelete(error: failure)
         }
     }
 
