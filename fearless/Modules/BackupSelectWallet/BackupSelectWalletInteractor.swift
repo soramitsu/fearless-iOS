@@ -13,10 +13,6 @@ final class BackupSelectWalletInteractor {
 
     private weak var output: BackupSelectWalletInteractorOutput?
 
-    deinit {
-        cloudStorageService?.disconnect()
-    }
-
     // MARK: - Private methods
 }
 
@@ -44,5 +40,9 @@ extension BackupSelectWalletInteractor: BackupSelectWalletInteractorInput {
 
     func setup(with output: BackupSelectWalletInteractorOutput) {
         self.output = output
+    }
+
+    func disconnect() {
+        cloudStorageService?.disconnect()
     }
 }

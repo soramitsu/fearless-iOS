@@ -8,6 +8,7 @@ protocol BackupSelectWalletViewOutput: AnyObject {
     func didBackButtonTapped()
     func didCreateNewAccountButtonTapped()
     func viewDidAppear()
+    func beingDismissed()
 }
 
 final class BackupSelectWalletViewController: UIViewController, ViewHolder {
@@ -51,6 +52,14 @@ final class BackupSelectWalletViewController: UIViewController, ViewHolder {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         output.viewDidAppear()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        guard navigationController?.isBeingDismissed == true else {
+            return
+        }
+        output.beingDismissed()
     }
 
     // MARK: - Private methods

@@ -8,6 +8,7 @@ protocol BackupWalletImportedViewInput: ControllerBackedProtocol, HiddableBarWhe
 protocol BackupWalletImportedInteractorInput: AnyObject {
     func setup(with output: BackupWalletImportedInteractorOutput)
     func hasPincode() -> Bool
+    func disconnect()
 }
 
 struct BackupWalletImportedViewModel {
@@ -61,6 +62,7 @@ extension BackupWalletImportedPresenter: BackupWalletImportedViewOutput {
     }
 
     func didContinueButtonTapped() {
+        interactor.disconnect()
         if interactor.hasPincode() {
             router.dismiss(view: view)
         } else {

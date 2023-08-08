@@ -9,6 +9,7 @@ protocol BackupSelectWalletViewInput: ControllerBackedProtocol, HiddableBarWhenP
 protocol BackupSelectWalletInteractorInput: AnyObject {
     func setup(with output: BackupSelectWalletInteractorOutput)
     func fetchBackupAccounts()
+    func disconnect()
 }
 
 final class BackupSelectWalletPresenter {
@@ -107,6 +108,10 @@ extension BackupSelectWalletPresenter: BackupSelectWalletViewOutput {
 
     func didCreateNewAccountButtonTapped() {
         router.showWalletNameScreen(from: view)
+    }
+
+    func beingDismissed() {
+        interactor.disconnect()
     }
 }
 

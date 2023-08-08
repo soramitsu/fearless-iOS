@@ -1,9 +1,12 @@
 import UIKit
 import SoraKeystore
+import SSFCloudStorage
 
 protocol BackupWalletImportedInteractorOutput: AnyObject {}
 
 final class BackupWalletImportedInteractor {
+    var cloudStorageService: FearlessCompatibilityProtocol?
+
     // MARK: - Private properties
 
     private let secretManager: SecretStoreManagerProtocol
@@ -24,5 +27,9 @@ extension BackupWalletImportedInteractor: BackupWalletImportedInteractorInput {
 
     func setup(with output: BackupWalletImportedInteractorOutput) {
         self.output = output
+    }
+
+    func disconnect() {
+        cloudStorageService?.disconnect()
     }
 }

@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
+import SSFCloudStorage
 
 final class BackupWalletImportedAssembly {
     static func configureModule(backupAccounts: [BackupAccount]) -> BackupWalletImportedModuleCreationResult? {
@@ -22,6 +23,8 @@ final class BackupWalletImportedAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
+        let cloudStorageService = CloudStorageService(uiDelegate: view)
+        interactor.cloudStorageService = cloudStorageService
 
         return (view, presenter)
     }

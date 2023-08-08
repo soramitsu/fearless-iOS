@@ -173,7 +173,7 @@ final class BackupWalletPresenter {
             from: view
         )
     }
-    
+
     private func showDelete(error: Error) {
         let presentingError: ConvenienceError
         if let error = error as? FearlessCompatibilityError {
