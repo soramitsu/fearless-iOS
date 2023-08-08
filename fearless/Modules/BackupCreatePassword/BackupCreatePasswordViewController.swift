@@ -221,7 +221,9 @@ extension BackupCreatePasswordViewController: AnimatedTextFieldDelegate {
                   inputCompleted {
             textField.resignFirstResponder()
 
-            output.didTapContinueButton()
+            if inputCompleted && rootView.confirmButton.isChecked {
+                output.didTapContinueButton()
+            }
         } else {
             textField.resignFirstResponder()
             rootView.confirmPasswordTextField.backgroundView.set(highlighted: false, animated: true)
