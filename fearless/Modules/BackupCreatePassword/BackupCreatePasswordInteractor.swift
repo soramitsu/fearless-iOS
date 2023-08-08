@@ -133,7 +133,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         let account = OpenBackupAccount(
             name: wallet.name,
             address: address42 ?? wallet.substratePublicKey.toHex(),
-            cryptoType: cryptoType?.stringValue,
+            cryptoType: cryptoType?.stringValue.uppercased(),
             substrateDerivationPath: substrateRestoreSeed?.derivationPath,
             ethDerivationPath: ethereumRestoreSeed?.derivationPath,
             backupAccountType: [.seed],
@@ -160,7 +160,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         let account = OpenBackupAccount(
             name: wallet.name,
             address: address42 ?? wallet.substratePublicKey.toHex(),
-            cryptoType: cryptoType?.stringValue,
+            cryptoType: cryptoType?.stringValue.uppercased(),
             backupAccountType: [.json],
             json: json
         )
@@ -177,7 +177,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             name: request.username,
             address: address42 ?? wallet.substratePublicKey.toHex(),
             passphrase: request.mnemonic.toString(),
-            cryptoType: request.cryptoType.stringValue,
+            cryptoType: request.cryptoType.stringValue.uppercased(),
             substrateDerivationPath: request.substrateDerivationPath,
             ethDerivationPath: request.ethereumDerivationPath,
             backupAccountType: [.passphrase]
