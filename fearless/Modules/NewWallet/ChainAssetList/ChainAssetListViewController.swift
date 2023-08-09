@@ -133,7 +133,7 @@ private extension ChainAssetListViewController {
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func reloadBanners() {
-        guard viewModel != nil else {
+        guard viewModel != nil, !(viewModel?.bannerIsHidden == false) else {
             return
         }
         rootView.tableView.beginUpdates()
@@ -142,6 +142,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     }
 
     func didReceive(viewModel: ChainAssetListViewModel) {
+        rootView.bannersView?.isHidden = viewModel.bannerIsHidden
         let isInitialReload = self.viewModel == nil
 
         self.viewModel = viewModel
