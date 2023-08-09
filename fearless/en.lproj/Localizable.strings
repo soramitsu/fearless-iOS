@@ -1003,7 +1003,10 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "xcm.cross.chain.invalid.address.title" = "Is not network address";
 "xcm.cross.chain.invalid.address.message" = "According to the address provided you're trying to make a transfer on the wrong network.";
 "network.issues.resolve.option.title" = "Resolve Option";
-"staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";
+"staking.controller.deprecated.description" =  "Please note that in the %s network the Controller account feature has been deprecated, and as a result, you are required to set your Stash account as the Controller.";
 "settings.hide.zero.balances" = "Hide zero balances";
 "common.resolve" = "Resolve";
-"staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";
+"common.important" = "Important";
+"controller.account.issue.action" = "Manage controller account";
+"stash.account.issue.message" = "Stash account %s isn't available. Please, import the Stash account by following the necessary steps";
+"stash.account.issue.action" = "Import stash account";

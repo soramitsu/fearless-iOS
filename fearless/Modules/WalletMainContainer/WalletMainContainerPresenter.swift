@@ -144,6 +144,44 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         self.chainSettings = chainSettings
         provideViewModel()
     }
+
+    func didReceiveControllerAccountIssue(chainAsset: ChainAsset) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.controllerAccountIssueAction(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showControllerAccountFlow(
+                from: strongSelf.view,
+                chainAsset: chainAsset,
+                wallet: strongSelf.wallet
+            )
+        }
+
+        router.present(
+            message: R.string.localizable.stakingControllerDeprecatedDescription(chainAsset.chain.name),
+            title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
+            from: view,
+            actions: [action]
+        )
+    }
+
+    func didReceiveStashAccountIssue(address: String) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.stashAccountIssueAction(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showImportWallet(from: strongSelf.view)
+        }
+
+        router.present(
+            message: R.string.localizable.stashAccountIssueMessage(address),
+            title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable.stashAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
+            from: view,
+            actions: []
+        )
+    }
 }
 
 // MARK: - Localizable

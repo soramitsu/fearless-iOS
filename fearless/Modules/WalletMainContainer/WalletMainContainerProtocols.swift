@@ -62,6 +62,12 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
         wallet: MetaAccountModel,
         address: String
     )
+
+    func showControllerAccountFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol WalletMainContainerModuleInput: AnyObject {}
