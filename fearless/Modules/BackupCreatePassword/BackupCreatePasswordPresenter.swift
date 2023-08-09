@@ -117,6 +117,7 @@ extension BackupCreatePasswordPresenter: BackupCreatePasswordInteractorOutput {
     func didReceive(error: Error) {
         logger.customError(error)
         DispatchQueue.main.async {
+            self.view?.didStopLoading()
             self.showGoogleIssueAlert()
         }
     }
