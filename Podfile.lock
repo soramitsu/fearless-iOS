@@ -260,7 +260,7 @@ DEPENDENCIES:
   - SSFCrypto
   - SSFEraKit
   - SSFExtrinsicKit
-  - SSFHelpers
+  - SSFHelpers (= 0.1.2)
   - SSFLogger
   - SSFModels (= 0.1.2)
   - SSFNetwork
@@ -395,6 +395,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: c52100afa4b401cd4025279da2a214a683520918
+PODFILE CHECKSUM: 5b8590914b2dd1916d27ab986de50d4cb62f69f6
 
 COCOAPODS: 1.11.3

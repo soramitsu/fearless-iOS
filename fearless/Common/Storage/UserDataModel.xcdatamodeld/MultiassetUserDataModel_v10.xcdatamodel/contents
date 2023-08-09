@@ -40,7 +40,7 @@
         <attribute name="chainIdForFilter" optional="YES" attributeType="String"/>
         <attribute name="ethereumAddress" optional="YES" attributeType="String"/>
         <attribute name="ethereumPublicKey" optional="YES" attributeType="Binary"/>
-        <attribute name="hasBackup" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="hasBackup" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="metaId" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
