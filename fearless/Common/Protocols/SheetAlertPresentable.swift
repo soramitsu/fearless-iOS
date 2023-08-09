@@ -84,6 +84,7 @@ struct SheetAlertPresentableViewModel {
     let closeAction: String?
     let dismissCompletion: (() -> Void)?
     let icon: UIImage?
+    let actionAxis: NSLayoutConstraint.Axis
 
     init(
         title: String,
@@ -94,7 +95,8 @@ struct SheetAlertPresentableViewModel {
         isInfo: Bool = false,
         closeAction: String?,
         dismissCompletion: (() -> Void)? = nil,
-        icon: UIImage? = R.image.iconWarning()
+        icon: UIImage? = R.image.iconWarning(),
+        actionAxis: NSLayoutConstraint.Axis = .vertical
     ) {
         self.title = title
         self.titleStyle = titleStyle
@@ -105,6 +107,7 @@ struct SheetAlertPresentableViewModel {
         self.closeAction = closeAction
         self.dismissCompletion = dismissCompletion
         self.icon = icon
+        self.actionAxis = actionAxis
     }
 }
 

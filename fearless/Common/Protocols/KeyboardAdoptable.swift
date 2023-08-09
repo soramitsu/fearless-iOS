@@ -73,7 +73,8 @@ extension KeyboardViewAdoptable where Self: UIViewController {
             apply(keyboardHeight: keyboardHidden ? 0 : keyboardFrame.height, to: target)
             view.layoutIfNeeded()
         }
-        updateWhileKeyboardFrameChanging(keyboardFrame)
+        let frame = keyboardHidden ? .zero : keyboardFrame
+        updateWhileKeyboardFrameChanging(frame)
     }
 
     private func apply(keyboardHeight: CGFloat, to target: Constraint) {

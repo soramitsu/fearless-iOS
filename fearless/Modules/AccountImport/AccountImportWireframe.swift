@@ -5,7 +5,10 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
     func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData) {
-        guard let secondStep = AccountImportViewFactory.createViewForOnboarding(.wallet(step: .second(data: data))) else {
+        guard let secondStep = AccountImportViewFactory.createViewForOnboarding(
+            defaultSource: .mnemonic,
+            flow: .wallet(step: .second(data: data))
+        ) else {
             return
         }
 

@@ -970,6 +970,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     }
 
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?) {
+        input = text
         selectedSourceType = .keystore
         let preferredData = PreferredData(jsonData: preferredInfo)
         applySourceType(text, preferredData: preferredData)

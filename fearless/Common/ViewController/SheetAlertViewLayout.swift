@@ -25,7 +25,12 @@ final class SheetAlertViewLayout: UIView {
         return stack
     }()
 
-    private let actionsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.verticalInset)
+    private let actionsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.spacing = UIConstants.verticalInset
+        return stack
+    }()
+
     private let imageViewContainer = UIView()
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
@@ -50,6 +55,7 @@ final class SheetAlertViewLayout: UIView {
 
     init(viewModel: SheetAlertPresentableViewModel) {
         self.viewModel = viewModel
+        actionsStackView.axis = viewModel.actionAxis
         super.init(frame: .zero)
         applyStyle(viewModel: viewModel)
         setupLayout()
@@ -73,23 +79,33 @@ final class SheetAlertViewLayout: UIView {
         imageView.image = viewModel.icon
         imageViewContainer.isHidden = viewModel.icon == nil
 
-        bindActions(actions: viewModel.actions)
+        bindActions(actions: viewModel.actions, actionAxis: viewModel.actionAxis)
 
         if let closeAction = viewModel.closeAction {
             let action = SheetAlertPresentableAction(
                 title: closeAction
             )
-            bindActions(actions: [action])
+            bindActions(actions: [action], actionAxis: viewModel.actionAxis)
         }
     }
 
-    private func bindActions(actions: [SheetAlertPresentableAction]) {
+    private func bindActions(actions: [SheetAlertPresentableAction], actionAxis: NSLayoutConstraint.Axis) {
         actions.forEach { action in
             let button = createButton(with: action)
             actionsStackView.addArrangedSubview(button)
-            button.snp.makeConstraints { make in
-                make.height.equalTo(UIConstants.actionHeight)
-                make.leading.trailing.equalToSuperview()
+            switch actionAxis {
+            case .horizontal:
+                actionsStackView.distribution = .fillEqually
+                button.snp.makeConstraints { make in
+                    make.height.equalTo(UIConstants.actionHeight)
+                }
+            case .vertical:
+                button.snp.makeConstraints { make in
+                    make.height.equalTo(UIConstants.actionHeight)
+                    make.leading.trailing.equalToSuperview()
+                }
+            @unknown default:
+                preconditionFailure()
             }
         }
     }

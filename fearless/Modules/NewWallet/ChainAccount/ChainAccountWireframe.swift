@@ -169,7 +169,8 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let importController = AccountImportViewFactory.createViewForOnboarding(
-            .chain(model: uniqueChainModel)
+            defaultSource: .mnemonic,
+            flow: .chain(model: uniqueChainModel)
         )?.controller else {
             return
         }

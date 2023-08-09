@@ -15,6 +15,8 @@ final class AccountCreateViewLayout: UIView {
         static let contentBottomOffset: CGFloat = 92
     }
 
+    let flow: AccountCreateFlow
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -36,6 +38,21 @@ final class AccountCreateViewLayout: UIView {
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
+        return button
+    }()
+
+    let backupButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.triangularedView?.shadowOpacity = 0
+        button.triangularedView?.fillColor = R.color.colorBlack19()!
+        button.triangularedView?.highlightedFillColor = R.color.colorBlack19()!
+        button.triangularedView?.strokeColor = R.color.colorWhite50()!
+        button.triangularedView?.highlightedStrokeColor = R.color.colorWhite50()!
+        button.triangularedView?.strokeWidth = 1
+
+        button.imageWithTitleView?.iconImage = R.image.googleBackup()
+        button.imageWithTitleView?.titleColor = R.color.colorWhite()
+        button.imageWithTitleView?.titleFont = .h4Title
         return button
     }()
 
@@ -102,7 +119,6 @@ final class AccountCreateViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
-        view.keyboardType = .decimalPad
         view.returnKeyType = .done
         return view
     }()
@@ -125,7 +141,7 @@ final class AccountCreateViewLayout: UIView {
 
     private let expandableControlContainerView: BorderedContainerView = {
         let view = UIFactory().createBorderedContainerView()
-        view.backgroundColor = R.color.colorBlack()
+        view.backgroundColor = R.color.colorBlack19()
         view.borderType = .bottom
         view.strokeWidth = 1.0
         view.strokeColor = R.color.colorGray()!
@@ -134,7 +150,7 @@ final class AccountCreateViewLayout: UIView {
 
     private let expandableControl: ExpandableActionControl = {
         let view = UIFactory().createExpandableActionControl()
-        view.backgroundColor = .black
+        view.backgroundColor = R.color.colorBlack19()
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -151,7 +167,7 @@ final class AccountCreateViewLayout: UIView {
 
     private let detailsLabelView: UIView = {
         let view = UIView()
-        view.backgroundColor = R.color.colorBlack()!
+        view.backgroundColor = R.color.colorBlack19()!
         return view
     }()
 
@@ -196,15 +212,17 @@ final class AccountCreateViewLayout: UIView {
         curve: .easeIn
     )
 
+    let buttonVStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
+
     var keyboardAdoptableConstraint: Constraint?
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
+    init(flow: AccountCreateFlow) {
+        self.flow = flow
+        super.init(frame: .zero)
         setupLayout()
         configure()
 
-        backgroundColor = .black
+        backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)
@@ -237,7 +255,7 @@ extension AccountCreateViewLayout {
 
 private extension AccountCreateViewLayout {
     private func configure() {
-        contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
+        contentView.stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack19() }
         advancedContainerView.isHidden = !expandableControl.isActivated
         expandableControl.addTarget(self, action: #selector(actionExpand), for: .touchUpInside)
         setupEthereumDerivationPathTextField()
@@ -361,22 +379,45 @@ private extension AccountCreateViewLayout {
 
         contentView.stackView.addArrangedSubview(advancedContainerView)
 
-        addSubview(nextButton)
-        nextButton.snp.makeConstraints { make in
+        addSubview(buttonVStackView)
+        buttonVStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
+        }
+
+        buttonVStackView.addArrangedSubview(nextButton)
+        nextButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            make.leading.trailing.equalToSuperview()
+        }
+
+        switch flow {
+        case .wallet, .chain:
+            buttonVStackView.addArrangedSubview(backupButton)
+            backupButton.snp.makeConstraints { make in
+                make.height.equalTo(UIConstants.actionHeight)
+            }
+        case .backup:
+            expandableControl.isHidden = true
         }
     }
 
     private func applyLocalization() {
-        detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
         expandableControl.titleLabel.text = R.string.localizable
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
-        nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
-        nextButton.invalidateLayout()
+        switch flow {
+        case .wallet, .chain:
+            detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
+            nextButton.imageWithTitleView?.title = R.string.localizable
+                .accountConfirmationTitle(preferredLanguages: locale.rLanguages)
+        case .backup:
+            detailsLabel.text = R.string.localizable.backupMnemonicDescription(preferredLanguages: locale.rLanguages)
+            nextButton.imageWithTitleView?.title = R.string.localizable
+                .commonContinue(preferredLanguages: locale.rLanguages)
+        }
+        backupButton.imageWithTitleView?.title = R.string.localizable
+            .btnBackupWithGoogle(preferredLanguages: locale.rLanguages)
     }
 }

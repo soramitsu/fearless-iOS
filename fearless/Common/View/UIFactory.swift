@@ -237,6 +237,7 @@ final class UIFactory: UIFactoryProtocol {
         view.backgroundView.strokeColor = .clear
         view.backgroundView.highlightedStrokeColor = .clear
         view.backgroundView.strokeWidth = 0.0
+        view.backgroundView.shadowOpacity = 0
 
         view.titleLabel.textColor = R.color.colorLightGray()!
         view.titleLabel.font = UIFont.p2Paragraph

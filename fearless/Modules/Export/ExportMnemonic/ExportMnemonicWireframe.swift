@@ -4,9 +4,10 @@ import IrohaCrypto
 final class ExportMnemonicWireframe: ExportMnemonicWireframeProtocol {
     func openConfirmationForMnemonic(
         _ mnemonic: IRMnemonicProtocol,
+        wallet: MetaAccountModel,
         from view: ExportGenericViewProtocol?
     ) {
-        guard let confirmationView = ExportMnemonicConfirmViewFactory.createViewForMnemonic(mnemonic) else {
+        guard let confirmationView = ExportMnemonicConfirmViewFactory.createViewForMnemonic(mnemonic, wallet: wallet) else {
             return
         }
 

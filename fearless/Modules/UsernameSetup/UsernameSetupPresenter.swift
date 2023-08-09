@@ -30,7 +30,7 @@ final class UsernameSetupPresenter {
 extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
     func didLoad(view: UsernameSetupViewProtocol) {
         switch flow {
-        case .wallet:
+        case .wallet, .backup:
             let selectableViewModel = SelectableViewModel(
                 underlyingViewModel: viewModel,
                 selectable: true
