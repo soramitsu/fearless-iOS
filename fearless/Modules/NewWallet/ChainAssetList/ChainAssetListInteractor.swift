@@ -202,6 +202,7 @@ private extension ChainAssetListInteractor {
     func resetAccountInfoSubscription() {
         let accountInfoSubscriptionAdapter = dependencyContainer.buildDependencies(for: wallet).accountInfoSubscriptionAdapter
         accountInfoSubscriptionAdapter.reset()
+        dependencyContainer.resetCache(walletId: wallet.metaId)
     }
 
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
@@ -302,9 +303,9 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        output?.handleWalletChanged(wallet: wallet)
         updateChainAssets(using: filters, sorts: sorts)
     }
 }

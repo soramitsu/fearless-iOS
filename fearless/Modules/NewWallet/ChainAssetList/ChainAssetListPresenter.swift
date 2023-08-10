@@ -53,6 +53,12 @@ final class ChainAssetListPresenter {
             return
         }
 
+        accountInfos.forEach {
+            if $0.key.contains("0x07865c6e87b9f70255377e024ace6630c1eaa37f:0x5") {
+                print("Read USDC Balance: \($0.value?.data.free), key: \($0.key)")
+            }
+        }
+
         lock.concurrentlyRead {
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
@@ -179,7 +185,11 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     }
 
     func handleWalletChanged(wallet: MetaAccountModel) {
-        accountInfos = [:]
+        print("USDC Balance: reset accountInfos)")
+
+        lock.exclusivelyWrite { [weak self] in
+            self?.accountInfos = [:]
+        }
         self.wallet = wallet
     }
 
@@ -214,6 +224,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
             lock.exclusivelyWrite { [weak self] in
                 guard let self = self else { return }
+                if chainAsset.asset.symbol.lowercased() == "usdc", chainAsset.chain.name.lowercased().contains("goerli") {
+                    print("1Write USDC Balance: \(accountInfo?.data.free), key: \(key)")
+                }
                 self.accountInfos[key] = accountInfo
             }
             provideViewModel()
@@ -264,6 +277,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
             let key = chainAsset.uniqueKey(accountId: accountId)
             newDict[key] = initialDict.value
+
+            if chainAsset.asset.symbol.lowercased() == "usdc", chainAsset.chain.name.lowercased().contains("goerli") {
+                print("2Write USDC Balance: \(initialDict.value?.data.free), key: \(key)")
+            }
         }
 
         lock.exclusivelyWrite { [weak self] in
