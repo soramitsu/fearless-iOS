@@ -50,7 +50,7 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
     func didFailToDeriveMetadataFromKeystore()
 }
 
-protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable, DocumentPickerPresentable {
+protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable, DocumentPickerPresentable, AnyDismissable {
     func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
 
     func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow)

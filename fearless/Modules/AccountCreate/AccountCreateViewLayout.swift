@@ -393,11 +393,13 @@ private extension AccountCreateViewLayout {
         }
 
         switch flow {
-        case .wallet, .chain:
+        case .wallet:
             buttonVStackView.addArrangedSubview(backupButton)
             backupButton.snp.makeConstraints { make in
                 make.height.equalTo(UIConstants.actionHeight)
             }
+        case .chain:
+            backupButton.isHidden = true
         case .backup:
             expandableControl.isHidden = true
         }

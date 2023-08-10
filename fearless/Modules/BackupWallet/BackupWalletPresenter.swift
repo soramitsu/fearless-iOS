@@ -200,6 +200,7 @@ extension BackupWalletPresenter: BackupWalletViewOutput {
             let text = R.string.localizable
                 .backupWalletBackupGoogle(preferredLanguages: selectedLocale.rLanguages)
             router.presentSuccessNotification(text, from: view)
+            backupIsCompleted = false
         }
         guard !googleAuthorized else {
             return
