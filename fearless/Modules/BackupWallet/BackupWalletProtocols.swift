@@ -22,6 +22,11 @@ protocol BackupWalletRouterInput: AnyDismissable, SheetAlertPresentable, ErrorPr
         from view: ControllerBackedProtocol?,
         moduleOutput: BackupCreatePasswordModuleOutput?
     )
+    func showWalletDetails(
+        wallet: MetaAccountModel,
+        accounts: [ChainAccountInfo],
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol BackupWalletModuleInput: AnyObject {}

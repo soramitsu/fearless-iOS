@@ -37,6 +37,8 @@ final class BackupWalletPresenter {
     private var backupAccounts: [OpenBackupAccount]?
     private var googleAuthorized = false
     private var backupIsCompleted = false
+    private var replacedAccountAlertDidShown = false
+    private var runWalletDetailsFlow = false
 
     // MARK: - Constructors
 
@@ -190,6 +192,69 @@ final class BackupWalletPresenter {
         }
         router.present(error: presentingError, from: view, locale: selectedLocale)
     }
+
+    private func showReplacedAccountAlert() {
+        let message: String
+        if wallet.chainAccounts.count == 1,
+           let chainAccount = wallet.chainAccounts.first,
+           let chain = chains.first(where: { $0.chainId == chainAccount.chainId }),
+           let address = try? chainAccount.accountId.toAddress(using: chain.chainFormat) {
+            message = R.string.localizable
+                .backupWalletReplaceAccountsAlert(chain.name, address, preferredLanguages: selectedLocale.rLanguages)
+        } else {
+            message = R.string.localizable
+                .backupWalletReplaceSeveralAlert(preferredLanguages: selectedLocale.rLanguages)
+        }
+
+        let walletDetailsActions = SheetAlertPresentableAction(
+            title: R.string.localizable.backupChainAccount(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            guard let self = self else { return }
+            self.runWalletDetailsFlow = true
+            self.showReplacedAccountScreen()
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            message: message,
+            actions: [walletDetailsActions],
+            closeAction: nil,
+            dismissCompletion: { [weak self] in
+                self?.replacedAccountAlertDidShown = true
+                guard self?.runWalletDetailsFlow == false else {
+                    return
+                }
+                self?.viewDidAppear()
+            }
+        )
+        router.present(
+            viewModel: viewModel,
+            from: view
+        )
+    }
+
+    private func showReplacedAccountScreen() {
+        let replacedChainIds = wallet.chainAccounts.map { $0.chainId }
+        let replacedChains = chains.filter {
+            replacedChainIds.contains($0.chainId)
+        }
+        let accounts: [ChainAccountInfo] = replacedChains.compactMap {
+            guard let accountResponse = wallet.fetch(for: $0.accountRequest()) else {
+                return nil
+            }
+            return ChainAccountInfo(
+                chain: $0,
+                account: accountResponse
+            )
+        }
+        router.showWalletDetails(
+            wallet: wallet,
+            accounts: accounts,
+            from: view
+        )
+    }
 }
 
 // MARK: - BackupWalletViewOutput
@@ -201,6 +266,10 @@ extension BackupWalletPresenter: BackupWalletViewOutput {
                 .backupWalletBackupGoogle(preferredLanguages: selectedLocale.rLanguages)
             router.presentSuccessNotification(text, from: view)
             backupIsCompleted = false
+        }
+        if wallet.chainAccounts.isNotEmpty, !googleAuthorized, !replacedAccountAlertDidShown {
+            showReplacedAccountAlert()
+            return
         }
         guard !googleAuthorized else {
             return
