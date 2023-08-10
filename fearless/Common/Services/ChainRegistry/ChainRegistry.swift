@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
+import Web3
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
@@ -15,6 +16,7 @@ protocol ChainRegistryProtocol: AnyObject {
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
+    func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
     func chainsUnsubscribe(_ target: AnyObject)
     func syncUp()
     func performHotBoot()
@@ -25,7 +27,7 @@ protocol ChainRegistryProtocol: AnyObject {
 final class ChainRegistry {
     private let snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol
     private let runtimeProviderPool: RuntimeProviderPoolProtocol
-    private let connectionPool: ConnectionPoolProtocol
+    private let connectionPools: [any ConnectionPoolProtocol]
     private let chainSyncService: ChainSyncServiceProtocol
     private let runtimeSyncService: RuntimeSyncServiceProtocol
     private let chainsTypesSyncService: ChainsTypesSyncServiceProtocol
@@ -46,7 +48,7 @@ final class ChainRegistry {
     init(
         snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol,
         runtimeProviderPool: RuntimeProviderPoolProtocol,
-        connectionPool: ConnectionPoolProtocol,
+        connectionPools: [any ConnectionPoolProtocol],
         chainSyncService: ChainSyncServiceProtocol,
         runtimeSyncService: RuntimeSyncServiceProtocol,
         chainsTypesSyncService: ChainsTypesSyncServiceProtocol,
@@ -58,7 +60,7 @@ final class ChainRegistry {
     ) {
         self.snapshotHotBootBuilder = snapshotHotBootBuilder
         self.runtimeProviderPool = runtimeProviderPool
-        self.connectionPool = connectionPool
+        self.connectionPools = connectionPools
         self.chainSyncService = chainSyncService
         self.runtimeSyncService = runtimeSyncService
         self.chainsTypesSyncService = chainsTypesSyncService
@@ -69,7 +71,7 @@ final class ChainRegistry {
         self.eventCenter = eventCenter
         self.eventCenter.add(observer: self, dispatchIn: .global())
 
-        connectionPool.setDelegate(self)
+        connectionPools.forEach { $0.setDelegate(self) }
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
@@ -87,33 +89,16 @@ final class ChainRegistry {
                     switch change {
                     case let .insert(newChain):
                         if newChain.isEthereum {
-                            return
+                            try strongSelf.handleNewEthereumChain(newChain: newChain)
+                        } else {
+                            try strongSelf.handleNewSubstrateChain(newChain: newChain)
                         }
-
-                        let connection = try strongSelf.connectionPool.setupConnection(for: newChain)
-                        let chainTypes = strongSelf.chainsTypesMap[newChain.chainId]
-
-                        strongSelf.runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
-                        strongSelf.runtimeSyncService.register(chain: newChain, with: connection)
-                        strongSelf.setupRuntimeVersionSubscription(for: newChain, connection: connection)
-
-                        strongSelf.chains.append(newChain)
                     case let .update(updatedChain):
                         if updatedChain.isEthereum {
-                            return
+                            try strongSelf.handleUpdatedEthereumChain(updatedChain: updatedChain)
+                        } else {
+                            try strongSelf.handleUpdatedSubstrateChain(updatedChain: updatedChain)
                         }
-
-                        strongSelf.clearRuntimeSubscription(for: updatedChain.chainId)
-
-                        let connection = try strongSelf.connectionPool.setupConnection(for: updatedChain)
-                        let chainTypes = strongSelf.chainsTypesMap[updatedChain.chainId]
-
-                        strongSelf.runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
-                        strongSelf.setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
-
-                        strongSelf.chains = strongSelf.chains.filter { $0.chainId != updatedChain.chainId }
-                        strongSelf.chains.append(updatedChain)
-
                     case let .delete(chainId):
                         strongSelf.runtimeProviderPool.destroyRuntimeProvider(for: chainId)
                         strongSelf.clearRuntimeSubscription(for: chainId)
@@ -152,13 +137,109 @@ final class ChainRegistry {
         chainSyncService.syncUp()
         chainsTypesSyncService.syncUp()
     }
+
+    private var substrateConnectionPool: ConnectionPool? {
+        connectionPools.first(where: { $0 is ConnectionPool }) as? ConnectionPool
+    }
+
+    private var ethereumConnectionPool: EthereumConnectionPool? {
+        connectionPools.first(where: { $0 is EthereumConnectionPool }) as? EthereumConnectionPool
+    }
+
+    private func handleNewSubstrateChain(newChain: ChainModel) throws {
+        guard let substrateConnectionPool = self.substrateConnectionPool else {
+            return
+        }
+
+        let connection = try substrateConnectionPool.setupConnection(for: newChain)
+        let chainTypes = chainsTypesMap[newChain.chainId]
+
+        runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
+        runtimeSyncService.register(chain: newChain, with: connection)
+        setupRuntimeVersionSubscription(for: newChain, connection: connection)
+
+        chains.append(newChain)
+    }
+
+    private func handleNewEthereumChain(newChain: ChainModel) throws {
+        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
+            return
+        }
+
+        let connection = try ethereumConnectionPool.setupConnection(for: newChain)
+
+        chains.append(newChain)
+    }
+
+    private func handleUpdatedSubstrateChain(updatedChain: ChainModel) throws {
+        guard let substrateConnectionPool = self.substrateConnectionPool else {
+            return
+        }
+
+        clearRuntimeSubscription(for: updatedChain.chainId)
+
+        let connection = try substrateConnectionPool.setupConnection(for: updatedChain)
+        let chainTypes = chainsTypesMap[updatedChain.chainId]
+
+        runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
+        setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
+
+        chains = chains.filter { $0.chainId != updatedChain.chainId }
+        chains.append(updatedChain)
+    }
+
+    private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
+        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
+            return
+        }
+
+        let connection = try ethereumConnectionPool.setupConnection(for: updatedChain)
+
+        chains = chains.filter { $0.chainId != updatedChain.chainId }
+        chains.append(updatedChain)
+    }
+
+    private func handleDeletedSubstrateChain(chainId: ChainModel.Id) throws {
+        guard let substrateConnectionPool = self.substrateConnectionPool else {
+            return
+        }
+
+        runtimeProviderPool.destroyRuntimeProvider(for: chainId)
+        clearRuntimeSubscription(for: chainId)
+
+        runtimeSyncService.unregister(chainId: chainId)
+
+        chains = chains.filter { $0.chainId != chainId }
+    }
+
+    private func handleDeletedEthereumChain(chainId: ChainModel.Id) throws {
+        chains = chains.filter { $0.chainId != chainId }
+    }
+
+    func resetSubstrateConnection(for chain: ChainModel) {
+        guard let chain = chains.first(where: { $0.chainId == chain.chainId }),
+              let substrateConnectionPool = self.substrateConnectionPool
+        else {
+            return
+        }
+
+        substrateConnectionPool.resetConnection(for: chain.chainId)
+    }
+
+    func resetEthereumConnection(for chain: ChainModel) {
+        guard let chain = chains.first(where: { $0.chainId == chain.chainId }) else {
+            return
+        }
+
+        // TODO: Reset eth connection
+    }
 }
 
 // MARK: - ChainRegistryProtocol
 
 extension ChainRegistry: ChainRegistryProtocol {
     var availableChainIds: Set<ChainModel.Id>? {
-        readLock.concurrentlyRead { Set(runtimeVersionSubscriptions.keys) }
+        readLock.concurrentlyRead { Set(runtimeVersionSubscriptions.keys + chains.filter { $0.isEthereum }.map { $0.chainId }) }
     }
 
     func performColdBoot() {
@@ -196,7 +277,19 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        readLock.concurrentlyRead { connectionPool.getConnection(for: chainId) }
+        guard let substrateConnectionPool = self.substrateConnectionPool else {
+            return nil
+        }
+
+        return readLock.concurrentlyRead { substrateConnectionPool.getConnection(for: chainId) }
+    }
+
+    func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
+        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
+            return nil
+        }
+
+        return ethereumConnectionPool.getConnection(for: chainId)
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
@@ -244,7 +337,15 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func resetConnection(for chainId: ChainModel.Id) {
-        connectionPool.resetConnection(for: chainId)
+        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+            return
+        }
+
+        if chain.isEthereum {
+            resetEthereumConnection(for: chain)
+        } else {
+            resetSubstrateConnection(for: chain)
+        }
     }
 }
 
@@ -281,7 +382,11 @@ extension ChainRegistry: ConnectionPoolDelegate {
         }
 
         do {
-            _ = try connectionPool.setupConnection(for: chain, ignoredUrl: previusUrl)
+            if chain.isEthereum {
+                // TODO: Ethereum reconnect
+            } else {
+                _ = try substrateConnectionPool?.setupConnection(for: chain, ignoredUrl: previusUrl)
+            }
 
             let event = ChainsUpdatedEvent(updatedChains: [chain])
             eventCenter.notify(with: event)

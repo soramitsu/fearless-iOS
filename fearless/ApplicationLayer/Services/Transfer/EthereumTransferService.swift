@@ -57,10 +57,11 @@ final class EthereumTransferService: TransferServiceProtocol {
             let gasLimit = try await queryGasLimit(call: call)
             return gasLimit.quantity * (baseFeePerGas.quantity + maxPriorityFeePerGas.quantity)
         case .erc20:
+            let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
             let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
             let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())
             let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
-            let transfer = contract.transfer(to: contractAddress, value: transfer.amount)
+            let transfer = contract.transfer(to: address, value: transfer.amount)
             let maxPriorityFeePerGas = try await queryMaxPriorityFeePerGas()
             let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: BigUInt.zero), transfer: transfer)
 
@@ -170,7 +171,7 @@ final class EthereumTransferService: TransferServiceProtocol {
         let transferCall = contract.transfer(to: address, value: transfer.amount)
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
         let gasPrice = try await queryGasPrice()
-        let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: transfer.amount), transfer: transferCall)
+        let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: .zero), transfer: transferCall)
 
         guard let transferData = transferCall.encodeABI() else {
             throw TransferServiceError.transferFailed(reason: "Cannot create ERC20 transfer transaction")

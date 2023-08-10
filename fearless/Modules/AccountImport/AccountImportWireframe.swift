@@ -23,7 +23,16 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
             rootAnimator.animateTransition(to: pincodeViewController)
         case .chain:
             DispatchQueue.main.async {
+//                guard let topViewController = UIApplication.topViewController() else {
                 UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true)
+//                    return
+//                }
+//
+//                if topViewController.navigationController != nil {
+//                    topViewController.navigationController?.popToRootViewController(animated: true)
+//                } else {
+//                MainTransitionHelper.transitToMainTabBarController(closing: topViewController, animated: true)
+//                }
             }
         }
     }

@@ -8,9 +8,11 @@ enum ConnectionPoolError: Error {
 }
 
 protocol ConnectionPoolProtocol {
-    func setupConnection(for chain: ChainModel) throws -> ChainConnection
-    func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
-    func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
+    associatedtype T
+
+    func setupConnection(for chain: ChainModel) throws -> T
+    func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> T
+    func getConnection(for chainId: ChainModel.Id) -> T?
     func setDelegate(_ delegate: ConnectionPoolDelegate)
     func resetConnection(for chainId: ChainModel.Id)
 }
@@ -47,6 +49,8 @@ final class ConnectionPool {
 // MARK: - ConnectionPoolProtocol
 
 extension ConnectionPool: ConnectionPoolProtocol {
+    typealias T = ChainConnection
+
     func setDelegate(_ delegate: ConnectionPoolDelegate) {
         self.delegate = delegate
     }

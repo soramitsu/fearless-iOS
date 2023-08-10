@@ -58,6 +58,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
     }()
 
     weak var delegate: WalletsManagmentTableCellDelegate?
+    private var skeletonView: SkrullableView?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -78,9 +79,16 @@ final class WalletsManagmentTableCell: UITableViewCell {
     func bind(to viewModel: WalletsManagmentCellViewModel) {
         iconImageView.image = R.image.iconBirdGreen()
         walletNameLabel.text = viewModel.walletName
-        fiatBalanceLabel.text = viewModel.fiatBalance
         dayChangeLabel.attributedText = viewModel.dayChange
         backgroundTriangularedView.set(highlighted: viewModel.isSelected, animated: false)
+
+        fiatBalanceLabel.text = viewModel.fiatBalance
+
+        if viewModel.fiatBalance == nil {
+            startLoadingIfNeeded()
+        } else {
+            stopLoadingIfNeeded()
+        }
     }
 
     private func configure() {
@@ -127,5 +135,103 @@ final class WalletsManagmentTableCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.leading.equalTo(vStackView.snp.trailing).offset(UIConstants.defaultOffset)
         }
+    }
+}
+
+extension WalletsManagmentTableCell: SkeletonLoadable {
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
+
+    func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
+        skeletonView?.startSkrulling()
+    }
+
+    func didUpdateSkeletonLayout() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
+        }
+    }
+
+    func startLoadingIfNeeded() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        fiatBalanceLabel.alpha = 0.0
+        dayChangeLabel.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoadingIfNeeded() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        fiatBalanceLabel.alpha = 1.0
+        dayChangeLabel.alpha = 1.0
+    }
+
+    private func setupSkeleton() {
+        let spaceSize = frame.size
+
+        guard spaceSize != .zero else {
+            self.skeletonView = Skrull(size: .zero, decorations: [], skeletons: []).build()
+            return
+        }
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        self.skeletonView = skeletonView
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: contentView)
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let defaultBigWidth = 72.0
+        let defaultHeight = 16.0
+        let smallHeight = 10.0
+
+        let titleWidth = fiatBalanceLabel.text?.widthOfString(usingFont: fiatBalanceLabel.font)
+        let incomeWidth = dayChangeLabel.text?.widthOfString(usingFont: dayChangeLabel.font)
+
+        let titleSize = CGSize(width: titleWidth ?? defaultBigWidth, height: defaultHeight)
+        let incomeSize = CGSize(width: incomeWidth ?? defaultBigWidth, height: smallHeight)
+
+        return [
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset, y: spaceSize.height / 2),
+                size: titleSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset, y: spaceSize.height / 2 + defaultHeight / 2 + UIConstants.offset12),
+                size: incomeSize
+            )
+        ]
     }
 }

@@ -12,10 +12,9 @@ final class ChainAssetListAssembly {
             storageFacade: UserDataStorageFacade.shared
         )
 
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
         let substrateAccountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,

@@ -61,10 +61,13 @@ final class ChainAccountInteractor {
             return
         }
 
-        fetchBalanceLocks(
-            runtimeService: dependencies.runtimeService,
-            connection: dependencies.connection
-        )
+        if let runtimeService = dependencies.runtimeService,
+           let connection = dependencies.connection {
+            fetchBalanceLocks(
+                runtimeService: runtimeService,
+                connection: connection
+            )
+        }
 
         fetchMinimalBalance(
             using: dependencies.existentialDepositService
@@ -207,6 +210,12 @@ extension ChainAccountInteractor: EventVisitorProtocol {
 
             fetchChainAssetBasedData()
         }
+    }
+
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        wallet = event.account
+        fetchChainAssetBasedData()
+        presenter?.didReceiveWallet(wallet: event.account)
     }
 }
 

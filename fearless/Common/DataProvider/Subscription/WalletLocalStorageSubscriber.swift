@@ -74,6 +74,11 @@ extension WalletLocalStorageSubscriber {
             return
         }
 
+        if chainAsset.chain.isEthereum {
+            handleEthereumAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+            return
+        }
+
         if chainAsset.chain.isSora, chainAsset.isUtility {
             handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
             return
@@ -107,6 +112,27 @@ extension WalletLocalStorageSubscriber {
             }
         case .none:
             break
+        }
+    }
+
+    private func handleEthereumAccountInfo(
+        for accountId: AccountId,
+        chainAsset: ChainAsset,
+        item: AccountInfoStorageWrapper
+    ) {
+        do {
+            let accountInfo = try JSONDecoder().decode(AccountInfo?.self, from: item.data)
+            walletLocalSubscriptionHandler?.handleAccountInfo(
+                result: .success(accountInfo),
+                accountId: accountId,
+                chainAsset: chainAsset
+            )
+        } catch {
+            walletLocalSubscriptionHandler?.handleAccountInfo(
+                result: .failure(error),
+                accountId: accountId,
+                chainAsset: chainAsset
+            )
         }
     }
 

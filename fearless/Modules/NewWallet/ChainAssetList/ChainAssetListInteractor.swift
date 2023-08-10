@@ -301,13 +301,9 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         )
     }
 
-    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        guard let wallet = SelectedWalletSettings.shared.value else {
-            return
-        }
-
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
         resetAccountInfoSubscription()
-        self.wallet = wallet
+        wallet = event.account
         output?.handleWalletChanged(wallet: wallet)
         updateChainAssets(using: filters, sorts: sorts)
     }

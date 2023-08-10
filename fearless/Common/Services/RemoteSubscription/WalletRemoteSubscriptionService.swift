@@ -7,7 +7,7 @@ protocol WalletRemoteSubscriptionServiceProtocol {
         chainAsset: ChainAsset,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
-    ) -> UUID?
+    ) async -> UUID?
 
     func detachFromAccountInfo(
         for subscriptionId: UUID,
@@ -23,7 +23,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
         chainAsset: ChainAsset,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
-    ) -> UUID? {
+    ) async -> UUID? {
         do {
             let storagePath = chainAsset.storagePath
 

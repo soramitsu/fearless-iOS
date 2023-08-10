@@ -49,6 +49,12 @@ enum WalletBalanceError: Error {
     case `internal`
 }
 
+enum WalletBalanceSubscriptionType {
+    case wallets
+    case wallet(walletId: String)
+    case chainAsset(walletId: String, chainAsset: ChainAsset)
+}
+
 final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, PriceLocalStorageSubscriber {
     // MARK: - PriceLocalStorageSubscriber
 
@@ -66,16 +72,16 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
     private let logger: Logger
-
+    private let accountInfoFetchings: [AccountInfoFetchingProtocol]
     private var deliverQueue: DispatchQueue?
     private weak var delegate: WalletBalanceSubscriptionHandler?
 
-    private lazy var ethBalanceSubscriptions: [String: EthereumBalanceSubscription] = [:]
     private lazy var accountInfosAdapters: [String: AccountInfoSubscriptionAdapter] = [:]
     private lazy var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private lazy var chainAssets: [ChainAssetId: ChainAsset] = [:]
     private lazy var metaAccounts: [MetaAccountModel] = []
     private lazy var prices: [PriceData] = []
+    private var subscriptionType: WalletBalanceSubscriptionType?
 
     private let lock = ReaderWriterLock()
 
@@ -87,7 +93,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         chainRepository: AnyDataProviderRepository<ChainModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
-        logger: Logger
+        logger: Logger,
+        accountInfoFetchings: [AccountInfoFetchingProtocol]
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.metaAccountRepository = metaAccountRepository
@@ -95,6 +102,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.logger = logger
+        self.accountInfoFetchings = accountInfoFetchings
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 
@@ -105,6 +113,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        subscriptionType = .wallet(walletId: walletId)
+
         reset()
         deliverQueue = queue
         delegate = handler
@@ -116,6 +126,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        subscriptionType = .wallets
+
         reset()
         deliverQueue = queue
         delegate = handler
@@ -129,6 +141,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        subscriptionType = .chainAsset(walletId: walletId, chainAsset: chainAsset)
+
         reset()
         deliverQueue = queue
         delegate = handler
@@ -266,7 +280,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             )
-            accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
+            self.accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
             accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
         }
     }
@@ -307,8 +321,24 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         buildBalance()
     }
 
-    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        buildBalance()
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        if let index = metaAccounts.firstIndex(where: { $0.metaId == event.account.metaId }) {
+            metaAccounts[index] = event.account
+        }
+
+        switch subscriptionType {
+        case .wallets:
+            reset()
+            fetchAllMetaAccounts()
+        case let .wallet(walletId):
+            reset()
+            fetchMetaAccount(by: walletId, chainAsset: nil)
+        case let .chainAsset(walletId, chainAsset):
+            reset()
+            fetchMetaAccount(by: walletId, chainAsset: chainAsset)
+        case .none:
+            break
+        }
     }
 }
 

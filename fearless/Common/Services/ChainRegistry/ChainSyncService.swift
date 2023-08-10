@@ -13,7 +13,7 @@ enum ChainSyncServiceError: Error {
 }
 
 final class ChainSyncService {
-    static let fetchLocalData = false
+    static let fetchLocalData = true
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]

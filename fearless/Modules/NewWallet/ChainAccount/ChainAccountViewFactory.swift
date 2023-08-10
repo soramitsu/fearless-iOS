@@ -57,13 +57,23 @@ enum ChainAccountViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: eventCenter,
-            logger: logger
+            logger: logger,
+            accountInfoFetchings: [substrateAccountInfoFetching, ethereumAccountInfoFetching]
         )
 
         let interactor = ChainAccountInteractor(

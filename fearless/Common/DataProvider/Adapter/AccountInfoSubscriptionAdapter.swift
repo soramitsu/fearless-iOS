@@ -59,15 +59,8 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     private var subscriptions: [ChainAssetId: StreamableProvider<AccountInfoStorageWrapper>] = [:]
     private var selectedMetaAccount: MetaAccountModel
 
-    private lazy var substrateWrapper: AccountInfoSubscriptionProviderWrapper = {
+    private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
         AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
-    }()
-
-    private lazy var ethereumWrapper: EthereumBalanceSubscription = {
-        EthereumBalanceSubscription(
-            wallet: selectedMetaAccount,
-            accountInfoFetching: EthereumAccountInfoFetching(operationQueue: OperationQueue())
-        )
     }()
 
     private var deliveryQueue: DispatchQueue?
@@ -87,11 +80,8 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
     func reset() {
         subscriptions.values.forEach { subscription in
-            subscription.removeObserver(substrateWrapper)
+            subscription.removeObserver(wrapper)
         }
-
-        ethereumWrapper.unsubsribe()
-        ethereumWrapper.handler = nil
 
         subscriptions = [:]
     }
@@ -107,16 +97,12 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
-            if chainAsset.chain.isEthereum {
-                strongSelf.ethereumWrapper.handler = handler
-                strongSelf.ethereumWrapper.subscribe(chainAssets: [chainAsset])
-            } else {
-                strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.substrateWrapper)
-                strongSelf.subscriptions[chainAsset.chainAssetId] = nil
 
-                if let subscription = strongSelf.substrateWrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
-                    strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
-                }
+            strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
+            strongSelf.subscriptions[chainAsset.chainAssetId] = nil
+
+            if let subscription = strongSelf.wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
+                strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
             }
         }
     }
@@ -128,20 +114,16 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     ) {
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.ethereumWrapper.subscribe(chainAssets: chainsAssets.filter { $0.chain.isEthereum })
-            strongSelf.ethereumWrapper.handler = handler
-
             strongSelf.handler = handler
             strongSelf.deliveryQueue = queue
 
-            chainsAssets.filter { !$0.chain.isEthereum }.forEach { chainAsset in
-
-                strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.substrateWrapper)
+            chainsAssets.forEach { chainAsset in
+                strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
                 strongSelf.subscriptions[chainAsset.chainAssetId] = nil
 
                 let accountRequest = chainAsset.chain.accountRequest()
                 if let accountId = strongSelf.selectedMetaAccount.fetch(for: accountRequest)?.accountId,
-                   let subscription = strongSelf.substrateWrapper.subscribeAccountProvider(
+                   let subscription = strongSelf.wrapper.subscribeAccountProvider(
                        for: accountId,
                        chainAsset: chainAsset
                    ) {

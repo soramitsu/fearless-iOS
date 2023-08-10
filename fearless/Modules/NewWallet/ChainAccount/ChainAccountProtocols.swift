@@ -38,6 +38,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveWalletBalancesResult(_ result: WalletBalancesResult)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceive(accountInfo: AccountInfo?, for chainAsset: ChainAsset, accountId: AccountId)
+    func didReceiveWallet(wallet: MetaAccountModel)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,

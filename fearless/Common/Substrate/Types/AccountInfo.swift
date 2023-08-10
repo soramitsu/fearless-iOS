@@ -126,8 +126,18 @@ struct AccountData: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
-        reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
+        do {
+            free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
+        } catch {
+            free = try container.decode(BigUInt.self, forKey: .free)
+        }
+
+        do {
+            reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
+        } catch {
+            reserved = try container.decode(BigUInt.self, forKey: .reserved)
+        }
+
         do {
             flags = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .flags).value
         } catch {
@@ -137,10 +147,14 @@ struct AccountData: Codable, Equatable {
         do {
             frozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .frozen).value
         } catch {
-            let feeFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .feeFrozen).value
-            let miscFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .miscFrozen).value
+            do {
+                frozen = try container.decode(BigUInt.self, forKey: .frozen)
+            } catch {
+                let feeFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .feeFrozen).value
+                let miscFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .miscFrozen).value
 
-            frozen = max(feeFrozen, miscFrozen)
+                frozen = max(feeFrozen, miscFrozen)
+            }
         }
     }
 }

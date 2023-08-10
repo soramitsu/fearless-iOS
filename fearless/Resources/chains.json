@@ -5496,7 +5496,7 @@
     },
     {
         "disabled": false,
-        "chainId": "0x65",
+        "chainId": "0x5",
         "name": "Ethereum Goerli",
         "externalApi": {
             "explorers": [{
@@ -5555,6 +5555,10 @@
             {
                 "url": "https://ethereum-goerli.publicnode.com",
                 "name": "ethereum publicnode"
+            },
+            {
+                "url": "wss://goerli.infura.io/ws/v3/550f1aa1e8a147f8b43184507686569b",
+                "name": "infura.io"
             }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/ETH.svg",

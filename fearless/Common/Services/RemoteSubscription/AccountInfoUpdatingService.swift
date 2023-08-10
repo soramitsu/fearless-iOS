@@ -15,6 +15,7 @@ final class AccountInfoUpdatingService {
     private(set) var selectedMetaAccount: MetaAccountModel
     private let chainRegistry: ChainRegistryProtocol
     private let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
+    private let ethereumRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private var chains: [ChainModel.Id: ChainModel] = [:]
@@ -32,12 +33,14 @@ final class AccountInfoUpdatingService {
         selectedAccount: MetaAccountModel,
         chainRegistry: ChainRegistryProtocol,
         remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
+        ethereumRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
         logger: LoggerProtocol?,
         eventCenter: EventCenterProtocol
     ) {
         selectedMetaAccount = selectedAccount
         self.chainRegistry = chainRegistry
         self.remoteSubscriptionService = remoteSubscriptionService
+        self.ethereumRemoteSubscriptionService = ethereumRemoteSubscriptionService
         self.logger = logger
         self.eventCenter = eventCenter
     }
@@ -45,6 +48,14 @@ final class AccountInfoUpdatingService {
     private func removeAllSubscriptions() {
         for chainAssetKey in subscribedChains.keys {
             removeSubscription(for: chainAssetKey)
+        }
+    }
+
+    private func getRemoteSubscriptionService(for chainAsset: ChainAsset) -> WalletRemoteSubscriptionServiceProtocol {
+        if chainAsset.chain.isEthereum {
+            return ethereumRemoteSubscriptionService
+        } else {
+            return remoteSubscriptionService
         }
     }
 
@@ -68,30 +79,32 @@ final class AccountInfoUpdatingService {
     }
 
     private func addSubscriptionIfNeeded(for chainAsset: ChainAsset, closure: RemoteSubscriptionClosure? = nil) {
-        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            logger?.error("Couldn't create account for chain \(chainAsset.chain.chainId)")
-            return
-        }
+        Task {
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                logger?.error("Couldn't create account for chain \(chainAsset.chain.chainId)")
+                return
+            }
 
-        let key = chainAsset.uniqueKey(accountId: accountId)
-        guard getSubscription(for: key) == nil else {
-            return
-        }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            guard getSubscription(for: key) == nil else {
+                return
+            }
 
-        let maybeSubscriptionId = remoteSubscriptionService.attachToAccountInfo(
-            of: accountId,
-            chainAsset: chainAsset,
-            queue: nil,
-            closure: closure
-        )
-
-        if let subsciptionId = maybeSubscriptionId {
-            let subscription = SubscriptionInfo(
-                subscriptionId: subsciptionId,
-                accountId: accountId
+            let maybeSubscriptionId = await getRemoteSubscriptionService(for: chainAsset).attachToAccountInfo(
+                of: accountId,
+                chainAsset: chainAsset,
+                queue: nil,
+                closure: closure
             )
 
-            setSubscription(subscription, for: chainAsset.uniqueKey(accountId: accountId))
+            if let subsciptionId = maybeSubscriptionId {
+                let subscription = SubscriptionInfo(
+                    subscriptionId: subsciptionId,
+                    accountId: accountId
+                )
+
+                setSubscription(subscription, for: chainAsset.uniqueKey(accountId: accountId))
+            }
         }
     }
 
@@ -116,7 +129,7 @@ final class AccountInfoUpdatingService {
             return
         }
 
-        remoteSubscriptionService.detachFromAccountInfo(
+        getRemoteSubscriptionService(for: chainAsset).detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
             chainAssetKey: key,
             queue: nil
@@ -141,6 +154,13 @@ final class AccountInfoUpdatingService {
         }
 
         setSubscription(nil, for: key)
+
+        ethereumRemoteSubscriptionService.detachFromAccountInfo(
+            for: subscriptionInfo.subscriptionId,
+            chainAssetKey: key,
+            queue: nil,
+            closure: nil
+        )
 
         remoteSubscriptionService.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,

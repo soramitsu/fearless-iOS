@@ -35,13 +35,29 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: eventCenter,
-            logger: logger
+            logger: logger,
+            accountInfoFetchings: [substrateAccountInfoFetching, ethereumAccountInfoFetching]
         )
 
         let missingAccountHelper = MissingAccountFetcher(
@@ -49,22 +65,13 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
+        // TODO: Eth account info fetching
         let chainsIssuesCenter = ChainsIssuesCenter(
             wallet: selectedMetaAccount,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
             missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetching
+            accountInfoFetcher: substrateAccountInfoFetching
         )
 
         let interactor = ProfileInteractor(

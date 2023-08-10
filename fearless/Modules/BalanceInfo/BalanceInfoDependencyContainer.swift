@@ -2,8 +2,8 @@ import SSFUtils
 import SSFModels
 
 struct BalanceInfoDependencies {
-    let connection: JSONRPCEngine
-    let runtimeService: RuntimeCodingServiceProtocol
+    let connection: JSONRPCEngine?
+    let runtimeService: RuntimeCodingServiceProtocol?
     let existentialDepositService: ExistentialDepositServiceProtocol
     let accountInfoFetching: AccountInfoFetchingProtocol
 }
@@ -13,12 +13,8 @@ final class BalanceInfoDepencyContainer {
         chainAsset: ChainAsset
     ) -> BalanceInfoDependencies? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
-        else {
-            return nil
-        }
+        let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId)
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
         let operationManager = OperationManagerFacade.sharedManager
         let existentialDepositService = ExistentialDepositService(
             operationManager: operationManager,

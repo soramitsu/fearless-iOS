@@ -158,8 +158,12 @@ final class SendDepencyContainer {
                 throw ConvenienceError(error: "Cannot fetch address from chain account")
             }
 
+            guard let ws = ChainRegistryFacade.sharedRegistry.getEthereumConnection(for: chainAsset.chain.chainId) else {
+                throw ChainRegistryError.connectionUnavailable
+            }
+
             return EthereumTransferService(
-                ws: try chainAsset.chain.wsEth(),
+                ws: ws,
                 privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
                 senderAddress: address
             )

@@ -13,7 +13,7 @@ final class ChainAccountPresenter {
         interactor.chainAsset
     }
 
-    let wallet: MetaAccountModel
+    var wallet: MetaAccountModel
     weak var moduleOutput: ChainAccountModuleOutput?
     private let balanceInfoModule: BalanceInfoModuleInput
 
@@ -371,6 +371,11 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceive(accountInfo: AccountInfo?, for _: ChainAsset, accountId _: AccountId) {
         self.accountInfo = accountInfo
         provideBalanceViewModel()
+    }
+
+    func didReceiveWallet(wallet: MetaAccountModel) {
+        self.wallet = wallet
+        provideViewModel()
     }
 }
 
