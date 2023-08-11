@@ -123,9 +123,11 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         let substrateRestoreSeed = seeds.first(where: { $0.chain.chainBaseType == .substrate })
         let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
+        let substrateSeed = substrateRestoreSeed?.seed.toHex(includePrefix: true)
+        let ethSeed = ethereumRestoreSeed?.seed.toHex(includePrefix: true)
         let seed = OpenBackupAccount.Seed(
-            substrateSeed: substrateRestoreSeed?.seed.toUTF8String(),
-            ethSeed: ethereumRestoreSeed?.seed.toUTF8String()
+            substrateSeed: substrateSeed,
+            ethSeed: ethSeed
         )
         let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
         let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))

@@ -87,4 +87,14 @@ final class BackupWalletRouter: BackupWalletRouterInput {
             animated: true
         )
     }
+
+    func showWalletDetails(
+        wallet: MetaAccountModel,
+        accounts: [ChainAccountInfo],
+        from view: ControllerBackedProtocol?
+    ) {
+        let module = WalletDetailsViewFactory
+            .createView(flow: .export(wallet: wallet, accounts: accounts))
+        view?.controller.navigationController?.pushViewController(module.controller, animated: true)
+    }
 }
