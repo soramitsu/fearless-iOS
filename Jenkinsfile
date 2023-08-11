@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/FLW-3696/automation-flow-github-jira') _
 
 // Job properties
 def jobParams = [
@@ -10,5 +10,6 @@ def appPipline = new org.ios.AppPipeline(
     appTests: false,
     appPushNoti: true,
     jobParams: jobParams,
-    label: 'macos-ios-1-2')
+    label: 'macos-ios-1-2' 
+    )
 appPipline.runPipeline('fearless')
