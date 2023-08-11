@@ -236,22 +236,8 @@ final class BackupWalletPresenter {
     }
 
     private func showReplacedAccountScreen() {
-        let replacedChainIds = wallet.chainAccounts.map { $0.chainId }
-        let replacedChains = chains.filter {
-            replacedChainIds.contains($0.chainId)
-        }
-        let accounts: [ChainAccountInfo] = replacedChains.compactMap {
-            guard let accountResponse = wallet.fetch(for: $0.accountRequest()) else {
-                return nil
-            }
-            return ChainAccountInfo(
-                chain: $0,
-                account: accountResponse
-            )
-        }
         router.showWalletDetails(
             wallet: wallet,
-            accounts: accounts,
             from: view
         )
     }

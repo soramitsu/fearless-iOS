@@ -24,7 +24,6 @@ protocol BackupWalletRouterInput: AnyDismissable, SheetAlertPresentable, ErrorPr
     )
     func showWalletDetails(
         wallet: MetaAccountModel,
-        accounts: [ChainAccountInfo],
         from view: ControllerBackedProtocol?
     )
 }

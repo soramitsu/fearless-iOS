@@ -90,11 +90,10 @@ final class BackupWalletRouter: BackupWalletRouterInput {
 
     func showWalletDetails(
         wallet: MetaAccountModel,
-        accounts: [ChainAccountInfo],
         from view: ControllerBackedProtocol?
     ) {
         let module = WalletDetailsViewFactory
-            .createView(flow: .export(wallet: wallet, accounts: accounts))
+            .createView(flow: .normal(wallet: wallet))
         view?.controller.navigationController?.pushViewController(module.controller, animated: true)
     }
 }
