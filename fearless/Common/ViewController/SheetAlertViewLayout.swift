@@ -46,6 +46,7 @@ final class SheetAlertViewLayout: UIView {
         return label
     }()
 
+    private let scrolableView = ScrollableContainerView()
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -71,6 +72,7 @@ final class SheetAlertViewLayout: UIView {
         super.layoutSubviews()
         closeButton.rounded()
         imageViewContainer.rounded()
+        descriptionLabelLayoutSubviews()
     }
 
     private func bind(viewModel: SheetAlertPresentableViewModel) {
@@ -86,6 +88,25 @@ final class SheetAlertViewLayout: UIView {
                 title: closeAction
             )
             bindActions(actions: [action], actionAxis: viewModel.actionAxis)
+        }
+    }
+
+    private func descriptionLabelLayoutSubviews() {
+        guard let descriptionText = descriptionLabel.text else {
+            return
+        }
+        let labelFullHeight = descriptionText.height(withConstrainedWidth: frame.width, font: descriptionLabel.font)
+        let viewHeight = bounds.height
+        let screenHeight = UIScreen.main.bounds.height
+
+        if (labelFullHeight + viewHeight) > screenHeight * 0.7 {
+            scrolableView.snp.makeConstraints { make in
+                make.height.equalTo(viewHeight)
+            }
+        } else {
+            scrolableView.snp.makeConstraints { make in
+                make.height.equalTo(labelFullHeight)
+            }
         }
     }
 
@@ -199,8 +220,16 @@ final class SheetAlertViewLayout: UIView {
             contentStackView.setCustomSpacing(24, after: titleLabel)
         }
 
-        contentStackView.addArrangedSubview(descriptionLabel)
-        contentStackView.setCustomSpacing(24, after: descriptionLabel)
+        scrolableView.stackView.addArrangedSubview(descriptionLabel)
+        descriptionLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        contentStackView.addArrangedSubview(scrolableView)
+        contentStackView.setCustomSpacing(24, after: scrolableView)
+        scrolableView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
 
         if !viewModel.isInfo {
             contentStackView.addArrangedSubview(actionsStackView)
