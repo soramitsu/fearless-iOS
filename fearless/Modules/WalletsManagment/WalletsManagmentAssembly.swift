@@ -42,10 +42,6 @@ final class WalletsManagmentAssembly {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            chainRegistry: chainRegistry
-        )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
@@ -53,8 +49,7 @@ final class WalletsManagmentAssembly {
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: sharedDefaultQueue,
             eventCenter: eventCenter,
-            logger: logger,
-            accountInfoFetchings: [substrateAccountInfoFetching, ethereumAccountInfoFetching]
+            logger: logger
         )
 
         let interactor = WalletsManagmentInteractor(

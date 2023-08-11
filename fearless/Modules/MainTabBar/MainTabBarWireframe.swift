@@ -28,7 +28,7 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         }
 
         guard let importController = AccountImportViewFactory
-            .createViewForAdding()?.controller
+            .createViewForAdding(defaultSource: .mnemonic)?.controller
         else {
             return
         }

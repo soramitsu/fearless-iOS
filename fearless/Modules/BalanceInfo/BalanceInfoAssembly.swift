@@ -39,10 +39,6 @@ enum BalanceInfoAssembly {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            chainRegistry: chainRegistry
-        )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
@@ -50,8 +46,7 @@ enum BalanceInfoAssembly {
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: eventCenter,
-            logger: logger,
-            accountInfoFetchings: [substrateAccountInfoFetching, ethereumAccountInfoFetching]
+            logger: logger
         )
 
         let storageRequestFactory = StorageRequestFactory(

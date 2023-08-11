@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="22A380" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDAccountInfo" representedClassName="CDAccountInfo" syncable="YES" codeGenerationType="class">
+        <attribute name="data" optional="YES" attributeType="Binary"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDAssetVisibility" representedClassName="CDAssetVisibility" syncable="YES" codeGenerationType="class">
+        <attribute name="assetId" optional="YES" attributeType="String"/>
+        <attribute name="hidden" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <relationship name="wallet" maxCount="1" deletionRule="Nullify" destinationEntity="CDMetaAccount" inverseName="assetsVisibility" inverseEntity="CDMetaAccount"/>
+    </entity>
+    <entity name="CDChainAccount" representedClassName="CDChainAccount" syncable="YES" codeGenerationType="class">
+        <attribute name="accountId" attributeType="String"/>
+        <attribute name="chainId" attributeType="String"/>
+        <attribute name="cryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="ethereumBased" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="publicKey" attributeType="Binary"/>
+        <relationship name="metaAccount" maxCount="1" deletionRule="Nullify" destinationEntity="CDMetaAccount" inverseName="chainAccounts" inverseEntity="CDMetaAccount"/>
+    </entity>
+    <entity name="CDChainSettings" representedClassName="CDChainSettings" syncable="YES" codeGenerationType="class">
+        <attribute name="autobalanced" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="chainId" attributeType="String"/>
+        <attribute name="issueMuted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="CDCurrency" representedClassName="CDCurrency" syncable="YES" codeGenerationType="class">
+        <attribute name="icon" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="isSelected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="symbol" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDCustomChainNode" representedClassName="CDCustomChainNode" syncable="YES" codeGenerationType="class">
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="url" attributeType="URI"/>
+    </entity>
+    <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
+        <attribute name="assetFilterOptions" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="assetKeysOrder" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="NSArray"/>
+        <attribute name="canExportEthereumMnemonic" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="chainIdForFilter" optional="YES" attributeType="String"/>
+        <attribute name="ethereumAddress" optional="YES" attributeType="String"/>
+        <attribute name="ethereumPublicKey" optional="YES" attributeType="Binary"/>
+        <attribute name="hasBackup" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isSelected" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="metaId" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="order" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="substrateAccountId" attributeType="String"/>
+        <attribute name="substrateCryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="substratePublicKey" attributeType="Binary"/>
+        <attribute name="unusedChainIds" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="zeroBalanceAssetsHidden" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <relationship name="assetsVisibility" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAssetVisibility" inverseName="wallet" inverseEntity="CDAssetVisibility"/>
+        <relationship name="chainAccounts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainAccount" inverseName="metaAccount" inverseEntity="CDChainAccount"/>
+        <relationship name="selectedCurrency" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDCurrency"/>
+    </entity>
+</model>

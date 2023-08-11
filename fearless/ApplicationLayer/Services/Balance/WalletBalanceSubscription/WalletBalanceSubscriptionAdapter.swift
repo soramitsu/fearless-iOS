@@ -72,7 +72,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
     private let logger: Logger
-    private let accountInfoFetchings: [AccountInfoFetchingProtocol]
     private var deliverQueue: DispatchQueue?
     private weak var delegate: WalletBalanceSubscriptionHandler?
 
@@ -93,8 +92,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         chainRepository: AnyDataProviderRepository<ChainModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
-        logger: Logger,
-        accountInfoFetchings: [AccountInfoFetchingProtocol]
+        logger: Logger
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.metaAccountRepository = metaAccountRepository
@@ -102,7 +100,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.logger = logger
-        self.accountInfoFetchings = accountInfoFetchings
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 

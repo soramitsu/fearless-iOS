@@ -5,8 +5,11 @@ import RobinHood
 import IrohaCrypto
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
-    static func createViewForOnboarding(_ flow: AccountImportFlow = .wallet(step: .first)) -> AccountImportViewProtocol? {
-        guard let interactor = createAccountImportInteractor() else {
+    static func createViewForOnboarding(
+        defaultSource: AccountImportSource = .mnemonic,
+        flow: AccountImportFlow = .wallet(step: .first)
+    ) -> AccountImportViewProtocol? {
+        guard let interactor = createAccountImportInteractor(defaultSource: defaultSource) else {
             return nil
         }
 
@@ -14,8 +17,11 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe, flow: flow)
     }
 
-    static func createViewForAdding(_ flow: AccountImportFlow = .wallet(step: .first)) -> AccountImportViewProtocol? {
-        guard let interactor = createAddAccountImportInteractor() else {
+    static func createViewForAdding(
+        defaultSource: AccountImportSource,
+        _ flow: AccountImportFlow = .wallet(step: .first)
+    ) -> AccountImportViewProtocol? {
+        guard let interactor = createAddAccountImportInteractor(defaultSource: defaultSource) else {
             return nil
         }
 
@@ -25,7 +31,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     }
 
     static func createViewForSwitch() -> AccountImportViewProtocol? {
-        guard let interactor = createAddAccountImportInteractor() else {
+        guard let interactor = createAddAccountImportInteractor(defaultSource: .mnemonic) else {
             return nil
         }
 
@@ -55,7 +61,9 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         return view
     }
 
-    private static func createAccountImportInteractor() -> BaseAccountImportInteractor? {
+    private static func createAccountImportInteractor(
+        defaultSource: AccountImportSource
+    ) -> BaseAccountImportInteractor? {
         guard let keystoreImportService: KeystoreImportServiceProtocol =
             URLHandlingService.shared.findService()
         else {
@@ -78,13 +86,16 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager,
             settings: settings,
             keystoreImportService: keystoreImportService,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            defaultSource: defaultSource
         )
 
         return interactor
     }
 
-    private static func createAddAccountImportInteractor() -> BaseAccountImportInteractor? {
+    private static func createAddAccountImportInteractor(
+        defaultSource: AccountImportSource
+    ) -> BaseAccountImportInteractor? {
         guard let keystoreImportService: KeystoreImportServiceProtocol =
             URLHandlingService.shared.findService()
         else {
@@ -106,7 +117,8 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
                 operationManager: OperationManagerFacade.sharedManager,
                 settings: SelectedWalletSettings.shared,
                 keystoreImportService: keystoreImportService,
-                eventCenter: eventCenter
+                eventCenter: eventCenter,
+                defaultSource: defaultSource
             )
 
         return interactor

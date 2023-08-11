@@ -60,11 +60,18 @@ final class ChainAssetListAssembly {
             viewModelFactory: viewModelFactory
         )
 
+        let bannersModule = Self.configureBannersModule(moduleOutput: presenter)
+        let bannersViewController = bannersModule?.view.controller
         let view = ChainAssetListViewController(
+            bannersViewController: bannersViewController,
             output: presenter,
             localizationManager: localizationManager
         )
 
         return (view, presenter)
+    }
+
+    private static func configureBannersModule(moduleOutput: BannersModuleOutput?) -> BannersModuleCreationResult? {
+        BannersAssembly.configureModule(output: moduleOutput)
     }
 }

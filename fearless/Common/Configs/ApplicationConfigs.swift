@@ -163,7 +163,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         #if F_DEV
             GitHubUrl.url(suffix: "chains/v2/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v1/chains.json")
+            GitHubUrl.url(suffix: "chains/v2/chains.json")
         #endif
     }
 

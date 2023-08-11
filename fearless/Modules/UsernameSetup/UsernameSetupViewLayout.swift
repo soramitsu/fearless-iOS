@@ -52,6 +52,8 @@ final class UsernameSetupViewLayout: UIView {
 
     let usernameTextField: CommonInputView = {
         let inputView = CommonInputView()
+        inputView.backgroundView.fillColor = R.color.colorBlack19()!
+        inputView.backgroundView.shadowOpacity = 0
         inputView.backgroundView.strokeColor = R.color.colorGray()!
         inputView.backgroundView.highlightedStrokeColor = R.color.colorGray()!
         inputView.animatedInputField.placeholderColor = R.color.colorLightGray()!
@@ -83,7 +85,7 @@ final class UsernameSetupViewLayout: UIView {
         super.init(frame: frame)
 
         setupLayout()
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)

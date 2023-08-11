@@ -46,11 +46,6 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            chainRegistry: chainRegistry
-        )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
@@ -58,8 +53,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: eventCenter,
-            logger: logger,
-            accountInfoFetchings: [substrateAccountInfoFetching, ethereumAccountInfoFetching]
+            logger: logger
         )
 
         let missingAccountHelper = MissingAccountFetcher(

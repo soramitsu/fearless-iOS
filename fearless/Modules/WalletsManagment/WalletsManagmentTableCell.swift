@@ -22,6 +22,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         view.strokeColor = .clear
         view.highlightedStrokeColor = R.color.colorPink()!
         view.strokeWidth = 0.5
+        view.shadowOpacity = 0
         return view
     }()
 
@@ -54,11 +55,17 @@ final class WalletsManagmentTableCell: UITableViewCell {
         button.setImage(R.image.iconHorMore(), for: .normal)
         button.backgroundColor = R.color.colorWhite8()!
         button.clipsToBounds = true
+        button.isHidden = true
         return button
     }()
 
-    weak var delegate: WalletsManagmentTableCellDelegate?
     private var skeletonView: SkrullableView?
+
+    weak var delegate: WalletsManagmentTableCellDelegate? {
+        didSet {
+            optionsButton.isHidden = false
+        }
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -101,7 +108,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
 
     private func setupLayout() {
         selectionStyle = .none
-        backgroundColor = R.color.colorBlack()!
+        backgroundColor = .clear
 
         contentView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in

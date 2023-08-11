@@ -35,3 +35,13 @@ enum EthereumNodesApiKeys {
     static var goerliApiKey: String = "{{ argument.goerliApiKey }}"
     static var polygonApiKey: String = "{{ argument.polygonApiKey }}"
 }
+
+enum GoogleBackup {
+    static var googleToken: String = "{{ argument.webClientIdRelease }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeRelease }}"
+}
+
+enum GoogleBackupDebug {
+    static var googleToken: String = "{{ argument.webClientIdDebug }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeDebug }}"
+}

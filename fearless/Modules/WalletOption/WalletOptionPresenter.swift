@@ -61,6 +61,10 @@ final class WalletOptionPresenter {
 // MARK: - WalletOptionViewOutput
 
 extension WalletOptionPresenter: WalletOptionViewOutput {
+    func changeWalletNameDidTap() {
+        router.showChangeWalletName(from: view, for: wallet.info)
+    }
+
     func walletDetailsDidTap() {
         router.showWalletDetails(from: view, for: wallet.info)
     }
@@ -90,7 +94,7 @@ extension WalletOptionPresenter: WalletOptionInteractorOutput {
 
     func walletRemoved() {
         DispatchQueue.main.async {
-            self.router.dismiss(from: self.view)
+            self.router.dismiss(view: self.view)
         }
     }
 }
