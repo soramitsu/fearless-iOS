@@ -15,14 +15,15 @@ final class ChainAssetListAssembly {
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let substrateAccountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            chainRegistry: chainRegistry
         )
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(

@@ -15,6 +15,7 @@ enum BalanceInfoAssembly {
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
         let operationManager = OperationManagerFacade.sharedManager
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -39,7 +40,8 @@ enum BalanceInfoAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            chainRegistry: chainRegistry
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(

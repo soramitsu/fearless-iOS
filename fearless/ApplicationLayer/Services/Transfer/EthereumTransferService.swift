@@ -116,10 +116,7 @@ final class EthereumTransferService: TransferServiceProtocol {
     }
 
     private func transferNative(transfer: Transfer) async throws -> String {
-        guard let chainIdValue = BigUInt(string: transfer.chainAsset.chain.chainId) else {
-            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
-        }
-
+        let chainIdValue = EthereumQuantity(transfer.chainAsset.chain.chainId.hexToBytes())
         let receiverAddress = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let quantity = EthereumQuantity(quantity: transfer.amount)
@@ -141,7 +138,7 @@ final class EthereumTransferService: TransferServiceProtocol {
             transactionType: .eip1559
         )
 
-        let rawTransaction = try tx.sign(with: privateKey, chainId: EthereumQuantity(quantity: chainIdValue))
+        let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
 
         let result = try await withCheckedThrowingContinuation { continuation in
             do {
@@ -161,9 +158,7 @@ final class EthereumTransferService: TransferServiceProtocol {
     }
 
     private func transferERC20(transfer: Transfer) async throws -> String {
-        guard let chainIdValue = BigUInt(string: transfer.chainAsset.chain.chainId) else {
-            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
-        }
+        let chainIdValue = EthereumQuantity(transfer.chainAsset.chain.chainId.hexToBytes())
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())
@@ -191,7 +186,7 @@ final class EthereumTransferService: TransferServiceProtocol {
             transactionType: .eip1559
         )
 
-        let rawTransaction = try tx.sign(with: privateKey, chainId: EthereumQuantity(quantity: chainIdValue))
+        let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
 
         let result = try await withCheckedThrowingContinuation { continuation in
             do {

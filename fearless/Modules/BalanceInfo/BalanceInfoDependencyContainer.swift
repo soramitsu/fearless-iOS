@@ -31,8 +31,11 @@ final class BalanceInfoDepencyContainer {
 
     private func createAccountInfoFetching(for chainAsset: ChainAsset) -> AccountInfoFetchingProtocol {
         if chainAsset.chain.isEthereum {
+            let chainRegistry = ChainRegistryFacade.sharedRegistry
+
             return EthereumAccountInfoFetching(
-                operationQueue: OperationManagerFacade.sharedDefaultQueue
+                operationQueue: OperationManagerFacade.sharedDefaultQueue,
+                chainRegistry: chainRegistry
             )
         } else {
             let substrateRepositoryFactory = SubstrateRepositoryFactory(

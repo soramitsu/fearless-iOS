@@ -22,6 +22,7 @@ enum ChainAccountViewFactory {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
@@ -63,7 +64,8 @@ enum ChainAccountViewFactory {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            chainRegistry: chainRegistry
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(

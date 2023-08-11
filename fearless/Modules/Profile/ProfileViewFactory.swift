@@ -46,8 +46,10 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            chainRegistry: chainRegistry
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(

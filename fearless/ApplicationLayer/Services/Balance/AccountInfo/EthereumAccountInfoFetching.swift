@@ -7,9 +7,11 @@ import RobinHood
 
 final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
     private let operationQueue: OperationQueue
+    private let chainRegistry: ChainRegistryProtocol
 
-    init(operationQueue: OperationQueue) {
+    init(operationQueue: OperationQueue, chainRegistry: ChainRegistryProtocol) {
         self.operationQueue = operationQueue
+        self.chainRegistry = chainRegistry
     }
 
     func fetch(
@@ -84,30 +86,32 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
     }
 
     private func fetchETHBalance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
-        try await withCheckedThrowingContinuation { continuation in
-            do {
-                let eth = try chainAsset.chain.rpcEth()
-                let ethereumAddress = try EthereumAddress(rawAddress: address.hexToBytes())
-                eth.getBalance(address: ethereumAddress, block: .latest) { resp in
-                    if let balance = resp.result {
-                        let accountInfo = AccountInfo(ethBalance: balance.quantity)
-                        return continuation.resume(with: .success(accountInfo))
-                    } else if let error = resp.error {
-                        return continuation.resume(with: .failure(error))
-                    } else {
-                        return continuation.resume(with: .success(nil))
-                    }
+        guard let ws = chainRegistry.getEthereumConnection(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+        let ethereumAddress = try EthereumAddress(rawAddress: address.hexToBytes())
+
+        return try await withCheckedThrowingContinuation { continuation in
+            ws.getBalance(address: ethereumAddress, block: .latest) { resp in
+                if let balance = resp.result {
+                    let accountInfo = AccountInfo(ethBalance: balance.quantity)
+                    return continuation.resume(with: .success(accountInfo))
+                } else if let error = resp.error {
+                    return continuation.resume(with: .failure(error))
+                } else {
+                    return continuation.resume(with: .success(nil))
                 }
-            } catch {
-                return continuation.resume(with: .failure(error))
             }
         }
     }
 
     private func fetchERC20Balance(for chainAsset: ChainAsset, address: String) async throws -> AccountInfo? {
-        let eth = try chainAsset.chain.rpcEth()
+        guard let ws = chainRegistry.getEthereumConnection(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+
         let contractAddress = try EthereumAddress(hex: chainAsset.asset.id, eip55: false)
-        let contract = eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
+        let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
         let ethAddress = try EthereumAddress(rawAddress: address.hexToBytes())
         return try await withCheckedThrowingContinuation { continuation in
             contract.balanceOf(address: ethAddress).call(completion: { response, error in

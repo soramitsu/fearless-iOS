@@ -14,6 +14,7 @@ final class WalletsManagmentAssembly {
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -42,7 +43,8 @@ final class WalletsManagmentAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            chainRegistry: chainRegistry
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
