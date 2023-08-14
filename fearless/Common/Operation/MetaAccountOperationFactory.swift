@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFCrypto
 import IrohaCrypto
 import RobinHood
 import SoraKeystore

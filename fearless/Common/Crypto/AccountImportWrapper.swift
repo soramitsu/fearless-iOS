@@ -1,5 +1,5 @@
 import Foundation
-import SSFUtils
+import SSFCrypto
 import IrohaCrypto
 
 struct MnemonicImportSecrets {
