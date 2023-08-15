@@ -1020,6 +1020,7 @@
 "backup.wallet.title" = "Backup wallet";
 "backup.wallet.seed" = "Show Raw Seed";
 "backup.wallet.json" = "Export JSON";
+"google.backup.choice.google" = "Import from Google";
 "backup.wallet.backup.google" = "Backup to Google";
 "backup.wallet.delete.google" = "Delete Google backup";
 "backup.wallet.imported.title" = "Wallet imported";

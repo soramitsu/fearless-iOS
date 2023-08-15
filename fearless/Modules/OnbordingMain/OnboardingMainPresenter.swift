@@ -44,14 +44,14 @@ final class OnboardingMainPresenter {
             actions: [retryAction]
         )
     }
-}
 
-extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
-    func activateGoogleBackup() {
+    private func activateGoogleBackup() {
         view?.didStartLoading()
         interactor.activateGoogleBackup()
     }
+}
 
+extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
     func setup() {
         interactor.setup()
 

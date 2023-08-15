@@ -1010,7 +1010,7 @@
 "google.backup.choice.mnemonic" = "Mnemonic phrase";
 "google.backup.choice.raw" = "Raw Seed";
 "google.backup.choice.json" = "JSON";
-"google.backup.choice.google" = "Google";
+"google.backup.choice.google" = "Import from Google";
 "backup.create.password.matched" = "Password matched";
 "backup.create.password.not.matched" = "Password doesn’t matched";
 "backup.create.password.screen.title" = "Create backup password";
