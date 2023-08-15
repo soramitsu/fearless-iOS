@@ -56,7 +56,8 @@ final class AccountCreatePresenter {
     private func applySubstrateDerivationPathViewModel() {
         let viewModel = createViewModel(
             for: selectedCryptoType,
-            isEthereum: false
+            isEthereum: false,
+            processor: NumbersAndSlashesProcessor()
         )
         substrateDerivationPathViewModel = viewModel
 

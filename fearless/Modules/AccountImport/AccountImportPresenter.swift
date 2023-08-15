@@ -345,7 +345,8 @@ private extension AccountImportPresenter {
         let viewModel = createViewModel(
             for: cryptoType,
             sourceType: sourceType,
-            isEthereum: false
+            isEthereum: false,
+            processor: NumbersAndSlashesProcessor()
         )
 
         substrateDerivationPathViewModel = viewModel
@@ -358,13 +359,12 @@ private extension AccountImportPresenter {
         guard let sourceType = selectedSourceType else {
             return
         }
-        let processor = NumbersAndSlashesProcessor()
 
         let viewModel = createViewModel(
             for: .ecdsa,
             sourceType: sourceType,
             isEthereum: true,
-            processor: processor
+            processor: NumbersAndSlashesProcessor()
         )
 
         ethereumDerivationPathViewModel = viewModel
