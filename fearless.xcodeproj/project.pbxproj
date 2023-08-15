@@ -13728,6 +13728,7 @@
 				849013A524A80984008F705E /* Frameworks */,
 				849013A624A80984008F705E /* Resources */,
 				02EE184DAAE97D8E1A1D7730 /* [CP] Embed Pods Frameworks */,
+				FAD429442A8A1A74001D6A16 /* Inject Google Keys */,
 			);
 			buildRules = (
 			);
@@ -14117,6 +14118,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/SwiftFormat/CommandLineTool/swiftformat\" \"$SRCROOT/fearless\"\n";
+		};
+		FAD429442A8A1A74001D6A16 /* Inject Google Keys */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
+				$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift,
+			);
+			name = "Inject Google Keys";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "source $PODS_ROOT/FearlessKeys/FearlessKeys/Classes/google-keys.txt\nGOOGLE_CLIENT_ID=$google_client_id\nINFO_PLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $google_client_id\" \"$INFO_PLIST\"\n";
 		};
 		FD11B730495783A9942503D5 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

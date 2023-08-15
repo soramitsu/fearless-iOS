@@ -5440,7 +5440,7 @@
     },
     {
         "disabled": false,
-        "chainId": "0x1",
+        "chainId": "1",
         "rank": 1,
         "name": "Ethereum",
         "externalApi": {
@@ -5502,7 +5502,7 @@
     },
     {
         "disabled": false,
-        "chainId": "0x5",
+        "chainId": "5",
         "name": "Ethereum Goerli",
         "externalApi": {
             "explorers": [{
@@ -5575,7 +5575,7 @@
     },
     {
         "disabled": false,
-        "chainId": "0x38",
+        "chainId": "56",
         "rank": 2,
         "name": "Binance Smart Chain",
         "externalApi": {
@@ -5646,7 +5646,7 @@
       },
       {
         "disabled": false,
-        "chainId": "0x61",
+        "chainId": "97",
         "name": "Binance Smart Chain Testnet",
         "externalApi": {
           "history": {

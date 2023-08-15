@@ -408,10 +408,6 @@ private extension ChainAssetListViewModelFactory {
             return Decimal.zero
         }
 
-//        if chainAsset.asset.symbol.lowercased() == "usdc", chainAsset.chain.name.lowercased().contains("goerli") {
-//            print("USDC Balance: \(accountInfo.data.free)")
-//        }
-
         let assetInfo = chainAsset.asset.displayInfo
 
         let balance = Decimal.fromSubstrateAmount(

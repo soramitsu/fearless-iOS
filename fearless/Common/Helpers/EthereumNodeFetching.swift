@@ -1,6 +1,7 @@
 import Foundation
 import SSFModels
 import Web3
+import FearlessKeys
 
 enum EthereumNodeFetchingError: Error {
     case unknownChain
@@ -16,20 +17,40 @@ enum EthereumChain: String {
     func apiKeyInjectedURL(baseURL: URL) -> URL {
         switch self {
         case .ethereumMainnet:
-            let apiKey = EthereumNodesApiKeys.ethereumApiKey
-            return baseURL.appendingPathExtension(apiKey)
+            #if DEBUG
+                let apiKey = EthereumNodesApiKeysDebug.ethereumApiKey
+            #else
+                let apiKey = EthereumNodesApiKeys.ethereumApiKey
+            #endif
+            return baseURL.appendingPathComponent(apiKey)
         case .sepolia:
-            let apiKey = EthereumNodesApiKeys.sepoliaApiKey
-            return baseURL.appendingPathExtension(apiKey)
+            #if DEBUG
+                let apiKey = EthereumNodesApiKeysDebug.sepoliaApiKey
+            #else
+                let apiKey = EthereumNodesApiKeys.sepoliaApiKey
+            #endif
+            return baseURL.appendingPathComponent(apiKey)
         case .goerli:
-            let apiKey = EthereumNodesApiKeys.goerliApiKey
-            return baseURL.appendingPathExtension(apiKey)
+            #if DEBUG
+                let apiKey = EthereumNodesApiKeysDebug.goerliApiKey
+            #else
+                let apiKey = EthereumNodesApiKeys.goerliApiKey
+            #endif
+            return baseURL.appendingPathComponent(apiKey)
         case .bscMainnet:
-            let apiKey = EthereumNodesApiKeys.bscApiKey
-            return baseURL.appendingPathExtension(apiKey)
+            #if DEBUG
+                let apiKey = EthereumNodesApiKeysDebug.bscApiKey
+            #else
+                let apiKey = EthereumNodesApiKeys.bscApiKey
+            #endif
+            return baseURL.appendingPathComponent(apiKey)
         case .bscTestnet:
-            let apiKey = EthereumNodesApiKeys.bscApiKey
-            return baseURL.appendingPathExtension(apiKey)
+            #if DEBUG
+                let apiKey = EthereumNodesApiKeysDebug.bscApiKey
+            #else
+                let apiKey = EthereumNodesApiKeys.bscApiKey
+            #endif
+            return baseURL.appendingPathComponent(apiKey)
         }
     }
 
