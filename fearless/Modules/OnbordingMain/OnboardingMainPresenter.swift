@@ -157,14 +157,10 @@ extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
         view?.didStopLoading()
         switch result {
         case let .success(accounts):
-            if accounts.isNotEmpty {
-                wireframe.showBackupSelectWallet(
-                    accounts: accounts,
-                    from: view
-                )
-            } else {
-                wireframe.showCreateFlow(from: view)
-            }
+            wireframe.showBackupSelectWallet(
+                accounts: accounts,
+                from: view
+            )
         case .failure:
             showGoogleIssueAlert()
         }

@@ -9,11 +9,6 @@ protocol BackupWalletViewInput: ControllerBackedProtocol, HiddableBarWhenPushed,
 
 protocol BackupWalletInteractorInput: AnyObject {
     func setup(with output: BackupWalletInteractorOutput)
-    func backup(
-        substrate: ChainAccountInfo,
-        ethereum: ChainAccountInfo?,
-        option: ExportOption
-    )
     func removeBackupFromGoogle()
     func viewDidAppear()
 }
@@ -86,7 +81,13 @@ final class BackupWalletPresenter {
             if backupAccounts.or([]).contains(where: { $0.address == address42 }) {
                 removeBackupFromGoogle()
             } else {
-                startGoogleBackup(for: accounts)
+                router.showCreatePassword(
+                    wallet: wallet,
+                    accounts: accounts,
+                    options: exportOptions,
+                    from: view,
+                    moduleOutput: self
+                )
             }
         }
     }
@@ -102,21 +103,6 @@ final class BackupWalletPresenter {
             )
         }.compactMap { $0 }
         return chainAccountsInfo
-    }
-
-    private func startGoogleBackup(for accounts: [ChainAccountInfo]) {
-        let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-        guard let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }) else {
-            return
-        }
-
-        if exportOptions.contains(.mnemonic) {
-            interactor.backup(substrate: substrate, ethereum: ethereum, option: .mnemonic)
-        } else if exportOptions.contains(.seed) {
-            interactor.backup(substrate: substrate, ethereum: ethereum, option: .seed)
-        } else if exportOptions.contains(.keystore) {
-            interactor.backup(substrate: substrate, ethereum: ethereum, option: .keystore)
-        }
     }
 
     private func removeBackupFromGoogle() {
@@ -320,10 +306,6 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
             showGoogleIssueAlert()
         }
         provideViewModel()
-    }
-
-    func didReceive(request: BackupCreatePasswordFlow.RequestType) {
-        router.showCreatePassword(wallet: wallet, request: request, from: view, moduleOutput: self)
     }
 
     func didReceive(error: Error) {
