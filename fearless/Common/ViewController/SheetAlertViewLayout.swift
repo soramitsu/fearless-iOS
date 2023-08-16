@@ -101,13 +101,14 @@ final class SheetAlertViewLayout: UIView {
 
         if (labelFullHeight + viewHeight) > screenHeight * 0.7 {
             scrolableView.snp.makeConstraints { make in
-                make.height.equalTo(viewHeight)
+                make.height.equalTo(labelFullHeight / 2)
             }
         } else {
             scrolableView.snp.makeConstraints { make in
                 make.height.equalTo(labelFullHeight)
             }
         }
+        scrolableView.scrollView.flashScrollIndicators()
     }
 
     private func bindActions(actions: [SheetAlertPresentableAction], actionAxis: NSLayoutConstraint.Axis) {
