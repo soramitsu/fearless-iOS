@@ -13,6 +13,23 @@ enum SoraCardCIKeys {
     static var endpoint: String = "{{ argument.soraCardKycEndpoint }}"
     static var username: String = "{{ argument.soraCardKycUsername }}"
     static var password: String = "{{ argument.soraCardKycPassword }}"
+    
+    static var backendTestUrl: String = "{{ argument.soraCardBackendTestUrl }}"
+    static var backendProdUrl: String = "{{ argument.soraCardBackendProdUrl }}"
+    static var apiKeyTest: String = "{{ argument.soraCardAPIKeyTest }}"
+    static var apiKeyProd: String = "{{ argument.soraCardAPIKeyProd }}"
+    static var domainTest: String = "{{ argument.soraCardDomainTest }}"
+    static var domainProd: String = "{{ argument.soraCardDomainProd }}"
+    static var kycEndpointUrlTest: String = "{{ argument.soraCardKYCEndpointUrlTest }}"
+    static var kycEndpointUrlProd: String = "{{ argument.soraCardKYCEndpointUrlProd }}"
+    static var kycUsernameTest: String = "{{ argument.soraCardKycUsernameTest }}"
+    static var kycUsernameProd: String = "{{ argument.soraCardKycUsernameProd }}"
+    static var kycPasswordTest: String = "{{ argument.soraCardKycPasswordTest }}"
+    static var kycPasswordProd: String = "{{ argument.soraCardKycPasswordProd }}"
+    static var xOneEndpointTest: String = "{{ argument.soraCardXOneEndpointTest }}"
+    static var xOneEndpointProd: String = "{{ argument.soraCardXOneEndpointProd }}"
+    static var xOneIdTest: String = "{{ argument.soraCardXOneIdTest }}"
+    static var xOneIdProd: String = "{{ argument.soraCardXOneIdProd }}"
 }
 
 enum PayWingsCIKeys {
