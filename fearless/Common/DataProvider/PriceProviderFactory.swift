@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFUtils
 
 protocol PriceProviderFactoryProtocol {
     func getPriceProvider(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData>

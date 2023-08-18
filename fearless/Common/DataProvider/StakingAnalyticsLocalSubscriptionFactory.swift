@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFUtils
 
 protocol StakingAnalyticsLocalSubscriptionFactoryProtocol {
     func getWeaklyAnalyticsProvider(

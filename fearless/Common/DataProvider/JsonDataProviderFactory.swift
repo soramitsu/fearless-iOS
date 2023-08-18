@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFUtils
 
 protocol JsonDataProviderFactoryProtocol {
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
