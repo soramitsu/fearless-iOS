@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SSFUtils
 
 protocol NetworkIssuesCenterListener: AnyObject {
     func handleChainsWithIssues(_ chains: [ChainModel])

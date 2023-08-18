@@ -760,7 +760,6 @@
 		8461CC8726BC1F1F007460E4 /* ExtrinsicOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8461CC8626BC1F1F007460E4 /* ExtrinsicOperationFactory.swift */; };
 		8461CC8A26BD2F07007460E4 /* RuntimeProviderPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8461CC8926BD2F07007460E4 /* RuntimeProviderPool.swift */; };
 		8463A6F925E2F82E003B8160 /* CDSingleValue+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8463A6F825E2F82E003B8160 /* CDSingleValue+CoreDataCodable.swift */; };
-		8463A70325E2FCD0003B8160 /* WeakWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8463A70225E2FCD0003B8160 /* WeakWrapper.swift */; };
 		8463A71225E30C95003B8160 /* BalanceViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8463A71125E30C95003B8160 /* BalanceViewModelFactory.swift */; };
 		8463A71A25E3116A003B8160 /* BalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8463A71925E3116A003B8160 /* BalanceViewModel.swift */; };
 		8463A71F25E39E07003B8160 /* StorageProviderSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8463A71E25E39E07003B8160 /* StorageProviderSource.swift */; };
@@ -3457,7 +3456,6 @@
 		8461CC8626BC1F1F007460E4 /* ExtrinsicOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicOperationFactory.swift; sourceTree = "<group>"; };
 		8461CC8926BD2F07007460E4 /* RuntimeProviderPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeProviderPool.swift; sourceTree = "<group>"; };
 		8463A6F825E2F82E003B8160 /* CDSingleValue+CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDSingleValue+CoreDataCodable.swift"; sourceTree = "<group>"; };
-		8463A70225E2FCD0003B8160 /* WeakWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakWrapper.swift; sourceTree = "<group>"; };
 		8463A71125E30C95003B8160 /* BalanceViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceViewModelFactory.swift; sourceTree = "<group>"; };
 		8463A71925E3116A003B8160 /* BalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceViewModel.swift; sourceTree = "<group>"; };
 		8463A71E25E39E07003B8160 /* StorageProviderSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageProviderSource.swift; sourceTree = "<group>"; };
@@ -8488,7 +8486,6 @@
 				2A84E87725D425750006FE9C /* AlertControllerFactory.swift */,
 				84452F5725D5C30600F47EC5 /* FilesRepository.swift */,
 				84F43C0E25DF016600AEDA56 /* DispatchQueueHelper.swift */,
-				8463A70225E2FCD0003B8160 /* WeakWrapper.swift */,
 				849ABE552627738900011A2A /* Mapping.swift */,
 				849ABE5A2627739400011A2A /* ListReducing.swift */,
 				84EBAB0A265E28590015E446 /* ChainDateCalculator.swift */,
@@ -14449,7 +14446,6 @@
 				84893C0524DA8663008F6A3F /* AccountCreationError.swift in Sources */,
 				84282FBD26D05A54002CA322 /* ChainRegistryFacade.swift in Sources */,
 				F4DCAE4F2620819000CCA6BF /* PayoutRewardsService.swift in Sources */,
-				8463A70325E2FCD0003B8160 /* WeakWrapper.swift in Sources */,
 				8401620B25E144D50087A5F3 /* AmountInputAccessoryView.swift in Sources */,
 				FA4B92B82844D2360003BCEF /* CoingeckoPricesSource.swift in Sources */,
 				84D2F45F25EF0599008B914D /* RecommendedValidatorCell.swift in Sources */,
