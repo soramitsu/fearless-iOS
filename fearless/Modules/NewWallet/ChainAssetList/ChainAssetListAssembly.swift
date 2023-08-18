@@ -19,10 +19,10 @@ final class ChainAssetListAssembly {
         let substrateAccountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationQueue()
         )
         let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            operationQueue: OperationQueue(),
             chainRegistry: chainRegistry
         )
 
