@@ -1012,7 +1012,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "google.backup.choice.mnemonic" = "Mnemonic phrase";
 "google.backup.choice.raw" = "Raw Seed";
 "google.backup.choice.json" = "JSON";
-"google.backup.choice.google" = "Google";
+"google.backup.choice.google" = "Import from Google";
 "backup.create.password.matched" = "Password matched";
 "backup.create.password.not.matched" = "Password doesn’t matched";
 "backup.create.password.screen.title" = "Create backup password";
@@ -1065,3 +1065,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "backup.mnemonic.description" = "Remember to record your words in the same order as they appear below. Use a non-digital way to backup.";
 "backup.mnemonic.title" = "Write down your mnemonic";
 "remove.backup.extension.error.message" = "The backup's been created by the Fearless Wallet browser extension. The mobile application can't remove it because of lack of credentials";
+"backup.wallet.replace.accounts.alert" = "You currently have a %@ chain account and address %@ that has been added by replacing the main key pair, and it possesses a specific one. However, please note that our current wallet backup (export) flow does not support the storage of multiple key pairs. As a result, you can only save your main key pair. \n \n To ensure the safety of your replaced chain account, we recommend that you first back it up separately before proceeding with the current flow. Once you have successfully backed up your replaced chain account, you can proceed to the current flow without any concerns.";
+"backup.wallet.replace.several.alert" = "You currently have several chain accounts that has been added by replacing the main key pair, and it possesses a specific one. However, please note that our current wallet backup (export) flow does not support the storage of multiple key pairs. As a result, you can only save your main key pair. \n \n To ensure the safety of your replaced chain account, we recommend that you first back it up separately before proceeding with the current flow. Once you have successfully backed up your replaced chain account, you can proceed to the current flow without any concerns.";
+"backup.chain.account" = "Backup chain account";

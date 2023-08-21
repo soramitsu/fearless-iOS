@@ -44,14 +44,14 @@ final class OnboardingMainPresenter {
             actions: [retryAction]
         )
     }
-}
 
-extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
-    func activateGoogleBackup() {
+    private func activateGoogleBackup() {
         view?.didStartLoading()
         interactor.activateGoogleBackup()
     }
+}
 
+extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
     func setup() {
         interactor.setup()
 
@@ -157,14 +157,10 @@ extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
         view?.didStopLoading()
         switch result {
         case let .success(accounts):
-            if accounts.isNotEmpty {
-                wireframe.showBackupSelectWallet(
-                    accounts: accounts,
-                    from: view
-                )
-            } else {
-                wireframe.showCreateFlow(from: view)
-            }
+            wireframe.showBackupSelectWallet(
+                accounts: accounts,
+                from: view
+            )
         case .failure:
             showGoogleIssueAlert()
         }

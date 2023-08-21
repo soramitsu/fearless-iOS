@@ -7,6 +7,7 @@ final class SheetAlertViewLayout: UIView {
         static let imageViewContainerSize: CGFloat = 80.0
         static let imageViewSize = CGSize(width: 48, height: 42)
         static let closeButton: CGFloat = 32.0
+        static let popupWindowHeightRatio = UIScreen.main.bounds.height * 0.7
     }
 
     private let viewModel: SheetAlertPresentableViewModel
@@ -46,6 +47,7 @@ final class SheetAlertViewLayout: UIView {
         return label
     }()
 
+    private let scrollableView = ScrollableContainerView()
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -71,6 +73,7 @@ final class SheetAlertViewLayout: UIView {
         super.layoutSubviews()
         closeButton.rounded()
         imageViewContainer.rounded()
+        descriptionLabelLayoutSubviews()
     }
 
     private func bind(viewModel: SheetAlertPresentableViewModel) {
@@ -87,6 +90,25 @@ final class SheetAlertViewLayout: UIView {
             )
             bindActions(actions: [action], actionAxis: viewModel.actionAxis)
         }
+    }
+
+    private func descriptionLabelLayoutSubviews() {
+        guard let descriptionText = descriptionLabel.text else {
+            return
+        }
+        let labelFullHeight = descriptionText.height(withConstrainedWidth: frame.width, font: descriptionLabel.font)
+        let viewHeight = bounds.height
+
+        if (labelFullHeight + viewHeight) > Constants.popupWindowHeightRatio {
+            scrollableView.snp.makeConstraints { make in
+                make.height.equalTo(labelFullHeight / 2)
+            }
+        } else {
+            scrollableView.snp.makeConstraints { make in
+                make.height.equalTo(labelFullHeight)
+            }
+        }
+        scrollableView.scrollView.flashScrollIndicators()
     }
 
     private func bindActions(actions: [SheetAlertPresentableAction], actionAxis: NSLayoutConstraint.Axis) {
@@ -199,8 +221,16 @@ final class SheetAlertViewLayout: UIView {
             contentStackView.setCustomSpacing(24, after: titleLabel)
         }
 
-        contentStackView.addArrangedSubview(descriptionLabel)
-        contentStackView.setCustomSpacing(24, after: descriptionLabel)
+        scrollableView.stackView.addArrangedSubview(descriptionLabel)
+        descriptionLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        contentStackView.addArrangedSubview(scrollableView)
+        contentStackView.setCustomSpacing(24, after: scrollableView)
+        scrollableView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
 
         if !viewModel.isInfo {
             contentStackView.addArrangedSubview(actionsStackView)

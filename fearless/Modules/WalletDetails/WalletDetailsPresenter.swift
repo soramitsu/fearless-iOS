@@ -47,9 +47,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     }
 
     func didTapCloseButton() {
-        if let view = self.view {
-            wireframe.close(view)
-        }
+        wireframe.dismiss(view: view)
     }
 
     func didTapExportButton() {
