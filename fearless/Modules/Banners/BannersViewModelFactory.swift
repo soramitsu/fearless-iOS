@@ -38,7 +38,8 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     title: title,
                     subtitle: subtitle,
                     buttonTitle: buttonAction,
-                    image: R.image.fearlessBanner()!
+                    image: R.image.fearlessBanner()!,
+                    dismissable: true
                 )
             case .buyXor:
                 let title = R.string.localizable
@@ -51,7 +52,8 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     title: title,
                     subtitle: subtitle,
                     buttonTitle: buttonAction,
-                    image: R.image.xorBanner()!
+                    image: R.image.xorBanner()!,
+                    dismissable: true
                 )
             }
         }

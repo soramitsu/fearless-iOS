@@ -4,6 +4,7 @@ import SoraFoundation
 protocol BannersViewOutput: AnyObject {
     func didLoad(view: BannersViewInput)
     func didTapOnCell(at indexPath: IndexPath)
+    func didCloseCell(at indexPath: IndexPath)
 }
 
 final class BannersViewController: UIViewController, ViewHolder {
@@ -76,6 +77,13 @@ extension BannersViewController: BannerCellectionCellDelegate {
             return
         }
         output.didTapOnCell(at: indexPath)
+    }
+
+    func didCloseButtonTapped(indexPath: IndexPath?) {
+        guard let indexPath = indexPath else {
+            return
+        }
+        output.didCloseCell(at: indexPath)
     }
 }
 

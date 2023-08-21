@@ -7,6 +7,7 @@ protocol BannersViewInput: ControllerBackedProtocol {
 
 protocol BannersInteractorInput: AnyObject {
     func setup(with output: BannersInteractorOutput)
+    func markWalletAsBackedUp(_ wallet: MetaAccountModel)
 }
 
 final class BannersPresenter {
@@ -52,6 +53,36 @@ final class BannersPresenter {
         }
         moduleOutput?.reloadBannersView()
     }
+
+    private func showNotBackedUpAlert(wallet: MetaAccountModel) {
+        let cancelActionTitle = R.string.localizable
+            .commonCancel(preferredLanguages: selectedLocale.rLanguages)
+        let cancelAction = SheetAlertPresentableAction(title: cancelActionTitle)
+
+        let confirmActionTitle = R.string.localizable
+            .backupNotBackedUpConfirm(preferredLanguages: selectedLocale.rLanguages)
+        let confirmAction = SheetAlertPresentableAction(
+            title: confirmActionTitle,
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            self?.interactor.markWalletAsBackedUp(wallet)
+        }
+        let action = [cancelAction, confirmAction]
+        let alertTitle = R.string.localizable
+            .backupNotBackedUpTitle(preferredLanguages: selectedLocale.rLanguages)
+        let alertMessage = R.string.localizable
+            .backupNotBackedUpMessage(preferredLanguages: selectedLocale.rLanguages)
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: alertTitle,
+            message: alertMessage,
+            actions: action,
+            closeAction: nil,
+            actionAxis: .horizontal
+        )
+
+        router.present(viewModel: alertViewModel, from: view)
+    }
 }
 
 // MARK: - BannersViewOutput
@@ -67,6 +98,21 @@ extension BannersPresenter: BannersViewOutput {
         switch tappedOption {
         case .backup:
             router.showWalletBackupScreen(for: wallet, from: view)
+        case .buyXor:
+            break
+        }
+    }
+
+    func didCloseCell(at indexPath: IndexPath) {
+        guard
+            let wallet = wallet,
+            let tappedOption = Banners(rawValue: indexPath.row) else {
+            return
+        }
+
+        switch tappedOption {
+        case .backup:
+            showNotBackedUpAlert(wallet: wallet)
         case .buyXor:
             break
         }
