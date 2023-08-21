@@ -31,7 +31,8 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
 protocol WalletDetailsWireframeProtocol: ErrorPresentable,
     SheetAlertPresentable,
     ModalAlertPresenting,
-    AuthorizationPresentable {
+    AuthorizationPresentable,
+    AnyDismissable {
     func close(_ view: WalletDetailsViewProtocol)
     func presentActions(
         from view: ControllerBackedProtocol?,
