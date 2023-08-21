@@ -151,7 +151,7 @@ PODS:
     - SSFModels
     - SSFUtils
     - TweetNacl (~> 1.0.0)
-  - SSFCrypto (0.1.0):
+  - SSFCrypto (0.1.11):
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
     - IrohaCrypto/secp256k1
@@ -202,7 +202,7 @@ PODS:
     - SSFCrypto
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFUtils (0.1.1):
+  - SSFUtils (0.1.13):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -259,7 +259,7 @@ DEPENDENCIES:
   - SSFChainConnection
   - SSFChainRegistry
   - SSFCloudStorage
-  - SSFCrypto
+  - SSFCrypto (= 0.1.11)
   - SSFEraKit
   - SSFExtrinsicKit
   - SSFHelpers (= 0.1.7)
@@ -269,7 +269,7 @@ DEPENDENCIES:
   - SSFRuntimeCodingService
   - SSFSigner
   - SSFStorageQueryKit
-  - SSFUtils
+  - SSFUtils (= 0.1.13)
   - SSFXCM
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
@@ -378,7 +378,7 @@ SPEC CHECKSUMS:
   SSFChainConnection: a232b35cc083e9e9e79ff6ed228812cddd11ace6
   SSFChainRegistry: bb26ac38e4c43aeaf29f1a959603aa5fd6889d7e
   SSFCloudStorage: 5124491f345bdd304b4d07c6d2368dfde59bc61d
-  SSFCrypto: 1d82ecd49dc44d47e155bdecd7b873348f5bdd16
+  SSFCrypto: 0d1b79e1d253055189ec42b6155d045f464ab993
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
   SSFHelpers: 0d021637faf643bdfe0062aec6fd0b4f036e0cdb
@@ -388,7 +388,7 @@ SPEC CHECKSUMS:
   SSFRuntimeCodingService: 6eb94c6336d47e86b19588524ca75c71c83f53a9
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
   SSFStorageQueryKit: edb0af3dbed5520f2821d07bb460099430b4f261
-  SSFUtils: f6422d909cb57a85cd5784b3f399aead69b26a6b
+  SSFUtils: 8fd131123804c122c031763a8436d45e1ac373c2
   SSFXCM: 59cb429a5c20c4f34f6c383e36ab8644922703b0
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
@@ -400,6 +400,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 3c1168f28d93a0961cee510c0e31619fc18ae6cc
+PODFILE CHECKSUM: 45849d9ccdda1e1d36c4eb230841495fe2fe4184
 
 COCOAPODS: 1.11.3
