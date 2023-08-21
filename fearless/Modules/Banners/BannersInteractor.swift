@@ -72,11 +72,13 @@ extension BannersInteractor: BannersInteractorInput {
 
         operation.completionBlock = {
             SelectedWalletSettings.shared.performSave(value: updatedWallet) { [weak self] result in
-                switch result {
-                case let .success(account):
-                    self?.output?.didReceive(wallet: account)
-                case .failure:
-                    break
+                DispatchQueue.main.async {
+                    switch result {
+                    case let .success(account):
+                        self?.output?.didReceive(wallet: account)
+                    case let .failure(error):
+                        self?.output?.didReceive(error: error)
+                    }
                 }
             }
         }
