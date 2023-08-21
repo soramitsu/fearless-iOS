@@ -11,6 +11,16 @@ class WalletDetailsTableCell: UITableViewCell {
         static let actionImageSize: CGFloat = 18
     }
 
+    private let backgroundTriangularedView: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite8()!
+        view.strokeWidth = 1
+        view.shadowOpacity = 0
+        return view
+    }()
+
     private var mainStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.spacing = 0
@@ -38,31 +48,15 @@ class WalletDetailsTableCell: UITableViewCell {
 
     private var chainLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()
+        label.font = .h5Title
+        label.textColor = R.color.colorStrokeGray()
         return label
-    }()
-
-    private var addressStackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.spacing = 0
-        stackView.axis = .horizontal
-        stackView.distribution = .fillProportionally
-        stackView.alignment = .fill
-        stackView.spacing = UIConstants.defaultOffset
-        return stackView
-    }()
-
-    private var addressImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        return imageView
     }()
 
     private var addressLabel: UILabel = {
         let label = UILabel()
-        label.font = .p2Paragraph
-        label.textColor = R.color.colorStrokeGray()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()
         label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
@@ -116,15 +110,9 @@ class WalletDetailsTableCell: UITableViewCell {
 
         chainLabel.text = viewModel.chain.name
         addressLabel.text = viewModel.address
-        if let addressImage = viewModel.addressImage {
-            addressImageView.isHidden = false
-            addressImageView.image = addressImage
-        } else {
-            addressImageView.isHidden = true
-        }
 
         let chainSupported: Bool = viewModel.chain.isSupported
-        addressStackView.isHidden = !chainSupported || viewModel.accountMissing
+        addressLabel.isHidden = !chainSupported || viewModel.accountMissing
         chainUnsupportedView.isHidden = chainSupported
         actionImageView.isHidden = !chainSupported || !viewModel.actionsAvailable
 
@@ -155,18 +143,17 @@ private extension WalletDetailsTableCell {
     }
 
     func setupLayout() {
-        let separator = UIFactory.default.createSeparatorView()
-        contentView.addSubview(separator)
-        separator.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(UIConstants.separatorHeight)
+        contentView.addSubview(backgroundTriangularedView)
+        backgroundTriangularedView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.top.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
+            make.height.equalTo(64)
         }
 
-        contentView.addSubview(mainStackView)
+        backgroundTriangularedView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
-            make.top.equalToSuperview().offset(UIConstants.minimalOffset)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.top.bottom.equalToSuperview()
         }
 
         mainStackView.addArrangedSubview(chainImageView)
@@ -182,18 +169,8 @@ private extension WalletDetailsTableCell {
         }
 
         infoStackView.addArrangedSubview(chainLabel)
-        infoStackView.addArrangedSubview(addressStackView)
-        addressStackView.snp.makeConstraints { make in
-            make.width.equalTo(infoStackView)
-        }
-
-        addressStackView.addArrangedSubview(addressImageView)
-        addressImageView.snp.makeConstraints { make in
-            make.size.equalTo(LayoutConstants.addressImageSize)
-        }
-        addressStackView.addArrangedSubview(addressLabel)
+        infoStackView.addArrangedSubview(addressLabel)
         infoStackView.addArrangedSubview(chainUnsupportedView)
-
         infoStackView.addArrangedSubview(accountMissingHintView)
     }
 
@@ -205,7 +182,7 @@ private extension WalletDetailsTableCell {
 
 extension WalletDetailsTableCell: DeactivatableView {
     var deactivatableViews: [UIView] {
-        [chainImageView, chainLabel, addressLabel, addressImageView, chainUnsupportedView, accountMissingHintView.titleLabel]
+        [chainImageView, chainLabel, addressLabel, chainUnsupportedView, accountMissingHintView.titleLabel]
     }
 
     var deactivatedAlpha: CGFloat {

@@ -26,7 +26,7 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = AccountCreateViewLayout()
+        view = AccountCreateViewLayout(flow: presenter.flow)
     }
 
     override func viewDidLoad() {
@@ -64,7 +64,12 @@ private extension AccountCreateViewController {
             action: #selector(actionOpenInfo)
         )
         navigationItem.rightBarButtonItem = infoItem
-        title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
+        switch presenter.flow {
+        case .wallet, .chain:
+            title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
+        case .backup:
+            title = R.string.localizable.backupMnemonicTitle(preferredLanguages: locale.rLanguages)
+        }
     }
 
     func setupMnemonicViewIfNeeded() {
@@ -84,7 +89,7 @@ private extension AccountCreateViewController {
 
         mnemonicView.indexFontInColumn = .p0Digits
         mnemonicView.wordFontInColumn = .p0Paragraph
-        mnemonicView.backgroundColor = R.color.colorBlack()
+        mnemonicView.backgroundColor = R.color.colorBlack19()
 
         rootView.contentView.stackView.insertArrangedSubview(mnemonicView, at: 1)
 
@@ -105,6 +110,9 @@ private extension AccountCreateViewController {
             action: #selector(actionOpenCryptoType),
             for: .valueChanged
         )
+        rootView.backupButton.addAction { [weak self] in
+            self?.presenter.didTapBackupButton()
+        }
     }
 
     private func updateSubstrateDerivationPath(status: FieldStatus) {
@@ -284,7 +292,7 @@ extension AccountCreateViewController: KeyboardViewAdoptable {
                 inset.bottom = 0
                 rootView.contentView.scrollView.contentInset = inset
             } else {
-                inset.bottom = frame.height
+                inset.bottom = frame.height + rootView.buttonVStackView.frame.height
                 rootView.contentView.scrollView.contentInset = inset
             }
             rootView.contentView.scrollView.scrollRectToVisible(responderFrame, animated: true)

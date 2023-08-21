@@ -51,6 +51,75 @@ final class WalletsManagmentPresenter {
 
         view?.didReceiveViewModels(viewModels)
     }
+
+    private func showImport() {
+        let preferredLanguages = selectedLocale.rLanguages
+
+        let mnemonicTitle = R.string.localizable
+            .googleBackupChoiceMnemonic(preferredLanguages: preferredLanguages)
+        let mnemonicAction = SheetAlertPresentableAction(
+            title: mnemonicTitle,
+            button: UIFactory.default.createDisabledButton()
+        ) { [weak self] in
+            self?.router.dissmis(view: self?.view) { [weak self] in
+                self?.moduleOutput?.showImportWallet(defaultSource: .mnemonic)
+            }
+        }
+
+        let rawTitle = R.string.localizable
+            .googleBackupChoiceRaw(preferredLanguages: preferredLanguages)
+        let rawAction = SheetAlertPresentableAction(
+            title: rawTitle,
+            button: UIFactory.default.createDisabledButton()
+        ) { [weak self] in
+            self?.router.dissmis(view: self?.view) { [weak self] in
+                self?.moduleOutput?.showImportWallet(defaultSource: .seed)
+            }
+        }
+
+        let jsonTitle = R.string.localizable
+            .googleBackupChoiceJson(preferredLanguages: preferredLanguages)
+        let jsonAction = SheetAlertPresentableAction(
+            title: jsonTitle,
+            button: UIFactory.default.createDisabledButton()
+        ) { [weak self] in
+            self?.router.dissmis(view: self?.view) { [weak self] in
+                self?.moduleOutput?.showImportWallet(defaultSource: .keystore)
+            }
+        }
+
+        let googleButton = TriangularedButton()
+        googleButton.imageWithTitleView?.iconImage = R.image.googleBackup()
+        googleButton.applyDisabledStyle()
+        let googleTitle = R.string.localizable
+            .googleBackupChoiceGoogle(preferredLanguages: preferredLanguages)
+        let googleAction = SheetAlertPresentableAction(
+            title: googleTitle,
+            button: googleButton
+        ) { [weak self] in
+            self?.router.dissmis(view: self?.view) { [weak self] in
+                self?.moduleOutput?.showImportGoogle()
+            }
+        }
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: preferredLanguages)
+        let cancelAction = SheetAlertPresentableAction(
+            title: cancelTitle,
+            style: .pinkBackgroundWhiteText
+        )
+
+        let title = R.string.localizable
+            .googleBackupChoiceTitle(preferredLanguages: preferredLanguages)
+        let viewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: [mnemonicAction, rawAction, jsonAction, googleAction, cancelAction],
+            closeAction: nil,
+            icon: nil
+        )
+
+        router.present(viewModel: viewModel, from: view)
+    }
 }
 
 // MARK: - WalletsManagmentViewOutput
@@ -83,9 +152,7 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
     }
 
     func didTapImportWallet() {
-        router.dissmis(view: view) { [weak self] in
-            self?.moduleOutput?.showImportWallet()
-        }
+        showImport()
     }
 
     func didLoad(view: WalletsManagmentViewInput) {

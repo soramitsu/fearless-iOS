@@ -318,3 +318,13 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         interactor.updateChainAssets(using: filters, sorts: sorts)
     }
 }
+
+// MARK: - BannersModuleOutput?
+
+extension ChainAssetListPresenter: BannersModuleOutput {
+    func reloadBannersView() {
+        DispatchQueue.main.async {
+            self.view?.reloadBanners()
+        }
+    }
+}

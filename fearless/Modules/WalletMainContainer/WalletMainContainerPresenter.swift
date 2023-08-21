@@ -161,8 +161,12 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
         router.showCreateNewWallet(from: view)
     }
 
-    func showImportWallet() {
-        router.showImportWallet(from: view)
+    func showImportWallet(defaultSource: AccountImportSource) {
+        router.showImportWallet(defaultSource: defaultSource, from: view)
+    }
+
+    func showImportGoogle() {
+        router.showBackupSelectWallet(from: view)
     }
 }
 

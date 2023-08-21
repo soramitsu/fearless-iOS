@@ -25,6 +25,8 @@ final class ChainAssetListViewController:
 
     private let output: ChainAssetListViewOutput
 
+    private weak var bannersViewController: UIViewController?
+
     private var viewModel: ChainAssetListViewModel?
     private var hiddenSectionState: HiddenSectionState = .expanded
     private lazy var locale: Locale = {
@@ -34,9 +36,11 @@ final class ChainAssetListViewController:
     // MARK: - Constructor
 
     init(
+        bannersViewController: UIViewController?,
         output: ChainAssetListViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.bannersViewController = bannersViewController
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -57,6 +61,7 @@ final class ChainAssetListViewController:
         super.viewDidLoad()
         output.didLoad(view: self)
         configureTableView()
+        setupEmbededViews()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -111,12 +116,35 @@ private extension ChainAssetListViewController {
         output.didTapExpandSections(state: hiddenSectionState)
         rootView.tableView.reloadData()
     }
+
+    func setupEmbededViews() {
+        guard let bannersViewController = bannersViewController else {
+            return
+        }
+
+        addChild(bannersViewController)
+
+        rootView.addBanners(view: bannersViewController.view)
+        bannersViewController.didMove(toParent: self)
+    }
 }
 
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
+    func reloadBanners() {
+        guard viewModel != nil else {
+            return
+        }
+        rootView.tableView.beginUpdates()
+        rootView.tableView.setAndLayoutTableHeaderView(header: rootView.headerViewContainer)
+        rootView.tableView.endUpdates()
+    }
+
     func didReceive(viewModel: ChainAssetListViewModel) {
+        UIView.animate(withDuration: 0.3) {
+            self.rootView.bannersView?.isHidden = viewModel.bannerIsHidden
+        }
         let isInitialReload = self.viewModel == nil
 
         self.viewModel = viewModel

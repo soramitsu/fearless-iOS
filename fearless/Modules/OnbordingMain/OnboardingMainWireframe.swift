@@ -1,4 +1,5 @@
 import Foundation
+import SSFCloudStorage
 
 final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     func showSignup(from view: OnboardingMainViewProtocol?) {
@@ -11,9 +12,12 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
         }
     }
 
-    func showAccountRestore(from view: OnboardingMainViewProtocol?) {
+    func showAccountRestore(
+        defaultSource: AccountImportSource,
+        from view: OnboardingMainViewProtocol?
+    ) {
         guard let restorationController = AccountImportViewFactory
-            .createViewForOnboarding()?.controller
+            .createViewForOnboarding(defaultSource: defaultSource)?.controller
         else {
             return
         }
@@ -28,7 +32,27 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
             let navigationController = view?.controller.navigationController,
             navigationController.viewControllers.count == 1,
             navigationController.presentedViewController == nil {
-            showAccountRestore(from: view)
+            showAccountRestore(defaultSource: .keystore, from: view)
         }
+    }
+
+    func showBackupSelectWallet(
+        accounts: [OpenBackupAccount],
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let controller = BackupSelectWalletAssembly.configureModule(accounts: accounts)?.view.controller else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+        view?.controller.present(navigationController, animated: true)
+    }
+
+    func showCreateFlow(from view: ControllerBackedProtocol?) {
+        guard let controller = WalletNameAssembly.configureModule(with: nil)?.view.controller else {
+            return
+        }
+        let navigation = FearlessNavigationController(rootViewController: controller)
+        view?.controller.navigationController?.present(navigation, animated: true)
     }
 }

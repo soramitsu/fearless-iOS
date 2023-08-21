@@ -14,7 +14,8 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
         operationManager: OperationManagerProtocol,
         settings: SelectedWalletSettings,
         keystoreImportService: KeystoreImportServiceProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        defaultSource: AccountImportSource
     ) {
         self.settings = settings
         self.eventCenter = eventCenter
@@ -23,7 +24,8 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             accountOperationFactory: accountOperationFactory,
             accountRepository: accountRepository,
             operationManager: operationManager,
-            keystoreImportService: keystoreImportService
+            keystoreImportService: keystoreImportService,
+            defaultSource: defaultSource
         )
     }
 
