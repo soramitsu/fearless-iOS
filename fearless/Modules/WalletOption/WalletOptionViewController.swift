@@ -39,35 +39,18 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
     // MARK: - Private methods
 
     private func setupActions() {
-        rootView.walletDetailsButton.addTarget(
-            self,
-            action: #selector(handleWalletDetailsDidTap),
-            for: .touchUpInside
-        )
-        rootView.exportWalletButton.addTarget(
-            self,
-            action: #selector(handleWalletExportDidTap),
-            for: .touchUpInside
-        )
-        rootView.deleteWalletButton.addTarget(
-            self,
-            action: #selector(handleDeleteWalletDidTap),
-            for: .touchUpInside
-        )
-    }
-
-    // MARK: - Actions
-
-    @objc private func handleWalletDetailsDidTap() {
-        output.walletDetailsDidTap()
-    }
-
-    @objc private func handleWalletExportDidTap() {
-        output.exportWalletDidTap()
-    }
-
-    @objc private func handleDeleteWalletDidTap() {
-        output.deleteWalletDidTap()
+        rootView.walletDetailsButton.addAction { [weak self] in
+            self?.output.walletDetailsDidTap()
+        }
+        rootView.backupWalletButton.addAction { [weak self] in
+            self?.output.exportWalletDidTap()
+        }
+        rootView.deleteWalletButton.addAction { [weak self] in
+            self?.output.deleteWalletDidTap()
+        }
+        rootView.changeWalletNameButton.addAction { [weak self] in
+            self?.output.changeWalletNameDidTap()
+        }
     }
 }
 

@@ -43,6 +43,7 @@ final class ProfileViewLayout: UIView {
             UINib(resource: R.nib.profileSectionTableViewCell),
             forCellReuseIdentifier: R.reuseIdentifier.profileSectionCellId.identifier
         )
+        tableView.registerClassForCell(WalletsManagmentTableCell.self)
 
         tableView.alwaysBounceVertical = false
     }

@@ -1,16 +1,23 @@
 import UIKit
 import SoraFoundation
+import SoraKeystore
 
 class FearlessApplication: UIApplication {
+    private lazy var goneBackgroundTimestamp = Date().timeIntervalSince1970
     private var timerToDetectInactivity: Timer?
     private var applicationHandler: ApplicationHandler?
 
-    override func sendEvent(_ event: UIEvent) {
-        if applicationHandler == nil {
-            applicationHandler = ApplicationHandler()
-            applicationHandler?.delegate = self
-        }
+    private lazy var secretManager: SecretStoreManagerProtocol = {
+        KeychainManager.shared
+    }()
 
+    override init() {
+        super.init()
+        applicationHandler = ApplicationHandler()
+        applicationHandler?.delegate = self
+    }
+
+    override func sendEvent(_ event: UIEvent) {
         super.sendEvent(event)
         if let touches = event.allTouches {
             for touch in touches where touch.phase == UITouch.Phase.began {
@@ -34,6 +41,9 @@ class FearlessApplication: UIApplication {
     }
 
     @objc private func dropSession() {
+        guard secretManager.checkSecret(for: KeystoreTag.pincode.rawValue) else {
+            return
+        }
         if let window = UIApplication.shared.windows.first {
             guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
                 return
@@ -48,9 +58,13 @@ class FearlessApplication: UIApplication {
 extension FearlessApplication: ApplicationHandlerDelegate {
     func didReceiveDidEnterBackground(notification _: Notification) {
         timerToDetectInactivity?.invalidate()
+        goneBackgroundTimestamp = Date().timeIntervalSince1970
     }
 
     func didReceiveWillEnterForeground(notification _: Notification) {
         resetTimer()
+        if Date().timeIntervalSince1970 - goneBackgroundTimestamp > UtilityConstants.inactiveSessionDropTimeInSeconds {
+            dropSession()
+        }
     }
 }

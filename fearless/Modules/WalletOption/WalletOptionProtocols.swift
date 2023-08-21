@@ -9,6 +9,7 @@ protocol WalletOptionViewOutput: AnyObject {
     func walletDetailsDidTap()
     func exportWalletDidTap()
     func deleteWalletDidTap()
+    func changeWalletNameDidTap()
 }
 
 protocol WalletOptionInteractorInput: AnyObject {
@@ -21,7 +22,7 @@ protocol WalletOptionInteractorOutput: AnyObject {
     func walletRemoved()
 }
 
-protocol WalletOptionRouterInput: SheetAlertPresentable {
+protocol WalletOptionRouterInput: SheetAlertPresentable, AnyDismissable {
     func showWalletDetails(
         from view: ControllerBackedProtocol?,
         for wallet: MetaAccountModel
@@ -30,7 +31,10 @@ protocol WalletOptionRouterInput: SheetAlertPresentable {
         from view: ControllerBackedProtocol?,
         wallet: ManagedMetaAccountModel
     )
-    func dismiss(from view: ControllerBackedProtocol?)
+    func showChangeWalletName(
+        from view: ControllerBackedProtocol?,
+        for wallet: MetaAccountModel
+    )
 }
 
 protocol WalletOptionModuleInput: AnyObject {}

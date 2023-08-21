@@ -92,7 +92,7 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
             return
         }
 
-        wireframe.openConfirmationForMnemonic(exportData.mnemonic, from: view)
+        wireframe.openConfirmationForMnemonic(exportData.mnemonic, wallet: flow.wallet, from: view)
     }
 
     func activateAccessoryOption() {}

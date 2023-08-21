@@ -2,6 +2,17 @@ import Foundation
 
 extension SwitchAccount {
     final class AccountCreateWireframe: AccountCreateWireframeProtocol {
+        func showBackupCreatePassword(
+            request: MetaAccountImportMnemonicRequest,
+            from view: ControllerBackedProtocol?
+        ) {
+            guard let controller = BackupCreatePasswordAssembly.configureModule(with: .createWallet(request))?.view.controller else {
+                return
+            }
+
+            view?.controller.navigationController?.pushViewController(controller, animated: true)
+        }
+
         func confirm(
             from view: AccountCreateViewProtocol?,
             flow: AccountConfirmFlow

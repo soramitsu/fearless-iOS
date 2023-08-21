@@ -28,7 +28,7 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         }
 
         guard let importController = AccountImportViewFactory
-            .createViewForAdding()?.controller
+            .createViewForAdding(defaultSource: .mnemonic)?.controller
         else {
             return
         }
@@ -68,19 +68,6 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
                 return false
             }
         } ?? false
-    }
-
-    func logout(from view: MainTabBarViewProtocol?) {
-        guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
-            return
-        }
-
-        guard let tabBarController = view?.controller else {
-            return
-        }
-
-        let presentingController = tabBarController.topModalViewController
-        presentingController.present(pincodeViewController, animated: true, completion: nil)
     }
 
     func replaceStaking(

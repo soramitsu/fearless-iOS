@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import SSFCloudStorage
 
 final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
     static func createViewForOnboarding() -> OnboardingMainViewProtocol? {
@@ -55,7 +56,14 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
             locale: localizationManager.selectedLocale
         )
 
-        let interactor = OnboardingMainInteractor(keystoreImportService: kestoreImportService)
+        let cloudStorage = CloudStorageService(
+            uiDelegate: view
+        )
+
+        let interactor = OnboardingMainInteractor(
+            keystoreImportService: kestoreImportService,
+            cloudStorage: cloudStorage
+        )
 
         let presenter = OnboardingMainPresenter(
             legalData: legalData,

@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 
 class LongrunOperation<T>: BaseOperation<T> {
-    private let lockQueue = DispatchQueue(label: "com.swiftlee.asyncoperation", attributes: .concurrent)
+    private let lockQueue = DispatchQueue(label: "co.jp.soramitsu.longrunOperation", attributes: .concurrent)
 
     override var isAsynchronous: Bool {
         true

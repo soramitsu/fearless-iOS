@@ -28,4 +28,13 @@ enum ExportFlow {
 
         return accountsToExport
     }
+
+    var wallet: MetaAccountModel {
+        switch self {
+        case let .multiple(wallet, _):
+            return wallet
+        case let .single(_, _, wallet):
+            return wallet
+        }
+    }
 }

@@ -11,7 +11,7 @@ final class AccountCreatePresenter {
     var interactor: AccountCreateInteractorInputProtocol
 
     let usernameSetup: UsernameSetupModel
-    let flow: AccountCreateFlow
+    var flow: AccountCreateFlow
 
     private var mnemonic: [String]?
     private var selectedCryptoType: CryptoType = .sr25519
@@ -114,7 +114,6 @@ final class AccountCreatePresenter {
     private func presentDerivationPathError(_ cryptoType: CryptoType, isEthereum: Bool) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        // TODO: Check correctness
         if isEthereum {
             _ = wireframe.present(
                 error: AccountCreationError.invalidDerivationHardSoftNumeric,
@@ -144,7 +143,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
         interactor.setup()
         switch flow {
-        case .wallet:
+        case .wallet, .backup:
             view?.set(chainType: .both)
         case let .chain(model):
             if let cryptoType = CryptoType(rawValue: model.meta.substrateCryptoType) {
@@ -269,7 +268,24 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 chainId: model.chain.chainId
             )
             wireframe.confirm(from: view, flow: .chain(request))
+        case .backup:
+            let request = MetaAccountImportMnemonicRequest(
+                mnemonic: mnemonic,
+                username: usernameSetup.username,
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: ethereumDerivationPath,
+                cryptoType: selectedCryptoType
+            )
+            wireframe.showBackupCreatePassword(
+                request: request,
+                from: view
+            )
         }
+    }
+
+    func didTapBackupButton() {
+        flow = .backup
+        proceed()
     }
 }
 

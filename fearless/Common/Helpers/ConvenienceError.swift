@@ -9,3 +9,9 @@ extension ConvenienceError: LocalizedError {
         NSLocalizedString(error, comment: "")
     }
 }
+
+extension ConvenienceError: ErrorContentConvertible {
+    func toErrorContent(for _: Locale?) -> ErrorContent {
+        ErrorContent(title: error, message: "")
+    }
+}

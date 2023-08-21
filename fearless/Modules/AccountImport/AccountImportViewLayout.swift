@@ -250,7 +250,6 @@ final class AccountImportViewLayout: UIView {
         view.font = .p1Paragraph
         view.textColor = R.color.colorWhite()
         view.clearButtonMode = .never
-        view.keyboardType = .decimalPad
         return view
     }()
 
