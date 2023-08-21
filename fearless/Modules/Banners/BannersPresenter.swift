@@ -7,6 +7,7 @@ protocol BannersViewInput: ControllerBackedProtocol {
 
 protocol BannersInteractorInput: AnyObject {
     func setup(with output: BannersInteractorOutput)
+    func markWalletAsBackedUp(_ wallet: MetaAccountModel)
 }
 
 final class BannersPresenter {
@@ -67,6 +68,21 @@ extension BannersPresenter: BannersViewOutput {
         switch tappedOption {
         case .backup:
             router.showWalletBackupScreen(for: wallet, from: view)
+        case .buyXor:
+            break
+        }
+    }
+
+    func didCloseCell(at indexPath: IndexPath) {
+        guard
+            let wallet = wallet,
+            let tappedOption = Banners(rawValue: indexPath.row) else {
+            return
+        }
+
+        switch tappedOption {
+        case .backup:
+            interactor.markWalletAsBackedUp(wallet)
         case .buyXor:
             break
         }
