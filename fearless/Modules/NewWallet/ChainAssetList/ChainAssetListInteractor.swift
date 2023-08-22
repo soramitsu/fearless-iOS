@@ -115,18 +115,21 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
-//                var responseReceivedCounter: Int = 0
-//                self?.accountInfoFetchingProviders.forEach { accountInfoFetching in
-//                    accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
-//                        self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-//
-//                        responseReceivedCounter += 1
-//
-//                        if responseReceivedCounter == self?.accountInfoFetchingProviders.count {
-                self?.subscribeToAccountInfo(for: chainAssets)
-//                        }
-//                    }
-//                }
+                var responseReceivedCounter: Int = 0
+                self?.accountInfoFetchingProviders.forEach { accountInfoFetching in
+                    accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
+                        print("debug loading received accountInfosByChainAssets: \(accountInfosByChainAssets.count)")
+                        self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+
+                        responseReceivedCounter += 1
+
+                        if responseReceivedCounter == self?.accountInfoFetchingProviders.count {
+                            print("debug loading subscribeToAccountInfo: \(chainAssets.count)")
+
+                            self?.subscribeToAccountInfo(for: chainAssets)
+                        }
+                    }
+                }
 
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
@@ -286,7 +289,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
-        updateChainAssets(using: filters, sorts: sorts)
+//        updateChainAssets(using: filters, sorts: sorts)
     }
 
     func processZeroBalancesSettingChanged() {
