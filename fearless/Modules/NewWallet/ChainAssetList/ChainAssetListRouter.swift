@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SCard
 
 final class ChainAssetListRouter: ChainAssetListRouterInput {
     func showChainAccount(
@@ -102,5 +103,19 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         )
 
         view?.controller.present(navigationController, animated: true)
+    }
+
+    func showPolkaswap(controller: UIViewController, from view: ControllerBackedProtocol?) {
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.navigationController?.present(
+            navigationController,
+            animated: true
+        )
+    }
+
+    func startSoraCard(from view: ControllerBackedProtocol?) {
+        guard let vc = view?.controller else { return }
+        SCard.shared?.start(in: vc)
     }
 }

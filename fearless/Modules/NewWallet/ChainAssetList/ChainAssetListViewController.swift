@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import SnapKit
 import SoraUI
+import SCard
 
 enum HiddenSectionState {
     case hidden
@@ -87,6 +88,7 @@ final class ChainAssetListViewController:
 
 private extension ChainAssetListViewController {
     func configureTableView() {
+        rootView.tableView.registerClassForCell(SCCardCell.self)
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
@@ -132,6 +134,10 @@ private extension ChainAssetListViewController {
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
+    func closeSoraCard() {
+        rootView.tableView.reloadData()
+    }
+
     func reloadBanners() {
         guard viewModel != nil else {
             return

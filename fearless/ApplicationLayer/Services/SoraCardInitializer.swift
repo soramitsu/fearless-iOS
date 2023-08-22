@@ -8,7 +8,7 @@ final class SoraCardInitializer {
     private let wallet: MetaAccountModel
     private let soraChainAsset: ChainAsset
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter
-    var onSwapController: ((UIViewController) -> Void)?
+    var onSwapHandler: ((UIViewController) -> Void)?
 
     init(
         wallet: MetaAccountModel,
@@ -20,18 +20,18 @@ final class SoraCardInitializer {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
     }
 
-    private func initSoraCard() -> SCard {
+    func initSoraCard() -> SCard {
         guard SCard.shared == nil else { return SCard.shared! }
 
         let addressProvider: () -> String = { [weak self] in
             guard let strongSelf = self,
-                  let accountId = strongSelf.wallet.fetch(for: strongSelf.soraChainAsset.chain.accountRequest())?.accountId else { return String() }
+                  let accountId = strongSelf.wallet.fetch(for: strongSelf.soraChainAsset.chain.accountRequest())?.accountId else { return "" }
 
             let address = try? AddressFactory.address(
                 for: accountId,
                 chain: strongSelf.soraChainAsset.chain
             )
-            return address ?? String()
+            return address ?? ""
         }
 
         let xorBalanceStream = SCStream<Decimal>(wrappedValue: Decimal(0))
@@ -41,7 +41,7 @@ final class SoraCardInitializer {
             config: .local,
             balanceStream: xorBalanceStream,
             onSwapController: { [weak self] vc in
-                self?.onSwapController?(vc)
+                self?.onSwapHandler?(vc)
             }
         )
 

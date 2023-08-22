@@ -33,6 +33,13 @@ final class ChainAssetListAssembly {
 
         let dependencyContainer = ChainAssetListDependencyContainer()
 
+        let router = ChainAssetListRouter()
+
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            selectedMetaAccount: wallet
+        )
+
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -43,7 +50,7 @@ final class ChainAssetListAssembly {
             accountInfoFetching: accountInfoFetching,
             dependencyContainer: dependencyContainer
         )
-        let router = ChainAssetListRouter()
+
         let viewModelFactory = ChainAssetListViewModelFactory(
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
             settings: SettingsManager.shared

@@ -91,7 +91,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         sortDescriptors: [SortDescriptor],
         completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
     ) {
-        let operation = chainRepository.fetchAllOperation(with: .none)
+        let operation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
         operation.completionBlock = { [weak self] in
             guard let strongSelf = self else {
                 return

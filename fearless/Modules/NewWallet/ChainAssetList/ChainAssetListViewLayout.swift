@@ -51,6 +51,13 @@ final class ChainAssetListViewLayout: UIView {
         }
     }
 
+    func addSoraCard(view: UIView) {
+        headerViewContainer.addArrangedSubview(view)
+        view.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+    }
+
     private func setupLayout() {
         tableView.tableHeaderView = headerViewContainer
         headerViewContainer.snp.makeConstraints { make in
