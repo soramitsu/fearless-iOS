@@ -45,6 +45,7 @@ final class ChainAssetListViewLayout: UIView {
 
     func addBanners(view: UIView) {
         bannersView = view
+        bannersView?.isHidden = true
         headerViewContainer.addArrangedSubview(view)
         view.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()

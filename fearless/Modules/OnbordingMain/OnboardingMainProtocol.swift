@@ -9,7 +9,6 @@ protocol OnboardingMainPresenterProtocol: AnyObject {
     func activateAccountRestore()
     func activateTerms()
     func activatePrivacy()
-    func activateGoogleBackup()
 }
 
 protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, SheetAlertPresentable, WarningPresentable, PresentDismissable, AppUpdatePresentable {

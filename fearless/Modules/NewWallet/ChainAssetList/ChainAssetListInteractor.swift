@@ -118,14 +118,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 var responseReceivedCounter: Int = 0
                 self?.accountInfoFetchingProviders.forEach { accountInfoFetching in
                     accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
-                        print("debug loading received accountInfosByChainAssets: \(accountInfosByChainAssets.count)")
                         self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
 
                         responseReceivedCounter += 1
 
                         if responseReceivedCounter == self?.accountInfoFetchingProviders.count {
-                            print("debug loading subscribeToAccountInfo: \(chainAssets.count)")
-
                             self?.subscribeToAccountInfo(for: chainAssets)
                         }
                     }
