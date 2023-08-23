@@ -162,6 +162,7 @@ final class CrowdloansViewModelFactory {
             if remainedTime.daysFromSeconds > 0 {
                 return R.string.localizable.commonDaysLeftFormat(
                     format: remainedTime.daysFromSeconds,
+                    format: remainedTime.daysFromSeconds,
                     preferredLanguages: locale.rLanguages
                 )
             } else {
