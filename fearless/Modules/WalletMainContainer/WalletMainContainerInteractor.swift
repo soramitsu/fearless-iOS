@@ -14,6 +14,7 @@ final class WalletMainContainerInteractor {
     private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+    private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckService
 
     // MARK: - Constructor
 
@@ -24,7 +25,8 @@ final class WalletMainContainerInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
-        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
+        deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckService
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -33,6 +35,7 @@ final class WalletMainContainerInteractor {
         self.eventCenter = eventCenter
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
+        self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
     }
 
     // MARK: - Private methods
@@ -108,6 +111,23 @@ final class WalletMainContainerInteractor {
 
         operationQueue.addOperation(fetchChainSettingsOperation)
     }
+
+    private func checkDeprecatedAccountIssues() {
+        Task {
+            if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations() {
+                switch issue {
+                case let .controller(chainAsset):
+                    DispatchQueue.main.async {
+                        self.output?.didReceiveControllerAccountIssue(chainAsset: chainAsset)
+                    }
+                case let .stash(address):
+                    DispatchQueue.main.async {
+                        self.output?.didReceiveStashAccountIssue(address: address)
+                    }
+                }
+            }
+        }
+    }
 }
 
 // MARK: - WalletMainContainerInteractorInput
@@ -129,6 +149,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
+        checkDeprecatedAccountIssues()
         fetchSelectedChainName()
         fetchChainSettings()
     }

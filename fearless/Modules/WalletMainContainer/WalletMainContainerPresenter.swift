@@ -177,9 +177,9 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         router.present(
             message: R.string.localizable.stashAccountIssueMessage(address),
             title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
-            closeAction: R.string.localizable.stashAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
             from: view,
-            actions: []
+            actions: [action]
         )
     }
 }

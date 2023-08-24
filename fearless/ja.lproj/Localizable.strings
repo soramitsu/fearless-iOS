@@ -993,6 +993,12 @@
 "wallet.managment.select.wallet.title" = "ウォレットを選択";
 "xcm.cross.chain.invalid.address.title" = "ネットワーク・アドレスではありません";
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
-"staking.controller.deprecated.description" = "Please note that the Controller account feature will be deprecated soon, and as a result, you are required to set your Stash account as the Controller.";
 "settings.hide.zero.balances" = "Hide zero balances";
 "common.resolve" = "Resolve";
+"staking.controller.deprecated.description" =  "Please note that in the %s network the Controller account feature has been deprecated, and as a result, you are required to set your Stash account as the Controller.";
+"settings.hide.zero.balances" = "Hide zero balances";
+"common.resolve" = "Resolve";
+"common.important" = "Important";
+"controller.account.issue.action" = "Manage controller account";
+"stash.account.issue.message" = "Stash account %s isn't available. Please, import the Stash account by following the necessary steps";
+"stash.account.issue.action" = "Import stash account";
