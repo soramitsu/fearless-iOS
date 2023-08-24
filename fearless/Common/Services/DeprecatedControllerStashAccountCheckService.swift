@@ -7,24 +7,25 @@ enum DeprecatedAccountIssue {
     case stash(address: AccountAddress)
 }
 
-final class DeprecatedControllerStashAccountCheckService {
+protocol DeprecatedControllerStashAccountCheckServiceProtocol {
+    func checkAccountDeprecations(wallet: MetaAccountModel) async throws -> DeprecatedAccountIssue?
+}
+
+final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerStashAccountCheckServiceProtocol {
     private let chainRegistry: ChainRegistryProtocol
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let wallet: MetaAccountModel
     private let operationQueue: OperationQueue
 
     init(
         chainRegistry: ChainRegistryProtocol,
         chainRepository: AnyDataProviderRepository<ChainModel>,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        wallet: MetaAccountModel,
         operationQueue: OperationQueue
     ) {
         self.chainRegistry = chainRegistry
         self.chainRepository = chainRepository
         self.storageRequestFactory = storageRequestFactory
-        self.wallet = wallet
         self.operationQueue = operationQueue
     }
 
@@ -66,67 +67,73 @@ final class DeprecatedControllerStashAccountCheckService {
 
     private func checkController(
         for chainAsset: ChainAsset,
-        runtime: RuntimeCoderFactoryProtocol,
-        completionBlock: @escaping (Bool) -> Void
-    ) {
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            return
-        }
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<AccountId>]> =
-            storageRequestFactory.queryItemsByPrefix(
-                engine: connection,
-                keys: { [try StorageKeyFactory().key(from: .controller)] },
-                factory: { runtime },
-                storagePath: .controller
-            )
-
-        let controllerOperation = ClosureOperation<AccountId?> {
-            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
-        }
-
-        wrapper.allOperations.forEach { controllerOperation.addDependency($0) }
-
-        controllerOperation.completionBlock = {
-            if let _ = try? controllerOperation.extractNoCancellableResultData() {
-                completionBlock(true)
+        runtime: RuntimeCoderFactoryProtocol
+    ) async throws -> Bool {
+        try await withCheckedThrowingContinuation { continuation in
+            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+                return continuation.resume(with: .failure(ChainRegistryError.connectionUnavailable))
             }
+            let wrapper: CompoundOperationWrapper<[StorageResponse<AccountId>]> =
+                storageRequestFactory.queryItemsByPrefix(
+                    engine: connection,
+                    keys: { [try StorageKeyFactory().key(from: .controller)] },
+                    factory: { runtime },
+                    storagePath: .controller
+                )
+
+            let controllerOperation = ClosureOperation<AccountId?> {
+                try wrapper.targetOperation.extractNoCancellableResultData().first?.value
+            }
+
+            wrapper.allOperations.forEach { controllerOperation.addDependency($0) }
+
+            controllerOperation.completionBlock = {
+                do {
+                    _ = try controllerOperation.extractNoCancellableResultData()
+                    continuation.resume(with: .success(true))
+                } catch {
+                    continuation.resume(with: .failure(error))
+                }
+            }
+            operationQueue.addOperation(controllerOperation)
         }
-        operationQueue.addOperation(controllerOperation)
     }
 
     private func checkStash(
         for chainAsset: ChainAsset,
-        runtime: RuntimeCoderFactoryProtocol,
-        completionBlock: @escaping (AccountId?) -> Void
-    ) {
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            return
-        }
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<StakingLedger>]> =
-            storageRequestFactory.queryItemsByPrefix(
-                engine: connection,
-                keys: { [try StorageKeyFactory().key(from: .stakingLedger)] },
-                factory: { runtime },
-                storagePath: .stakingLedger
-            )
-
-        let stashOperation = ClosureOperation<StakingLedger?> {
-            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
-        }
-
-        wrapper.allOperations.forEach { stashOperation.addDependency($0) }
-
-        stashOperation.completionBlock = {
-            if let stakingLedger = try? stashOperation.extractNoCancellableResultData() {
-                completionBlock(stakingLedger.stash)
+        runtime: RuntimeCoderFactoryProtocol
+    ) async throws -> AccountId? {
+        try await withCheckedThrowingContinuation { continuation in
+            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+                return continuation.resume(with: .failure(ChainRegistryError.connectionUnavailable))
             }
+            let wrapper: CompoundOperationWrapper<[StorageResponse<StakingLedger>]> =
+                storageRequestFactory.queryItemsByPrefix(
+                    engine: connection,
+                    keys: { [try StorageKeyFactory().key(from: .stakingLedger)] },
+                    factory: { runtime },
+                    storagePath: .stakingLedger
+                )
+
+            let stashOperation = ClosureOperation<StakingLedger?> {
+                try wrapper.targetOperation.extractNoCancellableResultData().first?.value
+            }
+
+            wrapper.allOperations.forEach { stashOperation.addDependency($0) }
+
+            stashOperation.completionBlock = {
+                do {
+                    let stakingLedger = try stashOperation.extractNoCancellableResultData()
+                    continuation.resume(with: .success(stakingLedger?.stash))
+                } catch {
+                    continuation.resume(with: .failure(error))
+                }
+            }
+            operationQueue.addOperation(stashOperation)
         }
-        operationQueue.addOperation(stashOperation)
     }
 
-    func checkAccountDeprecations() async throws -> DeprecatedAccountIssue? {
+    func checkAccountDeprecations(wallet _: MetaAccountModel) async throws -> DeprecatedAccountIssue? {
         guard let possibleChainAssets = try? await getPossibleChainAssets() else { return nil }
         let chains = Array(Set(possibleChainAssets.compactMap { $0.chain }))
         var chainsRuntimesDict: [ChainModel: RuntimeCoderFactoryProtocol] = [:]
@@ -144,40 +151,34 @@ final class DeprecatedControllerStashAccountCheckService {
                 moduleName: "Staking",
                 callName: "set_controller",
                 argumentName: "controller"
-            )) == true
+            )) == false
         }
 
-        // bond call - check controller account exist -> if exist - show alert
         var caIssueChainAssets: [ChainAsset] = []
-        deprecatedChainAssets.forEach { [weak self] chainAsset in
+        for chainAsset in deprecatedChainAssets {
             if let runtime = chainsRuntimesDict[chainAsset.chain] {
-                self?.checkController(
+                let hasController = try? await checkController(
                     for: chainAsset,
-                    runtime: runtime,
-                    completionBlock: { hasController in
-                        if hasController {
-                            caIssueChainAssets.append(chainAsset)
-                        }
-                    }
+                    runtime: runtime
                 )
+                if hasController == true {
+                    caIssueChainAssets.append(chainAsset)
+                }
             }
         }
 
-        // ledger call - check stash account exist -> if exist - show alert
         var saIssueChainAssets: [ChainAsset] = []
         var saIssueChainAssetsIds: [ChainAsset: AccountId] = [:]
-        deprecatedChainAssets.forEach { [weak self] chainAsset in
+        for chainAsset in deprecatedChainAssets {
             if let runtime = chainsRuntimesDict[chainAsset.chain] {
-                self?.checkStash(
+                let accountId = try? await checkStash(
                     for: chainAsset,
-                    runtime: runtime,
-                    completionBlock: { accountId in
-                        if let accountId = accountId {
-                            saIssueChainAssets.append(chainAsset)
-                            saIssueChainAssetsIds[chainAsset] = accountId
-                        }
-                    }
+                    runtime: runtime
                 )
+                if let accountId = accountId {
+                    saIssueChainAssets.append(chainAsset)
+                    saIssueChainAssetsIds[chainAsset] = accountId
+                }
             }
         }
 

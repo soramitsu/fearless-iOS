@@ -49,7 +49,6 @@ final class WalletMainContainerAssembly {
             chainRegistry: chainRegistry,
             chainRepository: AnyDataProviderRepository(chainRepository),
             storageRequestFactory: storageOperationFactory,
-            wallet: wallet,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 

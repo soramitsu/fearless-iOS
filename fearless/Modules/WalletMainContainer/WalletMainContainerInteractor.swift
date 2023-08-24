@@ -14,7 +14,7 @@ final class WalletMainContainerInteractor {
     private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
-    private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckService
+    private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
 
     // MARK: - Constructor
 
@@ -26,7 +26,7 @@ final class WalletMainContainerInteractor {
         eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
-        deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckService
+        deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -114,14 +114,12 @@ final class WalletMainContainerInteractor {
 
     private func checkDeprecatedAccountIssues() {
         Task {
-            if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations() {
-                switch issue {
-                case let .controller(chainAsset):
-                    DispatchQueue.main.async {
+            if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations(wallet: wallet) {
+                await MainActor.run {
+                    switch issue {
+                    case let .controller(chainAsset):
                         self.output?.didReceiveControllerAccountIssue(chainAsset: chainAsset)
-                    }
-                case let .stash(address):
-                    DispatchQueue.main.async {
+                    case let .stash(address):
                         self.output?.didReceiveStashAccountIssue(address: address)
                     }
                 }
