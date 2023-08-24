@@ -286,7 +286,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     }
 
     func didTapBackupButton() {
-        proceed(flow: .backup)
+        proceed(withReplaced: .backup)
     }
 }
 

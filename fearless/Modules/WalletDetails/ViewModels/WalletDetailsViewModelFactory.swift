@@ -6,13 +6,15 @@ protocol WalletDetailsViewModelFactoryProtocol {
     func buildNormalViewModel(
         flow: WalletDetailsFlow,
         chains: [ChainModel],
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> WalletDetailsViewModel
 
     func buildExportViewModel(
         flow: WalletDetailsFlow,
         chains: [ChainModel],
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> WalletExportViewModel
 }
 
@@ -29,16 +31,6 @@ class WalletDetailsViewModelFactory {
                 let account = flow.wallet.fetch(for: chain.accountRequest())
                 let icon = chain.icon.map { RemoteImageViewModel(url: $0) }
                 let address = account?.toAddress()
-                var addressImage: UIImage?
-                if let address = address {
-                    addressImage = try? UniversalIconGenerator(chain: chain).generateFromAddress(address)
-                        .imageWithFillColor(
-                            R.color.colorBlack()!,
-                            size: UIConstants.normalAddressIconSize,
-                            contentScale: UIScreen.main.scale
-                        )
-                }
-
                 return WalletDetailsCellViewModel(
                     chainImageViewModel: icon,
                     account: account,
@@ -58,21 +50,29 @@ class WalletDetailsViewModelFactory {
     private func buildSections(
         flow: WalletDetailsFlow,
         chains: [ChainModel],
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> [WalletDetailsSection] {
         let sortedChains = chains.sorted(by: { $0.name < $1.name })
+        let filteredChains = sortedChains.filter { chain in
+            guard let searchText = searchText, searchText.isNotEmpty else {
+                return true
+            }
 
-        let emptyAccounts = sortedChains.filter {
+            return chain.name.contains(searchText)
+        }
+
+        let emptyAccounts = filteredChains.filter {
             flow.wallet.fetch(for: $0.accountRequest()) == nil
                 && !(flow.wallet.unusedChainIds ?? []).contains($0.chainId)
         }
-        let nativeAccounts = sortedChains.filter {
+        let nativeAccounts = filteredChains.filter {
             flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == false
                 || (flow.wallet.fetch(for: $0.accountRequest()) == nil
                     && (flow.wallet.unusedChainIds ?? []).contains($0.chainId))
         }
 
-        let customAccounts = sortedChains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true }
+        let customAccounts = filteredChains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true }
 
         var sections: [WalletDetailsSection] = []
 
@@ -114,9 +114,10 @@ extension WalletDetailsViewModelFactory: WalletDetailsViewModelFactoryProtocol {
     func buildNormalViewModel(
         flow: WalletDetailsFlow,
         chains: [ChainModel],
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> WalletDetailsViewModel {
-        let sections = buildSections(flow: flow, chains: chains, locale: locale)
+        let sections = buildSections(flow: flow, chains: chains, locale: locale, searchText: searchText)
         return WalletDetailsViewModel(
             navigationTitle: R.string.localizable.commonWallet(preferredLanguages: locale.rLanguages),
             walletName: flow.wallet.name,
@@ -127,9 +128,10 @@ extension WalletDetailsViewModelFactory: WalletDetailsViewModelFactoryProtocol {
     func buildExportViewModel(
         flow: WalletDetailsFlow,
         chains: [ChainModel],
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> WalletExportViewModel {
-        let sections = buildSections(flow: flow, chains: chains, locale: locale)
+        let sections = buildSections(flow: flow, chains: chains, locale: locale, searchText: searchText)
         return WalletExportViewModel(
             navigationTitle: R.string.localizable.accountsForExport(preferredLanguages: locale.rLanguages),
             walletName: flow.wallet.name,

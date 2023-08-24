@@ -12,6 +12,7 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
 
     let output: WalletDetailsViewOutputProtocol
     private var chainViewModels: [WalletDetailsCellViewModel]?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     private var state: WalletDetailsViewState?
 
@@ -33,8 +34,21 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         configure()
-
+        bindSearchTextView()
         output.didLoad(ui: self)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     @objc private func closeButtonClicked() {
@@ -57,6 +71,12 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
         case let .export(viewModel):
             rootView.bind(to: viewModel)
             rootView.tableView.reloadData()
+        }
+    }
+
+    private func bindSearchTextView() {
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.output.searchTextDidChanged(text)
         }
     }
 }
@@ -189,4 +209,11 @@ extension WalletDetailsViewController: WalletDetailsTableCellDelegate {
             break
         }
     }
+}
+
+extension WalletDetailsViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
