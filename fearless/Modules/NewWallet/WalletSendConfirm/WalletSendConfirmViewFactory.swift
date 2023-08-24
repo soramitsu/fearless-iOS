@@ -103,7 +103,8 @@ struct WalletSendConfirmViewFactory {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationManager: operationManager,
             signingWrapper: signingWrapper,
-            dependencyContainer: dependencyContainer
+            dependencyContainer: dependencyContainer,
+            wallet: wallet
         )
     }
 }

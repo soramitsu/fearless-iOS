@@ -45,7 +45,7 @@ struct TransferCall: Codable {
 
         dest = try container.decode(MultiAddress.self, forKey: .dest)
         let valueString = try container.decode(String.self, forKey: .value)
-        value = BigUInt(valueString) ?? BigUInt.zero
+        value = BigUInt(string: valueString) ?? BigUInt.zero
         currencyId = nil
     }
 

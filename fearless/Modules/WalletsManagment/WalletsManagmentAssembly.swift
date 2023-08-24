@@ -14,6 +14,7 @@ final class WalletsManagmentAssembly {
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -28,6 +29,18 @@ final class WalletsManagmentAssembly {
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(

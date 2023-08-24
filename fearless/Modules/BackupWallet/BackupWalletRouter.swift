@@ -73,12 +73,15 @@ final class BackupWalletRouter: BackupWalletRouterInput {
 
     func showCreatePassword(
         wallet: MetaAccountModel,
-        request: BackupCreatePasswordFlow.RequestType,
+        accounts: [ChainAccountInfo],
+        options: [ExportOption],
         from view: ControllerBackedProtocol?,
         moduleOutput: BackupCreatePasswordModuleOutput?
     ) {
+        let exportFlow: ExportFlow = .multiple(wallet: wallet, accounts: accounts)
+        let createPassportFlow: BackupCreatePasswordFlow = .backupWallet(flow: exportFlow, options: options)
         guard let module = BackupCreatePasswordAssembly
-            .configureModule(with: .backupWallet(wallet: wallet, request: request), moduleOutput: moduleOutput) else {
+            .configureModule(with: createPassportFlow, moduleOutput: moduleOutput) else {
             return
         }
 
@@ -86,5 +89,14 @@ final class BackupWalletRouter: BackupWalletRouterInput {
             module.view.controller,
             animated: true
         )
+    }
+
+    func showWalletDetails(
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    ) {
+        let module = WalletDetailsViewFactory
+            .createView(flow: .normal(wallet: wallet))
+        view?.controller.navigationController?.pushViewController(module.controller, animated: true)
     }
 }

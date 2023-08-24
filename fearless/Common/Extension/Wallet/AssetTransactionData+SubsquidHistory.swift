@@ -79,10 +79,10 @@ extension AssetTransactionData {
         let peerId = accountId?.toHex() ?? peerAddress
 
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(transfer.amount) ?? 0,
+            BigUInt(string: transfer.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
-        let feeValue = BigUInt(transfer.fee ?? "") ?? BigUInt(0)
+        let feeValue = BigUInt(string: transfer.fee ?? "") ?? BigUInt(0)
         let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
@@ -123,7 +123,7 @@ extension AssetTransactionData {
         let status: AssetTransactionStatus = .commited
 
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(reward.amount) ?? 0,
+            BigUInt(string: reward.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
@@ -159,7 +159,7 @@ extension AssetTransactionData {
         asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(extrinsic.fee) ?? 0,
+            BigUInt(string: extrinsic.fee) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 

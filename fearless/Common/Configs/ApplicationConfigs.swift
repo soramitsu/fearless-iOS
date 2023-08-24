@@ -161,7 +161,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v2/chains_dev.json", branch: .xcmLocationDevelop)
+            GitHubUrl.url(suffix: "chains/v2/chains_dev.json", branch: .developFree)
         #else
             GitHubUrl.url(suffix: "chains/v2/chains.json")
         #endif

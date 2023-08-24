@@ -15,6 +15,7 @@ enum BalanceInfoAssembly {
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
         let operationManager = OperationManagerFacade.sharedManager
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -25,6 +26,18 @@ enum BalanceInfoAssembly {
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
@@ -60,7 +73,8 @@ enum BalanceInfoAssembly {
             interactor: interactor,
             router: router,
             logger: logger,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            eventCenter: EventCenter.shared
         )
 
         let view = BalanceInfoViewController(

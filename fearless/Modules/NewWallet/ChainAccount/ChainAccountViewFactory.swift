@@ -22,6 +22,7 @@ enum ChainAccountViewFactory {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
@@ -55,6 +56,12 @@ enum ChainAccountViewFactory {
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(

@@ -8,7 +8,7 @@ final class RampProvider: PurchaseProviderProtocol {
     }
 
     static let pubToken = "3quzr4e6wdyccndec8jzjebzar5kxxzfy2f3us5k"
-    static let baseUrlString = "https://buy.ramp.network/"
+    static let baseUrlString = "https://app.ramp.network/"
 
     private var appName: String?
     private var logoUrl: URL?

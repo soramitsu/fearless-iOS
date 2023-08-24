@@ -1,6 +1,5 @@
 platform :ios, '13.0'
 
-# Uncomment for CI
 source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
@@ -26,6 +25,7 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
+  pod 'FearlessKeys'
 
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
@@ -33,18 +33,18 @@ abstract_target 'fearlessAll' do
       else
           pod 'SSFXCM'
           pod 'SSFExtrinsicKit'
-          pod 'SSFCrypto'
+          pod 'SSFCrypto', '0.1.11'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.2'
+          pod 'SSFModels', '0.1.7'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection'
           pod 'SSFNetwork'
-          pod 'SSFUtils'
+          pod 'SSFUtils', '0.1.13'
           pod 'SSFChainRegistry'
-          pod 'SSFHelpers', '0.1.2'
+          pod 'SSFHelpers', '0.1.7'
           pod 'SSFCloudStorage'
       end
   end
@@ -66,6 +66,7 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
 #  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
 #  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
+#  pod 'web3swift-bnsports', :path => '../web3swift-bnsports'
 #  pod 'SSFCloudStorage', :path => '../soramitsu-shared-features-ios/SSFCloudStorage'
 #  pod 'SSFKeyPair', :path => '../soramitsu-shared-features-ios/SSFKeyPair'
 

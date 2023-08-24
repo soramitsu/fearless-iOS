@@ -69,7 +69,11 @@ final class ChainRegistryFactory {
         let runtimeProviderPool = RuntimeProviderPool(runtimeProviderFactory: runtimeProviderFactory)
 
         let queue = OperationQueue()
-        let connectionPool = ConnectionPool(connectionFactory: ConnectionFactory(logger: Logger.shared), operationQueue: queue)
+        let substrateConnectionPool = ConnectionPool(
+            connectionFactory: ConnectionFactory(logger: Logger.shared),
+            operationQueue: queue
+        )
+        let ethereumConnectionPool = EthereumConnectionPool()
 
         let chainRepositoryFactory = ChainRepositoryFactory(storageFacade: repositoryFacade)
         let chainRepository = chainRepositoryFactory.createRepository()
@@ -116,7 +120,7 @@ final class ChainRegistryFactory {
         return ChainRegistry(
             snapshotHotBootBuilder: snapshotHotBootBuilder,
             runtimeProviderPool: runtimeProviderPool,
-            connectionPool: connectionPool,
+            connectionPools: [substrateConnectionPool, ethereumConnectionPool],
             chainSyncService: chainSyncService,
             runtimeSyncService: runtimeSyncService,
             chainsTypesSyncService: chainsTypesSuncService,

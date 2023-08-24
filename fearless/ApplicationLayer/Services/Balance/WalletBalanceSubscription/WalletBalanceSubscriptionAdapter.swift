@@ -49,6 +49,12 @@ enum WalletBalanceError: Error {
     case `internal`
 }
 
+enum WalletBalanceSubscriptionType {
+    case wallets
+    case wallet(walletId: String)
+    case chainAsset(walletId: String, chainAsset: ChainAsset)
+}
+
 final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, PriceLocalStorageSubscriber {
     // MARK: - PriceLocalStorageSubscriber
 
@@ -66,7 +72,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
     private let logger: Logger
-
     private var deliverQueue: DispatchQueue?
     private weak var delegate: WalletBalanceSubscriptionHandler?
 
@@ -75,6 +80,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private lazy var chainAssets: [ChainAssetId: ChainAsset] = [:]
     private lazy var metaAccounts: [MetaAccountModel] = []
     private lazy var prices: [PriceData] = []
+    private var subscriptionType: WalletBalanceSubscriptionType?
+
+    private let lock = ReaderWriterLock()
 
     // MARK: - Constructor
 
@@ -102,6 +110,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        subscriptionType = .wallet(walletId: walletId)
+
         reset()
         deliverQueue = queue
         delegate = handler
@@ -113,6 +123,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        subscriptionType = .wallets
+
         reset()
         deliverQueue = queue
         delegate = handler
@@ -126,6 +138,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        subscriptionType = .chainAsset(walletId: walletId, chainAsset: chainAsset)
+
         reset()
         deliverQueue = queue
         delegate = handler
@@ -263,7 +277,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             )
-            accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
+            self.accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
             accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
         }
     }
@@ -304,8 +318,24 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         buildBalance()
     }
 
-    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        buildBalance()
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        if let index = metaAccounts.firstIndex(where: { $0.metaId == event.account.metaId }) {
+            metaAccounts[index] = event.account
+        }
+
+        switch subscriptionType {
+        case .wallets:
+            reset()
+            fetchAllMetaAccounts()
+        case let .wallet(walletId):
+            reset()
+            fetchMetaAccount(by: walletId, chainAsset: nil)
+        case let .chainAsset(walletId, chainAsset):
+            reset()
+            fetchMetaAccount(by: walletId, chainAsset: chainAsset)
+        case .none:
+            break
+        }
     }
 }
 
@@ -315,15 +345,20 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-
-            accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
-            guard chainAssets.count == accountInfos.keys.count else {
-                if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
-                    buildBalance()
-                }
-                return
+            lock.exclusivelyWrite {
+                self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             }
-            buildBalance()
+
+            lock.concurrentlyRead {
+                guard chainAssets.count == accountInfos.keys.count else {
+                    if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
+                        buildBalance()
+                    }
+                    return
+                }
+
+                buildBalance()
+            }
         case let .failure(error):
             logger.error("""
                 WalletBalanceFetcher error: \(error.localizedDescription)

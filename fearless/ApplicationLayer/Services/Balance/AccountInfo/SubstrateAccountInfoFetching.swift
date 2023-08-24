@@ -1,20 +1,6 @@
 import Foundation
-import RobinHood
 import SSFModels
-
-protocol AccountInfoFetchingProtocol {
-    func fetch(
-        for chainAsset: ChainAsset,
-        accountId: AccountId,
-        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
-    )
-
-    func fetch(
-        for chainAssets: [ChainAsset],
-        wallet: MetaAccountModel,
-        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
-    )
-}
+import RobinHood
 
 final class AccountInfoFetching: AccountInfoFetchingProtocol {
     private let accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>
@@ -36,6 +22,7 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
         wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
+        let chainAssets = chainAssets.filter { !$0.chain.isEthereum }
         let createAccountInfoOperationsOperation = prepareAccountInfoOperationsOperation(
             chainAssets: chainAssets,
             wallet: wallet
@@ -59,13 +46,13 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
             accountInfoDependencies.forEach { finishOperation.addDependency($0) }
             accountInfoSubdependencies.forEach { finishOperation.addDependency($0) }
 
-            self?.operationQueue.addOperations([finishOperation] + accountInfoOperations + accountInfoDependencies + accountInfoSubdependencies, waitUntilFinished: true)
+            self?.operationQueue.addOperations([finishOperation] + accountInfoOperations + accountInfoDependencies + accountInfoSubdependencies, waitUntilFinished: false)
         }
 
         executeOperation.addDependency(createAccountInfoOperationsOperation)
         createAccountInfoOperationsOperation.dependencies.forEach { executeOperation.addDependency($0) }
 
-        operationQueue.addOperations(dependencies + [createAccountInfoOperationsOperation, executeOperation], waitUntilFinished: true)
+        operationQueue.addOperations(dependencies + [createAccountInfoOperationsOperation, executeOperation], waitUntilFinished: false)
     }
 
     func fetch(
@@ -140,6 +127,8 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                             completionBlock: completionBlock
                         )
                     }
+                case .none:
+                    break
                 }
             default:
                 completionBlock(chainAsset, nil)
@@ -219,6 +208,8 @@ private extension AccountInfoFetching {
         }
 
         switch chainAsset.chainAssetType {
+        case .none:
+            return ClosureOperation { [chainAsset: nil] }
         case .normal:
             guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,
@@ -593,7 +584,7 @@ private extension AccountInfoFetching {
     }
 
     private func handleEquilibrium(
-        result: Result<EquilibriumAccountInfo?, Error>,
+        result: Swift.Result<EquilibriumAccountInfo?, Error>,
         chainAsset: ChainAsset,
         accountId _: AccountId,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void

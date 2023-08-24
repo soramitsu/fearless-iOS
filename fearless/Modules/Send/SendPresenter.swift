@@ -343,7 +343,7 @@ extension SendPresenter: SendInteractorOutput {
         case let .success(dispatchInfo):
             guard let chainAsset = selectedChainAsset,
                   let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return }
-            fee = BigUInt(dispatchInfo.fee).map {
+            fee = BigUInt(string: dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 
@@ -406,6 +406,10 @@ extension SendPresenter: SendInteractorOutput {
     func didReceive(eqTotalBalance: Decimal) {
         eqUilibriumTotalBalance = eqTotalBalance
     }
+
+    func didReceiveDependencies(for chainAsset: ChainAsset) {
+        refreshFee(for: chainAsset, address: recipientAddress)
+    }
 }
 
 extension SendPresenter: ScanQRModuleOutput {
@@ -467,21 +471,38 @@ extension SendPresenter: SelectNetworkDelegate {
 }
 
 private extension SendPresenter {
+    private func buildBalanceViewModelFactory(
+        wallet: MetaAccountModel,
+        for chainAsset: ChainAsset?
+    ) -> BalanceViewModelFactoryProtocol? {
+        guard let chainAsset = chainAsset else {
+            return nil
+        }
+        let assetInfo = chainAsset.asset
+            .displayInfo(with: chainAsset.chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: wallet
+        )
+        return balanceViewModelFactory
+    }
+
     func provideAssetVewModel() {
-        guard let chainAsset = selectedChainAsset,
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: chainAsset)?
-              .balanceViewModelFactory
-        else { return }
+        guard let chainAsset = selectedChainAsset else { return }
+
+        let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
+
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
+        let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
             balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
-        view?.didReceive(assetBalanceViewModel: viewModel)
+
+        DispatchQueue.main.async {
+            self.view?.didReceive(assetBalanceViewModel: viewModel)
+        }
 
         let fullAmount = inputResult?.absoluteValue(from: fullAmount) ?? .zero
         interactor.calculateEquilibriumBalance(chainAsset: chainAsset, amount: fullAmount)
@@ -490,11 +511,9 @@ private extension SendPresenter {
     func provideTipViewModel() {
         guard let chainAsset = selectedChainAsset,
               let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory
+              let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
+
         let viewModel = tip
             .map { balanceViewModelFactory
                 .balanceFromPrice(
@@ -507,39 +526,47 @@ private extension SendPresenter {
             balanceViewModel: viewModel,
             tipRequired: utilityAsset.chain.isTipRequired
         )
-        view?.didReceive(tipViewModel: tipViewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceive(tipViewModel: tipViewModel)
+        }
     }
 
     func provideFeeViewModel() {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory
+        guard
+            let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
+            let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
+
         let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
-        view?.didReceive(feeViewModel: viewModel)
+
+        DispatchQueue.main.async {
+            self.view?.didReceive(feeViewModel: viewModel)
+        }
     }
 
     func provideInputViewModel() {
-        guard let chainAsset = selectedChainAsset,
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: chainAsset)?
-              .balanceViewModelFactory
+        guard let chainAsset = selectedChainAsset
         else { return }
+
+        let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
+
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
 
-        let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
+        let inputViewModel = balanceViewModelFactory?.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
-        view?.didReceive(amountInputViewModel: inputViewModel)
+
+        DispatchQueue.main.async {
+            self.view?.didReceive(amountInputViewModel: inputViewModel)
+        }
     }
 
     func provideNetworkViewModel(for chain: ChainModel) {
         let viewModel = viewModelFactory.buildNetworkViewModel(chain: chain)
-        view?.didReceive(selectNetworkViewModel: viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceive(selectNetworkViewModel: viewModel)
+        }
     }
 
     func refreshFee(for chainAsset: ChainAsset, address: String?) {
@@ -550,7 +577,9 @@ private extension SendPresenter {
             return
         }
 
-        view?.didStartFeeCalculation()
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didStartFeeCalculation()
+        }
 
         let tip = self.tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         interactor.estimateFee(for: amount, tip: tip, for: address, chainAsset: chainAsset)
@@ -563,7 +592,10 @@ private extension SendPresenter {
             address: newAddress,
             isValid: interactor.validate(address: newAddress, for: chainAsset.chain).isValid
         )
-        view?.didReceive(viewModel: viewModel)
+
+        DispatchQueue.main.async {
+            self.view?.didReceive(viewModel: viewModel)
+        }
 
         interactor.updateSubscriptions(for: chainAsset)
         interactor.fetchScamInfo(for: newAddress)
@@ -603,6 +635,7 @@ private extension SendPresenter {
             handle(newAddress: recipientAddress)
         }
         interactor.updateSubscriptions(for: selectedChainAsset)
+        refreshFee(for: selectedChainAsset, address: recipientAddress)
     }
 
     func defineOrSelectAsset(for chain: ChainModel) {

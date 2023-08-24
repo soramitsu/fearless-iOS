@@ -6,10 +6,12 @@ struct BannerCellViewModel {
     let subtitle: String
     let buttonTitle: String
     let image: UIImage
+    let dismissable: Bool
 }
 
 protocol BannerCellectionCellDelegate: AnyObject {
     func didActionButtonTapped(indexPath: IndexPath?)
+    func didCloseButtonTapped(indexPath: IndexPath?)
 }
 
 final class BannerCollectionViewCell: UICollectionViewCell {
@@ -46,6 +48,13 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         return button
     }()
 
+    let closeButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(R.image.iconClose(), for: .normal)
+        button.backgroundColor = R.color.colorWhite8()
+        return button
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorWhite8()
@@ -53,6 +62,11 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         clipsToBounds = true
         setupLayout()
         bindActions()
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        closeButton.rounded()
     }
 
     @available(*, unavailable)
@@ -65,11 +79,16 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         subtitleLabel.text = viewModel.subtitle
         actionButton.imageWithTitleView?.title = viewModel.buttonTitle
         imageView.image = viewModel.image
+        closeButton.isHidden = !viewModel.dismissable
     }
 
     private func bindActions() {
         actionButton.addAction { [weak self] in
             self?.delegate?.didActionButtonTapped(indexPath: self?.indexPath)
+        }
+
+        closeButton.addAction { [weak self] in
+            self?.delegate?.didCloseButtonTapped(indexPath: self?.indexPath)
         }
     }
 
@@ -100,6 +119,12 @@ final class BannerCollectionViewCell: UICollectionViewCell {
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.height.equalTo(32)
             make.width.greaterThanOrEqualTo(102)
+        }
+
+        addSubview(closeButton)
+        closeButton.snp.makeConstraints { make in
+            make.top.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.size.equalTo(UIConstants.roundedCloseButtonSize)
         }
     }
 }

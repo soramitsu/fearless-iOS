@@ -58,25 +58,27 @@ final class WalletSendConfirmPresenter {
     }
 
     private func provideViewModel() {
-        let parameters = WalletSendConfirmViewModelFactoryParameters(
-            amount: amount,
-            senderAccountViewModel: provideSenderAccountViewModel(),
-            receiverAccountViewModel: provideReceiverAccountViewModel(),
-            assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chainAsset.chain.isTipRequired,
-            tipViewModel: provideTipViewModel(),
-            feeViewModel: provideFeeViewModel(),
-            wallet: wallet,
-            locale: selectedLocale,
-            scamInfo: scamInfo,
-            assetModel: chainAsset.asset
-        )
-        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
-            parameters: parameters
-        )
+        Task {
+            let parameters = WalletSendConfirmViewModelFactoryParameters(
+                amount: amount,
+                senderAccountViewModel: provideSenderAccountViewModel(),
+                receiverAccountViewModel: provideReceiverAccountViewModel(),
+                assetBalanceViewModel: try await provideAssetVewModel(),
+                tipRequired: chainAsset.chain.isTipRequired,
+                tipViewModel: try await provideTipViewModel(),
+                feeViewModel: try await provideFeeViewModel(),
+                wallet: wallet,
+                locale: selectedLocale,
+                scamInfo: scamInfo,
+                assetModel: chainAsset.asset
+            )
+            let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+                parameters: parameters
+            )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(state: .loaded(viewModel))
+            await MainActor.run {
+                self.view?.didReceive(state: .loaded(viewModel))
+            }
         }
     }
 
@@ -108,34 +110,31 @@ final class WalletSendConfirmPresenter {
         )
     }
 
-    private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
-        guard let balanceViewModelFactory = interactor
-            .dependencyContainer
-            .prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory else { return nil }
-        return balanceViewModelFactory.createAssetBalanceViewModel(
+    private func provideAssetVewModel() async throws -> AssetBalanceViewModelProtocol? {
+        let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
+        return balanceViewModelFactory?.createAssetBalanceViewModel(
             amount,
             balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
     }
 
-    private func provideTipViewModel() -> BalanceViewModelProtocol? {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory else { return nil }
+    private func provideTipViewModel() async throws -> BalanceViewModelProtocol? {
+        guard
+            let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
+            let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
+        else { return nil }
+
         return tip
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 
-    private func provideFeeViewModel() -> BalanceViewModelProtocol? {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory else { return nil }
+    private func provideFeeViewModel() async throws -> BalanceViewModelProtocol? {
+        guard
+            let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
+            let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
+        else { return nil }
         return fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -149,6 +148,22 @@ final class WalletSendConfirmPresenter {
 
         let tip = self.tip?.toSubstrateAmount(precision: Int16(utilityAsset.asset.precision))
         interactor.estimateFee(for: amount, tip: tip)
+    }
+
+    private func buildBalanceViewModelFactory(
+        wallet: MetaAccountModel,
+        for chainAsset: ChainAsset?
+    ) -> BalanceViewModelFactoryProtocol? {
+        guard let chainAsset = chainAsset else {
+            return nil
+        }
+        let assetInfo = chainAsset.asset
+            .displayInfo(with: chainAsset.chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: wallet
+        )
+        return balanceViewModelFactory
     }
 }
 
@@ -329,7 +344,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(dispatchInfo):
             guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return }
-            fee = BigUInt(dispatchInfo.fee).map {
+            fee = BigUInt(string: dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 

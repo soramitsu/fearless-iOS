@@ -42,6 +42,7 @@ struct UIConstants {
     static let infoButtonSize: CGFloat = 14.0
     static let minButtonSize = CGSize(width: 44, height: 44)
     static let roundedButtonHeight: CGFloat = 56.0
+    static let roundedCloseButtonSize: CGFloat = 32.0
 }
 
 enum AccountViewMode {

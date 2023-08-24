@@ -493,7 +493,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         case let .success(response):
             guard
                 let utilityOriginChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
-                let fee = BigUInt(response.fee),
+                let fee = BigUInt(string: response.fee),
                 let feeDecimal = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityOriginChainAsset.asset.precision))
             else {
                 return

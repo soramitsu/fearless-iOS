@@ -70,7 +70,7 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
         settings.save(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
             switch result {
             case .success:
-                self?.eventCenter.notify(with: SelectedAccountChanged())
+                self?.eventCenter.notify(with: SelectedAccountChanged(account: wallet.info))
                 self?.output?.didCompleteSelection()
             case let .failure(error):
                 self?.output?.didReceive(error: error)
