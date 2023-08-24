@@ -2,7 +2,11 @@ import Foundation
 
 protocol AccountManagementPresentable {
     func showCreateNewWallet(from view: ControllerBackedProtocol?)
-    func showImportWallet(from view: ControllerBackedProtocol?)
+    func showImportWallet(
+        defaultSource: AccountImportSource,
+        from view: ControllerBackedProtocol?
+    )
+    func showBackupSelectWallet(from view: ControllerBackedProtocol?)
 }
 
 extension AccountManagementPresentable {
@@ -11,24 +15,32 @@ extension AccountManagementPresentable {
             return
         }
 
-        usernameSetup.controller.hidesBottomBarWhenPushed = true
+        let navigation = FearlessNavigationController(rootViewController: usernameSetup.controller)
 
-        if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(usernameSetup.controller, animated: true)
-        }
+        view?.controller.present(navigation, animated: true)
     }
 
-    func showImportWallet(from view: ControllerBackedProtocol?) {
+    func showImportWallet(
+        defaultSource: AccountImportSource,
+        from view: ControllerBackedProtocol?
+    ) {
         guard let restorationController = AccountImportViewFactory
-            .createViewForAdding()?.controller
+            .createViewForAdding(defaultSource: defaultSource)?.controller
         else {
             return
         }
-
         restorationController.hidesBottomBarWhenPushed = true
-
         if let navigationController = view?.controller.navigationController {
             navigationController.pushViewController(restorationController, animated: true)
         }
+    }
+
+    func showBackupSelectWallet(from view: ControllerBackedProtocol?) {
+        guard let controller = BackupSelectWalletAssembly.configureModule(accounts: nil)?.view.controller else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+        view?.controller.present(navigationController, animated: true)
     }
 }

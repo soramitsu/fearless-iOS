@@ -171,7 +171,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             title: R.string.localizable.stashAccountIssueAction(preferredLanguages: selectedLocale.rLanguages)
         ) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.router.showImportWallet(from: strongSelf.view)
+            strongSelf.router.showImportWallet(defaultSource: .mnemonic, from: strongSelf.view)
         }
 
         router.present(
@@ -199,8 +199,12 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
         router.showCreateNewWallet(from: view)
     }
 
-    func showImportWallet() {
-        router.showImportWallet(from: view)
+    func showImportWallet(defaultSource: AccountImportSource) {
+        router.showImportWallet(defaultSource: defaultSource, from: view)
+    }
+
+    func showImportGoogle() {
+        router.showBackupSelectWallet(from: view)
     }
 }
 

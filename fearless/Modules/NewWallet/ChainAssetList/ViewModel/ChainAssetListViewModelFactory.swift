@@ -139,6 +139,17 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             return true
         }
         let emptyStateIsActive = activeSectionCellModels.isEmpty && hiddenSectionCellModels.isEmpty && shouldShowEmptyStatePerFilter.contains(where: { $0 == true })
+        let bannerIsHidden = activeFilters.map {
+            if case ChainAssetsFetching.Filter.search = $0 {
+                return true
+            }
+
+            if case ChainAssetsFetching.Filter.searchEmpty = $0 {
+                return true
+            }
+
+            return false
+        }
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -150,7 +161,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             ],
             isColdBoot: isColdBoot,
             hiddenSectionState: hiddenSectionState,
-            emptyStateIsActive: emptyStateIsActive
+            emptyStateIsActive: emptyStateIsActive,
+            bannerIsHidden: bannerIsHidden.contains(true)
         )
     }
 }

@@ -15,7 +15,8 @@ extension AddAccount {
             operationManager: OperationManagerProtocol,
             settings: SelectedWalletSettings,
             keystoreImportService: KeystoreImportServiceProtocol,
-            eventCenter: EventCenterProtocol
+            eventCenter: EventCenterProtocol,
+            defaultSource: AccountImportSource
         ) {
             self.settings = settings
             self.eventCenter = eventCenter
@@ -24,7 +25,8 @@ extension AddAccount {
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
                 operationManager: operationManager,
-                keystoreImportService: keystoreImportService
+                keystoreImportService: keystoreImportService,
+                defaultSource: defaultSource
             )
         }
 

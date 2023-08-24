@@ -40,7 +40,6 @@ final class WalletOptionInteractor {
 // MARK: - WalletOptionInteractorInput
 
 extension WalletOptionInteractor: WalletOptionInteractorInput {
-    // swiftlint:disable opening_brace
     func deleteWallet() {
         let operation = metaAccountRepository.saveOperation(
             { [] },

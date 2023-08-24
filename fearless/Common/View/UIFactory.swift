@@ -42,6 +42,7 @@ struct UIConstants {
     static let infoButtonSize: CGFloat = 14.0
     static let minButtonSize = CGSize(width: 44, height: 44)
     static let roundedButtonHeight: CGFloat = 56.0
+    static let roundedCloseButtonSize: CGFloat = 32.0
 }
 
 enum AccountViewMode {
@@ -237,6 +238,7 @@ final class UIFactory: UIFactoryProtocol {
         view.backgroundView.strokeColor = .clear
         view.backgroundView.highlightedStrokeColor = .clear
         view.backgroundView.strokeWidth = 0.0
+        view.backgroundView.shadowOpacity = 0
 
         view.titleLabel.textColor = R.color.colorLightGray()!
         view.titleLabel.font = UIFont.p2Paragraph

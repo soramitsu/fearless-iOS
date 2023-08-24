@@ -40,16 +40,30 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
+				<string></string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
 				<string>fearless</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>GIDClientID</key>
+	<string></string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app require the access to Microphone to pass KYC</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>sora-Bold.otf</string>
@@ -78,13 +92,9 @@
 	</array>
 	<key>UISupportsDocumentBrowser</key>
 	<false/>
-	<key>ITSAppUsesNonExemptEncryption</key>
-	<false/>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app require the access to Microphone to pass KYC</string>
 </dict>
 </plist>
