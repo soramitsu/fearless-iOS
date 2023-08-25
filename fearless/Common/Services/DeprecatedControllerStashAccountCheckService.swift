@@ -65,6 +65,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     if let runtime = chainsRuntimesDict[chainAsset.chain] {
                         let hasController = try? await self?.checkController(
                             for: chainAsset,
+                            westend: chains.first { $0.name == "Westend" }!,
                             wallet: wallet,
                             runtime: runtime
                         )
@@ -163,12 +164,13 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
 
     private func checkController(
         for chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
+        westend: ChainModel,
+        wallet _: MetaAccountModel,
         runtime: RuntimeCoderFactoryProtocol
     ) async throws -> Bool {
         try await withCheckedThrowingContinuation { continuation in
             guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-                  let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                  let accountId = try? AddressFactory.accountId(from: "5H9ExzvDF8TbKaxvYS9BZwSuBRzjqRffJa53WCcXMtvp2aP6", chain: westend) else {
                 return continuation.resume(with: .failure(ChainRegistryError.connectionUnavailable))
             }
             let wrapper: CompoundOperationWrapper<[StorageResponse<AccountId>]> =
@@ -188,7 +190,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
             controllerOperation.completionBlock = {
                 do {
                     let controllerAccoundId = try controllerOperation.extractNoCancellableResultData()
-                    let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
                     let hasAnotherController = controllerAccoundId != nil && controllerAccoundId != accountId
                     continuation.resume(with: .success(hasAnotherController))
                 } catch {
