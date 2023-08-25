@@ -117,8 +117,8 @@ final class WalletMainContainerInteractor {
             if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations(wallet: wallet) {
                 await MainActor.run {
                     switch issue {
-                    case let .controller(chainAsset):
-                        self.output?.didReceiveControllerAccountIssue(chainAsset: chainAsset)
+                    case let .controller(issue):
+                        self.output?.didReceiveControllerAccountIssue(issue: issue)
                     case let .stash(address):
                         self.output?.didReceiveStashAccountIssue(address: address)
                     }

@@ -49,7 +49,8 @@ final class WalletMainContainerAssembly {
             chainRegistry: chainRegistry,
             chainRepository: AnyDataProviderRepository(chainRepository),
             storageRequestFactory: storageOperationFactory,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            walletRepository: AnyDataProviderRepository(accountRepository)
         )
 
         let interactor = WalletMainContainerInteractor(

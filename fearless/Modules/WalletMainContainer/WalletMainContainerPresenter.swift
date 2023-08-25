@@ -145,20 +145,21 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         provideViewModel()
     }
 
-    func didReceiveControllerAccountIssue(chainAsset: ChainAsset) {
+    func didReceiveControllerAccountIssue(issue: ControllerAccountIssue) {
         let action = SheetAlertPresentableAction(
-            title: R.string.localizable.controllerAccountIssueAction(preferredLanguages: selectedLocale.rLanguages)
+            title: R.string.localizable.controllerAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText
         ) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.router.showControllerAccountFlow(
                 from: strongSelf.view,
-                chainAsset: chainAsset,
-                wallet: strongSelf.wallet
+                chainAsset: issue.chainAsset,
+                wallet: issue.wallet
             )
         }
 
         router.present(
-            message: R.string.localizable.stakingControllerDeprecatedDescription(chainAsset.chain.name),
+            message: R.string.localizable.stakingControllerDeprecatedDescription(issue.chainAsset.chain.name),
             title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
             closeAction: nil,
             from: view,
@@ -168,7 +169,8 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 
     func didReceiveStashAccountIssue(address: String) {
         let action = SheetAlertPresentableAction(
-            title: R.string.localizable.stashAccountIssueAction(preferredLanguages: selectedLocale.rLanguages)
+            title: R.string.localizable.stashAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText
         ) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.router.showImportWallet(defaultSource: .mnemonic, from: strongSelf.view)
