@@ -45,12 +45,16 @@ final class WalletMainContainerAssembly {
             remoteFactory: StorageKeyFactory(),
             operationManager: OperationManagerFacade.sharedManager
         )
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
         let deprecatedAccountsCheckService = DeprecatedControllerStashAccountCheckService(
             chainRegistry: chainRegistry,
             chainRepository: AnyDataProviderRepository(chainRepository),
             storageRequestFactory: storageOperationFactory,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            walletRepository: AnyDataProviderRepository(accountRepository)
+            walletRepository: AnyDataProviderRepository(accountRepository),
+            stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
 
         let interactor = WalletMainContainerInteractor(

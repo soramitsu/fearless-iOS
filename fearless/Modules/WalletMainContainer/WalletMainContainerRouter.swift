@@ -122,4 +122,10 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
+
+    func showMainStaking() {
+        if let tabBar = UIApplication.shared.keyWindow?.rootViewController as? MainTabBarViewController? {
+            tabBar?.selectedIndex = 2
+        }
+    }
 }

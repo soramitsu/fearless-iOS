@@ -115,11 +115,14 @@ final class WalletMainContainerInteractor {
     private func checkDeprecatedAccountIssues() {
         Task {
             if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations(wallet: wallet) {
-                await MainActor.run {
-                    switch issue {
-                    case let .controller(issue):
-                        self.output?.didReceiveControllerAccountIssue(issue: issue)
-                    case let .stash(address):
+                switch issue {
+                case let .controller(issue):
+                    let stashItem = try? await self.deprecatedAccountsCheckService.checkStashItems().first
+                    await MainActor.run {
+                        self.output?.didReceiveControllerAccountIssue(issue: issue, hasStashItem: stashItem != nil)
+                    }
+                case let .stash(address):
+                    await MainActor.run {
                         self.output?.didReceiveStashAccountIssue(address: address)
                     }
                 }
@@ -147,7 +150,6 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
-        checkDeprecatedAccountIssues()
         fetchSelectedChainName()
         fetchChainSettings()
     }
@@ -177,6 +179,10 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         output?.didReceiveAccount(wallet)
 
         fetchSelectedChainName()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        checkDeprecatedAccountIssues()
     }
 }
 

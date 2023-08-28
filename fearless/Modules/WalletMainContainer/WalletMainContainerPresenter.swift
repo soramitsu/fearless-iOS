@@ -145,17 +145,23 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         provideViewModel()
     }
 
-    func didReceiveControllerAccountIssue(issue: ControllerAccountIssue) {
+    func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {
         let action = SheetAlertPresentableAction(
             title: R.string.localizable.controllerAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
             style: .pinkBackgroundWhiteText
         ) { [weak self] in
             guard let strongSelf = self else { return }
-            strongSelf.router.showControllerAccountFlow(
-                from: strongSelf.view,
-                chainAsset: issue.chainAsset,
-                wallet: issue.wallet
-            )
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if hasStashItem {
+                    strongSelf.router.showControllerAccountFlow(
+                        from: strongSelf.view,
+                        chainAsset: issue.chainAsset,
+                        wallet: issue.wallet
+                    )
+                } else {
+                    strongSelf.router.showMainStaking()
+                }
+            }
         }
 
         router.present(

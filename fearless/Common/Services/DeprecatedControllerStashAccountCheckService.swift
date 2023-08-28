@@ -10,10 +10,12 @@ enum DeprecatedAccountIssue {
 struct ControllerAccountIssue {
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
+    let address: AccountAddress
 }
 
 protocol DeprecatedControllerStashAccountCheckServiceProtocol {
     func checkAccountDeprecations(wallet: MetaAccountModel) async throws -> DeprecatedAccountIssue?
+    func checkStashItems() async throws -> [StashItem]
 }
 
 final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerStashAccountCheckServiceProtocol {
@@ -22,19 +24,40 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let operationQueue: OperationQueue
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let stashItemRepository: AnyDataProviderRepository<StashItem>
+
+    private var stashItems: [StashItem] = []
 
     init(
         chainRegistry: ChainRegistryProtocol,
         chainRepository: AnyDataProviderRepository<ChainModel>,
         storageRequestFactory: StorageRequestFactoryProtocol,
         operationQueue: OperationQueue,
-        walletRepository: AnyDataProviderRepository<MetaAccountModel>
+        walletRepository: AnyDataProviderRepository<MetaAccountModel>,
+        stashItemRepository: AnyDataProviderRepository<StashItem>
     ) {
         self.chainRegistry = chainRegistry
         self.chainRepository = chainRepository
         self.storageRequestFactory = storageRequestFactory
         self.operationQueue = operationQueue
         self.walletRepository = walletRepository
+        self.stashItemRepository = stashItemRepository
+    }
+
+    func checkStashItems() async throws -> [StashItem] {
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let strongSelf = self else { return continuation.resume(with: .success([])) }
+            let fetchOperation = strongSelf.stashItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
+            fetchOperation.completionBlock = {
+                do {
+                    let stashItem = try fetchOperation.extractNoCancellableResultData()
+                    continuation.resume(with: .success(stashItem))
+                } catch {
+                    continuation.resume(with: .failure(error))
+                }
+            }
+            operationQueue.addOperation(fetchOperation)
+        }
     }
 
     func checkAccountDeprecations(wallet: MetaAccountModel) async throws -> DeprecatedAccountIssue? {
@@ -59,32 +82,36 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
             )) == false
         }
         print("define deprecated chains finished")
-        var caIssues = try await withThrowingTaskGroup(of: ChainAsset?.self, body: { group in
+        var caIssues = try await withThrowingTaskGroup(of: ControllerAccountIssue?.self, body: { group in
             for chainAsset in deprecatedChainAssets {
                 group.addTask { [weak self, chainsRuntimesDict] in
                     if let runtime = chainsRuntimesDict[chainAsset.chain] {
-                        let hasController = try? await self?.checkController(
+                        let controllerAccountId = try? await self?.checkController(
                             for: chainAsset,
                             westend: chains.first { $0.name == "Westend" }!,
                             wallet: wallet,
                             runtime: runtime
                         )
-                        if hasController == true {
-                            return chainAsset
+                        if let accountId = controllerAccountId,
+                           let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
+                            return ControllerAccountIssue(
+                                chainAsset: chainAsset,
+                                wallet: wallet,
+                                address: address
+                            )
                         }
                         return nil
                     }
                     return nil
                 }
             }
-            var result: [ControllerAccountIssue] = []
-
-            for try await chainAsset in group {
-                if let chainAsset = chainAsset {
-                    result.append(ControllerAccountIssue(chainAsset: chainAsset, wallet: wallet))
+            var issues: [ControllerAccountIssue] = []
+            for try await issue in group {
+                if let issue = issue {
+                    issues.append(issue)
                 }
             }
-            return result
+            return issues
         })
         print("check controllers finished")
 
@@ -103,7 +130,8 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                         if let meta = await getStashAccountWallet(chain: chainAsset.chain, address: address) {
                             let caIssue = ControllerAccountIssue(
                                 chainAsset: chainAsset,
-                                wallet: meta
+                                wallet: meta,
+                                address: address
                             )
                             caIssues.append(caIssue)
                         } else {
@@ -167,7 +195,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
         westend: ChainModel,
         wallet _: MetaAccountModel,
         runtime: RuntimeCoderFactoryProtocol
-    ) async throws -> Bool {
+    ) async throws -> AccountId? {
         try await withCheckedThrowingContinuation { continuation in
             guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
                   let accountId = try? AddressFactory.accountId(from: "5H9ExzvDF8TbKaxvYS9BZwSuBRzjqRffJa53WCcXMtvp2aP6", chain: westend) else {
@@ -187,11 +215,19 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
 
             wrapper.allOperations.forEach { controllerOperation.addDependency($0) }
 
-            controllerOperation.completionBlock = {
+            controllerOperation.completionBlock = { [weak self] in
+                guard let strongSelf = self else {
+                    continuation.resume(with: .success(nil))
+                    return
+                }
                 do {
                     let controllerAccoundId = try controllerOperation.extractNoCancellableResultData()
                     let hasAnotherController = controllerAccoundId != nil && controllerAccoundId != accountId
-                    continuation.resume(with: .success(hasAnotherController))
+                    if hasAnotherController {
+                        continuation.resume(with: .success(controllerAccoundId))
+                    } else {
+                        continuation.resume(with: .success(nil))
+                    }
                 } catch {
                     continuation.resume(with: .failure(error))
                 }
