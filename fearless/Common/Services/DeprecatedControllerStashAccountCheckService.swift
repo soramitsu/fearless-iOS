@@ -88,7 +88,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                     if let runtime = chainsRuntimesDict[chainAsset.chain] {
                         let controllerAccountId = try? await self?.checkController(
                             for: chainAsset,
-                            westend: chains.first { $0.name == "Westend" }!,
                             wallet: wallet,
                             runtime: runtime
                         )
@@ -192,13 +191,12 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
 
     private func checkController(
         for chainAsset: ChainAsset,
-        westend: ChainModel,
-        wallet _: MetaAccountModel,
+        wallet: MetaAccountModel,
         runtime: RuntimeCoderFactoryProtocol
     ) async throws -> AccountId? {
         try await withCheckedThrowingContinuation { continuation in
             guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-                  let accountId = try? AddressFactory.accountId(from: "5H9ExzvDF8TbKaxvYS9BZwSuBRzjqRffJa53WCcXMtvp2aP6", chain: westend) else {
+                  let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                 return continuation.resume(with: .failure(ChainRegistryError.connectionUnavailable))
             }
             let wrapper: CompoundOperationWrapper<[StorageResponse<AccountId>]> =
@@ -215,11 +213,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
 
             wrapper.allOperations.forEach { controllerOperation.addDependency($0) }
 
-            controllerOperation.completionBlock = { [weak self] in
-                guard let strongSelf = self else {
-                    continuation.resume(with: .success(nil))
-                    return
-                }
+            controllerOperation.completionBlock = {
                 do {
                     let controllerAccoundId = try controllerOperation.extractNoCancellableResultData()
                     let hasAnotherController = controllerAccoundId != nil && controllerAccoundId != accountId
