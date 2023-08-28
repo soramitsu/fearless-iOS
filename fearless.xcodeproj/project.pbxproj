@@ -4403,6 +4403,9 @@
 		C6CA307C285F61B70087776D /* ParachainState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainState.swift; sourceTree = "<group>"; };
 		C6CA307E286190630087776D /* DelegationStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationStateView.swift; sourceTree = "<group>"; };
 		C6CA3080286192C50087776D /* DelegationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationViewModel.swift; sourceTree = "<group>"; };
+		C6D50DB42A958FCF0040573D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		C6D50DB52A958FCF0040573D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		C6D50DB62A958FD00040573D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
@@ -13558,6 +13561,7 @@
 				en,
 				ru,
 				ja,
+				"zh-Hans",
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -16533,6 +16537,7 @@
 				8490145F24A94373008F705E /* en */,
 				8490146224A9438E008F705E /* ru */,
 				0765D72D2A67D28700730F45 /* ja */,
+				C6D50DB52A958FCF0040573D /* zh-Hans */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -16551,6 +16556,7 @@
 				84C07EDD24AF1935008FC35B /* en */,
 				84C07EE524AF1990008FC35B /* ru */,
 				0765D72C2A67D28700730F45 /* ja */,
+				C6D50DB42A958FCF0040573D /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -16561,6 +16567,7 @@
 				AE74EC1625FCF09000C494E7 /* en */,
 				AE74EC1F25FCF0A600C494E7 /* ru */,
 				0765D72E2A67D28800730F45 /* ja */,
+				C6D50DB62A958FD00040573D /* zh-Hans */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
