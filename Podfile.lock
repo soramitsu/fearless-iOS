@@ -182,7 +182,7 @@ PODS:
     - SSFUtils
   - SSFLogger (0.1.0):
     - SwiftyBeaver
-  - SSFModels (0.1.7):
+  - SSFModels (0.1.0):
     - IrohaCrypto
   - SSFNetwork (0.1.0):
     - RobinHood
@@ -264,7 +264,7 @@ DEPENDENCIES:
   - SSFExtrinsicKit
   - SSFHelpers (= 0.1.7)
   - SSFLogger
-  - SSFModels (= 0.1.7)
+  - SSFModels (from `../soramitsu-shared-features-ios/SSFModels`)
   - SSFNetwork
   - SSFRuntimeCodingService
   - SSFSigner
@@ -298,7 +298,6 @@ SPEC REPOS:
     - SSFExtrinsicKit
     - SSFHelpers
     - SSFLogger
-    - SSFModels
     - SSFNetwork
     - SSFRuntimeCodingService
     - SSFSigner
@@ -334,6 +333,8 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SSFModels:
+    :path: "../soramitsu-shared-features-ios/SSFModels"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -383,7 +384,7 @@ SPEC CHECKSUMS:
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
   SSFHelpers: 0d021637faf643bdfe0062aec6fd0b4f036e0cdb
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
-  SSFModels: da1c95db87aabbecbcbe3b1cb795973745b6cc3a
+  SSFModels: bc12f1319ce8c3a419c7d1f602adf3f97f37ef88
   SSFNetwork: 1dacdbd3db8bddd808de87a707a4e27f18a78de8
   SSFRuntimeCodingService: 6eb94c6336d47e86b19588524ca75c71c83f53a9
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
@@ -400,6 +401,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 3c1168f28d93a0961cee510c0e31619fc18ae6cc
+PODFILE CHECKSUM: 359fb28c3144d3aede3af2906cea61dd686bd346
 
 COCOAPODS: 1.11.3

@@ -191,7 +191,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 private extension ChainAssetListInteractor {
     func subscribeToPrice(for chainAssets: [ChainAsset]) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        print("pricesIds: \(pricesIds)")
         guard pricesIds.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))
             return

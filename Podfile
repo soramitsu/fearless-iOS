@@ -25,7 +25,7 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
-  pod 'FearlessKeys'
+  pod 'FearlessKeys', :configurations => ['Debug']
 
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
@@ -35,7 +35,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFExtrinsicKit'
           pod 'SSFCrypto'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.7'
+#          pod 'SSFModels', '0.1.7'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
@@ -56,7 +56,7 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
 #  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
 #  pod 'SSFSigner', :path => '../soramitsu-shared-features-ios/SSFSigner'
-#  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
+  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
 #  pod 'SSFEraKit', :path => '../soramitsu-shared-features-ios/SSFEraKit'
 #  pod 'SSFLogger', :path => '../soramitsu-shared-features-ios/SSFLogger'
 #  pod 'SSFRuntimeCodingService', :path => '../soramitsu-shared-features-ios/SSFRuntimeCodingService'

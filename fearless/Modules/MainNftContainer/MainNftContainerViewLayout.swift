@@ -1,30 +1,11 @@
 import UIKit
 
 final class MainNftContainerViewLayout: UIView {
-    let attentionImageView: UIImageView = {
-        let imageView = UIImageView()
-        let image = R.image.iconAttention()?.withRenderingMode(.alwaysTemplate)
-        imageView.image = image
-        imageView.tintColor = R.color.colorWhite16()!
-        return imageView
-    }()
-
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Sumimasen!"
-        label.font = .h3Title
-        return label
-    }()
-
-    let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p0Paragraph
-        label.text = "NFTs are going to be here soon"
-        return label
-    }()
+    let tableView = UITableView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        tableView.backgroundColor = .clear
         setupLayout()
     }
 
@@ -34,22 +15,13 @@ final class MainNftContainerViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(attentionImageView)
-        attentionImageView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(65)
-        }
+        addSubview(tableView)
+        setupConstraints()
+    }
 
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(attentionImageView.snp.bottom).offset(16)
-        }
-
-        addSubview(descriptionLabel)
-        descriptionLabel.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(titleLabel.snp.bottom).offset(16)
+    private func setupConstraints() {
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
 }
