@@ -40,10 +40,10 @@ abstract_target 'fearlessAll' do
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
           pod 'SSFStorageQueryKit'
-          pod 'SSFChainConnection'
+          pod 'SSFChainConnection', '0.1.4'
           pod 'SSFNetwork'
-          pod 'SSFUtils'
-          pod 'SSFChainRegistry'
+          pod 'SSFUtils', '0.1.14'
+          pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.2'
           pod 'SSFCloudStorage'
       end
