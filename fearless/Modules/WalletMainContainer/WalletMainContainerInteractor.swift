@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import SSFModels
+import SoraFoundation
 
 final class WalletMainContainerInteractor {
     // MARK: - Private properties
@@ -15,6 +16,7 @@ final class WalletMainContainerInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
+    private let applicationHandler: ApplicationHandler
 
     // MARK: - Constructor
 
@@ -26,7 +28,8 @@ final class WalletMainContainerInteractor {
         eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
-        deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
+        deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
+        applicationHandler: ApplicationHandler
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -36,6 +39,9 @@ final class WalletMainContainerInteractor {
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
         self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
+        self.applicationHandler = applicationHandler
+
+        applicationHandler.delegate = self
     }
 
     // MARK: - Private methods
@@ -193,5 +199,11 @@ extension WalletMainContainerInteractor: ChainsIssuesCenterListener {
         DispatchQueue.main.async {
             self.output?.didReceiveChainsIssues(chainsIssues: issues)
         }
+    }
+}
+
+extension WalletMainContainerInteractor: ApplicationHandlerDelegate {
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        checkDeprecatedAccountIssues()
     }
 }

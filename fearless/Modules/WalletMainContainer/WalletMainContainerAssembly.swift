@@ -65,7 +65,8 @@ final class WalletMainContainerAssembly {
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
-            deprecatedAccountsCheckService: deprecatedAccountsCheckService
+            deprecatedAccountsCheckService: deprecatedAccountsCheckService,
+            applicationHandler: ApplicationHandler()
         )
 
         let router = WalletMainContainerRouter()
