@@ -120,7 +120,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                 let accountId = try? await checkStash(
                     for: chainAsset,
                     wallet: wallet,
-                    westend: chains.first { $0.name == "Westend" }!,
                     runtime: runtime
                 )
                 let ownAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
@@ -233,14 +232,13 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
     }
 
     private func checkStash(
-        for _: ChainAsset,
-        wallet _: MetaAccountModel,
-        westend: ChainModel,
+        for chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         runtime: RuntimeCoderFactoryProtocol
     ) async throws -> AccountId? {
         try await withCheckedThrowingContinuation { continuation in
-            guard let connection = chainRegistry.getConnection(for: westend.chainId),
-                  let accountId = try? AddressFactory.accountId(from: "5GfPdQNaMf3LtwLoowCgGqqYqUpcZFUpxLWMTg63t4qY1LHh", chain: westend) else {
+            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+                  let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                 return continuation.resume(with: .failure(ChainRegistryError.connectionUnavailable))
             }
             let wrapper: CompoundOperationWrapper<[StorageResponse<StakingLedger>]> =
