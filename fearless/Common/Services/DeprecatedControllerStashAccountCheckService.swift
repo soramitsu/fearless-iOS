@@ -240,7 +240,7 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
     ) async throws -> AccountId? {
         try await withCheckedThrowingContinuation { continuation in
             guard let connection = chainRegistry.getConnection(for: westend.chainId),
-                  let accountId = try? AddressFactory.accountId(from: "5H9ExzvDF8TbKaxvYS9BZwSuBRzjqRffJa53WCcXMtvp2aP6", chain: westend) else {
+                  let accountId = try? AddressFactory.accountId(from: "5GfPdQNaMf3LtwLoowCgGqqYqUpcZFUpxLWMTg63t4qY1LHh", chain: westend) else {
                 return continuation.resume(with: .failure(ChainRegistryError.connectionUnavailable))
             }
             let wrapper: CompoundOperationWrapper<[StorageResponse<StakingLedger>]> =
