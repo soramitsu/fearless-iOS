@@ -59,7 +59,7 @@ class WalletDetailsViewModelFactory {
                 return true
             }
 
-            return chain.name.contains(searchText)
+            return chain.name.lowercased().contains(searchText.lowercased())
         }
 
         let emptyAccounts = filteredChains.filter {
