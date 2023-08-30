@@ -165,7 +165,10 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         }
 
         router.present(
-            message: R.string.localizable.stakingControllerDeprecatedDescription(issue.chainAsset.chain.name),
+            message: R.string.localizable.stakingControllerDeprecatedDescription(
+                issue.chainAsset.chain.name,
+                preferredLanguages: selectedLocale.rLanguages
+            ),
             title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
             closeAction: nil,
             from: view,
@@ -175,7 +178,9 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 
     func didReceiveStashAccountIssue(address: String) {
         let action = SheetAlertPresentableAction(
-            title: R.string.localizable.stashAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.stashAccountIssueAction(
+                preferredLanguages: selectedLocale.rLanguages
+            ),
             style: .pinkBackgroundWhiteText
         ) { [weak self] in
             guard let strongSelf = self else { return }
@@ -183,7 +188,10 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         }
 
         router.present(
-            message: R.string.localizable.stashAccountIssueMessage(address),
+            message: R.string.localizable.stashAccountIssueMessage(
+                address,
+                preferredLanguages: selectedLocale.rLanguages
+            ),
             title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
             closeAction: nil,
             from: view,

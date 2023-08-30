@@ -13,9 +13,14 @@ final class AddCustomNodeViewController: UIViewController, ViewHolder {
 
     private var isFirstLayoutCompleted: Bool = false
 
-    init(presenter: AddCustomNodePresenterProtocol) {
+    init(
+        presenter: AddCustomNodePresenterProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
+
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)
@@ -30,7 +35,7 @@ final class AddCustomNodeViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        presenter.setup()
+        presenter.didLoad(view: self)
 
         rootView.nodeNameInputView.animatedInputField.delegate = self
         rootView.nodeAddressInputView.animatedInputField.delegate = self
@@ -78,10 +83,6 @@ final class AddCustomNodeViewController: UIViewController, ViewHolder {
 }
 
 extension AddCustomNodeViewController: AddCustomNodeViewProtocol {
-    func didReceive(locale: Locale) {
-        rootView.locale = locale
-    }
-
     func didReceive(nameViewModel: InputViewModelProtocol) {
         nameInputViewModel = nameViewModel
 
@@ -146,5 +147,11 @@ extension AddCustomNodeViewController: KeyboardViewAdoptable {
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
         rootView.handleKeyboard(frame: frame)
+    }
+}
+
+extension AddCustomNodeViewController: Localizable {
+    func applyLocalization() {
+        rootView.locale = selectedLocale
     }
 }

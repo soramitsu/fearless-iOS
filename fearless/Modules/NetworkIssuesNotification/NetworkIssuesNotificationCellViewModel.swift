@@ -3,7 +3,7 @@ import SSFModels
 
 enum NetworkIssuesActionButtonType {
     case switchNode(title: String)
-    case networkUnavailible
+    case networkUnavailible(title: String)
     case missingAccount(title: String)
 }
 

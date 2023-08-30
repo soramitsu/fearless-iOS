@@ -1023,7 +1023,7 @@
 "backup.wallet.name.field.name.title" = "ウォレット名";
 "controller.account.issue.message" = "コントローラー・アカウント機能は廃止されたため、スタッシュ・アカウントをコントローラーとして設定する必要があります";
 "controller.account.issue.action" = "コントローラー・アカウントの管理";
-"stash.account.issue.message" = "スタッシュ・アカウント%sは使用できません。必要な手順に従ってスタッシュ・アカウントをインポートしてください";
+"stash.account.issue.message" = "スタッシュ・アカウント %s は使用できません。必要な手順に従ってスタッシュ・アカウントをインポートしてください";
 "stash.account.issue.action" = "スタッシュ・アカウントのインポート";
 "banners.view.factory.backup.title" = "ウォレットのバックアップ";
 "backup.select.wallet.title" = "インポートするウォレットを選択";

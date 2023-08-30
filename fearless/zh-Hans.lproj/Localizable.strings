@@ -911,7 +911,7 @@
 "staking.your.validators.changing.title" = "你的验证人将在下一个时间段发生变化。";
 "staking.your.validators.title" = "你的验证人";
 "stash.account.issue.action" = "导入存储账户";
-"stash.account.issue.message" = "存储账户%s不可用。请按照必要的步骤导入存储账户。";
+"stash.account.issue.message" = "存储账户 %s 不可用。请按照必要的步骤导入存储账户。";
 "state.common" = "状态";
 "stories.bottom.close.button" = "好消息！";
 "stories.version2.slide1.subtitle" = "Fearless Wallet现在支持更多的网络和代币：Polkadot（DOT），Kusama（KSM），Moonriver（MOVR），Karura（KAR），Shiden（SDN），SORA（XOR），Bifrost（BNC），KILT（KILT）等等...";
