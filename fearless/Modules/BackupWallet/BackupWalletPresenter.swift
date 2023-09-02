@@ -9,11 +9,6 @@ protocol BackupWalletViewInput: ControllerBackedProtocol, HiddableBarWhenPushed,
 
 protocol BackupWalletInteractorInput: AnyObject {
     func setup(with output: BackupWalletInteractorOutput)
-    func backup(
-        substrate: ChainAccountInfo,
-        ethereum: ChainAccountInfo?,
-        option: ExportOption
-    )
     func removeBackupFromGoogle()
     func viewDidAppear()
 }
@@ -37,6 +32,8 @@ final class BackupWalletPresenter {
     private var backupAccounts: [OpenBackupAccount]?
     private var googleAuthorized = false
     private var backupIsCompleted = false
+    private var replacedAccountAlertDidShown = false
+    private var runWalletDetailsFlow = false
 
     // MARK: - Constructors
 
@@ -84,7 +81,13 @@ final class BackupWalletPresenter {
             if backupAccounts.or([]).contains(where: { $0.address == address42 }) {
                 removeBackupFromGoogle()
             } else {
-                startGoogleBackup(for: accounts)
+                router.showCreatePassword(
+                    wallet: wallet,
+                    accounts: accounts,
+                    options: exportOptions,
+                    from: view,
+                    moduleOutput: self
+                )
             }
         }
     }
@@ -100,21 +103,6 @@ final class BackupWalletPresenter {
             )
         }.compactMap { $0 }
         return chainAccountsInfo
-    }
-
-    private func startGoogleBackup(for accounts: [ChainAccountInfo]) {
-        let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-        guard let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }) else {
-            return
-        }
-
-        if exportOptions.contains(.mnemonic) {
-            interactor.backup(substrate: substrate, ethereum: ethereum, option: .mnemonic)
-        } else if exportOptions.contains(.seed) {
-            interactor.backup(substrate: substrate, ethereum: ethereum, option: .seed)
-        } else if exportOptions.contains(.keystore) {
-            interactor.backup(substrate: substrate, ethereum: ethereum, option: .keystore)
-        }
     }
 
     private func removeBackupFromGoogle() {
@@ -190,6 +178,55 @@ final class BackupWalletPresenter {
         }
         router.present(error: presentingError, from: view, locale: selectedLocale)
     }
+
+    private func showReplacedAccountAlert() {
+        let message: String
+        if wallet.chainAccounts.count == 1,
+           let chainAccount = wallet.chainAccounts.first,
+           let chain = chains.first(where: { $0.chainId == chainAccount.chainId }),
+           let address = try? chainAccount.accountId.toAddress(using: chain.chainFormat) {
+            message = R.string.localizable
+                .backupWalletReplaceAccountsAlert(chain.name, address, preferredLanguages: selectedLocale.rLanguages)
+        } else {
+            message = R.string.localizable
+                .backupWalletReplaceSeveralAlert(preferredLanguages: selectedLocale.rLanguages)
+        }
+
+        let walletDetailsActions = SheetAlertPresentableAction(
+            title: R.string.localizable.backupChainAccount(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            guard let self = self else { return }
+            self.runWalletDetailsFlow = true
+            self.showReplacedAccountScreen()
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            message: message,
+            actions: [walletDetailsActions],
+            closeAction: nil,
+            dismissCompletion: { [weak self] in
+                self?.replacedAccountAlertDidShown = true
+                guard self?.runWalletDetailsFlow == false else {
+                    return
+                }
+                self?.viewDidAppear()
+            }
+        )
+        router.present(
+            viewModel: viewModel,
+            from: view
+        )
+    }
+
+    private func showReplacedAccountScreen() {
+        router.showWalletDetails(
+            wallet: wallet,
+            from: view
+        )
+    }
 }
 
 // MARK: - BackupWalletViewOutput
@@ -200,6 +237,11 @@ extension BackupWalletPresenter: BackupWalletViewOutput {
             let text = R.string.localizable
                 .backupWalletBackupGoogle(preferredLanguages: selectedLocale.rLanguages)
             router.presentSuccessNotification(text, from: view)
+            backupIsCompleted = false
+        }
+        if wallet.chainAccounts.isNotEmpty, !googleAuthorized, !replacedAccountAlertDidShown {
+            showReplacedAccountAlert()
+            return
         }
         guard !googleAuthorized else {
             return
@@ -264,10 +306,6 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
             showGoogleIssueAlert()
         }
         provideViewModel()
-    }
-
-    func didReceive(request: BackupCreatePasswordFlow.RequestType) {
-        router.showCreatePassword(wallet: wallet, request: request, from: view, moduleOutput: self)
     }
 
     func didReceive(error: Error) {

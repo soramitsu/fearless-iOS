@@ -64,7 +64,9 @@ extension MainNftContainerViewController: MainNftContainerViewInput {
 // MARK: - Localizable
 
 extension MainNftContainerViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+//        reloadEmptyState(animated: true)
+    }
 }
 
 extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSource {
@@ -92,6 +94,14 @@ extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSo
         let viewModel = viewModels?[safe: indexPath.row]
         nftCell.bind(viewModel: viewModel)
     }
+
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cellModel = viewModels?[safe: indexPath.row] else {
+            return
+        }
+
+        output.didSelect(collection: cellModel.collection)
+    }
 }
 
 // MARK: - EmptyStateViewOwnerProtocol
@@ -105,20 +115,12 @@ extension MainNftContainerViewController: EmptyStateViewOwnerProtocol {
 
 extension MainNftContainerViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        let emptyView = EmptyStateView()
-
-        if viewModels != nil {
-            emptyView.image = R.image.iconEmptySearch()
-            emptyView.title = R.string.localizable
-                .stakingValidatorSearchEmptyTitle(preferredLanguages: selectedLocale.rLanguages)
-        } else {
-            emptyView.image = R.image.iconStartSearch()
-            emptyView.title = R.string.localizable
-                .commonSearchStartTitle(preferredLanguages: selectedLocale.rLanguages)
-        }
-
-        emptyView.titleColor = R.color.colorLightGray()!
-        emptyView.titleFont = .p2Paragraph
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarningGray()
+        emptyView.title = R.string.localizable
+            .importEmptyDerivationConfirm(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .smallFilled
+        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
         return emptyView
     }
 

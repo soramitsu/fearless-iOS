@@ -18,9 +18,14 @@ protocol BackupWalletRouterInput: AnyDismissable, SheetAlertPresentable, ErrorPr
     )
     func showCreatePassword(
         wallet: MetaAccountModel,
-        request: BackupCreatePasswordFlow.RequestType,
+        accounts: [ChainAccountInfo],
+        options: [ExportOption],
         from view: ControllerBackedProtocol?,
         moduleOutput: BackupCreatePasswordModuleOutput?
+    )
+    func showWalletDetails(
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
     )
 }
 

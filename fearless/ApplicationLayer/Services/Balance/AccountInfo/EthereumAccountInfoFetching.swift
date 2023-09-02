@@ -68,7 +68,7 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
 
         accountInfoOperations.forEach { finishOperation.addDependency($0) }
 
-        operationQueue.addOperations([finishOperation] + accountInfoOperations, waitUntilFinished: true)
+        operationQueue.addOperations([finishOperation] + accountInfoOperations, waitUntilFinished: false)
     }
 
     private func fetchEthereumBalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {

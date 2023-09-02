@@ -16,7 +16,7 @@ struct NFTMetadata: Codable, Equatable, Hashable {
 }
 
 struct NFTCollection: Codable, Equatable, Hashable {
-    let chain: String
+    let chain: ChainModel
     let name: String
     let image: String?
     let desc: String?

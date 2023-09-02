@@ -8,6 +8,7 @@ final class MainNftContainerPresenter {
     private let router: MainNftContainerRouterInput
     private let interactor: MainNftContainerInteractorInput
     private let viewModelFactory: NftListViewModelFactoryProtocol
+    private let wallet: MetaAccountModel
 
     // MARK: - Constructors
 
@@ -15,11 +16,13 @@ final class MainNftContainerPresenter {
         interactor: MainNftContainerInteractorInput,
         router: MainNftContainerRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        viewModelFactory: NftListViewModelFactoryProtocol
+        viewModelFactory: NftListViewModelFactoryProtocol,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
@@ -33,14 +36,21 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
         self.view = view
         interactor.setup(with: self)
     }
+
+    func didSelect(collection: NFTCollection) {
+        guard let address = wallet.fetch(for: collection.chain.accountRequest())?.toAddress() else {
+            return
+        }
+
+        router.showCollection(collection, wallet: wallet, address: address, from: view)
+    }
 }
 
 // MARK: - MainNftContainerInteractorOutput
 
 extension MainNftContainerPresenter: MainNftContainerInteractorOutput {
-    func didReceive(nfts: [NFT]) {
-        print("Resulting nfts contains 840919: \(nfts.first(where: { $0.tokenId == "840919" }) != nil)")
-        let viewModels = viewModelFactory.buildViewModel(from: nfts)
+    func didReceive(collections: [NFTCollection]) {
+        let viewModels = viewModelFactory.buildViewModel(from: collections)
         view?.didReceive(viewModels: viewModels)
     }
 

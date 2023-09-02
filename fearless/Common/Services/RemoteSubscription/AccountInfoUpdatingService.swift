@@ -86,9 +86,6 @@ final class AccountInfoUpdatingService {
             }
 
             let key = chainAsset.uniqueKey(accountId: accountId)
-            guard getSubscription(for: key) == nil else {
-                return
-            }
 
             let maybeSubscriptionId = await getRemoteSubscriptionService(for: chainAsset).attachToAccountInfo(
                 of: accountId,

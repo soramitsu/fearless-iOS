@@ -11,7 +11,7 @@ final class MainNftContainerAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let nftFetchingService = NFTFetchingService(
+        let nftFetchingService = EthereumNftFetchingService(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             nftOperationFactory: NFTOperationFactory(),
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -32,7 +32,8 @@ final class MainNftContainerAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: NftListViewModelFactory()
+            viewModelFactory: NftListViewModelFactory(),
+            wallet: wallet
         )
 
         let view = MainNftContainerViewController(

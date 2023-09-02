@@ -7,6 +7,7 @@ protocol MainNftContainerViewInput: ControllerBackedProtocol {
 
 protocol MainNftContainerViewOutput: AnyObject {
     func didLoad(view: MainNftContainerViewInput)
+    func didSelect(collection: NFTCollection)
 }
 
 protocol MainNftContainerInteractorInput: AnyObject {
@@ -15,10 +16,17 @@ protocol MainNftContainerInteractorInput: AnyObject {
 
 protocol MainNftContainerInteractorOutput: AnyObject {
     func didReceive(history: [NFTHistoryObject])
-    func didReceive(nfts: [NFT])
+    func didReceive(collections: [NFTCollection])
 }
 
-protocol MainNftContainerRouterInput: AnyObject {}
+protocol MainNftContainerRouterInput: AnyObject {
+    func showCollection(
+        _ collection: NFTCollection,
+        wallet: MetaAccountModel,
+        address: String,
+        from view: ControllerBackedProtocol?
+    )
+}
 
 protocol MainNftContainerModuleInput: AnyObject {}
 

@@ -5,4 +5,5 @@ struct NftListCellModel {
     let chainNameLabelText: String?
     let nftNameLabelText: String?
     let collectionNameLabelText: String?
+    let collection: NFTCollection
 }

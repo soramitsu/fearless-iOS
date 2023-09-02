@@ -34,9 +34,7 @@ final class BackupWalletAssembly {
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             availableExportOptionsProvider: AvailableExportOptionsProvider(),
             chainRepository: AnyDataProviderRepository(chainRepository),
-            operationManager: OperationManagerFacade.sharedManager,
-            keystore: Keychain(),
-            exportJsonWrapper: KeystoreExportWrapper(keystore: Keychain())
+            operationManager: OperationManagerFacade.sharedManager
         )
         let router = BackupWalletRouter()
 

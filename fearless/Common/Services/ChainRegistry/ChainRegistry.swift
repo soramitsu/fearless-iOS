@@ -111,6 +111,8 @@ final class ChainRegistry {
                     strongSelf.logger?.error("Unexpected error on handling chains update: \(error)")
                 }
             }
+
+            strongSelf.eventCenter.notify(with: ChainsSetupCompleted())
         }
     }
 

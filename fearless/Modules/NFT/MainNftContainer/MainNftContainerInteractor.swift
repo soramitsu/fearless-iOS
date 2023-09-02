@@ -52,8 +52,22 @@ final class MainNftContainerInteractor {
                     return map
                 }
 
+                let collections: [NFTCollection] = nftsBySmartContract.compactMap { key, value in
+                    guard let historyElement = nftsHistory.first(where: { $0.metadata.contractAddress == key }) else {
+                        return nil
+                    }
+
+                    return NFTCollection(
+                        chain: historyElement.chain,
+                        name: historyElement.metadata.tokenName,
+                        image: value.first?.metadata?.image,
+                        desc: value.first?.metadata?.description,
+                        nfts: value
+                    )
+                }
+
                 await MainActor.run(body: {
-                    output?.didReceive(nfts: nfts)
+                    output?.didReceive(collections: collections)
                 })
             } catch {
                 logger.error(error.localizedDescription)
@@ -67,7 +81,6 @@ final class MainNftContainerInteractor {
 extension MainNftContainerInteractor: MainNftContainerInteractorInput {
     func setup(with output: MainNftContainerInteractorOutput) {
         self.output = output
-
         fetchData()
     }
 }
@@ -76,5 +89,9 @@ extension MainNftContainerInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         wallet = event.account
         fetchData()
+    }
+
+    func processChainsSetupCompleted() {
+//        fetchData()
     }
 }

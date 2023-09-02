@@ -17,7 +17,7 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
         }
     }
 
-    func proceed(from _: AccountImportViewProtocol?, flow: AccountImportFlow) {
+    func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow) {
         switch flow {
         case .wallet:
             guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
@@ -25,18 +25,7 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
             }
             rootAnimator.animateTransition(to: pincodeViewController)
         case .chain:
-            DispatchQueue.main.async {
-//                guard let topViewController = UIApplication.topViewController() else {
-                UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true)
-//                    return
-//                }
-//
-//                if topViewController.navigationController != nil {
-//                    topViewController.navigationController?.popToRootViewController(animated: true)
-//                } else {
-//                MainTransitionHelper.transitToMainTabBarController(closing: topViewController, animated: true)
-//                }
-            }
+            dismiss(view: view)
         }
     }
 

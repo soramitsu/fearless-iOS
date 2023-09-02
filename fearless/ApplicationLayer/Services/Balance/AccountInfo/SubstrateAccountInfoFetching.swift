@@ -46,13 +46,13 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
             accountInfoDependencies.forEach { finishOperation.addDependency($0) }
             accountInfoSubdependencies.forEach { finishOperation.addDependency($0) }
 
-            self?.operationQueue.addOperations([finishOperation] + accountInfoOperations + accountInfoDependencies + accountInfoSubdependencies, waitUntilFinished: true)
+            self?.operationQueue.addOperations([finishOperation] + accountInfoOperations + accountInfoDependencies + accountInfoSubdependencies, waitUntilFinished: false)
         }
 
         executeOperation.addDependency(createAccountInfoOperationsOperation)
         createAccountInfoOperationsOperation.dependencies.forEach { executeOperation.addDependency($0) }
 
-        operationQueue.addOperations(dependencies + [createAccountInfoOperationsOperation, executeOperation], waitUntilFinished: true)
+        operationQueue.addOperations(dependencies + [createAccountInfoOperationsOperation, executeOperation], waitUntilFinished: false)
     }
 
     func fetch(
