@@ -1,4 +1,5 @@
 import Foundation
+import WalletConnectSign
 import SoraKeystore
 import CommonWallet
 import SSFUtils
@@ -10,6 +11,7 @@ final class MainTabBarInteractor {
     private let eventCenter: EventCenterProtocol
     private let keystoreImportService: KeystoreImportServiceProtocol
     private let serviceCoordinator: ServiceCoordinatorProtocol
+    private let walletConnect: WalletConnectService
 
     deinit {
         stopServices()
@@ -18,11 +20,13 @@ final class MainTabBarInteractor {
     init(
         eventCenter: EventCenterProtocol,
         serviceCoordinator: ServiceCoordinatorProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        walletConnect: WalletConnectService
     ) {
         self.eventCenter = eventCenter
         self.keystoreImportService = keystoreImportService
         self.serviceCoordinator = serviceCoordinator
+        self.walletConnect = walletConnect
 
         startServices()
     }
@@ -46,6 +50,8 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
         if keystoreImportService.definition != nil {
             presenter?.didRequestImportAccount()
         }
+
+        walletConnect.set(delegate: self)
     }
 }
 
@@ -65,5 +71,17 @@ extension MainTabBarInteractor: KeystoreImportObserver {
         }
 
         presenter?.didRequestImportAccount()
+    }
+}
+
+// MARK: - WalletConnectServiceDelegate
+
+extension MainTabBarInteractor: WalletConnectServiceDelegate {
+    func sign(request: Request, session: Session?) {
+        presenter?.didReceive(request: request, session: session)
+    }
+
+    func session(proposal: Session.Proposal) {
+        presenter?.didReceive(proposal: proposal)
     }
 }

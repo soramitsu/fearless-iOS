@@ -22,8 +22,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
+        let walletConnect = WalletConnectServiceImpl.shared
         let serviceCoordinator = ServiceCoordinator.createDefault(
-            with: selectedMetaAccount
+            with: selectedMetaAccount,
+            walletConnect: walletConnect
         )
 
         let wireframe = MainTabBarWireframe()
@@ -38,7 +40,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
             serviceCoordinator: serviceCoordinator,
-            keystoreImportService: keystoreImportService
+            keystoreImportService: keystoreImportService,
+            walletConnect: walletConnect
         )
 
         let networkStatusPresenter = NetworkAvailabilityLayerPresenter(
@@ -60,14 +63,17 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             presenter: presenter,
             localizationManager: localizationManager
         )
-        view.viewControllers = createViewControllers(stakingModuleOutput: presenter)
+        view.viewControllers = createViewControllers(stakingModuleOutput: presenter, walletConnect: walletConnect)
 
         return view
     }
 
-    static func createViewControllers(stakingModuleOutput: StakingMainModuleOutput?) -> [UIViewController]? {
+    static func createViewControllers(
+        stakingModuleOutput: StakingMainModuleOutput?,
+        walletConnect: WalletConnectService
+    ) -> [UIViewController]? {
         var viewControllers: [UIViewController] = []
-        if let walletController = createWalletController() {
+        if let walletController = createWalletController(walletConnect: walletConnect) {
             viewControllers.append(walletController)
         }
 
@@ -85,16 +91,16 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewControllers
     }
 
-    static func reloadWalletView(
-        on view: MainTabBarViewProtocol,
-        wireframe _: MainTabBarWireframeProtocol
-    ) {
-        guard let walletController = createWalletController() else {
-            return
-        }
-
-        view.didReplaceView(for: walletController, for: Self.walletIndex)
-    }
+//    static func reloadWalletView(
+//        on view: MainTabBarViewProtocol,
+//        wireframe _: MainTabBarWireframeProtocol
+//    ) {
+//        guard let walletController = createWalletController(walletConnect: <#WalletConnectService#>) else {
+//            return
+//        }
+//
+//        view.didReplaceView(for: walletController, for: Self.walletIndex)
+//    }
 
     static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
         guard let crowdloanController = createCrowdloanController() else {
@@ -126,9 +132,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
     }
 
-    static func createWalletController() -> UIViewController? {
+    static func createWalletController(
+        walletConnect: WalletConnectService
+    ) -> UIViewController? {
         guard let wallet = SelectedWalletSettings.shared.value,
-              let viewController = WalletMainContainerAssembly.configureModule(wallet: wallet)?.view.controller
+              let viewController = WalletMainContainerAssembly
+              .configureModule(wallet: wallet, walletConnect: walletConnect)?.view.controller
         else {
             return nil
         }

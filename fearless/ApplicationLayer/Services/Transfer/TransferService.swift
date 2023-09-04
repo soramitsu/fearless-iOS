@@ -3,6 +3,7 @@ import SSFModels
 import SSFExtrinsicKit
 import SSFUtils
 import BigInt
+import Web3
 
 protocol TransferFeeEstimationListener: AnyObject {
     func didReceiveFee(fee: BigUInt)

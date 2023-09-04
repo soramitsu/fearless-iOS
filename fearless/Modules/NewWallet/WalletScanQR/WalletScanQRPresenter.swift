@@ -64,7 +64,7 @@ final class WalletScanQRPresenter: NSObject {
         self.localizationManager = localizationManager
 
         qrScanService = qrScanServiceFactory.createService(
-            with: qrScanMatcher,
+            with: [qrScanMatcher],
             delegate: nil,
             delegateQueue: nil
         )
@@ -257,7 +257,7 @@ final class WalletScanQRPresenter: NSObject {
 
             qrExtractionService?.extract(
                 from: image,
-                using: matcher,
+                using: [matcher],
                 dispatchCompletionIn: .main
             ) { [weak self] result in
                 switch result {
@@ -357,7 +357,7 @@ extension WalletScanQRPresenter: ImageGalleryDelegate {
 
             qrExtractionService?.extract(
                 from: image,
-                using: matcher,
+                using: [matcher],
                 dispatchCompletionIn: .main
             ) { [weak self] result in
                 switch result {

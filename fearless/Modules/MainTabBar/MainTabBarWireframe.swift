@@ -1,13 +1,9 @@
 import Foundation
 import CommonWallet
+import WalletConnectSign
+// import WalletConnectSwiftV2
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
-    func showNewWalletView(on view: MainTabBarViewProtocol?) {
-        if let view = view {
-            MainTabBarViewFactory.reloadWalletView(on: view, wireframe: self)
-        }
-    }
-
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
         if let view = view {
             return MainTabBarViewFactory.reloadCrowdloanView(
@@ -37,6 +33,33 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
 
         let presentingController = tabBarController.topModalViewController
         presentingController.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showSession(
+        proposal: Session.Proposal,
+        view: ControllerBackedProtocol?
+    ) {
+        let module = WalletConnectProposalAssembly.configureModule(proposal: proposal)
+        guard let controller = module?.view.controller else {
+            return
+        }
+        view?.controller.topModalViewController.present(controller, animated: true)
+    }
+
+    func showSign(
+        request: Request,
+        session: Session?,
+        view: ControllerBackedProtocol?
+    ) {
+        let module = WalletConnectSessionAssembly.configureModule(
+            request: request,
+            session: session
+        )
+        guard let controller = module?.view.controller else {
+            return
+        }
+
+        view?.controller.topModalViewController.present(controller, animated: true)
     }
 
     // MARK: Private

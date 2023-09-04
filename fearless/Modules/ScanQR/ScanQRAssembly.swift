@@ -7,9 +7,10 @@ final class ScanQRAssembly {
 
         let qrDecoder = QRCoderFactory().createDecoder()
         let qrScanMatcher = QRScanMatcher(decoder: qrDecoder)
+        let qrUriMatcher = QRUriMatcherImpl(scheme: "wc")
 
         let qrScanService = QRCaptureServiceFactory().createService(
-            with: qrScanMatcher,
+            with: [qrUriMatcher, qrScanMatcher],
             delegate: nil,
             delegateQueue: nil
         )
@@ -27,6 +28,7 @@ final class ScanQRAssembly {
             logger: Logger.shared,
             moduleOutput: moduleOutput,
             qrScanMatcher: qrScanMatcher,
+            qrUriMatcher: qrUriMatcher,
             qrScanService: qrScanService,
             localizationManager: LocalizationManager.shared
         )

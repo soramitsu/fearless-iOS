@@ -1,4 +1,5 @@
 import Foundation
+import WalletConnectSign
 import UIKit
 import SoraFoundation
 import SSFUtils
@@ -54,6 +55,21 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
 
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
+    }
+
+    func didReceive(proposal: Session.Proposal) {
+        wireframe.showSession(
+            proposal: proposal,
+            view: view
+        )
+    }
+
+    func didReceive(request: Request, session: Session?) {
+        wireframe.showSign(
+            request: request,
+            session: session,
+            view: view
+        )
     }
 }
 

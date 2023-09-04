@@ -8,7 +8,19 @@ import Web3ContractABI
 import Web3PromiseKit
 import SSFUtils
 
-final class EthereumTransferService: TransferServiceProtocol {
+protocol WalletConnectEthereumTransferService {
+    func sign(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) throws -> EthereumData
+
+    func send(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) async throws -> EthereumData
+}
+
+final class EthereumTransferService: TransferServiceProtocol, WalletConnectEthereumTransferService {
     private let ws: Web3.Eth
     private let privateKey: EthereumPrivateKey
     private let senderAddress: String
@@ -99,6 +111,40 @@ final class EthereumTransferService: TransferServiceProtocol {
         Task {
             let fee = try await estimateFee(for: transfer, baseFeePerGas: baseFeePerGas)
             listener.didReceiveFee(fee: fee)
+        }
+    }
+
+    // MARK: - WalletConnectTransferService
+
+    func sign(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) throws -> EthereumData {
+        let chainId = EthereumQuantity(chain.chainId.hexToBytes())
+        let signed = try transaction.sign(with: privateKey, chainId: chainId)
+
+        return try signed.rawTransaction()
+    }
+
+    func send(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) async throws -> EthereumData {
+        let chainIdValue = EthereumQuantity(chain.chainId.hexToBytes())
+        let rawTransaction = try transaction.sign(with: privateKey, chainId: chainIdValue)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try ws.sendRawTransaction(transaction: rawTransaction) { resp in
+                    if let hash = resp.result {
+                        continuation.resume(with: .success(hash))
+                    } else if let error = resp.error {
+                        continuation.resume(with: .failure(error))
+                    }
+                }
+            } catch {
+                continuation.resume(with: .failure(error))
+            }
         }
     }
 

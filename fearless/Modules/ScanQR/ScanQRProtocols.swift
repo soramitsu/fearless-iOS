@@ -30,6 +30,7 @@ protocol ScanQRInteractorOutput: AnyObject {
     func handleQRService(error: Error)
     func handleAddress(_ address: String)
     func handleMatched(addressInfo: QRInfo)
+    func handleMatched(connect: URL)
 }
 
 protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable {
@@ -40,4 +41,10 @@ protocol ScanQRModuleInput: AnyObject {}
 
 protocol ScanQRModuleOutput: AnyObject {
     func didFinishWith(address: String)
+    func didFinishWithConnect(uri: String)
+}
+
+extension ScanQRModuleOutput {
+    func didFinishWith(address _: String) {}
+    func didFinishWithConnect(uri _: String) {}
 }

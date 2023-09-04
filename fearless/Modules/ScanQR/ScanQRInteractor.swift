@@ -30,14 +30,19 @@ extension ScanQRInteractor: ScanQRInteractorInput {
 
     func extractQr(from image: UIImage) {
         let matcher = QRScanMatcher(decoder: qrDecoder)
+        let uriMatcher = QRUriMatcherImpl(scheme: "wc")
 
         qrExtractionService.extract(
             from: image,
-            using: matcher,
+            using: [uriMatcher],
             dispatchCompletionIn: .main
         ) { [weak self] result in
             switch result {
             case .success:
+                if let url = uriMatcher.url {
+                    self?.output?.handleMatched(connect: url)
+                    return
+                }
                 if let addressInfo = matcher.qrInfo {
                     self?.output?.handleMatched(addressInfo: addressInfo)
                 }

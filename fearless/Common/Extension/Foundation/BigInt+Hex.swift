@@ -2,7 +2,10 @@ import Foundation
 import BigInt
 
 extension BigUInt {
-    static func fromHexString(_ hex: String) -> BigUInt? {
+    static func fromHexString(_ hex: String?) -> BigUInt? {
+        guard let hex = hex else {
+            return nil
+        }
         let prefix = "0x"
 
         if hex.hasPrefix(prefix) {
