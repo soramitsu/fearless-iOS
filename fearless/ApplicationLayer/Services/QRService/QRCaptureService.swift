@@ -15,7 +15,7 @@ protocol QRCaptureServiceProtocol: AnyObject {
 
 protocol QRCaptureServiceFactoryProtocol {
     func createService(
-        with matcher: QRMatcherProtocol,
+        with matchers: [QRMatcherProtocol],
         delegate: QRCaptureServiceDelegate?,
         delegateQueue: DispatchQueue?
     ) -> QRCaptureServiceProtocol
@@ -36,12 +36,12 @@ protocol QRCaptureServiceDelegate: AnyObject {
 
 final class QRCaptureServiceFactory: QRCaptureServiceFactoryProtocol {
     func createService(
-        with matcher: QRMatcherProtocol,
+        with matchers: [QRMatcherProtocol],
         delegate: QRCaptureServiceDelegate? = nil,
         delegateQueue: DispatchQueue?
     ) -> QRCaptureServiceProtocol {
         QRCaptureService(
-            matcher: matcher,
+            matchers: matchers,
             delegate: delegate,
             delegateQueue: delegateQueue
         )
@@ -51,18 +51,18 @@ final class QRCaptureServiceFactory: QRCaptureServiceFactoryProtocol {
 final class QRCaptureService: NSObject {
     static let processingQueue = DispatchQueue(label: "qr.capture.service.queue")
 
-    private(set) var matcher: QRMatcherProtocol
+    private(set) var matchers: [QRMatcherProtocol]
     private(set) var captureSession: AVCaptureSession?
 
     weak var delegate: QRCaptureServiceDelegate?
     var delegateQueue: DispatchQueue
 
     init(
-        matcher: QRMatcherProtocol,
+        matchers: [QRMatcherProtocol],
         delegate: QRCaptureServiceDelegate?,
         delegateQueue: DispatchQueue? = nil
     ) {
-        self.matcher = matcher
+        self.matchers = matchers
         self.delegate = delegate
         self.delegateQueue = delegateQueue ?? QRCaptureService.processingQueue
 
@@ -190,10 +190,15 @@ extension QRCaptureService: AVCaptureMetadataOutputObjectsDelegate {
             return
         }
 
-        if matcher.match(code: possibleCode) {
-            notifyDelegateWithSuccessMatching(of: possibleCode)
-        } else {
-            notifyDelegateWithFailedMatching(of: possibleCode)
+        captureSession?.stopRunning()
+        captureSession = nil
+
+        matchers.forEach { matcher in
+            if matcher.match(code: possibleCode) {
+                notifyDelegateWithSuccessMatching(of: possibleCode)
+            } else {
+                notifyDelegateWithFailedMatching(of: possibleCode)
+            }
         }
     }
 }

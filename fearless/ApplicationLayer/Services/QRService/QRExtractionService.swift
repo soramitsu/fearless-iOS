@@ -4,7 +4,7 @@ import UIKit
 protocol QRExtractionServiceProtocol {
     func extract(
         from image: UIImage,
-        using matcher: QRMatcherProtocol,
+        using matchers: [QRMatcherProtocol],
         dispatchCompletionIn queue: DispatchQueue?,
         completionBlock: @escaping (Result<String, QRExtractionServiceError>) -> Void
     )
@@ -65,19 +65,21 @@ final class QRExtractionService {
 extension QRExtractionService: QRExtractionServiceProtocol {
     func extract(
         from image: UIImage,
-        using matcher: QRMatcherProtocol,
+        using matchers: [QRMatcherProtocol],
         dispatchCompletionIn queue: DispatchQueue?,
         completionBlock: @escaping (Result<String, QRExtractionServiceError>) -> Void
     ) {
-        processingQueue.async {
-            let result = self.proccess(image: image, with: matcher)
+        matchers.forEach { matcher in
+            processingQueue.async {
+                let result = self.proccess(image: image, with: matcher)
 
-            if let queue = queue {
-                queue.async {
+                if let queue = queue {
+                    queue.async {
+                        completionBlock(result)
+                    }
+                } else {
                     completionBlock(result)
                 }
-            } else {
-                completionBlock(result)
             }
         }
     }
