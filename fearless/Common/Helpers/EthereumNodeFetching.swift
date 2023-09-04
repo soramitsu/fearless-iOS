@@ -13,6 +13,7 @@ enum EthereumChain: String {
     case goerli = "5"
     case bscMainnet = "56"
     case bscTestnet = "97"
+    case polygon = "137"
 
     func apiKeyInjectedURL(baseURL: URL) -> URL {
         switch self {
@@ -51,6 +52,13 @@ enum EthereumChain: String {
                 let apiKey = EthereumNodesApiKeys.bscApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
+        case .polygon:
+            #if DEBUG
+                let apiKey = EthereumNodesApiKeysDebug.polygonApiKey
+            #else
+                let apiKey = EthereumNodesApiKeys.polygonApiKey
+            #endif
+            return baseURL.appendingPathComponent(apiKey)
         }
     }
 
@@ -59,13 +67,15 @@ enum EthereumChain: String {
         case .ethereumMainnet:
             return ["eth-mainnet.blastapi.io"]
         case .sepolia:
-            return []
+            return ["eth-sepolia.blastapi.io"]
         case .goerli:
-            return []
+            return ["eth-goerli.blastapi.io"]
         case .bscMainnet:
             return ["bsc-mainnet.blastapi.io"]
         case .bscTestnet:
             return ["bsc-testnet.blastapi.io"]
+        case .polygon:
+            return ["polygon-mainnet.blastapi.io"]
         }
     }
 }

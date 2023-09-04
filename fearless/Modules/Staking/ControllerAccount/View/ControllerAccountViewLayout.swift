@@ -145,7 +145,7 @@ final class ControllerAccountViewLayout: UIView {
 
     private func applyLocalization() {
         descriptionLabel.text = R.string.localizable
-            .stakingControllerDeprecatedDescription("this", preferredLanguages: locale.rLanguages)
+            .stakingControllerDeprecatedDescription(preferredLanguages: locale.rLanguages)
         stashHintView.titleLabel.text = R.string.localizable
             .stakingStashCanHint(preferredLanguages: locale.rLanguages)
         controllerHintView.titleLabel.text = R.string.localizable

@@ -62,7 +62,7 @@ final class WalletMainContainerAssembly {
             let assetListModule = Self.configureAssetListModule(
                 metaAccount: wallet
             ),
-            let nftModule = Self.configureNftModule()
+            let nftModule = Self.configureNftModule(wallet: wallet)
         else {
             return nil
         }
@@ -103,7 +103,7 @@ final class WalletMainContainerAssembly {
         return chainAssetListModule
     }
 
-    private static func configureNftModule() -> MainNftContainerModuleCreationResult? {
-        MainNftContainerAssembly.configureModule()
+    private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {
+        MainNftContainerAssembly.configureModule(wallet: wallet)
     }
 }

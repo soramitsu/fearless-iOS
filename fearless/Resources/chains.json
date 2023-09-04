@@ -5497,7 +5497,8 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/ETH.svg",
         "addressPrefix": 0,
         "options": [
-            "ethereum"
+            "ethereum",
+            "nft"
         ]
     },
     {
@@ -5765,6 +5766,47 @@
           "addressPrefix": 0,
           "options": [
               "ethereum"
+          ]
+      },
+      {
+          "disabled": false,
+          "chainId": "137",
+          "name": "Polygon",
+          "externalApi": {
+              "history": {
+                  "type": "etherscan",
+                      "url": "https://api.polygonscan.com/api"
+              }
+          },
+          "assets": [
+              {
+                  "isUtility": true,
+                  "id": "0x0000000000000000000000000000000000001010",
+                  "name": "matic",
+                  "symbol": "matic",
+                  "precision": 18,
+                  "priceId": "matic",
+                  "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
+                  "color": "FF0066",
+                  "type": "normal",
+                  "ethereumType": "normal"
+              }
+          ],
+          "nodes": [
+              {
+                  "url": "https://polygon-mainnet.blastapi.io/",
+                  "name": "Blast https"
+              },
+              {
+                  "url" : "wss://polygon-mainnet.blastapi.io/",
+                  "name": "Blast wss"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
+          "addressPrefix": 0,
+          "options": [
+              "ethereum",
+              "nft"
           ]
       }
 ]

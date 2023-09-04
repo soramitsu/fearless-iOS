@@ -21,6 +21,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case searchEmpty
         case ecosystem(ChainEcosystem)
         case chainIds([ChainModel.Id])
+        case supportNfts
 
         var searchText: String? {
             switch self {
@@ -151,6 +152,8 @@ private extension ChainAssetsFetching {
             return chainAssets.filter { ids.contains($0.chain.chainId) }
         case .searchEmpty:
             return []
+        case .supportNfts:
+            return chainAssets.filter { $0.chain.isEthereum }
         }
     }
 

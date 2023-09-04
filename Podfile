@@ -25,7 +25,6 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
-  pod 'FearlessKeys'
 
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
@@ -35,17 +34,18 @@ abstract_target 'fearlessAll' do
           pod 'SSFExtrinsicKit'
           pod 'SSFCrypto', '0.1.11'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.7'
+          pod 'SSFModels', '0.1.16'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
           pod 'SSFStorageQueryKit'
-          pod 'SSFChainConnection'
+          pod 'SSFChainConnection', '0.1.4'
           pod 'SSFNetwork'
-          pod 'SSFUtils', '0.1.13'
-          pod 'SSFChainRegistry'
+          pod 'SSFUtils', '0.1.14'
+          pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.7'
           pod 'SSFCloudStorage'
+          pod 'FearlessKeys'
       end
   end
 

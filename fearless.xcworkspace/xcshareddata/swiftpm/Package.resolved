@@ -86,8 +86,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-ssl.git",
       "state" : {
-        "revision" : "e866a626e105042a6a72a870c88b4c531ba05f83",
-        "version" : "2.24.0"
+        "revision" : "320bd978cceb8e88c125dcbb774943a92f6286e9",
+        "version" : "2.25.0"
       }
     },
     {
@@ -122,8 +122,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
       "state" : {
-        "branch" : "main",
-        "revision" : "a150963020d8e72f9bd931dd81cb9c120ae9fee8"
+        "revision" : "afdc8cdbaf99ad741a7716f8475339c80a92441d",
+        "version" : "6.6.6"
       }
     },
     {
@@ -132,7 +132,7 @@
       "location" : "https://github.com/bnsports/Web3.swift.git",
       "state" : {
         "branch" : "master",
-        "revision" : "027b1a1e8e170d4d6158e16332489c328df547a4"
+        "revision" : "4ee666edfc7137045b84ff09503ba4b213f1dc1e"
       }
     },
     {
