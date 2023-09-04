@@ -29,7 +29,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
 
     func setup() {
         Networking.configure(
-            projectId: "13e43f17a7bf1b5336ee835d8e057718",
+            projectId: WalletConnect.projectId,
             socketFactory: WalletConnectSocketFactory()
         )
         Web3Wallet.configure(

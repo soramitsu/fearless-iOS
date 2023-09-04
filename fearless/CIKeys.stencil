@@ -45,3 +45,7 @@ enum GoogleBackupDebug {
     static var googleToken: String = "{{ argument.webClientIdDebug }}"
     static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeDebug }}"
 }
+
+enum WalletConnect {
+    static var projectId: String = "{{ argument.walletConnectProjectId }}"
+}
