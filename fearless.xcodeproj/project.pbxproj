@@ -2372,9 +2372,6 @@
 		FA9A8F272A72579D008FA99F /* AlchemyTokenCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F252A72579D008FA99F /* AlchemyTokenCategory.swift */; };
 		FA9A8F2B2A725B30008FA99F /* SubstrateAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */; };
 		FA9A8F2D2A725B3A008FA99F /* EthereumAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */; };
-		FA9A8F332A738E37008FA99F /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8F322A738E37008FA99F /* Web3 */; };
-		FA9A8F352A738E37008FA99F /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8F342A738E37008FA99F /* Web3ContractABI */; };
-		FA9A8F372A738E37008FA99F /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA9A8F362A738E37008FA99F /* Web3PromiseKit */; };
 		FA9A8F3E2A776DFD008FA99F /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F382A776DFD008FA99F /* SubstrateDataModel.xcdatamodeld */; };
 		FA9A8F432A78C03D008FA99F /* EthereumTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F422A78C03D008FA99F /* EthereumTransferService.swift */; };
 		FA9A8F452A78C045008FA99F /* SubstrateTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F442A78C045008FA99F /* SubstrateTransferService.swift */; };
@@ -2659,6 +2656,9 @@
 		FAE39B042AA0655B0011A9D6 /* BaseEthereumService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B032AA0655B0011A9D6 /* BaseEthereumService.swift */; };
 		FAE39B072AA1D4370011A9D6 /* NftSendConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B062AA1D4370011A9D6 /* NftSendConfirmViewModel.swift */; };
 		FAE39B092AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B082AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift */; };
+		FAE39B0C2AA5E6340011A9D6 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0B2AA5E6340011A9D6 /* Web3 */; };
+		FAE39B0E2AA5E6340011A9D6 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */; };
+		FAE39B102AA5E6340011A9D6 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */; };
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
@@ -4709,9 +4709,6 @@
 		FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+StringInitializable.swift"; sourceTree = "<group>"; };
 		FA0B7C9F68A6BF3D3A6D8234 /* StakingPoolInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoInteractor.swift; sourceTree = "<group>"; };
 		FA1109EA27A92D56003C2158 /* ChainAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAction.swift; sourceTree = "<group>"; };
-		FA145C512A67DF3000362DE5 /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
-		FA145C522A67DFDF00362DE5 /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
-		FA145C532A67E00500362DE5 /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
 		FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalSubscriptionFactory.swift; sourceTree = "<group>"; };
 		FA15BC0E2823AE4D0037C023 /* ParachainStakingCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingCandidate.swift; sourceTree = "<group>"; };
@@ -5180,8 +5177,6 @@
 		FA99C933283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift; sourceTree = "<group>"; };
 		FA99C935283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingViewModelState.swift; sourceTree = "<group>"; };
 		FA99C937283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingStrategy.swift; sourceTree = "<group>"; };
-		FA9A8EEF2A67E06E008FA99F /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
-		FA9A8EFE2A67E145008FA99F /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
 		FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA9A8F042A6FADBD008FA99F /* EtherscanHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryResponse.swift; sourceTree = "<group>"; };
 		FA9A8F062A6FADFB008FA99F /* EtherscanHistoryElement.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanHistoryElement.swift; sourceTree = "<group>"; };
@@ -5605,10 +5600,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA9A8F352A738E37008FA99F /* Web3ContractABI in Frameworks */,
+				FAE39B0E2AA5E6340011A9D6 /* Web3ContractABI in Frameworks */,
 				E24B8FD5EE2A75EC6C3DD49D /* Pods_fearlessAll_fearless.framework in Frameworks */,
-				FA9A8F372A738E37008FA99F /* Web3PromiseKit in Frameworks */,
-				FA9A8F332A738E37008FA99F /* Web3 in Frameworks */,
+				FAE39B102AA5E6340011A9D6 /* Web3PromiseKit in Frameworks */,
+				FAE39B0C2AA5E6340011A9D6 /* Web3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -11630,11 +11625,6 @@
 		FA145C502A67DF2F00362DE5 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
-				FA145C512A67DF3000362DE5 /* Web3.swift */,
-				FA145C522A67DFDF00362DE5 /* Web3.swift */,
-				FA145C532A67E00500362DE5 /* Web3.swift */,
-				FA9A8EEF2A67E06E008FA99F /* Web3.swift */,
-				FA9A8EFE2A67E145008FA99F /* Web3.swift */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -14079,9 +14069,9 @@
 			);
 			name = fearless;
 			packageProductDependencies = (
-				FA9A8F322A738E37008FA99F /* Web3 */,
-				FA9A8F342A738E37008FA99F /* Web3ContractABI */,
-				FA9A8F362A738E37008FA99F /* Web3PromiseKit */,
+				FAE39B0B2AA5E6340011A9D6 /* Web3 */,
+				FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */,
+				FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -14144,7 +14134,7 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */,
+				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -17714,7 +17704,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
@@ -17725,19 +17715,19 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FA9A8F322A738E37008FA99F /* Web3 */ = {
+		FAE39B0B2AA5E6340011A9D6 /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
-		FA9A8F342A738E37008FA99F /* Web3ContractABI */ = {
+		FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
-		FA9A8F362A738E37008FA99F /* Web3PromiseKit */ = {
+		FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA9A8F312A738E37008FA99F /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
 		};
 /* End XCSwiftPackageProductDependency section */
