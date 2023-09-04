@@ -18,6 +18,7 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 
 enum ProfileOption: UInt, CaseIterable {
     case accountList
+    case soraCard
     case currency
     case language
     case polkaswapDisclaimer
@@ -127,6 +128,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                     for: locale,
                     missingEthAccount: missingAccountIssue.isNotEmpty
                 )
+            case .soraCard:
+                return createSoraCardViewModel(for: locale)
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
@@ -283,6 +286,19 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             option: .currency
         )
 
+        return viewModel
+    }
+
+    private func createSoraCardViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable.profileSoracardTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSoraCard()!,
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .soraCard
+        )
         return viewModel
     }
 

@@ -152,6 +152,9 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
 
         self.viewModel = viewModel
         hiddenSectionState = viewModel.hiddenSectionState
+        if let soraItem = viewModel.soraCardItem {
+            rootView.bindSoraCard(item: soraItem)
+        }
 
         if isInitialReload {
             rootView.tableView.reloadData()

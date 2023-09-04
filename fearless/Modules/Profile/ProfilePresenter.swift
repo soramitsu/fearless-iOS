@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import SCard
 
 final class ProfilePresenter {
     private weak var view: ProfileViewProtocol?
@@ -76,6 +77,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .accountList:
             wireframe.showAccountSelection(from: view, moduleOutput: self)
+        case .soraCard:
+            wireframe.startSoraCard(from: view)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:

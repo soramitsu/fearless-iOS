@@ -180,57 +180,31 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             completionBlock(.success(soraCard))
         }
         let dependencies = dependencyContainer.buildDependencies(for: wallet)
-//        let chainAssetFetching = dependencies.chainAssetFetching
-//        let accountInfoSubscriptionAdapter = dependencies.accountInfoSubscriptionAdapter
-//        chainAssetFetching.fetch(filters: [.assetName("xor")], sortDescriptors: []) { [weak self] result in
-//            guard let strongSelf = self else { return }
-//            switch result {
-//            case let .success(chainAssets):
-//                if let soraChainAsset = chainAssets.first(where: { chainAsset in
-//                    chainAsset.chain.chainId == Chain.soraMain.genesisHash
-//                }) {
-//                    let soraCardInitializer = SoraCardInitializer(
-//                        wallet: strongSelf.wallet,
-//                        soraChainAsset: soraChainAsset,
-//                        accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
-//                    )
-//                    let soraCard = soraCardInitializer.initSoraCard()
-//                    completionBlock(soraCard)
-//                }
-//            default:
-//                completionBlock(nil)
-//            }
-//        }
+        let chainAssetFetching = dependencies.chainAssetFetching
         let accountInfoSubscriptionAdapter = dependencies.accountInfoSubscriptionAdapter
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-        let operation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        operation.completionBlock = { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
-            switch operation.result {
-            case let .success(chains):
-                let soraChain = chains.first(where: { $0.chainId == Chain.soraMain.genesisHash })
-                if let soraChainAsset = soraChain?.utilityChainAssets().first {
-                    let soraCardInitializer = SoraCardInitializer(
-                        wallet: strongSelf.wallet,
-                        soraChainAsset: soraChainAsset,
-                        accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
-                    )
-                    let soraCard = soraCardInitializer.initSoraCard()
-                    completionBlock(.success(soraCard))
-                } else {
-                    completionBlock(.none)
+        chainAssetFetching.fetch(filters: [.assetName("xor")], sortDescriptors: []) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case let .success(chainAssets):
+                if let soraChainAsset = chainAssets.first(where: { chainAsset in
+                    chainAsset.chain.chainId == Chain.soraMain.genesisHash
+                }) {
+                    DispatchQueue.main.async {
+                        let soraCardInitializer = SoraCardInitializer(
+                            wallet: strongSelf.wallet,
+                            soraChainAsset: soraChainAsset,
+                            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
+                        )
+                        let soraCard = soraCardInitializer.initSoraCard()
+                        completionBlock(.success(soraCard))
+                    }
                 }
-            case let .failure(error):
-                completionBlock(.failure(error))
-            case .none:
-                completionBlock(.none)
+            default:
+                DispatchQueue.main.async {
+                    completionBlock(nil)
+                }
             }
         }
-        operationQueue.addOperation(operation)
     }
 }
 

@@ -1,4 +1,5 @@
 import UIKit
+import SCard
 import SoraUI
 import SnapKit
 
@@ -20,6 +21,7 @@ final class ChainAssetListViewLayout: UIView {
     var keyboardAdoptableConstraint: Constraint?
 
     weak var bannersView: UIView?
+    private var soraCardCell: SCCardCell?
 
     var headerViewContainer: UIStackView = {
         UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
@@ -51,10 +53,15 @@ final class ChainAssetListViewLayout: UIView {
         }
     }
 
-    func addSoraCard(view: UIView) {
-        headerViewContainer.addArrangedSubview(view)
-        view.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+    func bindSoraCard(item: SCCardItem) {
+        let cell = SCCardCell()
+        cell.set(item: item, context: nil)
+        if soraCardCell == nil {
+            soraCardCell = cell
+            headerViewContainer.addArrangedSubview(cell.contentView)
+            cell.contentView.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+            }
         }
     }
 

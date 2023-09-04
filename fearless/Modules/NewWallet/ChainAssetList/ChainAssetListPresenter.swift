@@ -83,9 +83,7 @@ final class ChainAssetListPresenter {
                         onClose: onClose,
                         onCard: onCard
                     )
-                    DispatchQueue.main.async {
-                        self.view?.didReceive(viewModel: viewModel)
-                    }
+                    self.view?.didReceive(viewModel: viewModel)
                 }
                 return
             }
