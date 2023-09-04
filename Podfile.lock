@@ -202,7 +202,7 @@ PODS:
     - SSFCrypto
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFUtils (0.1.13):
+  - SSFUtils (0.1.14):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -269,7 +269,7 @@ DEPENDENCIES:
   - SSFRuntimeCodingService
   - SSFSigner
   - SSFStorageQueryKit
-  - SSFUtils (= 0.1.13)
+  - SSFUtils (= 0.1.14)
   - SSFXCM
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
@@ -388,7 +388,7 @@ SPEC CHECKSUMS:
   SSFRuntimeCodingService: 6eb94c6336d47e86b19588524ca75c71c83f53a9
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
   SSFStorageQueryKit: edb0af3dbed5520f2821d07bb460099430b4f261
-  SSFUtils: 8fd131123804c122c031763a8436d45e1ac373c2
+  SSFUtils: 3254af5db8930b8c4bdaa94d9e3a51596afafc79
   SSFXCM: 59cb429a5c20c4f34f6c383e36ab8644922703b0
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
@@ -400,6 +400,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 45849d9ccdda1e1d36c4eb230841495fe2fe4184
+PODFILE CHECKSUM: 5ba56a9fe357402b92edc9ebab81602b97a6d997
 
 COCOAPODS: 1.11.3
