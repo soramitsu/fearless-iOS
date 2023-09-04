@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class BundleImageViewModel: NSObject {
     let image: UIImage?
@@ -14,6 +15,10 @@ extension BundleImageViewModel: ImageViewModelProtocol {
     }
 
     func loadImage(on imageView: UIImageView, targetSize _: CGSize, animated _: Bool) {
+        imageView.image = image
+    }
+
+    func loadImage(on imageView: UIImageView, placholder _: Placeholder?, targetSize _: CGSize, animated _: Bool) {
         imageView.image = image
     }
 

@@ -14,6 +14,7 @@ final class WalletMainContainerInteractor {
     private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+    private let walletConnectService: WalletConnectService
 
     // MARK: - Constructor
 
@@ -24,7 +25,8 @@ final class WalletMainContainerInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
-        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
+        walletConnectService: WalletConnectService
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -33,6 +35,7 @@ final class WalletMainContainerInteractor {
         self.eventCenter = eventCenter
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
+        self.walletConnectService = walletConnectService
     }
 
     // MARK: - Private methods
@@ -131,6 +134,14 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
         fetchChainSettings()
+    }
+
+    func walletConnect(uri: String) {
+        do {
+            try walletConnectService.connect(uri: uri)
+        } catch {
+            print(error)
+        }
     }
 }
 

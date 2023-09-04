@@ -188,4 +188,8 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
             address: address
         )
     }
+
+    func didFinishWithConnect(uri: String) {
+        interactor.walletConnect(uri: uri)
+    }
 }

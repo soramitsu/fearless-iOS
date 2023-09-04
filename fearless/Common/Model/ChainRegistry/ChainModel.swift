@@ -23,7 +23,6 @@ extension ChainModel: Identifiable {
 // MARK: - Wallet connect
 
 extension ChainModel {
-
     func match(_ caip2ChainId: Caip2ChainId) -> Bool {
         switch chainBaseType {
         case .substrate:

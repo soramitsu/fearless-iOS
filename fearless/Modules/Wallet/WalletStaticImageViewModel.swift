@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import Kingfisher
 
 final class WalletStaticImageViewModel: WalletImageViewModelProtocol {
     let staticImage: UIImage
@@ -23,6 +24,10 @@ extension WalletStaticImageViewModel: ImageViewModelProtocol {
     }
 
     func loadImage(on imageView: UIImageView, targetSize _: CGSize, animated _: Bool) {
+        imageView.image = staticImage
+    }
+
+    func loadImage(on imageView: UIImageView, placholder _: Placeholder?, targetSize _: CGSize, animated _: Bool) {
         imageView.image = staticImage
     }
 

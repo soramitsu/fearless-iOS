@@ -3,7 +3,10 @@ import SoraFoundation
 import RobinHood
 
 final class WalletMainContainerAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        walletConnect: WalletConnectService
+    ) -> WalletMainContainerModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let localizationManager = LocalizationManager.shared
 
@@ -48,7 +51,8 @@ final class WalletMainContainerAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry)
+            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
+            walletConnectService: walletConnect
         )
 
         let router = WalletMainContainerRouter()

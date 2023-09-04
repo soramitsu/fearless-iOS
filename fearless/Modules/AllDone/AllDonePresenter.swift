@@ -10,8 +10,8 @@ final class AllDonePresenter {
     private let interactor: AllDoneInteractorInput
     private let viewModelFactory: AllDoneViewModelFactoryProtocol
 
-    private let chainAsset: ChainAsset
-    private let hashString: String
+    private let chainAsset: ChainAsset?
+    private let hashString: String?
     private var closure: (() -> Void)?
 
     private var title: String?
@@ -22,8 +22,8 @@ final class AllDonePresenter {
     // MARK: - Constructors
 
     init(
-        chainAsset: ChainAsset,
-        hashString: String,
+        chainAsset: ChainAsset?,
+        hashString: String?,
         interactor: AllDoneInteractorInput,
         router: AllDoneRouterInput,
         viewModelFactory: AllDoneViewModelFactoryProtocol,
@@ -57,7 +57,7 @@ final class AllDonePresenter {
     }
 
     private func prepareSubscanExplorer() {
-        let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
+        let subscanExplorer = chainAsset?.chain.externalApi?.explorers?.first(where: {
             $0.type == .subscan
         })
         view?.didReceive(explorer: subscanExplorer)
@@ -77,6 +77,7 @@ extension AllDonePresenter: AllDoneViewOutput {
 
     func subscanButtonDidTapped() {
         guard let subscanExplorer = self.subscanExplorer,
+              let hashString = hashString,
               let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
         else {
             return
@@ -86,6 +87,7 @@ extension AllDonePresenter: AllDoneViewOutput {
 
     func shareButtonDidTapped() {
         guard let subscanExplorer = self.subscanExplorer,
+              let hashString = hashString,
               let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
         else {
             return
