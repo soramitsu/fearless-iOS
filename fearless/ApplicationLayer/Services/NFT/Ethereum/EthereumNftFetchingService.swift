@@ -68,7 +68,7 @@ final class EthereumNftFetchingService {
         }
     }
 
-    private func fetchMetadataUrl(token: EtherscanNftResponseElement, chain: ChainModel) async throws -> URL {
+    private func fetchMetadataUrl(token: EtherscanNftResponseElement, chain: ChainModel) async throws -> String? {
         guard let ws = chainRegistry.getEthereumConnection(for: chain.chainId) else {
             throw ChainRegistryError.connectionUnavailable
         }
@@ -82,8 +82,8 @@ final class EthereumNftFetchingService {
 
         return try await withCheckedThrowingContinuation { continuation in
             contract.tokenURI(tokenId: tokenId).call { response, error in
-                if let uri = response?["_tokenURI"] as? String, let url = URL(string: uri) {
-                    return continuation.resume(with: .success(url))
+                if let uri = response?["_tokenURI"] as? String {
+                    return continuation.resume(with: .success(uri))
                 } else if let error = error {
                     return continuation.resume(with: .failure(error))
                 } else {
@@ -155,7 +155,7 @@ extension EthereumNftFetchingService: NFTFetchingServiceProtocol {
 
             for historyObject in history {
                 group.addTask {
-                    if let url = try? await strongSelf.fetchMetadataUrl(token: historyObject.metadata, chain: historyObject.chain), url.isTLSScheme {
+                    if let uri = try? await strongSelf.fetchMetadataUrl(token: historyObject.metadata, chain: historyObject.chain), let url = URL(string: uri), url.isTLSScheme {
                         if let metadata = try? await strongSelf.fetchNftMetadata(url: url) {
                             let nft = NFT(chain: historyObject.chain, tokenId: historyObject.metadata.tokenID, tokenName: historyObject.metadata.tokenName, smartContract: historyObject.metadata.contractAddress, metadata: metadata)
                             return nft
@@ -198,7 +198,7 @@ extension EthereumNftFetchingService: NFTFetchingServiceProtocol {
                 if let tokens = try? await strongSelf.fetchERC721Tokens(for: chain, wallet: wallet) {
                     for token in tokens {
                         group.addTask {
-                            if let url = try? await strongSelf.fetchMetadataUrl(token: token, chain: chain), url.isTLSScheme {
+                            if let uri = try? await strongSelf.fetchMetadataUrl(token: token, chain: chain), let url = URL(string: uri), url.isTLSScheme {
                                 if let metadata = try? await strongSelf.fetchNftMetadata(url: url) {
                                     let nft = NFT(chain: chain, tokenId: token.tokenID, tokenName: token.tokenName, smartContract: token.contractAddress, metadata: metadata)
                                     return nft

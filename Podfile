@@ -25,7 +25,6 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
-  pod 'FearlessKeys'
 
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
@@ -46,6 +45,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.7'
           pod 'SSFCloudStorage'
+          pod 'FearlessKeys'
       end
   end
 
