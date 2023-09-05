@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/duty-05-09-Add-fearless-IOS-CI-credential') _
 
 // Job properties
 def jobParams = [
