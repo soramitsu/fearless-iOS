@@ -4,6 +4,7 @@ import SSFModels
 
 enum FormatterLocale: String {
     case japanese = "jp"
+    case chinese = "zh-Hans"
     case usual
 
     init(locale: Locale) {
@@ -112,6 +113,39 @@ class AssetBalanceFormatterFactory {
                     threshold: 1_000_000_000_000,
                     divisor: 1_000_000_000_000.0,
                     suffix: "兆",
+                    formatter: nil
+                )
+            ]
+        case .chinese:
+            abbreviations = [
+                BigNumberAbbreviation(
+                    threshold: 0,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 10,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 10000,
+                    divisor: 10000.0,
+                    suffix: "-万",
+                    formatter: nil
+                ),
+                BigNumberAbbreviation(
+                    threshold: 100_000_000,
+                    divisor: 100_000_000.0,
+                    suffix: "-亿",
                     formatter: nil
                 )
             ]

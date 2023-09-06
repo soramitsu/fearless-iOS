@@ -560,37 +560,26 @@ extension StakingMainViewController: KeyboardViewAdoptable {
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
-        let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY + UIConstants.actionHeight
-        let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
+        if let responder = view.firstResponder {
+            var inset = scrollView.contentInset
+            var responderFrame: CGRect
+            responderFrame = responder.convert(responder.frame, to: scrollView)
 
-        var contentInsets = scrollView.contentInset
-        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
-        scrollView.contentInset = contentInsets
-
-        if contentInsets.bottom > 0.0, let firstResponderView = stateView {
-            let fieldFrame = scrollView.convert(
-                firstResponderView.frame,
-                from: firstResponderView.superview
-            )
-            let updatedFrame = CGRect(
-                origin: CGPoint(
-                    x: fieldFrame.origin.x,
-                    y: fieldFrame.origin.y + UIConstants.actionHeight
-                ),
-                size: fieldFrame.size
-            )
-
-            scrollView.scrollRectToVisible(updatedFrame, animated: true)
-
-            actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide)
-                    .inset(updatedFrame.height + UIConstants.accessoryBarHeight)
+            if frame.height == 0 {
+                inset.bottom = 0
+                scrollView.contentInset = inset
+                actionButton.snp.updateConstraints { make in
+                    make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+                }
+            } else {
+                inset.bottom = frame.height
+                scrollView.contentInset = inset
+                actionButton.snp.updateConstraints { make in
+                    make.bottom.equalTo(view.safeAreaLayoutGuide)
+                        .inset(frame.height - UIConstants.accessoryBarHeight - UIConstants.bigOffset)
+                }
             }
-        } else {
-            actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-            }
+            scrollView.scrollRectToVisible(responderFrame, animated: true)
         }
 
         changeActionButtonVisibility(!actionButton.isHidden)

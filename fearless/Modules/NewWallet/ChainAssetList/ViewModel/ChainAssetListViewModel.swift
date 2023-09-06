@@ -11,6 +11,7 @@ struct ChainAssetListViewModel {
     let isColdBoot: Bool
     let hiddenSectionState: HiddenSectionState
     let emptyStateIsActive: Bool
+    let bannerIsHidden: Bool
     let soraCardItem: SCCardItem?
     let soraCardHidden: Bool
 }

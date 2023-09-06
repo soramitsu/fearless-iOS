@@ -20,6 +20,8 @@ struct AbbreviationsFactory {
         switch locale {
         case .japanese:
             return japanese()
+        case .chinese:
+            return chinese()
         case .usual:
             return usual()
         }
@@ -67,6 +69,46 @@ struct AbbreviationsFactory {
             threshold: 1_000_000_000_000,
             divisor: 1_000_000_000_000.0,
             suffix: "兆",
+            formatter: nil
+        )]
+    }
+
+    private func chinese() -> [BigNumberAbbreviation] {
+        [BigNumberAbbreviation(
+            threshold: 0,
+            divisor: 1.0,
+            suffix: "",
+            formatter: DynamicPrecisionFormatter(
+                preferredPrecision: UInt8(preferredPrecision),
+                roundingMode: roundingMode
+            )
+        ),
+        BigNumberAbbreviation(
+            threshold: 1,
+            divisor: 1.0,
+            suffix: "",
+            formatter: NumberFormatter.decimalFormatter(
+                precision: preferredPrecision,
+                rounding: roundingMode,
+                usesIntGrouping: true
+            )
+        ),
+        BigNumberAbbreviation(
+            threshold: 10,
+            divisor: 1.0,
+            suffix: "",
+            formatter: nil
+        ),
+        BigNumberAbbreviation(
+            threshold: 10000,
+            divisor: 10000.0,
+            suffix: "-万",
+            formatter: nil
+        ),
+        BigNumberAbbreviation(
+            threshold: 100_000_000,
+            divisor: 100_000_000.0,
+            suffix: "-亿",
             formatter: nil
         )]
     }

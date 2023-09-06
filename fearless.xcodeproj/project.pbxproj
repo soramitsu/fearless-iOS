@@ -16,7 +16,6 @@
 		05A6BB4F8F0912404A4D8413 /* WalletTransactionDetailsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82FD4E0BB1ABA364AFD2E891 /* WalletTransactionDetailsPresenter.swift */; };
 		06197BBE4299DC971C42DB92 /* WalletSendConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A687FBDA0912F8727CE0D81 /* WalletSendConfirmPresenter.swift */; };
 		06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */; };
-		0675CC47DB18F7EFE67DA611 /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 53B6268E4FFFCBBABA8FB21A /* Pods_fearlessTests.framework */; };
 		0678271BE1BA5BBC084F478A /* RecommendedValidatorListWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C624E71FCE0FFF8EAD5BA9 /* RecommendedValidatorListWireframe.swift */; };
 		0702B31529701759003519F5 /* AmountInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0702B31429701759003519F5 /* AmountInputViewModel.swift */; };
 		0702B31829701864003519F5 /* WalletViewModelObserverContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0702B31729701864003519F5 /* WalletViewModelObserverContainer.swift */; };
@@ -352,6 +351,7 @@
 		4FBD73DD27CAA339727616B5 /* StakingUnbondSetupPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FCECA20E6DCA5D228F44477 /* StakingUnbondSetupPresenter.swift */; };
 		501347BEA67CD30FE484358E /* AccountImportViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E60EF37AC0A7646ED8FE64 /* AccountImportViewFactory.swift */; };
 		502DF063219C7211C2225BD4 /* AddCustomNodeViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4952E0B8F8DCD92FE4A37892 /* AddCustomNodeViewLayout.swift */; };
+		502F943F18E556BB7C7C9C54 /* Pods_fearlessAll_fearlessIntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 635A43EDB9976F9009626296 /* Pods_fearlessAll_fearlessIntegrationTests.framework */; };
 		503DFF0EFCAD0A8B526FEC3A /* SelectMarketViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 320E2207FB549F7C31A80441 /* SelectMarketViewController.swift */; };
 		506F0D372BCC8302E513637C /* CrowdloanContributionConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA59CE2C7AE548ACA9D66FD7 /* CrowdloanContributionConfirmWireframe.swift */; };
 		50758C9BBB27AE5732FF78BA /* StakingRewardPayoutsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFEBC03AB1841681427D38AF /* StakingRewardPayoutsViewController.swift */; };
@@ -378,6 +378,7 @@
 		60461B20A5DA9E9E3AF0BB84 /* WalletHistoryFilterWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78670B0926E92B75088D2D7B /* WalletHistoryFilterWireframe.swift */; };
 		607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EDA19BC3280F1838C687EC8 /* NetworkInfoViewFactory.swift */; };
 		60EBDB99A218622C0EB2248B /* BannersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4E02BFE600A2AE15FB16F04 /* BannersViewController.swift */; };
+		617AFD3761E0D68911A331AB /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8EB69EFC3D9DE1414B87991F /* Pods_fearlessTests.framework */; };
 		61B9688494251703A6373A1B /* StakingAmountWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6216F6F1B91F798F07695FB6 /* StakingAmountWireframe.swift */; };
 		61E0DC83C1D60D677274D7CE /* AccountExportPasswordViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11575D8B4F64C2E805372A5 /* AccountExportPasswordViewFactory.swift */; };
 		61F8BE3CBE331A225FC9FA61 /* BackupWalletImportedProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A75423ED5D55F8DC011DC03 /* BackupWalletImportedProtocols.swift */; };
@@ -440,7 +441,6 @@
 		7BEEF481CD12F404AD746FB5 /* WalletChainAccountDashboardViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5408FF305E4A49A683BC43E0 /* WalletChainAccountDashboardViewLayout.swift */; };
 		7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D5AF2F7609ADE855308089 /* AccountExportPasswordViewController.swift */; };
 		7CBE9FFAF8394786CA131D4D /* CustomValidatorListProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = F28EDDF9277242505FDDECA1 /* CustomValidatorListProtocols.swift */; };
-		7D13EAF8A650DD2053DC3E16 /* Pods_fearlessAll_fearlessIntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A67F1FD6E60AFA553FD890B /* Pods_fearlessAll_fearlessIntegrationTests.framework */; };
 		7D281FEA78E2E5F44990C184 /* AccountImportPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8605FD90D8C3553A9897B4 /* AccountImportPresenter.swift */; };
 		7DFB3D265846A31807E1A663 /* StakingPoolCreateConfirmRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0EE58376751B23A9CEAEE1A /* StakingPoolCreateConfirmRouter.swift */; };
 		7E1A03082260E0D31AD394CA /* StakingRewardDetailsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF891BE39D442C2D06DDF3BB /* StakingRewardDetailsProtocols.swift */; };
@@ -1629,7 +1629,6 @@
 		C600C4D728053DF500111316 /* UsernameSetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C600C4D628053DF500111316 /* UsernameSetupViewController.swift */; };
 		C600C4D928054A1B00111316 /* AccountCreateFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C600C4D828054A1B00111316 /* AccountCreateFlow.swift */; };
 		C603E81128583C2A00007B72 /* StakingMainRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */; };
-		C606D6CD2A8DD0E900D456D9 /* SoraCardInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C606D6CC2A8DD0E900D456D9 /* SoraCardInitializer.swift */; };
 		C615668129309D3900391BF3 /* QRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C615668029309D3900391BF3 /* QRService.swift */; };
 		C61566852930A07900391BF3 /* QRCreationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C61566842930A07900391BF3 /* QRCreationOperation.swift */; };
 		C6264C292799A56E00FCA0DB /* WalletDetailsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C282799A56E00FCA0DB /* WalletDetailsTableCell.swift */; };
@@ -1710,6 +1709,7 @@
 		C6CA3081286192C50087776D /* DelegationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA3080286192C50087776D /* DelegationViewModel.swift */; };
 		C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */; };
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
+		C6D9B91F2AA826470061C1F7 /* SoraCardInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D9B91E2AA826470061C1F7 /* SoraCardInitializer.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
 		C6FB932E27C9334100563E61 /* AvailableExportOptionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */; };
 		C77CCA7FF969A2F006A0B6C4 /* WalletChainAccountDashboardProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E1C5E0E16867BDA51B6734 /* WalletChainAccountDashboardProtocols.swift */; };
@@ -1949,10 +1949,10 @@
 		F4FDA0F826A57626003D753B /* EraCountdownOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FDA0F726A57626003D753B /* EraCountdownOperationFactory.swift */; };
 		F4FDA0FD26A57860003D753B /* EraCountdown.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FDA0FC26A57860003D753B /* EraCountdown.swift */; };
 		F50D9C2CCA49D396E0D6EFDD /* WalletTransactionDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = D80247ADAAB061D1A10856B2 /* WalletTransactionDetailsViewLayout.swift */; };
-		F6081801997433B8DB5E832C /* Pods_fearlessAll_fearless.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C385925D32737B808FA4DFD8 /* Pods_fearlessAll_fearless.framework */; };
 		F60FEEDEAD176636BDB55359 /* BannersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B9BD51B1F823EB28D7DB0C2D /* BannersTests.swift */; };
 		F65C473A8402844C27534F8C /* BackupCreatePasswordInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 550B20335186E95CE18630BF /* BackupCreatePasswordInteractor.swift */; };
 		F6CD0ED1CF9A605222745BEC /* ContactsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75B53E901B1475DE858A2C99 /* ContactsRouter.swift */; };
+		F746B3BFEEA680F4E442D241 /* Pods_fearlessAll_fearless.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 81DB508643567E8AE928B337 /* Pods_fearlessAll_fearless.framework */; };
 		F765ED40BB9F3CE45EA8795D /* PolkaswapTransaktionSettingsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = B399E7CA0A03A06EFDF1B126 /* PolkaswapTransaktionSettingsPresenter.swift */; };
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
 		F7B2663F06E07CD716236C6D /* WalletsManagmentInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F5C47F8D6CB97D16DFF06B7 /* WalletsManagmentInteractor.swift */; };
@@ -2879,6 +2879,7 @@
 		08EB1FC5907B5165836318C4 /* AnalyticsValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsTests.swift; sourceTree = "<group>"; };
 		095DEF513136A26593FB421F /* AnalyticsRewardDetailsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardDetailsViewController.swift; sourceTree = "<group>"; };
 		0960D0A04ACDF443B5C5E185 /* WalletsManagmentViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletsManagmentViewLayout.swift; sourceTree = "<group>"; };
+		0A850D3DF9D7D1816B1DD468 /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
 		0AB10C8DA56E92C280D66BE8 /* WalletHistoryFilterViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletHistoryFilterViewFactory.swift; sourceTree = "<group>"; };
 		0B5072E250B7277F605855B3 /* AccountManagementProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementProtocols.swift; sourceTree = "<group>"; };
 		0B556386CEEB76C95ED59897 /* ControllerAccountViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewController.swift; sourceTree = "<group>"; };
@@ -2918,6 +2919,7 @@
 		1D738FE711DD760B47C0BA65 /* WalletMainContainerPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletMainContainerPresenter.swift; sourceTree = "<group>"; };
 		1DECC58C93DB18E79A03B5A0 /* AssetSelectionProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AssetSelectionProtocols.swift; sourceTree = "<group>"; };
 		1E5CB64B91B35804B3671456 /* ControllerAccountPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountPresenter.swift; sourceTree = "<group>"; };
+		1F13F578957F844E3C4248D5 /* Pods-fearlessAll-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig"; sourceTree = "<group>"; };
 		1F3B726402D4DB25059EF156 /* AnalyticsValidatorsProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsProtocols.swift; sourceTree = "<group>"; };
 		200C6B2C85846AED8CA9451A /* ExportMnemonicInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicInteractor.swift; sourceTree = "<group>"; };
 		21A199872F289F61BCF0C62D /* WalletsManagmentAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletsManagmentAssembly.swift; sourceTree = "<group>"; };
@@ -2928,7 +2930,6 @@
 		23A74BDB54D503FA2BFBEF35 /* StakingUnbondSetupProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondSetupProtocols.swift; sourceTree = "<group>"; };
 		23BC71941B91D3E372CDB11C /* CrowdloanContributionSetupViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionSetupViewLayout.swift; sourceTree = "<group>"; };
 		23CF7E56EC624BDB60290387 /* CreateContactPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CreateContactPresenter.swift; sourceTree = "<group>"; };
-		25A667173FD5472A339D4951 /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
 		25FF82C2FD912021A1F20876 /* PolkaswapAdjustmentViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapAdjustmentViewLayout.swift; sourceTree = "<group>"; };
 		262F98DEF54FA9592BE22B94 /* AllDoneAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneAssembly.swift; sourceTree = "<group>"; };
 		2648EEF96694A7FEC94520E8 /* WalletHistoryFilterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletHistoryFilterTests.swift; sourceTree = "<group>"; };
@@ -2954,7 +2955,7 @@
 		2AEC13E6950006302AC51B96 /* WalletTransactionHistoryProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryProtocols.swift; sourceTree = "<group>"; };
 		2B55A4C7E8BD87A7C8634ADD /* WalletsManagmentRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletsManagmentRouter.swift; sourceTree = "<group>"; };
 		2BE0492B98AB9C1540846B39 /* StakingPayoutConfirmationViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationViewFactory.swift; sourceTree = "<group>"; };
-		2DF8ACFCE9BA5081C867CC8A /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
+		2C32AE619883AC47863C2536 /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		2E4B0600AFFB96A75CF98755 /* StakingRedeemProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRedeemProtocols.swift; sourceTree = "<group>"; };
 		2E57C70327E8AB3D00AF075A /* CrowdloanWikiTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanWikiTableViewCell.swift; sourceTree = "<group>"; };
 		2E57C70A27E9EC0E00AF075A /* ProfileViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileViewState.swift; sourceTree = "<group>"; };
@@ -2970,10 +2971,8 @@
 		320E2207FB549F7C31A80441 /* SelectMarketViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectMarketViewController.swift; sourceTree = "<group>"; };
 		3211D250E4167C916B8B9D6A /* NetworkIssuesNotificationRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationRouter.swift; sourceTree = "<group>"; };
 		321FF178954097DF4B84780B /* BackupSelectWalletProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupSelectWalletProtocols.swift; sourceTree = "<group>"; };
-		32452A37191F6B6E6513ABB2 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		326260E461C031624CDB62BA /* WalletOptionInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletOptionInteractor.swift; sourceTree = "<group>"; };
 		32FDB8843EB793C85B222FDB /* SwapTransactionDetailViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwapTransactionDetailViewController.swift; sourceTree = "<group>"; };
-		3301B6A6B110EF26845A5D23 /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		336395FFC4B2104A9651A2DE /* StakingRewardPayoutsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardPayoutsViewFactory.swift; sourceTree = "<group>"; };
 		3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementInteractor.swift; sourceTree = "<group>"; };
 		3574BADE9CF77599048C7010 /* CrowdloanContributionSetupWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionSetupWireframe.swift; sourceTree = "<group>"; };
@@ -2988,7 +2987,6 @@
 		379D8325FB981E21B5E3B7A4 /* BackupRiskWarningsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupRiskWarningsInteractor.swift; sourceTree = "<group>"; };
 		3837CE5CB2D48D8A694A7EE0 /* StakingPoolCreateConfirmPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmPresenter.swift; sourceTree = "<group>"; };
 		385FE8691EA37DE9F562B34E /* CrowdloanContributionConfirmTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionConfirmTests.swift; sourceTree = "<group>"; };
-		3A67F1FD6E60AFA553FD890B /* Pods_fearlessAll_fearlessIntegrationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearlessIntegrationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3A75423ED5D55F8DC011DC03 /* BackupWalletImportedProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupWalletImportedProtocols.swift; sourceTree = "<group>"; };
 		3A93673EEA8F71E8DDA84557 /* StakingRedeemWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRedeemWireframe.swift; sourceTree = "<group>"; };
 		3ABDA8952766DE724CD078D6 /* NodeSelectionPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NodeSelectionPresenter.swift; sourceTree = "<group>"; };
@@ -3012,7 +3010,6 @@
 		4191E0055768541F6A3D8A61 /* StakingRewardPayoutsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardPayoutsInteractor.swift; sourceTree = "<group>"; };
 		41DFB2757D029FB5DF3CEBC2 /* WalletHistoryFilterProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletHistoryFilterProtocols.swift; sourceTree = "<group>"; };
 		41E19988955B1C159EDA2555 /* WalletsManagmentPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletsManagmentPresenter.swift; sourceTree = "<group>"; };
-		420A0688DDCC05E2F5E8752C /* Pods-fearlessAll-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig"; sourceTree = "<group>"; };
 		43B2963C83C33138F135F2F7 /* BackupWalletRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupWalletRouter.swift; sourceTree = "<group>"; };
 		446B4A7184327D64AE8F0610 /* WarningAlertProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WarningAlertProtocols.swift; sourceTree = "<group>"; };
 		447FE0DC90DF4B4D13CADE62 /* NodeSelectionInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NodeSelectionInteractor.swift; sourceTree = "<group>"; };
@@ -3040,8 +3037,6 @@
 		527CD27768E9A75E6CA87FE4 /* AccountConfirmTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmTests.swift; sourceTree = "<group>"; };
 		52A64FCFC95E3841032F910B /* ChainSelectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainSelectionTests.swift; sourceTree = "<group>"; };
 		52F8D055D0481469073AA859 /* StakingPayoutConfirmationProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationProtocols.swift; sourceTree = "<group>"; };
-		5337DD7DA3F506A0C7D2FE63 /* Pods-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
-		53B6268E4FFFCBBABA8FB21A /* Pods_fearlessTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5408FF305E4A49A683BC43E0 /* WalletChainAccountDashboardViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletChainAccountDashboardViewLayout.swift; sourceTree = "<group>"; };
 		54467F2070858A3606E083F0 /* BackupCreatePasswordPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupCreatePasswordPresenter.swift; sourceTree = "<group>"; };
 		54776237A20227DFE025E3AC /* AllDoneViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneViewLayout.swift; sourceTree = "<group>"; };
@@ -3089,6 +3084,7 @@
 		6216F6F1B91F798F07695FB6 /* StakingAmountWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingAmountWireframe.swift; sourceTree = "<group>"; };
 		62A92EC754FCEB4D398340CE /* BackupRiskWarningsRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupRiskWarningsRouter.swift; sourceTree = "<group>"; };
 		62FA66143B25AA70B02CE461 /* ExportSeedViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportSeedViewFactory.swift; sourceTree = "<group>"; };
+		635A43EDB9976F9009626296 /* Pods_fearlessAll_fearlessIntegrationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearlessIntegrationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		638A65DAC86BAF9EB4D2F2F8 /* StakingRewardDetailsWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsWireframe.swift; sourceTree = "<group>"; };
 		639AD37D87BD08106E7E6E2A /* WarningAlertWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WarningAlertWireframe.swift; sourceTree = "<group>"; };
 		63CCCC63389A70294F816143 /* NodeSelectionProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NodeSelectionProtocols.swift; sourceTree = "<group>"; };
@@ -3099,6 +3095,7 @@
 		67B3E1906EEBE32E71E82BB6 /* NodeSelectionViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewLayout.swift; sourceTree = "<group>"; };
 		6897929D244B5C29E3FD0727 /* StakingPoolCreateRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateRouter.swift; sourceTree = "<group>"; };
 		69B00AC48FB7D11855875EB9 /* SwapTransactionDetailPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwapTransactionDetailPresenter.swift; sourceTree = "<group>"; };
+		6A3F2C15662B3F4B4315A917 /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
 		6A825B6368073B06F32D7C8F /* StakingMainViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainViewFactory.swift; sourceTree = "<group>"; };
 		6B0277C3D897EADD48A7C64F /* AnalyticsValidatorsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsInteractor.swift; sourceTree = "<group>"; };
 		6B37BB3FF5CDF7EA9D7371B7 /* WalletTransactionDetailsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsInteractor.swift; sourceTree = "<group>"; };
@@ -3118,6 +3115,7 @@
 		7484BA696561262926D87FE5 /* CrowdloanContributionSetupProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionSetupProtocols.swift; sourceTree = "<group>"; };
 		748E0AF1A286016CB220155C /* ControllerAccountInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountInteractor.swift; sourceTree = "<group>"; };
 		75B53E901B1475DE858A2C99 /* ContactsRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContactsRouter.swift; sourceTree = "<group>"; };
+		75EAEFD7C5D75A9FF17A40BD /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		761FDEBB414B1CFAD6992352 /* AnalyticsRewardDetailsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardDetailsTests.swift; sourceTree = "<group>"; };
 		771640EBA2B54E90712D87C8 /* WalletScanQRViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletScanQRViewFactory.swift; sourceTree = "<group>"; };
 		779702BC0E9C9882BEA5C273 /* StakingPoolCreateConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmInteractor.swift; sourceTree = "<group>"; };
@@ -3132,9 +3130,7 @@
 		7C358C8AF370EE30400A2936 /* WalletSendTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendTests.swift; sourceTree = "<group>"; };
 		7C70EBF83B2547452417E588 /* StakingRewardDetailsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewController.swift; sourceTree = "<group>"; };
 		7D4F893132D221BB1020D929 /* BackupPasswordViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupPasswordViewController.swift; sourceTree = "<group>"; };
-		7D842AC151EE0CAFEF54C98A /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; sourceTree = "<group>"; };
 		7DDDB2B35CD3299F50613141 /* ReferralCrowdloanViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanViewController.swift; sourceTree = "<group>"; };
-		7E34231A711812575CCC70C4 /* Pods-fearlessAll-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		7E62CD2831DCF0A2D5DBB08F /* SelectValidatorsStartViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartViewController.swift; sourceTree = "<group>"; };
 		7EADA37D0D22D4CC99A7911A /* StakingPoolInfoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoViewController.swift; sourceTree = "<group>"; };
 		7ED5BEE4CC908012820FE89F /* NetworkInfoProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoProtocols.swift; sourceTree = "<group>"; };
@@ -3143,8 +3139,10 @@
 		809875CA7853D8837CA64B33 /* WalletNameRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletNameRouter.swift; sourceTree = "<group>"; };
 		80C632A122CE8D02B84806C3 /* WalletMainContainerRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletMainContainerRouter.swift; sourceTree = "<group>"; };
 		80DE21374A7FA5AE4D26CEB2 /* ChainAccountBalanceListTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceListTests.swift; sourceTree = "<group>"; };
+		81DB508643567E8AE928B337 /* Pods_fearlessAll_fearless.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearless.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		82CBCBA8BF2D753248238555 /* ContactsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContactsViewController.swift; sourceTree = "<group>"; };
 		82FD4E0BB1ABA364AFD2E891 /* WalletTransactionDetailsPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsPresenter.swift; sourceTree = "<group>"; };
+		836F6B8C56C503E498095264 /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		8386FC2BBA799FB42DDED2BB /* BackupSelectWalletViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupSelectWalletViewLayout.swift; sourceTree = "<group>"; };
 		83AB0AD3A7CECD061611F60C /* ChainSelectionInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainSelectionInteractor.swift; sourceTree = "<group>"; };
 		8400F0B7252BBCFA00E6B4CB /* WalletSelectAccountCommandTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletSelectAccountCommandTests.swift; sourceTree = "<group>"; };
@@ -4082,6 +4080,7 @@
 		8821119C96944A0E3526E93A /* StakingRedeemViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingRedeemViewFactory.swift; sourceTree = "<group>"; };
 		885A9E2D3619FEFC5ED0C093 /* WalletChainAccountDashboardWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletChainAccountDashboardWireframe.swift; sourceTree = "<group>"; };
 		889A825F58F5CB54118A9D35 /* SelectValidatorsStartWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartWireframe.swift; sourceTree = "<group>"; };
+		88ACE66C907D2C9DF8525DCF /* Pods-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
 		890203CBFFCBF517C0BAA396 /* YourValidatorListTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListTests.swift; sourceTree = "<group>"; };
 		894987C6E4C372A0E0E72E86 /* WalletChainAccountDashboardViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletChainAccountDashboardViewController.swift; sourceTree = "<group>"; };
 		8A687FBDA0912F8727CE0D81 /* WalletSendConfirmPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmPresenter.swift; sourceTree = "<group>"; };
@@ -4093,6 +4092,7 @@
 		8D51D60F19284936A6E9F47D /* ReferralCrowdloanWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanWireframe.swift; sourceTree = "<group>"; };
 		8E4DF941DE0EDEF99A843A9D /* ContactsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContactsInteractor.swift; sourceTree = "<group>"; };
 		8E83833EB33E51A12F96F83B /* WalletChainAccountDashboardPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletChainAccountDashboardPresenter.swift; sourceTree = "<group>"; };
+		8EB69EFC3D9DE1414B87991F /* Pods_fearlessTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8F04623D6CE10669D914CA2F /* PolkaswapTransaktionSettingsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapTransaktionSettingsViewController.swift; sourceTree = "<group>"; };
 		8F0FEFEAEC5CDCD7C9BF77D5 /* PolkaswapSwapConfirmationPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapSwapConfirmationPresenter.swift; sourceTree = "<group>"; };
 		900E67A76C0702F8123EBB47 /* AddCustomNodeInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddCustomNodeInteractor.swift; sourceTree = "<group>"; };
@@ -4289,6 +4289,7 @@
 		B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportProtocols.swift; sourceTree = "<group>"; };
 		B399E7CA0A03A06EFDF1B126 /* PolkaswapTransaktionSettingsPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapTransaktionSettingsPresenter.swift; sourceTree = "<group>"; };
 		B4948E8C4FEA895C124827CA /* BackupWalletImportedViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupWalletImportedViewController.swift; sourceTree = "<group>"; };
+		B57DF955517962F4E53CCB0D /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; sourceTree = "<group>"; };
 		B5934BA68F375F5F8237967D /* NetworkInfoViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkInfoViewController.xib; sourceTree = "<group>"; };
 		B5E69C4F66805399A3DB4ED8 /* MainNftContainerAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainNftContainerAssembly.swift; sourceTree = "<group>"; };
 		B612B4093684FBF725AE6B06 /* BackupWalletTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupWalletTests.swift; sourceTree = "<group>"; };
@@ -4311,7 +4312,6 @@
 		C23EA8830B337C4F8142A395 /* AddCustomNodeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddCustomNodeTests.swift; sourceTree = "<group>"; };
 		C2956D0C69019DDCDAB2EB34 /* CustomValidatorListViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CustomValidatorListViewLayout.swift; sourceTree = "<group>"; };
 		C316BE4F5A0342D379F783E8 /* StartSelectValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StartSelectValidatorsTests.swift; sourceTree = "<group>"; };
-		C385925D32737B808FA4DFD8 /* Pods_fearlessAll_fearless.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearless.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		C503100478AB56E903598A78 /* ReferralCrowdloanPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReferralCrowdloanPresenter.swift; sourceTree = "<group>"; };
 		C569B746953D3BA947ACEA8D /* ChainSelectionViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainSelectionViewController.swift; sourceTree = "<group>"; };
 		C597BAB74DF23914B68FDC39 /* SwapTransactionDetailAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SwapTransactionDetailAssembly.swift; sourceTree = "<group>"; };
@@ -4319,7 +4319,6 @@
 		C600C4D628053DF500111316 /* UsernameSetupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewController.swift; sourceTree = "<group>"; };
 		C600C4D828054A1B00111316 /* AccountCreateFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateFlow.swift; sourceTree = "<group>"; };
 		C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainRelaychainStrategy.swift; sourceTree = "<group>"; };
-		C606D6CC2A8DD0E900D456D9 /* SoraCardInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInitializer.swift; sourceTree = "<group>"; };
 		C615668029309D3900391BF3 /* QRService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
 		C61566842930A07900391BF3 /* QRCreationOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCreationOperation.swift; sourceTree = "<group>"; };
 		C6264C282799A56E00FCA0DB /* WalletDetailsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableCell.swift; sourceTree = "<group>"; };
@@ -4405,8 +4404,12 @@
 		C6CA307C285F61B70087776D /* ParachainState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainState.swift; sourceTree = "<group>"; };
 		C6CA307E286190630087776D /* DelegationStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationStateView.swift; sourceTree = "<group>"; };
 		C6CA3080286192C50087776D /* DelegationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationViewModel.swift; sourceTree = "<group>"; };
+		C6D50DB42A958FCF0040573D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		C6D50DB52A958FCF0040573D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		C6D50DB62A958FD00040573D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
+		C6D9B91E2AA826470061C1F7 /* SoraCardInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInitializer.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableExportOptionsProvider.swift; sourceTree = "<group>"; };
 		C705CA1083C1EE58426D90CD /* AllDoneInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneInteractor.swift; sourceTree = "<group>"; };
@@ -4482,9 +4485,9 @@
 		E9636093217ABE05A7FAC9B9 /* AccountCreateViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateViewFactory.swift; sourceTree = "<group>"; };
 		EB8605FD90D8C3553A9897B4 /* AccountImportPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportPresenter.swift; sourceTree = "<group>"; };
 		EC70B2E02A12C9E0FB2CDB17 /* BannersAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BannersAssembly.swift; sourceTree = "<group>"; };
-		EC8C92E7FDD44EBAD92804EA /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		ECB733351DB8DE9825D07B28 /* BackupRiskWarningsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackupRiskWarningsTests.swift; sourceTree = "<group>"; };
 		ECBF10B7D4707E4D7D6387CF /* FiltersViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersViewFactory.swift; sourceTree = "<group>"; };
+		ED53F17F3066A93F938D37DB /* Pods-fearlessAll-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		EDB9EDB05686DF11958145E1 /* ControllerAccountWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountWireframe.swift; sourceTree = "<group>"; };
 		EDDA0B079962E00FAFBE07AD /* ChainSelectionProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainSelectionProtocols.swift; sourceTree = "<group>"; };
 		EDED6FBACD36C077521CB24D /* FiltersViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersViewController.swift; sourceTree = "<group>"; };
@@ -5404,7 +5407,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				7D13EAF8A650DD2053DC3E16 /* Pods_fearlessAll_fearlessIntegrationTests.framework in Frameworks */,
+				502F943F18E556BB7C7C9C54 /* Pods_fearlessAll_fearlessIntegrationTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5412,7 +5415,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F6081801997433B8DB5E832C /* Pods_fearlessAll_fearless.framework in Frameworks */,
+				F746B3BFEEA680F4E442D241 /* Pods_fearlessAll_fearless.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5420,7 +5423,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0675CC47DB18F7EFE67DA611 /* Pods_fearlessTests.framework in Frameworks */,
+				617AFD3761E0D68911A331AB /* Pods_fearlessTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6023,16 +6026,6 @@
 			path = BackupRiskWarnings;
 			sourceTree = "<group>";
 		};
-		10782A192AF0BB4548BC5CC6 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				C385925D32737B808FA4DFD8 /* Pods_fearlessAll_fearless.framework */,
-				3A67F1FD6E60AFA553FD890B /* Pods_fearlessAll_fearlessIntegrationTests.framework */,
-				53B6268E4FFFCBBABA8FB21A /* Pods_fearlessTests.framework */,
-			);
-			name = Frameworks;
-			sourceTree = "<group>";
-		};
 		1132E923A881889011B3D2A6 /* ChainAccountBalanceList */ = {
 			isa = PBXGroup;
 			children = (
@@ -6174,15 +6167,15 @@
 		2698CD398B0412EB85D620AB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				420A0688DDCC05E2F5E8752C /* Pods-fearlessAll-fearless.debug.xcconfig */,
-				7E34231A711812575CCC70C4 /* Pods-fearlessAll-fearless.dev.xcconfig */,
-				3301B6A6B110EF26845A5D23 /* Pods-fearlessAll-fearless.release.xcconfig */,
-				25A667173FD5472A339D4951 /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */,
-				7D842AC151EE0CAFEF54C98A /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */,
-				EC8C92E7FDD44EBAD92804EA /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */,
-				5337DD7DA3F506A0C7D2FE63 /* Pods-fearlessTests.debug.xcconfig */,
-				2DF8ACFCE9BA5081C867CC8A /* Pods-fearlessTests.dev.xcconfig */,
-				32452A37191F6B6E6513ABB2 /* Pods-fearlessTests.release.xcconfig */,
+				1F13F578957F844E3C4248D5 /* Pods-fearlessAll-fearless.debug.xcconfig */,
+				ED53F17F3066A93F938D37DB /* Pods-fearlessAll-fearless.dev.xcconfig */,
+				2C32AE619883AC47863C2536 /* Pods-fearlessAll-fearless.release.xcconfig */,
+				6A3F2C15662B3F4B4315A917 /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */,
+				B57DF955517962F4E53CCB0D /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */,
+				836F6B8C56C503E498095264 /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */,
+				88ACE66C907D2C9DF8525DCF /* Pods-fearlessTests.debug.xcconfig */,
+				0A850D3DF9D7D1816B1DD468 /* Pods-fearlessTests.dev.xcconfig */,
+				75EAEFD7C5D75A9FF17A40BD /* Pods-fearlessTests.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -6491,6 +6484,16 @@
 				C316BE4F5A0342D379F783E8 /* StartSelectValidatorsTests.swift */,
 			);
 			path = StartSelectValidators;
+			sourceTree = "<group>";
+		};
+		5A7EA836E949FB3A13040F5A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				81DB508643567E8AE928B337 /* Pods_fearlessAll_fearless.framework */,
+				635A43EDB9976F9009626296 /* Pods_fearlessAll_fearlessIntegrationTests.framework */,
+				8EB69EFC3D9DE1414B87991F /* Pods_fearlessTests.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 		5AA9DD83BBA839623389411E /* CrowdloanContributionConfirm */ = {
@@ -8033,7 +8036,7 @@
 				849013A924A80984008F705E /* Products */,
 				2698CD398B0412EB85D620AB /* Pods */,
 				84CFF1CA26526C4700DB7CF7 /* Recovered References */,
-				10782A192AF0BB4548BC5CC6 /* Frameworks */,
+				5A7EA836E949FB3A13040F5A /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -12089,7 +12092,7 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				C606D6CC2A8DD0E900D456D9 /* SoraCardInitializer.swift */,
+				C6D9B91E2AA826470061C1F7 /* SoraCardInitializer.swift */,
 				073417AE298BA28300104F41 /* Equilibrium */,
 				0713097B28C6387B002B17D0 /* ScamService */,
 				FA99426E2805524200D771E5 /* GetBalanceProvider */,
@@ -13468,11 +13471,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 8438E1D624BFAAD2001BDB13 /* Build configuration list for PBXNativeTarget "fearlessIntegrationTests" */;
 			buildPhases = (
-				A1F316283DB0581DD481402F /* [CP] Check Pods Manifest.lock */,
+				A193EADCE1E145B12E36C90C /* [CP] Check Pods Manifest.lock */,
 				8438E1CB24BFAAD2001BDB13 /* Sources */,
 				8438E1CC24BFAAD2001BDB13 /* Frameworks */,
 				8438E1CD24BFAAD2001BDB13 /* Resources */,
-				8C060D0B1D7A72A5356874D6 /* [CP] Embed Pods Frameworks */,
+				35110877637D537F2C12A4B1 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -13488,7 +13491,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 849013C724A80986008F705E /* Build configuration list for PBXNativeTarget "fearless" */;
 			buildPhases = (
-				17F896256CC8D22C9A787280 /* [CP] Check Pods Manifest.lock */,
+				00661B262E277FC7B9F2A7BC /* [CP] Check Pods Manifest.lock */,
 				AE2060202636DA5900357578 /* Inject keys */,
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
@@ -13496,7 +13499,7 @@
 				849013A424A80984008F705E /* Sources */,
 				849013A524A80984008F705E /* Frameworks */,
 				849013A624A80984008F705E /* Resources */,
-				64B3E13A1198B278FCBF438C /* [CP] Embed Pods Frameworks */,
+				278B31534946D876F5330D93 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -13511,13 +13514,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 849013CA24A80986008F705E /* Build configuration list for PBXNativeTarget "fearlessTests" */;
 			buildPhases = (
-				4C7510AEC701C23D0AA7DA11 /* [CP] Check Pods Manifest.lock */,
+				0D02FC5052D0FF91D5ED3103 /* [CP] Check Pods Manifest.lock */,
 				842D1E8824D207C700C30A7A /* Modules Mock */,
 				842D1E8924D207D900C30A7A /* Common Mock */,
 				849013BA24A80986008F705E /* Sources */,
 				849013BB24A80986008F705E /* Frameworks */,
 				849013BC24A80986008F705E /* Resources */,
-				8AB8DBD7AC5AB489D7430255 /* [CP] Embed Pods Frameworks */,
+				6DD167ED04E13EC7ED29903A /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -13561,6 +13564,7 @@
 				en,
 				ru,
 				ja,
+				"zh-Hans",
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -13665,7 +13669,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		17F896256CC8D22C9A787280 /* [CP] Check Pods Manifest.lock */ = {
+		00661B262E277FC7B9F2A7BC /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -13687,7 +13691,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		4C7510AEC701C23D0AA7DA11 /* [CP] Check Pods Manifest.lock */ = {
+		0D02FC5052D0FF91D5ED3103 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -13709,7 +13713,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		64B3E13A1198B278FCBF438C /* [CP] Embed Pods Frameworks */ = {
+		278B31534946D876F5330D93 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -13724,6 +13728,40 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		35110877637D537F2C12A4B1 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		6DD167ED04E13EC7ED29903A /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		842D1E8824D207C700C30A7A /* Modules Mock */ = {
@@ -13800,41 +13838,7 @@
 			shellPath = /bin/sh;
 			shellScript = "\"$PODS_ROOT/R.swift/rswift\" generate \"$PROJECT_DIR/R.generated.swift\"\n";
 		};
-		8AB8DBD7AC5AB489D7430255 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8C060D0B1D7A72A5356874D6 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		A1F316283DB0581DD481402F /* [CP] Check Pods Manifest.lock */ = {
+		A193EADCE1E145B12E36C90C /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -13874,7 +13878,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args moonPaySecretKey=$MOONPAY_PRODUCTION_SECRET,moonPayTestSecretKey=$MOONPAY_TEST_SECRET,subscanAPIKey=$SUBSCAN_API_KEY,webClientIdRelease=$WEB_CLIENT_ID_RELEASE,fearlessGoogleUrlSchemeRelease=$FEARLESS_GOOGLE_URL_SCHEME_RELEASE,webClientIdDebug=$WEB_CLIENT_ID_DEBUG,fearlessGoogleUrlSchemeDebug=$FEARLESS_GOOGLE_URL_SCHEME_DEBUG,soraCardAPIKeyTest=$SORA_CARD_API_KEY_TEST,soraCardAPIKeyProd=$SORA_CARD_API_KEY_PROD,soraCardDomainTest=$SORA_CARD_DOMAIN_TEST,soraCardDomainProd=$SORA_CARD_DOMAIN_PROD,soraCardKYCEndpointUrlTest=$SORA_CARD_KYC_ENDPOINT_URL_TEST,,soraCardKYCEndpointUrlProd=$SORA_CARD_KYC_ENDPOINT_URL_PROD,soraCardKycUsernameTest=$SORA_CARD_KYC_USERNAME_TEST,soraCardKycUsernameProd=$SORA_CARD_KYC_USERNAME_PROD,soraCardKycPasswordTest=$SORA_CARD_KYC_PASSWORD_TEST,soraCardKycPasswordProd=$SORA_CARD_KYC_PASSWORD_PROD,soraCardBackendTestUrl=$SORA_BACKEND_DEBUG,soraCardBackendProdUrl=$SORA_BACKEND_RELEASE,soraCardXOneEndpointTest=$X1_ENDPOINT_URL_DEBUG,soraCardXOneEndpointProd=$X1_ENDPOINT_URL_RELEASE,soraCardXOneIdTest=$X1_WIDGET_ID_DEBUG,soraCardXOneIdProd=$X1_WIDGET_ID_RELEASE,paywingsRepositoryUrl=$PAY_WINGS_REPOSITORY_URL,paywingsUsername=$PAY_WINGS_USERNAME,paywingsPassword=$PAY_WINGS_PASSWORD,soraGoogleUrlScheme=$SORA_GOOGLE_URL_SCHEME,soraGoogleToken=$SORA_GOOGLE_TOKEN\n\n#add params to the xcconfig files\nvariableNames=(\"FEARLESS_GOOGLE_TOKEN\" \"FEARLESS_GOOGLE_URL_SCHEME\")\n\n# Iterate over the array\nfor variableName in \"${variableNames[@]}\"; do\n    for file in \"$PROJECT_DIR\"/fearless/Configs/*.xcconfig; do\n        if ! grep -q \"^$variableName = ${!variableName}$\" \"$file\"; then\n            echo \"$variableName = ${!variableName}\" >> \"$file\"\n        fi\n    done\ndone\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $FEARLESS_GOOGLE_URL_SCHEME\" \"$PROJECT_DIR\"/fearless/Info.plist\n\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $FEARLESS_GOOGLE_TOKEN\" \"$PROJECT_DIR\"/fearless/Info.plist\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args moonPaySecretKey=$MOONPAY_PRODUCTION_SECRET,moonPayTestSecretKey=$MOONPAY_TEST_SECRET,subscanAPIKey=$SUBSCAN_API_KEY,webClientIdRelease=$WEB_CLIENT_ID_RELEASE,fearlessGoogleUrlSchemeRelease=$FEARLESS_GOOGLE_URL_SCHEME_RELEASE,webClientIdDebug=$WEB_CLIENT_ID_DEBUG,fearlessGoogleUrlSchemeDebug=$FEARLESS_GOOGLE_URL_SCHEME_DEBUG\n\n#add params to the xcconfig files\nvariableNames=(\"FEARLESS_GOOGLE_TOKEN\" \"FEARLESS_GOOGLE_URL_SCHEME\")\n\n# Iterate over the array\nfor variableName in \"${variableNames[@]}\"; do\n    for file in \"$PROJECT_DIR\"/fearless/Configs/*.xcconfig; do\n        if ! grep -q \"^$variableName = ${!variableName}$\" \"$file\"; then\n            echo \"$variableName = ${!variableName}\" >> \"$file\"\n        fi\n    done\ndone\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $FEARLESS_GOOGLE_URL_SCHEME\" \"$PROJECT_DIR\"/fearless/Info.plist\n\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $FEARLESS_GOOGLE_TOKEN\" \"$PROJECT_DIR\"/fearless/Info.plist\n";
 		};
 		F472A8D6261758DE003C58BC /* SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -15084,7 +15088,7 @@
 				FAA0136828DA12E3000A5230 /* StakingRedeemConfirmationViewModel.swift in Sources */,
 				849ABE6D2627949E00011A2A /* BatchMapper.swift in Sources */,
 				FAFFAE7E29AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift in Sources */,
-				C606D6CD2A8DD0E900D456D9 /* SoraCardInitializer.swift in Sources */,
+				C6D9B91F2AA826470061C1F7 /* SoraCardInitializer.swift in Sources */,
 				FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */,
 				FAFFAE4029AC84850074AF1F /* AccountManagementPresentable.swift in Sources */,
 				FA15BC152823CB7B0037C023 /* ParachainCollatorOperationFactory.swift in Sources */,
@@ -16537,6 +16541,7 @@
 				8490145F24A94373008F705E /* en */,
 				8490146224A9438E008F705E /* ru */,
 				0765D72D2A67D28700730F45 /* ja */,
+				C6D50DB52A958FCF0040573D /* zh-Hans */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -16555,6 +16560,7 @@
 				84C07EDD24AF1935008FC35B /* en */,
 				84C07EE524AF1990008FC35B /* ru */,
 				0765D72C2A67D28700730F45 /* ja */,
+				C6D50DB42A958FCF0040573D /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -16565,6 +16571,7 @@
 				AE74EC1625FCF09000C494E7 /* en */,
 				AE74EC1F25FCF0A600C494E7 /* ru */,
 				0765D72E2A67D28800730F45 /* ja */,
+				C6D50DB62A958FD00040573D /* zh-Hans */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -16574,7 +16581,7 @@
 /* Begin XCBuildConfiguration section */
 		8438E1D724BFAAD2001BDB13 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 25A667173FD5472A339D4951 /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */;
+			baseConfigurationReference = 6A3F2C15662B3F4B4315A917 /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -16596,7 +16603,7 @@
 		};
 		8438E1D824BFAAD2001BDB13 /* Dev */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 7D842AC151EE0CAFEF54C98A /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */;
+			baseConfigurationReference = B57DF955517962F4E53CCB0D /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -16618,7 +16625,7 @@
 		};
 		8438E1D924BFAAD2001BDB13 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = EC8C92E7FDD44EBAD92804EA /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */;
+			baseConfigurationReference = 836F6B8C56C503E498095264 /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -16772,7 +16779,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.1.0;
+				MARKETING_VERSION = 2.4.2;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -16798,7 +16805,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.1.0;
+				MARKETING_VERSION = 2.4.2;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -16809,7 +16816,7 @@
 		};
 		849013CB24A80986008F705E /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5337DD7DA3F506A0C7D2FE63 /* Pods-fearlessTests.debug.xcconfig */;
+			baseConfigurationReference = 88ACE66C907D2C9DF8525DCF /* Pods-fearlessTests.debug.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -16834,7 +16841,7 @@
 		};
 		849013CC24A80986008F705E /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 32452A37191F6B6E6513ABB2 /* Pods-fearlessTests.release.xcconfig */;
+			baseConfigurationReference = 75EAEFD7C5D75A9FF17A40BD /* Pods-fearlessTests.release.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -16935,7 +16942,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.1.0;
+				MARKETING_VERSION = 2.4.2;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -16947,7 +16954,7 @@
 		};
 		8490140024A92A27008F705E /* Dev */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 2DF8ACFCE9BA5081C867CC8A /* Pods-fearlessTests.dev.xcconfig */;
+			baseConfigurationReference = 0A850D3DF9D7D1816B1DD468 /* Pods-fearlessTests.dev.xcconfig */;
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = "$(inherited)";
 				BUNDLE_LOADER = "$(TEST_HOST)";

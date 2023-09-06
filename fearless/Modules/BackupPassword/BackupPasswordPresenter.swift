@@ -95,17 +95,14 @@ final class BackupPasswordPresenter {
     private func createSeedRequestData(
         from backup: OpenBackupAccount
     ) throws -> MetaAccountImportRequestSource.SeedImportRequestData {
-        guard
-            let substrateSeed = backup.encryptedSeed?.substrateSeed,
-            let substrateDerivationPath = backup.substrateDerivationPath
-        else {
+        guard let substrateSeed = backup.encryptedSeed?.substrateSeed else {
             throw ConvenienceError(error: "Can't create SeedImportRequestData")
         }
 
         let sourceData = MetaAccountImportRequestSource.SeedImportRequestData(
             substrateSeed: substrateSeed,
             ethereumSeed: backup.encryptedSeed?.ethSeed,
-            substrateDerivationPath: substrateDerivationPath,
+            substrateDerivationPath: backup.substrateDerivationPath ?? "",
             ethereumDerivationPath: backup.ethDerivationPath
         )
         return sourceData
@@ -126,17 +123,13 @@ final class BackupPasswordPresenter {
             ethereumKeystore = ethereumKeystoreData.toUTF8String()
         }
 
-        var substratePassword = ""
-        var ethereumPassword = ""
-        if let password = backup.passphrase {
-            substratePassword = password
-            ethereumPassword = password
-        }
+        let password = passwordInputViewModel.inputHandler.normalizedValue
+
         let sourceData = MetaAccountImportRequestSource.KeystoreImportRequestData(
             substrateKeystore: substrateKeystore,
             ethereumKeystore: ethereumKeystore,
-            substratePassword: substratePassword,
-            ethereumPassword: ethereumKeystore == nil ? nil : ethereumPassword
+            substratePassword: password,
+            ethereumPassword: ethereumKeystore == nil ? nil : password
         )
         return sourceData
     }

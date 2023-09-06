@@ -13,9 +13,15 @@ final class BannersAssembly {
                 mapper: AnyCoreDataMapper(ManagedMetaAccountMapper())
             )
 
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+
         let interactor = BannersInteractor(
-            walletProvider: walletProvider
+            walletProvider: walletProvider,
+            repository: accountRepository,
+            operationQueue: OperationQueue()
         )
+
         let router = BannersRouter()
 
         let presenter = BannersPresenter(

@@ -148,6 +148,9 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     }
 
     func didReceive(viewModel: ChainAssetListViewModel) {
+        UIView.animate(withDuration: 0.3) {
+            self.rootView.bannersView?.isHidden = viewModel.bannerIsHidden
+        }
         let isInitialReload = self.viewModel == nil
 
         self.viewModel = viewModel

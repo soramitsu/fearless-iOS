@@ -5,7 +5,7 @@ import SoraKeystore
 
 enum BackupCreatePasswordFlow {
     case createWallet(MetaAccountImportMnemonicRequest)
-    case backupWallet(wallet: MetaAccountModel, request: RequestType)
+    case backupWallet(flow: ExportFlow, options: [ExportOption])
 
     enum RequestType {
         case mnemonic(MetaAccountImportMnemonicRequest)
@@ -17,13 +17,8 @@ enum BackupCreatePasswordFlow {
         switch self {
         case let .createWallet(metaAccountImportMnemonicRequest):
             return metaAccountImportMnemonicRequest
-        case let .backupWallet(_, type):
-            switch type {
-            case let .mnemonic(request):
-                return request
-            default:
-                return nil
-            }
+        case .backupWallet:
+            return nil
         }
     }
 }
@@ -42,6 +37,7 @@ enum BackupCreatePasswordAssembly {
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
+        let keystore = Keychain()
         let interactor = BackupCreatePasswordInteractor(
             createPasswordFlow: flow,
             accountOperationFactory: accountOperationFactory,
@@ -49,7 +45,9 @@ enum BackupCreatePasswordAssembly {
             settings: settings,
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared,
-            secretManager: KeychainManager.shared
+            secretManager: KeychainManager.shared,
+            keystore: keystore,
+            exportJsonWrapper: KeystoreExportWrapper(keystore: keystore)
         )
 
         let router = BackupCreatePasswordRouter()

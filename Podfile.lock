@@ -156,7 +156,7 @@ PODS:
     - SSFNetwork
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFCloudStorage (0.1.12):
+  - SSFCloudStorage (0.1.15):
     - GoogleAPIClientForREST/Drive (~> 1.2.1)
     - GoogleSignIn (~> 7.0.0)
     - IrohaCrypto/Scrypt
@@ -370,7 +370,7 @@ CHECKOUT OPTIONS:
   IdensicMobileSDK:
     :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.1.tar.gz
   SCard:
-    :commit: 82b4717d48a37006e066089d006b0efad4e9886e
+    :commit: 2e2e63188a1967673da9503f5a503d91e68ed44f
     :git: https://github.com/sora-xor/sora-card-ios
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
@@ -416,7 +416,7 @@ SPEC CHECKSUMS:
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SSFChainConnection: 760f0bbe0d711cc0f184b951dea9e840a2962346
   SSFChainRegistry: adfcfa6f8e7dae4730e258989c2a58ee674bf1e1
-  SSFCloudStorage: 5e7dc925f82ad67d5b44a34a825f30f62dfbd190
+  SSFCloudStorage: 37fbba3ad3e93a637d9c1a9b85910f4fa29596de
   SSFCrypto: 0d1b79e1d253055189ec42b6155d045f464ab993
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
