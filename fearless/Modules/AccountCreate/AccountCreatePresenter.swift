@@ -253,7 +253,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 username: usernameSetup.username,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType
+                cryptoType: selectedCryptoType,
+                defaultChainId: nil
             )
             wireframe.confirm(
                 from: view,
@@ -276,7 +277,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 username: usernameSetup.username,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType
+                cryptoType: selectedCryptoType,
+                defaultChainId: nil
             )
             wireframe.showBackupCreatePassword(
                 request: request,

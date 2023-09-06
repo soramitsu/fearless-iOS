@@ -1,0 +1,62 @@
+import UIKit
+import SoraFoundation
+import SoraKeystore
+
+final class GetPreinstalledWalletAssembly {
+    static func configureModule() -> GetPreinstalledWalletModuleCreationResult? {
+        let localizationManager = LocalizationManager.shared
+
+        let qrDecoder = QRCoderFactory().createDecoder()
+        let qrScanMatcher = QRScanMatcher(decoder: qrDecoder)
+
+        let qrScanService = QRCaptureServiceFactory().createService(
+            with: qrScanMatcher,
+            delegate: nil,
+            delegateQueue: nil
+        )
+        let qrExtractionService = QRExtractionService(processingQueue: .global())
+
+        guard let keystoreImportService: KeystoreImportServiceProtocol =
+            URLHandlingService.shared.findService()
+        else {
+            Logger.shared.error("Missing required keystore import service")
+            return nil
+        }
+
+        let keystore = Keychain()
+        let settings = SelectedWalletSettings.shared
+
+        let accountOperationFactory = MetaAccountOperationFactory(keystore: keystore)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+
+        let interactor = GetPreinstalledWalletInteractor(
+            qrDecoder: qrDecoder,
+            qrExtractionService: qrExtractionService,
+            qrScanService: qrScanService,
+            accountOperationFactory: accountOperationFactory,
+            accountRepository: accountRepository,
+            operationManager: OperationManagerFacade.sharedManager,
+            keystoreImportService: keystoreImportService,
+            defaultSource: .mnemonic,
+            settings: settings,
+            eventCenter: EventCenter.shared
+        )
+        let router = GetPreinstalledWalletRouter()
+
+        let presenter = GetPreinstalledWalletPresenter(
+            interactor: interactor,
+            router: router,
+            localizationManager: localizationManager,
+            logger: Logger.shared,
+            qrScanMatcher: qrScanMatcher
+        )
+
+        let view = GetPreinstalledWalletViewController(
+            output: presenter,
+            localizationManager: localizationManager
+        )
+
+        return (view, presenter)
+    }
+}

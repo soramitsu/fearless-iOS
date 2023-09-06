@@ -55,4 +55,14 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
         let navigation = FearlessNavigationController(rootViewController: controller)
         view?.controller.navigationController?.present(navigation, animated: true)
     }
+
+    func showPreinstalledFlow(from view: ControllerBackedProtocol?) {
+        let module = GetPreinstalledWalletAssembly.configureModule()
+
+        guard let controller = module?.view.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
 }

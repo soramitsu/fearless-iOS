@@ -1151,3 +1151,4 @@
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
 "verify.phone.number.title" = "验证您的电话号码";
+"onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";

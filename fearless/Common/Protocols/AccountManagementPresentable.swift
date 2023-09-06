@@ -7,6 +7,7 @@ protocol AccountManagementPresentable {
         from view: ControllerBackedProtocol?
     )
     func showBackupSelectWallet(from view: ControllerBackedProtocol?)
+    func showGetPreinstalledWallet(from view: ControllerBackedProtocol?)
 }
 
 extension AccountManagementPresentable {
@@ -42,5 +43,15 @@ extension AccountManagementPresentable {
 
         let navigationController = FearlessNavigationController(rootViewController: controller)
         view?.controller.present(navigationController, animated: true)
+    }
+
+    func showGetPreinstalledWallet(from view: ControllerBackedProtocol?) {
+        let module = GetPreinstalledWalletAssembly.configureModule()
+
+        guard let controller = module?.view.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
 }

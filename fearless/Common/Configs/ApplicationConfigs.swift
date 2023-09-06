@@ -194,6 +194,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var scamListCsvURL: URL? {
         GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv")
     }
+
+    var featureToggleURL: URL? {
+        GitHubUrl.url(suffix: "appConfigs/feature_toggle", branch: .developFree)
+    }
 }
 
 private enum GitHubUrl {

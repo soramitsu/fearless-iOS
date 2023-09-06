@@ -1065,3 +1065,4 @@
 "google.backup.choice.title" = "インポートするソースを選択";
 "import.wallets.not.found" = "インポートするウォレットが見つかりませんでした";
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
+"onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";

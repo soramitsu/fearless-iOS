@@ -1101,3 +1101,4 @@ Euro cash";
 "controller.account.issue.action" = "Manage controller account";
 "stash.account.issue.message" = "Stash account %s isn't available. Please, import the Stash account by following the necessary steps";
 "stash.account.issue.action" = "Import stash account";
+"onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";
