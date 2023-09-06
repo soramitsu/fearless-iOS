@@ -11,10 +11,10 @@ class SubstrateCallFactoryV9430: SubstrateCallFactoryV9420 {
             callName: path.callName
         )
     }
-    
+
     override func bond(
         amount: BigUInt,
-        controller: String,
+        controller _: String,
         rewardDestination: RewardDestination<String>,
         chainAsset: ChainAsset
     ) throws -> any RuntimeCallable {

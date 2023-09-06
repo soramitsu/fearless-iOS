@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SCard
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
@@ -117,5 +118,10 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
             pinSetup.controller,
             animated: true
         )
+    }
+
+    func startSoraCard(from view: ControllerBackedProtocol?) {
+        guard let vc = view?.controller else { return }
+        SCard.shared?.start(in: vc)
     }
 }

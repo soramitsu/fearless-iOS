@@ -26,6 +26,9 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
+  pod 'SoraUIKit', :git => 'https://github.com/soramitsu/ios-ui.git', :tag => '1.0.2'
+  pod 'IdensicMobileSDK', :http => 'https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.1.tar.gz'
+  pod 'SCard', :git => 'https://github.com/sora-xor/sora-card-ios', :branch => 'release/1.1.0'
 
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
@@ -40,10 +43,10 @@ abstract_target 'fearlessAll' do
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
           pod 'SSFStorageQueryKit'
-          pod 'SSFChainConnection'
+          pod 'SSFChainConnection', '0.1.4'
           pod 'SSFNetwork'
           pod 'SSFUtils'
-          pod 'SSFChainRegistry'
+          pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.2'
           pod 'SSFCloudStorage'
       end

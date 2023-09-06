@@ -1709,6 +1709,8 @@
 		C6CA3081286192C50087776D /* DelegationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA3080286192C50087776D /* DelegationViewModel.swift */; };
 		C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */; };
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
+		C6D9B91F2AA826470061C1F7 /* SoraCardInitializer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D9B91E2AA826470061C1F7 /* SoraCardInitializer.swift */; };
+		C6D9B9212AA8941C0061C1F7 /* ResetSoraCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D9B9202AA8941C0061C1F7 /* ResetSoraCard.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
 		C6FB932E27C9334100563E61 /* AvailableExportOptionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */; };
 		C77CCA7FF969A2F006A0B6C4 /* WalletChainAccountDashboardProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E1C5E0E16867BDA51B6734 /* WalletChainAccountDashboardProtocols.swift */; };
@@ -4408,6 +4410,8 @@
 		C6D50DB62A958FD00040573D /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
+		C6D9B91E2AA826470061C1F7 /* SoraCardInitializer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInitializer.swift; sourceTree = "<group>"; };
+		C6D9B9202AA8941C0061C1F7 /* ResetSoraCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResetSoraCard.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableExportOptionsProvider.swift; sourceTree = "<group>"; };
 		C705CA1083C1EE58426D90CD /* AllDoneInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneInteractor.swift; sourceTree = "<group>"; };
@@ -9621,6 +9625,7 @@
 				FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */,
 				07089AF428B64701001566CA /* ChainReconnectingEvent.swift */,
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
+				C6D9B9202AA8941C0061C1F7 /* ResetSoraCard.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -12090,6 +12095,7 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C6D9B91E2AA826470061C1F7 /* SoraCardInitializer.swift */,
 				073417AE298BA28300104F41 /* Equilibrium */,
 				0713097B28C6387B002B17D0 /* ScamService */,
 				FA99426E2805524200D771E5 /* GetBalanceProvider */,
@@ -14883,6 +14889,7 @@
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				8472C601265D7A1F00E2481B /* WebSocketProviderSource.swift in Sources */,
 				FA004899282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift in Sources */,
+				C6D9B9212AA8941C0061C1F7 /* ResetSoraCard.swift in Sources */,
 				8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */,
 				846AF8442525BE0100868F37 /* Price.swift in Sources */,
 				84CD357325264F640081BC0B /* WalletTotalPriceViewModel.swift in Sources */,
@@ -15085,6 +15092,7 @@
 				FAA0136828DA12E3000A5230 /* StakingRedeemConfirmationViewModel.swift in Sources */,
 				849ABE6D2627949E00011A2A /* BatchMapper.swift in Sources */,
 				FAFFAE7E29AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift in Sources */,
+				C6D9B91F2AA826470061C1F7 /* SoraCardInitializer.swift in Sources */,
 				FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */,
 				FAFFAE4029AC84850074AF1F /* AccountManagementPresentable.swift in Sources */,
 				FA15BC152823CB7B0037C023 /* ParachainCollatorOperationFactory.swift in Sources */,

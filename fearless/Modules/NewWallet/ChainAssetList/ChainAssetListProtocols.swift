@@ -1,11 +1,13 @@
 import Foundation
 import SSFModels
+import SCard
 
 typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, input: ChainAssetListModuleInput)
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
     func reloadBanners()
+    func setSoraCard(isHidden: Bool)
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
@@ -16,6 +18,7 @@ protocol ChainAssetListViewOutput: AnyObject {
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
+    func initSoraCard(completionBlock: @escaping (Result<SCard, Error>?) -> Void)
     func setup(with output: ChainAssetListInteractorOutput)
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
@@ -36,6 +39,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func updateViewModel(isInitSearchState: Bool)
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
     func handleWalletChanged(wallet: MetaAccountModel)
+    func didReceiveResetSoraCard()
 }
 
 protocol ChainAssetListRouterInput:
@@ -69,6 +73,14 @@ protocol ChainAssetListRouterInput:
     )
     func showImport(
         uniqueChainModel: UniqueChainModel,
+        from view: ControllerBackedProtocol?
+    )
+    func showPolkaswap(
+        controller: UIViewController,
+        from view: ControllerBackedProtocol?
+    )
+
+    func startSoraCard(
         from view: ControllerBackedProtocol?
     )
 }

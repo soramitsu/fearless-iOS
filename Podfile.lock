@@ -10,9 +10,9 @@ PODS:
     - Charts/Core (= 4.1.0)
   - Charts/Core (4.1.0):
     - SwiftAlgorithms (~> 1.0)
-  - CocoaLumberjack (3.8.0):
-    - CocoaLumberjack/Core (= 3.8.0)
-  - CocoaLumberjack/Core (3.8.0)
+  - CocoaLumberjack (3.8.1):
+    - CocoaLumberjack/Core (= 3.8.1)
+  - CocoaLumberjack/Core (3.8.1)
   - CommonWallet/Core (1.16.0):
     - RobinHood (~> 2.6.1)
     - SoraFoundation/DateProcessing (~> 1.0.0)
@@ -23,6 +23,7 @@ PODS:
   - Cuckoo (1.10.3):
     - Cuckoo/Swift (= 1.10.3)
   - Cuckoo/Swift (1.10.3)
+  - eIDRTC (1.1.34)
   - FireMock (3.1)
   - GoogleAPIClientForREST/Core (1.2.1):
     - GTMSessionFetcher (>= 1.1.7)
@@ -41,6 +42,7 @@ PODS:
   - GTMSessionFetcher/Core (3.1.1)
   - GTMSessionFetcher/Full (3.1.1):
     - GTMSessionFetcher/Core
+  - IdensicMobileSDK (1.25.0)
   - IrohaCrypto (0.10.0):
     - IrohaCrypto/BIP39 (= 0.10.0)
     - IrohaCrypto/blake2 (= 0.10.0)
@@ -70,12 +72,22 @@ PODS:
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - keccak.c (0.1.3)
-  - Kingfisher (7.7.0)
+  - Kingfisher (7.9.1)
+  - PayWingsOAuthSDK (1.2.2)
+  - PayWingsOnboardingKYC (5.1.13):
+    - VideoID (= 7.1.31)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.0.0)
   - RobinHood (2.6.7)
+  - SCard (1.1.0):
+    - IdensicMobileSDK
+    - PayWingsOAuthSDK (= 1.2.2)
+    - PayWingsOnboardingKYC (= 5.1.13)
+    - R.swift (~> 6.1.0)
+    - SnapKit
+    - SoraUIKit (~> 1.0.1)
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
@@ -130,12 +142,13 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
+  - SoraUIKit (1.0.2)
   - Sourcery (1.9.2):
     - Sourcery/CLI-Only (= 1.9.2)
   - Sourcery/CLI-Only (1.9.2)
-  - SSFChainConnection (0.1.0):
+  - SSFChainConnection (0.1.4):
     - SSFUtils
-  - SSFChainRegistry (0.1.0):
+  - SSFChainRegistry (0.1.4):
     - RobinHood
     - SSFChainConnection
     - SSFLogger
@@ -143,14 +156,14 @@ PODS:
     - SSFNetwork
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFCloudStorage (0.1.6):
+  - SSFCloudStorage (0.1.15):
     - GoogleAPIClientForREST/Drive (~> 1.2.1)
     - GoogleSignIn (~> 7.0.0)
     - IrohaCrypto/Scrypt
     - SSFModels
     - SSFUtils
     - TweetNacl (~> 1.0.0)
-  - SSFCrypto (0.1.0):
+  - SSFCrypto (0.1.11):
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
     - IrohaCrypto/secp256k1
@@ -201,7 +214,7 @@ PODS:
     - SSFCrypto
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFUtils (0.1.13):
+  - SSFUtils (0.1.14):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -214,7 +227,7 @@ PODS:
     - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
-  - SSFXCM (0.1.2):
+  - SSFXCM (0.1.13):
     - IrohaCrypto
     - RobinHood
     - SSFChainConnection
@@ -232,9 +245,11 @@ PODS:
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.52.2)
+  - SwiftLint (0.52.4)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
+  - VideoID (7.1.31):
+    - eIDRTC (= 1.1.34)
   - XNetworking (0.0.37)
   - xxHash-Swift (1.0.13)
 
@@ -243,19 +258,22 @@ DEPENDENCIES:
   - CommonWallet/Core
   - Cuckoo
   - FireMock
+  - "IdensicMobileSDK (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.1.tar.gz\"}`)"
   - IrohaCrypto
   - keccak.c
   - Kingfisher
   - R.swift (= 6.1.0)
   - ReachabilitySwift
   - RobinHood (~> 2.6.7)
+  - SCard (from `https://github.com/sora-xor/sora-card-ios`, branch `release/1.1.0`)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
+  - SoraUIKit (from `https://github.com/soramitsu/ios-ui.git`, tag `1.0.2`)
   - Sourcery (~> 1.4)
-  - SSFChainConnection
-  - SSFChainRegistry
+  - SSFChainConnection (= 0.1.4)
+  - SSFChainRegistry (= 0.1.4)
   - SSFCloudStorage
   - SSFCrypto
   - SSFEraKit
@@ -277,13 +295,14 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/Specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - AppAuth
     - BigInt
     - Charts
     - CocoaLumberjack
     - CommonWallet
     - Cuckoo
+    - eIDRTC
     - FireMock
     - GoogleAPIClientForREST
     - GoogleSignIn
@@ -292,6 +311,8 @@ SPEC REPOS:
     - IrohaCrypto
     - keccak.c
     - Kingfisher
+    - PayWingsOAuthSDK
+    - PayWingsOnboardingKYC
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
@@ -308,6 +329,7 @@ SPEC REPOS:
     - SwiftLint
     - SwiftyBeaver
     - TweetNacl
+    - VideoID
     - xxHash-Swift
   https://github.com/soramitsu/SSFSpecs.git:
     - SSFChainConnection
@@ -327,9 +349,17 @@ SPEC REPOS:
     - SSFXCM
 
 EXTERNAL SOURCES:
+  IdensicMobileSDK:
+    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.1.tar.gz
+  SCard:
+    :branch: release/1.1.0
+    :git: https://github.com/sora-xor/sora-card-ios
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SoraUIKit:
+    :git: https://github.com/soramitsu/ios-ui.git
+    :tag: 1.0.2
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -337,9 +367,17 @@ EXTERNAL SOURCES:
     :podspec: https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec
 
 CHECKOUT OPTIONS:
+  IdensicMobileSDK:
+    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.1.tar.gz
+  SCard:
+    :commit: 2e2e63188a1967673da9503f5a503d91e68ed44f
+    :git: https://github.com/sora-xor/sora-card-ios
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SoraUIKit:
+    :git: https://github.com/soramitsu/ios-ui.git
+    :tag: 1.0.2
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -348,32 +386,38 @@ SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
-  CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
+  CocoaLumberjack: 5c7e64cdb877770859bddec4d3d5a0d7c9299df9
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 930598bd4ae95860c658b3eea30903d946ebef36
+  eIDRTC: debca63e4c367be509c77292df65b9527d695f10
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   GoogleAPIClientForREST: a8b95a252014ce2e618df6b75dc72eca2c00b4af
   GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
   GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
+  IdensicMobileSDK: 724b75dbb204a9c1ae1dafe5c1366b8aeb00b6cf
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
-  Kingfisher: f043ac666dfc96c1f37604f93effb45a7ee3a3e1
+  Kingfisher: 1d14e9f59cbe19389f591c929000332bf70efd32
+  PayWingsOAuthSDK: 97c104c6efa982313fd515c22339279f24ac3461
+  PayWingsOnboardingKYC: abff20d772e9b87e9315b4999feb7401d6557eee
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   RobinHood: 40edb5db53d5763433af25f95d81f7860d7acdc6
+  SCard: 0f3a1fe782ac1624c92f57df4c029e35c3f8c15b
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
+  SoraUIKit: 258aa43f318cb306b29cdadb52139d794c184333
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
-  SSFChainConnection: a232b35cc083e9e9e79ff6ed228812cddd11ace6
-  SSFChainRegistry: bb26ac38e4c43aeaf29f1a959603aa5fd6889d7e
-  SSFCloudStorage: 5124491f345bdd304b4d07c6d2368dfde59bc61d
-  SSFCrypto: 1d82ecd49dc44d47e155bdecd7b873348f5bdd16
+  SSFChainConnection: 760f0bbe0d711cc0f184b951dea9e840a2962346
+  SSFChainRegistry: adfcfa6f8e7dae4730e258989c2a58ee674bf1e1
+  SSFCloudStorage: 37fbba3ad3e93a637d9c1a9b85910f4fa29596de
+  SSFCrypto: 0d1b79e1d253055189ec42b6155d045f464ab993
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
   SSFHelpers: 93becab69ebcef78bceee530fd2d57939d21052c
@@ -383,18 +427,19 @@ SPEC CHECKSUMS:
   SSFRuntimeCodingService: d67154d18789604a448b4e9f1c261ade291629e8
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
   SSFStorageQueryKit: 3063fdf0a84c9b7c1c2a2a08b862162bd0d38694
-  SSFUtils: 8fd131123804c122c031763a8436d45e1ac373c2
-  SSFXCM: 59cb429a5c20c4f34f6c383e36ab8644922703b0
+  SSFUtils: 3254af5db8930b8c4bdaa94d9e3a51596afafc79
+  SSFXCM: 2e8458396a85185631b8003619b9873583b67e10
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 1ac76dac888ca05cb0cf24d0c85887ec1209961d
+  SwiftLint: 1cc5cd61ba9bacb2194e340aeb47a2a37fda00b3
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
+  VideoID: d48d4f30f79f12229421a09e65692561960dc5b5
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 5b8590914b2dd1916d27ab986de50d4cb62f69f6
+PODFILE CHECKSUM: 03a8123d6101eb62952610b9d962188917fe9a09
 
 COCOAPODS: 1.11.3

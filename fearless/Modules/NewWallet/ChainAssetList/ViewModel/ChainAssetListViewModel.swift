@@ -1,3 +1,5 @@
+import SCard
+
 enum ChainAssetListTableSection: Int {
     case active
     case hidden
@@ -10,4 +12,6 @@ struct ChainAssetListViewModel {
     let hiddenSectionState: HiddenSectionState
     let emptyStateIsActive: Bool
     let bannerIsHidden: Bool
+    let soraCardItem: SCCardItem?
+    let soraCardHidden: Bool
 }

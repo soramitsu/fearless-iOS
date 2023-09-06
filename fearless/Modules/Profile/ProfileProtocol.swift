@@ -53,6 +53,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)
     func close(view: ControllerBackedProtocol?)
     func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
+    func startSoraCard(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

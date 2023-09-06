@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFModels
+import SCard
 
 enum AssetListDisplayType {
     case chain
@@ -57,6 +58,36 @@ final class ChainAssetListPresenter {
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
             let chainsWithMissingAccounts = self.chainsWithMissingAccounts
+            let onClose: () -> Void = { [weak self] in
+                SCard.shared?.isSCBannerHidden = true
+                self?.view?.setSoraCard(isHidden: true)
+            }
+            let onCard: () -> Void = { [weak self] in
+                self?.router.startSoraCard(from: self?.view)
+            }
+
+            guard let soraCard = SCard.shared else {
+                interactor.initSoraCard { result in
+                    var soraCardService: SCard?
+                    if case let .success(soraCard) = result {
+                        soraCardService = soraCard
+                    }
+                    let viewModel = self.viewModelFactory.buildViewModel(
+                        wallet: self.wallet,
+                        chainAssets: chainAssets,
+                        locale: self.selectedLocale,
+                        accountInfos: accountInfosCopy,
+                        prices: prices,
+                        chainsWithMissingAccounts: chainsWithMissingAccounts,
+                        activeFilters: self.activeFilters,
+                        soraCardService: soraCardService,
+                        onClose: onClose,
+                        onCard: onCard
+                    )
+                    self.view?.didReceive(viewModel: viewModel)
+                }
+                return
+            }
 
             let viewModel = self.viewModelFactory.buildViewModel(
                 wallet: self.wallet,
@@ -65,7 +96,10 @@ final class ChainAssetListPresenter {
                 accountInfos: accountInfosCopy,
                 prices: prices,
                 chainsWithMissingAccounts: chainsWithMissingAccounts,
-                activeFilters: self.activeFilters
+                activeFilters: self.activeFilters,
+                soraCardService: soraCard,
+                onClose: onClose,
+                onCard: onCard
             )
 
             DispatchQueue.main.async {
@@ -271,6 +305,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             self.accountInfos = balances
         }
         provideViewModel()
+    }
+
+    func didReceiveResetSoraCard() {
+        view?.setSoraCard(isHidden: false)
     }
 }
 

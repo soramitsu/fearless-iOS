@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import SoraKeystore
 import SSFModels
+import SCard
 
 final class ChainAssetListInteractor {
     // MARK: - Private properties
@@ -173,6 +174,38 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
         save(updatedAccount)
     }
+
+    func initSoraCard(completionBlock: @escaping (Result<SCard, Error>?) -> Void) {
+        if let soraCard = SCard.shared {
+            completionBlock(.success(soraCard))
+        }
+        let dependencies = dependencyContainer.buildDependencies(for: wallet)
+        let chainAssetFetching = dependencies.chainAssetFetching
+        let accountInfoSubscriptionAdapter = dependencies.accountInfoSubscriptionAdapter
+        chainAssetFetching.fetch(filters: [.assetName("xor")], sortDescriptors: []) { [weak self] result in
+            guard let strongSelf = self else { return }
+            switch result {
+            case let .success(chainAssets):
+                if let soraChainAsset = chainAssets.first(where: { chainAsset in
+                    chainAsset.chain.chainId == Chain.soraMain.genesisHash
+                }) {
+                    DispatchQueue.main.async {
+                        let soraCardInitializer = SoraCardInitializer(
+                            wallet: strongSelf.wallet,
+                            soraChainAsset: soraChainAsset,
+                            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
+                        )
+                        let soraCard = soraCardInitializer.initSoraCard()
+                        completionBlock(.success(soraCard))
+                    }
+                }
+            default:
+                DispatchQueue.main.async {
+                    completionBlock(nil)
+                }
+            }
+        }
+    }
 }
 
 private extension ChainAssetListInteractor {
@@ -296,6 +329,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         self.wallet = wallet
         output?.handleWalletChanged(wallet: wallet)
         updateChainAssets(using: filters, sorts: sorts)
+    }
+
+    func processResetSoraCard() {
+        output?.didReceiveResetSoraCard()
     }
 }
 

@@ -18,6 +18,7 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 
 enum ProfileOption: UInt, CaseIterable {
     case accountList
+    case soraCard
     case currency
     case language
     case polkaswapDisclaimer
@@ -25,6 +26,7 @@ enum ProfileOption: UInt, CaseIterable {
     case biometry
     case about
     case zeroBalances
+    case resetSoraCard
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -127,6 +129,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                     for: locale,
                     missingEthAccount: missingAccountIssue.isNotEmpty
                 )
+            case .soraCard:
+                return createSoraCardViewModel(for: locale)
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
@@ -141,6 +145,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .zeroBalances:
                 return createZeroBalancesViewModel(for: locale, wallet: wallet)
+            case .resetSoraCard:
+                return createResetSoraCard()
             }
         }
 
@@ -283,6 +289,32 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             option: .currency
         )
 
+        return viewModel
+    }
+
+    private func createSoraCardViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable.profileSoracardTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSoraCard()!,
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .soraCard
+        )
+        return viewModel
+    }
+
+    private func createResetSoraCard() -> ProfileOptionViewModel {
+        let title = "Get back this lovely banner"
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSoraCard()!,
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .resetSoraCard
+        )
         return viewModel
     }
 

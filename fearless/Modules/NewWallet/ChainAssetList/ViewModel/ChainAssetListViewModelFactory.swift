@@ -3,6 +3,8 @@ import SoraFoundation
 import SoraKeystore
 import BigInt
 import SSFModels
+import SCard
+import SoraUIKit
 
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
@@ -13,7 +15,10 @@ protocol ChainAssetListViewModelFactoryProtocol {
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
         chainsWithMissingAccounts: [ChainModel.Id],
-        activeFilters: [ChainAssetsFetching.Filter]
+        activeFilters: [ChainAssetsFetching.Filter],
+        soraCardService: SCard?,
+        onClose: (() -> Void)?,
+        onCard: (() -> Void)?
     ) -> ChainAssetListViewModel
 }
 
@@ -43,8 +48,20 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
         chainsWithMissingAccounts: [ChainModel.Id],
-        activeFilters: [ChainAssetsFetching.Filter]
+        activeFilters: [ChainAssetsFetching.Filter],
+        soraCardService: SCard?,
+        onClose: (() -> Void)?,
+        onCard: (() -> Void)?
     ) -> ChainAssetListViewModel {
+        var soraCardItem: SCCardItem?
+        if let service = soraCardService {
+            soraCardItem = SCCardItem(
+                service: service,
+                onClose: onClose,
+                onCard: onCard
+            )
+        }
+
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
@@ -162,7 +179,9 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             isColdBoot: isColdBoot,
             hiddenSectionState: hiddenSectionState,
             emptyStateIsActive: emptyStateIsActive,
-            bannerIsHidden: bannerIsHidden.contains(true)
+            bannerIsHidden: bannerIsHidden.contains(true),
+            soraCardItem: soraCardItem,
+            soraCardHidden: soraCardService?.isSCBannerHidden ?? true
         )
     }
 }
