@@ -26,6 +26,7 @@ enum ProfileOption: UInt, CaseIterable {
     case biometry
     case about
     case zeroBalances
+    case resetSoraCard
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -144,6 +145,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .zeroBalances:
                 return createZeroBalancesViewModel(for: locale, wallet: wallet)
+            case .resetSoraCard:
+                return createResetSoraCard()
             }
         }
 
@@ -298,6 +301,19 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .soraCard
+        )
+        return viewModel
+    }
+
+    private func createResetSoraCard() -> ProfileOptionViewModel {
+        let title = "Get back this lovely banner"
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSoraCard()!,
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .resetSoraCard
         )
         return viewModel
     }

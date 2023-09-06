@@ -134,8 +134,11 @@ private extension ChainAssetListViewController {
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
-    func closeSoraCard() {
-        rootView.closeSoraCard()
+    func setSoraCard(isHidden: Bool) {
+        rootView.setSoraCard(isHidden: isHidden)
+        rootView.tableView.beginUpdates()
+        rootView.tableView.setAndLayoutTableHeaderView(header: rootView.headerViewContainer)
+        rootView.tableView.endUpdates()
     }
 
     func reloadBanners() {

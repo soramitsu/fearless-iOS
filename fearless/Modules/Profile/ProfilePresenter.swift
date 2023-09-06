@@ -94,6 +94,9 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .zeroBalances:
             break
+        case .resetSoraCard:
+            SCard.shared?.isSCBannerHidden = false
+            eventCenter.notify(with: ResetSoraCard())
         }
     }
 

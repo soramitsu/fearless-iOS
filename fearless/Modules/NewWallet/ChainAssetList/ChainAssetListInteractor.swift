@@ -330,6 +330,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: wallet)
         updateChainAssets(using: filters, sorts: sorts)
     }
+
+    func processResetSoraCard() {
+        output?.didReceiveResetSoraCard()
+    }
 }
 
 extension ChainAssetListInteractor: ChainsIssuesCenterListener {

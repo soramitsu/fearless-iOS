@@ -7,7 +7,7 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
     func reloadBanners()
-    func closeSoraCard()
+    func setSoraCard(isHidden: Bool)
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
@@ -39,6 +39,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func updateViewModel(isInitSearchState: Bool)
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
     func handleWalletChanged(wallet: MetaAccountModel)
+    func didReceiveResetSoraCard()
 }
 
 protocol ChainAssetListRouterInput:

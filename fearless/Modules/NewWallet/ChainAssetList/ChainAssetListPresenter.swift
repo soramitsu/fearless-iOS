@@ -59,7 +59,8 @@ final class ChainAssetListPresenter {
             let prices = self.prices
             let chainsWithMissingAccounts = self.chainsWithMissingAccounts
             let onClose: () -> Void = { [weak self] in
-                self?.closeSoraCard()
+                SCard.shared?.isSCBannerHidden = true
+                self?.view?.setSoraCard(isHidden: true)
             }
             let onCard: () -> Void = { [weak self] in
                 self?.router.startSoraCard(from: self?.view)
@@ -105,11 +106,6 @@ final class ChainAssetListPresenter {
                 self.view?.didReceive(viewModel: viewModel)
             }
         }
-    }
-
-    private func closeSoraCard() {
-        SCard.shared?.isSCBannerHidden = true
-        view?.closeSoraCard()
     }
 
     private func showMissingAccountOptions(chain: ChainModel) {
@@ -309,6 +305,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             self.accountInfos = balances
         }
         provideViewModel()
+    }
+
+    func didReceiveResetSoraCard() {
+        view?.setSoraCard(isHidden: false)
     }
 }
 
