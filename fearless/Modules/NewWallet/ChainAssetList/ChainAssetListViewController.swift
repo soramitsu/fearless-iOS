@@ -135,7 +135,7 @@ private extension ChainAssetListViewController {
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func closeSoraCard() {
-        rootView.tableView.reloadData()
+        rootView.closeSoraCard()
     }
 
     func reloadBanners() {
@@ -153,7 +153,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
         self.viewModel = viewModel
         hiddenSectionState = viewModel.hiddenSectionState
         if let soraItem = viewModel.soraCardItem {
-            rootView.bindSoraCard(item: soraItem)
+            rootView.bindSoraCard(item: soraItem, isHidden: viewModel.soraCardHidden)
         }
 
         if isInitialReload {

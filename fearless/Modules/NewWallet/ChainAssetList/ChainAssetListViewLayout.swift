@@ -21,7 +21,7 @@ final class ChainAssetListViewLayout: UIView {
     var keyboardAdoptableConstraint: Constraint?
 
     weak var bannersView: UIView?
-    private var soraCardCell: SCCardCell?
+    private var soraCardView: UIView?
 
     var headerViewContainer: UIStackView = {
         UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
@@ -53,16 +53,21 @@ final class ChainAssetListViewLayout: UIView {
         }
     }
 
-    func bindSoraCard(item: SCCardItem) {
+    func bindSoraCard(item: SCCardItem, isHidden: Bool) {
         let cell = SCCardCell()
         cell.set(item: item, context: nil)
-        if soraCardCell == nil {
-            soraCardCell = cell
-            headerViewContainer.addArrangedSubview(cell.contentView)
-            cell.contentView.snp.makeConstraints { make in
+        if soraCardView == nil {
+            soraCardView = cell.contentView
+            soraCardView?.isHidden = isHidden
+            headerViewContainer.addArrangedSubview(soraCardView!)
+            soraCardView?.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
             }
         }
+    }
+
+    func closeSoraCard() {
+        soraCardView?.isHidden = true
     }
 
     private func setupLayout() {

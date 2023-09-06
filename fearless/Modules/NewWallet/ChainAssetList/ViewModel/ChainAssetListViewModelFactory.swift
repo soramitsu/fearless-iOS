@@ -168,7 +168,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             isColdBoot: isColdBoot,
             hiddenSectionState: hiddenSectionState,
             emptyStateIsActive: emptyStateIsActive,
-            soraCardItem: soraCardItem
+            soraCardItem: soraCardItem,
+            soraCardHidden: soraCardService?.isSCBannerHidden ?? true
         )
     }
 }
