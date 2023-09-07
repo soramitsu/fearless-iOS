@@ -8,7 +8,7 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
     func buildViewModel(from collection: NFTCollection) -> NftCollectionViewModel {
         let cellModels: [NftCollectionCellViewModel] = collection.nfts.compactMap {
             var imageViewModel: RemoteImageViewModel?
-            if let image = $0.metadata?.image, let url = URL(string: image) {
+            if let url = $0.metadata?.imageURL {
                 imageViewModel = RemoteImageViewModel(url: url)
             }
 

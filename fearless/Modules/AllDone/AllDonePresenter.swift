@@ -17,7 +17,7 @@ final class AllDonePresenter {
     private var title: String?
     private var description: String?
 
-    private var subscanExplorer: ChainModel.ExternalApiExplorer?
+    private var blockExplorer: ChainModel.ExternalApiExplorer?
 
     // MARK: - Constructors
 
@@ -58,10 +58,10 @@ final class AllDonePresenter {
 
     private func prepareSubscanExplorer() {
         let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
-            $0.type == .subscan
+            $0.type == .subscan || $0.type == .etherscan
         })
         view?.didReceive(explorer: subscanExplorer)
-        self.subscanExplorer = subscanExplorer
+        blockExplorer = subscanExplorer
     }
 }
 
@@ -76,21 +76,21 @@ extension AllDonePresenter: AllDoneViewOutput {
     }
 
     func subscanButtonDidTapped() {
-        guard let subscanExplorer = self.subscanExplorer,
-              let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
+        guard let blockExplorer = self.blockExplorer,
+              let url = blockExplorer.explorerUrl(for: hashString, type: blockExplorer.transactionType)
         else {
             return
         }
-        router.presentSubscan(from: view, url: subscanUrl)
+        router.presentSubscan(from: view, url: url)
     }
 
     func shareButtonDidTapped() {
-        guard let subscanExplorer = self.subscanExplorer,
-              let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
+        guard let blockExplorer = self.blockExplorer,
+              let url = blockExplorer.explorerUrl(for: hashString, type: .extrinsic)
         else {
             return
         }
-        router.share(sources: [subscanUrl], from: view, with: nil)
+        router.share(sources: [url], from: view, with: nil)
     }
 
     func dismiss() {

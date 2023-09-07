@@ -53,7 +53,7 @@ enum NftSendAssembly {
                 nft: nft,
                 wallet: wallet,
                 logger: Logger.shared, viewModelFactory:
-                SendViewModelFactory(iconGenerator: PolkadotIconGenerator())
+                SendViewModelFactory(iconGenerator: UniversalIconGenerator())
             )
 
             let view = NftSendViewController(

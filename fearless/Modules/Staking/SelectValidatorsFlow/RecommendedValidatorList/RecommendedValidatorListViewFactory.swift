@@ -57,7 +57,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
             )
             let strategy = RecommendedValidatorListRelaychainStrategy()
             let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
             return RecommendedValidatorListDependencyContainer(
@@ -73,7 +73,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
             )
             let strategy = RecommendedValidatorListRelaychainStrategy()
             let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
             return RecommendedValidatorListDependencyContainer(
@@ -89,7 +89,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
             )
             let strategy = RecommendedValidatorListParachainStrategy()
             let viewModelFactory = RecommendedValidatorListParachainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory,
                 chainAsset: chainAsset
             )
@@ -108,7 +108,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
 
             let strategy = RecommendedValidatorListPoolStrategy()
             let viewModelFactory = RecommendedValidatorListPoolViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
             return RecommendedValidatorListDependencyContainer(
@@ -126,7 +126,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
 
             let strategy = RecommendedValidatorListPoolStrategy()
             let viewModelFactory = RecommendedValidatorListPoolViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
             return RecommendedValidatorListDependencyContainer(

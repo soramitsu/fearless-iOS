@@ -70,7 +70,7 @@ final class ContactsConfigurator {
     }()
 
     init(networkType: SNAddressType) {
-        let viewModelFactory = ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared, iconGenerator: PolkadotIconGenerator())
+        let viewModelFactory = ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared, iconGenerator: UniversalIconGenerator())
         localSearchEngine = ContactsLocalSearchEngine(
             addressPrefix: UInt16(networkType.rawValue),
             contactViewModelFactory: viewModelFactory

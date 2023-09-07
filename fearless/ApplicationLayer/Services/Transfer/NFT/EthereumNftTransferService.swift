@@ -83,7 +83,10 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
             throw EthereumNftTransferServiceError.incorrectTokenId(tokenId: transfer.nft.tokenId)
         }
 
-        let chainIdValue = EthereumQuantity(transfer.nft.chain.chainId.hexToBytes())
+        guard let chainId = BigUInt(string: transfer.nft.chain.chainId) else {
+            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
+        }
+        let chainIdValue = EthereumQuantity(quantity: chainId)
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let contractAddress = try EthereumAddress(rawAddress: transfer.nft.smartContract.hexToBytes())

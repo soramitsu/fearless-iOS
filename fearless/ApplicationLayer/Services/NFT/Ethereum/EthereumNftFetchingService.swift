@@ -81,12 +81,13 @@ final class EthereumNftFetchingService {
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            contract.tokenURI(tokenId: tokenId).call { response, error in
+            contract.tokenURI(tokenId: tokenId).call { [weak self] response, error in
                 if let uri = response?["_tokenURI"] as? String {
                     return continuation.resume(with: .success(uri))
                 } else if let error = error {
                     return continuation.resume(with: .failure(error))
                 } else {
+                    self?.logger.error("Failed to fetch metadata url for token: \(token.tokenName)")
                     return continuation.resume(with: .failure(NFTFetchingServiceError.emptyResponse))
                 }
             }
@@ -97,11 +98,12 @@ final class EthereumNftFetchingService {
         try await withCheckedThrowingContinuation { continuation in
             let fetchMetadataOperation: BaseOperation<NFTMetadata> = networkOperationFactory.fetchData(from: url)
 
-            fetchMetadataOperation.completionBlock = {
+            fetchMetadataOperation.completionBlock = { [weak self] in
                 do {
                     let metadata = try fetchMetadataOperation.extractNoCancellableResultData()
                     return continuation.resume(with: .success(metadata))
                 } catch {
+                    self?.logger.error("Failed to fetch NFT metadata from url: \(url)")
                     return continuation.resume(with: .failure(error))
                 }
             }
@@ -155,8 +157,8 @@ extension EthereumNftFetchingService: NFTFetchingServiceProtocol {
 
             for historyObject in history {
                 group.addTask {
-                    if let uri = try? await strongSelf.fetchMetadataUrl(token: historyObject.metadata, chain: historyObject.chain), let url = URL(string: uri), url.isTLSScheme {
-                        if let metadata = try? await strongSelf.fetchNftMetadata(url: url) {
+                    if let uri = try? await strongSelf.fetchMetadataUrl(token: historyObject.metadata, chain: historyObject.chain), let url = URL(string: uri), let normalizedURL = url.normalizedIpfsURL {
+                        if let metadata = try? await strongSelf.fetchNftMetadata(url: normalizedURL) {
                             let nft = NFT(chain: historyObject.chain, tokenId: historyObject.metadata.tokenID, tokenName: historyObject.metadata.tokenName, smartContract: historyObject.metadata.contractAddress, metadata: metadata)
                             return nft
                         }

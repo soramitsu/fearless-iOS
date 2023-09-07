@@ -31,7 +31,7 @@ class WalletDetailsViewModelFactory {
                 let address = account?.toAddress()
                 var addressImage: UIImage?
                 if let address = address {
-                    addressImage = try? UniversalIconGenerator(chain: chain).generateFromAddress(address)
+                    addressImage = try? UniversalIconGenerator().generateFromAddress(address)
                         .imageWithFillColor(
                             R.color.colorBlack()!,
                             size: UIConstants.normalAddressIconSize,

@@ -37,7 +37,7 @@ enum WalletTransactionHistoryViewFactory {
             includesFeeInAmount: false,
             transactionTypes: [.incoming, .outgoing],
             chainAsset: ChainAsset(chain: chain, asset: asset),
-            iconGenerator: PolkadotIconGenerator()
+            iconGenerator: UniversalIconGenerator()
         )
 
         let presenter = WalletTransactionHistoryPresenter(

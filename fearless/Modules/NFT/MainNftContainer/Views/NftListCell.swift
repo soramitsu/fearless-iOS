@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import WebKit
 
 class NftListCell: UITableViewCell {
     private enum LayoutConstants {

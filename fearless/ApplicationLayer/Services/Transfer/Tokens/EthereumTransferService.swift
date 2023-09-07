@@ -116,7 +116,10 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
     }
 
     private func transferNative(transfer: Transfer) async throws -> String {
-        let chainIdValue = EthereumQuantity(transfer.chainAsset.chain.chainId.hexToBytes())
+        guard let chainId = BigUInt(string: transfer.chainAsset.chain.chainId) else {
+            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
+        }
+        let chainIdValue = EthereumQuantity(quantity: chainId)
         let receiverAddress = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let quantity = EthereumQuantity(quantity: transfer.amount)
@@ -158,7 +161,10 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
     }
 
     private func transferERC20(transfer: Transfer) async throws -> String {
-        let chainIdValue = EthereumQuantity(transfer.chainAsset.chain.chainId.hexToBytes())
+        guard let chainId = BigUInt(string: transfer.chainAsset.chain.chainId) else {
+            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
+        }
+        let chainIdValue = EthereumQuantity(quantity: chainId)
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())

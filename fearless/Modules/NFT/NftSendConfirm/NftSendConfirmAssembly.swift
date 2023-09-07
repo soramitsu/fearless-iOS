@@ -14,7 +14,7 @@ final class NftSendConfirmAssembly {
     ) -> NftSendConfirmModuleCreationResult? {
         do {
             let localizationManager = LocalizationManager.shared
-            let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
+            let accountViewModelFactory = AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
             let transferService = try createTransferService(for: nft.chain, wallet: wallet)
 
             let interactor = NftSendConfirmInteractor(transferService: transferService)

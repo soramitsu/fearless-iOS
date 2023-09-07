@@ -13,6 +13,14 @@ struct NFTMetadata: Codable, Equatable, Hashable {
     let name: String?
     let description: String?
     let image: String?
+
+    var imageURL: URL? {
+        guard let image = image, let url = URL(string: image) else {
+            return nil
+        }
+
+        return url.normalizedIpfsURL
+    }
 }
 
 struct NFTCollection: Codable, Equatable, Hashable {
@@ -21,4 +29,12 @@ struct NFTCollection: Codable, Equatable, Hashable {
     let image: String?
     let desc: String?
     let nfts: [NFT]
+
+    var imageURL: URL? {
+        guard let image = image, let url = URL(string: image) else {
+            return nil
+        }
+
+        return url.normalizedIpfsURL
+    }
 }

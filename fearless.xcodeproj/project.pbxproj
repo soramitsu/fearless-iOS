@@ -2659,6 +2659,7 @@
 		FAE39B0C2AA5E6340011A9D6 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0B2AA5E6340011A9D6 /* Web3 */; };
 		FAE39B0E2AA5E6340011A9D6 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */; };
 		FAE39B102AA5E6340011A9D6 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */; };
+		FAE39B172AA965940011A9D6 /* URL+IPFS.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B162AA965940011A9D6 /* URL+IPFS.swift */; };
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
@@ -5490,6 +5491,7 @@
 		FAE39B032AA0655B0011A9D6 /* BaseEthereumService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseEthereumService.swift; sourceTree = "<group>"; };
 		FAE39B062AA1D4370011A9D6 /* NftSendConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftSendConfirmViewModel.swift; sourceTree = "<group>"; };
 		FAE39B082AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftSendConfirmViewModelFactory.swift; sourceTree = "<group>"; };
+		FAE39B162AA965940011A9D6 /* URL+IPFS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+IPFS.swift"; sourceTree = "<group>"; };
 		FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewState.swift; sourceTree = "<group>"; };
 		FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModelFactory.swift; sourceTree = "<group>"; };
 		FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsFlow.swift; sourceTree = "<group>"; };
@@ -8397,6 +8399,7 @@
 				FAAF946B2A0CFF90009A4BA5 /* Array+Duplicates.swift */,
 				FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */,
 				FAD428952A834BA8001D6A16 /* UIApplication+TopViewController.swift */,
+				FAE39B162AA965940011A9D6 /* URL+IPFS.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -14530,6 +14533,7 @@
 				848919D726FB238E004DBAD5 /* JsonDataProviderFactory.swift in Sources */,
 				846802A3265DA5530034F9B5 /* CrowdloanContributionSetupViewModel.swift in Sources */,
 				0716C85028880304004C8CB1 /* UIResponder.swift in Sources */,
+				FAE39B172AA965940011A9D6 /* URL+IPFS.swift in Sources */,
 				FA286B1C2A3043DB008BD527 /* CrossChainAssembly.swift in Sources */,
 				849014C324AA87E4008F705E /* LocalAuthInteractor.swift in Sources */,
 				8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */,
