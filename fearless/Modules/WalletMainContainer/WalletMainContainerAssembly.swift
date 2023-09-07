@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import RobinHood
+import SSFUtils
 
 final class WalletMainContainerAssembly {
     static func configureModule(wallet: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
@@ -40,6 +41,21 @@ final class WalletMainContainerAssembly {
 
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createRepository()
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+        let deprecatedAccountsCheckService = DeprecatedControllerStashAccountCheckService(
+            chainRegistry: chainRegistry,
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            storageRequestFactory: storageOperationFactory,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            walletRepository: AnyDataProviderRepository(accountRepository),
+            stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
+        )
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -48,7 +64,9 @@ final class WalletMainContainerAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry)
+            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
+            deprecatedAccountsCheckService: deprecatedAccountsCheckService,
+            applicationHandler: ApplicationHandler()
         )
 
         let router = WalletMainContainerRouter()

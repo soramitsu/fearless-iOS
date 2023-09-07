@@ -88,9 +88,10 @@ final class BackupWalletViewController: UIViewController, ViewHolder {
         if let cell = tableView.dequeueReusableCell(
             withIdentifier: R.reuseIdentifier.profileCellId,
             for: indexPath
-        ),
-            let viewModel = viewModel {
-            cell.bind(viewModel: viewModel)
+        ) {
+            if let viewModel = viewModel {
+                cell.bind(viewModel: viewModel)
+            }
             return cell
         } else {
             assertionFailure("Profile cell creation failed")
@@ -102,9 +103,10 @@ final class BackupWalletViewController: UIViewController, ViewHolder {
         _ tableView: UITableView,
         with viewModel: WalletsManagmentCellViewModel?
     ) -> UITableViewCell {
-        if let cell = tableView.dequeueReusableCellWithType(WalletsManagmentTableCell.self),
-           let viewModel = viewModel {
-            cell.bind(to: viewModel)
+        if let cell = tableView.dequeueReusableCellWithType(WalletsManagmentTableCell.self) {
+            if let viewModel = viewModel {
+                cell.bind(to: viewModel)
+            }
             return cell
         } else {
             assertionFailure("Profile details cell creation failed")

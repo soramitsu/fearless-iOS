@@ -3,11 +3,10 @@ import SoraFoundation
 protocol AddCustomNodeViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(nameViewModel: InputViewModelProtocol)
     func didReceive(nodeViewModel: InputViewModelProtocol)
-    func didReceive(locale: Locale)
 }
 
 protocol AddCustomNodePresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: AddCustomNodeViewProtocol)
     func didTapAddNodeButton()
     func didTapCloseButton()
 }

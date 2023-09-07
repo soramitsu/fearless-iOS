@@ -31,6 +31,8 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveError(_ error: Error)
     func didReceiveChainsIssues(chainsIssues: [ChainIssue])
     func didReceive(chainSettings: [ChainSettings])
+    func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool)
+    func didReceiveStashAccountIssue(address: String)
 }
 
 protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
@@ -62,6 +64,14 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
         wallet: MetaAccountModel,
         address: String
     )
+
+    func showControllerAccountFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
+
+    func showMainStaking()
 }
 
 protocol WalletMainContainerModuleInput: AnyObject {}

@@ -31,14 +31,16 @@ struct AddCustomNodeViewFactory {
         )
         let wireframe = AddCustomNodeWireframe()
 
+        let localizationManager = LocalizationManager.shared
+
         let presenter = AddCustomNodePresenter(
             interactor: interactor,
             wireframe: wireframe,
-            localizationManager: LocalizationManager.shared,
+            localizationManager: localizationManager,
             moduleOutput: moduleOutput
         )
 
-        let view = AddCustomNodeViewController(presenter: presenter)
+        let view = AddCustomNodeViewController(presenter: presenter, localizationManager: localizationManager)
 
         presenter.view = view
         interactor.presenter = presenter
