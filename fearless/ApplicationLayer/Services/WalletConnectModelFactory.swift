@@ -38,7 +38,7 @@ final class WalletConnectModelFactoryImpl: WalletConnectModelFactory {
         let requiredBlockChains = createChainsResolution(
             from: proposal,
             chains: chains
-        ).allBlockChains()
+        ).requiredChains.allowed
 
         let requiredMethods = requiredNamespaces.map { $0.methods }.reduce([], +)
         let requiredEvents = requiredNamespaces.map { $0.events }.reduce([], +)
@@ -55,12 +55,9 @@ final class WalletConnectModelFactoryImpl: WalletConnectModelFactory {
         let optionalBlockChains = createChainsResolution(
             from: proposal,
             chains: chains.filter { optionalChainIds?.contains($0.chainId) == true }
-        ).allBlockChains()
+        ).optionalChains.allowed
 
-        let optionalMethods = optionalNamespaces.map { $0.methods }.reduce([], +)
-        let optionalEvents = optionalNamespaces.map { $0.events }.reduce([], +)
         let optionalBlockchains = optionalNamespaces.compactMap { $0.chains }.reduce([], +)
-
         let optionalAccounts = wallets.map {
             createAccounts(
                 wallet: $0,
@@ -69,11 +66,20 @@ final class WalletConnectModelFactoryImpl: WalletConnectModelFactory {
             )
         }.reduce([], +)
 
+        var methods = requiredMethods
+        var events = requiredEvents
+        if optionalChainIds != nil {
+            let optionalMethods = optionalNamespaces.map { $0.methods }.reduce([], +)
+            let optionalEvents = optionalNamespaces.map { $0.events }.reduce([], +)
+            methods.append(contentsOf: optionalMethods)
+            events.append(contentsOf: optionalEvents)
+        }
+
         let sessionProposal = try AutoNamespaces.build(
             sessionProposal: proposal,
             chains: requiredBlockChains.map { $0.blockchain } + optionalBlockChains.map { $0.blockchain },
-            methods: requiredMethods + optionalMethods,
-            events: requiredEvents + optionalEvents,
+            methods: methods,
+            events: events,
             accounts: requiredAccounts + optionalAccounts
         )
         return sessionProposal

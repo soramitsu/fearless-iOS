@@ -5,6 +5,7 @@ import SSFModels
 struct WalletConnectProposalViewModel {
     let indexPath: IndexPath?
     let cells: [WalletConnectProposalCellModel]
+    let expiryDate: String?
 
     lazy var selectedWalletIds: [String] = {
         cells.compactMap {

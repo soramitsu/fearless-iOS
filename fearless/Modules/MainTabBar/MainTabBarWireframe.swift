@@ -39,7 +39,7 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         proposal: Session.Proposal,
         view: ControllerBackedProtocol?
     ) {
-        let module = WalletConnectProposalAssembly.configureModule(proposal: proposal)
+        let module = WalletConnectProposalAssembly.configureModule(status: .proposal(proposal))
         guard let controller = module?.view.controller else {
             return
         }

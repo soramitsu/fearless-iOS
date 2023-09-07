@@ -5,7 +5,7 @@ import RobinHood
 
 final class WalletConnectProposalAssembly {
     static func configureModule(
-        proposal: Session.Proposal
+        status: WalletConnectProposalPresenter.SessionStatus
     ) -> WalletConnectProposalModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -26,10 +26,11 @@ final class WalletConnectProposalAssembly {
 
         let walletConnectModelFactory = WalletConnectModelFactoryImpl()
         let viewModelFactory = WalletConnectProposalViewModelFactoryImpl(
+            status: status,
             walletConnectModelFactory: walletConnectModelFactory
         )
         let presenter = WalletConnectProposalPresenter(
-            proposal: proposal,
+            status: status,
             walletConnectModelFactory: walletConnectModelFactory,
             viewModelFactory: viewModelFactory,
             logger: Logger.shared,
@@ -39,6 +40,7 @@ final class WalletConnectProposalAssembly {
         )
 
         let view = WalletConnectProposalViewController(
+            status: status,
             output: presenter,
             localizationManager: localizationManager
         )

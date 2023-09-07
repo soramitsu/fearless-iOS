@@ -30,5 +30,18 @@ extension WalletConnectActiveSessionsInteractor: WalletConnectActiveSessionsInte
     func setup(with output: WalletConnectActiveSessionsInteractorOutput) {
         self.output = output
         getSesstion()
+        walletConnectService.set(delegate: self)
+    }
+
+    func setupConnection(uri: String) throws {
+        try walletConnectService.connect(uri: uri)
+    }
+}
+
+// MARK: - WalletConnectServiceDelegate
+
+extension WalletConnectActiveSessionsInteractor: WalletConnectServiceDelegate {
+    func didChange(sessions: [Session]) {
+        output?.didReceive(sessions: sessions)
     }
 }

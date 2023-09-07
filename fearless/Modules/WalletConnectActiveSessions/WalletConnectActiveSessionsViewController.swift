@@ -3,6 +3,10 @@ import SoraFoundation
 
 protocol WalletConnectActiveSessionsViewOutput: AnyObject {
     func didLoad(view: WalletConnectActiveSessionsViewInput)
+    func didSelectRowAt(_ indexPath: IndexPath)
+    func backButtonDidTapped()
+    func filterConnection(by text: String?)
+    func createNewConnection()
 }
 
 final class WalletConnectActiveSessionsViewController: UIViewController, ViewHolder {
@@ -52,7 +56,17 @@ final class WalletConnectActiveSessionsViewController: UIViewController, ViewHol
         rootView.tableView.dataSource = self
     }
 
-    private func bindActions() {}
+    private func bindActions() {
+        rootView.navigationBar.backButton.addAction { [weak self] in
+            self?.output.backButtonDidTapped()
+        }
+        rootView.searchView.onTextDidChanged = { [weak self] text in
+            self?.output.filterConnection(by: text)
+        }
+        rootView.createNewConnectionButton.addAction { [weak self] in
+            self?.output.createNewConnection()
+        }
+    }
 }
 
 // MARK: - WalletConnectActiveSessionsViewInput
@@ -98,7 +112,7 @@ extension WalletConnectActiveSessionsViewController: UITableViewDelegate {
         cell.bind(viewModel: viewModels[indexPath.row])
     }
 
-    func tableView(_: UITableView, didSelectRowAt _: IndexPath) {
-//        output.didTap(on: indexPath)
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        output.didSelectRowAt(indexPath)
     }
 }

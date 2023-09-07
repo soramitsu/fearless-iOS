@@ -2,10 +2,12 @@ import Foundation
 import Combine
 import WalletConnectSign
 import Web3Wallet
+import FearlessKeys
 
 protocol WalletConnectService: ApplicationServiceProtocol {
     func set(delegate: WalletConnectServiceDelegate)
     func connect(uri: String) throws
+    func disconnect(topic: String) async throws
     func getSessions() -> [Session]
 
     func submit(proposalDecision: WalletConnectProposalDecision) async throws
@@ -15,6 +17,13 @@ protocol WalletConnectService: ApplicationServiceProtocol {
 protocol WalletConnectServiceDelegate: AnyObject {
     func session(proposal: Session.Proposal)
     func sign(request: Request, session: Session?)
+    func didChange(sessions: [Session])
+}
+
+extension WalletConnectServiceDelegate {
+    func session(proposal _: Session.Proposal) {}
+    func sign(request _: Request, session _: Session?) {}
+    func didChange(sessions _: [Session]) {}
 }
 
 final class WalletConnectServiceImpl: WalletConnectService {
@@ -28,8 +37,13 @@ final class WalletConnectServiceImpl: WalletConnectService {
     // MARK: - // MARK: - ApplicationServiceProtocol
 
     func setup() {
+        #if DEBUG
+            let projectId = WalletConnectDebug.projectId
+        #else
+            let projectId = WalletConnect.projectId
+        #endif
         Networking.configure(
-            projectId: WalletConnect.projectId,
+            projectId: projectId,
             socketFactory: WalletConnectSocketFactory()
         )
         Web3Wallet.configure(
@@ -96,16 +110,19 @@ final class WalletConnectServiceImpl: WalletConnectService {
         }
     }
 
+    func disconnect(topic: String) async throws {
+        try await Web3Wallet.instance.disconnect(topic: topic)
+    }
+
     // MARK: - Private methods
 
     private func setupSubscription() {
         Web3Wallet.instance.sessionProposalPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] proposal, context in
+            .sink { [weak self] proposal, _ in
                 guard let self = self else {
                     return
                 }
-                print(context)
                 self.delegate?.session(proposal: proposal)
             }
             .store(in: &cancellablesBag)
@@ -116,18 +133,16 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 guard let self = self else {
                     return
                 }
-                print(sessions)
-//                self.delegate?.walletConnect(service: self, didChange: sessions)
+                self.delegate?.didChange(sessions: sessions)
             }
             .store(in: &cancellablesBag)
 
         Web3Wallet.instance.sessionRequestPublisher
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] request, context in
+            .sink { [weak self] request, _ in
                 guard let self = self else {
                     return
                 }
-                print(context)
                 let session = Web3Wallet.instance.getSessions().first { $0.topic == request.topic }
                 self.delegate?.sign(request: request, session: session)
             }

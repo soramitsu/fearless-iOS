@@ -17,6 +17,11 @@ final class WalletConnectActiveSessionsViewLayout: UIView {
         return tableView
     }()
 
+    let createNewConnectionButton: TriangularedButton = {
+        let button = UIFactory.default.createMainActionButton()
+        return button
+    }()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -58,12 +63,20 @@ final class WalletConnectActiveSessionsViewLayout: UIView {
         tableView.snp.makeConstraints { make in
             make.top.equalTo(searchView.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        }
+
+        addSubview(createNewConnectionButton)
+        createNewConnectionButton.snp.makeConstraints { make in
+            make.top.equalTo(tableView.snp.bottom).offset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
+            make.height.equalTo(UIConstants.actionHeight)
         }
     }
 
     private func applyLocalization() {
         navigationBar.setTitle("Connections")
         searchView.textField.placeholder = "Search by connection"
+        createNewConnectionButton.imageWithTitleView?.title = "Create new connection"
     }
 }

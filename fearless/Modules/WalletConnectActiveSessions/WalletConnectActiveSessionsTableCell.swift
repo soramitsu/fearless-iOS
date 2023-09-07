@@ -37,6 +37,7 @@ final class WalletConnectActiveSessionsTableCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         backgroundColor = .clear
         separatorInset = .zero
+        selectionStyle = .none
         setupLayout()
     }
 

@@ -16,6 +16,7 @@ final class WalletConnectProposalDetailsTableCell: UITableViewCell {
         view.strokeColor = R.color.colorWhite8()!
         view.borderWidth = 1
         view.layout = .largeIconTitleSubtitle
+        view.iconView.contentMode = .scaleAspectFit
         view.isUserInteractionEnabled = false
         return view
     }()

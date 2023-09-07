@@ -1,4 +1,5 @@
 import UIKit
+import WalletConnectSign
 import RobinHood
 import SSFModels
 
@@ -69,5 +70,9 @@ extension WalletConnectProposalInteractor: WalletConnectProposalInteractorInput 
 
     func submit(proposalDecision: WalletConnectProposalDecision) async throws {
         try await walletConnect.submit(proposalDecision: proposalDecision)
+    }
+
+    func submitDisconnect(topic: String) async throws {
+        try await walletConnect.disconnect(topic: topic)
     }
 }

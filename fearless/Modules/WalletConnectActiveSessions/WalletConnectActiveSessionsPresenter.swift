@@ -8,6 +8,7 @@ protocol WalletConnectActiveSessionsViewInput: ControllerBackedProtocol, Hiddabl
 
 protocol WalletConnectActiveSessionsInteractorInput: AnyObject {
     func setup(with output: WalletConnectActiveSessionsInteractorOutput)
+    func setupConnection(uri: String) throws
 }
 
 final class WalletConnectActiveSessionsPresenter {
@@ -50,6 +51,31 @@ final class WalletConnectActiveSessionsPresenter {
 // MARK: - WalletConnectActiveSessionsViewOutput
 
 extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewOutput {
+    func createNewConnection() {
+        router.showScaner(output: self, view: view)
+    }
+
+    func filterConnection(by text: String?) {
+        let sessions = sessions?.filter {
+            guard let text = text else { return false }
+            return $0.peer.name.lowercased().contains(text.lowercased()) == true
+        }
+        guard let sessions = sessions else { return }
+        let viewModels = viewModelFactory.createViewModel(from: sessions)
+        view?.didReceive(viewModels: viewModels)
+    }
+
+    func didSelectRowAt(_ indexPath: IndexPath) {
+        guard let session = sessions?[safe: indexPath.row] else {
+            return
+        }
+        router.showSession(session, view: view)
+    }
+
+    func backButtonDidTapped() {
+        router.dismiss(view: view)
+    }
+
     func didLoad(view: WalletConnectActiveSessionsViewInput) {
         self.view = view
         view.didStartLoading()
@@ -73,3 +99,23 @@ extension WalletConnectActiveSessionsPresenter: Localizable {
 }
 
 extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsModuleInput {}
+
+// MARK: - ScanQRModuleOutput
+
+extension WalletConnectActiveSessionsPresenter: ScanQRModuleOutput {
+    func didFinishWithConnect(uri: String) {
+        do {
+            try interactor.setupConnection(uri: uri)
+        } catch {
+            DispatchQueue.main.async {
+                self.router.present(
+                    message: error.localizedDescription,
+                    title: "Error",
+                    closeAction: nil,
+                    from: self.view,
+                    actions: []
+                )
+            }
+        }
+    }
+}

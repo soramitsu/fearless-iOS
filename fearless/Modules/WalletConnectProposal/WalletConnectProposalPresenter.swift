@@ -10,6 +10,7 @@ protocol WalletConnectProposalViewInput: ControllerBackedProtocol, LoadableViewP
 protocol WalletConnectProposalInteractorInput: AnyObject {
     func setup(with output: WalletConnectProposalInteractorOutput)
     func submit(proposalDecision: WalletConnectProposalDecision) async throws
+    func submitDisconnect(topic: String) async throws
 }
 
 final class WalletConnectProposalPresenter {
@@ -19,9 +20,9 @@ final class WalletConnectProposalPresenter {
     private let router: WalletConnectProposalRouterInput
     private let interactor: WalletConnectProposalInteractorInput
 
+    private let status: SessionStatus
     private let walletConnectModelFactory: WalletConnectModelFactory
     private let viewModelFactory: WalletConnectProposalViewModelFactory
-    private let proposal: Session.Proposal
     private let logger: LoggerProtocol
 
     private var viewModel: WalletConnectProposalViewModel?
@@ -32,7 +33,7 @@ final class WalletConnectProposalPresenter {
     // MARK: - Constructors
 
     init(
-        proposal: Session.Proposal,
+        status: SessionStatus,
         walletConnectModelFactory: WalletConnectModelFactory,
         viewModelFactory: WalletConnectProposalViewModelFactory,
         logger: LoggerProtocol,
@@ -40,7 +41,7 @@ final class WalletConnectProposalPresenter {
         router: WalletConnectProposalRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
-        self.proposal = proposal
+        self.status = status
         self.walletConnectModelFactory = walletConnectModelFactory
         self.viewModelFactory = viewModelFactory
         self.logger = logger
@@ -52,21 +53,53 @@ final class WalletConnectProposalPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
+        switch status {
+        case let .proposal(proposal):
+            provideProposalSessionViewModel(proposal: proposal)
+        case let .active(session):
+            provideActiveSessionViewModel(session: session)
+        }
+    }
+
+    private func provideProposalSessionViewModel(proposal: Session.Proposal) {
         guard chains.isNotEmpty, wallets.isNotEmpty else {
             return
         }
         do {
-            let viewModel = try viewModelFactory.buildViewModel(
+            let viewModel = try viewModelFactory.buildProposalSessionViewModel(
                 proposal: proposal,
                 chains: chains,
-                wallets: wallets
+                wallets: wallets,
+                locale: selectedLocale
             )
             DispatchQueue.main.async {
                 self.view?.didReceive(viewModel: viewModel)
             }
             self.viewModel = viewModel
         } catch {
-            print(error)
+            logger.customError(error)
+            handle(error: error)
+        }
+    }
+
+    private func provideActiveSessionViewModel(session: Session) {
+        guard chains.isNotEmpty, wallets.isNotEmpty else {
+            return
+        }
+        do {
+            let viewModel = try viewModelFactory.buildActiveSessionViewModel(
+                session: session,
+                chains: chains,
+                wallets: wallets,
+                locale: selectedLocale
+            )
+            DispatchQueue.main.async {
+                self.view?.didReceive(viewModel: viewModel)
+            }
+            self.viewModel = viewModel
+        } catch {
+            logger.customError(error)
+            handle(error: error)
         }
     }
 
@@ -85,9 +118,12 @@ final class WalletConnectProposalPresenter {
     private func submitReject() {
         Task {
             do {
+                guard let proposal = status.proposal else { return }
                 try await interactor.submit(proposalDecision: .reject(proposal: proposal))
+                await showAllDone(description: "Rejected")
             } catch {
                 logger.customError(error)
+                handle(error: error)
             }
         }
     }
@@ -95,6 +131,7 @@ final class WalletConnectProposalPresenter {
     private func submitApprove() {
         Task {
             do {
+                guard let proposal = status.proposal else { return }
                 let selectedWallets = wallets.filter { wallet in
                     viewModel?.selectedWalletIds.contains(wallet.metaId) == true
                 }
@@ -105,19 +142,28 @@ final class WalletConnectProposalPresenter {
                     optionalChainIds: optionalChainsIds
                 )
                 try await interactor.submit(proposalDecision: .approve(proposal: proposal, namespaces: namespaces))
-                await showAllDone()
+                await showAllDone(description: "You can now back to your browser")
             } catch {
                 logger.customError(error)
-                await MainActor.run {
-                    view?.didStopLoading()
-                    let convinienceError = ConvenienceError(error: error.localizedDescription)
-                    router.present(error: convinienceError, from: view, locale: selectedLocale)
-                }
+                handle(error: error)
+            }
+        }
+    }
+
+    private func submitDisconnect(topic: String) {
+        Task {
+            do {
+                try await interactor.submitDisconnect(topic: topic)
+                await showAllDone(description: "Disconnection from React App with ethers has been successfully completed")
+            } catch {
+                logger.customError(error)
+                handle(error: error)
             }
         }
     }
 
     private func showRequiredNetworks() {
+        guard let proposal = status.proposal else { return }
         let blockchains = proposal.requiredNamespaces.map { $0.value }.map { $0.chains }.compactMap { $0 }.reduce([], +)
         let requiedChains = walletConnectModelFactory.resolveChains(for: Set(blockchains), chains: chains)
 
@@ -131,6 +177,7 @@ final class WalletConnectProposalPresenter {
     }
 
     private func showOptionalNetworks() {
+        guard let proposal = status.proposal else { return }
         let blockchains = proposal.optionalNamespaces.or([:]).map { $0.value }.map { $0.chains }.compactMap { $0 }.reduce([], +)
         let requiedChains = walletConnectModelFactory.resolveChains(for: Set(blockchains), chains: chains)
 
@@ -143,16 +190,31 @@ final class WalletConnectProposalPresenter {
         )
     }
 
-    private func showAllDone() async {
+    private func showAllDone(description: String) async {
         await MainActor.run {
             view?.didStopLoading()
             router.showAllDone(
                 title: "All Done",
-                description: "You can now back to your browser",
+                description: description,
                 view: view
             ) { [weak self] in
                 self?.router.dismiss(view: self?.view)
             }
+        }
+    }
+
+    private func handle(error: Error) {
+        let viewModel = SheetAlertPresentableViewModel(
+            title: "\(error._code)",
+            message: error.localizedDescription,
+            actions: [],
+            closeAction: nil
+        ) { [weak self] in
+            self?.router.dismiss(view: self?.view)
+        }
+        DispatchQueue.main.async {
+            self.view?.didStopLoading()
+            self.router.present(viewModel: viewModel, from: self.view)
         }
     }
 }
@@ -162,6 +224,7 @@ final class WalletConnectProposalPresenter {
 extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
     func viewDidDisappear() {
         Task {
+            guard let proposal = status.proposal else { return }
             try? await interactor.submit(proposalDecision: .reject(proposal: proposal))
         }
     }
@@ -170,8 +233,14 @@ extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
         router.dismiss(view: view)
     }
 
-    func approveButtonDidTapped() {
-        submitApprove()
+    func mainActionButtonDidTapped() {
+        view?.didStartLoading()
+        switch status {
+        case .proposal:
+            submitApprove()
+        case let .active(session):
+            submitDisconnect(topic: session.topic)
+        }
     }
 
     func rejectButtonDidTapped() {
@@ -198,7 +267,6 @@ extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
     func didLoad(view: WalletConnectProposalViewInput) {
         self.view = view
         interactor.setup(with: self)
-        provideViewModel()
     }
 }
 
@@ -239,5 +307,30 @@ extension WalletConnectProposalPresenter: WalletConnectProposalModuleInput {}
 extension WalletConnectProposalPresenter: MultiSelectNetworksModuleOutput {
     func selectedChain(ids: [SSFModels.ChainModel.Id]?) {
         optionalChainsIds = ids
+    }
+}
+
+extension WalletConnectProposalPresenter {
+    enum SessionStatus {
+        case proposal(Session.Proposal)
+        case active(Session)
+
+        var proposal: Session.Proposal? {
+            switch self {
+            case let .proposal(proposal):
+                return proposal
+            case .active:
+                return nil
+            }
+        }
+
+        var session: Session? {
+            switch self {
+            case .proposal:
+                return nil
+            case let .active(session):
+                return session
+            }
+        }
     }
 }

@@ -61,12 +61,10 @@ final class WalletConnectSocketEngine: WebSocketConnecting {
             case .reconnectSuggested:
                 self?.softReconnect()
             case let .viabilityChanged(isViable):
-                break
-//                if isViable {
-//                    self?.softReconnect()
-//                } else {
-//                    self?.didDisconnectedWith(error: ConvenienceError(error: "Not viable"))
-//                }
+                guard !isViable else {
+                    return
+                }
+                self?.didDisconnectedWith(error: ConvenienceError(error: "Not viable"))
             case let .error(error):
                 self?.didDisconnectedWith(error: error)
             case let .text(text):

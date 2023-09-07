@@ -82,6 +82,9 @@ final class MultiSelectNetworksPresenter {
     }
 
     private func provideSelectAllViewModel() {
+        guard canSelect else {
+            return
+        }
         let selectedChains = viewModel?.allIsSelected == false ? dataSource.map { $0.chainId } : []
         let viewModel = viewModelFactory.buildViewModel(
             dataSource: dataSource,

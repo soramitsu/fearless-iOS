@@ -2,7 +2,10 @@ import UIKit
 import SoraFoundation
 
 final class ScanQRAssembly {
-    static func configureModule(moduleOutput: ScanQRModuleOutput) -> ScanQRModuleCreationResult? {
+    static func configureModule(
+        moduleOutput: ScanQRModuleOutput,
+        matchers: [QRMatcherProtocol] = ScanQRAssembly.defaultMatchers
+    ) -> ScanQRModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let qrDecoder = QRCoderFactory().createDecoder()
@@ -10,7 +13,7 @@ final class ScanQRAssembly {
         let qrUriMatcher = QRUriMatcherImpl(scheme: "wc")
 
         let qrScanService = QRCaptureServiceFactory().createService(
-            with: [qrUriMatcher, qrScanMatcher],
+            with: matchers,
             delegate: nil,
             delegateQueue: nil
         )
@@ -40,4 +43,13 @@ final class ScanQRAssembly {
 
         return (view, presenter)
     }
+
+    static var defaultMatchers: [QRMatcherProtocol] {
+        [
+            QRScanMatcher(decoder: QRCoderFactory().createDecoder()),
+            QRUriMatcherImpl(scheme: "wc")
+        ]
+    }
+
+    static let wcSchemeMatcher = QRUriMatcherImpl(scheme: "wc")
 }

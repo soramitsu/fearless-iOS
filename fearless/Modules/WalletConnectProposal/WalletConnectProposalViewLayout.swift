@@ -1,6 +1,8 @@
 import UIKit
 
 final class WalletConnectProposalViewLayout: UIView {
+    private let status: WalletConnectProposalPresenter.SessionStatus
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -16,10 +18,11 @@ final class WalletConnectProposalViewLayout: UIView {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = R.color.colorBlack19()
+        tableView.tableFooterView = UIView()
         return tableView
     }()
 
-    let approveButton: TriangularedButton = {
+    let mainActionButton: TriangularedButton = {
         let button = UIFactory.default.createMainActionButton()
         button.applyEnabledStyle()
         return button
@@ -31,8 +34,19 @@ final class WalletConnectProposalViewLayout: UIView {
         return button
     }()
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    let expiryDateView: TitleValueView = {
+        let view = TitleValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueLabel.font = .h6Title
+        view.borderView.fillColor = R.color.colorBlack19()!
+        view.borderView.borderType = .none
+        return view
+    }()
+
+    init(status: WalletConnectProposalPresenter.SessionStatus) {
+        self.status = status
+        super.init(frame: .zero)
         backgroundColor = R.color.colorBlack19()!
         setupLayout()
     }
@@ -47,6 +61,15 @@ final class WalletConnectProposalViewLayout: UIView {
         navigationBar.backButton.rounded()
     }
 
+    func setExpiryDate(string: String?) {
+        guard let string = string else {
+            return
+        }
+        expiryDateView.valueLabel.text = string
+        expiryDateView.frame = CGRect(origin: .zero, size: CGSize(width: tableView.bounds.width, height: UIConstants.cellHeight))
+        tableView.tableFooterView = expiryDateView
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {
@@ -55,8 +78,14 @@ final class WalletConnectProposalViewLayout: UIView {
 
         let actionsStack = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
         addSubview(actionsStack)
-        actionsStack.addArrangedSubview(approveButton)
-        actionsStack.addArrangedSubview(rejectButton)
+
+        switch status {
+        case .proposal:
+            actionsStack.addArrangedSubview(mainActionButton)
+            actionsStack.addArrangedSubview(rejectButton)
+        case .active:
+            actionsStack.addArrangedSubview(mainActionButton)
+        }
 
         navigationBar.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
@@ -75,8 +104,15 @@ final class WalletConnectProposalViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Connection details")
-        approveButton.imageWithTitleView?.title = "Approve"
-        rejectButton.imageWithTitleView?.title = "Reject"
+        switch status {
+        case .proposal:
+            navigationBar.setTitle("Connection details")
+            mainActionButton.imageWithTitleView?.title = "Approve"
+            rejectButton.imageWithTitleView?.title = "Reject"
+        case .active:
+            navigationBar.setTitle("Connect details")
+            mainActionButton.imageWithTitleView?.title = "Disconnect"
+            expiryDateView.titleLabel.text = "Expiry"
+        }
     }
 }

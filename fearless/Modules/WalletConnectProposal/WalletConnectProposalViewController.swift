@@ -5,7 +5,7 @@ protocol WalletConnectProposalViewOutput: AnyObject {
     func didLoad(view: WalletConnectProposalViewInput)
     func viewDidDisappear()
     func backButtonDidTapped()
-    func approveButtonDidTapped()
+    func mainActionButtonDidTapped()
     func rejectButtonDidTapped()
     func didSelectRowAt(_ indexPath: IndexPath)
 }
@@ -16,15 +16,18 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: WalletConnectProposalViewOutput
+    private let status: WalletConnectProposalPresenter.SessionStatus
 
     private var viewModel: WalletConnectProposalViewModel?
 
     // MARK: - Constructor
 
     init(
+        status: WalletConnectProposalPresenter.SessionStatus,
         output: WalletConnectProposalViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.status = status
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -38,7 +41,7 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
     // MARK: - Life cycle
 
     override func loadView() {
-        view = WalletConnectProposalViewLayout()
+        view = WalletConnectProposalViewLayout(status: status)
     }
 
     override func viewDidLoad() {
@@ -71,8 +74,8 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
         rootView.navigationBar.backButton.addAction { [weak self] in
             self?.output.backButtonDidTapped()
         }
-        rootView.approveButton.addAction { [weak self] in
-            self?.output.approveButtonDidTapped()
+        rootView.mainActionButton.addAction { [weak self] in
+            self?.output.mainActionButtonDidTapped()
         }
         rootView.rejectButton.addAction { [weak self] in
             self?.output.rejectButtonDidTapped()
@@ -81,7 +84,7 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
 
     private func updateActionButton() {
         let enabled = viewModel?.selectedWalletIds.isNotEmpty ?? false
-        rootView.approveButton.set(enabled: enabled)
+        rootView.mainActionButton.set(enabled: enabled)
     }
 }
 
@@ -96,6 +99,7 @@ extension WalletConnectProposalViewController: WalletConnectProposalViewInput {
             rootView.tableView.reloadData()
         }
         updateActionButton()
+        rootView.setExpiryDate(string: viewModel.expiryDate)
     }
 }
 
