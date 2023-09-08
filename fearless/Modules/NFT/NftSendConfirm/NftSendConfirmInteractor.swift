@@ -1,16 +1,26 @@
 import UIKit
 import BigInt
+import SSFModels
 
 final class NftSendConfirmInteractor {
     // MARK: - Private properties
 
     private weak var output: NftSendConfirmInteractorOutput?
     private let transferService: NftTransferService
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let wallet: MetaAccountModel
+    private let chain: ChainModel
 
     init(
-        transferService: NftTransferService
+        transferService: NftTransferService,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
+        wallet: MetaAccountModel,
+        chain: ChainModel
     ) {
         self.transferService = transferService
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.wallet = wallet
+        self.chain = chain
     }
 }
 
@@ -19,6 +29,11 @@ final class NftSendConfirmInteractor {
 extension NftSendConfirmInteractor: NftSendConfirmInteractorInput {
     func setup(with output: NftSendConfirmInteractorOutput) {
         self.output = output
+
+        if let chainAsset = chain.utilityChainAssets().first,
+           let accountId = wallet.fetch(for: chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self, deliveryOn: nil)
+        }
     }
 
     func estimateFee(for nft: NFT, address: String?) {
@@ -75,5 +90,15 @@ extension NftSendConfirmInteractor: TransferFeeEstimationListener {
         DispatchQueue.main.async { [weak self] in
             self?.output?.didReceiveFee(result: .failure(feeError))
         }
+    }
+}
+
+extension NftSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(
+        result: Swift.Result<AccountInfo?, Error>,
+        accountId _: AccountId,
+        chainAsset: ChainAsset
+    ) {
+        output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }

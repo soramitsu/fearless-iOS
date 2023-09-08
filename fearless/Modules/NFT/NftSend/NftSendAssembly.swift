@@ -73,6 +73,8 @@ enum NftSendAssembly {
                 localizationManager: localizationManager
             )
 
+            dataValidatingFactory.view = view
+
             return (view, presenter)
         } catch {
             Logger.shared.error(error.localizedDescription)

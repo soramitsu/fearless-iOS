@@ -27,8 +27,16 @@ final class MainNftContainerInteractor {
         self.eventCenter = eventCenter
         eventCenter.add(observer: self)
     }
+}
 
-    private func fetchData() {
+// MARK: - MainNftContainerInteractorInput
+
+extension MainNftContainerInteractor: MainNftContainerInteractorInput {
+    func setup(with output: MainNftContainerInteractorOutput) {
+        self.output = output
+    }
+
+    func fetchData() {
         Task {
             do {
                 let nftsHistory = try await nftFetchingService.fetchNftsHistory(for: wallet)
@@ -76,22 +84,8 @@ final class MainNftContainerInteractor {
     }
 }
 
-// MARK: - MainNftContainerInteractorInput
-
-extension MainNftContainerInteractor: MainNftContainerInteractorInput {
-    func setup(with output: MainNftContainerInteractorOutput) {
-        self.output = output
-        fetchData()
-    }
-}
-
 extension MainNftContainerInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         wallet = event.account
-        fetchData()
-    }
-
-    func processChainsSetupCompleted() {
-//        fetchData()
     }
 }

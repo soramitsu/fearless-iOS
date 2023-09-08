@@ -1,8 +1,8 @@
 typealias MainNftContainerModuleCreationResult = (view: MainNftContainerViewInput, input: MainNftContainerModuleInput)
 
 protocol MainNftContainerViewInput: ControllerBackedProtocol {
-    func didReceive(viewModels: [NftListCellModel])
-    func didReceive(history: [NFTHistoryObject])
+    func didReceive(viewModels: [NftListCellModel]?)
+    func didReceive(history: [NFTHistoryObject]?)
 }
 
 protocol MainNftContainerViewOutput: AnyObject {
@@ -12,6 +12,7 @@ protocol MainNftContainerViewOutput: AnyObject {
 
 protocol MainNftContainerInteractorInput: AnyObject {
     func setup(with output: MainNftContainerInteractorOutput)
+    func fetchData()
 }
 
 protocol MainNftContainerInteractorOutput: AnyObject {

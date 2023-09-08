@@ -145,9 +145,9 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         }
     }
 
-    override func queryGasLimit(from: EthereumAddress?, amount: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
+    override func queryGasLimit(from _: EthereumAddress?, amount _: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
-            transfer.estimateGas(from: from, value: amount) { quantity, error in
+            transfer.estimateGas { quantity, error in
                 if let gas = quantity {
                     return continuation.resume(with: .success(gas))
                 } else if let error = error {

@@ -7,7 +7,7 @@ class NftListCell: UITableViewCell {
         static let imageSize: CGFloat = 64.0
     }
 
-    let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
+    let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.minimalOffset)
 
     let cardView: TriangularedBlurView = {
         let view = TriangularedBlurView()
