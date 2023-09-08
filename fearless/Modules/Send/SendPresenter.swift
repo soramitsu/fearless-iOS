@@ -28,7 +28,6 @@ final class SendPresenter {
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset?
     private var selectedAsset: AssetModel?
-    private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
     private var priceData: PriceData?
@@ -161,10 +160,7 @@ extension SendPresenter: SendViewOutput {
 
     func validateInputData(with address: String, chainAsset: ChainAsset) {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
-        let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
-        let spendingValue = (sendAmountValue ?? 0) +
-            (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0) +
-            (tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
+        let spendingValue = (sendAmountDecimal ?? 0) + (fee ?? 0) + (tip ?? 0)
 
         let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
@@ -185,8 +181,8 @@ extension SendPresenter: SendViewOutput {
             ) :
             .utility(
                 spendingAmount: spendingValue,
-                totalAmount: totalBalanceValue,
-                minimumBalance: minimumBalance
+                totalAmount: balance,
+                minimumBalance: minimumBalanceDecimal
             )
         if chainAsset.chain.isEquilibrium {
             edParameters = .equilibrium(
@@ -288,7 +284,6 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(accountInfo):
             if chainAsset == selectedChainAsset {
-                totalBalanceValue = accountInfo?.data.sendAvailable ?? 0
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
