@@ -2684,6 +2684,7 @@
 		FAF5E9DE27E46DCC005A3448 /* String+VersionComparsion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9DD27E46DCC005A3448 /* String+VersionComparsion.swift */; };
 		FAF5E9E127E4A4C1005A3448 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */; };
 		FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF92E6527B4275E005467CE /* Bool+ToInt.swift */; };
+		FAF9C2962AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */; };
 		FAFBEE81284621800036D08C /* SelectedValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */; };
 		FAFBEE83284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */; };
 		FAFDB2C329112A00003971FB /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */; };
@@ -5516,6 +5517,7 @@
 		FAF5E9DD27E46DCC005A3448 /* String+VersionComparsion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+VersionComparsion.swift"; sourceTree = "<group>"; };
 		FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		FAF92E6527B4275E005467CE /* Bool+ToInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
+		FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedControllerStashAccountCheckService.swift; sourceTree = "<group>"; };
 		FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
@@ -6995,6 +6997,7 @@
 		84155DE8253980D700A27058 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */,
 				841AAC2B26F7311200F0A25E /* RemoteSubscription */,
 				84D1110A26B922C10016D962 /* ChainRegistry */,
 				846CD24B2656FE9D00A2E4B6 /* StorageQueryService */,
@@ -16086,6 +16089,7 @@
 				8436EDE725895846004D9E97 /* PurchaseProvider.swift in Sources */,
 				FA2FC81628B3807D00CC0A42 /* StakingPoolStartAssembly.swift in Sources */,
 				AEF50556261A04AD0098574D /* MoonpayProvider.swift in Sources */,
+				FAF9C2962AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift in Sources */,
 				FAA0137928DA12E3000A5230 /* StakingRedeemConfirmationPoolViewModelState.swift in Sources */,
 				84FB29942639ABD700BE0FCD /* YourValidatorList+SelectionStart.swift in Sources */,
 				84DB9E8A26409E8200F23DD3 /* StakingRedeemLayout.swift in Sources */,

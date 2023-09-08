@@ -82,7 +82,8 @@ final class WalletOptionViewLayout: UIView {
         walletDetailsButton.imageWithTitleView?.title = R.string.localizable.walletOptionsDetails(
             preferredLanguages: locale.rLanguages
         )
-        changeWalletNameButton.imageWithTitleView?.title = "Change wallet name"
+        changeWalletNameButton.imageWithTitleView?.title = R.string.localizable
+            .backupWalletNameEditingTitle(preferredLanguages: locale.rLanguages)
         deleteWalletButton.imageWithTitleView?.title = R.string.localizable.walletOptionsDelete(
             preferredLanguages: locale.rLanguages
         )

@@ -22,26 +22,6 @@
         <string>%li дней</string>
       </dict>
     </dict>
-    <key>common.hours.format</key>
-    <dict>
-      <key>NSStringLocalizedFormatKey</key>
-      <string>%#@format@</string>
-      <key>format</key>
-      <dict>
-        <key>NSStringFormatSpecTypeKey</key>
-        <string>NSStringPluralRuleType</string>
-        <key>NSStringFormatValueTypeKey</key>
-        <string>li</string>
-        <key>one</key>
-        <string>%li час</string>
-        <key>few</key>
-        <string>%li часа</string>
-        <key>many</key>
-        <string>%li часов</string>
-        <key>other</key>
-        <string>%li час</string>
-      </dict>
-    </dict>
     <key>common.days.left.format</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -62,7 +42,7 @@
         <string>Осталось %li дней</string>
       </dict>
     </dict>
-    <key>staking.analytics.validators.eras.counter</key>
+    <key>common.hours.format</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -73,13 +53,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li эра</string>
+        <string>%li час</string>
         <key>few</key>
-        <string>%li эр</string>
+        <string>%li часа</string>
         <key>many</key>
-        <string>%li эр</string>
+        <string>%li часов</string>
         <key>other</key>
-        <string>%li эры</string>
+        <string>%li час</string>
       </dict>
     </dict>
     <key>plus.others.template</key>
@@ -100,6 +80,26 @@
         <string>+%li других</string>
         <key>other</key>
         <string>+%li других</string>
+      </dict>
+    </dict>
+    <key>staking.analytics.validators.eras.counter</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li эра</string>
+        <key>few</key>
+        <string>%li эр</string>
+        <key>many</key>
+        <string>%li эр</string>
+        <key>other</key>
+        <string>%li эры</string>
       </dict>
     </dict>
   </dict>

@@ -21,7 +21,7 @@ protocol AccountCreatePresenterProtocol: AnyObject {
     func activateInfo()
     func validateSubstrate()
     func validateEthereum()
-    func proceed()
+    func proceed(withReplaced flow: AccountCreateFlow?)
     func didTapBackupButton()
 }
 

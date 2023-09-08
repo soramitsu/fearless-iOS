@@ -49,7 +49,11 @@ final class NetworkIssuesNotificationViewModelFactory: NetworkIssuesNotification
                 issueDescription = R.string.localizable.networkIssueStub(
                     preferredLanguages: locale.rLanguages
                 )
-                buttonType = .networkUnavailible
+                buttonType = .networkUnavailible(
+                    title: R.string.localizable.commonResolve(
+                        preferredLanguages: locale.rLanguages
+                    )
+                )
             } else {
                 issueDescription = R.string.localizable.networkIssueNodeUnavailable(
                     preferredLanguages: locale.rLanguages
