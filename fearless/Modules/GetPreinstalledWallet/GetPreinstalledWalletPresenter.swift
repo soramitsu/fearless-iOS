@@ -61,7 +61,7 @@ final class GetPreinstalledWalletPresenter: NSObject {
         let name = mnemonicString.components(separatedBy: " ").first ?? ""
         let request = MetaAccountImportRequest(
             source: source,
-            username: "Pendulum \(name)",
+            username: "Pendulum Wallet",
             cryptoType: .sr25519,
             defaultChainId: "5d3c298622d5634ed019bf61ea4b71655030015bde9beb0d6a24743714462c86"
         )
