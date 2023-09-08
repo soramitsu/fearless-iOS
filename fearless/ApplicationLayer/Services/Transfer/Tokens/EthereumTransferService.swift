@@ -2,8 +2,6 @@ import Foundation
 import OrderedCollections
 import Web3
 import SSFModels
-import SSFExtrinsicKit
-import SSFSigner
 import Web3ContractABI
 import Web3PromiseKit
 import SSFUtils

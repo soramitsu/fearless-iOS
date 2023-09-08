@@ -11,17 +11,26 @@ final class NftSendInteractor {
     private let operationManager: OperationManagerProtocol
     private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
     private let addressChainDefiner: AddressChainDefiner
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let chain: ChainModel
+    private let wallet: MetaAccountModel
 
     init(
         transferService: NftTransferService,
         operationManager: OperationManagerProtocol,
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
-        addressChainDefiner: AddressChainDefiner
+        addressChainDefiner: AddressChainDefiner,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
+        chain: ChainModel,
+        wallet: MetaAccountModel
     ) {
         self.transferService = transferService
         self.operationManager = operationManager
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.addressChainDefiner = addressChainDefiner
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.chain = chain
+        self.wallet = wallet
     }
 }
 
@@ -30,6 +39,11 @@ final class NftSendInteractor {
 extension NftSendInteractor: NftSendInteractorInput {
     func setup(with output: NftSendInteractorOutput) {
         self.output = output
+
+        if let chainAsset = chain.utilityChainAssets().first,
+           let accountId = wallet.fetch(for: chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self, deliveryOn: nil)
+        }
     }
 
     func estimateFee(for nft: NFT, address: String?) {
@@ -93,5 +107,15 @@ extension NftSendInteractor: TransferFeeEstimationListener {
         DispatchQueue.main.async { [weak self] in
             self?.output?.didReceiveFee(result: .failure(feeError))
         }
+    }
+}
+
+extension NftSendInteractor: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(
+        result: Swift.Result<AccountInfo?, Error>,
+        accountId _: AccountId,
+        chainAsset: ChainAsset
+    ) {
+        output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }

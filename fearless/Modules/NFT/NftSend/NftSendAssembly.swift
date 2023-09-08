@@ -38,13 +38,23 @@ enum NftSendAssembly {
                 chainModelRepository: AnyDataProviderRepository(chainRepository),
                 wallet: wallet
             )
+            let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+                operationManager: OperationManagerFacade.sharedManager,
+                chainRegistry: ChainRegistryFacade.sharedRegistry,
+                logger: Logger.shared
+            )
+            let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, selectedMetaAccount: wallet)
             let interactor = NftSendInteractor(
                 transferService: transferService,
                 operationManager: OperationManagerFacade.sharedManager,
                 scamServiceOperationFactory: scamServiceOperationFactory,
-                addressChainDefiner: addressChainDefiner
+                addressChainDefiner: addressChainDefiner,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chain: nft.chain,
+                wallet: wallet
             )
             let router = NftSendRouter()
+            let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
 
             let presenter = NftSendPresenter(
                 interactor: interactor,
@@ -52,8 +62,10 @@ enum NftSendAssembly {
                 localizationManager: localizationManager,
                 nft: nft,
                 wallet: wallet,
-                logger: Logger.shared, viewModelFactory:
-                SendViewModelFactory(iconGenerator: UniversalIconGenerator())
+                logger: Logger.shared,
+                viewModelFactory:
+                SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
+                dataValidatingFactory: dataValidatingFactory
             )
 
             let view = NftSendViewController(

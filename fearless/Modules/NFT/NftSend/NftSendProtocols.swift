@@ -27,9 +27,10 @@ protocol NftSendInteractorInput: AnyObject {
 protocol NftSendInteractorOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(scamInfo: ScamInfo?)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
-protocol NftSendRouterInput: AnyObject, PresentDismissable {
+protocol NftSendRouterInput: AnyObject, PresentDismissable, BaseErrorPresentable, SheetAlertPresentable {
     func presentScan(
         from view: ControllerBackedProtocol?,
         moduleOutput: ScanQRModuleOutput
