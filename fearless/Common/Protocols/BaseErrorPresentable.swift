@@ -7,11 +7,13 @@ protocol BaseErrorPresentable {
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
 
     func presentExistentialDepositWarning(
+        existentianDepositValue: String,
         from view: ControllerBackedProtocol,
         action: @escaping () -> Void,
         locale: Locale?
     )
     func presentExistentialDepositError(
+        existentianDepositValue: String,
         from view: ControllerBackedProtocol,
         locale: Locale?
     )
@@ -55,6 +57,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
     }
 
     func presentExistentialDepositWarning(
+        existentianDepositValue: String,
         from view: ControllerBackedProtocol,
         action: @escaping () -> Void,
         locale: Locale?
@@ -62,7 +65,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let title = R.string.localizable
             .commonExistentialWarningTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
-            .commonExistentialWarningMessage(preferredLanguages: locale?.rLanguages)
+            .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
 
         presentWarning(
             for: title,
@@ -74,13 +77,14 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
     }
 
     func presentExistentialDepositError(
+        existentianDepositValue: String,
         from view: ControllerBackedProtocol,
         locale: Locale?
     ) {
         let title = R.string.localizable
             .commonExistentialWarningTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
-            .commonExistentialWarningMessage(preferredLanguages: locale?.rLanguages)
+            .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
 
         presentError(for: title, message: message, view: view, locale: locale)
     }

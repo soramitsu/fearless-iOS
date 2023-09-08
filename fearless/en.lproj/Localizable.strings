@@ -346,7 +346,7 @@ Derivation path: %@";
 "crowdloan.completed.section.format" = "Completed (%@)";
 "crowdloan.empty.message" = "Information about crowdloans\n will appear here";
 "common.time.left.format" = "%@ left";
-"common.existential.warning.message" = "This transaction will result in the account going below the Existential Deposit, which will cause it to be reaped (the account will be wiped from the blockchain's state to conserve space). If you choose to continue you will lose any funds that are below the existential deposit amount set by the network. For detailed information please refer to the official network documentation (e.g., the Polkadot Wiki). Fearless Wallet is a fully non-custodial application and has no control or knowledge of any of your actions on the network itself. ONLY CONTINUE IF YOU FULLY AGREE TO AND UNDERSTAND THE IMPLICATIONS.";
+"common.existential.warning.message" = "This transaction will result in the account going below the Existential Deposit (%@), which will cause it to be reaped (the account will be wiped from the blockchain's state to conserve space). If you choose to continue you will lose any funds that are below the existential deposit amount set by the network. For detailed information please refer to the official network documentation (e.g., the Polkadot Wiki). Fearless Wallet is a fully non-custodial application and has no control or knowledge of any of your actions on the network itself. ONLY CONTINUE IF YOU FULLY AGREE TO AND UNDERSTAND THE IMPLICATIONS.";
 "common.existential.warning.title" = "This operation will remove the account";
 "crowdloan.ended.message" = "You cannot contribute to the selected crowdloan since it has already ended.";
 "crowdloan.ended.title" = "The crowdloan has ended";
