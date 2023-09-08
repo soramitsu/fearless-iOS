@@ -188,7 +188,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         metaAccounts = wallets
 
         subscribeToAccountInfo(for: wallets, chainAssets)
-        subscribeToPrices(for: chainAssets)
+        let currencys = wallets.map { $0.selectedCurrency }
+        subscribeToPrices(for: chainAssets, currencys: currencys)
     }
 
     private func fetchMetaAccount(by identifier: String, chainAsset: ChainAsset?) {
@@ -282,9 +283,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
-    private func subscribeToPrices(for chainAssets: [ChainAsset]) {
+    private func subscribeToPrices(for chainAssets: [ChainAsset], currencys: [Currency]?) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId)
-        pricesProvider = subscribeToPrices(for: pricesIds)
+        pricesProvider = subscribeToPrices(for: pricesIds, currencys: currencys)
     }
 
     private func fetchChainsOperation() -> BaseOperation<[ChainModel]> {
