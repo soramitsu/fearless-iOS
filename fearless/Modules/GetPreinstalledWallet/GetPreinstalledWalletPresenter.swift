@@ -225,8 +225,6 @@ extension GetPreinstalledWalletPresenter: GetPreinstalledWalletInteractorOutput 
     }
 
     func didCompleteAccountImport() {
-        processingIsActive = false
-
         router.proceed()
     }
 }
