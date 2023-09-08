@@ -57,7 +57,7 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     }
 
     func showPreinstalledFlow(from view: ControllerBackedProtocol?) {
-        let module = GetPreinstalledWalletAssembly.configureModule()
+        let module = GetPreinstalledWalletAssembly.configureModuleForNewUser()
 
         guard let controller = module?.view.controller else {
             return

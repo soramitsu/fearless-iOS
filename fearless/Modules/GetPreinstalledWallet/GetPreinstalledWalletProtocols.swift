@@ -24,13 +24,13 @@ protocol GetPreinstalledWalletInteractorOutput: AnyObject, QRCaptureServiceDeleg
     func didReceiveAccountImport(error: Error)
 }
 
-protocol GetPreinstalledWalletRouterInput: AnyObject, ErrorPresentable, BaseErrorPresentable, SheetAlertPresentable, PresentDismissable, ImageGalleryPresentable, ApplicationSettingsPresentable {
+protocol GetPreinstalledWalletRouterInput: AnyObject, ErrorPresentable, BaseErrorPresentable, SheetAlertPresentable, AnyDismissable, ImageGalleryPresentable, ApplicationSettingsPresentable {
     func presentImageGallery(
         from view: ControllerBackedProtocol?,
         delegate: ImageGalleryDelegate,
         pickerDelegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
     )
-    func proceed()
+    func proceed(from view: ControllerBackedProtocol?)
 }
 
 protocol GetPreinstalledWalletModuleInput: AnyObject {}

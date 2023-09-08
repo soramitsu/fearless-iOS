@@ -1,16 +1,10 @@
 import UIKit
 import Photos
 
-final class GetPreinstalledWalletRouter: GetPreinstalledWalletRouterInput {
+class GetPreinstalledWalletRouter: GetPreinstalledWalletRouterInput {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
-    func proceed() {
-        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
-            return
-        }
-
-        rootAnimator.animateTransition(to: pincodeViewController)
-    }
+    func proceed(from _: ControllerBackedProtocol?) {}
 
     func presentImageGallery(
         from view: ControllerBackedProtocol?,
@@ -50,6 +44,28 @@ final class GetPreinstalledWalletRouter: GetPreinstalledWalletRouterInput {
             imagePicker,
             animated: true,
             completion: nil
+        )
+    }
+}
+
+class NewUserGetPreinstalledWalletRouter: GetPreinstalledWalletRouter {
+    override func proceed(from _: ControllerBackedProtocol?) {
+        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
+            return
+        }
+
+        rootAnimator.animateTransition(to: pincodeViewController)
+    }
+}
+
+class ExistingUserGetPreinstalledWalletRouter: GetPreinstalledWalletRouter {
+    override func proceed(from view: ControllerBackedProtocol?) {
+        guard let navigationController = view?.controller.navigationController else {
+            return
+        }
+        MainTransitionHelper.transitToMainTabBarController(
+            closing: navigationController,
+            animated: true
         )
     }
 }

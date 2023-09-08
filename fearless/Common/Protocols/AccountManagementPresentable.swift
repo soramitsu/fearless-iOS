@@ -46,7 +46,7 @@ extension AccountManagementPresentable {
     }
 
     func showGetPreinstalledWallet(from view: ControllerBackedProtocol?) {
-        let module = GetPreinstalledWalletAssembly.configureModule()
+        let module = GetPreinstalledWalletAssembly.configureModuleForExistingUser()
 
         guard let controller = module?.view.controller else {
             return

@@ -58,7 +58,6 @@ final class GetPreinstalledWalletPresenter: NSObject {
             ethereumDerivationPath: DerivationPathConstants.defaultEthereum
         )
         let source = MetaAccountImportRequestSource.mnemonic(data: sourceData)
-        let name = mnemonicString.components(separatedBy: " ").first ?? ""
         let request = MetaAccountImportRequest(
             source: source,
             username: "Pendulum Wallet",
@@ -225,7 +224,7 @@ extension GetPreinstalledWalletPresenter: GetPreinstalledWalletInteractorOutput 
     }
 
     func didCompleteAccountImport() {
-        router.proceed()
+        router.proceed(from: view)
     }
 }
 

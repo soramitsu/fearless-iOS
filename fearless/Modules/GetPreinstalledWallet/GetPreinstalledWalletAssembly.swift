@@ -3,7 +3,17 @@ import SoraFoundation
 import SoraKeystore
 
 final class GetPreinstalledWalletAssembly {
-    static func configureModule() -> GetPreinstalledWalletModuleCreationResult? {
+    static func configureModuleForExistingUser() -> GetPreinstalledWalletModuleCreationResult? {
+        let router = ExistingUserGetPreinstalledWalletRouter()
+        return configureModule(router: router)
+    }
+
+    static func configureModuleForNewUser() -> GetPreinstalledWalletModuleCreationResult? {
+        let router = NewUserGetPreinstalledWalletRouter()
+        return configureModule(router: router)
+    }
+
+    private static func configureModule(router: GetPreinstalledWalletRouterInput) -> GetPreinstalledWalletModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let qrDecoder = QRCoderFactory().createDecoder()
@@ -42,7 +52,6 @@ final class GetPreinstalledWalletAssembly {
             settings: settings,
             eventCenter: EventCenter.shared
         )
-        let router = GetPreinstalledWalletRouter()
 
         let presenter = GetPreinstalledWalletPresenter(
             interactor: interactor,
