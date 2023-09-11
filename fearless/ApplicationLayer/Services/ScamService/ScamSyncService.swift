@@ -135,11 +135,11 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     }
 
     private func handle(syncChanges: SyncChanges) {
-        let localSaveOperation = repository.saveOperation({
+        let localSaveOperation = repository.saveBatchOperation {
             syncChanges.newOrUpdatedItems
-        }, {
+        } _: {
             syncChanges.removedItems.map { $0.identifier }
-        })
+        }
 
         DispatchQueue.global(qos: .background).async {
             self.complete(result: .success(syncChanges))
