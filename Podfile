@@ -34,7 +34,7 @@ abstract_target 'fearlessAll' do
       else
           pod 'SSFXCM'
           pod 'SSFExtrinsicKit'
-          pod 'SSFCrypto'
+          pod 'SSFCrypto', '0.1.11'
           pod 'SSFSigner'
           pod 'SSFModels', '0.1.2'
           pod 'SSFEraKit'
