@@ -30,7 +30,7 @@ protocol NftSendInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
-protocol NftSendRouterInput: AnyObject, PresentDismissable, BaseErrorPresentable, SheetAlertPresentable {
+protocol NftSendRouterInput: AnyObject, PushDismissable, BaseErrorPresentable, SheetAlertPresentable {
     func presentScan(
         from view: ControllerBackedProtocol?,
         moduleOutput: ScanQRModuleOutput

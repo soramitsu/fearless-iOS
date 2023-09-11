@@ -2685,6 +2685,8 @@
 		FAF5E9E127E4A4C1005A3448 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */; };
 		FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF92E6527B4275E005467CE /* Bool+ToInt.swift */; };
 		FAF9C2962AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */; };
+		FAF9C29E2AAEED9600A61D21 /* TitleCopyableValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C29D2AAEED9600A61D21 /* TitleCopyableValueView.swift */; };
+		FAF9C2A02AAF163D00A61D21 /* CommonCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C29F2AAF163D00A61D21 /* CommonCopiedEvent.swift */; };
 		FAFBEE81284621800036D08C /* SelectedValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */; };
 		FAFBEE83284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */; };
 		FAFDB2C329112A00003971FB /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */; };
@@ -5369,7 +5371,6 @@
 		FACD42A62A5BE821009975AA /* SubstrateCallFactoryV9430.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9430.swift; sourceTree = "<group>"; };
 		FACD42A82A5BE82A009975AA /* ContentAlignment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentAlignment.swift; sourceTree = "<group>"; };
 		FACD42A92A5BE82A009975AA /* ErrorPresentableInputField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorPresentableInputField.swift; sourceTree = "<group>"; };
-		FACD42AC2A5BE861009975AA /* ja */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = ja; path = ja.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FACD42AF2A5BE8A4009975AA /* NumbersAndSlashesProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumbersAndSlashesProcessor.swift; sourceTree = "<group>"; };
 		FACD42B12A5BE8CE009975AA /* ChainAssetListDependencyContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListDependencyContainer.swift; sourceTree = "<group>"; };
 		FACD42B32A5BE8E1009975AA /* CheckPincodeWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CheckPincodeWireframe.swift; sourceTree = "<group>"; };
@@ -5518,6 +5519,14 @@
 		FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		FAF92E6527B4275E005467CE /* Bool+ToInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
 		FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedControllerStashAccountCheckService.swift; sourceTree = "<group>"; };
+		FAF9C2972AAED41500A61D21 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		FAF9C2982AAED41C00A61D21 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		FAF9C2992AAED42300A61D21 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		FAF9C29A2AAED43E00A61D21 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		FAF9C29B2AAED44400A61D21 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		FAF9C29C2AAED44900A61D21 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
+		FAF9C29D2AAEED9600A61D21 /* TitleCopyableValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleCopyableValueView.swift; sourceTree = "<group>"; };
+		FAF9C29F2AAF163D00A61D21 /* CommonCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCopiedEvent.swift; sourceTree = "<group>"; };
 		FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
@@ -5845,6 +5854,7 @@
 				071BC67429274F47007685D1 /* HashCopiedEvent.swift */,
 				074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */,
 				074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */,
+				FAF9C29F2AAF163D00A61D21 /* CommonCopiedEvent.swift */,
 			);
 			name = Events;
 			sourceTree = "<group>";
@@ -8830,6 +8840,7 @@
 				F462B35B260C86880005AB01 /* ViewHolder.swift */,
 				84F5105A263AB9F2005D15AE /* NetworkFeeView.swift */,
 				84F5105F263AE530005D15AE /* TitleValueView.swift */,
+				FAF9C29D2AAEED9600A61D21 /* TitleCopyableValueView.swift */,
 				84100F3526A6069200A5054E /* IconTitleValueView.swift */,
 				84FA8359265CE5BE00FDF727 /* TitleMultiValueView.swift */,
 				841185E6263F3B6D00E8A8B6 /* HintView.swift */,
@@ -14137,6 +14148,7 @@
 				en,
 				ru,
 				ja,
+				"zh-Hans",
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
@@ -15929,6 +15941,7 @@
 				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
 				84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */,
 				AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */,
+				FAF9C29E2AAEED9600A61D21 /* TitleCopyableValueView.swift in Sources */,
 				FA5137BA29AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift in Sources */,
 				F4D96B712637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift in Sources */,
 				FA37AE332859C171001DCA96 /* ScheduleDelegatorBondLessCall.swift in Sources */,
@@ -16440,6 +16453,7 @@
 				FAD429272A865680001D6A16 /* BackupWalletRouter.swift in Sources */,
 				85547F698B551ACD387D84E2 /* SelectValidatorsStartViewController.swift in Sources */,
 				41B29C1C9239BB2DCB7903A7 /* SelectValidatorsStartViewFactory.swift in Sources */,
+				FAF9C2A02AAF163D00A61D21 /* CommonCopiedEvent.swift in Sources */,
 				25381484F16FB930B8A90CE3 /* SelectValidatorsConfirmProtocols.swift in Sources */,
 				FA256996274CE65100875A53 /* AnyCodingKey.swift in Sources */,
 				FA99422827FE925000D771E5 /* UISwitch+CustomSize.swift in Sources */,
@@ -17214,7 +17228,6 @@
 			isa = PBXVariantGroup;
 			children = (
 				8490145B24A94328008F705E /* en */,
-				FACD42AC2A5BE861009975AA /* ja */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -17232,6 +17245,8 @@
 			children = (
 				8490145F24A94373008F705E /* en */,
 				8490146224A9438E008F705E /* ru */,
+				FAF9C2972AAED41500A61D21 /* ja */,
+				FAF9C29B2AAED44400A61D21 /* zh-Hans */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -17249,6 +17264,8 @@
 			children = (
 				84C07EDD24AF1935008FC35B /* en */,
 				84C07EE524AF1990008FC35B /* ru */,
+				FAF9C2992AAED42300A61D21 /* ja */,
+				FAF9C29A2AAED43E00A61D21 /* zh-Hans */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -17258,6 +17275,8 @@
 			children = (
 				AE74EC1625FCF09000C494E7 /* en */,
 				AE74EC1F25FCF0A600C494E7 /* ru */,
+				FAF9C2982AAED41C00A61D21 /* ja */,
+				FAF9C29C2AAED44900A61D21 /* zh-Hans */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";

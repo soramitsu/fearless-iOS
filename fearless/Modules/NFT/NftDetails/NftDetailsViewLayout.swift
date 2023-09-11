@@ -45,14 +45,14 @@ final class NftDetailsViewLayout: UIView {
         return view
     }()
 
-    lazy var ownerView: TitleValueView = {
-        let view = createTitleValueView()
+    lazy var ownerView: TitleCopyableValueView = {
+        let view = createTitleCopyableValueView()
         view.valueLabel.lineBreakMode = .byTruncatingMiddle
         return view
     }()
 
-    lazy var creatorView: TitleValueView = {
-        createTitleValueView()
+    lazy var tokenIdView: TitleCopyableValueView = {
+        createTitleCopyableValueView()
     }()
 
     lazy var networkView: TitleValueView = {
@@ -85,6 +85,15 @@ final class NftDetailsViewLayout: UIView {
         return view
     }
 
+    private func createTitleCopyableValueView() -> TitleCopyableValueView {
+        let view = TitleCopyableValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueLabel.font = .p1Paragraph
+        view.valueLabel.textColor = R.color.colorWhite()
+        return view
+    }
+
     private func setupSubviews() {
         addSubview(navigationBar)
         addSubview(contentView)
@@ -94,7 +103,7 @@ final class NftDetailsViewLayout: UIView {
         contentView.stackView.addArrangedSubview(desciptionLabel)
         contentView.stackView.addArrangedSubview(collectionView)
         contentView.stackView.addArrangedSubview(ownerView)
-        contentView.stackView.addArrangedSubview(creatorView)
+        contentView.stackView.addArrangedSubview(tokenIdView)
         contentView.stackView.addArrangedSubview(networkView)
 
         navigationBar.setCenterViews([navigationTitleLabel])
@@ -108,7 +117,7 @@ final class NftDetailsViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.bottom.trailing.equalToSuperview()
+            make.leading.bottom.trailing.equalTo(safeAreaLayoutGuide)
         }
 
         imageView.snp.makeConstraints { make in
@@ -131,7 +140,7 @@ final class NftDetailsViewLayout: UIView {
         ownerView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
         }
-        creatorView.snp.makeConstraints { make in
+        tokenIdView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
         }
         networkView.snp.makeConstraints { make in
@@ -144,18 +153,19 @@ final class NftDetailsViewLayout: UIView {
         collectionView.titleLabel.text = R.string.localizable.nftCollectionTitle(preferredLanguages: locale.rLanguages)
         ownerView.titleLabel.text = R.string.localizable.nftOwnerTitle(preferredLanguages: locale.rLanguages)
         networkView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
+        tokenIdView.titleLabel.text = R.string.localizable.nftTokenidTitle(preferredLanguages: locale.rLanguages)
     }
 
     func bind(viewModel: NftDetailViewModel) {
         collectionView.isHidden = viewModel.collectionName == nil
         ownerView.isHidden = viewModel.owner == nil
-        creatorView.isHidden = viewModel.creator == nil
+        tokenIdView.isHidden = viewModel.tokenId == nil
         networkView.isHidden = viewModel.chain == nil
 
         navigationTitleLabel.text = viewModel.nftName
         collectionView.valueLabel.text = viewModel.collectionName
         ownerView.valueLabel.text = viewModel.owner
-        creatorView.valueLabel.text = viewModel.creator
+        tokenIdView.valueLabel.text = viewModel.tokenId
         networkView.valueLabel.text = viewModel.chain
         desciptionLabel.text = viewModel.nftDescription
 

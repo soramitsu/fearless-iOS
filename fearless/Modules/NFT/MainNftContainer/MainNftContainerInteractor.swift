@@ -88,4 +88,8 @@ extension MainNftContainerInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         wallet = event.account
     }
+
+    func processChainsSetupCompleted() {
+        fetchData()
+    }
 }

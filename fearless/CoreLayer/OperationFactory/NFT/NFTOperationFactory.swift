@@ -4,6 +4,7 @@ import CommonWallet
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import FearlessKeys
 
 protocol NFTOperationFactoryProtocol {
     func fetchNFTs(
@@ -21,7 +22,8 @@ final class NFTOperationFactory {
         urlComponents?.queryItems = [
             URLQueryItem(name: "module", value: "account"),
             URLQueryItem(name: "action", value: "tokennfttx"),
-            URLQueryItem(name: "address", value: address)
+            URLQueryItem(name: "address", value: address),
+            URLQueryItem(name: "apikey", value: BlockExplorerApiKeys.etherscanApiKey)
         ]
 
         guard let urlWithParameters = urlComponents?.url else {

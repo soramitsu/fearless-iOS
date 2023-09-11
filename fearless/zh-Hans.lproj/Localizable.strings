@@ -1074,3 +1074,4 @@
 "nft.owner.title" = "拥有";
 "nft.collection.title" = "收藏品";
 "onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";
+"nft.tokenid.title" = "Token ID";

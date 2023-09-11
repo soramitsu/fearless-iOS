@@ -50,7 +50,7 @@ final class NftCollectionViewLayout: UIView {
 
     private func setupSubviews() {
         addSubview(navigationBar)
-        navigationBar.set(.push)
+        navigationBar.set(.present)
         navigationBar.setCenterViews([navigationTitleLabel])
         addSubview(collectionView)
         setupConstraints()

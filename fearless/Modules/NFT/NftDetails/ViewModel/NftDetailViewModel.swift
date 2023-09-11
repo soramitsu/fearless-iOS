@@ -5,7 +5,7 @@ struct NftDetailViewModel {
     let nftDescription: String?
     let collectionName: String?
     let owner: String?
-    let creator: String?
+    let tokenId: String?
     let chain: String?
     let imageViewModel: ImageViewModelProtocol?
 }

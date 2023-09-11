@@ -1078,3 +1078,4 @@ Euro cash";
 "nft.owner.title" = "Owned";
 "nft.collection.title" = "Collection";
 "onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";
+"nft.tokenid.title" = "Token ID";

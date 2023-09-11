@@ -17,7 +17,7 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
             nftDescription: nft.metadata?.description,
             collectionName: nft.tokenName,
             owner: address,
-            creator: nil,
+            tokenId: nft.tokenId,
             chain: nft.chain.name,
             imageViewModel: imageViewModel
         )

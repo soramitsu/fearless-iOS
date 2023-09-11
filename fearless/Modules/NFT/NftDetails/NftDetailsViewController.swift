@@ -41,6 +41,14 @@ final class NftDetailsViewController: UIViewController, ViewHolder, HiddableBarW
         rootView.sendButton.addAction { [weak self] in
             self?.output.didSendButtonTapped()
         }
+
+        rootView.ownerView.onCopy = { [weak self] in
+            self?.output.didTapCopyOwner()
+        }
+
+        rootView.tokenIdView.onCopy = { [weak self] in
+            self?.output.didTapCopyTokenId()
+        }
     }
 
     // MARK: - Private methods

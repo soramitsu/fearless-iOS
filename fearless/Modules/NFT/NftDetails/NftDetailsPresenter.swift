@@ -50,6 +50,20 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
     func didSendButtonTapped() {
         router.openSend(nft: nft, wallet: wallet, from: view)
     }
+
+    func didTapCopyOwner() {
+        router.presentStatus(
+            with: CommonCopiedEvent(locale: selectedLocale),
+            animated: true
+        )
+    }
+
+    func didTapCopyTokenId() {
+        router.presentStatus(
+            with: CommonCopiedEvent(locale: selectedLocale),
+            animated: true
+        )
+    }
 }
 
 // MARK: - NftDetailsInteractorOutput

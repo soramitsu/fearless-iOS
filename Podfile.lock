@@ -23,7 +23,7 @@ PODS:
   - Cuckoo (1.9.1):
     - Cuckoo/Swift (= 1.9.1)
   - Cuckoo/Swift (1.9.1)
-  - FearlessKeys (0.1.0)
+  - FearlessKeys (0.1.1)
   - FireMock (3.1)
   - GoogleAPIClientForREST/Core (1.2.1):
     - GTMSessionFetcher (>= 1.1.7)
@@ -279,7 +279,7 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/Specs.git:
     - AppAuth
     - BigInt
     - GoogleAPIClientForREST
@@ -355,7 +355,7 @@ SPEC CHECKSUMS:
   CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
-  FearlessKeys: 94b8af40bf9cc7dabdcdf1dfc5a1625f56ac67cd
+  FearlessKeys: 5248fbd49df75338e61901c89880ae4e9f99c054
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   GoogleAPIClientForREST: a8b95a252014ce2e618df6b75dc72eca2c00b4af
   GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
@@ -400,6 +400,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 8d30bdd0669083544c5f274cb22fa247113031f1
+PODFILE CHECKSUM: 74bd4728590c3ceefaf2eac4191ad790e2adbfbf
 
 COCOAPODS: 1.11.3
