@@ -1,55 +1,72 @@
 import Foundation
 import SoraFoundation
-import CommonWallet
-import RobinHood
 import AVFoundation
+import CommonWallet
 import SSFUtils
 
-enum ScanState {
-    case initializing(accessRequested: Bool)
-    case inactive
-    case active
-    case processing(receiverInfo: ReceiveInfo, operation: CancellableCall)
-    case failed(code: String)
-}
-
-final class ScanQRPresenter: NSObject {
-    let localizationManager: LocalizationManagerProtocol?
-
+final class GetPreinstalledWalletPresenter: NSObject {
     // MARK: Private properties
 
     private weak var view: ScanQRViewInput?
-    private let router: ScanQRRouterInput
-    private let interactor: ScanQRInteractorInput
-    private let moduleOutput: ScanQRModuleOutput
-    private let qrScanMatcher: QRScanMatcher
+    private let router: GetPreinstalledWalletRouterInput
+    private let interactor: GetPreinstalledWalletInteractorInput
     private let logger: LoggerProtocol
-    private let qrScanService: QRCaptureServiceProtocol
-
+    private let qrScanMatcher: QRScanMatcher
     private var scanState: ScanState = .initializing(accessRequested: false)
+    private var processingIsActive: Bool = false
 
     // MARK: - Constructors
 
     init(
-        interactor: ScanQRInteractorInput,
-        router: ScanQRRouterInput,
+        interactor: GetPreinstalledWalletInteractorInput,
+        router: GetPreinstalledWalletRouterInput,
+        localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol,
-        moduleOutput: ScanQRModuleOutput,
-        qrScanMatcher: QRScanMatcher,
-        qrScanService: QRCaptureServiceProtocol,
-        localizationManager: LocalizationManagerProtocol
+        qrScanMatcher: QRScanMatcher
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
         self.qrScanMatcher = qrScanMatcher
-        self.moduleOutput = moduleOutput
-        self.qrScanService = qrScanService
-
+        super.init()
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
+
+    private func handle(qrString: String) {
+        guard !processingIsActive else {
+            return
+        }
+
+        processingIsActive = true
+
+        guard
+            let mnemonicData = try? Data(hexStringSSF: qrString),
+            let mnemonicString = mnemonicData.toUTF8String(),
+            let mnemonic = interactor.createMnemonicFromString(mnemonicString)
+        else {
+            DispatchQueue.main.async { [weak self] in
+                self?.didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
+            }
+
+            return
+        }
+        let sourceData = MetaAccountImportRequestSource.MnemonicImportRequestData(
+            mnemonic: mnemonic,
+            substrateDerivationPath: "",
+            ethereumDerivationPath: DerivationPathConstants.defaultEthereum
+        )
+        let source = MetaAccountImportRequestSource.mnemonic(data: sourceData)
+        let request = MetaAccountImportRequest(
+            source: source,
+            username: "Pendulum Wallet",
+            cryptoType: .sr25519,
+            defaultChainId: "5d3c298622d5634ed019bf61ea4b71655030015bde9beb0d6a24743714462c86"
+        )
+
+        interactor.importMetaAccount(request: request)
+    }
 
     private func handleQRCaptureService(error: QRCaptureServiceError) {
         guard case let .initializing(alreadyAskedAccess) = scanState, !alreadyAskedAccess else {
@@ -104,9 +121,7 @@ final class ScanQRPresenter: NSObject {
     }
 
     private func handleFailedMatching(for code: String) {
-        router.close(view: view) {
-            self.moduleOutput.didFinishWith(address: code)
-        }
+        handle(qrString: code)
     }
 
     private func didCompleteImageSelection(with selectedImages: [UIImage]) {
@@ -116,9 +131,9 @@ final class ScanQRPresenter: NSObject {
     }
 }
 
-// MARK: - ScanQRViewOutput
+// MARK: - GetPreinstalledWalletViewOutput
 
-extension ScanQRPresenter: ScanQRViewOutput {
+extension GetPreinstalledWalletPresenter: ScanQRViewOutput {
     func didLoad(view: ScanQRViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -163,9 +178,23 @@ extension ScanQRPresenter: ScanQRViewOutput {
     }
 }
 
-// MARK: - ScanQRInteractorOutput
+// MARK: - GetPreinstalledWalletInteractorOutput
 
-extension ScanQRPresenter: ScanQRInteractorOutput {
+extension GetPreinstalledWalletPresenter: GetPreinstalledWalletInteractorOutput {
+    func didReceiveAccountImport(error: Error) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        guard !router.present(error: error, from: view, locale: locale) else {
+            return
+        }
+
+        _ = router.present(
+            error: CommonError.undefined,
+            from: view,
+            locale: locale
+        )
+    }
+
     func handleQRService(error: Error) {
         if let captureError = error as? QRCaptureServiceError {
             handleQRCaptureService(error: captureError)
@@ -181,25 +210,33 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
             handleImageGallery(error: imageGalleryError)
         }
 
+        processingIsActive = false
+
         logger.error("Unexpected qr service error \(error)")
     }
 
     func handleMatched(addressInfo: QRInfo) {
-        router.close(view: view) {
-            self.moduleOutput.didFinishWith(address: addressInfo.address)
-        }
+        handle(qrString: addressInfo.address)
     }
 
     func handleAddress(_ address: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.router.close(view: self?.view) {
-                self?.moduleOutput.didFinishWith(address: address)
-            }
-        }
+        handle(qrString: address)
+    }
+
+    func didCompleteAccountImport() {
+        router.proceed(from: view)
     }
 }
 
-extension ScanQRPresenter: QRCaptureServiceDelegate {
+// MARK: - Localizable
+
+extension GetPreinstalledWalletPresenter: Localizable {
+    func applyLocalization() {}
+}
+
+extension GetPreinstalledWalletPresenter: GetPreinstalledWalletModuleInput {}
+
+extension GetPreinstalledWalletPresenter: QRCaptureServiceDelegate {
     func qrCapture(service _: QRCaptureServiceProtocol, didSetup captureSession: AVCaptureSession) {
         DispatchQueue.main.async {
             self.handleReceived(captureSession: captureSession)
@@ -207,14 +244,12 @@ extension ScanQRPresenter: QRCaptureServiceDelegate {
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
-        guard let addressInfo = qrScanMatcher.qrInfo else {
+        guard let qrInfo = qrScanMatcher.qrInfo else {
             logger.warning("Can't find receiver's info for matched code")
             return
         }
 
-        DispatchQueue.main.async {
-            self.handleMatched(addressInfo: addressInfo)
-        }
+        handle(qrString: qrInfo.address)
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didFailMatching code: String) {
@@ -230,7 +265,7 @@ extension ScanQRPresenter: QRCaptureServiceDelegate {
     }
 }
 
-extension ScanQRPresenter: ImageGalleryDelegate {
+extension GetPreinstalledWalletPresenter: ImageGalleryDelegate {
     func didCompleteImageSelection(
         from _: ImageGalleryPresentable,
         with selectedImages: [UIImage]
@@ -245,7 +280,7 @@ extension ScanQRPresenter: ImageGalleryDelegate {
     }
 }
 
-extension ScanQRPresenter: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension GetPreinstalledWalletPresenter: UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @objc func imagePickerController(
         _ picker: UIImagePickerController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
@@ -263,11 +298,3 @@ extension ScanQRPresenter: UIImagePickerControllerDelegate, UINavigationControll
         didCompleteImageSelection(with: [])
     }
 }
-
-// MARK: - Localizable
-
-extension ScanQRPresenter: Localizable {
-    func applyLocalization() {}
-}
-
-extension ScanQRPresenter: ScanQRModuleInput {}

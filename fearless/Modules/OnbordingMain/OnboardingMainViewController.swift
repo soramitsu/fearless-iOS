@@ -9,6 +9,7 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var signUpButton: TriangularedButton!
     @IBOutlet private var restoreButton: TriangularedButton!
     @IBOutlet private var logoView: UIImageView!
+    @IBOutlet var preInstalledButton: TriangularedButton!
 
     @IBOutlet private var restoreBottomConstraint: NSLayoutConstraint!
     @IBOutlet private var restoreWidthConstraint: NSLayoutConstraint!
@@ -31,6 +32,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
         adjustLayout()
 
         presenter.setup()
+
+        preInstalledButton.isHidden = true
     }
 
     private func configureTermsLabel() {
@@ -48,7 +51,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
             .usernameSetupTitle20(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
         restoreButton.imageWithTitleView?.title = R.string.localizable
             .onboardingRestoreWallet(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-
+        preInstalledButton.imageWithTitleView?.title = R.string.localizable.onboardingPreinstalledWalletButtonText(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+        preInstalledButton.imageWithTitleView?.iconImage = R.image.iconPreinstalledWallet()
         let text = NSAttributedString(string: R.string.localizable
             .onboardingTermsAndConditions1(preferredLanguages: localizationManager?.selectedLocale.rLanguages))
         termsLabel.attributedText = text
@@ -76,6 +80,10 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
         presenter.activateAccountRestore()
     }
 
+    @IBAction func actionPreinstalled() {
+        presenter.didTapGetPreinstalled()
+    }
+
     @IBAction private func actionTerms(gestureRecognizer: UITapGestureRecognizer) {
         if gestureRecognizer.state == .ended {
             let location = gestureRecognizer.location(in: termsLabel.superview)
@@ -89,4 +97,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     }
 }
 
-extension OnboardingMainViewController: OnboardingMainViewProtocol {}
+extension OnboardingMainViewController: OnboardingMainViewProtocol {
+    func didReceive(preinstalledWalletEnabled: Bool) {
+        preInstalledButton.isHidden = !preinstalledWalletEnabled
+    }
+}

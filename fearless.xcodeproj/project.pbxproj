@@ -2687,6 +2687,16 @@
 		FAF9C2962AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */; };
 		FAF9C29E2AAEED9600A61D21 /* TitleCopyableValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C29D2AAEED9600A61D21 /* TitleCopyableValueView.swift */; };
 		FAF9C2A02AAF163D00A61D21 /* CommonCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C29F2AAF163D00A61D21 /* CommonCopiedEvent.swift */; };
+		FAF9C2A42AAF3FCC00A61D21 /* FeatureToggleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A22AAF3FCC00A61D21 /* FeatureToggleService.swift */; };
+		FAF9C2A52AAF3FCC00A61D21 /* FeatureToggleConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A32AAF3FCC00A61D21 /* FeatureToggleConfig.swift */; };
+		FAF9C2AE2AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A72AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift */; };
+		FAF9C2AF2AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A82AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift */; };
+		FAF9C2B02AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A92AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift */; };
+		FAF9C2B12AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AA2AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift */; };
+		FAF9C2B22AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AB2AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift */; };
+		FAF9C2B32AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AC2AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift */; };
+		FAF9C2B42AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */; };
+		FAF9C2B72AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */; };
 		FAFBEE81284621800036D08C /* SelectedValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */; };
 		FAFBEE83284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */; };
 		FAFDB2C329112A00003971FB /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */; };
@@ -5527,6 +5537,16 @@
 		FAF9C29C2AAED44900A61D21 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "zh-Hans"; path = "zh-Hans.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		FAF9C29D2AAEED9600A61D21 /* TitleCopyableValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleCopyableValueView.swift; sourceTree = "<group>"; };
 		FAF9C29F2AAF163D00A61D21 /* CommonCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonCopiedEvent.swift; sourceTree = "<group>"; };
+		FAF9C2A22AAF3FCC00A61D21 /* FeatureToggleService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureToggleService.swift; sourceTree = "<group>"; };
+		FAF9C2A32AAF3FCC00A61D21 /* FeatureToggleConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureToggleConfig.swift; sourceTree = "<group>"; };
+		FAF9C2A72AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletAssembly.swift; sourceTree = "<group>"; };
+		FAF9C2A82AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletViewLayout.swift; sourceTree = "<group>"; };
+		FAF9C2A92AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletInteractor.swift; sourceTree = "<group>"; };
+		FAF9C2AA2AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletRouter.swift; sourceTree = "<group>"; };
+		FAF9C2AB2AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletPresenter.swift; sourceTree = "<group>"; };
+		FAF9C2AC2AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletViewController.swift; sourceTree = "<group>"; };
+		FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletProtocols.swift; sourceTree = "<group>"; };
+		FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletTests.swift; sourceTree = "<group>"; };
 		FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
@@ -6764,6 +6784,7 @@
 		6784511E27C7B7E095FFD4AB /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				FAF9C2B52AAF3FF100A61D21 /* GetPreinstalledWallet */,
 				FAD428A12A865635001D6A16 /* BackupPassword */,
 				FAD4289B2A865635001D6A16 /* BackupRiskWarnings */,
 				FAD4289F2A865635001D6A16 /* BackupSelectWallet */,
@@ -8303,6 +8324,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				FAF9C2A62AAF3FDF00A61D21 /* GetPreinstalledWallet */,
 				FAD428BC2A86567E001D6A16 /* BackupCreatePassword */,
 				FAD428AC2A86567E001D6A16 /* BackupPassword */,
 				FAD428B42A86567E001D6A16 /* BackupRiskWarnings */,
@@ -12250,6 +12272,7 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				FAF9C2A12AAF3FCC00A61D21 /* FeatureToggle */,
 				FAE39B022AA065510011A9D6 /* Ethereum */,
 				FA2DF9932A8C97020047F440 /* NFT */,
 				FA9A8F412A78C030008FA99F /* Transfer */,
@@ -13907,6 +13930,37 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		FAF9C2A12AAF3FCC00A61D21 /* FeatureToggle */ = {
+			isa = PBXGroup;
+			children = (
+				FAF9C2A22AAF3FCC00A61D21 /* FeatureToggleService.swift */,
+				FAF9C2A32AAF3FCC00A61D21 /* FeatureToggleConfig.swift */,
+			);
+			path = FeatureToggle;
+			sourceTree = "<group>";
+		};
+		FAF9C2A62AAF3FDF00A61D21 /* GetPreinstalledWallet */ = {
+			isa = PBXGroup;
+			children = (
+				FAF9C2A72AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift */,
+				FAF9C2A82AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift */,
+				FAF9C2A92AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift */,
+				FAF9C2AA2AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift */,
+				FAF9C2AB2AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift */,
+				FAF9C2AC2AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift */,
+				FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */,
+			);
+			path = GetPreinstalledWallet;
+			sourceTree = "<group>";
+		};
+		FAF9C2B52AAF3FF100A61D21 /* GetPreinstalledWallet */ = {
+			isa = PBXGroup;
+			children = (
+				FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */,
+			);
+			path = GetPreinstalledWallet;
+			sourceTree = "<group>";
+		};
 		FAFBEE7F284621720036D08C /* Parachain */ = {
 			isa = PBXGroup;
 			children = (
@@ -15205,6 +15259,7 @@
 				FAADC1AA29261F7000DA9903 /* PoolRolesConfirmInteractor.swift in Sources */,
 				84F4A9A42551A8F3000CF0A3 /* AccountExportPasswordError.swift in Sources */,
 				FA7336DE2A0E3B880096A291 /* RequestSigningType.swift in Sources */,
+				FAF9C2AE2AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift in Sources */,
 				84CA68DB26BEA33F003B9453 /* ChainRegistryFactory.swift in Sources */,
 				FAD428982A860C9B001D6A16 /* EthereumNodeFetching.swift in Sources */,
 				AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */,
@@ -15518,6 +15573,7 @@
 				FA99425228053C8800D771E5 /* SelectExportAccountViewState.swift in Sources */,
 				8430AAFB260230C5005B1066 /* ValidatorState.swift in Sources */,
 				8424308D265B1814003E07EC /* CrowdloanOperationFactory.swift in Sources */,
+				FAF9C2B32AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift in Sources */,
 				F4EF24D026BA7A4400F28B4E /* AnalyticsViewModelFactoryBase.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
 				84754C882510BAFE00854599 /* ModalAlertFactory.swift in Sources */,
@@ -15619,6 +15675,7 @@
 				FAD0068027EA252400C97E09 /* AboutViewModelFactory.swift in Sources */,
 				FA37AE452859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift in Sources */,
 				84F30EE425FFAC0800039D09 /* StreamableProviderOptions+Substrate.swift in Sources */,
+				FAF9C2A42AAF3FCC00A61D21 /* FeatureToggleService.swift in Sources */,
 				FAC0BBDA291D0EB000E6F106 /* SendRouter.swift in Sources */,
 				FA2FC80D28B3807D00CC0A42 /* StakingPoolJoinConfirmRouter.swift in Sources */,
 				070B2C61289CFE0000F78F82 /* SelectedNetworkButton.swift in Sources */,
@@ -15764,6 +15821,7 @@
 				FAD429262A865680001D6A16 /* BackupWalletViewModelFactory.swift in Sources */,
 				849ABE6D2627949E00011A2A /* BatchMapper.swift in Sources */,
 				FAFFAE7E29AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift in Sources */,
+				FAF9C2A52AAF3FCC00A61D21 /* FeatureToggleConfig.swift in Sources */,
 				FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */,
 				FAFFAE4029AC84850074AF1F /* AccountManagementPresentable.swift in Sources */,
 				FA15BC152823CB7B0037C023 /* ParachainCollatorOperationFactory.swift in Sources */,
@@ -16075,6 +16133,7 @@
 				DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */,
 				07DFA452289A5C870035A8AB /* WalletsManagmentCellViewModel.swift in Sources */,
 				FAF5E9CD27E46D3E005A3448 /* GithubJSONDecoder.swift in Sources */,
+				FAF9C2B02AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift in Sources */,
 				07DE95BC28A1119400E9C2CB /* BalanceInfoViewModel.swift in Sources */,
 				F4E117B9264BAA81006F03B0 /* ControllerAccountConfirmationVM.swift in Sources */,
 				AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */,
@@ -16372,6 +16431,7 @@
 				FAD429142A86567F001D6A16 /* BackupSelectWalletAssembly.swift in Sources */,
 				F4F22976260DBF3F00ACFDB8 /* StakingPayoutRewardTableCell.swift in Sources */,
 				2CF2F93AF862CF54FC46B560 /* PurchaseInteractor.swift in Sources */,
+				FAF9C2B22AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift in Sources */,
 				90EFE3768F1375470FDBE6F6 /* PurchaseViewFactory.swift in Sources */,
 				F4A198EE2631AA2000CD6E61 /* StakingBalanceUnbondingItemView.swift in Sources */,
 				C63468E228F2C964005CB1F1 /* ContactTableCell.swift in Sources */,
@@ -16421,6 +16481,7 @@
 				EF02C9661F03C8EF58182997 /* StakingAmountViewController.swift in Sources */,
 				D8581E5440A19D977E17BFDE /* StakingAmountViewFactory.swift in Sources */,
 				FA9A8F022A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift in Sources */,
+				FAF9C2B42AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift in Sources */,
 				C6CA307F286190630087776D /* DelegationStateView.swift in Sources */,
 				F40966C626B297D6008CD244 /* AnalyticsRewardsInteractor.swift in Sources */,
 				3250F2C0E12ED42A355853BE /* SelectValidatorsStartProtocols.swift in Sources */,
@@ -16847,7 +16908,9 @@
 				FA37AE382859CCA7001DCA96 /* StakingUnbondConfirmParachainStrategy.swift in Sources */,
 				FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */,
 				41831354E275074C7BBC4C28 /* NodeSelectionViewFactory.swift in Sources */,
+				FAF9C2B12AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift in Sources */,
 				6C0289728544A96852CCBF20 /* AddCustomNodeProtocols.swift in Sources */,
+				FAF9C2AF2AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift in Sources */,
 				9C8AAE31F22421A975A17DF4 /* AddCustomNodeWireframe.swift in Sources */,
 				07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */,
 				07D05E6728EF0BE500B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift in Sources */,
@@ -17056,6 +17119,7 @@
 				841B45292603D91800C08693 /* EraValidatorsServiceStub.swift in Sources */,
 				84F47D652667804100F7647A /* CrowdloanBonusServiceStub.swift in Sources */,
 				844D229125EE5CD600C022F7 /* DataProviderStub.swift in Sources */,
+				FAF9C2B72AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift in Sources */,
 				842D1E9324D20CC800C30A7A /* OnboardingMainTests.swift in Sources */,
 				846CA77627090E990011124C /* StakingServiceFactoryStub.swift in Sources */,
 				842D1E8124D0BEF400C30A7A /* RTests.swift in Sources */,
