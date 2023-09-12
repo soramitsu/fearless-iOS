@@ -96,8 +96,9 @@ final class ControllerAccountPresenter {
 }
 
 extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
-    func setup() {
+    func didLoad(view: ControllerAccountViewProtocol) {
         interactor.setup()
+        view.didReceive(chainName: chain.name)
     }
 
     func handleControllerAction() {
