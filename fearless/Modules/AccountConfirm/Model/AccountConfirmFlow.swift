@@ -1,4 +1,5 @@
 import IrohaCrypto
+
 enum AccountConfirmFlow {
     case wallet(MetaAccountImportMnemonicRequest)
     case chain(ChainAccountImportMnemonicRequest)

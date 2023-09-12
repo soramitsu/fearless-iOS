@@ -144,6 +144,60 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         self.chainSettings = chainSettings
         provideViewModel()
     }
+
+    func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.controllerAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if hasStashItem {
+                    strongSelf.router.showControllerAccountFlow(
+                        from: strongSelf.view,
+                        chainAsset: issue.chainAsset,
+                        wallet: issue.wallet
+                    )
+                } else {
+                    strongSelf.router.showMainStaking()
+                }
+            }
+        }
+
+        router.present(
+            message: R.string.localizable.stakingControllerDeprecatedDescription(
+                issue.chainAsset.chain.name,
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
+            from: view,
+            actions: [action]
+        )
+    }
+
+    func didReceiveStashAccountIssue(address: String) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.stashAccountIssueAction(
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showImportWallet(defaultSource: .mnemonic, from: strongSelf.view)
+        }
+
+        router.present(
+            message: R.string.localizable.stashAccountIssueMessage(
+                address,
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
+            from: view,
+            actions: [action]
+        )
+    }
 }
 
 // MARK: - Localizable
@@ -161,8 +215,12 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
         router.showCreateNewWallet(from: view)
     }
 
-    func showImportWallet() {
-        router.showImportWallet(from: view)
+    func showImportWallet(defaultSource: AccountImportSource) {
+        router.showImportWallet(defaultSource: defaultSource, from: view)
+    }
+
+    func showImportGoogle() {
+        router.showBackupSelectWallet(from: view)
     }
 }
 

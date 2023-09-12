@@ -38,7 +38,6 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
             guard let walletBalance = balances[key] else {
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
-                    address: "",
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: nil,
                     dayChange: nil
@@ -57,7 +56,6 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 let fiatBalance = balanceTokenFormatterValue.stringFromDecimal(.zero)
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
-                    address: "",
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: fiatBalance,
                     dayChange: nil
@@ -73,7 +71,6 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
 
             let viewModel = WalletsManagmentCellViewModel(
                 isSelected: isSelected,
-                address: "",
                 walletName: managedMetaAccount.info.name,
                 fiatBalance: totalFiatValue,
                 dayChange: dayChange

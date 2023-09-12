@@ -1,13 +1,23 @@
 import Foundation
 import SSFUtils
+import SSFCloudStorage
 
 final class OnboardingMainInteractor {
     weak var presenter: OnboardingMainInteractorOutputProtocol?
 
-    let keystoreImportService: KeystoreImportServiceProtocol
+    private let keystoreImportService: KeystoreImportServiceProtocol
+    private let cloudStorage: FearlessCompatibilityProtocol
 
-    init(keystoreImportService: KeystoreImportServiceProtocol) {
+    init(
+        keystoreImportService: KeystoreImportServiceProtocol,
+        cloudStorage: FearlessCompatibilityProtocol
+    ) {
         self.keystoreImportService = keystoreImportService
+        self.cloudStorage = cloudStorage
+    }
+
+    deinit {
+        cloudStorage.disconnect()
     }
 }
 
@@ -17,6 +27,23 @@ extension OnboardingMainInteractor: OnboardingMainInteractorInputProtocol {
 
         if keystoreImportService.definition != nil {
             presenter?.didSuggestKeystoreImport()
+        }
+    }
+
+    func activateGoogleBackup() {
+        Task {
+            do {
+                cloudStorage.disconnect()
+                let accounts = try await cloudStorage.getFearlessBackupAccounts()
+                await MainActor.run {
+                    presenter?.didReceiveBackupAccounts(result: .success(accounts))
+                }
+            } catch {
+                cloudStorage.disconnect()
+                await MainActor.run {
+                    presenter?.didReceiveBackupAccounts(result: .failure(error))
+                }
+            }
         }
     }
 }

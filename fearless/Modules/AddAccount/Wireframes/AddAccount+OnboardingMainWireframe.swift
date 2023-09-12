@@ -1,7 +1,19 @@
 import Foundation
+import SSFCloudStorage
 
 extension AddAccount {
     final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
+        func showBackupSelectWallet(
+            accounts: [SSFCloudStorage.OpenBackupAccount],
+            from view: ControllerBackedProtocol?
+        ) {
+            guard let controller = BackupSelectWalletAssembly.configureModule(accounts: accounts)?.view.controller else {
+                return
+            }
+
+            view?.controller.navigationController?.pushViewController(controller, animated: true)
+        }
+
         func showSignup(from view: OnboardingMainViewProtocol?) {
             guard let usernameSetup = UsernameSetupViewFactory.createViewForAdding() else {
                 return
@@ -12,9 +24,12 @@ extension AddAccount {
             }
         }
 
-        func showAccountRestore(from view: OnboardingMainViewProtocol?) {
+        func showAccountRestore(
+            defaultSource: AccountImportSource,
+            from view: OnboardingMainViewProtocol?
+        ) {
             guard let restorationController = AccountImportViewFactory
-                .createViewForAdding()?.controller
+                .createViewForAdding(defaultSource: defaultSource)?.controller
             else {
                 return
             }
@@ -29,8 +44,15 @@ extension AddAccount {
                 let navigationController = view?.controller.navigationController,
                 navigationController.topViewController == view?.controller,
                 navigationController.presentedViewController == nil {
-                showAccountRestore(from: view)
+                showAccountRestore(defaultSource: .mnemonic, from: view)
             }
+        }
+
+        func showCreateFlow(from view: ControllerBackedProtocol?) {
+            guard let controller = WalletNameAssembly.configureModule(with: nil)?.view.controller else {
+                return
+            }
+            view?.controller.navigationController?.pushViewController(controller, animated: true)
         }
     }
 }

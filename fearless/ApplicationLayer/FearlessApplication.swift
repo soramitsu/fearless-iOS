@@ -1,10 +1,15 @@
 import UIKit
 import SoraFoundation
+import SoraKeystore
 
 class FearlessApplication: UIApplication {
     private lazy var goneBackgroundTimestamp = Date().timeIntervalSince1970
     private var timerToDetectInactivity: Timer?
     private var applicationHandler: ApplicationHandler?
+
+    private lazy var secretManager: SecretStoreManagerProtocol = {
+        KeychainManager.shared
+    }()
 
     override init() {
         super.init()
@@ -36,6 +41,9 @@ class FearlessApplication: UIApplication {
     }
 
     @objc private func dropSession() {
+        guard secretManager.checkSecret(for: KeystoreTag.pincode.rawValue) else {
+            return
+        }
         if let window = UIApplication.shared.windows.first {
             guard let pincodeViewController = PinViewFactory.createPinCheckView()?.controller else {
                 return

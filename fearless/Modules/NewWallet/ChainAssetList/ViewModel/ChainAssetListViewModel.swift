@@ -9,4 +9,5 @@ struct ChainAssetListViewModel {
     let isColdBoot: Bool
     let hiddenSectionState: HiddenSectionState
     let emptyStateIsActive: Bool
+    let bannerIsHidden: Bool
 }

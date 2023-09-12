@@ -31,7 +31,8 @@ final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
             keystore: keychain,
             accountRepository: AnyDataProviderRepository(repository),
             operationManager: OperationManagerFacade.sharedManager,
-            chainRepository: AnyDataProviderRepository(chainRepository)
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            eventCenter: EventCenter.shared
         )
         let wireframe = ExportSeedWireframe()
 

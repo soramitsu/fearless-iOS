@@ -12,17 +12,7 @@ final class WalletDetailsPresenter {
     private let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
     private var chains: [ChainModel] = []
-    private lazy var inputViewModel: InputViewModelProtocol = {
-        let inputHandling = InputHandler(
-            predicate: NSPredicate.notEmpty,
-            processor: ByteLengthProcessor.username
-        )
-        inputHandling.changeValue(to: flow.wallet.name)
-        return InputViewModel(
-            inputHandler: inputHandling,
-            title: R.string.localizable.usernameSetupChooseTitle(preferredLanguages: selectedLocale.rLanguages)
-        )
-    }()
+    private var searchText: String?
 
     init(
         interactor: WalletDetailsInteractorInputProtocol,
@@ -49,7 +39,6 @@ extension WalletDetailsPresenter: Localizable {
 extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol) {
         view = ui
-        view?.setInput(viewModel: inputViewModel)
         view?.didReceive(locale: selectedLocale)
         interactor.setup()
     }
@@ -59,9 +48,7 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
     }
 
     func didTapCloseButton() {
-        if let view = self.view {
-            wireframe.close(view)
-        }
+        wireframe.dismiss(view: view)
     }
 
     func didTapExportButton() {
@@ -75,12 +62,6 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
             locale: selectedLocale,
             from: view
         )
-    }
-
-    func willDisappear() {
-        if inputViewModel.inputHandler.value != flow.wallet.name {
-            interactor.update(walletName: inputViewModel.inputHandler.value)
-        }
     }
 
     func didReceive(error: Error) {
@@ -115,6 +96,11 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         }
 
         interactor.getAvailableExportOptions(for: ChainAccountInfo(chain: chain, account: account))
+    }
+
+    func searchTextDidChanged(_ text: String?) {
+        searchText = text
+        provideViewModel(chains: chains)
     }
 }
 
@@ -194,14 +180,16 @@ private extension WalletDetailsPresenter {
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
                 chains: chains,
-                locale: selectedLocale
+                locale: selectedLocale,
+                searchText: searchText
             )
             view?.didReceive(state: .normal(viewModel: viewModel))
         case .export:
             let viewModel = viewModelFactory.buildExportViewModel(
                 flow: flow,
                 chains: chains,
-                locale: selectedLocale
+                locale: selectedLocale,
+                searchText: searchText
             )
             view?.didReceive(state: .export(viewModel: viewModel))
         }

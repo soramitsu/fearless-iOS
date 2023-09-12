@@ -11,7 +11,7 @@ final class AccountCreatePresenter {
     var interactor: AccountCreateInteractorInputProtocol
 
     let usernameSetup: UsernameSetupModel
-    let flow: AccountCreateFlow
+    var flow: AccountCreateFlow
 
     private var mnemonic: [String]?
     private var selectedCryptoType: CryptoType = .sr25519
@@ -143,7 +143,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
         interactor.setup()
         switch flow {
-        case .wallet:
+        case .wallet, .backup:
             view?.set(chainType: .both)
         case let .chain(model):
             if let cryptoType = CryptoType(rawValue: model.meta.substrateCryptoType) {
@@ -217,7 +217,9 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         )
     }
 
-    func proceed() {
+    func proceed(withReplaced flow: AccountCreateFlow?) {
+        let unwrappedFlow = flow ?? self.flow
+
         guard
             let mnemonic = mnemonic,
             let substrateViewModel = substrateDerivationPathViewModel,
@@ -244,7 +246,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         let ethereumDerivationPath = (ethereumDerivationPathViewModel?.inputHandler.value)
             .nonEmpty(or: DerivationPathConstants.defaultEthereum)
         let substrateDerivationPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
-        switch flow {
+        switch unwrappedFlow {
         case .wallet:
             let request = MetaAccountImportMnemonicRequest(
                 mnemonic: mnemonic,
@@ -268,7 +270,23 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 chainId: model.chain.chainId
             )
             wireframe.confirm(from: view, flow: .chain(request))
+        case .backup:
+            let request = MetaAccountImportMnemonicRequest(
+                mnemonic: mnemonic,
+                username: usernameSetup.username,
+                substrateDerivationPath: substrateDerivationPath,
+                ethereumDerivationPath: ethereumDerivationPath,
+                cryptoType: selectedCryptoType
+            )
+            wireframe.showBackupCreatePassword(
+                request: request,
+                from: view
+            )
         }
+    }
+
+    func didTapBackupButton() {
+        proceed(withReplaced: .backup)
     }
 }
 

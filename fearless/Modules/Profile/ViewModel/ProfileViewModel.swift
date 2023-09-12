@@ -1,13 +1,13 @@
 import Foundation
 
 protocol ProfileViewModelProtocol {
-    var profileUserViewModel: ProfileUserViewModelProtocol { get }
+    var profileUserViewModel: WalletsManagmentCellViewModel { get }
     var profileOptionViewModel: [ProfileOptionViewModelProtocol] { get }
     var logoutViewModel: ProfileOptionViewModelProtocol { get }
 }
 
 struct ProfileViewModel: ProfileViewModelProtocol {
-    let profileUserViewModel: ProfileUserViewModelProtocol
+    let profileUserViewModel: WalletsManagmentCellViewModel
     let profileOptionViewModel: [ProfileOptionViewModelProtocol]
     let logoutViewModel: ProfileOptionViewModelProtocol
 }

@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import SSFModels
+import SoraFoundation
 
 final class WalletMainContainerInteractor {
     // MARK: - Private properties
@@ -14,6 +15,8 @@ final class WalletMainContainerInteractor {
     private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+    private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
+    private let applicationHandler: ApplicationHandler
 
     // MARK: - Constructor
 
@@ -24,7 +27,9 @@ final class WalletMainContainerInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
-        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
+        deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
+        applicationHandler: ApplicationHandler
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -33,6 +38,10 @@ final class WalletMainContainerInteractor {
         self.eventCenter = eventCenter
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
+        self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
+        self.applicationHandler = applicationHandler
+
+        applicationHandler.delegate = self
     }
 
     // MARK: - Private methods
@@ -108,6 +117,24 @@ final class WalletMainContainerInteractor {
 
         operationQueue.addOperation(fetchChainSettingsOperation)
     }
+
+    private func checkDeprecatedAccountIssues() {
+        Task {
+            if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations(wallet: wallet) {
+                switch issue {
+                case let .controller(issue):
+                    let stashItem = try? await self.deprecatedAccountsCheckService.checkStashItems().first
+                    await MainActor.run {
+                        self.output?.didReceiveControllerAccountIssue(issue: issue, hasStashItem: stashItem != nil)
+                    }
+                case let .stash(address):
+                    await MainActor.run {
+                        self.output?.didReceiveStashAccountIssue(address: address)
+                    }
+                }
+            }
+        }
+    }
 }
 
 // MARK: - WalletMainContainerInteractorInput
@@ -149,10 +176,6 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         output?.didReceiveAccount(event.account)
     }
 
-    func processChainsSettingsChanged() {
-        fetchChainSettings()
-    }
-
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         guard let wallet = SelectedWalletSettings.shared.value else {
             return
@@ -163,6 +186,10 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
 
         fetchSelectedChainName()
     }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        checkDeprecatedAccountIssues()
+    }
 }
 
 // MARK: - ChainsIssuesCenterListener
@@ -172,5 +199,11 @@ extension WalletMainContainerInteractor: ChainsIssuesCenterListener {
         DispatchQueue.main.async {
             self.output?.didReceiveChainsIssues(chainsIssues: issues)
         }
+    }
+}
+
+extension WalletMainContainerInteractor: ApplicationHandlerDelegate {
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        checkDeprecatedAccountIssues()
     }
 }

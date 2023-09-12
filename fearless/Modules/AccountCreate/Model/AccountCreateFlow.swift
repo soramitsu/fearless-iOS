@@ -1,10 +1,11 @@
 enum AccountCreateFlow {
     case chain(model: UniqueChainModel)
     case wallet
+    case backup
 
     var supportsSubstrate: Bool {
         switch self {
-        case .wallet:
+        case .wallet, .backup:
             return true
         case let .chain(model):
             return !model.chain.isEthereumBased
@@ -13,7 +14,7 @@ enum AccountCreateFlow {
 
     var supportsEthereum: Bool {
         switch self {
-        case .wallet:
+        case .wallet, .backup:
             return true
         case let .chain(model):
             return model.chain.isEthereumBased
@@ -22,7 +23,7 @@ enum AccountCreateFlow {
 
     var supportsSelection: Bool {
         switch self {
-        case .wallet:
+        case .wallet, .backup:
             return true
         case .chain:
             return false
@@ -31,7 +32,7 @@ enum AccountCreateFlow {
 
     var predefinedUsername: String {
         switch self {
-        case .wallet:
+        case .wallet, .backup:
             return ""
         case let .chain(model):
             return model.meta.name

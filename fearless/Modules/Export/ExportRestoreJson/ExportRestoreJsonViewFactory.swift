@@ -14,6 +14,12 @@ final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
             R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
         }
 
+        let interactor = ExportRestoreJsonInteractor(
+            settings: SelectedWalletSettings.shared,
+            wallet: flow.wallet,
+            eventCenter: EventCenter.shared
+        )
+
         let uiFactory = UIFactory()
         let view = ExportGenericViewController(
             uiFactory: uiFactory,
@@ -29,6 +35,7 @@ final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
         )
         presenter.wireframe = ExportRestoreJsonWireframe()
         presenter.view = view
+        presenter.interacror = interactor
 
         view.presenter = presenter
 
