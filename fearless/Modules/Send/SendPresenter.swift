@@ -115,26 +115,7 @@ extension SendPresenter: SendViewOutput {
                 }
             }
         case let .soraMainnet(address):
-            recipientAddress = address
-            Task {
-                let possibleChains = await interactor.getPossibleChains(for: address)
-                await MainActor.run(body: {
-                    guard let soraMainChainAsset = possibleChains?.first(where: { $0.isSora })?.utilityChainAssets().first else {
-                        showIncorrectAddressAlert()
-                        return
-                    }
-                    let viewModel = viewModelFactory.buildRecipientViewModel(
-                        address: address,
-                        isValid: true
-                    )
-                    view.didReceive(viewModel: viewModel)
-                    selectedChainAsset = soraMainChainAsset
-                    interactor.updateSubscriptions(for: soraMainChainAsset)
-                    provideNetworkViewModel(for: soraMainChainAsset.chain)
-                    provideInputViewModel()
-                    refreshFee(for: soraMainChainAsset, address: address)
-                })
-            }
+            handleSolomon(address)
         }
     }
 
@@ -433,7 +414,7 @@ extension SendPresenter: SendInteractorOutput {
 
 extension SendPresenter: ScanQRModuleOutput {
     func didFinishWithSolomon(soraAddress: String) {
-        searchTextDidChanged(soraAddress)
+        handleSolomon(soraAddress)
     }
 
     func didFinishWith(address: String) {
@@ -740,6 +721,32 @@ private extension SendPresenter {
             }
         )
         router.present(viewModel: alertViewModel, from: view)
+    }
+
+    func handleSolomon(_ address: String) {
+        recipientAddress = address
+        Task {
+            let possibleChains = await interactor.getPossibleChains(for: address)
+            await MainActor.run(body: {
+                let soraMainChainAsset = possibleChains?
+                    .first(where: { $0.isSora })?.chainAssets
+                    .first(where: { $0.asset.symbol.lowercased() == "xstusd" })
+                guard let soraMainChainAsset = soraMainChainAsset else {
+                    showIncorrectAddressAlert()
+                    return
+                }
+                let viewModel = viewModelFactory.buildRecipientViewModel(
+                    address: address,
+                    isValid: true
+                )
+                view?.didReceive(viewModel: viewModel)
+                selectedChainAsset = soraMainChainAsset
+                interactor.updateSubscriptions(for: soraMainChainAsset)
+                provideNetworkViewModel(for: soraMainChainAsset.chain)
+                provideInputViewModel()
+                refreshFee(for: soraMainChainAsset, address: address)
+            })
+        }
     }
 }
 
