@@ -99,20 +99,41 @@ extension SendPresenter: SendViewOutput {
             refreshFee(for: chainAsset, address: nil)
         case let .address(address):
             recipientAddress = address
-            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
-                guard let strongSelf = self else {
-                    return
+            Task {
+                let possibleChains = await interactor.getPossibleChains(for: address)
+                await MainActor.run {
+                    guard possibleChains?.isNotEmpty == true else {
+                        showIncorrectAddressAlert()
+                        return
+                    }
+                    let viewModel = viewModelFactory.buildRecipientViewModel(
+                        address: address,
+                        isValid: true
+                    )
+                    view.didReceive(viewModel: viewModel)
+                    didReceive(possibleChains: possibleChains)
                 }
-                guard possibleChains?.isNotEmpty == true else {
-                    strongSelf.showIncorrectAddressAlert()
-                    return
-                }
-                let viewModel = strongSelf.viewModelFactory.buildRecipientViewModel(
-                    address: address,
-                    isValid: true
-                )
-                strongSelf.view?.didReceive(viewModel: viewModel)
-                strongSelf.didReceive(possibleChains: possibleChains)
+            }
+        case let .soraMainnet(address):
+            recipientAddress = address
+            Task {
+                let possibleChains = await interactor.getPossibleChains(for: address)
+                await MainActor.run(body: {
+                    guard let soraMainChainAsset = possibleChains?.first(where: { $0.isSora })?.utilityChainAssets().first else {
+                        showIncorrectAddressAlert()
+                        return
+                    }
+                    let viewModel = viewModelFactory.buildRecipientViewModel(
+                        address: address,
+                        isValid: true
+                    )
+                    view.didReceive(viewModel: viewModel)
+                    selectedChainAsset = soraMainChainAsset
+                    interactor.updateSubscriptions(for: soraMainChainAsset)
+                    provideNetworkViewModel(for: soraMainChainAsset.chain)
+                    provideInputViewModel()
+                    refreshFee(for: soraMainChainAsset, address: address)
+                })
             }
         }
     }
@@ -145,13 +166,16 @@ extension SendPresenter: SendViewOutput {
                 showInvalidAddressAlert()
                 return
             }
-            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
-                guard let possibleChains = possibleChains, possibleChains.isNotEmpty else {
-                    self?.showInvalidAddressAlert()
-                    return
-                }
+            Task {
+                let possibleChains = await interactor.getPossibleChains(for: address)
+                await MainActor.run {
+                    guard let possibleChains = possibleChains, possibleChains.isNotEmpty else {
+                        showInvalidAddressAlert()
+                        return
+                    }
 
-                self?.showPossibleChainsAlert(possibleChains)
+                    showPossibleChainsAlert(possibleChains)
+                }
             }
         case let .sameAddress(address):
             showSameAddressAlert(address, successCompletion: successCompletion)
@@ -408,6 +432,10 @@ extension SendPresenter: SendInteractorOutput {
 }
 
 extension SendPresenter: ScanQRModuleOutput {
+    func didFinishWithSolomon(soraAddress: String) {
+        searchTextDidChanged(soraAddress)
+    }
+
     func didFinishWith(address: String) {
         searchTextDidChanged(address)
     }

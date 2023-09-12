@@ -60,7 +60,7 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
-        address: String
+        initialData: SendFlowInitialData
     )
 }
 

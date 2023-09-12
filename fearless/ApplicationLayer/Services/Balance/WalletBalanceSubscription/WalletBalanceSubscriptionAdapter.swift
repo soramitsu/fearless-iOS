@@ -285,7 +285,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     private func subscribeToPrices(for chainAssets: [ChainAsset], currencys: [Currency]?) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId)
-        pricesProvider = subscribeToPrices(for: pricesIds, currencys: currencys)
+        var uniqueQurrencys: [Currency]? = currencys
+        if let currencys = currencys {
+            uniqueQurrencys = Array(Set(currencys))
+        }
+        pricesProvider = subscribeToPrices(for: pricesIds, currencys: uniqueQurrencys)
     }
 
     private func fetchChainsOperation() -> BaseOperation<[ChainModel]> {

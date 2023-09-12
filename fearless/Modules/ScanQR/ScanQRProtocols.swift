@@ -40,4 +40,5 @@ protocol ScanQRModuleInput: AnyObject {}
 
 protocol ScanQRModuleOutput: AnyObject {
     func didFinishWith(address: String)
+    func didFinishWithSolomon(soraAddress: String)
 }

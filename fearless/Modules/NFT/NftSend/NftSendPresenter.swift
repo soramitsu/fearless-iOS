@@ -160,6 +160,8 @@ extension NftSendPresenter: Localizable {
 extension NftSendPresenter: NftSendModuleInput {}
 
 extension NftSendPresenter: ScanQRModuleOutput {
+    func didFinishWithSolomon(soraAddress _: String) {}
+
     func didFinishWith(address: String) {
         handle(newAddress: address)
     }

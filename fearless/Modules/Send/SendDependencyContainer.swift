@@ -22,7 +22,6 @@ struct SendDependencies {
 final class SendDepencyContainer {
     private let wallet: MetaAccountModel
     private let operationManager: OperationManagerProtocol
-    private var currentChainAsset: ChainAsset?
     private var currentDependecies: SendDependencies?
     private var cachedDependencies: [ChainAssetKey: SendDependencies] = [:]
 
