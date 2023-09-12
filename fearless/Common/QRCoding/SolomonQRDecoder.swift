@@ -7,7 +7,7 @@ struct SolomonQRInfo: QRInfo {
 
 final class SolomonQRDecoder: QRDecodable {
     static let url = URL(string: "https://mekongdebug.page.link")
-    static let addressQuery = "exWallAdd"
+    static let addressQuery = "wallAdd"
 
     func decode(data: Data) throws -> QRInfo {
         guard
