@@ -82,7 +82,6 @@ final class WalletMainContainerViewLayout: UIView {
         let button = UIButton()
         button.semanticContentAttribute = .forceRightToLeft
         button.setImage(R.image.iconWarning(), for: .normal)
-        button.setTitle("Network Issues", for: .normal)
         button.titleLabel?.font = .h6Title
         button.layer.masksToBounds = true
         button.backgroundColor = R.color.colorWhite8()
@@ -149,6 +148,10 @@ final class WalletMainContainerViewLayout: UIView {
             R.string.localizable.nftsStub(preferredLanguages: locale.rLanguages)
         ]
         segmentedControl.setSegmentItems(localizedItems)
+        issuesButton.setTitle(
+            R.string.localizable.networkIssueStub(preferredLanguages: locale.rLanguages),
+            for: .normal
+        )
     }
 
     // MARK: - Private layout methods
