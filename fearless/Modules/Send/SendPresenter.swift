@@ -96,7 +96,6 @@ extension SendPresenter: SendViewOutput {
             interactor.updateSubscriptions(for: chainAsset)
             provideNetworkViewModel(for: chainAsset.chain)
             provideInputViewModel()
-            refreshFee(for: chainAsset, address: nil)
         case let .address(address):
             recipientAddress = address
             Task {
@@ -603,7 +602,6 @@ private extension SendPresenter {
 
         interactor.updateSubscriptions(for: chainAsset)
         interactor.fetchScamInfo(for: newAddress)
-        refreshFee(for: chainAsset, address: newAddress)
     }
 
     func handle(selectedChain: ChainModel?) {
@@ -637,9 +635,10 @@ private extension SendPresenter {
         provideInputViewModel()
         if let recipientAddress = recipientAddress {
             handle(newAddress: recipientAddress)
+        } else {
+            interactor.updateSubscriptions(for: selectedChainAsset)
+            refreshFee(for: selectedChainAsset, address: recipientAddress)
         }
-        interactor.updateSubscriptions(for: selectedChainAsset)
-        refreshFee(for: selectedChainAsset, address: recipientAddress)
     }
 
     func defineOrSelectAsset(for chain: ChainModel) {
@@ -744,7 +743,6 @@ private extension SendPresenter {
                 interactor.updateSubscriptions(for: soraMainChainAsset)
                 provideNetworkViewModel(for: soraMainChainAsset.chain)
                 provideInputViewModel()
-                refreshFee(for: soraMainChainAsset, address: address)
             })
         }
     }
