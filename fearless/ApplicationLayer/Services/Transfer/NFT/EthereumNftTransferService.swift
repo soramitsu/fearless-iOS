@@ -91,7 +91,7 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let contractAddress = try EthereumAddress(rawAddress: transfer.nft.smartContract.hexToBytes())
         let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
-        let transferCall = contract.transfer(to: address, tokenId: tokenId)
+        let transferCall = contract.transferFrom(from: senderAddress, to: address, tokenId: tokenId)
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
         let gasPrice = try await queryGasPrice()
         let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: .zero), transfer: transferCall)

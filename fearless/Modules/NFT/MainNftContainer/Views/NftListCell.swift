@@ -43,6 +43,12 @@ class NftListCell: UITableViewCell {
         return label
     }()
 
+    let detailsArrowImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconNftDetailsArrow()
+        return imageView
+    }()
+
     private var skeletonView: SkrullableView?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -82,6 +88,7 @@ class NftListCell: UITableViewCell {
         cardView.addSubview(nftImageView)
         cardView.addSubview(verticalSeparatorView)
         cardView.addSubview(stackView)
+        cardView.addSubview(detailsArrowImageView)
 
         stackView.addArrangedSubview(chainLabel)
         stackView.addArrangedSubview(nftNameLabel)
@@ -109,9 +116,15 @@ class NftListCell: UITableViewCell {
             make.leading.equalTo(nftImageView.snp.trailing).offset(UIConstants.defaultOffset)
         }
 
+        detailsArrowImageView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(16)
+        }
+
         stackView.snp.makeConstraints { make in
             make.leading.equalTo(verticalSeparatorView.snp.trailing).offset(UIConstants.defaultOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.trailing.equalTo(detailsArrowImageView.snp.leading).inset(UIConstants.defaultOffset)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
     }

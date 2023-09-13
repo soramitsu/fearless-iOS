@@ -6,6 +6,31 @@ import SSFUtils
 import SSFModels
 import FearlessKeys
 
+enum BlockExplorerApiKey {
+    case etherscan
+    case polygonscan
+
+    init?(chainId: String) {
+        switch chainId {
+        case "1":
+            self = .etherscan
+        case "137":
+            self = .polygonscan
+        default:
+            return nil
+        }
+    }
+
+    var value: String {
+        switch self {
+        case .etherscan:
+            return BlockExplorerApiKeys.etherscanApiKey
+        case .polygonscan:
+            return BlockExplorerApiKeys.polygonscanApiKey
+        }
+    }
+}
+
 protocol NFTOperationFactoryProtocol {
     func fetchNFTs(
         chain: ChainModel,
@@ -16,15 +41,21 @@ protocol NFTOperationFactoryProtocol {
 final class NFTOperationFactory {
     private func createOperation(
         address: String,
-        url: URL
+        url: URL,
+        chain: ChainModel
     ) -> BaseOperation<EtherscanNftsResponse> {
         var urlComponents = URLComponents(string: url.absoluteString)
-        urlComponents?.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "module", value: "account"),
             URLQueryItem(name: "action", value: "tokennfttx"),
-            URLQueryItem(name: "address", value: address),
-            URLQueryItem(name: "apikey", value: BlockExplorerApiKeys.etherscanApiKey)
+            URLQueryItem(name: "address", value: address)
         ]
+
+        if let apiKey = BlockExplorerApiKey(chainId: chain.chainId) {
+            queryItems.append(URLQueryItem(name: "apikey", value: apiKey.value))
+        }
+
+        urlComponents?.queryItems = queryItems
 
         guard let urlWithParameters = urlComponents?.url else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
@@ -108,7 +139,8 @@ extension NFTOperationFactory: NFTOperationFactoryProtocol {
 
         let remoteOperation = createOperation(
             address: address,
-            url: baseUrl
+            url: baseUrl,
+            chain: chain
         )
 
         let mapOperation = createMapOperation(

@@ -8,7 +8,7 @@ final class MainNftContainerPresenter {
     private let router: MainNftContainerRouterInput
     private let interactor: MainNftContainerInteractorInput
     private let viewModelFactory: NftListViewModelFactoryProtocol
-    private let wallet: MetaAccountModel
+    private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
 
     // MARK: - Constructors
@@ -78,7 +78,9 @@ extension MainNftContainerPresenter: Localizable {
 extension MainNftContainerPresenter: MainNftContainerModuleInput {}
 
 extension MainNftContainerPresenter: EventVisitorProtocol {
-    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        wallet = event.account
+
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceive(history: nil)
             self?.view?.didReceive(viewModels: nil)

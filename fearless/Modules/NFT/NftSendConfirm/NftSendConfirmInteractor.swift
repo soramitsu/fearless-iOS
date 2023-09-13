@@ -32,7 +32,7 @@ extension NftSendConfirmInteractor: NftSendConfirmInteractorInput {
 
         if let chainAsset = chain.utilityChainAssets().first,
            let accountId = wallet.fetch(for: chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self, deliveryOn: nil)
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
     }
 

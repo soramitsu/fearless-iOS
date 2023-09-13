@@ -9,25 +9,23 @@ final class NftSendConfirmRouter: NftSendConfirmRouterInput {
         chainAsset: ChainAsset?
     ) {
         guard let chainAsset = chainAsset else {
-            MainTransitionHelper.transitToMainTabBarController(closing: view.controller, animated: true)
+            view.controller.navigationController?.dismiss(animated: true)
             return
         }
 
         let presenter = view.controller.navigationController?.presentingViewController
 
-        guard let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: title)?.view.controller else {
-            return
-        }
-
-        controller.modalPresentationStyle = .custom
+        let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: title)?.view.controller
+        controller?.modalPresentationStyle = .custom
 
         let factory = ModalSheetBlurPresentationFactory(
             configuration: ModalSheetPresentationConfiguration.fearlessBlur
         )
-        controller.modalTransitioningFactory = factory
+        controller?.modalTransitioningFactory = factory
 
-        MainTransitionHelper.transitToMainTabBarController(closing: view.controller, animated: true) { _ in
-            if let presenter = presenter as? ControllerBackedProtocol {
+        view.controller.navigationController?.dismiss(animated: true) {
+            if let presenter = presenter as? ControllerBackedProtocol,
+               let controller = controller {
                 presenter.controller.present(controller, animated: true)
             }
         }
