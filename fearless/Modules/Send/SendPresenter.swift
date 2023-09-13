@@ -745,11 +745,13 @@ private extension SendPresenter {
                     address: address,
                     isValid: true
                 )
+                fee = nil
+                tip = nil
                 view?.didReceive(viewModel: viewModel)
                 selectedChainAsset = soraMainChainAsset
-                interactor.updateSubscriptions(for: soraMainChainAsset)
                 provideNetworkViewModel(for: soraMainChainAsset.chain)
                 provideInputViewModel()
+                interactor.updateSubscriptions(for: soraMainChainAsset)
             })
         }
     }

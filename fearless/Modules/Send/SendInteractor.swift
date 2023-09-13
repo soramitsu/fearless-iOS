@@ -179,6 +179,12 @@ extension SendInteractor: SendInteractorInput {
                     tip: tip
                 )
 
+                let fee = try await dependencies.transferService.estimateFee(for: transfer)
+
+                await MainActor.run(body: {
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+                })
+
                 dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
             } catch {
                 await MainActor.run(body: {
