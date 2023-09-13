@@ -98,7 +98,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,
-            iconGenerator: UniversalIconGenerator(chain: chain),
+            iconGenerator: UniversalIconGenerator(),
             chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
@@ -171,7 +171,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: rewardBalanceViewModelFactory,
-            iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+            iconGenerator: UniversalIconGenerator(),
             chainAsset: chainAsset
         )
 
@@ -265,7 +265,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             let viewModelFactory = StakingAmountParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
                 rewardDestViewModelFactory: rewardDestViewModelFactory,
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)), wallet: wallet
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator()), wallet: wallet
             )
 
             return StakingAmountDependencyContainer(

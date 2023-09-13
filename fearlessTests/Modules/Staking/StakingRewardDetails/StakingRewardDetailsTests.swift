@@ -37,7 +37,7 @@
 //        )
 //        let viewModelFactory = StakingRewardDetailsViewModelFactory(
 //            balanceViewModelFactory: balanceViewModelFactory,
-//            iconGenerator: PolkadotIconGenerator()
+//            iconGenerator: UniversalIconGenerator()
 //        )
 //        let presenter = StakingRewardDetailsPresenter(
 //            input: input,

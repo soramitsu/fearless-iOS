@@ -16,7 +16,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             )
         let settings = SettingsManager.shared
         let profileViewModelFactory = ProfileViewModelFactory(
-            iconGenerator: PolkadotIconGenerator(),
+            iconGenerator: UniversalIconGenerator(),
             biometry: BiometryAuth(),
             settings: settings
         )
@@ -90,7 +90,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
 
         let view = ProfileViewController(
             presenter: presenter,
-            iconGenerating: PolkadotIconGenerator(),
+            iconGenerating: UniversalIconGenerator(),
             localizationManager: localizationManager
         )
 
