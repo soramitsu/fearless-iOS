@@ -86,7 +86,7 @@ extension AllDonePresenter: AllDoneViewOutput {
 
     func shareButtonDidTapped() {
         guard let blockExplorer = self.blockExplorer,
-              let url = blockExplorer.explorerUrl(for: hashString, type: .extrinsic)
+              let url = blockExplorer.explorerUrl(for: hashString, type: blockExplorer.transactionType)
         else {
             return
         }

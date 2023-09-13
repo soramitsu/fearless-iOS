@@ -121,7 +121,7 @@ final class NftDetailsViewLayout: UIView {
         }
 
         imageView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(359)
         }
 
@@ -169,6 +169,11 @@ final class NftDetailsViewLayout: UIView {
         networkView.valueLabel.text = viewModel.chain
         desciptionLabel.text = viewModel.nftDescription
 
-        viewModel.imageViewModel?.loadImage(on: imageView, targetSize: CGSize(width: UIScreen.main.bounds.size.width, height: 359), animated: true)
+        viewModel.imageViewModel?.loadImage(
+            on: imageView,
+            targetSize: CGSize(width: UIScreen.main.bounds.size.width, height: 359),
+            animated: true,
+            cornerRadius: 0
+        )
     }
 }

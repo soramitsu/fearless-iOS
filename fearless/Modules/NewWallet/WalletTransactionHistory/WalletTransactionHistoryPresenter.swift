@@ -102,7 +102,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
             self.viewModels = viewModels
             let viewModel = WalletTransactionHistoryViewModel(
                 sections: viewModels,
-                lastChanges: viewChanges
+                lastChanges: viewChanges,
+                filtersEnabled: chainAsset.chain.externalApi?.history?.type != .etherscan && chainAsset.chain.externalApi?.history != nil
             )
 
             let state: WalletTransactionHistoryViewState = reload
