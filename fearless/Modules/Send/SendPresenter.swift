@@ -30,8 +30,7 @@ final class SendPresenter {
     private var selectedAsset: AssetModel?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
-    private var priceData: PriceData?
-    private var utilityPriceData: PriceData?
+    private var prices: [PriceData] = []
     private var tip: Decimal?
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
@@ -320,13 +319,11 @@ extension SendPresenter: SendInteractorOutput {
         }
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?) {
+    func didReceivePriceData(result: Result<PriceData?, Error>, for _: AssetModel.PriceId?) {
         switch result {
         case let .success(priceData):
-            if selectedChainAsset?.asset.priceId == priceId {
-                self.priceData = priceData
-            } else {
-                utilityPriceData = priceData
+            if let priceData = priceData {
+                prices.append(priceData)
             }
             provideAssetVewModel()
             provideFeeViewModel()
@@ -492,6 +489,7 @@ private extension SendPresenter {
 
     func provideAssetVewModel() {
         guard let chainAsset = selectedChainAsset else { return }
+        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
 
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
 
@@ -517,11 +515,12 @@ private extension SendPresenter {
               let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
+        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
         let viewModel = tip
             .map { balanceViewModelFactory
                 .balanceFromPrice(
                     $0,
-                    priceData: chainAsset.isUtility ? self.priceData : self.utilityPriceData,
+                    priceData: priceData,
                     usageCase: .detailsCrypto
                 )
             }?.value(for: selectedLocale)
@@ -540,6 +539,7 @@ private extension SendPresenter {
             let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
+        let priceData = prices.first(where: { $0.priceId == utilityAsset.asset.priceId })
         let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -727,9 +727,16 @@ private extension SendPresenter {
         Task {
             let possibleChains = await interactor.getPossibleChains(for: address)
             await MainActor.run(body: {
-                let soraMainChainAsset = possibleChains?
-                    .first(where: { $0.isSora })?.chainAssets
-                    .first(where: { $0.asset.symbol.lowercased() == "xstusd" })
+                #if F_DEV
+                    let soraMainChainAsset = possibleChains?
+                        .first(where: { $0.isSora && $0.isTestnet })?.chainAssets
+                        .first(where: { $0.asset.symbol.lowercased() == "xstusd" })
+
+                #else
+                    let soraMainChainAsset = possibleChains?
+                        .first(where: { $0.isSora })?.chainAssets
+                        .first(where: { $0.asset.symbol.lowercased() == "xstusd" })
+                #endif
                 guard let soraMainChainAsset = soraMainChainAsset else {
                     showIncorrectAddressAlert()
                     return
