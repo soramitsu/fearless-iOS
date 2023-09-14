@@ -48,14 +48,14 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
 // MARK: - MainNftContainerViewInput
 
 extension MainNftContainerViewController: MainNftContainerViewInput {
-    func didReceive(viewModels: [NftListCellModel]) {
+    func didReceive(viewModels: [NftListCellModel]?) {
         self.viewModels = viewModels
         rootView.tableView.reloadData()
 
         reloadEmptyState(animated: true)
     }
 
-    func didReceive(history: [NFTHistoryObject]) {
+    func didReceive(history: [NFTHistoryObject]?) {
         self.history = history
         rootView.tableView.reloadData()
     }
@@ -137,7 +137,7 @@ extension MainNftContainerViewController: EmptyStateDataSource {
 
 extension MainNftContainerViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        guard let viewModels = viewModels else { return true }
+        guard let viewModels = viewModels else { return false }
         return viewModels.isEmpty
     }
 }

@@ -13,10 +13,12 @@ final class NftSendPresenter {
     private let wallet: MetaAccountModel
     private let logger: LoggerProtocol
     private let viewModelFactory: SendViewModelFactoryProtocol
+    private let dataValidatingFactory: SendDataValidatingFactory
 
     private var recipientAddress: String?
     private var fee: Decimal?
     private var scamInfo: ScamInfo?
+    private var balance: Decimal?
 
     // MARK: - Constructors
 
@@ -27,7 +29,8 @@ final class NftSendPresenter {
         nft: NFT,
         wallet: MetaAccountModel,
         logger: LoggerProtocol,
-        viewModelFactory: SendViewModelFactoryProtocol
+        viewModelFactory: SendViewModelFactoryProtocol,
+        dataValidatingFactory: SendDataValidatingFactory
     ) {
         self.interactor = interactor
         self.router = router
@@ -35,6 +38,7 @@ final class NftSendPresenter {
         self.wallet = wallet
         self.logger = logger
         self.viewModelFactory = viewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.localizationManager = localizationManager
     }
 
@@ -119,7 +123,25 @@ extension NftSendPresenter: NftSendViewOutput {
             return
         }
 
-        router.presentConfirm(nft: nft, receiver: receiver, scamInfo: scamInfo, wallet: wallet, from: view)
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: {}),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: .utility(balance: balance),
+                feeAndTip: fee ?? 0,
+                sendAmount: 0,
+                locale: selectedLocale
+            )
+
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.presentConfirm(
+                nft: strongSelf.nft,
+                receiver: receiver,
+                scamInfo: strongSelf.scamInfo,
+                wallet: strongSelf.wallet,
+                from: strongSelf.view
+            )
+        }
     }
 
     func searchTextDidChanged(_ text: String) {
@@ -148,6 +170,20 @@ extension NftSendPresenter: NftSendInteractorOutput {
     func didReceive(scamInfo: ScamInfo?) {
         self.scamInfo = scamInfo
         view?.didReceive(scamInfo: scamInfo)
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
+        switch result {
+        case let .success(accountInfo):
+            balance = accountInfo.map {
+                Decimal.fromSubstrateAmount(
+                    $0.data.sendAvailable,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } ?? 0.0
+        case let .failure(error):
+            logger.error("Did receive account info error: \(error)")
+        }
     }
 }
 

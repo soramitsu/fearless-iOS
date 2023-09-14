@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import SSFUtils
 
 struct ReferralCrowdloanViewFactory {
     static func createKaruraView(
@@ -100,7 +101,7 @@ struct ReferralCrowdloanViewFactory {
         let viewModelFactory = CrowdloanContributionViewModelFactory(
             assetInfo: assetInfo,
             chainDateCalculator: ChainDateCalculator(),
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator()
         )
 
         let localizationManager = LocalizationManager.shared

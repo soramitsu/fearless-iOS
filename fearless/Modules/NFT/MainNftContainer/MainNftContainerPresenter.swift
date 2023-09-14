@@ -9,6 +9,7 @@ final class MainNftContainerPresenter {
     private let interactor: MainNftContainerInteractorInput
     private let viewModelFactory: NftListViewModelFactoryProtocol
     private let wallet: MetaAccountModel
+    private let eventCenter: EventCenterProtocol
 
     // MARK: - Constructors
 
@@ -17,16 +18,24 @@ final class MainNftContainerPresenter {
         router: MainNftContainerRouterInput,
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: NftListViewModelFactoryProtocol,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        eventCenter: EventCenterProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
+        self.eventCenter = eventCenter
         self.localizationManager = localizationManager
+
+        eventCenter.add(observer: self)
     }
 
     // MARK: - Private methods
+
+    func updateData() {
+        interactor.fetchData()
+    }
 }
 
 // MARK: - MainNftContainerViewOutput
@@ -35,6 +44,7 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     func didLoad(view: MainNftContainerViewInput) {
         self.view = view
         interactor.setup(with: self)
+        updateData()
     }
 
     func didSelect(collection: NFTCollection) {
@@ -66,3 +76,13 @@ extension MainNftContainerPresenter: Localizable {
 }
 
 extension MainNftContainerPresenter: MainNftContainerModuleInput {}
+
+extension MainNftContainerPresenter: EventVisitorProtocol {
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(history: nil)
+            self?.view?.didReceive(viewModels: nil)
+        }
+        interactor.fetchData()
+    }
+}

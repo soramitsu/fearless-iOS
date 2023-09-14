@@ -13,10 +13,12 @@ final class NftSendConfirmPresenter {
     private let receiverAddress: String
     private let wallet: MetaAccountModel
     private let accountViewModelFactory: AccountViewModelFactoryProtocol
+    private let dataValidatingFactory: SendDataValidatingFactory
     private let nft: NFT
     private var fee: Decimal?
     private let logger: LoggerProtocol?
     private let nftViewModelFactory: NftSendConfirmViewModelFactoryProtocol
+    private var balance: Decimal?
 
     // MARK: - Constructors
 
@@ -30,7 +32,8 @@ final class NftSendConfirmPresenter {
         accountViewModelFactory: AccountViewModelFactoryProtocol,
         nft: NFT,
         logger: LoggerProtocol?,
-        nftViewModelFactory: NftSendConfirmViewModelFactoryProtocol
+        nftViewModelFactory: NftSendConfirmViewModelFactoryProtocol,
+        dataValidatingFactory: SendDataValidatingFactory
     ) {
         self.interactor = interactor
         self.router = router
@@ -41,6 +44,7 @@ final class NftSendConfirmPresenter {
         self.accountViewModelFactory = accountViewModelFactory
         self.logger = logger
         self.nftViewModelFactory = nftViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.localizationManager = localizationManager
     }
 
@@ -132,7 +136,23 @@ extension NftSendConfirmPresenter: NftSendConfirmViewOutput {
 
     func didConfirmButtonTapped() {
         view?.didStartLoading()
-        interactor.submitExtrinsic(nft: nft, receiverAddress: receiverAddress)
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: {}),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: .utility(balance: balance),
+                feeAndTip: fee ?? 0,
+                sendAmount: 0,
+                locale: selectedLocale
+            )
+
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.interactor.submitExtrinsic(
+                nft: strongSelf.nft,
+                receiverAddress: strongSelf.receiverAddress
+            )
+        }
     }
 }
 
@@ -169,6 +189,20 @@ extension NftSendConfirmPresenter: NftSendConfirmInteractorOutput {
             provideFeeViewModel()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
+        }
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
+        switch result {
+        case let .success(accountInfo):
+            balance = accountInfo.map {
+                Decimal.fromSubstrateAmount(
+                    $0.data.sendAvailable,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } ?? 0.0
+        case let .failure(error):
+            logger?.error("Did receive account info error: \(error)")
         }
     }
 }

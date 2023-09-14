@@ -40,6 +40,10 @@
 "no.email.bound.error.message" = "请确保设备上已安装邮件应用程序。";
 "connection.management.title" = "网路";
 "onboarding.create.account" = "创建一个账户";
+"NSCameraUsageDescription" = "相机用于捕捉二维码";
+"NSFaceIDUsageDescription" = "Fearless使用Face ID来限制未经授权的用户访问该应用程序。Face ID用于在应用程序内进行授权。";
+"NSPhotoLibraryUsageDescription" = "从图库加载照片";
+"NSPhotoLibraryAddUsageDescription" = "将转账请求保存为二维码";
 "username.setup.choose.title" = "名字";
 "username.setup.hint" = "此名称仅会显示给您，并且仅在您的移动设备上本地存储。";
 "username.setup.title" = "创建一个账户";
@@ -340,7 +344,7 @@
 "crowdloan.completed.section.format" = "已完成（ %@ ）";
 "crowdloan.empty.message" = "关于众贷的信息\n将在此处显示";
 "common.time.left.format" = "还剩%@";
-"common.existential.warning.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对网络上的任何操作都没有控制权或知识。只有在您完全同意并理解相关影响后才能继续。";
+"common.existential.warning.message" = "此交易将导致账户余额低于存在性存款，从而使其被清除（该账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对于网络上的任何操作都没有控制权或知情权。只有在您完全同意并理解相关影响后才能继续。";
 "common.existential.warning.title" = "此操作将删除账户";
 "crowdloan.ended.message" = "由于该众贷已经结束，您无法参与其中。";
 "crowdloan.ended.title" = "众贷已结束";
@@ -667,6 +671,7 @@
 "common.currency" = "货币";
 "label.testnet" = "测试网";
 "identity.twitter.title" = "推特";
+"moonbeam.registration.description.system.remark" = "系统.备注";
 "default.account.shared.secret" = "具有共享密钥的账户";
 "account.unique.secret" = "拥有独特密钥的账户";
 "account.import.recovery.select.file" = "选择文件";
@@ -1068,5 +1073,4 @@
 "wallet.send.eth.dead.recipient.message" = "接收方账户中的以太币余额不足，导致无法完成ERC20代币转账。请确保接收方有足够的以太币来进行转账。";
 "nft.owner.title" = "拥有";
 "nft.collection.title" = "收藏品";
-"onboarding.preinstalled.wallet.button.text" = "获取预装钱包";
-"nft.tokenid.title" = "代币ID";
+"onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";

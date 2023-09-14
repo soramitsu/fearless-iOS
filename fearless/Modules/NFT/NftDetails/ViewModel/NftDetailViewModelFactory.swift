@@ -8,7 +8,7 @@ protocol NftDetailViewModelFactoryProtocol {
 final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
     func buildViewModel(with nft: NFT, address: String) -> NftDetailViewModel {
         var imageViewModel: ImageViewModelProtocol?
-        if let image = nft.metadata?.image, let url = URL(string: image) {
+        if let url = nft.metadata?.imageURL {
             imageViewModel = RemoteImageViewModel(url: url)
         }
 

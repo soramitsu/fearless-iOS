@@ -4,7 +4,7 @@ import SSFUtils
 
 final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
     private var itemViewModelFactory =
-        ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared, iconGenerator: PolkadotIconGenerator())
+        ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared, iconGenerator: UniversalIconGenerator())
 
     func createContactViewModelListFromItems(
         _ items: [SearchData],

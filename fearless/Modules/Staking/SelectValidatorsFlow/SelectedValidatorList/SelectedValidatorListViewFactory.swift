@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFModels
+import SSFUtils
 
 // swiftlint:disable function_body_length
 struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtocol {
@@ -10,7 +11,7 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) -> SelectedValidatorListDependencyContainer? {
-        let iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
+        let iconGenerator = UniversalIconGenerator()
         let balanceViewModelFactory: BalanceViewModelFactoryProtocol = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
             selectedMetaAccount: wallet

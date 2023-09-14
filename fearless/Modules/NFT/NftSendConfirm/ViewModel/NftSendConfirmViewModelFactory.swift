@@ -8,7 +8,7 @@ final class NftSendConfirmViewModelFactory: NftSendConfirmViewModelFactoryProtoc
     func buildViewModel(nft: NFT) -> NftSendConfirmViewModel {
         var imageViewModel: ImageViewModelProtocol?
 
-        if let image = nft.metadata?.image, let url = URL(string: image) {
+        if let url = nft.metadata?.imageURL {
             imageViewModel = RemoteImageViewModel(url: url)
         }
 

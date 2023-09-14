@@ -83,7 +83,10 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
             throw EthereumNftTransferServiceError.incorrectTokenId(tokenId: transfer.nft.tokenId)
         }
 
-        let chainIdValue = EthereumQuantity(transfer.nft.chain.chainId.hexToBytes())
+        guard let chainId = BigUInt(string: transfer.nft.chain.chainId) else {
+            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
+        }
+        let chainIdValue = EthereumQuantity(quantity: chainId)
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let contractAddress = try EthereumAddress(rawAddress: transfer.nft.smartContract.hexToBytes())
@@ -142,9 +145,9 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         }
     }
 
-    override func queryGasLimit(from: EthereumAddress?, amount: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
+    override func queryGasLimit(from _: EthereumAddress?, amount _: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
-            transfer.estimateGas(from: from, value: amount) { quantity, error in
+            transfer.estimateGas { quantity, error in
                 if let gas = quantity {
                     return continuation.resume(with: .success(gas))
                 } else if let error = error {

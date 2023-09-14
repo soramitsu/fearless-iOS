@@ -14,12 +14,24 @@ final class NftSendConfirmAssembly {
     ) -> NftSendConfirmModuleCreationResult? {
         do {
             let localizationManager = LocalizationManager.shared
-            let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
+            let accountViewModelFactory = AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
             let transferService = try createTransferService(for: nft.chain, wallet: wallet)
 
-            let interactor = NftSendConfirmInteractor(transferService: transferService)
-            let router = NftSendConfirmRouter()
+            let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
+                operationManager: OperationManagerFacade.sharedManager,
+                chainRegistry: ChainRegistryFacade.sharedRegistry,
+                logger: Logger.shared
+            )
+            let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, selectedMetaAccount: wallet)
 
+            let interactor = NftSendConfirmInteractor(
+                transferService: transferService,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                wallet: wallet,
+                chain: nft.chain
+            )
+            let router = NftSendConfirmRouter()
+            let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
             let presenter = NftSendConfirmPresenter(
                 interactor: interactor,
                 router: router,
@@ -30,13 +42,15 @@ final class NftSendConfirmAssembly {
                 accountViewModelFactory: accountViewModelFactory,
                 nft: nft,
                 logger: Logger.shared,
-                nftViewModelFactory: NftSendConfirmViewModelFactory()
+                nftViewModelFactory: NftSendConfirmViewModelFactory(),
+                dataValidatingFactory: dataValidatingFactory
             )
 
             let view = NftSendConfirmViewController(
                 output: presenter,
                 localizationManager: localizationManager
             )
+            dataValidatingFactory.view = view
 
             return (view, presenter)
         } catch {

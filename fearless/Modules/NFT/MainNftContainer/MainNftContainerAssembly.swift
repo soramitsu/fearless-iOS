@@ -33,7 +33,8 @@ final class MainNftContainerAssembly {
             router: router,
             localizationManager: localizationManager,
             viewModelFactory: NftListViewModelFactory(),
-            wallet: wallet
+            wallet: wallet,
+            eventCenter: EventCenter.shared
         )
 
         let view = MainNftContainerViewController(

@@ -100,7 +100,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         feeView.valueLabel.text = viewModel.fee
 
         if let from = viewModel.from {
-            if let icon = try? PolkadotIconGenerator().generateFromAddress(from) {
+            if let icon = try? UniversalIconGenerator().generateFromAddress(from) {
                 senderView.iconImage = icon.imageWithFillColor(
                     UIColor.black,
                     size: UIConstants.smallAddressIconSize,
@@ -110,7 +110,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         }
 
         if let to = viewModel.to {
-            if let icon = try? PolkadotIconGenerator().generateFromAddress(to) {
+            if let icon = try? UniversalIconGenerator().generateFromAddress(to) {
                 receiverView.iconImage = icon.imageWithFillColor(
                     UIColor.black,
                     size: UIConstants.smallAddressIconSize,
@@ -138,7 +138,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         receiverView.subtitleLabel?.text = viewModel.validator
 
         if let validator = viewModel.validator {
-            if let icon = try? PolkadotIconGenerator().generateFromAddress(validator) {
+            if let icon = try? UniversalIconGenerator().generateFromAddress(validator) {
                 receiverView.iconImage = icon.imageWithFillColor(
                     UIColor.black,
                     size: UIConstants.smallAddressIconSize,
@@ -165,7 +165,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         receiverView.subtitleLabel?.text = viewModel.validator
 
         if let validator = viewModel.validator {
-            if let icon = try? PolkadotIconGenerator().generateFromAddress(validator) {
+            if let icon = try? UniversalIconGenerator().generateFromAddress(validator) {
                 receiverView.iconImage = icon.imageWithFillColor(
                     UIColor.black,
                     size: UIConstants.smallAddressIconSize,
@@ -189,7 +189,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         senderView.subtitleLabel?.text = viewModel.sender
 
         if let sender = viewModel.sender {
-            if let icon = try? PolkadotIconGenerator().generateFromAddress(sender) {
+            if let icon = try? UniversalIconGenerator().generateFromAddress(sender) {
                 senderView.iconImage = icon.imageWithFillColor(
                     UIColor.black,
                     size: UIConstants.smallAddressIconSize,

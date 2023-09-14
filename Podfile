@@ -32,7 +32,7 @@ abstract_target 'fearlessAll' do
       else
           pod 'SSFXCM'
           pod 'SSFExtrinsicKit'
-          pod 'SSFCrypto', '0.1.11'
+          pod 'SSFCrypto', '0.1.17'
           pod 'SSFSigner'
           pod 'SSFModels'
           pod 'SSFEraKit'
@@ -41,7 +41,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection', '0.1.4'
           pod 'SSFNetwork'
-          pod 'SSFUtils', '0.1.14'
+          pod 'SSFUtils', '0.1.17'
           pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.7'
           pod 'SSFCloudStorage'

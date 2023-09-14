@@ -195,7 +195,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             let viewModelFactory = StakingRedeemConfirmationRelaychainViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             return StakingRedeemConfirmationDependencyContainer(
@@ -232,7 +232,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             let viewModelFactory = StakingRedeemConfirmationParachainViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             return StakingRedeemConfirmationDependencyContainer(
@@ -250,7 +250,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             let viewModelFactory = StakingRedeemConfirmationPoolViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
             let strategy = StakingRedeemConfirmationPoolStrategy(
                 output: viewModelState,
