@@ -39,10 +39,6 @@
 "no.email.bound.error.message" = "メールのアプリがデバイスにインストールされていることを確認してください";
 "connection.management.title" = "ネットワーク";
 "onboarding.create.account" = "アカウントを作成する";
-"NSCameraUsageDescription" = "QRコードを撮るためにカメラを使用する";
-"NSFaceIDUsageDescription" = "フィアレスは顔認証を使用して、権限のないユーザーがアプリにアクセスすることを制限します。顔認証は、アプリ内での認証に使用されます";
-"NSPhotoLibraryUsageDescription" = "ライブラリーから写真をアップロードする";
-"NSPhotoLibraryAddUsageDescription" = "QRコードで取引申請を保存する";
 "username.setup.choose.title" = "名前";
 "username.setup.hint" = "この名前はあなたにのみ表示され、あなたのデバイスの中に保存されます。";
 "username.setup.title" = "アカウントを作成する";
@@ -668,7 +664,6 @@
 "common.currency" = "通貨";
 "label.testnet" = "試験ネットワーク";
 "identity.twitter.title" = "Twitter";
-"moonbeam.registration.description.system.remark" = "system.remark";
 "default.account.shared.secret" = "共有シークレットを持つデフォルトのアカウント";
 "account.unique.secret" = "一意のシークレットを持つアカウント";
 "account.import.recovery.select.file" = "ファイルを選択";
@@ -1065,7 +1060,9 @@
 "google.backup.choice.title" = "インポートするソースを選択";
 "import.wallets.not.found" = "インポートするウォレットが見つかりませんでした";
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
-"wallet.send.eth.dead.recipient.message" = "Insufficient Ethereum balance in the recipient's account prevents the completion of ERC20 token transfer. Please ensure the receiver has enough Ethereum to proceed with the transfer.";
-"nft.owner.title" = "Owned";
-"nft.collection.title" = "Collection";
-"onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";
+"wallet.send.eth.dead.recipient.message" = "";
+"nft.owner.title" = "";
+"nft.collection.title" = "コレクション";
+"onboarding.preinstalled.wallet.button.text" = "";
+"nft.tokenid.title" = "トークンID";
+"import.json.invalid.import.type.message" = "";
