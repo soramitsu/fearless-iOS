@@ -198,7 +198,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             )
             let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(
                 accountViewModelFactory:
-                AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+                AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
             )
             return StakingUnbondSetupDependencyContainer(
                 viewModelState: viewModelState,
@@ -214,7 +214,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 callFactory: callFactory
             )
             let viewModelFactory = StakingUnbondSetupPoolViewModelFactory(
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
             )
             let requestFactory = StorageRequestFactory(
                 remoteFactory: StorageKeyFactory(),

@@ -70,7 +70,7 @@ final class SendAssembly {
         )
         let router = SendRouter()
 
-        let viewModelFactory = SendViewModelFactory(iconGenerator: PolkadotIconGenerator())
+        let viewModelFactory = SendViewModelFactory(iconGenerator: UniversalIconGenerator())
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = SendPresenter(
             interactor: interactor,

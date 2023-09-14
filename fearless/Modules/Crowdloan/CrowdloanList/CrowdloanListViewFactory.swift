@@ -24,7 +24,7 @@ struct CrowdloanListViewFactory {
 
         var iconGenerator: IconGenerating?
         if let chain = sharedState.settings.value {
-            iconGenerator = UniversalIconGenerator(chain: chain)
+            iconGenerator = UniversalIconGenerator()
         }
 
         let viewModelFactory = CrowdloansViewModelFactory(

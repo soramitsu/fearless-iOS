@@ -175,7 +175,7 @@ enum ModalPickerFactory {
             viewController.selectedIndex = NSNotFound
         }
 
-        let iconGenerator = PolkadotIconGenerator()
+        let iconGenerator = UniversalIconGenerator()
 
         viewController.viewModels = accounts.compactMap { account in
             let viewModel: AccountPickerViewModel
