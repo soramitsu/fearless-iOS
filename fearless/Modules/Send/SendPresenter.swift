@@ -637,7 +637,6 @@ private extension SendPresenter {
             handle(newAddress: recipientAddress)
         } else {
             interactor.updateSubscriptions(for: selectedChainAsset)
-            refreshFee(for: selectedChainAsset, address: recipientAddress)
         }
     }
 
