@@ -83,7 +83,7 @@ final class CrossChainAssembly {
         )
         let router = CrossChainRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
-        let iconGenerator = PolkadotIconGenerator()
+        let iconGenerator = UniversalIconGenerator()
         let viewModelFactory = CrossChainViewModelFactory(iconGenerator: iconGenerator)
         let presenter = CrossChainPresenter(
             originChainAsset: chainAsset,

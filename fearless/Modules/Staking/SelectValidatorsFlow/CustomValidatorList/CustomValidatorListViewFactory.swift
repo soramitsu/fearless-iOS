@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import SSFModels
+import SSFUtils
 
 enum CustomValidatorListViewFactory {
     static func createView(
@@ -60,7 +61,7 @@ extension CustomValidatorListViewFactory {
             targetAssetInfo: chainAsset.asset.displayInfo,
             selectedMetaAccount: wallet
         )
-        let iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
+        let iconGenerator = UniversalIconGenerator()
 
         switch flow {
         case let .parachain(candidates, maxTargets, bonding, selectedValidatorList):
