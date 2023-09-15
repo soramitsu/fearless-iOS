@@ -23,7 +23,14 @@ final class NftDetailsViewLayout: UIView {
         return view
     }()
 
-    let imageView = UIImageView()
+    let mediaView: UniversalMediaView = {
+        let mediaView = UniversalMediaView(frame: .zero)
+        mediaView.allowLooping = true
+        mediaView.shouldHidePlayButton = true
+        mediaView.shouldAutoPlayAfterPresentation = true
+        mediaView.backgroundColor = .clear
+        return mediaView
+    }()
 
     let sendButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -98,7 +105,7 @@ final class NftDetailsViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(contentView)
 
-        contentView.stackView.addArrangedSubview(imageView)
+        contentView.stackView.addArrangedSubview(mediaView)
         contentView.stackView.addArrangedSubview(sendButton)
         contentView.stackView.addArrangedSubview(desciptionLabel)
         contentView.stackView.addArrangedSubview(collectionView)
@@ -120,7 +127,7 @@ final class NftDetailsViewLayout: UIView {
             make.leading.bottom.trailing.equalTo(safeAreaLayoutGuide)
         }
 
-        imageView.snp.makeConstraints { make in
+        mediaView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(359)
         }
@@ -169,11 +176,6 @@ final class NftDetailsViewLayout: UIView {
         networkView.valueLabel.text = viewModel.chain
         desciptionLabel.text = viewModel.nftDescription
 
-        viewModel.imageViewModel?.loadImage(
-            on: imageView,
-            targetSize: CGSize(width: UIScreen.main.bounds.size.width, height: 359),
-            animated: true,
-            cornerRadius: 0
-        )
+        mediaView.bind(mediaURL: viewModel.nft.media?.first?.normalizedURL, animating: true)
     }
 }

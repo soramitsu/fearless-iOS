@@ -19,12 +19,30 @@
       }
     },
     {
+      "identity" : "nimble",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Quick/Nimble",
+      "state" : {
+        "revision" : "e9d769113660769a4d9dd3afb855562c0b7ae7b0",
+        "version" : "7.3.4"
+      }
+    },
+    {
       "identity" : "promisekit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mxcl/PromiseKit.git",
       "state" : {
         "revision" : "8a98e31a47854d3180882c8068cc4d9381bf382d",
         "version" : "6.22.1"
+      }
+    },
+    {
+      "identity" : "quick",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Quick/Quick",
+      "state" : {
+        "revision" : "f2b5a06440ea87eba1a167cab37bf6496646c52e",
+        "version" : "1.3.4"
       }
     },
     {
@@ -88,6 +106,15 @@
       "state" : {
         "revision" : "e7403c35ca6bb539a7ca353b91cc2d8ec0362d58",
         "version" : "1.19.0"
+      }
+    },
+    {
+      "identity" : "swime",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sendyhalim/Swime",
+      "state" : {
+        "revision" : "4e538834483059ceefaaad8cdb3abe0d7d1c5146",
+        "version" : "3.1.0"
       }
     },
     {

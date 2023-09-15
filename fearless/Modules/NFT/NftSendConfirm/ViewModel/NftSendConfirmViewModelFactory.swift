@@ -14,7 +14,7 @@ final class NftSendConfirmViewModelFactory: NftSendConfirmViewModelFactoryProtoc
 
         return NftSendConfirmViewModel(
             nftImage: imageViewModel,
-            collectionName: nft.tokenName,
+            collectionName: nft.collectionName,
             showWarning: false
         )
     }

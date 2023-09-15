@@ -1,8 +1,10 @@
 import UIKit
 import SoraUI
 import WebKit
+import Kingfisher
 
 class NftListCell: UITableViewCell {
+    private var model: NftListCellModel?
     private enum LayoutConstants {
         static let imageSize: CGFloat = 64.0
     }
@@ -64,15 +66,29 @@ class NftListCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        model?.imageViewModel?.cancel(on: nftImageView)
+        nftImageView.image = nil
+    }
+
     func bind(viewModel: NftListCellModel?) {
+        model = viewModel
+
         if let viewModel = viewModel {
             stopLoadingIfNeeded()
-            nftImageView.image = nil
-
             viewModel.imageViewModel?.loadImage(
                 on: nftImageView,
                 targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize),
-                animated: true
+                animated: true,
+                cornerRadius: 8, completionHandler: { result in
+                    switch result {
+                    case let .success(imageResult):
+                        print(imageResult)
+                    case let .failure(error):
+                        print(error)
+                    }
+                }
             )
 
             chainLabel.text = viewModel.chainNameLabelText

@@ -72,6 +72,7 @@ PODS:
     - IrohaCrypto/Common
   - keccak.c (0.1.3)
   - Kingfisher (7.6.2)
+  - MediaView (0.2.0)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
@@ -248,6 +249,7 @@ DEPENDENCIES:
   - IrohaCrypto
   - keccak.c
   - Kingfisher
+  - MediaView (from `../MediaView`)
   - R.swift (= 6.1.0)
   - ReachabilitySwift
   - RobinHood (~> 2.6.8)
@@ -331,6 +333,8 @@ SPEC REPOS:
     - SwiftyBeaver
 
 EXTERNAL SOURCES:
+  MediaView:
+    :path: "../MediaView"
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
@@ -364,6 +368,7 @@ SPEC CHECKSUMS:
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
   Kingfisher: 6c5449c6450c5239166510ba04afe374a98afc4f
+  MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -400,6 +405,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 1cf156a306e634ad900a06c35028ac55bd91a666
+PODFILE CHECKSUM: dfda1e700de9139b42f4c9c4b670ffa7e20b900c
 
 COCOAPODS: 1.11.3

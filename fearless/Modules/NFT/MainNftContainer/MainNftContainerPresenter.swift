@@ -63,10 +63,6 @@ extension MainNftContainerPresenter: MainNftContainerInteractorOutput {
         let viewModels = viewModelFactory.buildViewModel(from: collections)
         view?.didReceive(viewModels: viewModels)
     }
-
-    func didReceive(history: [NFTHistoryObject]) {
-        view?.didReceive(history: history)
-    }
 }
 
 // MARK: - Localizable

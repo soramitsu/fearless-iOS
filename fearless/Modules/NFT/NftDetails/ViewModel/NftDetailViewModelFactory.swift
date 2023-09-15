@@ -13,13 +13,14 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
         }
 
         return NftDetailViewModel(
-            nftName: nft.metadata?.name,
-            nftDescription: nft.metadata?.description,
-            collectionName: nft.tokenName,
+            nftName: nft.title,
+            nftDescription: nft.description,
+            collectionName: nft.collectionName,
             owner: address,
             tokenId: nft.tokenId,
             chain: nft.chain.name,
-            imageViewModel: imageViewModel
+            imageViewModel: imageViewModel,
+            nft: nft
         )
     }
 }

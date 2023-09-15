@@ -82,8 +82,8 @@ extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSo
         return 10
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithType(NftListCell.self)
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCellWithType(NftListCell.self, forIndexPath: indexPath)
         return cell ?? UITableViewCell()
     }
 

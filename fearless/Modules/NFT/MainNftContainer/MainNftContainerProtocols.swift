@@ -16,7 +16,6 @@ protocol MainNftContainerInteractorInput: AnyObject {
 }
 
 protocol MainNftContainerInteractorOutput: AnyObject {
-    func didReceive(history: [NFTHistoryObject])
     func didReceive(collections: [NFTCollection])
 }
 

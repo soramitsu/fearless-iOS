@@ -11,13 +11,10 @@ final class MainNftContainerAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let nftFetchingService = EthereumNftFetchingService(
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            nftOperationFactory: NFTOperationFactory(),
+        let nftFetchingService = AlchemyNftFetchingService(
+            operationFactory: AlchemyNFTOperationFactory(),
             chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationQueue(),
-            networkOperationFactory: NetworkOperationFactory(),
-            logger: Logger.shared
+            operationQueue: OperationQueue()
         )
 
         let interactor = MainNftContainerInteractor(
