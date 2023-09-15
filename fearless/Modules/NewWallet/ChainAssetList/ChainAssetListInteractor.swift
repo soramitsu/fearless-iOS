@@ -54,17 +54,18 @@ final class ChainAssetListInteractor {
 
     // MARK: - Private methods
 
-    private func save(_ updatedAccount: MetaAccountModel) {
+    private func save(_ updatedAccount: MetaAccountModel, shouldNotify: Bool) {
         let saveOperation = accountRepository.saveOperation {
             [updatedAccount]
         } _: {
             []
         }
 
-        saveOperation.completionBlock = { [weak self] in
+        saveOperation.completionBlock = { [weak self, shouldNotify] in
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
+                    guard shouldNotify else { return }
                     self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                 case .failure:
                     break
@@ -146,7 +147,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         assetsVisibility.append(assetVisibility)
 
         let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
-        save(updatedWallet)
+        save(updatedWallet, shouldNotify: true)
     }
 
     func showChainAsset(_ chainAsset: ChainAsset) {
@@ -161,7 +162,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         assetsVisibility.append(assetVisibility)
 
         let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
-        save(updatedWallet)
+        save(updatedWallet, shouldNotify: true)
     }
 
     func markUnused(chain: ChainModel) {
@@ -169,7 +170,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         unusedChainIds.append(chain.chainId)
         let updatedAccount = wallet.replacingUnusedChainIds(unusedChainIds)
 
-        save(updatedAccount)
+        save(updatedAccount, shouldNotify: true)
     }
 
     func saveHiddenSection(state: HiddenSectionState) {
@@ -184,7 +185,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
-        save(updatedAccount)
+        save(updatedAccount, shouldNotify: false)
     }
 }
 
