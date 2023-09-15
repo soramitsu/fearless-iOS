@@ -11,7 +11,12 @@ final class CrossChainConfirmationViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(
+            top: 24.0,
+            left: 0.0,
+            bottom: UIConstants.actionHeight + UIConstants.bigOffset * 2,
+            right: 0.0
+        )
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
@@ -152,13 +157,13 @@ final class CrossChainConfirmationViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.equalTo(confirmButton.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
 
         confirmButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
 
