@@ -244,19 +244,7 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func subscribeToPoolUpdates() {
-        guard let swapFromAssetId = swapFromChainAsset?.asset.currencyId,
-              let swapToAssetId = swapToChainAsset?.asset.currencyId,
-              let polkaswapRemoteSettings = polkaswapRemoteSettings
-        else {
-            return
-        }
-
-        interactor.subscribeOnPool(
-            for: swapFromAssetId,
-            toAssetId: swapToAssetId,
-            liquiditySourceType: selectedLiquiditySourceType,
-            availablePolkaswapDex: polkaswapRemoteSettings.availableDexIds
-        )
+        interactor.subscribeOnBlocks()
     }
 
     private func provideAmount(

@@ -2,9 +2,10 @@ import SSFUtils
 import SSFModels
 
 struct BalanceInfoDependencies {
-    let connection: JSONRPCEngine
-    let runtimeService: RuntimeCodingServiceProtocol
+    let connection: JSONRPCEngine?
+    let runtimeService: RuntimeCodingServiceProtocol?
     let existentialDepositService: ExistentialDepositServiceProtocol
+    let accountInfoFetching: AccountInfoFetchingProtocol
 }
 
 final class BalanceInfoDepencyContainer {
@@ -12,12 +13,8 @@ final class BalanceInfoDepencyContainer {
         chainAsset: ChainAsset
     ) -> BalanceInfoDependencies? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
-        else {
-            return nil
-        }
+        let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId)
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
         let operationManager = OperationManagerFacade.sharedManager
         let existentialDepositService = ExistentialDepositService(
             operationManager: operationManager,
@@ -27,7 +24,33 @@ final class BalanceInfoDepencyContainer {
         return BalanceInfoDependencies(
             connection: connection,
             runtimeService: runtimeService,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            accountInfoFetching: createAccountInfoFetching(for: chainAsset)
         )
+    }
+
+    private func createAccountInfoFetching(for chainAsset: ChainAsset) -> AccountInfoFetchingProtocol {
+        if chainAsset.chain.isEthereum {
+            let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+            return EthereumAccountInfoFetching(
+                operationQueue: OperationManagerFacade.sharedDefaultQueue,
+                chainRegistry: chainRegistry
+            )
+        } else {
+            let substrateRepositoryFactory = SubstrateRepositoryFactory(
+                storageFacade: UserDataStorageFacade.shared
+            )
+
+            let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+            let substrateAccountInfoFetching = AccountInfoFetching(
+                accountInfoRepository: accountInfoRepository,
+                chainRegistry: ChainRegistryFacade.sharedRegistry,
+                operationQueue: OperationManagerFacade.sharedDefaultQueue
+            )
+
+            return substrateAccountInfoFetching
+        }
     }
 }

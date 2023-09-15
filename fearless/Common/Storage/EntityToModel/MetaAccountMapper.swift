@@ -114,8 +114,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {
                 if let entity = $0 as? CDChainAccount,
-                   entity.chainId == chainAccount.chainId,
-                   entity.accountId == chainAccount.accountId.toHex() {
+                   entity.chainId == chainAccount.chainId {
                     return true
                 } else {
                     return false

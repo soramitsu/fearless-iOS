@@ -91,7 +91,7 @@ extension RelaychainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoc
                     let validatorAddress = reward.validator,
                     let timestamp = Int64(wrappedReward.timestamp),
                     let era = reward.era, era >= 0,
-                    let amount = BigUInt(reward.amount) else {
+                    let amount = BigUInt(string: reward.amount) else {
                     return nil
                 }
 

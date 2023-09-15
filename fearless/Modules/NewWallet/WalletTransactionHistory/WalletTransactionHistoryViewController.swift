@@ -103,12 +103,15 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
         case let .loaded(viewModel):
             handle(changes: viewModel.lastChanges)
             rootView.tableView.isHidden = viewModel.sections.isEmpty
+            rootView.filterButton.isHidden = !viewModel.filtersEnabled
         case let .reloaded(viewModel):
             state = .loaded(viewModel: viewModel)
             reloadContent()
             rootView.tableView.isHidden = viewModel.sections.isEmpty
+            rootView.filterButton.isHidden = !viewModel.filtersEnabled
         case .unsupported:
             rootView.tableView.isHidden = false
+            rootView.filterButton.isHidden = false
             reloadContent()
         }
 

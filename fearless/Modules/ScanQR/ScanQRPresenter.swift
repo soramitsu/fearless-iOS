@@ -5,15 +5,15 @@ import RobinHood
 import AVFoundation
 import SSFUtils
 
-final class ScanQRPresenter: NSObject {
-    enum ScanState {
-        case initializing(accessRequested: Bool)
-        case inactive
-        case active
-        case processing(receiverInfo: ReceiveInfo, operation: CancellableCall)
-        case failed(code: String)
-    }
+enum ScanState {
+    case initializing(accessRequested: Bool)
+    case inactive
+    case active
+    case processing(receiverInfo: ReceiveInfo, operation: CancellableCall)
+    case failed(code: String)
+}
 
+final class ScanQRPresenter: NSObject {
     let localizationManager: LocalizationManagerProtocol?
 
     // MARK: Private properties

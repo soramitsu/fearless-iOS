@@ -91,7 +91,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 chainAssets: assetChainAssets.chainAssets,
                 chainAsset: assetChainAssets.mainChainAsset,
                 priceData: priceData,
-                priceDataUpdated: prices.updated,
+                priceDataUpdated: true,
                 accountInfos: accountInfos,
                 locale: locale,
                 currency: wallet.selectedCurrency,
@@ -543,11 +543,13 @@ private extension ChainAssetListViewModelFactory {
         (
             ca1.chain.isTestnet.intValue,
             ca1.isParentChain().invert().intValue,
-            ca1.defineEcosystem().isKusama.intValue
+            ca1.defineEcosystem().isKusama.intValue,
+            ca1.chain.chainId
         ) < (
             ca2.chain.isTestnet.intValue,
             ca2.isParentChain().invert().intValue,
-            ca2.defineEcosystem().isKusama.intValue
+            ca2.defineEcosystem().isKusama.intValue,
+            ca2.chain.chainId
         )
     }
 

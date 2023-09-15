@@ -53,6 +53,16 @@ extension UIAlertController {
             alertController.addAction(viewSubscan)
         }
 
+        if let url = chain.etherscanAddressURL(address) {
+            let subscanTitle = R.string.localizable
+                .transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
+            let viewSubscan = UIAlertAction(title: subscanTitle, style: .default) { _ in
+                urlClosure(url)
+            }
+
+            alertController.addAction(viewSubscan)
+        }
+
         if let exportClosure = exportClosure {
             let exportTitle = R.string.localizable.commonExport(preferredLanguages: locale.rLanguages)
             let showExportFlow = UIAlertAction(title: exportTitle, style: .default) { _ in

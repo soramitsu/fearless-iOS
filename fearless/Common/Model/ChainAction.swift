@@ -5,6 +5,7 @@ enum ChainAction {
     case copyAddress
     case polkascan(url: URL)
     case subscan(url: URL)
+    case etherscan(url: URL)
     case switchNode
     case export
     case replace
@@ -17,7 +18,7 @@ enum ChainAction {
             return R.image.iconRetry()
         case .copyAddress:
             return R.image.iconCopy()
-        case .polkascan, .subscan:
+        case .polkascan, .subscan, .etherscan:
             return R.image.iconOpenWeb()
         case .replace:
             return R.image.iconReplace()
@@ -40,6 +41,8 @@ enum ChainAction {
                 .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
         case .replace:
             return R.string.localizable.replaceAccount(preferredLanguages: locale.rLanguages)
+        case .etherscan:
+            return R.string.localizable.transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
         }
     }
 }

@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-final class TitleValueView: UIView {
+class TitleValueView: UIView {
     private enum Constants {
         static let valueImageViewSize = CGSize(width: 6, height: 12)
     }
@@ -22,6 +22,7 @@ final class TitleValueView: UIView {
     }()
 
     let valueImageView = UIImageView()
+    let valueStackView = UIFactory.default.createHorizontalStackView(spacing: 5)
 
     let borderView: BorderedContainerView = {
         let view = BorderedContainerView()
@@ -80,7 +81,6 @@ final class TitleValueView: UIView {
             make.leading.top.bottom.equalToSuperview()
         }
 
-        let valueStackView = UIFactory.default.createHorizontalStackView(spacing: 5)
         valueStackView.addArrangedSubview(valueLabel)
         valueStackView.addArrangedSubview(valueImageView)
         addSubview(valueStackView)

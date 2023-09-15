@@ -1,8 +1,11 @@
 import UIKit
 import RobinHood
-import BigInt
+import Web3
 import IrohaCrypto
 import SSFModels
+import SSFCrypto
+import SoraKeystore
+import Web3PromiseKit
 
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     weak var presenter: WalletSendConfirmInteractorOutputProtocol?
@@ -15,8 +18,8 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let receiverAddress: String
     private let signingWrapper: SigningWrapperProtocol
     private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
-
     let dependencyContainer: SendDepencyContainer
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -32,7 +35,8 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signingWrapper: SigningWrapperProtocol,
-        dependencyContainer: SendDepencyContainer
+        dependencyContainer: SendDepencyContainer,
+        wallet: MetaAccountModel
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainAsset = chainAsset
@@ -43,17 +47,18 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.operationManager = operationManager
         self.signingWrapper = signingWrapper
         self.dependencyContainer = dependencyContainer
+        self.wallet = wallet
     }
 
     private func provideConstants() {
-        guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
-            return
-        }
+        Task {
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
 
-        dependencies.existentialDepositService.fetchExistentialDeposit(
-            chainAsset: chainAsset
-        ) { [weak self] result in
-            self?.presenter?.didReceiveMinimumBalance(result: result)
+            dependencies.existentialDepositService.fetchExistentialDeposit(
+                chainAsset: chainAsset
+            ) { [weak self] result in
+                self?.presenter?.didReceiveMinimumBalance(result: result)
+            }
         }
     }
 
@@ -94,55 +99,42 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 
 extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol {
     func estimateFee(for amount: BigUInt, tip: BigUInt?) {
-        guard let accountId = try? AddressFactory.accountId(
-            from: receiverAddress,
-            chain: chainAsset.chain
-        ),
-            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
+        Task {
+            do {
+                let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
+                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
+                let fee = try await transferService.estimateFee(for: transfer)
+                let runtimeDispatchInfo = RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))
 
-        let call = dependencies.callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
-        var identifier = String(amount)
-        if let tip = tip {
-            identifier += "_\(String(tip))"
-        }
-        feeProxy.estimateFee(using: dependencies.extrinsicService, reuseIdentifier: identifier) { builder in
-            var nextBuilder = try builder.adding(call: call)
-            if let tip = tip {
-                nextBuilder = builder.with(tip: tip)
+                await MainActor.run {
+                    presenter?.didReceiveFee(result: .success(runtimeDispatchInfo))
+                }
+
+                transferService.subscribeForFee(transfer: transfer, listener: self)
+            } catch {
+                await MainActor.run {
+                    presenter?.didReceiveFee(result: .failure(error))
+                }
             }
-            return nextBuilder
         }
     }
 
-    func submitExtrinsic(for transferAmount: BigUInt, tip: BigUInt?, receiverAddress: String) {
-        guard let accountId = try? AddressFactory.accountId(
-            from: receiverAddress,
-            chain: chainAsset.chain
-        ),
-            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
+    func submitExtrinsic(for amount: BigUInt, tip: BigUInt?, receiverAddress: String) {
+        Task {
+            do {
+                let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
+                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
+                let txHash = try await transferService.submit(transfer: transfer)
 
-        let call = dependencies.callFactory.transfer(
-            to: accountId,
-            amount: transferAmount,
-            chainAsset: chainAsset
-        )
-
-        let builderClosure: ExtrinsicBuilderClosure = { builder in
-            var nextBuilder = try builder.adding(call: call)
-            if let tip = tip {
-                nextBuilder = builder.with(tip: tip)
+                await MainActor.run {
+                    presenter?.didTransfer(result: .success(txHash))
+                }
+            } catch {
+                await MainActor.run {
+                    presenter?.didTransfer(result: .failure(error))
+                }
             }
-            return nextBuilder
         }
-
-        dependencies.extrinsicService.submit(
-            builderClosure,
-            signer: signingWrapper,
-            runningIn: .main,
-            completion: { [weak self] result in
-                self?.presenter?.didTransfer(result: result)
-            }
-        )
     }
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
@@ -155,21 +147,23 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
 
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal) {
         if chainAsset.chain.isEquilibrium {
-            let service = dependencyContainer
-                .prepareDepencies(chainAsset: chainAsset)?
-                .equilibruimTotalBalanceService
-            equilibriumTotalBalanceService = service
+            Task {
+                let service = try await dependencyContainer
+                    .prepareDepencies(chainAsset: chainAsset)
+                    .equilibruimTotalBalanceService
+                equilibriumTotalBalanceService = service
 
-            let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
-                .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
-            presenter?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+                let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
+                    .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
+                presenter?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+            }
         }
     }
 }
 
 extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
+        result: Swift.Result<AccountInfo?, Error>,
         accountId _: AccountId,
         chainAsset: ChainAsset
     ) {
@@ -178,13 +172,27 @@ extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension WalletSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+    func handlePrice(result: Swift.Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
         presenter?.didReceivePriceData(result: result, for: priceId)
     }
 }
 
 extension WalletSendConfirmInteractor: ExtrinsicFeeProxyDelegate {
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
+    func didReceiveFee(result: Swift.Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         presenter?.didReceiveFee(result: result)
+    }
+}
+
+extension WalletSendConfirmInteractor: TransferFeeEstimationListener {
+    func didReceiveFee(fee: BigUInt) {
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+        }
+    }
+
+    func didReceiveFeeError(feeError: Error) {
+        DispatchQueue.main.async { [weak self] in
+            self?.presenter?.didReceiveFee(result: .failure(feeError))
+        }
     }
 }

@@ -107,11 +107,22 @@ extension BaseDataValidatingFactoryProtocol {
                 return
             }
 
+            let existentianDeposit = Decimal.fromSubstrateAmount(
+                minimumBalance ?? .zero,
+                precision: Int16(chainAsset.asset.precision)
+            ) ?? .zero
+            let existentianDepositValue = "\(existentianDeposit) \(chainAsset.asset.symbolUppercased)"
+
             if !canProceedIfViolated {
-                self?.basePresentable.presentExistentialDepositError(from: view, locale: locale)
+                self?.basePresentable.presentExistentialDepositError(
+                    existentianDepositValue: existentianDepositValue,
+                    from: view,
+                    locale: locale
+                )
             }
 
             self?.basePresentable.presentExistentialDepositWarning(
+                existentianDepositValue: existentianDepositValue,
                 from: view,
                 action: {
                     delegate.didCompleteWarningHandling()

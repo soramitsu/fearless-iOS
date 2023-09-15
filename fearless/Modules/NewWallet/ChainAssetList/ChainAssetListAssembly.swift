@@ -12,15 +12,18 @@ final class ChainAssetListAssembly {
             storageFacade: UserDataStorageFacade.shared
         )
 
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let accountInfoFetching = AccountInfoFetching(
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let substrateAccountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationQueue()
+        )
+        let ethereumAccountInfoFetching = EthereumAccountInfoFetching(
+            operationQueue: OperationQueue(),
+            chainRegistry: chainRegistry
         )
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
@@ -40,7 +43,7 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetching: accountInfoFetching,
+            accountInfoFetchingProviders: [substrateAccountInfoFetching, ethereumAccountInfoFetching],
             dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()

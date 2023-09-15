@@ -28,6 +28,14 @@ enum XOneCIKeys {
     static var x1WidgetIdDebug: String = "{{ argument.x1WidgetIdDebug }}"
 }
 
+enum EthereumNodesApiKeys {
+    static var ethereumApiKey: String = "{{ argument.ethereumApiKey }}"
+    static var bscApiKey: String = "{{ argument.bscApiKey }}"
+    static var sepoliaApiKey: String = "{{ argument.sepoliaApiKey }}"
+    static var goerliApiKey: String = "{{ argument.goerliApiKey }}"
+    static var polygonApiKey: String = "{{ argument.polygonApiKey }}"
+}
+
 enum GoogleBackup {
     static var googleToken: String = "{{ argument.webClientIdRelease }}"
     static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeRelease }}"

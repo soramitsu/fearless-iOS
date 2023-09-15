@@ -10,7 +10,7 @@ protocol ParachainHistoryOperationFactory {
 }
 
 enum ParachainHistoryOperationFactoryAssembly {
-    static func factory(blockExplorer: ChainModel.BlockExplorer?) -> ParachainHistoryOperationFactory {
+    static func factory(blockExplorer: ChainModel.BlockExplorer?) -> ParachainHistoryOperationFactory? {
         let type = blockExplorer?.type ?? .subsquid
 
         switch type {
@@ -22,6 +22,8 @@ enum ParachainHistoryOperationFactoryAssembly {
             return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
         case .sora:
             return ParachainSubsquidHistoryOperationFactory(url: blockExplorer?.url)
+        case .alchemy, .etherscan:
+            return nil
         }
     }
 }

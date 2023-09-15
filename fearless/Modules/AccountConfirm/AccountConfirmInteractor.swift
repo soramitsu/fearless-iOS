@@ -47,10 +47,16 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
 
                 switch saveOperation.result {
                 case .success:
-                    self?.settings.setup()
-                    self?.eventCenter.notify(with: SelectedAccountChanged())
-                    self?.presenter?.didCompleteConfirmation()
+                    do {
+                        let accountItem = try importOperation
+                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
+                        self?.settings.setup()
+                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
+                        self?.presenter?.didCompleteConfirmation()
+                    } catch {
+                        self?.presenter?.didReceive(error: error)
+                    }
                 case let .failure(error):
                     self?.presenter?.didReceive(error: error)
 

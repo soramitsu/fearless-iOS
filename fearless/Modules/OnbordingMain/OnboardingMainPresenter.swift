@@ -146,6 +146,10 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
 
         wireframe.present(viewModel: viewModel, from: view)
     }
+
+    func didTapGetPreinstalled() {
+        wireframe.showPreinstalledFlow(from: view)
+    }
 }
 
 extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
@@ -163,6 +167,15 @@ extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
             )
         case .failure:
             showGoogleIssueAlert()
+        }
+    }
+
+    func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?) {
+        switch result {
+        case let .success(config):
+            view?.didReceive(preinstalledWalletEnabled: config.pendulumCaseEnabled == true)
+        default:
+            break
         }
     }
 }

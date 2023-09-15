@@ -61,21 +61,34 @@ final class ChainAccountInteractor {
             return
         }
 
-        fetchBalanceLocks(
-            runtimeService: dependencies.runtimeService,
-            connection: dependencies.connection
-        )
+        if let runtimeService = dependencies.runtimeService,
+           let connection = dependencies.connection {
+            fetchBalanceLocks(
+                runtimeService: runtimeService,
+                connection: connection
+            )
+        }
 
         fetchMinimalBalance(
             using: dependencies.existentialDepositService
         )
 
-        walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
-            walletId: wallet.metaId,
-            chainAsset: chainAsset,
-            deliverOn: .main,
-            handler: self
-        )
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
+                guard let strongSelf = self else {
+                    return
+                }
+
+                strongSelf.presenter?.didReceive(accountInfo: accountInfo, for: chainAsset, accountId: accountId)
+
+                strongSelf.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
+                    walletId: strongSelf.wallet.metaId,
+                    chainAsset: chainAsset,
+                    deliverOn: .main,
+                    handler: strongSelf
+                )
+            }
+        }
     }
 
     private func fetchBalanceLocks(
@@ -197,6 +210,12 @@ extension ChainAccountInteractor: EventVisitorProtocol {
 
             fetchChainAssetBasedData()
         }
+    }
+
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        wallet = event.account
+        fetchChainAssetBasedData()
+        presenter?.didReceiveWallet(wallet: event.account)
     }
 }
 

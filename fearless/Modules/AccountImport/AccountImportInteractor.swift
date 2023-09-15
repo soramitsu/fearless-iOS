@@ -42,10 +42,16 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             DispatchQueue.main.async {
                 switch saveOperation.result {
                 case .success:
-                    self?.settings.setup()
-                    self?.eventCenter.notify(with: SelectedAccountChanged())
-                    self?.presenter?.didCompleteAccountImport()
+                    do {
+                        let accountItem = try importOperation
+                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
+                        self?.settings.setup()
+                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
+                        self?.presenter?.didCompleteAccountImport()
+                    } catch {
+                        self?.presenter?.didReceiveAccountImport(error: error)
+                    }
                 case let .failure(error):
                     self?.presenter?.didReceiveAccountImport(error: error)
 

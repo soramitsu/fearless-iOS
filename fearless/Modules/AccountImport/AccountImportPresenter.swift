@@ -535,7 +535,8 @@ private extension AccountImportPresenter {
             let request = MetaAccountImportRequest(
                 source: source,
                 username: data.username,
-                cryptoType: data.selectedCryptoType
+                cryptoType: data.selectedCryptoType,
+                defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
         case (.seed, .first):
@@ -552,7 +553,8 @@ private extension AccountImportPresenter {
                 let request = MetaAccountImportRequest(
                     source: source,
                     username: data.username,
-                    cryptoType: data.selectedCryptoType
+                    cryptoType: data.selectedCryptoType,
+                    defaultChainId: nil
                 )
                 self?.interactor.importMetaAccount(request: request)
             }
@@ -570,7 +572,8 @@ private extension AccountImportPresenter {
                 let request = MetaAccountImportRequest(
                     source: source,
                     username: data.username,
-                    cryptoType: data.selectedCryptoType
+                    cryptoType: data.selectedCryptoType,
+                    defaultChainId: nil
                 )
                 self?.interactor.importMetaAccount(request: request)
             }
@@ -585,7 +588,8 @@ private extension AccountImportPresenter {
             let request = MetaAccountImportRequest(
                 source: source,
                 username: previousStepData.username,
-                cryptoType: previousStepData.cryptoType
+                cryptoType: previousStepData.cryptoType,
+                defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
         case let (.keystore, .second(previousStepData)):
@@ -599,7 +603,8 @@ private extension AccountImportPresenter {
             let request = MetaAccountImportRequest(
                 source: source,
                 username: previousStepData.username,
-                cryptoType: previousStepData.cryptoType
+                cryptoType: previousStepData.cryptoType,
+                defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
         }

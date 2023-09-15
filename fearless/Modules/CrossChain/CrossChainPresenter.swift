@@ -238,11 +238,12 @@ final class CrossChainPresenter {
         guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
             return
         }
-        let spendingAmount = originNetworkFee?.toSubstrateAmount(precision: Int16(utilityChainAsset.asset.precision))
+        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
+        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
         let edParameters: ExistentialDepositValidationParameters = .utility(
-            spendingAmount: spendingAmount,
-            totalAmount: originNetworkUtilityTokenBalance,
-            minimumBalance: existentialDeposit
+            spendingAmount: originNetworkFee,
+            totalAmount: utilityBalance,
+            minimumBalance: minimumBalance
         )
 
         let originFeeValidating = dataValidatingFactory.has(
@@ -262,7 +263,7 @@ final class CrossChainPresenter {
 
         let sendAmount: Decimal
         let balanceType: BalanceType
-        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
+
         if selectedAmountChainAsset.chainAssetId == utilityChainAsset.chainAssetId {
             sendAmount = inputAmountDecimal + (originNetworkFee ?? .zero)
             balanceType = .utility(balance: utilityBalance)
@@ -493,7 +494,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         case let .success(response):
             guard
                 let utilityOriginChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
-                let fee = BigUInt(response.fee),
+                let fee = BigUInt(string: response.fee),
                 let feeDecimal = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityOriginChainAsset.asset.precision))
             else {
                 return

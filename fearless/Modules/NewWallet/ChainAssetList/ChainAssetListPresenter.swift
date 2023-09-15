@@ -179,7 +179,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     }
 
     func handleWalletChanged(wallet: MetaAccountModel) {
-        accountInfos = [:]
+        lock.exclusivelyWrite { [weak self] in
+            self?.accountInfos = [:]
+        }
         self.wallet = wallet
     }
 
@@ -214,6 +216,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
             lock.exclusivelyWrite { [weak self] in
                 guard let self = self else { return }
+
                 self.accountInfos[key] = accountInfo
             }
             provideViewModel()
@@ -268,7 +271,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
         lock.exclusivelyWrite { [weak self] in
             guard let self = self else { return }
-            self.accountInfos = balances
+            self.accountInfos = balances.merging(self.accountInfos, uniquingKeysWith: { old, _ in
+                old
+            })
         }
         provideViewModel()
     }
