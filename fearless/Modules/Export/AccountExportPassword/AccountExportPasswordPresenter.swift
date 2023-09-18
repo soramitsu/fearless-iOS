@@ -44,7 +44,7 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [cancelAction, proceedAction],
+            actions: [proceedAction, cancelAction],
             closeAction: nil,
             icon: R.image.iconWarningBig()
         )
