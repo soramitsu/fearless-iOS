@@ -1,7 +1,11 @@
 import UIKit
 
 final class MainNftContainerViewLayout: UIView {
-    let tableView = UITableView()
+    let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.refreshControl = UIRefreshControl()
+        return tableView
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)

@@ -66,6 +66,10 @@ final class NftDetailsViewLayout: UIView {
         createTitleValueView()
     }()
 
+    lazy var tokenTypeView: TitleValueView = {
+        createTitleValueView()
+    }()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -112,6 +116,7 @@ final class NftDetailsViewLayout: UIView {
         contentView.stackView.addArrangedSubview(ownerView)
         contentView.stackView.addArrangedSubview(tokenIdView)
         contentView.stackView.addArrangedSubview(networkView)
+        contentView.stackView.addArrangedSubview(tokenTypeView)
 
         navigationBar.setCenterViews([navigationTitleLabel])
         setupConstraints()
@@ -153,6 +158,9 @@ final class NftDetailsViewLayout: UIView {
         networkView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
         }
+        tokenTypeView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.cellHeight)
+        }
     }
 
     private func applyLocalization() {
@@ -161,6 +169,7 @@ final class NftDetailsViewLayout: UIView {
         ownerView.titleLabel.text = R.string.localizable.nftOwnerTitle(preferredLanguages: locale.rLanguages)
         networkView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
         tokenIdView.titleLabel.text = R.string.localizable.nftTokenidTitle(preferredLanguages: locale.rLanguages)
+        tokenTypeView.titleLabel.text = R.string.localizable.stakingAnalyticsDetailsType(preferredLanguages: locale.rLanguages)
     }
 
     func bind(viewModel: NftDetailViewModel) {
@@ -175,7 +184,10 @@ final class NftDetailsViewLayout: UIView {
         tokenIdView.valueLabel.text = viewModel.tokenId
         networkView.valueLabel.text = viewModel.chain
         desciptionLabel.text = viewModel.nftDescription
+        tokenTypeView.valueLabel.text = viewModel.tokenType
 
         mediaView.bind(mediaURL: viewModel.nft.media?.first?.normalizedURL, animating: true)
+
+        sendButton.isHidden = viewModel.tokenType?.lowercased() != "erc721"
     }
 }

@@ -23,9 +23,7 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
     }
 
     func estimateFee(for transfer: NftTransfer) async throws -> BigUInt {
-        guard let tokenId = BigUInt(string: transfer.nft.tokenId) else {
-            throw EthereumNftTransferServiceError.incorrectTokenId(tokenId: transfer.nft.tokenId)
-        }
+        let tokenId = BigUInt(try Data(hexStringSSF: transfer.nft.tokenId))
         let ethSenderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
         let receiverAddress = transfer.receiver.isEmpty ? senderAddress : transfer.receiver
         let address = try EthereumAddress(rawAddress: receiverAddress.hexToBytes())
@@ -39,10 +37,7 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
     }
 
     func estimateFee(for transfer: NftTransfer, baseFeePerGas: EthereumQuantity) async throws -> BigUInt {
-        guard let tokenId = BigUInt(string: transfer.nft.tokenId) else {
-            throw EthereumNftTransferServiceError.incorrectTokenId(tokenId: transfer.nft.tokenId)
-        }
-
+        let tokenId = BigUInt(try Data(hexStringSSF: transfer.nft.tokenId))
         let ethSenderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
         let receiverAddress = transfer.receiver.isEmpty ? senderAddress : transfer.receiver
         let address = try EthereumAddress(rawAddress: receiverAddress.hexToBytes())
@@ -79,10 +74,7 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
     }
 
     private func transferERC721(transfer: NftTransfer) async throws -> String {
-        guard let tokenId = BigUInt(string: transfer.nft.tokenId) else {
-            throw EthereumNftTransferServiceError.incorrectTokenId(tokenId: transfer.nft.tokenId)
-        }
-
+        let tokenId = BigUInt(try Data(hexStringSSF: transfer.nft.tokenId))
         guard let chainId = BigUInt(string: transfer.nft.chain.chainId) else {
             throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
         }

@@ -81,14 +81,7 @@ class NftListCell: UITableViewCell {
                 on: nftImageView,
                 targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize),
                 animated: true,
-                cornerRadius: 8, completionHandler: { result in
-                    switch result {
-                    case let .success(imageResult):
-                        print(imageResult)
-                    case let .failure(error):
-                        print(error)
-                    }
-                }
+                cornerRadius: 8
             )
 
             chainLabel.text = viewModel.chainNameLabelText

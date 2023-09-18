@@ -9,7 +9,6 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
 
     private let output: MainNftContainerViewOutput
     private var viewModels: [NftListCellModel]?
-    private var history: [NFTHistoryObject]?
 
     // MARK: - Constructor
 
@@ -40,9 +39,20 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(NftListCell.self)
+
+        if let refreshControl = rootView.tableView.refreshControl {
+            refreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
+        }
     }
 
     // MARK: - Private methods
+
+    @objc private func actionRefresh() {
+        viewModels = nil
+        rootView.tableView.reloadData()
+        output.didPullToRefresh()
+        rootView.tableView.refreshControl?.endRefreshing()
+    }
 }
 
 // MARK: - MainNftContainerViewInput
@@ -53,11 +63,6 @@ extension MainNftContainerViewController: MainNftContainerViewInput {
         rootView.tableView.reloadData()
 
         reloadEmptyState(animated: true)
-    }
-
-    func didReceive(history: [NFTHistoryObject]?) {
-        self.history = history
-        rootView.tableView.reloadData()
     }
 }
 
@@ -75,16 +80,12 @@ extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSo
             return viewModels.count
         }
 
-        if let history = history {
-            return history.count
-        }
-
         return 10
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithType(NftListCell.self, forIndexPath: indexPath)
-        return cell ?? UITableViewCell()
+        return cell
     }
 
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {

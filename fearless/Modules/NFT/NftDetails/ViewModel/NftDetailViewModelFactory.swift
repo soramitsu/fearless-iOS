@@ -20,7 +20,8 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
             tokenId: nft.tokenId,
             chain: nft.chain.name,
             imageViewModel: imageViewModel,
-            nft: nft
+            nft: nft,
+            tokenType: nft.tokenType
         )
     }
 }
