@@ -53,6 +53,7 @@ abstract_target 'fearlessAll' do
   pods_with_configurations
   
   # Development pods
+#  pod 'MediaView', :path => '../MediaView-fork'
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
 #  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
 #  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
