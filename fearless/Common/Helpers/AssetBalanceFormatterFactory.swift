@@ -39,6 +39,11 @@ protocol AssetBalanceFormatterFactoryProtocol {
         for info: AssetBalanceDisplayInfo,
         usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<TokenFormatter>
+
+    func createPlainTokenFormatter(
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
+    ) -> LocalizableResource<TokenFormatter>
 }
 
 class AssetBalanceFormatterFactory {
@@ -54,6 +59,43 @@ class AssetBalanceFormatterFactory {
                 roundingMode: roundingMode,
                 formatter: numberFormatter,
                 for: FormatterLocale(locale: locale)
+            )
+
+            let tokenFormatter = TokenFormatter(
+                decimalFormatter: formatter,
+                tokenSymbol: info.symbol,
+                separator: info.symbolValueSeparator,
+                position: info.symbolPosition
+            )
+
+            tokenFormatter.locale = locale
+            return tokenFormatter
+        }
+    }
+
+    private func createPlainTokenFormatterCommon(
+        for info: AssetBalanceDisplayInfo,
+        roundingMode: NumberFormatter.RoundingMode,
+        usageCase: NumberFormatterUsageCase
+    ) -> LocalizableResource<TokenFormatter> {
+        LocalizableResource { locale in
+            let numberFormatter = NumberFormatter.formatter(for: usageCase, locale: locale)
+            let formatter = BigNumberFormatter(
+                abbreviations: [BigNumberAbbreviation(
+                    threshold: 0,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: numberFormatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: numberFormatter
+                )],
+                precision: 2,
+                rounding: roundingMode,
+                usesIntGrouping: true
             )
 
             let tokenFormatter = TokenFormatter(
@@ -250,5 +292,12 @@ extension AssetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
         usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<TokenFormatter> {
         createTokenFormatterCommon(for: info, roundingMode: .up, usageCase: usageCase)
+    }
+
+    func createPlainTokenFormatter(
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
+    ) -> LocalizableResource<TokenFormatter> {
+        createPlainTokenFormatterCommon(for: info, roundingMode: .down, usageCase: usageCase)
     }
 }

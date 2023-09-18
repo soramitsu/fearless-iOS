@@ -33,7 +33,7 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
 
         applyLocalization()
         setupActions()
-        presenter.setup()
+        presenter.didLoad(view: self)
     }
 
     private func setupActions() {
@@ -92,6 +92,10 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
 
         let actionImage = viewModel.canChooseOtherController ? R.image.iconSmallArrowDown() : R.image.iconMore()
         rootView.controllerAccountView.actionImage = actionImage
+    }
+
+    func didReceive(chainName: String) {
+        rootView.bind(chainName: chainName)
     }
 
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>) {

@@ -15,6 +15,17 @@ final class WalletDetailsViewLayout: UIView {
         return view
     }()
 
+    lazy var searchTextField: SearchTextField = {
+        let searchTextField = SearchTextField()
+        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
+        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
+        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.shadowOpacity = 0
+        return searchTextField
+    }()
+
     let tableView: UITableView = {
         let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = R.color.colorBlack19()
@@ -52,6 +63,8 @@ final class WalletDetailsViewLayout: UIView {
         }
     }
 
+    var keyboardAdoptableConstraint: Constraint?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -66,12 +79,20 @@ final class WalletDetailsViewLayout: UIView {
 
     private func applyLocalization() {
         exportButton.imageWithTitleView?.title = R.string.localizable.accountExportAction(preferredLanguages: locale?.rLanguages)
+        searchTextField.textField.placeholder = R.string.localizable.selectNetworkSearchPlaceholder(preferredLanguages: locale?.rLanguages)
     }
 
     func bind(to viewModel: WalletDetailsViewModel) {
         navigationLabel.text = viewModel.navigationTitle
         walletView.title = viewModel.walletName
         walletView.isHidden = false
+
+        tableView.contentInset = UIEdgeInsets(
+            top: tableView.contentInset.top,
+            left: tableView.contentInset.left,
+            bottom: 0,
+            right: tableView.contentInset.right
+        )
     }
 
     func bind(to viewModel: WalletExportViewModel) {
@@ -107,11 +128,19 @@ private extension WalletDetailsViewLayout {
             make.height.equalTo(72)
         }
 
+        addSubview(searchTextField)
+        searchTextField.snp.makeConstraints { make in
+            make.top.equalTo(walletView.snp.bottom).offset(UIConstants.defaultOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(48)
+        }
+
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalTo(walletView.snp.bottom).offset(UIConstants.bigOffset)
-            make.bottom.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(searchTextField.snp.bottom).offset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
         }
 
         addSubview(exportButton)

@@ -100,7 +100,7 @@ struct AnalyticsValidatorsViewFactory {
             balanceViewModelFactory: balanceViewModelFactory,
             chain: chain,
             asset: asset,
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator()
         )
 
         let presenter = AnalyticsValidatorsPresenter(

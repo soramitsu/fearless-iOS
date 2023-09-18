@@ -12,6 +12,7 @@ final class WalletDetailsPresenter {
     private let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
     private var chains: [ChainModel] = []
+    private var searchText: String?
 
     init(
         interactor: WalletDetailsInteractorInputProtocol,
@@ -96,6 +97,11 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
 
         interactor.getAvailableExportOptions(for: ChainAccountInfo(chain: chain, account: account))
     }
+
+    func searchTextDidChanged(_ text: String?) {
+        searchText = text
+        provideViewModel(chains: chains)
+    }
 }
 
 extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
@@ -176,14 +182,16 @@ private extension WalletDetailsPresenter {
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
                 chains: chains,
-                locale: selectedLocale
+                locale: selectedLocale,
+                searchText: searchText
             )
             view?.didReceive(state: .normal(viewModel: viewModel))
         case .export:
             let viewModel = viewModelFactory.buildExportViewModel(
                 flow: flow,
                 chains: chains,
-                locale: selectedLocale
+                locale: selectedLocale,
+                searchText: searchText
             )
             view?.didReceive(state: .export(viewModel: viewModel))
         }

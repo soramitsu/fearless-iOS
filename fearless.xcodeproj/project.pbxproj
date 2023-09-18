@@ -159,6 +159,7 @@
 		076D9D6229506CFA002762E3 /* polkaswapSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = 076D9D6129506CE3002762E3 /* polkaswapSettings.json */; };
 		076D9D6629507B39002762E3 /* PolkaswapSettingsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D6529507B39002762E3 /* PolkaswapSettingsFactory.swift */; };
 		076D9D6829509F1C002762E3 /* PolkaswapSettingMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D6729509F1C002762E3 /* PolkaswapSettingMapper.swift */; };
+		078D6C802AB8516E00C75D1C /* DeprecatedControllerStashAccountCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078D6C7F2AB8516E00C75D1C /* DeprecatedControllerStashAccountCheckService.swift */; };
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
@@ -2726,7 +2727,6 @@
 		FAD646D8284F58B3007CCB92 /* StakingUnbondSetupRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD646D7284F58B3007CCB92 /* StakingUnbondSetupRelaychainViewModelState.swift */; };
 		FAD646DA284F58C1007CCB92 /* StakingUnbondSetupRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD646D9284F58C1007CCB92 /* StakingUnbondSetupRelaychainStrategy.swift */; };
 		FAD646DC284F6C90007CCB92 /* StakingUnbondSetupRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD646DB284F6C90007CCB92 /* StakingUnbondSetupRelaychainViewModelFactory.swift */; };
-		FAD7EADA2861AE60004BD139 /* UniversalIconGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD7EAD92861AE60004BD139 /* UniversalIconGenerator.swift */; };
 		FADB9DB529D551A100303F7D /* SoraRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */; };
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
@@ -2979,6 +2979,7 @@
 		076D9D6129506CE3002762E3 /* polkaswapSettings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = polkaswapSettings.json; sourceTree = "<group>"; };
 		076D9D6529507B39002762E3 /* PolkaswapSettingsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapSettingsFactory.swift; sourceTree = "<group>"; };
 		076D9D6729509F1C002762E3 /* PolkaswapSettingMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapSettingMapper.swift; sourceTree = "<group>"; };
+		078D6C7F2AB8516E00C75D1C /* DeprecatedControllerStashAccountCheckService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedControllerStashAccountCheckService.swift; sourceTree = "<group>"; };
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
@@ -5607,7 +5608,6 @@
 		FAD646D7284F58B3007CCB92 /* StakingUnbondSetupRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondSetupRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FAD646D9284F58C1007CCB92 /* StakingUnbondSetupRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondSetupRelaychainStrategy.swift; sourceTree = "<group>"; };
 		FAD646DB284F6C90007CCB92 /* StakingUnbondSetupRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondSetupRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
-		FAD7EAD92861AE60004BD139 /* UniversalIconGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalIconGenerator.swift; sourceTree = "<group>"; };
 		FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FAE152D16E6C78D297BFFC3C /* WalletSendConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmInteractor.swift; sourceTree = "<group>"; };
 		FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewState.swift; sourceTree = "<group>"; };
@@ -7300,6 +7300,7 @@
 		84155DE8253980D700A27058 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				078D6C7F2AB8516E00C75D1C /* DeprecatedControllerStashAccountCheckService.swift */,
 				841AAC2B26F7311200F0A25E /* RemoteSubscription */,
 				84D1110A26B922C10016D962 /* ChainRegistry */,
 				846CD24B2656FE9D00A2E4B6 /* StorageQueryService */,
@@ -8987,7 +8988,6 @@
 				841AAC2426F692EF00F0A25E /* AddressConversion.swift */,
 				841AAC2626F6A2A500F0A25E /* ChainAccountFetching.swift */,
 				844CB57926FA706C00396E13 /* ChainAssetDisplayInfo.swift */,
-				FAD7EAD92861AE60004BD139 /* UniversalIconGenerator.swift */,
 				C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */,
 				07F2B75E28AA183C00280C38 /* PrintTimer.swift */,
 				C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */,
@@ -15594,6 +15594,7 @@
 				841E6B0A25EC1C140007DDFE /* RelaychainValidatorOperationFactory.swift in Sources */,
 				8472C5B5265CF9C500E2481B /* StakingRewardDestConfirmProtocols.swift in Sources */,
 				C6264C3A279AC7DC00FCA0DB /* WalletDetailsViewFactory.swift in Sources */,
+				078D6C802AB8516E00C75D1C /* DeprecatedControllerStashAccountCheckService.swift in Sources */,
 				07F2B76128AB806400280C38 /* SnapshotHotBootBuilder.swift in Sources */,
 				FACD42A72A5BE821009975AA /* SubstrateCallFactoryV9430.swift in Sources */,
 				F471897B26C29A78006487AD /* AnalyticsValidatorsPageSelector.swift in Sources */,
@@ -16950,7 +16951,6 @@
 				07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */,
 				EB9D8D22AA13BF12F845856B /* ReferralCrowdloanProtocols.swift in Sources */,
 				51FC48FA6FD4D2FB1781424D /* ReferralCrowdloanWireframe.swift in Sources */,
-				FAD7EADA2861AE60004BD139 /* UniversalIconGenerator.swift in Sources */,
 				0F3E58FC800ED8722589F89E /* ReferralCrowdloanPresenter.swift in Sources */,
 				9F4A48B1BE3A1110A0CF9F36 /* ReferralCrowdloanViewController.swift in Sources */,
 				CE2792E78B14CE02394D8CF4 /* ReferralCrowdloanViewLayout.swift in Sources */,

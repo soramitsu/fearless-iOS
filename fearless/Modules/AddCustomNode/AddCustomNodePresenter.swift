@@ -38,9 +38,9 @@ final class AddCustomNodePresenter {
 }
 
 extension AddCustomNodePresenter: AddCustomNodePresenterProtocol {
-    func setup() {
-        view?.didReceive(nameViewModel: nameViewModel)
-        view?.didReceive(nodeViewModel: nodeViewModel)
+    func didLoad(view: AddCustomNodeViewProtocol) {
+        view.didReceive(nameViewModel: nameViewModel)
+        view.didReceive(nodeViewModel: nodeViewModel)
     }
 
     func didTapAddNodeButton() {

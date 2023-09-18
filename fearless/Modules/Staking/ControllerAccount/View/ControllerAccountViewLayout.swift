@@ -158,4 +158,9 @@ final class ControllerAccountViewLayout: UIView {
             .commonContinue(preferredLanguages: locale.rLanguages)
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
     }
+
+    func bind(chainName: String) {
+        descriptionLabel.text = R.string.localizable
+            .stakingControllerDeprecatedDescription(chainName, preferredLanguages: locale.rLanguages)
+    }
 }

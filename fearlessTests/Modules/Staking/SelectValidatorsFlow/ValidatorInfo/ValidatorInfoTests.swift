@@ -35,7 +35,7 @@
 //        )
 //
 //        let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
-//            iconGenerator: PolkadotIconGenerator(),
+//            iconGenerator: UniversalIconGenerator(),
 //            balanceViewModelFactory: balanceViewModelFactory
 //        )
 //
@@ -99,7 +99,7 @@
 //        )
 //
 //        let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
-//            iconGenerator: PolkadotIconGenerator(),
+//            iconGenerator: UniversalIconGenerator(),
 //            balanceViewModelFactory: balanceViewModelFactory
 //        )
 //
