@@ -125,4 +125,6 @@ final class SubstrateTransferService: TransferServiceProtocol {
 
         return submitResult
     }
+
+    func unsubscribe() {}
 }

@@ -4667,7 +4667,7 @@
         "addressPrefix": 2207
     },
     {
-        "disabled": true,
+        "disabled": false,
         "chainId": "3266816be9fa51b32cfea58d3e33ca77246bc9618595a4300e44c8856a8d8a17",
         "name": "SORA test",
         "externalApi": {

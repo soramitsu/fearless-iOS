@@ -63,6 +63,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
 
         let kusamaChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .kusama }).slice
         let polkadotChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .polkadot }).slice
+        let ethereumChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .ethereum }).slice
 
         let kusamaAssetChainAssetsArray = createAssetChainAssets(
             from: kusamaChainAssets,
@@ -76,7 +77,14 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             pricesData: prices.pricesData,
             wallet: wallet
         )
-        let assetChainAssetsArray = kusamaAssetChainAssetsArray + polkadotAssetChainAssetsArray
+        let ethereumAssetChainAssetsArray = createAssetChainAssets(
+            from: ethereumChainAssets,
+            accountInfos: accountInfos,
+            pricesData: prices.pricesData,
+            wallet: wallet
+        )
+
+        let assetChainAssetsArray = kusamaAssetChainAssetsArray + polkadotAssetChainAssetsArray + ethereumAssetChainAssetsArray
 
         let sortedAssetChainAssets = sortAssetList(
             wallet: wallet,
@@ -622,6 +630,9 @@ extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {
 
 extension ChainAsset {
     func defineEcosystem() -> ChainEcosystem {
+        if chain.options?.contains(.ethereum) == true {
+            return .ethereum
+        }
         if chain.parentId == Chain.polkadot.genesisHash || chain.chainId == Chain.polkadot.genesisHash {
             return .polkadot
         }

@@ -44,7 +44,7 @@ protocol SendInteractorInput: AnyObject {
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
     func fetchScamInfo(for address: String)
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
-    func getPossibleChains(for address: String, completion: @escaping ([ChainModel]?) -> Void)
+    func getPossibleChains(for address: String) async -> [ChainModel]?
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
 }
 

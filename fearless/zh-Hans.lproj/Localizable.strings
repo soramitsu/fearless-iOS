@@ -1075,3 +1075,4 @@
 "nft.collection.title" = "收藏品";
 "onboarding.preinstalled.wallet.button.text" = "获取预装钱包";
 "nft.tokenid.title" = "代币ID";
+"import.json.invalid.import.type.message" = "你的JSON文件无效。你正在尝试导入基于ETH的链账户，而不是Substrate的账户。请先使用正确的JSON文件来导入Substrate链账户。";

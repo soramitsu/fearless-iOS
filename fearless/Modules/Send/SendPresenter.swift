@@ -30,8 +30,7 @@ final class SendPresenter {
     private var selectedAsset: AssetModel?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
-    private var priceData: PriceData?
-    private var utilityPriceData: PriceData?
+    private var prices: [PriceData] = []
     private var tip: Decimal?
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
@@ -96,24 +95,25 @@ extension SendPresenter: SendViewOutput {
             interactor.updateSubscriptions(for: chainAsset)
             provideNetworkViewModel(for: chainAsset.chain)
             provideInputViewModel()
-            refreshFee(for: chainAsset, address: nil)
         case let .address(address):
             recipientAddress = address
-            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
-                guard let strongSelf = self else {
-                    return
+            Task {
+                let possibleChains = await interactor.getPossibleChains(for: address)
+                await MainActor.run {
+                    guard possibleChains?.isNotEmpty == true else {
+                        showIncorrectAddressAlert()
+                        return
+                    }
+                    let viewModel = viewModelFactory.buildRecipientViewModel(
+                        address: address,
+                        isValid: true
+                    )
+                    view.didReceive(viewModel: viewModel)
+                    didReceive(possibleChains: possibleChains)
                 }
-                guard possibleChains?.isNotEmpty == true else {
-                    strongSelf.showIncorrectAddressAlert()
-                    return
-                }
-                let viewModel = strongSelf.viewModelFactory.buildRecipientViewModel(
-                    address: address,
-                    isValid: true
-                )
-                strongSelf.view?.didReceive(viewModel: viewModel)
-                strongSelf.didReceive(possibleChains: possibleChains)
             }
+        case let .soraMainnet(address):
+            handleSolomon(address)
         }
     }
 
@@ -145,13 +145,16 @@ extension SendPresenter: SendViewOutput {
                 showInvalidAddressAlert()
                 return
             }
-            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
-                guard let possibleChains = possibleChains, possibleChains.isNotEmpty else {
-                    self?.showInvalidAddressAlert()
-                    return
-                }
+            Task {
+                let possibleChains = await interactor.getPossibleChains(for: address)
+                await MainActor.run {
+                    guard let possibleChains = possibleChains, possibleChains.isNotEmpty else {
+                        showInvalidAddressAlert()
+                        return
+                    }
 
-                self?.showPossibleChainsAlert(possibleChains)
+                    showPossibleChainsAlert(possibleChains)
+                }
             }
         case let .sameAddress(address):
             showSameAddressAlert(address, successCompletion: successCompletion)
@@ -316,13 +319,11 @@ extension SendPresenter: SendInteractorOutput {
         }
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?) {
+    func didReceivePriceData(result: Result<PriceData?, Error>, for _: AssetModel.PriceId?) {
         switch result {
         case let .success(priceData):
-            if selectedChainAsset?.asset.priceId == priceId {
-                self.priceData = priceData
-            } else {
-                utilityPriceData = priceData
+            if let priceData = priceData {
+                prices.append(priceData)
             }
             provideAssetVewModel()
             provideFeeViewModel()
@@ -408,6 +409,10 @@ extension SendPresenter: SendInteractorOutput {
 }
 
 extension SendPresenter: ScanQRModuleOutput {
+    func didFinishWithSolomon(soraAddress: String) {
+        handleSolomon(soraAddress)
+    }
+
     func didFinishWith(address: String) {
         searchTextDidChanged(address)
     }
@@ -484,6 +489,7 @@ private extension SendPresenter {
 
     func provideAssetVewModel() {
         guard let chainAsset = selectedChainAsset else { return }
+        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
 
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
 
@@ -509,11 +515,12 @@ private extension SendPresenter {
               let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
+        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
         let viewModel = tip
             .map { balanceViewModelFactory
                 .balanceFromPrice(
                     $0,
-                    priceData: chainAsset.isUtility ? self.priceData : self.utilityPriceData,
+                    priceData: priceData,
                     usageCase: .detailsCrypto
                 )
             }?.value(for: selectedLocale)
@@ -532,6 +539,7 @@ private extension SendPresenter {
             let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
+        let priceData = prices.first(where: { $0.priceId == utilityAsset.asset.priceId })
         let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -594,7 +602,6 @@ private extension SendPresenter {
 
         interactor.updateSubscriptions(for: chainAsset)
         interactor.fetchScamInfo(for: newAddress)
-        refreshFee(for: chainAsset, address: newAddress)
     }
 
     func handle(selectedChain: ChainModel?) {
@@ -628,9 +635,9 @@ private extension SendPresenter {
         provideInputViewModel()
         if let recipientAddress = recipientAddress {
             handle(newAddress: recipientAddress)
+        } else {
+            interactor.updateSubscriptions(for: selectedChainAsset)
         }
-        interactor.updateSubscriptions(for: selectedChainAsset)
-        refreshFee(for: selectedChainAsset, address: recipientAddress)
     }
 
     func defineOrSelectAsset(for chain: ChainModel) {
@@ -712,6 +719,40 @@ private extension SendPresenter {
             }
         )
         router.present(viewModel: alertViewModel, from: view)
+    }
+
+    func handleSolomon(_ address: String) {
+        recipientAddress = address
+        Task {
+            let possibleChains = await interactor.getPossibleChains(for: address)
+            await MainActor.run(body: {
+                #if F_DEV
+                    let soraMainChainAsset = possibleChains?
+                        .first(where: { $0.isSora && $0.isTestnet })?.chainAssets
+                        .first(where: { $0.asset.symbol.lowercased() == "xstusd" })
+
+                #else
+                    let soraMainChainAsset = possibleChains?
+                        .first(where: { $0.isSora })?.chainAssets
+                        .first(where: { $0.asset.symbol.lowercased() == "xstusd" })
+                #endif
+                guard let soraMainChainAsset = soraMainChainAsset else {
+                    showIncorrectAddressAlert()
+                    return
+                }
+                let viewModel = viewModelFactory.buildRecipientViewModel(
+                    address: address,
+                    isValid: true
+                )
+                fee = nil
+                tip = nil
+                view?.didReceive(viewModel: viewModel)
+                selectedChainAsset = soraMainChainAsset
+                provideNetworkViewModel(for: soraMainChainAsset.chain)
+                provideInputViewModel()
+                interactor.updateSubscriptions(for: soraMainChainAsset)
+            })
+        }
     }
 }
 
