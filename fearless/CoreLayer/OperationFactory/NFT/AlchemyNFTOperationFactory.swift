@@ -14,7 +14,7 @@ final class AlchemyNFTOperationFactory {
         address: String,
         url: URL
     ) -> BaseOperation<AlchemyNftCollectionsResponse> {
-        let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeys.alchemyApiKey)
+        let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getContractsForOwner")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [URLQueryItem(name: "owner", value: address)]
@@ -96,7 +96,7 @@ final class AlchemyNFTOperationFactory {
         address: String,
         url: URL
     ) -> BaseOperation<AlchemyNftsResponse> {
-        let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeys.alchemyApiKey)
+        let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTs")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [URLQueryItem(name: "owner", value: address), URLQueryItem(name: "excludeFilters[]", value: "SPAM")]

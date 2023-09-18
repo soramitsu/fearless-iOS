@@ -9,6 +9,7 @@ import FearlessKeys
 enum BlockExplorerApiKey {
     case etherscan
     case polygonscan
+    case bscscan
 
     init?(chainId: String) {
         switch chainId {
@@ -16,6 +17,8 @@ enum BlockExplorerApiKey {
             self = .etherscan
         case "137":
             self = .polygonscan
+        case "56", "97":
+            self = .bscscan
         default:
             return nil
         }
@@ -24,9 +27,23 @@ enum BlockExplorerApiKey {
     var value: String {
         switch self {
         case .etherscan:
-            return BlockExplorerApiKeys.etherscanApiKey
+            #if DEBUG
+                return BlockExplorerApiKeysDebug.etherscanApiKey
+            #else
+                return BlockExplorerApiKeys.etherscanApiKey
+            #endif
         case .polygonscan:
-            return BlockExplorerApiKeys.polygonscanApiKey
+            #if DEBUG
+                return BlockExplorerApiKeysDebug.polygonscanApiKey
+            #else
+                return BlockExplorerApiKeys.polygonscanApiKey
+            #endif
+        case .bscscan:
+            #if DEBUG
+                return BlockExplorerApiKeysDebug.bscscanApiKey
+            #else
+                return BlockExplorerApiKeys.bscscanApiKey
+            #endif
         }
     }
 }
