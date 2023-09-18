@@ -130,8 +130,32 @@ final class EthereumTransferService: TransferServiceProtocol, WalletConnectEther
         transaction: EthereumTransaction,
         chain: ChainModel
     ) async throws -> EthereumData {
+        guard
+            let receiverAddress = transaction.to,
+            let senderAddress = transaction.from,
+            let quantity = transaction.value
+        else {
+            throw TransferServiceError.transferFailed(reason: "Wallet connect invalid params")
+        }
+
+        let call = EthereumCall(to: receiverAddress, value: quantity)
+        let nonce = try await queryNonce(ethereumAddress: senderAddress)
+        let gasPrice = try await queryGasPrice()
+        let gasLimit = try await queryGasLimit(call: call)
+        let tx = EthereumTransaction(
+            nonce: nonce,
+            gasPrice: gasPrice,
+            maxFeePerGas: gasPrice,
+            maxPriorityFeePerGas: gasPrice,
+            gasLimit: gasLimit,
+            from: senderAddress,
+            to: receiverAddress,
+            value: quantity,
+            accessList: [:],
+            transactionType: .eip1559
+        )
         let chainIdValue = EthereumQuantity(chain.chainId.hexToBytes())
-        let rawTransaction = try transaction.sign(with: privateKey, chainId: chainIdValue)
+        let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
 
         return try await withCheckedThrowingContinuation { continuation in
             do {

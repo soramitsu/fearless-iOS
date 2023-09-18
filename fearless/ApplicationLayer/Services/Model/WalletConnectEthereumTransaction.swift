@@ -2,16 +2,6 @@ import Foundation
 import BigInt
 import Web3
 
-// struct WalletConnectEthereumTransaction: Codable {
-//    let data: String
-//    let from: String
-//    let gasLimit: String
-//    let gasPrice: String
-//    let nonce: String
-//    let to: String
-//    let value: String
-// }
-
 struct WalletConnectEthereumTransaction: Codable {
     let from: String
     let to: String?

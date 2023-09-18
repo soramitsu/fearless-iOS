@@ -105,6 +105,7 @@ extension MultiSelectNetworksPresenter: MultiSelectNetworksViewOutput {
 
     func doneButtonDidTapped() {
         guard canSelect else {
+            router.dismiss(view: view)
             return
         }
         let selectedChains = viewModel?.cells.filter { $0.isSelected }.map { $0.chainId }

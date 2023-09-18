@@ -1,7 +1,6 @@
 import Foundation
 import WalletConnectSign
 import SSFModels
-// import WalletConnectSwiftV2
 import SSFUtils
 import Web3
 
@@ -19,23 +18,11 @@ final class WalletConnectPayloadFactoryImpl: WalletConnectPayloadFactory {
     ) throws -> WalletConnectPayload {
         switch method {
         case .polkadotSignTransaction:
-            return try createPolkadotTransactionPayload(
-                params: request.params
-            )
-//        case .polkadotSignMessage:
-        ////            return try createPolkadotSignMessage(
-        ////                for: wallet,
-        ////                chain: chain,
-        ////                params: params,
-        ////                method: method
-        ////            )
-//            return JSON.null
+            return try createPolkadotTransactionPayload(params: request.params)
         case .ethereumSignTransaction, .ethereumSendTransaction:
             return try createEthereumTransactionPayload(for: request.params)
         case .ethereumPersonalSign:
-            return try createPersonalSignPayload(
-                params: request.params
-            )
+            return try createPersonalSignPayload(params: request.params)
         case .ethereumSignTypeData:
             return try createSignTypesDataPayload(
                 params: request.params,
@@ -48,24 +35,6 @@ final class WalletConnectPayloadFactoryImpl: WalletConnectPayloadFactory {
             )
         }
     }
-
-//    func createSigningType(
-//        chain: ChainModel,
-//        method: WalletConnectMethod
-//    ) throws -> DAppSigningType {
-//        switch method {
-//        case .polkadotSignTransaction:
-//            return .extrinsic(chain: chain)
-    ////        case .polkadotSignMessage:
-    ////            return .bytes(chain: chain)
-//        case .ethereumSendTransaction:
-//            return .ethereumSendTransaction(chain: chain)
-//        case .ethereumSignTransaction:
-//            return .ethereumSignTransaction(chain: chain)
-//        case .ethereumPersonalSign, .ethereumSignTypeData, .ethereumSignTypeDataV4:
-//            return .ethereumBytes(chain: chain)
-//        }
-//    }
 
     // MARK: Private methods
 
