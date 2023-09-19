@@ -107,7 +107,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             operationManager: operationManager
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
-        let iconGenerator = UniversalIconGenerator(chain: chain)
+        let iconGenerator = UniversalIconGenerator()
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -244,7 +244,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chain),
+                iconGenerator: UniversalIconGenerator(),
                 chainAsset: chainAsset
             )
             return SelectValidatorsConfirmDependencyContainer(

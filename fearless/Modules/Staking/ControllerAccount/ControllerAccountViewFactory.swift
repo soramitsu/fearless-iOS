@@ -26,7 +26,7 @@ struct ControllerAccountViewFactory {
 
         let viewModelFactory = ControllerAccountViewModelFactory(
             currentAccountItem: account,
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator()
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
