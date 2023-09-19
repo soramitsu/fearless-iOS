@@ -4,6 +4,7 @@ final class MainNftContainerViewLayout: UIView {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.refreshControl = UIRefreshControl()
+        tableView.separatorStyle = .none
         return tableView
     }()
 

@@ -79,11 +79,11 @@ final class AlchemyNFTOperationFactory {
                     title: $0.title,
                     name: $0.name,
                     creator: $0.contractDeployer,
-                    price: $0.opensea?.floorPrice,
+                    price: $0.openSea?.floorPrice,
                     media: media,
                     tokenType: $0.tokenType,
-                    desc: $0.opensea?.description,
-                    opensea: $0.opensea,
+                    desc: $0.openSea?.description,
+                    opensea: $0.openSea,
                     chain: chain
                 )
             }
@@ -99,7 +99,9 @@ final class AlchemyNFTOperationFactory {
         let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTs")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
-        urlComponents?.queryItems = [URLQueryItem(name: "owner", value: address), URLQueryItem(name: "excludeFilters[]", value: "SPAM")]
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "owner", value: address)
+        ]
 
         guard let urlWithParameters = urlComponents?.url else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
@@ -154,10 +156,6 @@ final class AlchemyNFTOperationFactory {
                     )
                 }
 
-//                let attributes = $0.metadata?.attributes?.compactMap {
-//                    NftAttribute(value: $0.value, key: $0.traitType)
-//                }
-
                 let collection = NFTCollection(
                     address: $0.contractMetadata?.address,
                     numberOfTokens: $0.contractMetadata?.numDistinctTokensOwned,
@@ -165,11 +163,11 @@ final class AlchemyNFTOperationFactory {
                     title: $0.contractMetadata?.title,
                     name: $0.contractMetadata?.name,
                     creator: $0.contractMetadata?.contractDeployer,
-                    price: $0.contractMetadata?.opensea?.floorPrice,
+                    price: $0.contractMetadata?.openSea?.floorPrice,
                     media: media,
                     tokenType: $0.contractMetadata?.tokenType,
-                    desc: $0.contractMetadata?.opensea?.description,
-                    opensea: $0.contractMetadata?.opensea,
+                    desc: $0.contractMetadata?.openSea?.description,
+                    opensea: $0.contractMetadata?.openSea,
                     chain: chain
                 )
 

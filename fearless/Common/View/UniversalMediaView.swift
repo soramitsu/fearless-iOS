@@ -37,8 +37,10 @@ final class UniversalMediaView: MediaView {
 
             switch mediaType {
             case .image:
-                setImage(url: mediaURL.absoluteString)
-                activityIndicator.stopAnimating()
+                DispatchQueue.main.async { [weak self] in
+                    self?.setImage(url: mediaURL.absoluteString)
+                    self?.activityIndicator.stopAnimating()
+                }
             case .video:
                 if animating {
                     setVideo(url: mediaURL.absoluteString)

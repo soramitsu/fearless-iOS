@@ -19,6 +19,46 @@ struct NFT: Codable, Equatable, Hashable {
     let attributes: [NftAttribute]?
     let collectionName: String?
     let collection: NFTCollection?
+
+    var thumbnailURL: URL? {
+        if let mediaThumbnail = mediaThumbnail {
+            return URL(string: mediaThumbnail)
+        }
+
+        if metadata?.imageURL != nil {
+            return metadata?.imageURL
+        }
+
+        return media?.first(where: { $0.isImage })?.normalizedURL
+    }
+
+    var displayDescription: String? {
+        if let description = description, description.isNotEmpty {
+            return description
+        }
+
+        if let description = metadata?.description, description.isNotEmpty {
+            return description
+        }
+
+        return collection?.opensea?.description
+    }
+
+    var displayName: String? {
+        if let name = title, name.isNotEmpty {
+            return name
+        }
+
+        if let name = metadata?.name, name.isNotEmpty {
+            return name
+        }
+
+        if let collectionName = collection?.displayName {
+            return "\(collectionName) #\(tokenId)"
+        }
+
+        return "#\(tokenId)"
+    }
 }
 
 struct NFTMetadata: Codable, Equatable, Hashable {
@@ -40,12 +80,29 @@ struct NFTMedia: Codable, Equatable, Hashable {
     let mediaPath: String?
     let format: String?
 
+    var normalizedThumbnailURL: URL? {
+        guard let thumbnail = thumbnail, let url = URL(string: thumbnail) else {
+            return nil
+        }
+
+        return url.normalizedIpfsURL
+    }
+
     var normalizedURL: URL? {
         guard let mediaPath = mediaPath, let url = URL(string: mediaPath) else {
             return nil
         }
 
         return url.normalizedIpfsURL
+    }
+
+    var isImage: Bool {
+        guard let format = format else {
+            return false
+        }
+
+        var imageExtensions = "jpg, jpeg, png, bmp, heic"
+        return imageExtensions.contains(format)
     }
 }
 
@@ -64,4 +121,32 @@ struct NFTCollection: Codable, Equatable, Hashable {
     let chain: ChainModel
 
     var nfts: [NFT]?
+
+    var displayName: String? {
+        opensea?.collectionName ?? name
+    }
+
+    var displayImageUrl: URL? {
+        if let imageUrl = opensea?.imageUrl {
+            return URL(string: imageUrl)
+        }
+
+        if let url = media?.first(where: { $0.isImage })?.normalizedURL {
+            return url
+        }
+
+        return nfts?.first?.thumbnailURL
+    }
+
+    var displayThumbnailImageUrl: URL? {
+        if let imageUrl = opensea?.imageUrl {
+            return URL(string: imageUrl)
+        }
+
+        if let url = media?.first(where: { $0.isImage })?.normalizedThumbnailURL {
+            return url
+        }
+
+        return nfts?.first?.thumbnailURL
+    }
 }
