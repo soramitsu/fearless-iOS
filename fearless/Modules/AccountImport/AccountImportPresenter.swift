@@ -96,6 +96,11 @@ struct PreferredData {
     }
 }
 
+enum JsonStepValidationResult {
+    case valid
+    case invalid(String)
+}
+
 final class AccountImportPresenter: NSObject {
     static let onFlyValidationEnabled: Bool = false
     static let maxMnemonicLength: Int = 250
@@ -975,10 +980,33 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     }
 
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?) {
+        if case let .invalid(message) = validateJsonForStep(preferredInfo: preferredInfo) {
+            let viewModel = SheetAlertPresentableViewModel(
+                title: R.string.localizable.importJsonInvalidFormatTitle(preferredLanguages: selectedLocale.rLanguages),
+                message: message,
+                actions: [],
+                closeAction: nil,
+                icon: R.image.iconWarningBig()
+            )
+            wireframe.present(viewModel: viewModel, from: view)
+            return
+        }
         input = text
         selectedSourceType = .keystore
         let preferredData = PreferredData(jsonData: preferredInfo)
         applySourceType(text, preferredData: preferredData)
+    }
+
+    func validateJsonForStep(preferredInfo: MetaAccountImportPreferredInfo?) -> JsonStepValidationResult {
+        if case let .wallet(step) = flow, let info = preferredInfo {
+            switch step {
+            case .first:
+                return info.isEthereum == true ? .invalid(R.string.localizable.importJsonInvalidImportTypeMessage(preferredLanguages: selectedLocale.rLanguages)) : .valid
+            case .second:
+                return info.isEthereum == true ? .valid : .invalid(R.string.localizable.importEthJsonInvalidImportTypeMessage(preferredLanguages: selectedLocale.rLanguages))
+            }
+        }
+        return .valid
     }
 
     func didFailToDeriveMetadataFromKeystore() {

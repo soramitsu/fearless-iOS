@@ -1079,3 +1079,5 @@ Euro cash";
 "nft.collection.title" = "Collection";
 "onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";
 "nft.tokenid.title" = "Token ID";
+"import.json.invalid.import.type.message" = "Your JSON file isn't valid. You're trying to import ETH based chain accounts instead of Substrate ones. Please use a proper JSON file to import Substrate chain accounts at first.";
+"import.eth.json.invalid.import.type.message" = "Your JSON file isn't valid. You're trying to import Substrate based chain accounts instead of ETH ones. Please use a proper JSON file to import ETH chain accounts.";
