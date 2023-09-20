@@ -23,7 +23,14 @@ final class NftDetailsViewLayout: UIView {
         return view
     }()
 
-    let imageView = UIImageView()
+    let mediaView: UniversalMediaView = {
+        let mediaView = UniversalMediaView(frame: .zero)
+        mediaView.allowLooping = true
+        mediaView.shouldHidePlayButton = true
+        mediaView.shouldAutoPlayAfterPresentation = true
+        mediaView.backgroundColor = .clear
+        return mediaView
+    }()
 
     let sendButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -56,6 +63,10 @@ final class NftDetailsViewLayout: UIView {
     }()
 
     lazy var networkView: TitleValueView = {
+        createTitleValueView()
+    }()
+
+    lazy var tokenTypeView: TitleValueView = {
         createTitleValueView()
     }()
 
@@ -98,13 +109,14 @@ final class NftDetailsViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(contentView)
 
-        contentView.stackView.addArrangedSubview(imageView)
+        contentView.stackView.addArrangedSubview(mediaView)
         contentView.stackView.addArrangedSubview(sendButton)
         contentView.stackView.addArrangedSubview(desciptionLabel)
         contentView.stackView.addArrangedSubview(collectionView)
         contentView.stackView.addArrangedSubview(ownerView)
         contentView.stackView.addArrangedSubview(tokenIdView)
         contentView.stackView.addArrangedSubview(networkView)
+        contentView.stackView.addArrangedSubview(tokenTypeView)
 
         navigationBar.setCenterViews([navigationTitleLabel])
         setupConstraints()
@@ -120,7 +132,7 @@ final class NftDetailsViewLayout: UIView {
             make.leading.bottom.trailing.equalTo(safeAreaLayoutGuide)
         }
 
-        imageView.snp.makeConstraints { make in
+        mediaView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(359)
         }
@@ -146,6 +158,9 @@ final class NftDetailsViewLayout: UIView {
         networkView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
         }
+        tokenTypeView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.cellHeight)
+        }
     }
 
     private func applyLocalization() {
@@ -154,6 +169,7 @@ final class NftDetailsViewLayout: UIView {
         ownerView.titleLabel.text = R.string.localizable.nftOwnerTitle(preferredLanguages: locale.rLanguages)
         networkView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
         tokenIdView.titleLabel.text = R.string.localizable.nftTokenidTitle(preferredLanguages: locale.rLanguages)
+        tokenTypeView.titleLabel.text = R.string.localizable.stakingAnalyticsDetailsType(preferredLanguages: locale.rLanguages)
     }
 
     func bind(viewModel: NftDetailViewModel) {
@@ -168,12 +184,10 @@ final class NftDetailsViewLayout: UIView {
         tokenIdView.valueLabel.text = viewModel.tokenId
         networkView.valueLabel.text = viewModel.chain
         desciptionLabel.text = viewModel.nftDescription
+        tokenTypeView.valueLabel.text = viewModel.tokenType
 
-        viewModel.imageViewModel?.loadImage(
-            on: imageView,
-            targetSize: CGSize(width: UIScreen.main.bounds.size.width, height: 359),
-            animated: true,
-            cornerRadius: 0
-        )
+        mediaView.bind(mediaURL: viewModel.nft.media?.first?.normalizedURL, animating: true)
+
+        sendButton.isHidden = viewModel.tokenType?.lowercased() != "erc721"
     }
 }

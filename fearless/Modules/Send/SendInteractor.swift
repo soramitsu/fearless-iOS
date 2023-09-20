@@ -222,10 +222,8 @@ extension SendInteractor: SendInteractorInput {
         return chainAsset
     }
 
-    func getPossibleChains(for address: String, completion: @escaping ([ChainModel]?) -> Void) {
-        addressChainDefiner.getPossibleChains(for: address) { chains in
-            completion(chains)
-        }
+    func getPossibleChains(for address: String) async -> [ChainModel]? {
+        await addressChainDefiner.getPossibleChains(for: address)
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {

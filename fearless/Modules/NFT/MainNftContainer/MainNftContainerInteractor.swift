@@ -39,13 +39,7 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
     func fetchData() {
         Task {
             do {
-                let nftsHistory = try await nftFetchingService.fetchNftsHistory(for: wallet)
-
-                await MainActor.run(body: {
-                    output?.didReceive(history: nftsHistory)
-                })
-
-                let nfts = try await nftFetchingService.fetchNfts(for: nftsHistory)
+                let nfts = try await nftFetchingService.fetchNfts(for: wallet)
 
                 let nftsBySmartContract: [String: [NFT]] = nfts.reduce([String: [NFT]]()) { partialResult, nft in
                     var map = partialResult
@@ -60,18 +54,15 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                     return map
                 }
 
-                let collections: [NFTCollection] = nftsBySmartContract.compactMap { key, value in
-                    guard let historyElement = nftsHistory.first(where: { $0.metadata.contractAddress == key }) else {
+                let collections: [NFTCollection] = nftsBySmartContract.compactMap { _, value in
+                    guard let nft = value.first else {
                         return nil
                     }
 
-                    return NFTCollection(
-                        chain: historyElement.chain,
-                        name: historyElement.metadata.tokenName,
-                        image: value.first?.metadata?.image,
-                        desc: value.first?.metadata?.description,
-                        nfts: value
-                    )
+                    var collection = nft.collection
+                    collection?.nfts = value
+
+                    return collection
                 }
 
                 await MainActor.run(body: {

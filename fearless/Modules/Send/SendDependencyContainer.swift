@@ -22,7 +22,6 @@ struct SendDependencies {
 final class SendDepencyContainer {
     private let wallet: MetaAccountModel
     private let operationManager: OperationManagerProtocol
-    private var currentChainAsset: ChainAsset?
     private var currentDependecies: SendDependencies?
     private var cachedDependencies: [ChainAssetKey: SendDependencies] = [:]
 
@@ -41,6 +40,7 @@ final class SendDepencyContainer {
         if let dependencies = cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] {
             return dependencies
         }
+        currentDependecies?.transferService.unsubscribe()
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let runtimeService = chainRegistry.getRuntimeProvider(
@@ -69,6 +69,7 @@ final class SendDepencyContainer {
         )
 
         cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies
+        currentDependecies = dependencies
 
         return dependencies
     }

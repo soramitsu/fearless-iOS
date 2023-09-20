@@ -237,7 +237,6 @@ final class PolkaswapAdjustmentPresenter {
 
         let task = DispatchWorkItem { [weak self] in
             self?.interactor.fetchQuotes(with: quoteParams)
-            self?.view?.didUpdating()
         }
         quotesWorkItem = task
         DispatchQueue.global().asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)

@@ -1,13 +1,19 @@
 import UIKit
 import SoraUI
 import WebKit
+import Kingfisher
 
 class NftListCell: UITableViewCell {
+    private var model: NftListCellModel?
     private enum LayoutConstants {
         static let imageSize: CGFloat = 64.0
     }
 
-    let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.minimalOffset)
+    let stackView: UIStackView = {
+        let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.minimalOffset)
+        stackView.alignment = .top
+        return stackView
+    }()
 
     let cardView: TriangularedBlurView = {
         let view = TriangularedBlurView()
@@ -49,6 +55,16 @@ class NftListCell: UITableViewCell {
         return imageView
     }()
 
+    let nftCountLabel: InsettedLabel = {
+        let label = InsettedLabel(insets: UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4))
+        label.font = .h5Title
+        label.textColor = R.color.colorWhite50()
+        label.backgroundColor = R.color.colorWhite8()
+        label.layer.cornerRadius = 6
+        label.layer.masksToBounds = true
+        return label
+    }()
+
     private var skeletonView: SkrullableView?
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -64,20 +80,28 @@ class NftListCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        model?.imageViewModel?.cancel(on: nftImageView)
+        nftImageView.image = nil
+    }
+
     func bind(viewModel: NftListCellModel?) {
+        model = viewModel
+
         if let viewModel = viewModel {
             stopLoadingIfNeeded()
-            nftImageView.image = nil
-
             viewModel.imageViewModel?.loadImage(
                 on: nftImageView,
                 targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize),
-                animated: true
+                animated: true,
+                cornerRadius: 8
             )
 
             chainLabel.text = viewModel.chainNameLabelText
             nftNameLabel.text = viewModel.nftNameLabelText
-            collectionNameLabel.text = viewModel.collectionNameLabelText
+            collectionNameLabel.attributedText = viewModel.priceLabelAttributedText
+            nftCountLabel.text = viewModel.nftCountLabelText
         } else {
             startLoadingIfNeeded()
         }
@@ -89,6 +113,7 @@ class NftListCell: UITableViewCell {
         cardView.addSubview(verticalSeparatorView)
         cardView.addSubview(stackView)
         cardView.addSubview(detailsArrowImageView)
+        cardView.addSubview(nftCountLabel)
 
         stackView.addArrangedSubview(chainLabel)
         stackView.addArrangedSubview(nftNameLabel)
@@ -100,7 +125,7 @@ class NftListCell: UITableViewCell {
     private func setupConstraints() {
         cardView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
         }
 
         nftImageView.snp.makeConstraints { make in
@@ -118,14 +143,24 @@ class NftListCell: UITableViewCell {
 
         detailsArrowImageView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.equalTo(nftCountLabel.snp.trailing).offset(UIConstants.minimalOffset)
             make.centerY.equalToSuperview()
             make.size.equalTo(16)
         }
 
+        nftCountLabel.snp.makeConstraints { make in
+            make.height.equalTo(22)
+            make.centerY.equalToSuperview()
+        }
+
         stackView.snp.makeConstraints { make in
             make.leading.equalTo(verticalSeparatorView.snp.trailing).offset(UIConstants.defaultOffset)
-            make.trailing.equalTo(detailsArrowImageView.snp.leading).inset(UIConstants.defaultOffset)
+            make.trailing.equalTo(nftCountLabel.snp.leading).offset(UIConstants.defaultOffset)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        collectionNameLabel.snp.makeConstraints { make in
+            make.height.greaterThanOrEqualTo(15)
         }
     }
 }

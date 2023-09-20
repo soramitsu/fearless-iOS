@@ -26,4 +26,5 @@ protocol TransferServiceProtocol {
     func estimateFee(for transfer: Transfer) async throws -> BigUInt
     func submit(transfer: Transfer) async throws -> String
     func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener)
+    func unsubscribe()
 }

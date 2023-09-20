@@ -1067,8 +1067,8 @@
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
 "wallet.send.eth.dead.recipient.message" = "Insufficient Ethereum balance in the recipient's account prevents the completion of ERC20 token transfer. Please ensure the receiver has enough Ethereum to proceed with the transfer.";
 "nft.owner.title" = "Owned";
-"nft.collection.title" = "Collection";
+"nft.collection.title" = "コレクション";
 "onboarding.preinstalled.wallet.button.text" = "Get a pre-installed wallet";
-"nft.tokenid.title" = "Token ID";
+"nft.tokenid.title" = "トークンID";
 "import.json.invalid.import.type.message" = "Your JSON file isn't valid. You're trying to import ETH based chain accounts instead of Substrate ones. Please use a proper JSON file to import Substrate chain accounts at first.";
 "import.eth.json.invalid.import.type.message" = "Your JSON file isn't valid. You're trying to import Substrate based chain accounts instead of ETH ones. Please use a proper JSON file to import ETH chain accounts.";

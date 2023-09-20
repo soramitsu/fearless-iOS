@@ -32,7 +32,6 @@ struct EtherscanNftResponseElement: Decodable, Equatable, Hashable {
             return Date()
         }
 
-        print("nft date: ", Date(timeIntervalSince1970: timestampValue))
         return Date(timeIntervalSince1970: timestampValue)
     }
 }

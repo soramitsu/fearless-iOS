@@ -14,12 +14,17 @@ final class EtherscanHistoryOperationFactory {
     ) -> BaseOperation<EtherscanHistoryResponse> {
         let action: String = chainAsset.asset.ethereumType == .normal ? "txlist" : "tokentx"
         var urlComponents = URLComponents(string: url.absoluteString)
-        urlComponents?.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "module", value: "account"),
             URLQueryItem(name: "action", value: action),
             URLQueryItem(name: "address", value: address),
-            URLQueryItem(name: "apikey", value: BlockExplorerApiKeys.etherscanApiKey)
         ]
+
+        if let apiKey = BlockExplorerApiKey(chainId: chainAsset.chain.chainId) {
+            queryItems.append(URLQueryItem(name: "apikey", value: apiKey.value))
+        }
+
+        urlComponents?.queryItems = queryItems
 
         guard let urlWithParameters = urlComponents?.url else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)

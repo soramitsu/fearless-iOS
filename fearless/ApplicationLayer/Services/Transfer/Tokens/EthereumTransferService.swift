@@ -9,7 +9,7 @@ import SSFUtils
 final class EthereumTransferService: BaseEthereumService, TransferServiceProtocol {
     private let privateKey: EthereumPrivateKey
     private let senderAddress: String
-    private var feeSubscriptionId: UInt16?
+    private var feeSubscriptionId: String?
 
     init(
         ws: Web3.Eth,
@@ -20,6 +20,10 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         self.senderAddress = senderAddress
 
         super.init(ws: ws)
+    }
+
+    deinit {
+        unsubscribe()
     }
 
     func estimateFee(for transfer: Transfer) async throws -> BigUInt {
@@ -70,10 +74,9 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
     }
 
     func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
-        do {
-            try ws.subscribeToNewHeads(subscribed: {
-                _ in
-
+        func subscribe() throws {
+            try ws.subscribeToNewHeads(subscribed: { [weak self] subscriptionId in
+                self?.feeSubscriptionId = subscriptionId.result
             }, onEvent: { [weak self, weak listener] result in
                 if let blockObject = result.result, let listener = listener {
                     self?.handle(newHead: blockObject, listener: listener, transfer: transfer)
@@ -83,9 +86,30 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
                     listener?.didReceiveFeeError(feeError: TransferServiceError.cannotEstimateFee(reason: "unexpected new block head response"))
                 }
             })
+        }
+        do {
+            if let currentSubscription = feeSubscriptionId {
+                try ws.unsubscribe(subscriptionId: currentSubscription, completion: { success in
+                    guard success else { return }
+                    do {
+                        try subscribe()
+                    } catch {
+                        listener.didReceiveFeeError(feeError: error)
+                    }
+                })
+            } else {
+                try subscribe()
+            }
         } catch {
             listener.didReceiveFeeError(feeError: error)
         }
+    }
+
+    func unsubscribe() {
+        guard let subscriptionId = feeSubscriptionId else {
+            return
+        }
+        try? ws.unsubscribe(subscriptionId: subscriptionId, completion: { _ in })
     }
 
     private func handle(newHead: EthereumBlockObject, listener: TransferFeeEstimationListener, transfer: Transfer) {

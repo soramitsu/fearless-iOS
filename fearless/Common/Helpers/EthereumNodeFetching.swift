@@ -15,6 +15,23 @@ enum EthereumChain: String {
     case bscTestnet = "97"
     case polygon = "137"
 
+    var alchemyChainIdentifier: String? {
+        switch self {
+        case .ethereumMainnet:
+            return "eth-mainnet"
+        case .sepolia:
+            return "eth-sepolia"
+        case .goerli:
+            return "eth-goerli"
+        case .bscMainnet:
+            return nil
+        case .bscTestnet:
+            return nil
+        case .polygon:
+            return "polygon-mainnet"
+        }
+    }
+
     func apiKeyInjectedURL(baseURL: URL) -> URL {
         switch self {
         case .ethereumMainnet:

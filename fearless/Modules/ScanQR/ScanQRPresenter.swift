@@ -185,8 +185,12 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
     }
 
     func handleMatched(addressInfo: QRInfo) {
-        router.close(view: view) {
-            self.moduleOutput.didFinishWith(address: addressInfo.address)
+        router.close(view: view) { [weak self] in
+            if addressInfo as? SolomonQRInfo == nil {
+                self?.moduleOutput.didFinishWith(address: addressInfo.address)
+            } else {
+                self?.moduleOutput.didFinishWithSolomon(soraAddress: addressInfo.address)
+            }
         }
     }
 

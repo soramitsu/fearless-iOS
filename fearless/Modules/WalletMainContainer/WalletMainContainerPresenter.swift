@@ -239,11 +239,19 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 }
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
+    func didFinishWithSolomon(soraAddress: String) {
+        router.showSendFlow(
+            from: view,
+            wallet: wallet,
+            initialData: .soraMainnet(address: soraAddress)
+        )
+    }
+
     func didFinishWith(address: String) {
         router.showSendFlow(
             from: view,
             wallet: wallet,
-            address: address
+            initialData: .address(address)
         )
     }
 }

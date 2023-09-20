@@ -54,6 +54,10 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
 
         router.showCollection(collection, wallet: wallet, address: address, from: view)
     }
+
+    func didPullToRefresh() {
+        interactor.fetchData()
+    }
 }
 
 // MARK: - MainNftContainerInteractorOutput
@@ -62,10 +66,6 @@ extension MainNftContainerPresenter: MainNftContainerInteractorOutput {
     func didReceive(collections: [NFTCollection]) {
         let viewModels = viewModelFactory.buildViewModel(from: collections)
         view?.didReceive(viewModels: viewModels)
-    }
-
-    func didReceive(history: [NFTHistoryObject]) {
-        view?.didReceive(history: history)
     }
 }
 
@@ -82,7 +82,6 @@ extension MainNftContainerPresenter: EventVisitorProtocol {
         wallet = event.account
 
         DispatchQueue.main.async { [weak self] in
-            self?.view?.didReceive(history: nil)
             self?.view?.didReceive(viewModels: nil)
         }
         interactor.fetchData()
