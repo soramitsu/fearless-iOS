@@ -26,7 +26,7 @@ final class EthereumWalletRemoteSubscriptionService {
         switch chainAsset.asset.ethereumType {
         case .normal:
             try fetchEthBalance(for: chainAsset, ws: ws, accountId: accountId)
-        case .erc20:
+        case .erc20, .bep20:
             try fetchERC20Balance(for: chainAsset, ws: ws, accountId: accountId)
         case .none:
             break

@@ -29,7 +29,7 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
             case .normal:
                 let accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
                 completionBlock(chainAsset, accountInfo)
-            case .erc20:
+            case .erc20, .bep20:
                 let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
                 completionBlock(chainAsset, accountInfo)
             case .none:
@@ -52,7 +52,7 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
             switch chainAsset.asset.ethereumType {
             case .normal:
                 return fetchEthereumBalanceOperation(for: chainAsset, address: address)
-            case .erc20:
+            case .erc20, .bep20:
                 return fetchErc20BalanceOperation(for: chainAsset, address: address)
             case .none:
                 return nil

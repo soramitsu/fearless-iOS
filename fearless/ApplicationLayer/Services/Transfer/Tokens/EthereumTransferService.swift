@@ -35,7 +35,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             let gasPrice = try await queryGasPrice()
             let gasLimit = try await queryGasLimit(call: call)
             return gasLimit.quantity * gasPrice.quantity
-        case .erc20:
+        case .erc20, .bep20:
             let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
             let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())
             let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
@@ -58,7 +58,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             let maxPriorityFeePerGas = try await queryMaxPriorityFeePerGas()
             let gasLimit = try await queryGasLimit(call: call)
             return gasLimit.quantity * (baseFeePerGas.quantity + maxPriorityFeePerGas.quantity)
-        case .erc20:
+        case .erc20, .bep20:
             let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
             let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
             let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())
@@ -130,7 +130,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         switch transfer.chainAsset.asset.ethereumType {
         case .normal:
             return try await transferNative(transfer: transfer)
-        case .erc20:
+        case .erc20, .bep20:
             return try await transferERC20(transfer: transfer)
         case .none:
             throw TransferServiceError.transferFailed(reason: "unknown asset")
