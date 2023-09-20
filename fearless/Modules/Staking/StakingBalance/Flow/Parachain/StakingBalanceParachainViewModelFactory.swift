@@ -141,7 +141,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             redeemIcon: R.image.iconRevoke(),
             redeemActionIsAvailable: redeemableDecimal > 0,
             stakeMoreActionAvailable: bondedDecimal != unbondedDecimal && redeemableDecimal < bondedDecimal,
-            stakeLessActionAvailable: bondedDecimal > unbondedDecimal && redeemableDecimal < bondedDecimal
+            stakeLessActionAvailable: !(unbondedDecimal + redeemableDecimal > 0) && bondedDecimal > 0
         )
     }
 

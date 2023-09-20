@@ -332,15 +332,13 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo) {
-        guard let chainAsset = chainAsset else {
-            return
-        }
+        let managedItems: [StakingManageOption] = [.parachainStakingBalance(info: delegation), .yourCollator(info: delegation)]
 
-        wireframe.showStakingBalance(
+        wireframe.showManageStaking(
             from: view,
-            chainAsset: chainAsset,
-            wallet: selectedMetaAccount,
-            flow: .parachain(delegation: delegation.delegation, collator: delegation.collator)
+            items: managedItems,
+            delegate: self,
+            context: managedItems as NSArray
         )
     }
 
