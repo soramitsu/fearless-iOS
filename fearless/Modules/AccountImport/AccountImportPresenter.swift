@@ -96,11 +96,6 @@ struct PreferredData {
     }
 }
 
-enum JsonStepValidationResult {
-    case valid
-    case invalid(String)
-}
-
 final class AccountImportPresenter: NSObject {
     static let onFlyValidationEnabled: Bool = false
     static let maxMnemonicLength: Int = 250
@@ -980,10 +975,10 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     }
 
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?) {
-        if case let .invalid(message) = validateJsonForStep(preferredInfo: preferredInfo) {
+        guard validateJsonForStep(preferredInfo: preferredInfo) else {
             let viewModel = SheetAlertPresentableViewModel(
                 title: R.string.localizable.importJsonInvalidFormatTitle(preferredLanguages: selectedLocale.rLanguages),
-                message: message,
+                message: R.string.localizable.importJsonInvalidImportTypeMessage(preferredLanguages: selectedLocale.rLanguages),
                 actions: [],
                 closeAction: nil,
                 icon: R.image.iconWarningBig()
@@ -997,16 +992,11 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         applySourceType(text, preferredData: preferredData)
     }
 
-    func validateJsonForStep(preferredInfo: MetaAccountImportPreferredInfo?) -> JsonStepValidationResult {
-        if case let .wallet(step) = flow, let info = preferredInfo {
-            switch step {
-            case .first:
-                return info.isEthereum == true ? .invalid(R.string.localizable.importJsonInvalidImportTypeMessage(preferredLanguages: selectedLocale.rLanguages)) : .valid
-            case .second:
-                return info.isEthereum == true ? .valid : .invalid(R.string.localizable.importEthJsonInvalidImportTypeMessage(preferredLanguages: selectedLocale.rLanguages))
-            }
+    func validateJsonForStep(preferredInfo: MetaAccountImportPreferredInfo?) -> Bool {
+        if case let .wallet(step) = flow, case .first = step, let info = preferredInfo {
+            return info.isEthereum != true
         }
-        return .valid
+        return true
     }
 
     func didFailToDeriveMetadataFromKeystore() {
