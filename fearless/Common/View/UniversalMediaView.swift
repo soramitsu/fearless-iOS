@@ -42,17 +42,23 @@ final class UniversalMediaView: MediaView {
                     self?.activityIndicator.stopAnimating()
                 }
             case .video:
-                if animating {
-                    setVideo(url: mediaURL.absoluteString)
-                } else {
-                    setThumbnailImage(url: mediaURL)
-                    activityIndicator.stopAnimating()
+                DispatchQueue.main.async { [weak self] in
+                    if animating {
+                        self?.setVideo(url: mediaURL.absoluteString)
+                    } else {
+                        self?.setThumbnailImage(url: mediaURL)
+                        self?.activityIndicator.stopAnimating()
+                    }
                 }
             case .gif:
-                setGIF(url: mediaURL.absoluteString)
-                activityIndicator.stopAnimating()
+                DispatchQueue.main.async { [weak self] in
+                    self?.setGIF(url: mediaURL.absoluteString)
+                    self?.activityIndicator.stopAnimating()
+                }
             case .none:
-                activityIndicator.stopAnimating()
+                DispatchQueue.main.async { [weak self] in
+                    self?.activityIndicator.stopAnimating()
+                }
             }
         }
     }

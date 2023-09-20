@@ -11,7 +11,7 @@ struct NFT: Codable, Equatable, Hashable {
     let tokenId: String
     let title: String?
     let description: String?
-    let smartContract: String
+    let smartContract: String?
     let metadata: NFTMetadata?
     let mediaThumbnail: String?
     let media: [NFTMedia]?
@@ -101,15 +101,24 @@ struct NFTMedia: Codable, Equatable, Hashable {
             return false
         }
 
-        var imageExtensions = "jpg, jpeg, png, bmp, heic"
+        let imageExtensions = "jpg, jpeg, png, bmp, heic"
         return imageExtensions.contains(format)
+    }
+
+    var isVideo: Bool {
+        guard let format = format else {
+            return false
+        }
+
+        let videoExtensions = "mp4, mkv, mov, avi"
+        return videoExtensions.contains(format)
     }
 }
 
 struct NFTCollection: Codable, Equatable, Hashable {
     let address: String?
     let numberOfTokens: UInt32?
-    let isSpam: Bool?
+    let isSpam: String?
     let title: String?
     let name: String?
     let creator: String?
@@ -123,7 +132,15 @@ struct NFTCollection: Codable, Equatable, Hashable {
     var nfts: [NFT]?
 
     var displayName: String? {
-        opensea?.collectionName ?? name
+        if let name = opensea?.collectionName, name.isNotEmpty {
+            return name
+        }
+
+        if let name = name, name.isNotEmpty {
+            return name
+        }
+
+        return nfts?.first?.displayName
     }
 
     var displayImageUrl: URL? {

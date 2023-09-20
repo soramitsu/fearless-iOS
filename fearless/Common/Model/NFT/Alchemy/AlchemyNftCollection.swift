@@ -10,7 +10,7 @@ struct AlchemyNftCollection: Decodable {
     let address: String?
     let totalBalance: UInt32?
     let numDistinctTokensOwned: UInt32?
-    let isSpam: Bool?
+    let isSpam: String?
     let tokenId: String?
     let name: String?
     let title: String?

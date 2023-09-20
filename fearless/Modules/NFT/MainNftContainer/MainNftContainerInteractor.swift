@@ -44,11 +44,15 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                 let nftsBySmartContract: [String: [NFT]] = nfts.reduce([String: [NFT]]()) { partialResult, nft in
                     var map = partialResult
 
-                    if var nfts = partialResult[nft.smartContract] {
+                    guard let smartContract = nft.smartContract else {
+                        return map
+                    }
+
+                    if var nfts = partialResult[smartContract] {
                         nfts.append(nft)
-                        map[nft.smartContract] = nfts
+                        map[smartContract] = nfts
                     } else {
-                        map[nft.smartContract] = [nft]
+                        map[smartContract] = [nft]
                     }
 
                     return map

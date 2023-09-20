@@ -100,7 +100,8 @@ final class AlchemyNFTOperationFactory {
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTs")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [
-            URLQueryItem(name: "owner", value: address)
+            URLQueryItem(name: "owner", value: address),
+            URLQueryItem(name: "excludeFilters[]", value: "spam")
         ]
 
         guard let urlWithParameters = urlComponents?.url else {
@@ -176,7 +177,7 @@ final class AlchemyNFTOperationFactory {
                     tokenId: $0.id.tokenId,
                     title: $0.title,
                     description: $0.description,
-                    smartContract: $0.contract.address,
+                    smartContract: $0.contract?.address,
                     metadata: nil,
                     mediaThumbnail: $0.metadata?.poster ?? $0.media?.first?.thumbnail,
                     media: media,
