@@ -26,10 +26,10 @@ extension AccountCreateChainType {
 }
 
 enum AccountCreationStep {
-    case first
-    case second(data: FirstStepData)
+    case substrate
+    case ethereum(data: SubstrateStepData)
 
-    struct FirstStepData {
+    struct SubstrateStepData {
         let sourceType: AccountImportSource
         let source: String
         let username: String
