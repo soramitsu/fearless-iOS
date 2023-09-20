@@ -19,6 +19,15 @@ extension AssetTransactionData {
             return timestamp
         }()
 
+        let feeValue = item.gasUsed * item.gasPrice
+        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
+
+        let fee = AssetTransactionFee(
+            identifier: asset.identifier,
+            assetId: asset.identifier,
+            amount: AmountDecimal(value: feeDecimal),
+            context: nil
+        )
         let amount = Decimal.fromSubstrateAmount(item.value, precision: Int16(asset.precision)) ?? .zero
 
         return AssetTransactionData(
@@ -31,7 +40,7 @@ extension AssetTransactionData {
             peerName: peerAddress,
             details: "",
             amount: AmountDecimal(value: amount),
-            fees: [],
+            fees: [fee],
             timestamp: timestamp,
             type: type.rawValue,
             reason: "",

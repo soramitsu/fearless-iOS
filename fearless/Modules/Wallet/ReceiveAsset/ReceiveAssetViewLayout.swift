@@ -135,6 +135,7 @@ final class ReceiveAssetViewLayout: UIView {
         walletLabel.snp.makeConstraints { make in
             make.top.equalTo(qrView.snp.bottom).offset(UIConstants.hugeOffset)
             make.centerX.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         addSubview(addressLabel)
