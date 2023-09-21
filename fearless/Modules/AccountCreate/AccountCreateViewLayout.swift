@@ -32,6 +32,7 @@ final class AccountCreateViewLayout: UIView {
         view.stackView.isLayoutMarginsRelativeArrangement = true
         view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
         view.stackView.alignment = .fill
+        view.stackView.spacing = UIConstants.defaultOffset
         return view
     }()
 
