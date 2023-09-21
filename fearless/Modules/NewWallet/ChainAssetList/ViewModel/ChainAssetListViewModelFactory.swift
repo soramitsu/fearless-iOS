@@ -256,7 +256,7 @@ private extension ChainAssetListViewModelFactory {
             wallet: wallet
         )
 
-        let shownChainAssetsIconsArray = chainAssets.map { $0.chain.icon }.filter { $0 != chainAsset.chain.icon }
+        let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }.filter { $0 != chainAsset.chain.icon }
         let chainImages = Array(Set(shownChainAssetsIconsArray))
             .map { $0.map { RemoteImageViewModel(url: $0) }}
             .compactMap { $0 }
