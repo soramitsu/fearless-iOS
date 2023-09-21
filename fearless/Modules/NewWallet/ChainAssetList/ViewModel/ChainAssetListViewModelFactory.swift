@@ -256,17 +256,15 @@ private extension ChainAssetListViewModelFactory {
             wallet: wallet
         )
 
-        let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }
-        var chainImages = Array(Set(shownChainAssetsIconsArray))
+        let shownChainAssetsIconsArray = chainAssets.map { $0.chain.icon }.filter { $0 != chainAsset.chain.icon }
+        let chainImages = Array(Set(shownChainAssetsIconsArray))
             .map { $0.map { RemoteImageViewModel(url: $0) }}
-        if !shownChainAssetsIconsArray.contains(chainAsset.chain.icon) {
-            let chainImageUrl = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
-            chainImages.insert(chainImageUrl, at: 0)
-        }
+            .compactMap { $0 }
+        let mainChainImageUrl = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
 
         let chainIconsViewModel = ChainCollectionViewModel(
             maxImagesCount: 5,
-            chainImages: chainImages
+            chainImages: chainImages.sorted(by: { $0.url.absoluteString > $1.url.absoluteString }) + [mainChainImageUrl]
         )
 
         let viewModel = ChainAccountBalanceCellViewModel(
