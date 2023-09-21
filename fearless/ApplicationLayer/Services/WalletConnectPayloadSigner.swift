@@ -1,5 +1,4 @@
 import Foundation
-// import WalletConnectSwiftV2
 import SSFModels
 import Commons
 

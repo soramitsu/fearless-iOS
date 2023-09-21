@@ -3,7 +3,7 @@ typealias RawDataModuleCreationResult = (
     input: RawDataModuleInput
 )
 
-protocol RawDataRouterInput: PresentDismissable {}
+protocol RawDataRouterInput: PresentDismissable, SheetAlertPresentable, ErrorPresentable {}
 
 protocol RawDataModuleInput: AnyObject {}
 

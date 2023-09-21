@@ -10,7 +10,7 @@ protocol WalletConnectSessionViewModelFactory {
         chains: [ChainModel],
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
-    ) throws -> WalletConnectSessionViewModel
+    ) async throws -> WalletConnectSessionViewModel
 }
 
 final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewModelFactory {
@@ -39,13 +39,13 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         chains: [ChainModel],
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
-    ) throws -> WalletConnectSessionViewModel {
+    ) async throws -> WalletConnectSessionViewModel {
         var dApp: String?
         if let session = session {
             dApp = URL(string: session.peer.url)?.host
         }
 
-        let payload = try prepareSignPayload()
+        let payload = try await prepareSignPayload(chains: chains)
         let wallet = try findWallet(for: payload.address, wallets: wallets, chains: chains)
         let walletViewModel = createWalletViewModel(
             wallet: wallet,
@@ -64,11 +64,15 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
 
     // MARK: - Private methods
 
-    private func prepareSignPayload() throws -> WalletConnectPayload {
+    private func prepareSignPayload(
+        chains: [ChainModel]
+    ) async throws -> WalletConnectPayload {
         let method = try walletConnectModelFactory.parseMethod(from: request)
-        let payload = try walletConnectPayloaFactory.createTransactionPayload(
+        let chain = try walletConnectModelFactory.resolveChain(for: request.chainId, chains: chains)
+        let payload = try await walletConnectPayloaFactory.createTransactionPayload(
             request: request,
-            method: method
+            method: method,
+            chain: chain
         )
 
         return payload

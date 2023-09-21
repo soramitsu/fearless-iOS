@@ -59,19 +59,25 @@ final class WalletConnectSessionPresenter {
         guard chainModels.isNotEmpty, wallets.isNotEmpty else {
             return
         }
-        do {
-            let viewModel = try viewModelFactory.buildViewModel(
-                wallets: wallets,
-                chains: chainModels,
-                balanceInfo: balanceInfos,
-                locale: selectedLocale
-            )
+        Task {
+            do {
+                let viewModel = try await viewModelFactory.buildViewModel(
+                    wallets: wallets,
+                    chains: chainModels,
+                    balanceInfo: balanceInfos,
+                    locale: selectedLocale
+                )
 
-            view?.didReceive(viewModel: viewModel)
+                await MainActor.run {
+                    view?.didReceive(viewModel: viewModel)
+                }
 
-            self.viewModel = viewModel
-        } catch {
-            handle(error: error, request: request)
+                self.viewModel = viewModel
+            } catch {
+                await MainActor.run(body: {
+                    handle(error: error, request: request)
+                })
+            }
         }
     }
 

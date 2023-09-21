@@ -238,6 +238,10 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             .reduce([], +)
             .joined(separator: ", ")
 
+        if methods.isEmpty, events.isEmpty {
+            return nil
+        }
+
         return WalletConnectProposalCellModel.ExpandableViewModel(
             cellTitle: cellTitle,
             chain: resolvedChains.map { $0.name }.joined(separator: ", "),

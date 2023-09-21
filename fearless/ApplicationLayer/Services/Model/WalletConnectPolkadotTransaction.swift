@@ -21,5 +21,5 @@ struct TransactionPayload: Codable {
     let specVersion: String
     let tip: String
     let transactionVersion: String
-    let version: Int
+    let version: UInt
 }

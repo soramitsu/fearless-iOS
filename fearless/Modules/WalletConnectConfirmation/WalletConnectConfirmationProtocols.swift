@@ -1,4 +1,5 @@
 import SSFModels
+import SSFUtils
 
 typealias WalletConnectConfirmationModuleCreationResult = (
     view: WalletConnectConfirmationViewInput,
@@ -13,7 +14,7 @@ protocol WalletConnectConfirmationRouterInput: PresentDismissable, SheetAlertPre
         closure: @escaping () -> Void
     )
     func comlete(from view: ControllerBackedProtocol?)
-    func showRawData(text: String, from view: ControllerBackedProtocol?)
+    func showRawData(json: JSON, from view: ControllerBackedProtocol?)
 }
 
 protocol WalletConnectConfirmationModuleInput: AnyObject {}

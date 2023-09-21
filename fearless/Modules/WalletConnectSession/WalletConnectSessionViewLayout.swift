@@ -65,6 +65,7 @@ final class WalletConnectSessionViewLayout: UIView {
         view.triangularedBackgroundView?.strokeWidth = 0.5
         view.titleLabel.font = .h5Title
         view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        view.subtitleLabel?.numberOfLines = 1
         return view
     }()
 

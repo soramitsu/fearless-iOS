@@ -13,16 +13,12 @@ final class RawDataViewController: UIViewController, ViewHolder {
 
     private let output: RawDataViewOutput
 
-    private let text: String
-
     // MARK: - Constructor
 
     init(
-        text: String,
         output: RawDataViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
-        self.text = text
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -36,7 +32,7 @@ final class RawDataViewController: UIViewController, ViewHolder {
     // MARK: - Life cycle
 
     override func loadView() {
-        view = RawDataViewLayout(text: text)
+        view = RawDataViewLayout()
     }
 
     override func viewDidLoad() {
@@ -59,7 +55,11 @@ final class RawDataViewController: UIViewController, ViewHolder {
 
 // MARK: - RawDataViewInput
 
-extension RawDataViewController: RawDataViewInput {}
+extension RawDataViewController: RawDataViewInput {
+    func didReceive(text: String) {
+        rootView.set(text: text)
+    }
+}
 
 // MARK: - Localizable
 

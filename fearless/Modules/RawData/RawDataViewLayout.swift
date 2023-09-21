@@ -37,16 +37,19 @@ final class RawDataViewLayout: UIView {
         }
     }
 
-    init(text: String) {
-        super.init(frame: .zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         backgroundColor = R.color.colorBlack19()
-        label.text = text
         setupLayout()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func set(text: String) {
+        label.text = text
     }
 
     // MARK: - Private methods

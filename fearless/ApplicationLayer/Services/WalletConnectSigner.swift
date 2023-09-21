@@ -34,7 +34,15 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         let signer: WalletConnectPayloadSigner
         switch method {
         case .polkadotSignTransaction:
-            return AnyCodable(any: [])
+            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType.utilsType
+            let transactionSigner = try createSigner(for: chain, cryptoType: SFCryptoType(cryptoType ?? .sr25519))
+            let signType: WalletConnectPolkadorSigner.SignType = .signTransaction(transactionSigner: transactionSigner)
+            signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)
+        case .polkadotSignMessage:
+            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType.utilsType
+            let transactionSigner = try createSigner(for: chain, cryptoType: SFCryptoType(cryptoType ?? .sr25519))
+            let signType: WalletConnectPolkadorSigner.SignType = .signMessage(transactionSigner: transactionSigner)
+            signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)
         case .ethereumPersonalSign:
             let transactionSigner = try createSigner(for: chain, cryptoType: .ethereumEcdsa)
             let signType: WalletConnectEthereumSignerImpl.SignType = .bytes(transactionSigner: transactionSigner)
@@ -83,7 +91,9 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
             throw JSONRPCError.unsupportedAccounts
         }
         let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        let tag: String = KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+        let tag: String = chain.isEthereumBased
+            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+            : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
 
         let secretKey = try keystore.fetchKey(for: tag)
 

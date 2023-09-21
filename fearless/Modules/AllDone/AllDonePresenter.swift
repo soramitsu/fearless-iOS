@@ -17,7 +17,7 @@ final class AllDonePresenter {
     private var title: String?
     private var description: String?
 
-    private var subscanExplorer: ChainModel.ExternalApiExplorer?
+    private var explorer: ChainModel.ExternalApiExplorer?
 
     // MARK: - Constructors
 
@@ -56,12 +56,16 @@ final class AllDonePresenter {
         view?.didReceive(viewModel: viewModel)
     }
 
-    private func prepareSubscanExplorer() {
-        let subscanExplorer = chainAsset?.chain.externalApi?.explorers?.first(where: {
-            $0.type == .subscan
+    private func prepareExplorer() {
+        guard hashString != nil else {
+            view?.didReceive(explorer: nil)
+            return
+        }
+        let explorer = chainAsset?.chain.externalApi?.explorers?.first(where: {
+            $0.type == .subscan || $0.type == .etherscan
         })
-        view?.didReceive(explorer: subscanExplorer)
-        self.subscanExplorer = subscanExplorer
+        view?.didReceive(explorer: explorer)
+        self.explorer = explorer
     }
 }
 
@@ -72,27 +76,27 @@ extension AllDonePresenter: AllDoneViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
-        prepareSubscanExplorer()
+        prepareExplorer()
     }
 
-    func subscanButtonDidTapped() {
-        guard let subscanExplorer = self.subscanExplorer,
+    func explorerButtonDidTapped() {
+        guard let explorer = self.explorer,
               let hashString = hashString,
-              let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
         else {
             return
         }
-        router.presentSubscan(from: view, url: subscanUrl)
+        router.presentSubscan(from: view, url: explorerUrl)
     }
 
     func shareButtonDidTapped() {
-        guard let subscanExplorer = self.subscanExplorer,
+        guard let explorer = self.explorer,
               let hashString = hashString,
-              let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
         else {
             return
         }
-        router.share(sources: [subscanUrl], from: view, with: nil)
+        router.share(sources: [explorerUrl], from: view, with: nil)
     }
 
     func dismiss() {

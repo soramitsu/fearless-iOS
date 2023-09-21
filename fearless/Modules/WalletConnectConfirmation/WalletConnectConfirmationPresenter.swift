@@ -81,7 +81,7 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutpu
     }
 
     func rawDataDidTapped() {
-        router.showRawData(text: inputData.payload.stringRepresentation, from: view)
+        router.showRawData(json: inputData.payload.txDetails, from: view)
     }
 
     func confirmDidTapped() {

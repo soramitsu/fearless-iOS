@@ -1,6 +1,7 @@
 import Foundation
 import SoraUI
 import SSFModels
+import SSFUtils
 
 final class WalletConnectConfirmationRouter: WalletConnectConfirmationRouterInput {
     func showAllDone(
@@ -33,8 +34,8 @@ final class WalletConnectConfirmationRouter: WalletConnectConfirmationRouterInpu
         controller.view.window?.rootViewController?.dismiss(animated: false, completion: nil)
     }
 
-    func showRawData(text: String, from view: ControllerBackedProtocol?) {
-        let module = RawDataAssembly.configureModule(text: text)
+    func showRawData(json: JSON, from view: ControllerBackedProtocol?) {
+        let module = RawDataAssembly.configureModule(json: json)
         guard let controller = module?.view.controller else {
             return
         }

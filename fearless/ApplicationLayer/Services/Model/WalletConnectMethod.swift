@@ -2,7 +2,7 @@ import Foundation
 
 enum WalletConnectMethod: String, CaseIterable {
     case polkadotSignTransaction = "polkadot_signTransaction"
-//    case polkadotSignMessage = "polkadot_signMessage"
+    case polkadotSignMessage = "polkadot_signMessage"
     case ethereumSignTransaction = "eth_signTransaction"
     case ethereumSendTransaction = "eth_sendTransaction"
     case ethereumPersonalSign = "personal_sign"
