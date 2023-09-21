@@ -87,7 +87,7 @@ class AccountManagementTests: XCTestCase {
             when(stub).notify(with: any()).thenDoNothing()
         }
 
-        let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
+        let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: UniversalIconGenerator())
         let presenter = AccountManagementPresenter(viewModelFactory: viewModelFactory,
                                                    localizationManager: LocalizationManager.shared)
         let interactor = AccountManagementInteractor(

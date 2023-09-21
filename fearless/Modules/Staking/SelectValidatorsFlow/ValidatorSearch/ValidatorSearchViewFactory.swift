@@ -90,7 +90,7 @@ struct ValidatorSearchViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorSearchRelaychainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
             return ValidatorSearchDependencyContainer(
@@ -110,7 +110,7 @@ struct ValidatorSearchViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorSearchParachainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory,
                 chainAsset: chainAsset
             )
