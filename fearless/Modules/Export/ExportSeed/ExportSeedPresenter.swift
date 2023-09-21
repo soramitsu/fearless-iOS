@@ -68,12 +68,12 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
         let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
 
         let exportTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
-        let exportAction = SheetAlertPresentableAction(title: exportTitle, style: .pinkBackgroundWhiteText) { [weak self] in
-            self?.wireframe.back(view: self?.view)
-        }
+        let exportAction = SheetAlertPresentableAction(title: exportTitle, style: .pinkBackgroundWhiteText)
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let cancelAction = SheetAlertPresentableAction(title: cancelTitle) {}
+        let cancelAction = SheetAlertPresentableAction(title: cancelTitle) { [weak self] in
+            self?.wireframe.back(view: self?.view)
+        }
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
