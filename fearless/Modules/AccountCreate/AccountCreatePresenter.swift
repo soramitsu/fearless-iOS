@@ -88,7 +88,7 @@ final class AccountCreatePresenter {
 
         if isEthereum {
             predicate = NSPredicate.deriviationPathHardSoft
-            placeholder = DerivationPathConstants.hardSoftPlaceholder
+            placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch cryptoType {
             case .sr25519:

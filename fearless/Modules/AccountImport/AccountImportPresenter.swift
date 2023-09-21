@@ -384,7 +384,7 @@ private extension AccountImportPresenter {
         let placeholder: String
         if isEthereum {
             predicate = NSPredicate.deriviationPathHardSoft
-            placeholder = DerivationPathConstants.hardSoftPlaceholder
+            placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch (cryptoType, sourceType) {
             case (.sr25519, .mnemonic):
