@@ -110,18 +110,32 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
             throw ChainRegistryError.connectionUnavailable
         }
 
+        let lock = NSLock()
+
         let contractAddress = try EthereumAddress(hex: chainAsset.asset.id, eip55: false)
         let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
         let ethAddress = try EthereumAddress(rawAddress: address.hexToBytes())
         return try await withCheckedThrowingContinuation { continuation in
+            var nillableContinuation: CheckedContinuation<AccountInfo?, Error>? = continuation
+
             contract.balanceOf(address: ethAddress).call(completion: { response, error in
+                lock.lock()
+                defer { lock.unlock() }
+
+                guard let unwrapedContinuation = nillableContinuation else {
+                    return
+                }
+
                 if let response = response, let balance = response["_balance"] as? BigUInt {
                     let accountInfo = AccountInfo(ethBalance: balance)
-                    return continuation.resume(with: .success(accountInfo))
+                    unwrapedContinuation.resume(with: .success(accountInfo))
+                    nillableContinuation = nil
                 } else if let error = error {
-                    return continuation.resume(with: .failure(error))
+                    unwrapedContinuation.resume(with: .failure(error))
+                    nillableContinuation = nil
                 } else {
-                    return continuation.resume(with: .success(nil))
+                    unwrapedContinuation.resume(with: .success(nil))
+                    nillableContinuation = nil
                 }
             })
         }

@@ -54,9 +54,12 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
 
 extension CoingeckoPricesSource: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        readWriterLock.exclusivelyWrite { [unowned self] in
-            if self.currencys != [event.account.selectedCurrency] {
-                self.currencys = [event.account.selectedCurrency]
+        readWriterLock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+            if strongSelf.currencys != [event.account.selectedCurrency] {
+                strongSelf.currencys = [event.account.selectedCurrency]
             }
         }
     }
