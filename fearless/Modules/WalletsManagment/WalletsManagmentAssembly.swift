@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraUI
+import SSFNetwork
 
 final class WalletsManagmentAssembly {
     static func configureModule(
@@ -59,13 +60,19 @@ final class WalletsManagmentAssembly {
             logger: logger
         )
 
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
+
         let interactor = WalletsManagmentInteractor(
             shouldSaveSelected: shouldSaveSelected,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             metaAccountRepository: AnyDataProviderRepository(managedMetaAccountRepository),
             operationQueue: sharedDefaultQueue,
             settings: SelectedWalletSettings.shared,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            featureToggleService: featureToggleProvider
         )
         let router = WalletsManagmentRouter()
 
