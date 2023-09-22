@@ -67,7 +67,7 @@ enum ChainAccountViewFactory {
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainRepository: AnyDataProviderRepository(chainRepository),
+            chainAssetFetcher: chainAssetFetching,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: eventCenter,
             logger: logger

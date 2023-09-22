@@ -7,15 +7,24 @@ import SSFModels
 enum BalanceInfoType {
     case wallet(wallet: MetaAccountModel)
     case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
+
+    var wallet: MetaAccountModel {
+        switch self {
+        case let .wallet(wallet):
+            return wallet
+        case let .chainAsset(wallet, _):
+            return wallet
+        }
+    }
 }
 
 enum BalanceInfoAssembly {
     static func configureModule(with type: BalanceInfoType) -> BalanceInfoModuleCreationResult? {
+        guard let wallet = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
         let operationManager = OperationManagerFacade.sharedManager
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -40,10 +49,17 @@ enum BalanceInfoAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: substrateAccountInfoFetching,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            meta: type.wallet
+        )
+
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainRepository: AnyDataProviderRepository(chainRepository),
+            chainAssetFetcher: chainAssetFetching,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: eventCenter,
             logger: logger
