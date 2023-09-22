@@ -139,11 +139,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             if case ChainAssetsFetching.Filter.search = $0 {
                 return true
             }
-
-            if case ChainAssetsFetching.Filter.searchEmpty = $0 {
-                return false
-            }
-
             return true
         }
         let emptyStateIsActive = activeSectionCellModels.isEmpty && hiddenSectionCellModels.isEmpty && shouldShowEmptyStatePerFilter.contains(where: { $0 == true })
@@ -151,11 +146,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             if case ChainAssetsFetching.Filter.search = $0 {
                 return true
             }
-
-            if case ChainAssetsFetching.Filter.searchEmpty = $0 {
-                return true
-            }
-
             return false
         }
         return ChainAssetListViewModel(
