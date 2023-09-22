@@ -110,8 +110,6 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
             throw ChainRegistryError.connectionUnavailable
         }
 
-        let lock = NSLock()
-
         let contractAddress = try EthereumAddress(hex: chainAsset.asset.id, eip55: false)
         let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
         let ethAddress = try EthereumAddress(rawAddress: address.hexToBytes())
@@ -119,9 +117,6 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
             var nillableContinuation: CheckedContinuation<AccountInfo?, Error>? = continuation
 
             contract.balanceOf(address: ethAddress).call(completion: { response, error in
-                lock.lock()
-                defer { lock.unlock() }
-
                 guard let unwrapedContinuation = nillableContinuation else {
                     return
                 }

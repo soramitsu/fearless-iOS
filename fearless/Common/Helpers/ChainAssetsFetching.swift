@@ -144,11 +144,11 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
                 completionBlock: { result in
                     switch result {
                     case let .success(chainAsset):
-                        continuation.resume(returning: chainAsset)
+                        return continuation.resume(returning: chainAsset)
                     case let .failure(error):
-                        continuation.resume(throwing: error)
+                        return continuation.resume(throwing: error)
                     case .none:
-                        continuation.resume(throwing: ConvenienceError(error: "None completion block"))
+                        return continuation.resume(throwing: ConvenienceError(error: "None completion block"))
                     }
                 }
             )
