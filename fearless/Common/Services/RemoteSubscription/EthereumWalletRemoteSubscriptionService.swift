@@ -11,9 +11,6 @@ final class EthereumWalletRemoteSubscriptionService {
     private let operationManager: OperationManagerProtocol
     private let repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
 
-    private var lastUpdateByChainId: [ChainModel.Id: TimeInterval] = [:]
-    private let lock = ReaderWriterLock()
-
     init(
         chainRegistry: ChainRegistryProtocol,
         logger: LoggerProtocol,
@@ -29,18 +26,6 @@ final class EthereumWalletRemoteSubscriptionService {
     }
 
     private func handleNewBlock(ws: Web3.Eth, chainAsset: ChainAsset, accountId: AccountId) throws {
-        let now = Date().timeIntervalSince1970
-        let lastUpdate = lock.concurrentlyRead {
-            lastUpdateByChainId[chainAsset.chain.chainId] ?? 0
-        }
-        guard now - lastUpdate > 30 else {
-            return
-        }
-
-        lock.exclusivelyWrite { [weak self] in
-            self?.lastUpdateByChainId[chainAsset.chain.chainId] = now
-        }
-
         switch chainAsset.asset.ethereumType {
         case .normal:
             try fetchEthBalance(for: chainAsset, ws: ws, accountId: accountId)
