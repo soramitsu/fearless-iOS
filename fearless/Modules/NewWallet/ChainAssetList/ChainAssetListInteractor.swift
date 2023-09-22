@@ -75,6 +75,27 @@ final class ChainAssetListInteractor {
 
         operationQueue.addOperation(saveOperation)
     }
+
+    private func reload() {
+        guard let chainAssets = chainAssets else {
+            return
+        }
+
+        output?.didReceiveChainAssets(result: .success(chainAssets))
+
+        var responseReceivedCounter: Int = 0
+        accountInfoFetchingProviders.forEach { accountInfoFetching in
+            accountInfoFetching.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
+                self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+
+                responseReceivedCounter += 1
+
+                if responseReceivedCounter == self?.accountInfoFetchingProviders.count {
+                    self?.subscribeToAccountInfo(for: chainAssets)
+                }
+            }
+        }
+    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -307,7 +328,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        updateChainAssets(using: filters, sorts: sorts)
+        reload()
     }
 }
 

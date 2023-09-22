@@ -8,7 +8,7 @@ protocol AccountInfoUpdatingServiceProtocol: ApplicationServiceProtocol {
 
 final class AccountInfoUpdatingService {
     struct SubscriptionInfo {
-        let subscriptionId: UUID
+        let subscriptionId: String
         let accountId: AccountId
     }
 
@@ -67,6 +67,7 @@ final class AccountInfoUpdatingService {
                     newItem.chainAssets.forEach {
                         addSubscriptionIfNeeded(for: $0)
                     }
+                    chains[newItem.chainId] = newItem
                 } else {
                     chains[newItem.chainId] = newItem
                 }
@@ -152,19 +153,27 @@ final class AccountInfoUpdatingService {
 
         setSubscription(nil, for: key)
 
-        ethereumRemoteSubscriptionService.detachFromAccountInfo(
-            for: subscriptionInfo.subscriptionId,
-            chainAssetKey: key,
-            queue: nil,
-            closure: nil
-        )
+        guard let ecosystem = key.components(separatedBy: ":")[safe: 1],
+              let chainBaseType = ChainBaseType(rawValue: ecosystem) else {
+            return
+        }
 
-        remoteSubscriptionService.detachFromAccountInfo(
-            for: subscriptionInfo.subscriptionId,
-            chainAssetKey: key,
-            queue: nil,
-            closure: nil
-        )
+        switch chainBaseType {
+        case .ethereum:
+            ethereumRemoteSubscriptionService.detachFromAccountInfo(
+                for: subscriptionInfo.subscriptionId,
+                chainAssetKey: key,
+                queue: nil,
+                closure: nil
+            )
+        case .substrate:
+            remoteSubscriptionService.detachFromAccountInfo(
+                for: subscriptionInfo.subscriptionId,
+                chainAssetKey: key,
+                queue: nil,
+                closure: nil
+            )
+        }
     }
 
     private func subscribeToChains() {
@@ -194,11 +203,12 @@ extension AccountInfoUpdatingService: AccountInfoUpdatingServiceProtocol {
     }
 
     func update(selectedMetaAccount: MetaAccountModel) {
-        unsubscribeFromChains()
-
+        removeAllSubscriptions()
         self.selectedMetaAccount = selectedMetaAccount
 
-        subscribeToChains()
+        chains.values.compactMap { $0.chainAssets }.reduce([], +).forEach {
+            addSubscriptionIfNeeded(for: $0)
+        }
     }
 }
 
