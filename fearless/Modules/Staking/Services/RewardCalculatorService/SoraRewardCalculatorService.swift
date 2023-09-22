@@ -185,7 +185,11 @@ final class SoraRewardCalculatorService {
             return
         }
 
-        chainAssetFetching.fetch(filters: [.assetName(assetName), .chainId(chainAsset.chain.chainId)], sortDescriptors: []) { [weak self] result in
+        chainAssetFetching.fetch(
+            shouldUseCashe: true,
+            filters: [.assetName(assetName), .chainId(chainAsset.chain.chainId)],
+            sortDescriptors: []
+        ) { [weak self] result in
             switch result {
             case let .success(chainAssets):
                 let rewardChainAsset = chainAssets.first(where: { $0.asset.symbol.lowercased() == assetName.lowercased() })

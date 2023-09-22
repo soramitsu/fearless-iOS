@@ -101,6 +101,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let chainAssetFetching = dependencyContainer.buildDependencies(for: wallet).chainAssetFetching
         chainAssetFetching.fetch(
+            shouldUseCashe: true,
             filters: filters,
             sortDescriptors: sorts
         ) { [weak self] result in

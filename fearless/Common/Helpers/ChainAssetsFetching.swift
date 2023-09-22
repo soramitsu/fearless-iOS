@@ -5,6 +5,7 @@ import SSFModels
 
 protocol ChainAssetFetchingProtocol {
     func fetch(
+        shouldUseCashe: Bool,
         filters: [ChainAssetsFetching.Filter],
         sortDescriptors: [ChainAssetsFetching.SortDescriptor],
         completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
@@ -18,7 +19,6 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case hasCrowdloans(Bool)
         case assetName(String)
         case search(String)
-        case searchEmpty
         case ecosystem(ChainEcosystem)
         case chainIds([ChainModel.Id])
         case supportNfts
@@ -73,7 +73,9 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
     private let operationQueue: OperationQueue
     private let meta: MetaAccountModel
     private let accountInfoFetching: AccountInfoFetching
+
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
+    private var allChainAssets: [ChainAsset]?
 
     init(
         chainRepository: AnyDataProviderRepository<ChainModel>,
@@ -88,6 +90,57 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
     }
 
     func fetch(
+        shouldUseCashe: Bool,
+        filters: [Filter],
+        sortDescriptors: [SortDescriptor],
+        completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
+    ) {
+        if shouldUseCashe {
+            fetchFromCache(filters: filters, sortDescriptors: sortDescriptors, completionBlock: completionBlock)
+        } else {
+            allChainAssets = nil
+            fetchFromDatabase(filters: filters, sortDescriptors: sortDescriptors, completionBlock: completionBlock)
+        }
+    }
+}
+
+private extension ChainAssetsFetching {
+    func fetchFromCache(
+        filters: [Filter],
+        sortDescriptors: [SortDescriptor],
+        completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
+    ) {
+        func prepareSortAndFilter(chainAssets: [ChainAsset]) {
+            let filtredChainAssets = filter(chainAssets: chainAssets, filters: filters)
+
+            prepareSortIfNeeded(
+                chainAssets: filtredChainAssets,
+                sortDescriptors: sortDescriptors,
+                completionBlock: completionBlock
+            )
+        }
+
+        if let allChainAssets = allChainAssets {
+            prepareSortAndFilter(chainAssets: allChainAssets)
+        } else {
+            fetchFromDatabase(filters: [], sortDescriptors: []) { [weak self] result in
+                guard let strongSelf = self else {
+                    return
+                }
+                switch result {
+                case let .success(chainAssets):
+                    strongSelf.allChainAssets = chainAssets
+                    prepareSortAndFilter(chainAssets: chainAssets)
+                case let .failure(error):
+                    completionBlock(.failure(error))
+                case .none:
+                    completionBlock(.none)
+                }
+            }
+        }
+    }
+
+    func fetchFromDatabase(
         filters: [Filter],
         sortDescriptors: [SortDescriptor],
         completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
@@ -116,9 +169,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         }
         operationQueue.addOperation(operation)
     }
-}
 
-private extension ChainAssetsFetching {
     func filter(chainAssets: [ChainAsset], filters: [Filter]) -> [ChainAsset] {
         var filteredChainAssets: [ChainAsset] = chainAssets
         filters.forEach { filter in
@@ -150,8 +201,6 @@ private extension ChainAssetsFetching {
             }
         case let .chainIds(ids):
             return chainAssets.filter { ids.contains($0.chain.chainId) }
-        case .searchEmpty:
-            return []
         case .supportNfts:
             return chainAssets.filter { $0.chain.isEthereum }
         }
