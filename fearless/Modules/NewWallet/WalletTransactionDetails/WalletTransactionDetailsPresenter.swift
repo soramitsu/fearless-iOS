@@ -126,7 +126,8 @@ extension WalletTransactionDetailsPresenter: WalletTransactionDetailsInteractorO
     func didReceiveTransaction(_ transaction: AssetTransactionData) {
         if let viewModel = viewModelFactory.buildViewModel(
             transaction: transaction,
-            locale: selectedLocale
+            locale: selectedLocale,
+            chain: chain
         ) {
             self.viewModel = viewModel
             view?.didReceiveState(.loaded(viewModel: viewModel))

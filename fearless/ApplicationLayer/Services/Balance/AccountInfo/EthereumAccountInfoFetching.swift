@@ -5,7 +5,7 @@ import Web3PromiseKit
 import SSFModels
 import RobinHood
 
-final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
+final actor EthereumAccountInfoFetching {
     private let operationQueue: OperationQueue
     private let chainRegistry: ChainRegistryProtocol
 
@@ -14,71 +14,14 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
         self.chainRegistry = chainRegistry
     }
 
-    func fetch(
-        for chainAsset: ChainAsset,
-        accountId: AccountId,
-        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
-    ) {
-        Task {
-            guard let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) else {
-                completionBlock(chainAsset, nil)
-                return
-            }
-
-            switch chainAsset.asset.ethereumType {
-            case .normal:
-                let accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
-                completionBlock(chainAsset, accountInfo)
-            case .erc20, .bep20:
-                let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
-                completionBlock(chainAsset, accountInfo)
-            case .none:
-                break
-            }
-        }
-    }
-
-    func fetch(
-        for chainAssets: [ChainAsset],
-        wallet: MetaAccountModel,
-        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
-    ) {
-        let chainAssets = chainAssets.filter { $0.chain.isEthereum }
-        let accountInfoOperations: [AwaitOperation<[ChainAsset: AccountInfo?]>] = chainAssets.filter { $0.chain.isEthereum }.compactMap { chainAsset in
-            guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
-                return nil
-            }
-
-            switch chainAsset.asset.ethereumType {
-            case .normal:
-                return fetchEthereumBalanceOperation(for: chainAsset, address: address)
-            case .erc20, .bep20:
-                return fetchErc20BalanceOperation(for: chainAsset, address: address)
-            case .none:
-                return nil
-            }
-        }
-
-        let finishOperation = ClosureOperation {
-            let accountInfos = accountInfoOperations.compactMap { try? $0.extractNoCancellableResultData() }.flatMap { $0 }
-            let accountInfoByChainAsset = Dictionary(accountInfos, uniquingKeysWith: { _, last in last })
-
-            completionBlock(accountInfoByChainAsset)
-        }
-
-        accountInfoOperations.forEach { finishOperation.addDependency($0) }
-
-        operationQueue.addOperations([finishOperation] + accountInfoOperations, waitUntilFinished: false)
-    }
-
-    private func fetchEthereumBalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
+    nonisolated private func fetchEthereumBalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
         AwaitOperation { [weak self] in
             let accountInfo = try await self?.fetchETHBalance(for: chainAsset, address: address)
             return [chainAsset: accountInfo]
         }
     }
 
-    private func fetchErc20BalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
+    nonisolated private func fetchErc20BalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
         AwaitOperation { [weak self] in
             let accountInfo = try await self?.fetchERC20Balance(for: chainAsset, address: address)
             return [chainAsset: accountInfo]
@@ -134,5 +77,110 @@ final class EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
                 }
             })
         }
+    }
+}
+
+extension EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
+    nonisolated func fetch(
+        for chainAsset: ChainAsset,
+        accountId: AccountId,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        Task {
+            guard let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) else {
+                completionBlock(chainAsset, nil)
+                return
+            }
+
+            switch chainAsset.asset.ethereumType {
+            case .normal:
+                let accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
+                completionBlock(chainAsset, accountInfo)
+            case .erc20, .bep20:
+                let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
+                completionBlock(chainAsset, accountInfo)
+            case .none:
+                break
+            }
+        }
+    }
+
+    nonisolated func fetch(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel,
+        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+    ) {
+        Task {
+            let balances = try await withThrowingTaskGroup(of: (ChainAsset, AccountInfo?).self, returning: [ChainAsset: AccountInfo?].self) { [weak self] group in
+                guard let strongSelf = self else {
+                    return [:]
+                }
+
+                let chainAssets = chainAssets.filter { $0.chain.isEthereum }
+
+                chainAssets.forEach { chainAsset in
+                    group.addTask {
+                        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+                            return (chainAsset, nil)
+                        }
+
+                        switch chainAsset.asset.ethereumType {
+                        case .normal:
+                            do {
+                                let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
+                                return (chainAsset, accountInfo)
+                            } catch {
+                                return (chainAsset, nil)
+                            }
+                        case .erc20, .bep20:
+                            do {
+                                let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
+                                return (chainAsset, accountInfo)
+                            } catch {
+                                return (chainAsset, nil)
+                            }
+                        case .none:
+                            return (chainAsset, nil)
+                        }
+                    }
+                }
+
+                var result: [ChainAsset: AccountInfo?] = [:]
+
+                for try await accountInfoByChainAsset in group {
+                    result[accountInfoByChainAsset.0] = accountInfoByChainAsset.1
+                }
+
+                return result
+            }
+
+            completionBlock(balances)
+        }
+//        let chainAssets = chainAssets.filter { $0.chain.isEthereum }
+//        let accountInfoOperations: [AwaitOperation<[ChainAsset: AccountInfo?]>] = chainAssets.filter { $0.chain.isEthereum }.compactMap { chainAsset in
+//            guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+//                return nil
+//            }
+//
+//            switch chainAsset.asset.ethereumType {
+//            case .normal:
+//                return fetchEthereumBalanceOperation(for: chainAsset, address: address)
+//            case .erc20, .bep20:
+//                return fetchErc20BalanceOperation(for: chainAsset, address: address)
+//            case .none:
+//                return nil
+//            }
+//        }
+//
+//        let finishOperation = ClosureOperation {
+//            let accountInfos = accountInfoOperations.compactMap { try? $0.extractNoCancellableResultData() }.flatMap { $0 }
+//            let accountInfoByChainAsset = Dictionary(accountInfos, uniquingKeysWith: { _, last in last })
+//
+//            completionBlock(accountInfoByChainAsset)
+//        }
+//
+//        accountInfoOperations.forEach { finishOperation.addDependency($0) }
+//
+//        operationQueue.addOperations([finishOperation] + accountInfoOperations, waitUntilFinished: false)
     }
 }

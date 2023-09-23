@@ -16,6 +16,7 @@ final class EthereumBalanceRepositoryCacheWrapper: RepositoryCacheWrapper {
     private let operationManager: OperationManagerProtocol
 
     private var cache: [String: T?] = [:]
+    private let mutex = NSLock()
 
     init(
         logger: LoggerProtocol,
@@ -28,6 +29,11 @@ final class EthereumBalanceRepositoryCacheWrapper: RepositoryCacheWrapper {
     }
 
     func save(data: T?, identifier: String) throws {
+        mutex.lock()
+        defer {
+            mutex.unlock()
+        }
+
         guard cache[identifier] != data else {
             return
         }
