@@ -32,33 +32,12 @@ final class WalletsManagmentAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
-        let substrateAccountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: substrateAccountInfoFetching,
-            operationQueue: sharedDefaultQueue,
-            meta: wallet
+            operationQueue: sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAssetFetcher: chainAssetFetching,
-            operationQueue: sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
-        )
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let featureToggleProvider = FeatureToggleProvider(
             networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),

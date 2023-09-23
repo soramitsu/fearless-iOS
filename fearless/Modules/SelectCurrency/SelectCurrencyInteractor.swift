@@ -37,12 +37,12 @@ final class SelectCurrencyInteractor {
 
         let updateClosure: ([DataProviderChange<[Currency]>]) -> Void = { [weak self] changes in
             if let result = changes.reduceToLastChange() {
-                self?.output?.didRecieve(supportedCurrencys: .success(result))
+                self?.output?.didRecieve(supportedCurrencies: .success(result))
             }
         }
 
         let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.output?.didRecieve(supportedCurrencys: .failure(error))
+            self?.output?.didRecieve(supportedCurrencies: .failure(error))
         }
 
         let options = DataProviderObserverOptions(

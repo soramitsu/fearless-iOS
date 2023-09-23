@@ -5,20 +5,20 @@ import SSFModels
 typealias WalletBalanceInfos = [MetaAccountId: WalletBalanceInfo]
 typealias WalletBalancesResult = Result<WalletBalanceInfos, Error>
 
-protocol WalletBalanceSubscriptionHandler: AnyObject {
+protocol WalletBalanceSubscriptionListener: AnyObject {
     func handle(result: WalletBalancesResult)
 }
 
 protocol WalletBalanceSubscriptionAdapterProtocol {
     /// Collects and counts all the information for `WalletBalance`, for specific wallet id
     /// - Parameters:
-    ///   - walletId: Balance for specific wallet Id.
+    ///   - wallet: Balance for specific wallet.
     ///   - queue: The queue to which the result will be delivered
     ///   - handler: Called when WalletBalance will calculated
     func subscribeWalletBalance(
-        walletId: String,
+        wallet: MetaAccountModel,
         deliverOn queue: DispatchQueue?,
-        handler: WalletBalanceSubscriptionHandler
+        listener: WalletBalanceSubscriptionListener
     )
 
     /// Collects and counts all the information for `WalletBalance`, for all meta accounts
@@ -27,7 +27,7 @@ protocol WalletBalanceSubscriptionAdapterProtocol {
     ///   - handler: Called when WalletBalance will calculated
     func subscribeWalletsBalances(
         deliverOn queue: DispatchQueue?,
-        handler: WalletBalanceSubscriptionHandler
+        listener: WalletBalanceSubscriptionListener
     )
 
     /// Collects and counts all the information for `WalletBalance`, for ChainAsset
@@ -36,10 +36,10 @@ protocol WalletBalanceSubscriptionAdapterProtocol {
     ///   - queue: The queue to which the result will be delivered
     ///   - handler: Called when WalletBalance will calculated
     func subscribeChainAssetBalance(
-        walletId: String,
+        wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         deliverOn queue: DispatchQueue?,
-        handler: WalletBalanceSubscriptionHandler
+        listener: WalletBalanceSubscriptionListener
     )
 }
 
@@ -49,15 +49,21 @@ enum WalletBalanceError: Error {
     case `internal`
 }
 
-enum WalletBalanceSubscriptionType {
+enum WalletBalanceListenerType {
     case wallets
-    case wallet(walletId: String)
-    case chainAsset(walletId: String, chainAsset: ChainAsset)
+    case wallet(wallet: MetaAccountModel)
+    case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
 }
 
 final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, PriceLocalStorageSubscriber {
+    private struct Listener {
+        let listener: WalletBalanceSubscriptionListener
+        let type: WalletBalanceListenerType
+    }
+
     // MARK: - PriceLocalStorageSubscriber
 
+    static let shared = WalletBalanceSubscriptionFactory.createWalletBalanceAdapter()
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
     // MARK: - Private properties
@@ -73,14 +79,14 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private let eventCenter: EventCenterProtocol
     private let logger: Logger
     private var deliverQueue: DispatchQueue?
-    private weak var delegate: WalletBalanceSubscriptionHandler?
+    private var listeners: [Listener] = []
+    private var accountInfoTimer: Timer?
 
     private lazy var accountInfosAdapters: [String: AccountInfoSubscriptionAdapter] = [:]
     private lazy var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private lazy var chainAssets: [ChainAssetId: ChainAsset] = [:]
     private lazy var metaAccounts: [MetaAccountModel] = []
     private lazy var prices: [PriceData] = []
-    private var subscriptionType: WalletBalanceSubscriptionType?
 
     private let lock = ReaderWriterLock()
 
@@ -101,75 +107,65 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.eventCenter = eventCenter
         self.logger = logger
         eventCenter.add(observer: self, dispatchIn: .main)
+
+        fetchAllMetaAccounts()
     }
 
     // MARK: - Public methods
 
     func subscribeWalletBalance(
-        walletId: String,
+        wallet: MetaAccountModel,
         deliverOn queue: DispatchQueue?,
-        handler: WalletBalanceSubscriptionHandler
+        listener: WalletBalanceSubscriptionListener
     ) {
-        subscriptionType = .wallet(walletId: walletId)
-
-        reset()
         deliverQueue = queue
-        delegate = handler
+        listeners.append(Listener(listener: listener, type: .wallet(wallet: wallet)))
 
-        fetchMetaAccount(by: walletId, chainAsset: nil)
+        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets.map { $0.value }) {
+            notify(listener: listener, result: .success(balances))
+        }
     }
 
     func subscribeWalletsBalances(
         deliverOn queue: DispatchQueue?,
-        handler: WalletBalanceSubscriptionHandler
+        listener: WalletBalanceSubscriptionListener
     ) {
-        subscriptionType = .wallets
-
-        reset()
         deliverQueue = queue
-        delegate = handler
+        listeners.append(Listener(listener: listener, type: .wallets))
 
-        fetchAllMetaAccounts()
+        if let balances = buildBalance(for: metaAccounts, chainAssets: chainAssets.map { $0.value }) {
+            notify(listener: listener, result: .success(balances))
+        }
     }
 
     func subscribeChainAssetBalance(
-        walletId: String,
+        wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         deliverOn queue: DispatchQueue?,
-        handler: WalletBalanceSubscriptionHandler
+        listener: WalletBalanceSubscriptionListener
     ) {
-        subscriptionType = .chainAsset(walletId: walletId, chainAsset: chainAsset)
-
-        reset()
         deliverQueue = queue
-        delegate = handler
+        listeners.append(Listener(listener: listener, type: .chainAsset(wallet: wallet, chainAsset: chainAsset)))
 
-        fetchMetaAccount(by: walletId, chainAsset: chainAsset)
+        if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+            notify(listener: listener, result: .success(balances))
+        }
     }
 
     // MARK: - Private methods
 
-    private func reset() {
-        accountInfos = [:]
-        metaAccounts.forEach { wallet in
-            accountInfosAdapters[wallet.identifier]?.reset()
-        }
-        accountInfosAdapters = [:]
-    }
-
-    private func buildBalance() {
+    private func buildBalance(for wallets: [MetaAccountModel], chainAssets: [ChainAsset]) -> WalletBalanceInfos? {
+        print("build balance: \(accountInfos.count), \(wallets.count), \(chainAssets.count), \(prices.count)")
         let walletBalances = walletBalanceBuilder.buildBalance(
             for: accountInfos,
-            metaAccounts,
-            chainAssets.values.map { $0 },
+            wallets,
+            chainAssets,
             prices
         )
+        let totalBalance = walletBalances?.values.map { $0.totalFiatValue }
+        print("build balance result: \(String(describing: totalBalance))")
 
-        guard let walletBalances = walletBalances else {
-            return
-        }
-
-        handle(.success(walletBalances))
+        return walletBalances
     }
 
     private func handle(_ wallets: [MetaAccountModel], _ chainAssets: [ChainAsset]) {
@@ -188,55 +184,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         metaAccounts = wallets
 
         subscribeToAccountInfo(for: wallets, chainAssets)
-        let currencys = wallets.map { $0.selectedCurrency }
-        subscribeToPrices(for: chainAssets, currencys: currencys)
-    }
-
-    private func fetchMetaAccount(by identifier: String, chainAsset: ChainAsset?) {
-        typealias MergeOperationResult = (metaAccount: MetaAccountModel?, chainAssets: [ChainAsset])
-
-        let metaAccountOperation = metaAccountRepository.fetchOperation(
-            by: identifier,
-            options: RepositoryFetchOptions()
-        )
-        let chainsOperation = fetchChainsOperation()
-
-        let mergeOperation = ClosureOperation<MergeOperationResult> {
-            let metaAccountOperationResult = try metaAccountOperation.extractNoCancellableResultData()
-            let chainAssets = try chainsOperation.extractNoCancellableResultData()
-
-            return (metaAccount: metaAccountOperationResult, chainAssets: chainAssets)
-        }
-
-        mergeOperation.completionBlock = { [weak self] in
-            guard let result = mergeOperation.result else {
-                self?.handle(.failure(WalletBalanceError.internal))
-                return
-            }
-
-            switch result {
-            case let .success((metaAccount, chainAssetsResult)):
-                guard let wallet = metaAccount else {
-                    self?.handle(.failure(WalletBalanceError.accountMissing))
-                    return
-                }
-
-                var chainAssets: [ChainAsset] = []
-                if let chainAsset = chainAsset {
-                    chainAssets.append(chainAsset)
-                } else {
-                    chainAssets = chainAssetsResult
-                }
-                self?.handle([wallet], chainAssets)
-            case let .failure(error):
-                self?.handle(.failure(error))
-            }
-        }
-
-        mergeOperation.addDependency(metaAccountOperation)
-        mergeOperation.addDependency(chainsOperation)
-
-        operationQueue.addOperations([chainsOperation, metaAccountOperation, mergeOperation], waitUntilFinished: false)
+        let currencies = wallets.map { $0.selectedCurrency }
+        subscribeToPrices(for: chainAssets, currencies: currencies)
     }
 
     private func fetchAllMetaAccounts() {
@@ -247,11 +196,15 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
         metaAccountsOperation.completionBlock = { [weak self] in
             guard let metaAccountsResult = metaAccountsOperation.result else {
-                self?.handle(.failure(WalletBalanceError.accountMissing))
+                self?.listeners.map { $0.listener }.forEach { [weak self] in
+                    self?.notify(listener: $0, result: .failure(WalletBalanceError.accountMissing))
+                }
                 return
             }
             guard let chainsResult = chainsOperation.result else {
-                self?.handle(.failure(WalletBalanceError.chainsMissing))
+                self?.listeners.map { $0.listener }.forEach { [weak self] in
+                    self?.notify(listener: $0, result: .failure(WalletBalanceError.chainsMissing))
+                }
                 return
             }
 
@@ -259,9 +212,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             case let (.success(wallets), .success(chainAssets)):
                 self?.handle(wallets, chainAssets)
             case let (.failure(error), _):
-                self?.handle(.failure(error))
+                self?.listeners.map { $0.listener }.forEach { [weak self] in
+                    self?.notify(listener: $0, result: .failure(error))
+                }
             case let (_, .failure(error)):
-                self?.handle(.failure(error))
+                self?.listeners.map { $0.listener }.forEach { [weak self] in
+                    self?.notify(listener: $0, result: .failure(error))
+                }
             }
         }
 
@@ -282,22 +239,58 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
-    private func subscribeToPrices(for chainAssets: [ChainAsset], currencys: [Currency]?) {
+    private func subscribeToPrices(for chainAssets: [ChainAsset], currencies: [Currency]?) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId)
-        var uniqueQurrencys: [Currency]? = currencys
-        if let currencys = currencys {
-            uniqueQurrencys = Array(Set(currencys))
+        var uniqueQurrencies: [Currency]? = currencies
+        if let currencies = currencies {
+            uniqueQurrencies = Array(Set(currencies))
         }
-        pricesProvider = subscribeToPrices(for: pricesIds, currencys: uniqueQurrencys)
+        pricesProvider = subscribeToPrices(for: pricesIds, currencies: uniqueQurrencies)
     }
 
     private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {
         chainAssetFetcher.fetchAwaitOperation(shouldUseCashe: true, filters: [], sortDescriptors: [])
     }
 
-    private func handle(_ result: WalletBalancesResult) {
-        dispatchInQueueWhenPossible(deliverQueue) { [weak self] in
-            self?.delegate?.handle(result: result)
+    private func notify(
+        listener: WalletBalanceSubscriptionListener,
+        result: WalletBalancesResult
+    ) {
+        dispatchInQueueWhenPossible(deliverQueue) {
+            listener.handle(result: result)
+        }
+    }
+
+    private func notifyIfNeeded(with updatedWallets: [MetaAccountModel], updatedChainAssets: [ChainAsset]) {
+        print("notifyIfNeeded, walletsCount: \(updatedWallets.count)")
+        listeners.forEach { listener in
+            switch listener.type {
+            case .wallets:
+                if let balances = buildBalance(for: self.metaAccounts, chainAssets: self.chainAssets.map { $0.value }) {
+                    notify(listener: listener.listener, result: .success(balances))
+                    let totalBalance = balances.map { _, value in
+                        value.totalFiatValue
+                    }
+                }
+            case let .wallet(wallet):
+                if updatedWallets.contains(wallet) {
+                    if let balances = buildBalance(for: [wallet], chainAssets: self.chainAssets.map { $0.value }) {
+                        notify(listener: listener.listener, result: .success(balances))
+                        let totalBalance = balances.map { _, value in
+                            value.totalFiatValue
+                        }
+                    }
+                }
+            case let .chainAsset(wallet, chainAsset):
+                if updatedWallets.contains(wallet), updatedChainAssets.contains(chainAsset) {
+                    if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+                        notify(listener: listener.listener, result: .success(balances))
+                        let totalBalance = balances.map { _, value in
+                            value.totalFiatValue
+                        }
+                    }
+                }
+            }
         }
     }
 }
@@ -312,6 +305,10 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         pricesProvider?.refresh()
     }
 
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        fetchAllMetaAccounts()
+    }
+
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         let updatedChainAssets = event.updatedChains.map(\.chainAssets).reduce([], +)
 
@@ -319,27 +316,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
             let key = chainAsset.chainAssetId
             self.chainAssets[key] = chainAsset
         }
-        buildBalance()
-    }
-
-    func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        if let index = metaAccounts.firstIndex(where: { $0.metaId == event.account.metaId }) {
-            metaAccounts[index] = event.account
-        }
-
-        switch subscriptionType {
-        case .wallets:
-            reset()
-            fetchAllMetaAccounts()
-        case let .wallet(walletId):
-            reset()
-            fetchMetaAccount(by: walletId, chainAsset: nil)
-        case let .chainAsset(walletId, chainAsset):
-            reset()
-            fetchMetaAccount(by: walletId, chainAsset: chainAsset)
-        case .none:
-            break
-        }
+        notifyIfNeeded(with: metaAccounts, updatedChainAssets: updatedChainAssets)
     }
 }
 
@@ -347,21 +324,18 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
 
 extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
+        if let timer = accountInfoTimer {
+            timer.invalidate()
+        }
+        accountInfoTimer = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false, block: { [weak self] timer in
+            guard let strongSelf = self else { return }
+            strongSelf.notifyIfNeeded(with: strongSelf.metaAccounts, updatedChainAssets: strongSelf.chainAssets.map { $0.value })
+            timer.invalidate()
+        })
         switch result {
         case let .success(accountInfo):
             lock.exclusivelyWrite {
                 self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
-            }
-
-            lock.concurrentlyRead {
-                guard chainAssets.count == accountInfos.keys.count else {
-                    if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
-                        buildBalance()
-                    }
-                    return
-                }
-
-                buildBalance()
             }
         case let .failure(error):
             logger.error("""
@@ -381,9 +355,11 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
         switch result {
         case let .success(prices):
             self.prices = prices
-            buildBalance()
+            notifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
         case let .failure(error):
-            handle(.failure(error))
+            listeners.forEach { listener in
+                notify(listener: listener.listener, result: .failure(error))
+            }
             logger.error("WalletBalanceFetcher error: \(error.localizedDescription)")
         }
     }

@@ -61,7 +61,7 @@ final class WalletsManagmentInteractor {
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletsBalances(
             deliverOn: .main,
-            handler: self
+            listener: self
         )
     }
 }
@@ -108,7 +108,7 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
 
 // MARK: - WalletBalanceSubscriptionHandler
 
-extension WalletsManagmentInteractor: WalletBalanceSubscriptionHandler {
+extension WalletsManagmentInteractor: WalletBalanceSubscriptionListener {
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalances(result)
     }

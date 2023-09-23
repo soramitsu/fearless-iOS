@@ -13,8 +13,7 @@ protocol StakingServiceFactoryProtocol {
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory?,
-        wallet: MetaAccountModel
+        collatorOperationFactory: ParachainCollatorOperationFactory?
     ) throws -> RewardCalculatorServiceProtocol
 }
 
@@ -60,8 +59,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory?,
-        wallet: MetaAccountModel
+        collatorOperationFactory: ParachainCollatorOperationFactory?
     ) throws -> RewardCalculatorServiceProtocol {
         switch chainAsset.stakingType {
         case .relaychain:
@@ -94,8 +92,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             return try createSoraRewardCalculator(
                 for: chainAsset,
                 assetPrecision: assetPrecision,
-                validatorService: validatorService,
-                wallet: wallet
+                validatorService: validatorService
             )
         case .ternoa:
             let requestFactory = StorageRequestFactory(
@@ -124,8 +121,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     private func createSoraRewardCalculator(
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
-        validatorService: EraValidatorServiceProtocol,
-        wallet: MetaAccountModel
+        validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -134,20 +130,9 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .userInitiated
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
+            operationQueue: operationQueue
         )
 
         let storageOperationFactory = StorageRequestFactory(

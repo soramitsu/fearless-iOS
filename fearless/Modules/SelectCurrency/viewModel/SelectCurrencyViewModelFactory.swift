@@ -3,17 +3,17 @@ import UIKit
 
 protocol SelectCurrencyViewModelFactoryProtocol {
     func buildViewModel(
-        supportedCurrencys: [Currency],
+        supportedCurrencies: [Currency],
         selectedCurrency: Currency
     ) -> [SelectCurrencyCellViewModel]
 }
 
 final class SelectCurrencyViewModelFactory: SelectCurrencyViewModelFactoryProtocol {
     func buildViewModel(
-        supportedCurrencys: [Currency],
+        supportedCurrencies: [Currency],
         selectedCurrency: Currency
     ) -> [SelectCurrencyCellViewModel] {
-        supportedCurrencys.compactMap {
+        supportedCurrencies.compactMap {
             var imageViewModel: RemoteImageViewModel?
             if let iconUrl = URL(string: $0.icon) {
                 imageViewModel = RemoteImageViewModel(url: iconUrl)

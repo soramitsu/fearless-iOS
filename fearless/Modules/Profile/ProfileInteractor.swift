@@ -69,7 +69,7 @@ final class ProfileInteractor {
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletsBalances(
             deliverOn: .main,
-            handler: self
+            listener: self
         )
     }
 }
@@ -145,7 +145,7 @@ extension ProfileInteractor: EventVisitorProtocol {
     }
 }
 
-extension ProfileInteractor: WalletBalanceSubscriptionHandler {
+extension ProfileInteractor: WalletBalanceSubscriptionListener {
     func handle(result: WalletBalancesResult) {
         presenter?.didReceiveWalletBalances(result)
     }

@@ -61,16 +61,16 @@ private extension BalanceInfoInteractor {
         switch type {
         case let .wallet(metaAccount):
             walletBalanceSubscriptionAdapter.subscribeWalletBalance(
-                walletId: metaAccount.metaId,
+                wallet: metaAccount,
                 deliverOn: .main,
-                handler: self
+                listener: self
             )
         case let .chainAsset(metaAccount, chainAsset):
             walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
-                walletId: metaAccount.metaId,
+                wallet: metaAccount,
                 chainAsset: chainAsset,
                 deliverOn: .main,
-                handler: self
+                listener: self
             )
         }
     }
@@ -145,7 +145,7 @@ private extension BalanceInfoInteractor {
 
 // MARK: - WalletBalanceSubscriptionHandler
 
-extension BalanceInfoInteractor: WalletBalanceSubscriptionHandler {
+extension BalanceInfoInteractor: WalletBalanceSubscriptionListener {
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalancesResult(result)
     }
