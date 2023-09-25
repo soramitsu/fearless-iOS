@@ -74,28 +74,20 @@ final class SendDepencyContainer {
         return dependencies
     }
 
-    private func createAccountInfoFetching(for chainAsset: ChainAsset) -> AccountInfoFetchingProtocol {
-        if chainAsset.chain.isEthereum {
-            let chainRegistry = ChainRegistryFacade.sharedRegistry
-            return EthereumAccountInfoFetching(
-                operationQueue: OperationManagerFacade.sharedDefaultQueue,
-                chainRegistry: chainRegistry
-            )
-        } else {
-            let substrateRepositoryFactory = SubstrateRepositoryFactory(
-                storageFacade: UserDataStorageFacade.shared
-            )
+    private func createAccountInfoFetching(for _: ChainAsset) -> AccountInfoFetchingProtocol {
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
 
-            let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
-            let substrateAccountInfoFetching = AccountInfoFetching(
-                accountInfoRepository: accountInfoRepository,
-                chainRegistry: ChainRegistryFacade.sharedRegistry,
-                operationQueue: OperationManagerFacade.sharedDefaultQueue
-            )
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
 
-            return substrateAccountInfoFetching
-        }
+        return substrateAccountInfoFetching
     }
 
     private func createTransferService(for chainAsset: ChainAsset) async throws -> TransferServiceProtocol {

@@ -16,7 +16,7 @@ final class ChainAssetListInteractor {
     private let eventCenter: EventCenter
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    private let accountInfoFetchingProviders: [AccountInfoFetchingProtocol]
+    private let accountInfoFetchingProvider: AccountInfoFetching
     private let dependencyContainer: ChainAssetListDependencyContainer
 
     private var chainAssets: [ChainAsset]?
@@ -39,7 +39,7 @@ final class ChainAssetListInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        accountInfoFetchingProviders: [AccountInfoFetchingProtocol],
+        accountInfoFetchingProvider: AccountInfoFetching,
         dependencyContainer: ChainAssetListDependencyContainer
     ) {
         self.wallet = wallet
@@ -48,7 +48,7 @@ final class ChainAssetListInteractor {
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.accountRepository = accountRepository
-        self.accountInfoFetchingProviders = accountInfoFetchingProviders
+        self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.dependencyContainer = dependencyContainer
     }
 
@@ -74,6 +74,19 @@ final class ChainAssetListInteractor {
         }
 
         operationQueue.addOperation(saveOperation)
+    }
+
+    private func reload() {
+        guard let chainAssets = chainAssets else {
+            return
+        }
+
+        output?.didReceiveChainAssets(result: .success(chainAssets))
+
+        accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
+            self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+            self?.subscribeToAccountInfo(for: chainAssets)
+        }
     }
 }
 
@@ -117,17 +130,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
-                var responseReceivedCounter: Int = 0
-                self?.accountInfoFetchingProviders.forEach { accountInfoFetching in
-                    accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
-                        self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-
-                        responseReceivedCounter += 1
-
-                        if responseReceivedCounter == self?.accountInfoFetchingProviders.count {
-                            self?.subscribeToAccountInfo(for: chainAssets)
-                        }
-                    }
+                self?.accountInfoFetchingProvider.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
+                    self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+                    self?.subscribeToAccountInfo(for: chainAssets)
                 }
 
             case let .failure(error):
@@ -307,7 +312,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        updateChainAssets(using: filters, sorts: sorts)
+        reload()
     }
 }
 

@@ -10,6 +10,17 @@ protocol ChainAssetFetchingProtocol {
         sortDescriptors: [ChainAssetsFetching.SortDescriptor],
         completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
     )
+    func fetchAwaitOperation(
+        shouldUseCashe: Bool,
+        filters: [ChainAssetsFetching.Filter],
+        sortDescriptors: [ChainAssetsFetching.SortDescriptor]
+    ) -> BaseOperation<[ChainAsset]>
+
+    func fetchAwait(
+        shouldUseCashe: Bool,
+        filters: [ChainAssetsFetching.Filter],
+        sortDescriptors: [ChainAssetsFetching.SortDescriptor]
+    ) async throws -> [ChainAsset]
 }
 
 final class ChainAssetsFetching: ChainAssetFetchingProtocol {
@@ -100,6 +111,47 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         } else {
             allChainAssets = nil
             fetchFromDatabase(filters: filters, sortDescriptors: sortDescriptors, completionBlock: completionBlock)
+        }
+    }
+
+    func fetchAwaitOperation(
+        shouldUseCashe: Bool,
+        filters: [Filter],
+        sortDescriptors: [SortDescriptor]
+    ) -> BaseOperation<[ChainAsset]> {
+        AwaitOperation { [weak self] in
+            guard let self = self else {
+                throw BaseOperationError.parentOperationCancelled
+            }
+            return try await self.fetchAwait(
+                shouldUseCashe: shouldUseCashe,
+                filters: filters,
+                sortDescriptors: sortDescriptors
+            )
+        }
+    }
+
+    func fetchAwait(
+        shouldUseCashe: Bool,
+        filters: [Filter],
+        sortDescriptors: [SortDescriptor]
+    ) async throws -> [ChainAsset] {
+        try await withCheckedThrowingContinuation { continuation in
+            fetch(
+                shouldUseCashe: shouldUseCashe,
+                filters: filters,
+                sortDescriptors: sortDescriptors,
+                completionBlock: { result in
+                    switch result {
+                    case let .success(chainAsset):
+                        return continuation.resume(returning: chainAsset)
+                    case let .failure(error):
+                        return continuation.resume(throwing: error)
+                    case .none:
+                        return continuation.resume(throwing: ConvenienceError(error: "None completion block"))
+                    }
+                }
+            )
         }
     }
 }

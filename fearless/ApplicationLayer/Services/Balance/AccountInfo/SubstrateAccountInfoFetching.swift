@@ -22,7 +22,6 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
         wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
-        let chainAssets = chainAssets.filter { !$0.chain.isEthereum }
         let createAccountInfoOperationsOperation = prepareAccountInfoOperationsOperation(
             chainAssets: chainAssets,
             wallet: wallet
@@ -75,6 +74,14 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
             case let .success(item):
                 guard let item = item else {
                     completionBlock(chainAsset, nil)
+                    return
+                }
+                if chainAsset.chain.isEthereum {
+                    self?.handleEthereumAccountInfo(
+                        chainAsset: chainAsset,
+                        item: item, completionBlock:
+                        completionBlock
+                    )
                     return
                 }
                 switch chainAsset.chainAssetType {
@@ -207,6 +214,13 @@ private extension AccountInfoFetching {
             return ClosureOperation { [:] }
         }
 
+        if chainAsset.chain.isEthereum {
+            return ClosureOperation {
+                let accountInfo = try JSONDecoder().decode(AccountInfo?.self, from: accountInfoStorageWrapper.data)
+
+                return [chainAsset: accountInfo]
+            }
+        }
         switch chainAsset.chainAssetType {
         case .none:
             return ClosureOperation { [chainAsset: nil] }
@@ -606,6 +620,19 @@ private extension AccountInfoFetching {
                 completionBlock(chainAsset, nil)
             }
         case .failure:
+            completionBlock(chainAsset, nil)
+        }
+    }
+
+    private func handleEthereumAccountInfo(
+        chainAsset: ChainAsset,
+        item: AccountInfoStorageWrapper,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        do {
+            let accountInfo = try JSONDecoder().decode(AccountInfo?.self, from: item.data)
+            completionBlock(chainAsset, accountInfo)
+        } catch {
             completionBlock(chainAsset, nil)
         }
     }

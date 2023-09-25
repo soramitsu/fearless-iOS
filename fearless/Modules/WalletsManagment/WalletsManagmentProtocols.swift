@@ -25,6 +25,7 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
     func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>)
     func didReceive(error: Error)
     func didCompleteSelection()
+    func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?)
 }
 
 protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable {

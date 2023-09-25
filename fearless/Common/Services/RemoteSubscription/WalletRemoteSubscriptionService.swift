@@ -7,10 +7,10 @@ protocol WalletRemoteSubscriptionServiceProtocol {
         chainAsset: ChainAsset,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
-    ) async -> UUID?
+    ) async -> String?
 
     func detachFromAccountInfo(
-        for subscriptionId: UUID,
+        for subscriptionId: String,
         chainAssetKey: ChainAssetKey,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
@@ -23,7 +23,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
         chainAsset: ChainAsset,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
-    ) async -> UUID? {
+    ) async -> String? {
         do {
             let storagePath = chainAsset.storagePath
 
@@ -69,7 +69,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
                 cacheKey: localKey,
                 queue: queue,
                 closure: closure
-            )
+            ).uuidString
         } catch {
             callbackClosureIfProvided(closure, queue: queue, result: .failure(error))
             return nil
@@ -77,11 +77,15 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
     }
 
     func detachFromAccountInfo(
-        for subscriptionId: UUID,
+        for subscriptionId: String,
         chainAssetKey: ChainAssetKey,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
     ) {
+        guard let uuid = UUID(uuidString: subscriptionId) else {
+            return
+        }
+
         do {
             let storagePath = StorageCodingPath.account
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
@@ -89,7 +93,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
                 chainAssetKey: chainAssetKey
             )
 
-            detachFromSubscription(localKey, subscriptionId: subscriptionId, queue: queue, closure: closure)
+            detachFromSubscription(localKey, subscriptionId: uuid, queue: queue, closure: closure)
         } catch {
             callbackClosureIfProvided(closure, queue: queue, result: .failure(error))
         }

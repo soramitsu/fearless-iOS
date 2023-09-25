@@ -68,7 +68,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }()
 
     private let metaAccountRepository: AnyDataProviderRepository<MetaAccountModel>
-    private let chainRepository: AnyDataProviderRepository<ChainModel>
+    private let chainAssetFetcher: ChainAssetFetchingProtocol
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
     private let logger: Logger
@@ -89,14 +89,14 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     init(
         metaAccountRepository: AnyDataProviderRepository<MetaAccountModel>,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        chainRepository: AnyDataProviderRepository<ChainModel>,
+        chainAssetFetcher: ChainAssetFetchingProtocol,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
         logger: Logger
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.metaAccountRepository = metaAccountRepository
-        self.chainRepository = chainRepository
+        self.chainAssetFetcher = chainAssetFetcher
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.logger = logger
@@ -193,7 +193,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     private func fetchMetaAccount(by identifier: String, chainAsset: ChainAsset?) {
-        typealias MergeOperationResult = (metaAccount: MetaAccountModel?, chains: [ChainModel])
+        typealias MergeOperationResult = (metaAccount: MetaAccountModel?, chainAssets: [ChainAsset])
 
         let metaAccountOperation = metaAccountRepository.fetchOperation(
             by: identifier,
@@ -203,9 +203,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
         let mergeOperation = ClosureOperation<MergeOperationResult> {
             let metaAccountOperationResult = try metaAccountOperation.extractNoCancellableResultData()
-            let chainsOperationResult = try chainsOperation.extractNoCancellableResultData()
+            let chainAssets = try chainsOperation.extractNoCancellableResultData()
 
-            return (metaAccount: metaAccountOperationResult, chains: chainsOperationResult)
+            return (metaAccount: metaAccountOperationResult, chainAssets: chainAssets)
         }
 
         mergeOperation.completionBlock = { [weak self] in
@@ -215,7 +215,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             }
 
             switch result {
-            case let .success((metaAccount, chains)):
+            case let .success((metaAccount, chainAssetsResult)):
                 guard let wallet = metaAccount else {
                     self?.handle(.failure(WalletBalanceError.accountMissing))
                     return
@@ -225,7 +225,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                 if let chainAsset = chainAsset {
                     chainAssets.append(chainAsset)
                 } else {
-                    chainAssets = chains.map(\.chainAssets).reduce([], +)
+                    chainAssets = chainAssetsResult
                 }
                 self?.handle([wallet], chainAssets)
             case let .failure(error):
@@ -256,8 +256,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             }
 
             switch (metaAccountsResult, chainsResult) {
-            case let (.success(wallets), .success(chains)):
-                let chainAssets = chains.map(\.chainAssets).reduce([], +)
+            case let (.success(wallets), .success(chainAssets)):
                 self?.handle(wallets, chainAssets)
             case let (.failure(error), _):
                 self?.handle(.failure(error))
@@ -292,8 +291,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         pricesProvider = subscribeToPrices(for: pricesIds, currencys: uniqueQurrencys)
     }
 
-    private func fetchChainsOperation() -> BaseOperation<[ChainModel]> {
-        chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
+    private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {
+        chainAssetFetcher.fetchAwaitOperation(shouldUseCashe: true, filters: [], sortDescriptors: [])
     }
 
     private func handle(_ result: WalletBalancesResult) {

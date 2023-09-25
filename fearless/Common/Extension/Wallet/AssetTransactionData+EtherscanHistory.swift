@@ -7,7 +7,7 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: EtherscanHistoryElement,
         address: String,
-        chain _: ChainModel,
+        chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let peerAddress = item.from == address ? item.to : item.from
@@ -20,7 +20,9 @@ extension AssetTransactionData {
         }()
 
         let feeValue = item.gasUsed * item.gasPrice
-        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
+
+        let utilityAsset = chain.utilityChainAssets().first?.asset ?? asset
+        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(utilityAsset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
             identifier: asset.identifier,

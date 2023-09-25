@@ -196,7 +196,11 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var featureToggleURL: URL? {
-        GitHubUrl.url(suffix: "appConfigs/feature_toggle", branch: .developFree)
+        #if F_DEV
+            GitHubUrl.url(suffix: "appConfigs/feature_toggle", branch: .developFree)
+        #else
+            GitHubUrl.url(suffix: "appConfigs/feature_toggle")
+        #endif
     }
 }
 
