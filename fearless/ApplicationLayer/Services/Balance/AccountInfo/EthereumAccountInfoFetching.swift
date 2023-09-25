@@ -156,31 +156,5 @@ extension EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
 
             completionBlock(balances)
         }
-//        let chainAssets = chainAssets.filter { $0.chain.isEthereum }
-//        let accountInfoOperations: [AwaitOperation<[ChainAsset: AccountInfo?]>] = chainAssets.filter { $0.chain.isEthereum }.compactMap { chainAsset in
-//            guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
-//                return nil
-//            }
-//
-//            switch chainAsset.asset.ethereumType {
-//            case .normal:
-//                return fetchEthereumBalanceOperation(for: chainAsset, address: address)
-//            case .erc20, .bep20:
-//                return fetchErc20BalanceOperation(for: chainAsset, address: address)
-//            case .none:
-//                return nil
-//            }
-//        }
-//
-//        let finishOperation = ClosureOperation {
-//            let accountInfos = accountInfoOperations.compactMap { try? $0.extractNoCancellableResultData() }.flatMap { $0 }
-//            let accountInfoByChainAsset = Dictionary(accountInfos, uniquingKeysWith: { _, last in last })
-//
-//            completionBlock(accountInfoByChainAsset)
-//        }
-//
-//        accountInfoOperations.forEach { finishOperation.addDependency($0) }
-//
-//        operationQueue.addOperations([finishOperation] + accountInfoOperations, waitUntilFinished: false)
     }
 }

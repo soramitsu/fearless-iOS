@@ -16,7 +16,7 @@ final class ChainAssetListAssembly {
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let substrateAccountInfoFetching = AccountInfoFetching(
+        let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationQueue()
@@ -39,7 +39,7 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetchingProviders: [substrateAccountInfoFetching],
+            accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()
