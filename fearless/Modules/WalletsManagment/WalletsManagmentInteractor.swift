@@ -97,6 +97,7 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
 
         fetchWallets()
         fetchBalances()
+        fetchFeatureToggleConfig()
 
         eventCenter.add(observer: self, dispatchIn: .main)
     }
