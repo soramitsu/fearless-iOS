@@ -1,4 +1,5 @@
 import BigInt
+import Foundation
 import SSFModels
 
 protocol WalletSendConfirmViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {

@@ -1,6 +1,5 @@
 platform :ios, '13.0'
 
-# Uncomment for CI
 source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
@@ -12,7 +11,7 @@ abstract_target 'fearlessAll' do
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
   pod 'SoraUI', '~> 1.10.3'
   pod 'IrohaCrypto'
-  pod 'RobinHood', '2.6.7'
+  pod 'RobinHood', '2.6.8'
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
@@ -26,32 +25,35 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
-
+  pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
+  
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
           pod 'SSFXCM', :configurations => ['DEBUG']
       else
           pod 'SSFXCM'
           pod 'SSFExtrinsicKit'
-          pod 'SSFCrypto'
+          pod 'SSFCrypto', '0.1.17'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.2'
+          pod 'SSFModels', '0.1.20'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection', '0.1.4'
-          pod 'SSFNetwork'
-          pod 'SSFUtils', '0.1.17'
+          pod 'SSFNetwork', '0.1.17'
+          pod 'SSFUtils', '0.1.20'
           pod 'SSFChainRegistry', '0.1.4'
-          pod 'SSFHelpers', '0.1.2'
+          pod 'SSFHelpers', '0.1.7'
           pod 'SSFCloudStorage'
+          pod 'FearlessKeys'
       end
   end
 
   pods_with_configurations
   
   # Development pods
+#  pod 'MediaView', :path => '../MediaView-fork'
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
 #  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
 #  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
@@ -66,8 +68,10 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
 #  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
 #  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
+#  pod 'web3swift-bnsports', :path => '../web3swift-bnsports'
 #  pod 'SSFCloudStorage', :path => '../soramitsu-shared-features-ios/SSFCloudStorage'
 #  pod 'SSFKeyPair', :path => '../soramitsu-shared-features-ios/SSFKeyPair'
+#pod 'RobinHood', :path => '../robinhood-ios'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -78,7 +82,7 @@ abstract_target 'fearlessAll' do
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
     pod 'IrohaCrypto'
-    pod 'RobinHood', '2.6.7'
+    pod 'RobinHood', '2.6.8'
     pod 'CommonWallet/Core'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'

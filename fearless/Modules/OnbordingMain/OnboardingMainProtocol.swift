@@ -1,7 +1,9 @@
 import Foundation
 import SSFCloudStorage
 
-protocol OnboardingMainViewProtocol: ControllerBackedProtocol, LoadableViewProtocol, SheetAlertPresentable {}
+protocol OnboardingMainViewProtocol: ControllerBackedProtocol, LoadableViewProtocol, SheetAlertPresentable {
+    func didReceive(preinstalledWalletEnabled: Bool)
+}
 
 protocol OnboardingMainPresenterProtocol: AnyObject {
     func setup()
@@ -9,6 +11,7 @@ protocol OnboardingMainPresenterProtocol: AnyObject {
     func activateAccountRestore()
     func activateTerms()
     func activatePrivacy()
+    func didTapGetPreinstalled()
 }
 
 protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, SheetAlertPresentable, WarningPresentable, PresentDismissable, AppUpdatePresentable {
@@ -23,6 +26,7 @@ protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, Shee
         from view: ControllerBackedProtocol?
     )
     func showCreateFlow(from view: ControllerBackedProtocol?)
+    func showPreinstalledFlow(from view: ControllerBackedProtocol?)
 }
 
 protocol OnboardingMainInteractorInputProtocol: AnyObject {
@@ -33,6 +37,7 @@ protocol OnboardingMainInteractorInputProtocol: AnyObject {
 protocol OnboardingMainInteractorOutputProtocol: AnyObject {
     func didSuggestKeystoreImport()
     func didReceiveBackupAccounts(result: Result<[OpenBackupAccount], Error>)
+    func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?)
 }
 
 protocol OnboardingMainViewFactoryProtocol {

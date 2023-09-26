@@ -5,15 +5,15 @@ import RobinHood
 import AVFoundation
 import SSFUtils
 
-final class ScanQRPresenter: NSObject {
-    enum ScanState {
-        case initializing(accessRequested: Bool)
-        case inactive
-        case active
-        case processing(receiverInfo: ReceiveInfo, operation: CancellableCall)
-        case failed(code: String)
-    }
+enum ScanState {
+    case initializing(accessRequested: Bool)
+    case inactive
+    case active
+    case processing(receiverInfo: ReceiveInfo, operation: CancellableCall)
+    case failed(code: String)
+}
 
+final class ScanQRPresenter: NSObject {
     let localizationManager: LocalizationManagerProtocol?
 
     // MARK: Private properties
@@ -185,8 +185,12 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
     }
 
     func handleMatched(addressInfo: QRInfo) {
-        router.close(view: view) {
-            self.moduleOutput.didFinishWith(address: addressInfo.address)
+        router.close(view: view) { [weak self] in
+            if addressInfo as? SolomonQRInfo == nil {
+                self?.moduleOutput.didFinishWith(address: addressInfo.address)
+            } else {
+                self?.moduleOutput.didFinishWithSolomon(soraAddress: addressInfo.address)
+            }
         }
     }
 

@@ -43,7 +43,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
 
         if
             let existentialDeposit = chainAsset.asset.existentialDeposit,
-            let result = BigUInt(existentialDeposit) {
+            let result = BigUInt(string: existentialDeposit) {
             completion(.success(result))
             return
         }
@@ -78,6 +78,8 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             }
         case .assets:
             fetchAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
+        case .none:
+            break
         }
     }
 

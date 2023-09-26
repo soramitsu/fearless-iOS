@@ -1,0 +1,42 @@
+[
+  {
+    "id": "887a17c7-1370-4de0-97dd-5422e294fa75",
+    "name": "polkadot",
+    "symbol": "dot",
+    "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "precision": 10,
+    "priceId": "polkadot",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/DOT.svg",
+    "color": "FF0066"
+  },
+  {
+    "id": "e40c8161-9fc9-4749-a3b8-ed1c0ad16475",
+    "name": "moonbeam",
+    "symbol": "glmr",
+    "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
+    "precision": 18,
+    "priceId": "moonbeam",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/GLMR.svg",
+    "color": "FFFFFF"
+  },
+  {
+    "id": "eth",
+    "name": "ethereum",
+    "symbol": "eth",
+    "chainId": "eth",
+    "precision": 18,
+    "priceId": "ethereum",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/ETH.svg",
+    "color": "FFFFFF"
+  },
+  {
+    "id": "dai",
+    "name": "ethereum",
+    "symbol": "dai",
+    "chainId": "eth",
+    "precision": 18,
+    "priceId": "dai",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/DAI.svg",
+    "color": "FFFFFF"
+  }
+]

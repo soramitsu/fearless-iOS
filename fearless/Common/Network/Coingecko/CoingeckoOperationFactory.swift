@@ -5,7 +5,7 @@ import SSFModels
 protocol CoingeckoOperationFactoryProtocol {
     func fetchPriceOperation(
         for tokenIds: [String],
-        currency: Currency
+        currencies: [Currency]
     ) -> BaseOperation<[PriceData]>
 }
 
@@ -13,7 +13,7 @@ final class CoingeckoOperationFactory {
     private func buildURLForAssets(
         _ tokenIds: [String],
         method: String,
-        currency: Currency
+        currencies: [Currency]
     ) -> URL? {
         guard var components = URLComponents(
             url: CoingeckoAPI.baseURL.appendingPathComponent(method),
@@ -21,7 +21,7 @@ final class CoingeckoOperationFactory {
         ) else { return nil }
 
         let tokenIDParam = tokenIds.joined(separator: ",")
-        let currencyParam = currency.id
+        let currencyParam = currencies.map { $0.id }.joined(separator: ",")
 
         components.queryItems = [
             URLQueryItem(name: "ids", value: tokenIDParam),
@@ -36,12 +36,12 @@ final class CoingeckoOperationFactory {
 extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
     func fetchPriceOperation(
         for tokenIds: [String],
-        currency: Currency
+        currencies: [Currency]
     ) -> BaseOperation<[PriceData]> {
         guard let url = buildURLForAssets(
             tokenIds,
             method: CoingeckoAPI.price,
-            currency: currency
+            currencies: currencies
         ) else {
             return BaseOperation.createWithError(NetworkBaseError.invalidUrl)
         }
@@ -67,19 +67,22 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
                     return nil
                 }
 
-                let price = priceDataJson[currency.id] as? CGFloat
-                let dayChange = priceDataJson["\(currency.id)_24h_change"] as? CGFloat
+                return currencies.compactMap { currency in
+                    let price = priceDataJson[currency.id] as? CGFloat
+                    let dayChange = priceDataJson["\(currency.id)_24h_change"] as? CGFloat
 
-                guard let price = price else {
-                    return nil
+                    guard let price = price else {
+                        return nil
+                    }
+
+                    return PriceData(
+                        currencyId: currency.id,
+                        priceId: assetId,
+                        price: String(describing: price),
+                        fiatDayChange: Decimal(dayChange ?? 0.0)
+                    )
                 }
-
-                return PriceData(
-                    priceId: assetId,
-                    price: String(describing: price),
-                    fiatDayChange: Decimal(dayChange ?? 0.0)
-                )
-            }
+            }.reduce([], +)
         }
 
         let operation = NetworkOperation(

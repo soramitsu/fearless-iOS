@@ -47,4 +47,8 @@ final class ChainAssetListDependencyContainer {
 
         return dependencies
     }
+
+    func resetCache(walletId: MetaAccountId) {
+        cachedDependencies[walletId] = nil
+    }
 }

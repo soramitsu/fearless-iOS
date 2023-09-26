@@ -34,12 +34,17 @@ final class BalanceInfoViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        rootView.didUpdateSkeletonLayout()
+    }
 }
 
 // MARK: - BalanceInfoViewInput
 
 extension BalanceInfoViewController: BalanceInfoViewInput {
-    func didReceiveViewModel(_ viewModel: BalanceInfoViewModel) {
+    func didReceiveViewModel(_ viewModel: BalanceInfoViewModel?) {
         rootView.bind(viewModel: viewModel)
     }
 }

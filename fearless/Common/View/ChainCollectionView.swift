@@ -74,7 +74,7 @@ final class ChainCollectionView: UIView, ShimmeredProtocol {
                 frame.width / (Constants.elementSize + Constants.elementsSpacing)
             ) - 1
             let prefix: Int = min(availableImageViewsCount, viewModel.maxImagesCount)
-            availableImageViews = Array(imageViews.prefix(prefix > 0 ? prefix : 0))
+            availableImageViews = Array(imageViews.suffix(prefix > 0 ? prefix : 0))
         }
         if availableImageViews.count < imageViews.count {
             moreLabel.frame = CGRect(

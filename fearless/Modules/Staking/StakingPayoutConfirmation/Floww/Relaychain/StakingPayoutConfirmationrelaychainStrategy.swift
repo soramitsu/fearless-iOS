@@ -166,7 +166,7 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
 
             let fees: [Decimal] = try results.map { result in
                 let dispatchInfo = try result.get()
-                return BigUInt(dispatchInfo.fee).map {
+                return BigUInt(string: dispatchInfo.fee).map {
                     Decimal.fromSubstrateAmount($0, precision: precision) ?? 0.0
                 } ?? 0.0
             }

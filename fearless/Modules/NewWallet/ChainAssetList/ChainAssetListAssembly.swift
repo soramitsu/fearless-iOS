@@ -12,15 +12,14 @@ final class ChainAssetListAssembly {
             storageFacade: UserDataStorageFacade.shared
         )
 
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationQueue()
         )
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
@@ -40,7 +39,7 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetching: accountInfoFetching,
+            accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer
         )
         let router = ChainAssetListRouter()

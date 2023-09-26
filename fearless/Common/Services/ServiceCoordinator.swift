@@ -72,10 +72,25 @@ extension ServiceCoordinator {
             logger: logger
         )
 
+        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+            logger: logger,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let ethereumWalletRemoteSubscription = EthereumWalletRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            logger: logger,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager,
+            repositoryWrapper: ethereumBalanceRepositoryWrapper
+        )
+
         let accountInfoService = AccountInfoUpdatingService(
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
             remoteSubscriptionService: walletRemoteSubscription,
+            ethereumRemoteSubscriptionService: ethereumWalletRemoteSubscription,
             logger: logger,
             eventCenter: EventCenter.shared
         )

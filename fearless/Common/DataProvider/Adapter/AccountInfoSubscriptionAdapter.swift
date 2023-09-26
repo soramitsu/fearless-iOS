@@ -97,6 +97,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
+
             strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
             strongSelf.subscriptions[chainAsset.chainAssetId] = nil
 
@@ -117,7 +118,6 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
             strongSelf.deliveryQueue = queue
 
             chainsAssets.forEach { chainAsset in
-
                 strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
                 strongSelf.subscriptions[chainAsset.chainAssetId] = nil
 
