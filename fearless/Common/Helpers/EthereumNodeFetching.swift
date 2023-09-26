@@ -13,6 +13,24 @@ enum EthereumChain: String {
     case goerli = "5"
     case bscMainnet = "56"
     case bscTestnet = "97"
+    case polygon = "137"
+
+    var alchemyChainIdentifier: String? {
+        switch self {
+        case .ethereumMainnet:
+            return "eth-mainnet"
+        case .sepolia:
+            return "eth-sepolia"
+        case .goerli:
+            return "eth-goerli"
+        case .bscMainnet:
+            return nil
+        case .bscTestnet:
+            return nil
+        case .polygon:
+            return "polygon-mainnet"
+        }
+    }
 
     func apiKeyInjectedURL(baseURL: URL) -> URL {
         switch self {
@@ -51,6 +69,13 @@ enum EthereumChain: String {
                 let apiKey = EthereumNodesApiKeys.bscApiKey
             #endif
             return baseURL.appendingPathComponent(apiKey)
+        case .polygon:
+            #if DEBUG
+                let apiKey = EthereumNodesApiKeysDebug.polygonApiKey
+            #else
+                let apiKey = EthereumNodesApiKeys.polygonApiKey
+            #endif
+            return baseURL.appendingPathComponent(apiKey)
         }
     }
 
@@ -59,13 +84,15 @@ enum EthereumChain: String {
         case .ethereumMainnet:
             return ["eth-mainnet.blastapi.io"]
         case .sepolia:
-            return []
+            return ["eth-sepolia.blastapi.io"]
         case .goerli:
-            return []
+            return ["eth-goerli.blastapi.io"]
         case .bscMainnet:
             return ["bsc-mainnet.blastapi.io"]
         case .bscTestnet:
             return ["bsc-testnet.blastapi.io"]
+        case .polygon:
+            return ["polygon-mainnet.blastapi.io"]
         }
     }
 }
@@ -76,7 +103,9 @@ final class EthereumNodeFetching {
             throw EthereumNodeFetchingError.unknownChain
         }
 
-        let node = chain.selectedNode?.url.absoluteString.contains("wss") == true ? chain.selectedNode : chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
+        let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
+        let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("wss") == true
+        let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
 
         guard let wssURL = node?.url else {
             throw ConvenienceError(error: "cannot obtain eth rpc url for chain: \(chain.name)")

@@ -238,11 +238,12 @@ final class CrossChainPresenter {
         guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
             return
         }
-        let spendingAmount = originNetworkFee?.toSubstrateAmount(precision: Int16(utilityChainAsset.asset.precision))
+        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
+        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
         let edParameters: ExistentialDepositValidationParameters = .utility(
-            spendingAmount: spendingAmount,
-            totalAmount: originNetworkUtilityTokenBalance,
-            minimumBalance: existentialDeposit
+            spendingAmount: originNetworkFee,
+            totalAmount: utilityBalance,
+            minimumBalance: minimumBalance
         )
 
         let originFeeValidating = dataValidatingFactory.has(
@@ -262,7 +263,7 @@ final class CrossChainPresenter {
 
         let sendAmount: Decimal
         let balanceType: BalanceType
-        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
+
         if selectedAmountChainAsset.chainAssetId == utilityChainAsset.chainAssetId {
             sendAmount = inputAmountDecimal + (originNetworkFee ?? .zero)
             balanceType = .utility(balance: utilityBalance)
@@ -301,7 +302,7 @@ final class CrossChainPresenter {
               let inputViewModel = inputViewModel,
               let originChainFee = originNetworkFeeViewModel,
               let destChainFee = destNetworkFeeViewModel,
-              let inputAmount = amountInputResult?.absoluteValue(from: originNetworkSelectedAssetBalance),
+              let inputAmount = amountInputResult?.absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)),
               let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
               let xcmServices = interactor.deps?.xcmServices,
               let recipientAddress = recipientAddress,
@@ -642,6 +643,10 @@ extension CrossChainPresenter: SelectNetworkDelegate {
 // MARK: - ScanQRModuleOutput
 
 extension CrossChainPresenter: ScanQRModuleOutput {
+    func didFinishWithSolomon(soraAddress: String) {
+        handle(newAddress: soraAddress)
+    }
+
     func didFinishWith(address: String) {
         handle(newAddress: address)
     }

@@ -460,4 +460,8 @@ extension StakingPoolMainPresenter: WalletsManagmentModuleOutput {
     func showImportGoogle() {
         router.showBackupSelectWallet(from: view)
     }
+
+    func showGetPreinstalledWallet() {
+        router.showGetPreinstalledWallet(from: view)
+    }
 }

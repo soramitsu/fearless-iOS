@@ -150,6 +150,10 @@ final class AllDoneViewLayout: UIView {
     func updateState(for explorer: ChainModel.ExternalApiExplorer?) {
         subscanButton.isHidden = explorer == nil
         shareButton.isHidden = explorer == nil
+
+        if let explorer = explorer {
+            subscanButton.imageWithTitleView?.title = explorer.type.rawValue.capitalized
+        }
     }
 
     // MARK: - Private methods
@@ -168,8 +172,6 @@ final class AllDoneViewLayout: UIView {
             .allDoneAlertResultStub(preferredLanguages: locale.rLanguages)
         successView.valueLabel.text = R.string.localizable
             .allDoneAlertSuccessStub(preferredLanguages: locale.rLanguages)
-        subscanButton.imageWithTitleView?.title = R.string.localizable
-            .allDoneSubscanButtonTitle(preferredLanguages: locale.rLanguages)
         shareButton.imageWithTitleView?.title = R.string.localizable
             .commonShare(preferredLanguages: locale.rLanguages)
     }

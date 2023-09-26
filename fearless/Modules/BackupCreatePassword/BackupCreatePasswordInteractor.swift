@@ -251,7 +251,8 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
                 username: wallet.name,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: substrate.account.cryptoType
+                cryptoType: substrate.account.cryptoType,
+                defaultChainId: nil
             )
             saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
         } catch {

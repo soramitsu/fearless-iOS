@@ -19,6 +19,7 @@ final class ChainAccountInteractor {
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let dependencyContainer = BalanceInfoDepencyContainer()
+    private var currentDependencies: BalanceInfoDependencies?
 
     init(
         wallet: MetaAccountModel,
@@ -44,6 +45,7 @@ final class ChainAccountInteractor {
 
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
+            shouldUseCashe: true,
             filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
@@ -60,6 +62,8 @@ final class ChainAccountInteractor {
         guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
             return
         }
+
+        currentDependencies = dependencies
 
         if let runtimeService = dependencies.runtimeService,
            let connection = dependencies.connection {

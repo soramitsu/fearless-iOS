@@ -19,7 +19,6 @@ final class WalletSendConfirmPresenter {
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
 
-    private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
     private var priceData: PriceData?
@@ -225,9 +224,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
                 utilityBalance: utilityBalance
             ) :
             .utility(
-                spendingAmount: spendingValue,
-                totalAmount: totalBalanceValue,
-                minimumBalance: minimumBalance
+                spendingAmount: amount + (fee ?? .zero),
+                totalAmount: balance,
+                minimumBalance: minimumBalanceDecimal
             )
         if chainAsset.chain.isEquilibrium {
             edParameters = .equilibrium(
@@ -292,7 +291,6 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(accountInfo):
             if chainAsset == self.chainAsset {
-                totalBalanceValue = accountInfo?.data.total ?? 0
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,

@@ -136,9 +136,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
         guard viewModel != nil else {
             return
         }
-        rootView.tableView.beginUpdates()
         rootView.tableView.setAndLayoutTableHeaderView(header: rootView.headerViewContainer)
-        rootView.tableView.endUpdates()
     }
 
     func didReceive(viewModel: ChainAssetListViewModel) {

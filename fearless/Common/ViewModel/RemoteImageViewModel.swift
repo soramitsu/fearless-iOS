@@ -28,6 +28,10 @@ final class RemoteImageViewModel: NSObject {
 }
 
 extension RemoteImageViewModel: ImageViewModelProtocol {
+    func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat) {
+        loadImage(on: imageView, targetSize: targetSize, animated: animated, cornerRadius: cornerRadius, completionHandler: nil)
+    }
+
     func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat, additionalOptions: KingfisherOptionsInfo) {
         let processor = SVGProcessor()
             |> DownsamplingImageProcessor(size: targetSize)
@@ -51,7 +55,7 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
         )
     }
 
-    func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat) {
+    func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat, completionHandler: ((Result<RetrieveImageResult, KingfisherError>) -> Void)? = nil) {
         let processor = SVGProcessor()
             |> DownsamplingImageProcessor(size: targetSize)
             |> RoundCornerImageProcessor(cornerRadius: cornerRadius)
@@ -70,7 +74,8 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
 
         imageView.kf.setImage(
             with: url,
-            options: options
+            options: options,
+            completionHandler: completionHandler
         )
     }
 
