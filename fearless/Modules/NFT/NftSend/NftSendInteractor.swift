@@ -59,7 +59,7 @@ extension NftSendInteractor: NftSendInteractorInput {
                 let fee = try await transferService.estimateFee(for: transfer)
 
                 await MainActor.run(body: {
-                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
                 })
 
                 transferService.subscribeForFee(transfer: transfer, listener: self)
@@ -99,7 +99,7 @@ extension NftSendInteractor: NftSendInteractorInput {
 extension NftSendInteractor: TransferFeeEstimationListener {
     func didReceiveFee(fee: BigUInt) {
         DispatchQueue.main.async { [weak self] in
-            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
         }
     }
 

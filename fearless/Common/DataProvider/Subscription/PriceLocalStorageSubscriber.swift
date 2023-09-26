@@ -11,7 +11,7 @@ protocol PriceLocalStorageSubscriber where Self: AnyObject {
     func subscribeToPrice(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData>
     func subscribeToPrices(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]>
     func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]>
-    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currencys: [Currency]?) -> AnySingleValueProvider<[PriceData]>
+    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
 }
 
 extension PriceLocalStorageSubscriber {
@@ -87,10 +87,10 @@ extension PriceLocalStorageSubscriber {
         subscribeToPrices(for: pricesIds, currency: nil)
     }
 
-    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currencys: [Currency]?) -> AnySingleValueProvider<[PriceData]> {
+    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]> {
         let priceProvider = priceLocalSubscriptionFactory.getPricesProvider(
             for: pricesIds,
-            currencys: currencys
+            currencies: currencies
         )
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in

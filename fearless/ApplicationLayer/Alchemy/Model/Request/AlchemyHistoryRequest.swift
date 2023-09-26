@@ -1,5 +1,9 @@
 import Foundation
 
+enum AlchemyConstants {
+    static let firstBlockHex = "0x0"
+}
+
 enum AlchemyHistoryBlockFilter: Encodable {
     case hex(value: String)
     case int(value: UInt64)
@@ -55,7 +59,7 @@ struct AlchemyHistoryRequest: Encodable {
     }
 
     init(
-        fromBlock: AlchemyHistoryBlockFilter? = .hex(value: "0x0"),
+        fromBlock: AlchemyHistoryBlockFilter? = .hex(value: AlchemyConstants.firstBlockHex),
         toBlock: AlchemyHistoryBlockFilter? = .latest,
         category: [AlchemyTokenCategory],
         withMetadata: Bool = true,

@@ -291,10 +291,6 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         wallet = event.account
     }
 
-    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
-//        updateChainAssets(using: filters, sorts: sorts)
-    }
-
     func processZeroBalancesSettingChanged() {
         updateChainAssets(using: filters, sorts: sorts)
     }
