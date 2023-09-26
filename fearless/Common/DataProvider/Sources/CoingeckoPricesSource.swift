@@ -7,7 +7,7 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
     typealias Model = [PriceData]
 
     private let pricesIds: [AssetModel.PriceId]
-    private var currency: Currency?
+    private var currencies: [Currency]?
 
     private let eventCenter: EventCenterProtocol = {
         EventCenter.shared
@@ -15,21 +15,21 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
 
     private let readWriterLock = ReaderWriterLock()
 
-    init(pricesIds: [AssetModel.PriceId], currency: Currency? = nil) {
+    init(pricesIds: [AssetModel.PriceId], currencies: [Currency]? = nil) {
         self.pricesIds = pricesIds
-        self.currency = currency
+        self.currencies = currencies
         setup()
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
-        let currency = readWriterLock.concurrentlyRead {
-            self.currency ?? SelectedWalletSettings.shared.value?.selectedCurrency
+        let currencies = readWriterLock.concurrentlyRead {
+            self.currencies ?? [SelectedWalletSettings.shared.value?.selectedCurrency].compactMap { $0 }
         }
 
-        if let currency = currency {
+        if currencies.isNotEmpty {
             let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(
                 for: pricesIds,
-                currency: currency
+                currencies: currencies.compactMap { $0 }
             )
 
             let targetOperation: BaseOperation<[PriceData]?> = ClosureOperation {
@@ -54,9 +54,12 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
 
 extension CoingeckoPricesSource: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        readWriterLock.exclusivelyWrite { [unowned self] in
-            if self.currency != event.account.selectedCurrency {
-                self.currency = event.account.selectedCurrency
+        readWriterLock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+            if strongSelf.currencies != [event.account.selectedCurrency] {
+                strongSelf.currencies = [event.account.selectedCurrency]
             }
         }
     }

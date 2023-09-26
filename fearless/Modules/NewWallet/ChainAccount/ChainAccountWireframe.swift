@@ -175,7 +175,8 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             return
         }
         importController.hidesBottomBarWhenPushed = true
-        view?.controller.navigationController?.pushViewController(importController, animated: true)
+        let navigationController = FearlessNavigationController(rootViewController: importController)
+        view?.controller.navigationController?.present(navigationController, animated: true)
     }
 
     func showSelectNetwork(

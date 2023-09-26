@@ -42,6 +42,7 @@ final class QREncoder: QREncoderProtocol {
 
 final class QRDecoder: QRDecoderProtocol {
     private lazy var qrDecoders: [QRDecodable] = [
+        SolomonQRDecoder(),
         SoraQRDecoder(),
         CexQRDecoder()
     ]

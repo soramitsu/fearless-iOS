@@ -40,11 +40,11 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
         }
 
         let proceedTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
-        let proceedAction = SheetAlertPresentableAction(title: proceedTitle, style: .defaultStyle)
+        let proceedAction = SheetAlertPresentableAction(title: proceedTitle, style: .pinkBackgroundWhiteText)
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [cancelAction, proceedAction],
+            actions: [proceedAction, cancelAction],
             closeAction: nil,
             icon: R.image.iconWarningBig()
         )

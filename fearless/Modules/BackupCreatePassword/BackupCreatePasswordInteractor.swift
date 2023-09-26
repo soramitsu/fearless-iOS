@@ -90,7 +90,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         switch result {
         case let .success(wallet):
             settings.setup()
-            eventCenter.notify(with: SelectedAccountChanged())
+            eventCenter.notify(with: SelectedAccountChanged(account: wallet))
             switch flow {
             case let .wallet(request):
                 saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))

@@ -161,9 +161,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v2/chains_dev.json", branch: .xcmLocationDevelop)
+            GitHubUrl.url(suffix: "chains/v3/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v2/chains.json")
+            GitHubUrl.url(suffix: "chains/v3/chains.json")
         #endif
     }
 
@@ -192,11 +192,15 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv")
+        GitHubUrl.url(suffix: "scamDetection/Polkadot_Hot_Wallet_Attributions.csv")
     }
 
     var featureToggleURL: URL? {
-        GitHubUrl.url(suffix: "appConfigs/feature_toggle", branch: .developFree)
+        #if F_DEV
+            GitHubUrl.url(suffix: "appConfigs/feature_toggle", branch: .developFree)
+        #else
+            GitHubUrl.url(suffix: "appConfigs/feature_toggle")
+        #endif
     }
 }
 

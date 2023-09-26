@@ -26,7 +26,12 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(
+            top: 24.0,
+            left: 0.0,
+            bottom: UIConstants.actionHeight + UIConstants.bigOffset * 2,
+            right: 0.0
+        )
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
@@ -169,7 +174,7 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(confirmButton.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide)
         }
 
         contentView.stackView.addArrangedSubview(doubleImageView)

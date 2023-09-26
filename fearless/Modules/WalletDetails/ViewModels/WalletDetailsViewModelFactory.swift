@@ -31,6 +31,7 @@ class WalletDetailsViewModelFactory {
                 let account = flow.wallet.fetch(for: chain.accountRequest())
                 let icon = chain.icon.map { RemoteImageViewModel(url: $0) }
                 let address = account?.toAddress()
+
                 return WalletDetailsCellViewModel(
                     chainImageViewModel: icon,
                     account: account,

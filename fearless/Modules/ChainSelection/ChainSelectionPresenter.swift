@@ -39,24 +39,14 @@ final class ChainSelectionPresenter {
     private func extractBalance(for chain: ChainModel) -> String? {
         guard
             showBalances,
-            let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId
+            let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
+            let utilityChainAsset = chain.utilityChainAssets().first
         else {
             return nil
         }
 
-        guard let chainAssetWithBalance = chain.utilityChainAssets().first(where: { chainAsset in
-            let accountInfoResult = accountInfoResults[chainAsset.uniqueKey(accountId: accountId)]
-
-            guard case let .success(accountInfo) = accountInfoResult else {
-                return false
-            }
-            return accountInfo != nil
-        }) else {
-            return nil
-        }
-
-        let assetInfo = chainAssetWithBalance.asset.displayInfo
-        let accountInfoResult = accountInfoResults[chainAssetWithBalance.uniqueKey(accountId: accountId)]
+        let assetInfo = utilityChainAsset.asset.displayInfo
+        let accountInfoResult = accountInfoResults[utilityChainAsset.uniqueKey(accountId: accountId)]
         guard case let .success(accountInfo) = accountInfoResult else {
             return nil
         }
@@ -86,7 +76,7 @@ final class ChainSelectionPresenter {
             let icon: ImageViewModelProtocol? = chain.icon.map { RemoteImageViewModel(url: $0) }
             let title = chain.name
             let isSelected = chain.identifier == selectedChainId
-            let balance = extractBalance(for: chain) ?? ""
+            let balance = extractBalance(for: chain)
 
             return SelectableIconDetailsListViewModel(
                 title: title,

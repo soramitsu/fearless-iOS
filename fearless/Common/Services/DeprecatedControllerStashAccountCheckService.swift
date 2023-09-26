@@ -112,7 +112,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
             }
             return issues
         })
-        print("check controllers finished")
 
         var saIssueChainAssetsIds: [ChainAsset: AccountId] = [:]
         for chainAsset in deprecatedChainAssets {
@@ -140,7 +139,6 @@ final class DeprecatedControllerStashAccountCheckService: DeprecatedControllerSt
                 }
             }
         }
-        print("stash controllers finished")
         if let caIssue = caIssues.first {
             return .controller(issue: caIssue)
         }

@@ -52,9 +52,15 @@ final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
             DispatchQueue.main.async {
                 switch saveOperation.result {
                 case .success:
-                    self?.settings.setup()
-                    self?.output?.didCompleteAccountImport()
-                    self?.eventCenter.notify(with: SelectedAccountChanged())
+                    do {
+                        let accountItem = try importOperation
+                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                        self?.settings.setup()
+                        self?.output?.didCompleteAccountImport()
+                        self?.eventCenter.notify(with: SelectedAccountChanged(account: accountItem))
+                    } catch {
+                        self?.output?.didReceiveAccountImport(error: error)
+                    }
 
                 case let .failure(error):
                     self?.output?.didReceiveAccountImport(error: error)
