@@ -182,7 +182,7 @@ extension SendInteractor: SendInteractorInput {
                 let fee = try await dependencies.transferService.estimateFee(for: transfer)
 
                 await MainActor.run(body: {
-                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
                 })
 
                 dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
@@ -264,7 +264,7 @@ extension SendInteractor: ExtrinsicFeeProxyDelegate {
 extension SendInteractor: TransferFeeEstimationListener {
     func didReceiveFee(fee: BigUInt) {
         DispatchQueue.main.async { [weak self] in
-            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
         }
     }
 

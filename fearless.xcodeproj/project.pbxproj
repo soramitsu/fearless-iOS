@@ -2198,6 +2198,8 @@
 		FA5AE96427B1326400B2564E /* ChainsUpdatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */; };
 		FA5DD0E3278EFE2500967047 /* WalletTransactionHistoryTableSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5DD0E2278EFE2500967047 /* WalletTransactionHistoryTableSectionHeader.swift */; };
 		FA60F52429EF9D1F00AB9561 /* NumberFormatter+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA60F52329EF9D1F00AB9561 /* NumberFormatter+Default.swift */; };
+		FA6261F22AC2A535005D3D95 /* MIME+PathExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6261F12AC2A535005D3D95 /* MIME+PathExtensions.swift */; };
+		FA6261F42AC2C7A8005D3D95 /* NFTOperationFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6261F32AC2C7A8005D3D95 /* NFTOperationFactoryProtocol.swift */; };
 		FA66FE902779C9AE0037C989 /* runtime-empty.json in Resources */ = {isa = PBXBuildFile; fileRef = FA66FE8F2779C9AE0037C989 /* runtime-empty.json */; };
 		FA67200D2914B163007EB694 /* StorageKeyExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */; };
 		FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
@@ -2660,7 +2662,6 @@
 		FAE39AF62A9E63760011A9D6 /* NftDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AF52A9E63760011A9D6 /* NftDetailViewModel.swift */; };
 		FAE39AF82A9E63C20011A9D6 /* NftDetailViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AF72A9E63C20011A9D6 /* NftDetailViewModelFactory.swift */; };
 		FAE39AFA2AA063450011A9D6 /* NFTTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AF92AA063450011A9D6 /* NFTTransferService.swift */; };
-		FAE39AFD2AA063690011A9D6 /* EtherscanNftFetchingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AFC2AA063690011A9D6 /* EtherscanNftFetchingService.swift */; };
 		FAE39AFF2AA063720011A9D6 /* EthereumNftTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39AFE2AA063720011A9D6 /* EthereumNftTransferService.swift */; };
 		FAE39B042AA0655B0011A9D6 /* BaseEthereumService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B032AA0655B0011A9D6 /* BaseEthereumService.swift */; };
 		FAE39B072AA1D4370011A9D6 /* NftSendConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B062AA1D4370011A9D6 /* NftSendConfirmViewModel.swift */; };
@@ -2699,7 +2700,6 @@
 		FAF9C2A42AAF3FCC00A61D21 /* FeatureToggleService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A22AAF3FCC00A61D21 /* FeatureToggleService.swift */; };
 		FAF9C2A52AAF3FCC00A61D21 /* FeatureToggleConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A32AAF3FCC00A61D21 /* FeatureToggleConfig.swift */; };
 		FAF9C2AE2AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A72AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift */; };
-		FAF9C2AF2AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A82AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift */; };
 		FAF9C2B02AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2A92AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift */; };
 		FAF9C2B12AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AA2AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift */; };
 		FAF9C2B22AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AB2AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift */; };
@@ -5028,6 +5028,8 @@
 		FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsUpdatedEvent.swift; sourceTree = "<group>"; };
 		FA5DD0E2278EFE2500967047 /* WalletTransactionHistoryTableSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryTableSectionHeader.swift; sourceTree = "<group>"; };
 		FA60F52329EF9D1F00AB9561 /* NumberFormatter+Default.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NumberFormatter+Default.swift"; sourceTree = "<group>"; };
+		FA6261F12AC2A535005D3D95 /* MIME+PathExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MIME+PathExtensions.swift"; sourceTree = "<group>"; };
+		FA6261F32AC2C7A8005D3D95 /* NFTOperationFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTOperationFactoryProtocol.swift; sourceTree = "<group>"; };
 		FA66FE8F2779C9AE0037C989 /* runtime-empty.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "runtime-empty.json"; sourceTree = "<group>"; };
 		FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageKeyExtractor.swift; sourceTree = "<group>"; };
 		FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolViewModelFactory.swift; sourceTree = "<group>"; };
@@ -5517,7 +5519,6 @@
 		FAE39AF52A9E63760011A9D6 /* NftDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftDetailViewModel.swift; sourceTree = "<group>"; };
 		FAE39AF72A9E63C20011A9D6 /* NftDetailViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftDetailViewModelFactory.swift; sourceTree = "<group>"; };
 		FAE39AF92AA063450011A9D6 /* NFTTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTTransferService.swift; sourceTree = "<group>"; };
-		FAE39AFC2AA063690011A9D6 /* EtherscanNftFetchingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EtherscanNftFetchingService.swift; sourceTree = "<group>"; };
 		FAE39AFE2AA063720011A9D6 /* EthereumNftTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNftTransferService.swift; sourceTree = "<group>"; };
 		FAE39B032AA0655B0011A9D6 /* BaseEthereumService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseEthereumService.swift; sourceTree = "<group>"; };
 		FAE39B062AA1D4370011A9D6 /* NftSendConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftSendConfirmViewModel.swift; sourceTree = "<group>"; };
@@ -5559,7 +5560,6 @@
 		FAF9C2A22AAF3FCC00A61D21 /* FeatureToggleService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureToggleService.swift; sourceTree = "<group>"; };
 		FAF9C2A32AAF3FCC00A61D21 /* FeatureToggleConfig.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeatureToggleConfig.swift; sourceTree = "<group>"; };
 		FAF9C2A72AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletAssembly.swift; sourceTree = "<group>"; };
-		FAF9C2A82AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletViewLayout.swift; sourceTree = "<group>"; };
 		FAF9C2A92AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletInteractor.swift; sourceTree = "<group>"; };
 		FAF9C2AA2AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletRouter.swift; sourceTree = "<group>"; };
 		FAF9C2AB2AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletPresenter.swift; sourceTree = "<group>"; };
@@ -8543,6 +8543,7 @@
 				FA8F63B0298273FE004B8CD4 /* DecodedTypes.swift */,
 				C633AD1029B99FA400EA8C29 /* ChainEcosystem.swift */,
 				FA8122E229CC374B00F43560 /* AssetVisibility.swift */,
+				FA6261F12AC2A535005D3D95 /* MIME+PathExtensions.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -11862,6 +11863,7 @@
 		FA2DF9962A8C97170047F440 /* NFT */ = {
 			isa = PBXGroup;
 			children = (
+				FA6261F32AC2C7A8005D3D95 /* NFTOperationFactoryProtocol.swift */,
 				FA2DF9972A8C971F0047F440 /* BlockExplorerNFTOperationFactory.swift */,
 				FA584C7B2AB3071E00F6F020 /* AlchemyNFTOperationFactory.swift */,
 			);
@@ -13837,7 +13839,6 @@
 		FAE39AFB2AA0635B0011A9D6 /* Ethereum */ = {
 			isa = PBXGroup;
 			children = (
-				FAE39AFC2AA063690011A9D6 /* EtherscanNftFetchingService.swift */,
 				FA584C872AB3F48200F6F020 /* AlchemyNftFetchingService.swift */,
 				FA584C892AB3F51D00F6F020 /* BaseNftFetchingService.swift */,
 			);
@@ -13991,7 +13992,6 @@
 			isa = PBXGroup;
 			children = (
 				FAF9C2A72AAF3FDF00A61D21 /* GetPreinstalledWalletAssembly.swift */,
-				FAF9C2A82AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift */,
 				FAF9C2A92AAF3FDF00A61D21 /* GetPreinstalledWalletInteractor.swift */,
 				FAF9C2AA2AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift */,
 				FAF9C2AB2AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift */,
@@ -14263,7 +14263,7 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */,
+				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FAF9C2BF2AB227BA00A61D21 /* XCRemoteSwiftPackageReference "Swime" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -14516,7 +14516,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14553,7 +14553,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14608,7 +14608,7 @@
 			);
 			inputPaths = (
 				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
-				"$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift",
+				$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift,
 			);
 			name = "Inject Google Keys";
 			outputFileListPaths = (
@@ -14981,7 +14981,6 @@
 				F471897626C297AA006487AD /* AnalyticsValidatorsPage.swift in Sources */,
 				F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */,
 				2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */,
-				FAE39AFD2AA063690011A9D6 /* EtherscanNftFetchingService.swift in Sources */,
 				FA2FC82628B380C500CC0A42 /* StakingPool.swift in Sources */,
 				076D9D33293DB8E3002762E3 /* SwapMarketSources.swift in Sources */,
 				C6267B9328BDF6A5001E31BF /* ChainAssetListProtocols.swift in Sources */,
@@ -15645,6 +15644,7 @@
 				FAD428FF2A86567F001D6A16 /* BackupRiskWarningsAssembly.swift in Sources */,
 				C65817D128DA70FC00988FC4 /* QRView.swift in Sources */,
 				8428769324AE046300D91AD8 /* AboutWireframe.swift in Sources */,
+				FA6261F22AC2A535005D3D95 /* MIME+PathExtensions.swift in Sources */,
 				84ACEBFF261E6C7C00AAE665 /* WalletHistoryFilterViewLayout.swift in Sources */,
 				FA86442527671E0E00956D8E /* WalletTransactionHistoryViewModelFactory.swift in Sources */,
 				84754CA22513DB8800854599 /* EmptyAccountIcon.swift in Sources */,
@@ -16960,6 +16960,7 @@
 				FA7336E62A0E3B880096A291 /* RESTNetworkClient.swift in Sources */,
 				719B429B58B9A0551381F92F /* FiltersViewFactory.swift in Sources */,
 				FA4CC666281801CB00A7E85F /* StakingUnitInfoView.swift in Sources */,
+				FA6261F42AC2C7A8005D3D95 /* NFTOperationFactoryProtocol.swift in Sources */,
 				7FC8C78DD68304B05B501F83 /* NodeSelectionProtocols.swift in Sources */,
 				1F6A32CBF7B43390AF412B1A /* NodeSelectionWireframe.swift in Sources */,
 				07089AFC28B783B5001566CA /* SheetAletViewController.swift in Sources */,
@@ -16976,7 +16977,6 @@
 				41831354E275074C7BBC4C28 /* NodeSelectionViewFactory.swift in Sources */,
 				FAF9C2B12AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift in Sources */,
 				6C0289728544A96852CCBF20 /* AddCustomNodeProtocols.swift in Sources */,
-				FAF9C2AF2AAF3FDF00A61D21 /* GetPreinstalledWalletViewLayout.swift in Sources */,
 				9C8AAE31F22421A975A17DF4 /* AddCustomNodeWireframe.swift in Sources */,
 				07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */,
 				07D05E6728EF0BE500B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift in Sources */,
@@ -17863,7 +17863,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */ = {
+		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
@@ -17884,17 +17884,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		FAE39B0B2AA5E6340011A9D6 /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
 		FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
 		FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
 		};
 		FAF9C2C02AB227BA00A61D21 /* Swime */ = {

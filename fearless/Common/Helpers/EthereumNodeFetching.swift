@@ -103,7 +103,9 @@ final class EthereumNodeFetching {
             throw EthereumNodeFetchingError.unknownChain
         }
 
-        let node = chain.selectedNode?.url.absoluteString.contains("wss") == true ? chain.selectedNode : chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
+        let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
+        let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("wss") == true
+        let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
 
         guard let wssURL = node?.url else {
             throw ConvenienceError(error: "cannot obtain eth rpc url for chain: \(chain.name)")

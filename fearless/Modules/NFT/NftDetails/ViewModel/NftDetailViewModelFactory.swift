@@ -12,14 +12,16 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
         if let url = nft.metadata?.imageURL {
             imageViewModel = RemoteImageViewModel(url: url)
         }
-        let tokenId = (try? Data(hexStringSSF: nft.tokenId)).map { "\(BigUInt($0))" }
+        let tokenId = nft.tokenId.map { tokenId in
+            (try? Data(hexStringSSF: tokenId)).map { "\(BigUInt($0))" }
+        }
 
         return NftDetailViewModel(
             nftName: nft.displayName,
             nftDescription: nft.displayDescription,
             collectionName: nft.collection?.displayName,
             owner: address,
-            tokenId: tokenId,
+            tokenId: tokenId ?? "",
             chain: nft.chain.name,
             imageViewModel: imageViewModel,
             nft: nft,

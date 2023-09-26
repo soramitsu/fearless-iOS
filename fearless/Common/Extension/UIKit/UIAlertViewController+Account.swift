@@ -54,13 +54,13 @@ extension UIAlertController {
         }
 
         if let url = chain.etherscanAddressURL(address) {
-            let subscanTitle = R.string.localizable
+            let etherscanTitle = R.string.localizable
                 .transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
-            let viewSubscan = UIAlertAction(title: subscanTitle, style: .default) { _ in
+            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
                 urlClosure(url)
             }
 
-            alertController.addAction(viewSubscan)
+            alertController.addAction(viewEtherscan)
         }
 
         if let exportClosure = exportClosure {

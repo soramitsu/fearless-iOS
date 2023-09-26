@@ -56,7 +56,7 @@ final class AllDonePresenter {
         view?.didReceive(viewModel: viewModel)
     }
 
-    private func prepareSubscanExplorer() {
+    private func prepareBlockExplorer() {
         let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
             $0.type == .subscan || $0.type == .etherscan
         })
@@ -72,7 +72,7 @@ extension AllDonePresenter: AllDoneViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
-        prepareSubscanExplorer()
+        prepareBlockExplorer()
     }
 
     func subscanButtonDidTapped() {

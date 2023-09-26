@@ -43,7 +43,7 @@ enum BalanceInfoAssembly {
 
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
-        let substrateAccountInfoFetching = AccountInfoFetching(
+        let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
@@ -51,7 +51,7 @@ enum BalanceInfoAssembly {
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: substrateAccountInfoFetching,
+            accountInfoFetching: accountInfoFetching,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             meta: type.wallet
         )

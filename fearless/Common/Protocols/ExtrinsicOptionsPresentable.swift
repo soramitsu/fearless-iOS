@@ -53,12 +53,12 @@ extension ExtrinsicOptionsPresentable {
         if let url = chain.etherscanTransactionURL(extrinsicHash) {
             let etherscanTitle = R.string.localizable
                 .transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
-            let viewSubscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
+            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
                 let webController = WebViewFactory.createWebViewController(for: url, style: .automatic)
                 view?.controller.present(webController, animated: true, completion: nil)
             }
 
-            alertController.addAction(viewSubscan)
+            alertController.addAction(viewEtherscan)
         }
 
         let cancelTitle = R.string.localizable

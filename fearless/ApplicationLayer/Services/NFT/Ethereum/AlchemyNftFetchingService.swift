@@ -17,7 +17,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
 
     private func fetchCollections(for chain: ChainModel, wallet: MetaAccountModel) async throws -> [NFTCollection]? {
         guard let address = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
-            throw SS58AddressFactoryError.unexpectedAddress
+            throw AddressFactoryError.unexpectedAddress
         }
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -38,7 +38,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
 
     private func fetchNfts(for chain: ChainModel, wallet: MetaAccountModel) async throws -> [NFT]? {
         guard let address = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
-            throw SS58AddressFactoryError.unexpectedAddress
+            throw AddressFactoryError.unexpectedAddress
         }
 
         return try await withCheckedThrowingContinuation { continuation in
@@ -88,14 +88,6 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
         }
 
         return nfts
-    }
-
-    func fetchNftsHistory(for _: MetaAccountModel) async throws -> [NFTHistoryObject] {
-        []
-    }
-
-    func fetchNfts(for _: [NFTHistoryObject]) async throws -> [NFT] {
-        []
     }
 
     func fetchCollections(for wallet: MetaAccountModel) async throws -> [NFTCollection] {
