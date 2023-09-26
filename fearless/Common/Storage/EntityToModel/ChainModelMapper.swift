@@ -59,7 +59,7 @@ final class ChainModelMapper {
             staking: staking,
             purchaseProviders: purchaseProviders,
             type: createChainAssetModelType(from: entity.type),
-            smartContract: nil
+            ethereumType: createEthereumAssetType(from: entity.ethereumType)
         )
     }
 
@@ -97,10 +97,11 @@ final class ChainModelMapper {
             assetEntity.color = $0.color
             assetEntity.name = $0.name
             assetEntity.currencyId = $0.currencyId
-            assetEntity.type = $0.type.rawValue
+            assetEntity.type = $0.type?.rawValue
             assetEntity.isUtility = $0.isUtility
             assetEntity.isNative = $0.isNative
             assetEntity.staking = $0.staking?.rawValue
+            assetEntity.ethereumType = $0.ethereumType?.rawValue
 
             let purchaseProviders: [String]? = $0.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders
@@ -347,11 +348,20 @@ final class ChainModelMapper {
         entity.crowdloansApiUrl = apis?.crowdloans?.url
     }
 
-    private func createChainAssetModelType(from rawValue: String?) -> ChainAssetType {
+    private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {
         guard let rawValue = rawValue else {
-            return .normal
+            return nil
         }
-        return ChainAssetType(rawValue: rawValue) ?? .normal
+
+        return SubstrateAssetType(rawValue: rawValue)
+    }
+
+    private func createEthereumAssetType(from rawValue: String?) -> EthereumAssetType? {
+        guard let rawValue = rawValue else {
+            return nil
+        }
+
+        return EthereumAssetType(rawValue: rawValue)
     }
 
     private func updateXcmConfig(

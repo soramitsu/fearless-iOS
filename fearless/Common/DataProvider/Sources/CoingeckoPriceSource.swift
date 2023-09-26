@@ -7,7 +7,7 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
     typealias Model = PriceData
 
     private let priceId: AssetModel.PriceId?
-    private var currency: Currency?
+    private var currencys: [Currency]?
 
     private let eventCenter: EventCenterProtocol = {
         EventCenter.shared
@@ -18,18 +18,18 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
         setup()
     }
 
-    init(priceId: AssetModel.PriceId, currency: Currency?) {
+    init(priceId: AssetModel.PriceId, currencys: [Currency]?) {
         self.priceId = priceId
-        self.currency = currency
+        self.currencys = currencys
         setup()
     }
 
     func fetchOperation() -> CompoundOperationWrapper<PriceData?> {
-        if let priceId = priceId,
-           let currency = self.currency ?? SelectedWalletSettings.shared.value?.selectedCurrency {
+        let currencys = self.currencys ?? [SelectedWalletSettings.shared.value?.selectedCurrency].compactMap { $0 }
+        if let priceId = priceId, currencys.isNotEmpty {
             let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(
                 for: [priceId],
-                currency: currency
+                currencys: currencys.compactMap { $0 }
             )
 
             let targetOperation: BaseOperation<PriceData?> = ClosureOperation {
@@ -54,6 +54,6 @@ final class CoingeckoPriceSource: SingleValueProviderSourceProtocol {
 
 extension CoingeckoPriceSource: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        currency = event.account.selectedCurrency
+        currencys = [event.account.selectedCurrency]
     }
 }

@@ -215,7 +215,7 @@
 "common.error.network" = "与远程服务器通信时发生错误";
 "common.error.no.data.retrieved" = "未检索到数据。";
 "common.error.password.mismatch" = "密码不匹配";
-"common.existential.warning.message" = "此交易将导致账户余额低于存在性存款，从而使其被清除（该账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对于网络上的任何操作都没有控制权或知情权。只有在您完全同意并理解相关影响后才能继续。";
+"common.existential.warning.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对网络上的任何操作都没有控制权或知识。只有在您完全同意并理解相关影响后才能继续。";
 "common.existential.warning.title" = "此操作将删除账户";
 "common.export" = "导出账户";
 "common.filter.sort.header" = "排序方式：";
@@ -265,7 +265,7 @@
 "common.skip" = "跳过";
 "common.staking" = "质押";
 "common.terms.and.conditions" = "条款和条件";
-"common.till.date" = "直到%s";
+"common.till.date" = "截止到 %s";
 "common.time.left" = "剩余时间";
 "common.time.left.format" = "还剩%@";
 "common.total" = "总共";
@@ -336,9 +336,9 @@
 "crowdloan.privacy.policy" = "我已阅读并同意条款和条件";
 "crowdloan.private.crowdloan.message" = "暂时不支持私人众贷。";
 "crowdloan.private.crowdloan.title" = "私人众贷";
-"crowdloan.progress.format" = "已筹集：%@ 共%@";
+"crowdloan.progress.format" = "已筹集：%@，共%@";
 "crowdloan.raised" = "筹集";
-"crowdloan.raised.amount" = "%@ 共%@";
+"crowdloan.raised.amount" = "%@ / %@";
 "crowdloan.referral.code.internal" = "推荐码验证失败。请稍后再试。";
 "crowdloan.referral.code.invalid" = "推荐码无效，请尝试另一个";
 "crowdloan.reward" = "预计奖励";
@@ -402,9 +402,11 @@
 "import.empty.derivation.cancel" = "零";
 "import.empty.derivation.confirm" = "空的";
 "import.empty.derivation.message" = "有一个选项可以设置一个零路径（//00//00//0/0/0），或者放置一个空的派生路径。如果您选择了一个空的派生路径，您将无法导出您的账户。请选择您想要使用的派生路径。";
+"import.eth.json.invalid.import.type.message" = "你的JSON文件无效。你正在尝试导入基于Substrate的链账户，而不是以太坊账户。请使用正确的JSON文件来导入以太坊链账户。";
 "import.ethereum.recovery.json" = "恢复基于ETH的账户的JSON";
 "import.json.invalid.format.message" = "请确保您的输入包含有效的JSON。";
 "import.json.invalid.format.title" = "恢复的JSON无效";
+"import.json.invalid.import.type.message" = "你的JSON文件无效。你正在尝试导入基于ETH的链账户，而不是Substrate的账户。请先使用正确的JSON文件来导入Substrate链账户。";
 "import.mnemonic" = "助记词密码";
 "import.mnemonic.invalid.title" = "你的助记词无效";
 "import.raw.seed" = "原始种子词";
@@ -459,8 +461,11 @@
 "network.status.connected" = "已连接";
 "network.status.connecting" = "正在连接...";
 "network.url.address" = "URL地址";
+"nft.collection.title" = "收藏品";
+"nft.owner.title" = "拥有";
 "nft.stub.text" = "NFT即将到来";
 "nft.stub.title" = "对不起！";
+"nft.tokenid.title" = "代币ID";
 "nfts.stub" = "NFTs";
 "no.access.to.google" = "无法访问谷歌";
 "no.account.found" = "未找到账户";
@@ -469,6 +474,7 @@
 "node.selection.delete.node.title" = "删除自定义节点？";
 "onboarding.create.account" = "创建一个账户";
 "onboarding.create.wallet" = "创建一个钱包";
+"onboarding.preinstalled.wallet.button.text" = "获取预装钱包";
 "onboarding.restore.account" = "导入账户";
 "onboarding.restore.wallet" = "我已经有一个钱包了";
 "onboarding.terms.and.conditions.1" = "我已阅读并同意\
@@ -668,7 +674,7 @@
 "staking.analytics.activity" = "活动";
 "staking.analytics.avg" = "%@平均。";
 "staking.analytics.details.type" = "类型";
-"staking.analytics.era.range" = "%d个时间段，共%d";
+"staking.analytics.era.range" = "%d时间段，共%d";
 "staking.analytics.period.1y" = "1年";
 "staking.analytics.period.30d" = "30天";
 "staking.analytics.period.7d" = "7天";
@@ -707,7 +713,7 @@
 "staking.custom.deselect.button.title" = "取消全选";
 "staking.custom.deselect.warning" = "你即将取消之前选择的所有验证人。";
 "staking.custom.fill.button.title" = "其余部分按推荐值填充";
-"staking.custom.header.validators.title" = "验证人：%li中的%li。";
+"staking.custom.header.validators.title" = "验证人： %li，共%li";
 "staking.custom.proceed.button.disabled.title" = "选择验证人（最多%d ）";
 "staking.custom.proceed.button.enabled.title" = "显示所选： %d （最多%d ）";
 "staking.custom.validators.list.title" = "选择验证人";
@@ -767,17 +773,17 @@
 "staking.pool.info.title" = "池信息";
 "staking.pool.management.select.validators.subtitle" = "要继续，您应该\n选择验证人";
 "staking.pool.management.select.validators.title" = "选择池验证人";
-"staking.pool.rewards.delay.text" = "随时质押。您将在%s之后开始赚取利息";
+"staking.pool.rewards.delay.text" = "随时质押。您将在%@之后开始赚取利息";
 "staking.pool.select.validators.manual" = "手动选择";
 "staking.pool.select.validators.suggested" = "选择建议的";
 "staking.pool.sort.pool.members" = "成员人数";
 "staking.pool.stake.info.title" = "质押池信息";
-"staking.pool.start.apr.text" = "每年赚取%s";
+"staking.pool.start.apr.text" = "每年赚取%@";
 "staking.pool.start.create.button.title" = "创建池";
-"staking.pool.start.earn.reward.title" = "质押您的\n %s即可获得奖励";
+"staking.pool.start.earn.reward.title" = "质押您的\n %@即可获得奖励";
 "staking.pool.start.join.button.title" = "加入池";
-"staking.pool.start.reward.freq.text" = "奖励每%s支付一次";
-"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%s。";
+"staking.pool.start.reward.freq.text" = "奖励每%@支付一次";
+"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%@。";
 "staking.rebond" = "返回质押";
 "staking.rebond.all" = "重新绑定所有";
 "staking.rebond.custom.amount" = "重新绑定自定义金额";
@@ -911,7 +917,7 @@
 "staking.your.validators.changing.title" = "你的验证人将在下一个时间段发生变化。";
 "staking.your.validators.title" = "你的验证人";
 "stash.account.issue.action" = "导入存储账户";
-"stash.account.issue.message" = "存储账户 %s 不可用。请按照必要的步骤导入存储账户。";
+"stash.account.issue.message" = "存储账户%s不可用。请按照必要的步骤导入存储账户。";
 "state.common" = "状态";
 "stories.bottom.close.button" = "好消息！";
 "stories.version2.slide1.subtitle" = "Fearless Wallet现在支持更多的网络和代币：Polkadot（DOT），Kusama（KSM），Moonriver（MOVR），Karura（KAR），Shiden（SDN），SORA（XOR），Bifrost（BNC），KILT（KILT）等等...";
@@ -1027,6 +1033,7 @@
 "wallet.send.confirm.title" = "确认转账";
 "wallet.send.dead.recipient.message" = "您的转账将失败，因为目标账户上的最终金额将低于最低余额。请尝试增加金额。";
 "wallet.send.dead.recipient.title" = "金额太低";
+"wallet.send.eth.dead.recipient.message" = "接收方账户中的以太币余额不足，导致无法完成ERC20代币转账。请确保接收方有足够的以太币来进行转账。";
 "wallet.send.existential.warning" = "您的转账将从区块存储中移除该账户，因为这将使总余额低于最低余额要求。";
 "wallet.send.fee.title" = "转账费用";
 "wallet.send.navigation.title" = "发送%s";
@@ -1057,6 +1064,7 @@
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
 "cant.fetch.refresh" = "无法获取数据，请点击刷新。";
+"card.attention.text" = "注意";
 "card.hub.settings.logout.button" = "退出登录";
 "card.hub.settings.logout.description" = "您即将退出 SORA 卡。您仍然可以使用 SORA 卡独立应用程序，但余额将不再在 SORA 钱包中可用。";
 "card.hub.settings.logout.title" = "退出 SORA 卡";
@@ -1082,14 +1090,14 @@
 "details.already.have.card" = "我已经有一张卡了";
 "details.already.used.free.try" = "您已经使用了免费尝试";
 "details.annual.service.fee" = "年服务费€0";
-"details.description" = "获取可在 SORA 钱包中访问的欧元 IBAN 帐户和借记卡";
+"details.description" = "在您的SORA钱包中获得一个欧元IBAN账户和可访问的借记卡";
 "details.enough.xor.desription" = "你有足够的XOR";
 "details.free.card.issuance" = "免费发卡";
 "details.free.card.issuance.conditions.euro" = "或%@欧元的申请费";
 "details.free.card.issuance.conditions.xor" = "如果您在SORA账户中持有、质押或提供至少价值%@欧元的XOR的流动性";
 "details.get.more.xor" = "获取更多的XOR";
 "details.issue.card" = "免费发卡";
-"details.need.xor.desription" = "您需要再购买%@个XOR（€%@）。";
+"details.need.xor.desription" = "您需要%@更多 XOR (€ %@ )";
 "details.title" = "使用法定货币或加密货币充值SORA卡，可在线支付、门店消费或从ATM机取款";
 "enter.email.description" = "魔法链接将发送\n到您的电子邮件";
 "enter.email.input.field.label" = "电子邮件";
@@ -1100,12 +1108,13 @@
 "get.more.xor.dialog.buy.option" = "使用欧元购买XOR";
 "get.more.xor.dialog.description" = "你可以使用 XOR 进行兑换或用欧元购买";
 "get.more.xor.dialog.swap.option" = "用加密货币兑换XOR";
-"get.prepared.alert" = "注意：您只有2次免费尝试通过KYC过程。之后的每一次尝试都将花费3.8欧元。付费尝试将在应用程序的下一个更新后提供。";
+"get.prepared.alert" = "您只有%@免费尝试机会通过 KYC 流程。此后的所有其他尝试都将花费 € %@ 。下次更新应用程序后将提供付费尝试。";
 "get.prepared.need" = "完成KYC需要：";
 "get.prepared.ok.title" = "好的，我准备好了";
 "get.prepared.personal.info.description" = "请填写表格，包括您的姓名和地址。";
 "get.prepared.personal.info.title" = "提交个人信息";
-"get.prepared.proof.address.description" = "一份官方文件（水电费账单、银行对账单、政府声明或通信），上面包含您的全名和地址，并且不早于三个月前。";
+"get.prepared.proof.address.description" = "包含您的全名和地址且不超过 3 个月的正式文件（水电费账单、银行对账单、政府声明或信件）。";
+"get.prepared.proof.address.note" = "请注意：像Revolut和N26这样的新型银行的声明目前不被视为有效的地址证明。";
 "get.prepared.proof.address.title" = "提交地址证明照片";
 "get.prepared.submit.id.photo.description" = "护照、驾照、身份证或居住许可证";
 "get.prepared.submit.id.photo.title" = "提交您的身份证明照片";
@@ -1134,7 +1143,6 @@
 "verification.failed.description" = "KYC已终止或未能通过验证。";
 "verification.failed.title" = "验证失败";
 "verification.rejected.description" = "您的申请已被拒绝。";
-"verification.rejected.screen.attempts.left" = "您还有%@次免费的KYC尝试机会。";
 "verification.rejected.screen.attempts.price.disclaimer" = "每次其他尝试都会花费你%@欧元。";
 "verification.rejected.screen.attempts.used" = "您已经使用完了免费的KYC尝试次数。";
 "verification.rejected.screen.try.again.for.euros" = "再试一次，%@欧元。";
@@ -1145,7 +1153,7 @@
 "verification.successful.title" = "申请已批准";
 "verify.email.description" = "请点击已发送\n至%@\n的魔法链接进行跟踪。\
 邮件可能需要几分钟才能到达，请在5分钟后检查您的垃圾邮件文件夹，以防未收到该邮件。";
-"verify.email.resend" = "%@秒后重新发送";
+"verify.email.resend" = "%@以后重新发送";
 "verify.email.title" = "验证您的电子邮件";
 "verify.phone.number.code.input.field.label" = "短信验证码";
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";

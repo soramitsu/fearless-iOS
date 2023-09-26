@@ -42,12 +42,16 @@ extension BalanceInfoInteractor: BalanceInfoInteractorInput {
                 return
             }
             fetchMinimalBalance(for: chainAsset, service: dependencies.existentialDepositService)
-            fetchBalanceLocks(
-                for: wallet,
-                chainAsset: chainAsset,
-                runtimeService: dependencies.runtimeService,
-                connection: dependencies.connection
-            )
+
+            if let runtimeService = dependencies.runtimeService,
+               let connection = dependencies.connection {
+                fetchBalanceLocks(
+                    for: wallet,
+                    chainAsset: chainAsset,
+                    runtimeService: runtimeService,
+                    connection: connection
+                )
+            }
         }
     }
 }

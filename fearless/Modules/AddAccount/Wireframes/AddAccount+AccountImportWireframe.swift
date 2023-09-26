@@ -3,16 +3,16 @@ import IrohaCrypto
 
 extension AddAccount {
     final class AccountImportWireframe: AccountImportWireframeProtocol {
-        func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData) {
-            guard let secondStep = AccountImportViewFactory.createViewForAdding(
+        func showEthereumStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.SubstrateStepData) {
+            guard let ethereumStep = AccountImportViewFactory.createViewForAdding(
                 defaultSource: .mnemonic,
-                .wallet(step: .second(data: data))
+                .wallet(step: .ethereum(data: data))
             ) else {
                 return
             }
 
             if let navigationController = view?.controller.navigationController {
-                navigationController.pushViewController(secondStep.controller, animated: true)
+                navigationController.pushViewController(ethereumStep.controller, animated: true)
             }
         }
 

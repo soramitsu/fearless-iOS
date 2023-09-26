@@ -90,7 +90,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         switch result {
         case let .success(wallet):
             settings.setup()
-            eventCenter.notify(with: SelectedAccountChanged())
+            eventCenter.notify(with: SelectedAccountChanged(account: wallet))
             switch flow {
             case let .wallet(request):
                 saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
@@ -251,7 +251,8 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
                 username: wallet.name,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: substrate.account.cryptoType
+                cryptoType: substrate.account.cryptoType,
+                defaultChainId: nil
             )
             saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
         } catch {

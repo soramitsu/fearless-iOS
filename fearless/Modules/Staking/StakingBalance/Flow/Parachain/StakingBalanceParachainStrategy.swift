@@ -24,7 +24,7 @@ final class StakingBalanceParachainStrategy {
     var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     private let logger: LoggerProtocol
     private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
-    private let subqueryHistoryOperationFactory: ParachainHistoryOperationFactory
+    private let subqueryHistoryOperationFactory: ParachainHistoryOperationFactory?
 
     deinit {
         stakingAccountUpdatingService.clearSubscription()
@@ -40,7 +40,7 @@ final class StakingBalanceParachainStrategy {
         parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
         logger: LoggerProtocol,
         stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
-        subqueryHistoryOperationFactory: ParachainHistoryOperationFactory
+        subqueryHistoryOperationFactory: ParachainHistoryOperationFactory?
     ) {
         self.collator = collator
         self.chainAsset = chainAsset
@@ -55,7 +55,10 @@ final class StakingBalanceParachainStrategy {
     }
 
     private func fetchSubqueryUnstakingHistory() {
-        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+        guard
+            let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress(),
+            let subqueryHistoryOperationFactory = subqueryHistoryOperationFactory
+        else {
             return
         }
 

@@ -25,6 +25,7 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
     func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>)
     func didReceive(error: Error)
     func didCompleteSelection()
+    func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?)
 }
 
 protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable {
@@ -45,6 +46,7 @@ protocol WalletsManagmentModuleOutput: AnyObject {
     func showAddNewWallet()
     func showImportWallet(defaultSource: AccountImportSource)
     func showImportGoogle()
+    func showGetPreinstalledWallet()
     func selectedWallet(_ wallet: MetaAccountModel, for contextTag: Int)
 }
 
@@ -53,4 +55,5 @@ extension WalletsManagmentModuleOutput {
     func showImportWallet(defaultSource _: AccountImportSource) {}
     func showImportGoogle() {}
     func selectedWallet(_: MetaAccountModel, for _: Int) {}
+    func showGetPreinstalledWallet() {}
 }

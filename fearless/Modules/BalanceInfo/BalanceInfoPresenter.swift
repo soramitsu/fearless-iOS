@@ -8,6 +8,7 @@ final class BalanceInfoPresenter {
     private weak var view: BalanceInfoViewInput?
     private let router: BalanceInfoRouterInput
     private let interactor: BalanceInfoInteractorInput
+    private let eventCenter: EventCenterProtocol
 
     private var balanceInfoType: BalanceInfoType
     private let balanceInfoViewModelFactoryProtocol: BalanceInfoViewModelFactoryProtocol
@@ -25,14 +26,18 @@ final class BalanceInfoPresenter {
         interactor: BalanceInfoInteractorInput,
         router: BalanceInfoRouterInput,
         logger: LoggerProtocol,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.balanceInfoType = balanceInfoType
         self.balanceInfoViewModelFactoryProtocol = balanceInfoViewModelFactoryProtocol
         self.interactor = interactor
         self.router = router
         self.logger = logger
+        self.eventCenter = eventCenter
         self.localizationManager = localizationManager
+
+        eventCenter.add(observer: self)
     }
 
     // MARK: - Private methods
@@ -87,6 +92,7 @@ extension BalanceInfoPresenter: BalanceInfoViewOutput {
     func didLoad(view: BalanceInfoViewInput) {
         self.view = view
         interactor.setup(with: self, for: balanceInfoType)
+        view.didReceiveViewModel(nil)
     }
 }
 
@@ -132,5 +138,21 @@ extension BalanceInfoPresenter: BalanceInfoModuleInput {
     func replace(infoType: BalanceInfoType) {
         balanceInfoType = infoType
         interactor.fetchBalanceInfo(for: infoType)
+    }
+}
+
+extension BalanceInfoPresenter: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        switch balanceInfoType {
+        case let .chainAsset(wallet, chainAsset):
+            let newType = BalanceInfoType.chainAsset(wallet: event.account, chainAsset: chainAsset)
+            balanceInfoType = newType
+            interactor.fetchBalanceInfo(for: newType)
+
+        case let .wallet(wallet):
+            let newType = BalanceInfoType.wallet(wallet: event.account)
+            balanceInfoType = newType
+            interactor.fetchBalanceInfo(for: newType)
+        }
     }
 }

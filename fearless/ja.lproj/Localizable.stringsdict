@@ -72,5 +72,21 @@
         <string>%li 時代</string>
       </dict>
     </dict>
+    <key>verification.rejected.screen.attempts.left</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>You have %li more free KYC attempt</string>
+        <key>other</key>
+        <string>You have %li more free KYC attempts</string>
+      </dict>
+    </dict>
   </dict>
 </plist>

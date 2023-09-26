@@ -12,14 +12,15 @@ final class WalletsManagmentInteractor {
     private let settings: SelectedWalletSettings
     private let eventCenter: EventCenter
     private let shouldSaveSelected: Bool
-
+    private let featureToggleService: FeatureToggleProviderProtocol
     init(
         shouldSaveSelected: Bool,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
         settings: SelectedWalletSettings,
-        eventCenter: EventCenter
+        eventCenter: EventCenter,
+        featureToggleService: FeatureToggleProviderProtocol
     ) {
         self.shouldSaveSelected = shouldSaveSelected
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
@@ -27,9 +28,22 @@ final class WalletsManagmentInteractor {
         self.operationQueue = operationQueue
         self.settings = settings
         self.eventCenter = eventCenter
+        self.featureToggleService = featureToggleService
     }
 
     // MARK: - Private methods
+
+    private func fetchFeatureToggleConfig() {
+        let fetchOperation = featureToggleService.fetchConfigOperation()
+
+        fetchOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                self?.output?.didReceiveFeatureToggleConfig(result: fetchOperation.result)
+            }
+        }
+
+        operationQueue.addOperation(fetchOperation)
+    }
 
     private func fetchWallets() {
         let operation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
@@ -70,7 +84,7 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
         settings.save(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
             switch result {
             case .success:
-                self?.eventCenter.notify(with: SelectedAccountChanged())
+                self?.eventCenter.notify(with: SelectedAccountChanged(account: wallet.info))
                 self?.output?.didCompleteSelection()
             case let .failure(error):
                 self?.output?.didReceive(error: error)

@@ -11,6 +11,7 @@ protocol PriceLocalStorageSubscriber where Self: AnyObject {
     func subscribeToPrice(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData>
     func subscribeToPrices(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]>
     func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]>
+    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currencys: [Currency]?) -> AnySingleValueProvider<[PriceData]>
 }
 
 extension PriceLocalStorageSubscriber {
@@ -84,6 +85,38 @@ extension PriceLocalStorageSubscriber {
 
     func subscribeToPrices(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]> {
         subscribeToPrices(for: pricesIds, currency: nil)
+    }
+
+    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currencys: [Currency]?) -> AnySingleValueProvider<[PriceData]> {
+        let priceProvider = priceLocalSubscriptionFactory.getPricesProvider(
+            for: pricesIds,
+            currencys: currencys
+        )
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
+            guard let finalValue = changes.reduceToLastChange() else { return }
+            self?.priceLocalSubscriptionHandler.handlePrices(result: .success(finalValue))
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.priceLocalSubscriptionHandler.handlePrices(result: .failure(error))
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: true,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        priceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return priceProvider
     }
 }
 

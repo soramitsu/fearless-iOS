@@ -18,7 +18,7 @@ extension AssetTransactionData {
         let peerAddress = transfer.from?.id == address ? transfer.to?.id : transfer.from?.id
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(transfer.amount) ?? 0,
+            BigUInt(string: transfer.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
@@ -56,7 +56,7 @@ extension AssetTransactionData {
         let date = dateFormatter.value(for: locale).date(from: reward.timestamp)
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(reward.amount) ?? 0,
+            BigUInt(string: reward.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
@@ -95,7 +95,7 @@ extension AssetTransactionData {
         let date = dateFormatter.value(for: locale).date(from: bond.timestamp)
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(bond.amount) ?? 0,
+            BigUInt(string: bond.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
@@ -134,7 +134,7 @@ extension AssetTransactionData {
         let date = dateFormatter.value(for: locale).date(from: slash.timestamp)
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(slash.amount) ?? 0,
+            BigUInt(string: slash.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
