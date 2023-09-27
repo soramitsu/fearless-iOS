@@ -7,7 +7,7 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: EtherscanHistoryElement,
         address: String,
-        chain _: ChainModel,
+        chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let peerAddress = item.from == address ? item.to : item.from
@@ -15,23 +15,38 @@ extension AssetTransactionData {
             TransactionType.incoming
 
         let timestamp: Int64 = {
-            let timestamp = Int64(item.timeStamp) ?? 0
+            guard let timestampValue = item.timeStamp else {
+                return 0
+            }
+
+            let timestamp = Int64(timestampValue) ?? 0
             return timestamp
         }()
 
+        let feeValue = item.gasUsed * item.gasPrice
+
+        let utilityAsset = chain.utilityChainAssets().first?.asset ?? asset
+        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(utilityAsset.precision)) ?? .zero
+
+        let fee = AssetTransactionFee(
+            identifier: asset.identifier,
+            assetId: asset.identifier,
+            amount: AmountDecimal(value: feeDecimal),
+            context: nil
+        )
         let amount = Decimal.fromSubstrateAmount(item.value, precision: Int16(asset.precision)) ?? .zero
 
         return AssetTransactionData(
-            transactionId: item.hash,
+            transactionId: item.hash ?? "",
             status: .commited,
-            assetId: item.contractAddress,
+            assetId: item.contractAddress ?? "",
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,
             peerName: peerAddress,
             details: "",
             amount: AmountDecimal(value: amount),
-            fees: [],
+            fees: [fee],
             timestamp: timestamp,
             type: type.rawValue,
             reason: "",

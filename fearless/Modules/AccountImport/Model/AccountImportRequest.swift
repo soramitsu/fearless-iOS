@@ -8,6 +8,7 @@ struct MetaAccountImportMnemonicRequest {
     let substrateDerivationPath: String
     let ethereumDerivationPath: String
     let cryptoType: CryptoType
+    let defaultChainId: ChainModel.Id?
 }
 
 struct MetaAccountImportSeedRequest {
@@ -58,6 +59,7 @@ struct MetaAccountImportRequest {
     let source: MetaAccountImportRequestSource
     let username: String
     let cryptoType: CryptoType
+    let defaultChainId: ChainModel.Id?
 }
 
 struct ChainAccountImportMnemonicRequest {

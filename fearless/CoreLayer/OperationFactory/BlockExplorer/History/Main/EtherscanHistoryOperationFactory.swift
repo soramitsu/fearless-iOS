@@ -4,6 +4,7 @@ import CommonWallet
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import FearlessKeys
 
 final class EtherscanHistoryOperationFactory {
     private func createOperation(
@@ -13,11 +14,17 @@ final class EtherscanHistoryOperationFactory {
     ) -> BaseOperation<EtherscanHistoryResponse> {
         let action: String = chainAsset.asset.ethereumType == .normal ? "txlist" : "tokentx"
         var urlComponents = URLComponents(string: url.absoluteString)
-        urlComponents?.queryItems = [
+        var queryItems = [
             URLQueryItem(name: "module", value: "account"),
             URLQueryItem(name: "action", value: action),
-            URLQueryItem(name: "address", value: address)
+            URLQueryItem(name: "address", value: address),
         ]
+
+        if let apiKey = BlockExplorerApiKey(chainId: chainAsset.chain.chainId) {
+            queryItems.append(URLQueryItem(name: "apikey", value: apiKey.value))
+        }
+
+        urlComponents?.queryItems = queryItems
 
         guard let urlWithParameters = urlComponents?.url else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
@@ -67,12 +74,12 @@ final class EtherscanHistoryOperationFactory {
         ClosureOperation {
             let remoteTransactions = try remoteOperation.extractNoCancellableResultData().result
 
-            let transactions = remoteTransactions
-                .filter { asset.ethereumType == .normal ? true : $0.contractAddress.lowercased() == asset.id.lowercased() }
+            let transactions = remoteTransactions?
+                .filter { asset.ethereumType == .normal ? true : $0.contractAddress?.lowercased() == asset.id.lowercased() }
                 .sorted(by: { $0.timestampInSeconds > $1.timestampInSeconds })
                 .compactMap {
                     AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
-                }.filter { $0.amount.decimalValue > 0 }
+                }.filter { $0.amount.decimalValue > 0 } ?? []
 
             return AssetTransactionPageData(transactions: transactions)
         }

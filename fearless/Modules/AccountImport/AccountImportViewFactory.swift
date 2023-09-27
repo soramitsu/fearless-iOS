@@ -7,7 +7,7 @@ import IrohaCrypto
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     static func createViewForOnboarding(
         defaultSource: AccountImportSource = .mnemonic,
-        flow: AccountImportFlow = .wallet(step: .first)
+        flow: AccountImportFlow = .wallet(step: .substrate)
     ) -> AccountImportViewProtocol? {
         guard let interactor = createAccountImportInteractor(defaultSource: defaultSource) else {
             return nil
@@ -19,7 +19,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
     static func createViewForAdding(
         defaultSource: AccountImportSource,
-        _ flow: AccountImportFlow = .wallet(step: .first)
+        _ flow: AccountImportFlow = .wallet(step: .substrate)
     ) -> AccountImportViewProtocol? {
         guard let interactor = createAddAccountImportInteractor(defaultSource: defaultSource) else {
             return nil
@@ -42,7 +42,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     private static func createView(
         for interactor: BaseAccountImportInteractor,
         wireframe: AccountImportWireframeProtocol,
-        flow: AccountImportFlow = .wallet(step: .first)
+        flow: AccountImportFlow = .wallet(step: .substrate)
     ) -> AccountImportViewProtocol? {
         let presenter = AccountImportPresenter(
             wireframe: wireframe,

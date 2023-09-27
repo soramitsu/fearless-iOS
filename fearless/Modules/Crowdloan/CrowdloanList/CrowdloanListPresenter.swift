@@ -61,7 +61,7 @@ final class CrowdloanListPresenter {
         if let accountInfoResult = accountInfoResult {
             balance = (try? accountInfoResult.get()?.data.sendAvailable) ?? 0
         } else {
-            balance = nil
+            balance = .zero
         }
 
         let wikiCrowdloan = LearnMoreViewModel(

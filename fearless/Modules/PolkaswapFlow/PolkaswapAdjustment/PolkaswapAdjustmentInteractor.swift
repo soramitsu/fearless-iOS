@@ -219,21 +219,11 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         group.notify(queue: .main, work: workItem)
     }
 
-    func subscribeOnPool(
-        for fromAssetId: AssetModel.Id,
-        toAssetId: AssetModel.Id,
-        liquiditySourceType: LiquiditySourceType,
-        availablePolkaswapDex: [PolkaswapDex]
-    ) {
+    func subscribeOnBlocks() {
         listeningSubscription.removeAll()
         unsubscribePool()
 
-        subscriptionService.subscribsToPools(
-            for: fromAssetId,
-            toAssetId: toAssetId,
-            liquiditySourceType: liquiditySourceType,
-            availablePolkaswapDex: availablePolkaswapDex
-        ) { [weak self] update in
+        subscriptionService.subscribeToBlocks { [weak self] update in
             guard let strongSelf = self else {
                 return
             }

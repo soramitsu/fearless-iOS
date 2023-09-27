@@ -150,7 +150,7 @@ extension SendInteractor: SendInteractorInput {
         for asset: AssetModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     ) {
-        chainAssetFetching.fetch(filters: [], sortDescriptors: []) { result in
+        chainAssetFetching.fetch(shouldUseCashe: true, filters: [], sortDescriptors: []) { result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):
@@ -182,7 +182,7 @@ extension SendInteractor: SendInteractorInput {
                 let fee = try await dependencies.transferService.estimateFee(for: transfer)
 
                 await MainActor.run(body: {
-                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
                 })
 
                 dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
@@ -222,10 +222,8 @@ extension SendInteractor: SendInteractorInput {
         return chainAsset
     }
 
-    func getPossibleChains(for address: String, completion: @escaping ([ChainModel]?) -> Void) {
-        addressChainDefiner.getPossibleChains(for: address) { chains in
-            completion(chains)
-        }
+    func getPossibleChains(for address: String) async -> [ChainModel]? {
+        await addressChainDefiner.getPossibleChains(for: address)
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
@@ -266,7 +264,7 @@ extension SendInteractor: ExtrinsicFeeProxyDelegate {
 extension SendInteractor: TransferFeeEstimationListener {
     func didReceiveFee(fee: BigUInt) {
         DispatchQueue.main.async { [weak self] in
-            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
         }
     }
 

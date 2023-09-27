@@ -42,9 +42,11 @@ protocol ScanQRModuleInput: AnyObject {}
 protocol ScanQRModuleOutput: AnyObject {
     func didFinishWith(address: String)
     func didFinishWithConnect(uri: String)
+    func didFinishWithSolomon(soraAddress: String)
 }
 
 extension ScanQRModuleOutput {
     func didFinishWith(address _: String) {}
     func didFinishWithConnect(uri _: String) {}
+    func didFinishWithSolomon(soraAddress _: String) {}
 }

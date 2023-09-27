@@ -19,22 +19,22 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
     ) -> [MetaAccountId: WalletBalanceInfo]? {
         let walletBalanceMap = metaAccounts.reduce(
             [MetaAccountId: WalletBalanceInfo]()
-        ) { (result, account) -> [MetaAccountId: WalletBalanceInfo]? in
+        ) { (result, wallet) -> [MetaAccountId: WalletBalanceInfo]? in
 
-            let splitedChainAssets = split(chainAssets, for: account)
+            let splitedChainAssets = split(chainAssets, for: wallet)
             let enabledChainAssets = splitedChainAssets.enabled
             let disabledChainAssets = splitedChainAssets.disabled
 
             let enabledAssetFiatBalanceInfo = countBalance(
                 for: enabledChainAssets,
-                account,
+                wallet,
                 accountInfos,
                 prices
             )
 
             let disabledAssetFiatBalanceInfo = countBalance(
                 for: disabledChainAssets,
-                account,
+                wallet,
                 accountInfos,
                 prices
             )
@@ -60,13 +60,13 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 enabledAssetFiatBalance: enabledAssetFiatBalance,
                 dayChangePercent: dayChangePercent.isNaN ? .zero : dayChangePercent,
                 dayChangeValue: totalDayChange,
-                currency: account.selectedCurrency,
+                currency: wallet.selectedCurrency,
                 prices: prices,
                 accountInfos: accountInfos
             )
 
             var result = result
-            result?[account.metaId] = walletBalance
+            result?[wallet.metaId] = walletBalance
             return result
         }
 
@@ -96,7 +96,8 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             let balance = getFiatBalance(
                 for: chainAsset,
                 accountInfo,
-                prices
+                prices,
+                currency: metaAccount.selectedCurrency
             )
 
             if enabledAccountInfos.keys.contains(chainAssetKey) {
@@ -152,7 +153,8 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
     private func getFiatBalance(
         for chainAsset: ChainAsset,
         _ accountInfo: AccountInfo?,
-        _ prices: [PriceData]
+        _ prices: [PriceData],
+        currency: Currency
     ) -> AssetFiatBalanceInfo {
         let balanceDecimal = getBalance(
             for: chainAsset,
@@ -160,7 +162,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         )
 
         guard let priceId = chainAsset.asset.priceId,
-              let priceData = prices.first(where: { $0.priceId == priceId }),
+              let priceData = prices.first(where: { $0.priceId == priceId && $0.currencyId == currency.id }),
               let priceDecimal = Decimal(string: priceData.price)
         else {
             return AssetFiatBalanceInfo(total: .zero, dayChange: .zero)

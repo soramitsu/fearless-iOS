@@ -73,7 +73,9 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
                 chainsWithIssues.remove(chain)
             }
         case .notConnected:
-            chainsWithIssues.insert(chain)
+            if !chainsWithIssues.contains(where: { $0.chainId == chain.chainId }) {
+                chainsWithIssues.insert(chain)
+            }
         default:
             break
         }
@@ -81,7 +83,9 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
 
     private func updateIssues(with attempt: Int, for chain: ChainModel) {
         if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
-            chainsWithIssues.insert(chain)
+            if !chainsWithIssues.contains(where: { $0.chainId == chain.chainId }) {
+                chainsWithIssues.insert(chain)
+            }
         } else {
             chainsWithIssues.remove(chain)
         }

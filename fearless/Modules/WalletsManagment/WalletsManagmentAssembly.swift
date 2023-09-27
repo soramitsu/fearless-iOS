@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraUI
+import SSFNetwork
 
 final class WalletsManagmentAssembly {
     static func configureModule(
@@ -10,11 +11,11 @@ final class WalletsManagmentAssembly {
         contextTag: Int = 0,
         moduleOutput: WalletsManagmentModuleOutput?
     ) -> WalletsManagmentModuleCreationResult? {
+        guard let wallet = SelectedWalletSettings.shared.value else { return nil }
         let sharedDefaultQueue = OperationManagerFacade.sharedDefaultQueue
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -43,13 +44,25 @@ final class WalletsManagmentAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: substrateAccountInfoFetching,
+            operationQueue: sharedDefaultQueue,
+            meta: wallet
+        )
+
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainRepository: AnyDataProviderRepository(chainRepository),
+            chainAssetFetcher: chainAssetFetching,
             operationQueue: sharedDefaultQueue,
             eventCenter: eventCenter,
             logger: logger
+        )
+
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
         )
 
         let interactor = WalletsManagmentInteractor(
@@ -58,7 +71,8 @@ final class WalletsManagmentAssembly {
             metaAccountRepository: AnyDataProviderRepository(managedMetaAccountRepository),
             operationQueue: sharedDefaultQueue,
             settings: SelectedWalletSettings.shared,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            featureToggleService: featureToggleProvider
         )
         let router = WalletsManagmentRouter()
 

@@ -16,7 +16,7 @@ final class ChainAssetListInteractor {
     private let eventCenter: EventCenter
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    private let accountInfoFetchingProviders: [AccountInfoFetchingProtocol]
+    private let accountInfoFetchingProvider: AccountInfoFetching
     private let dependencyContainer: ChainAssetListDependencyContainer
 
     private var chainAssets: [ChainAsset]?
@@ -39,7 +39,7 @@ final class ChainAssetListInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        accountInfoFetchingProviders: [AccountInfoFetchingProtocol],
+        accountInfoFetchingProvider: AccountInfoFetching,
         dependencyContainer: ChainAssetListDependencyContainer
     ) {
         self.wallet = wallet
@@ -48,23 +48,24 @@ final class ChainAssetListInteractor {
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.accountRepository = accountRepository
-        self.accountInfoFetchingProviders = accountInfoFetchingProviders
+        self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.dependencyContainer = dependencyContainer
     }
 
     // MARK: - Private methods
 
-    private func save(_ updatedAccount: MetaAccountModel) {
+    private func save(_ updatedAccount: MetaAccountModel, shouldNotify: Bool) {
         let saveOperation = accountRepository.saveOperation {
             [updatedAccount]
         } _: {
             []
         }
 
-        saveOperation.completionBlock = { [weak self] in
+        saveOperation.completionBlock = { [weak self, shouldNotify] in
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
+                    guard shouldNotify else { return }
                     self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                 case .failure:
                     break
@@ -73,6 +74,19 @@ final class ChainAssetListInteractor {
         }
 
         operationQueue.addOperation(saveOperation)
+    }
+
+    private func reload() {
+        guard let chainAssets = chainAssets else {
+            return
+        }
+
+        output?.didReceiveChainAssets(result: .success(chainAssets))
+
+        accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
+            self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+            self?.subscribeToAccountInfo(for: chainAssets)
+        }
     }
 }
 
@@ -100,6 +114,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let chainAssetFetching = dependencyContainer.buildDependencies(for: wallet).chainAssetFetching
         chainAssetFetching.fetch(
+            shouldUseCashe: true,
             filters: filters,
             sortDescriptors: sorts
         ) { [weak self] result in
@@ -115,17 +130,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
-                var responseReceivedCounter: Int = 0
-                self?.accountInfoFetchingProviders.forEach { accountInfoFetching in
-                    accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
-                        self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-
-                        responseReceivedCounter += 1
-
-                        if responseReceivedCounter == self?.accountInfoFetchingProviders.count {
-                            self?.subscribeToAccountInfo(for: chainAssets)
-                        }
-                    }
+                self?.accountInfoFetchingProvider.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
+                    self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+                    self?.subscribeToAccountInfo(for: chainAssets)
                 }
 
             case let .failure(error):
@@ -146,7 +153,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         assetsVisibility.append(assetVisibility)
 
         let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
-        save(updatedWallet)
+        save(updatedWallet, shouldNotify: true)
     }
 
     func showChainAsset(_ chainAsset: ChainAsset) {
@@ -161,7 +168,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         assetsVisibility.append(assetVisibility)
 
         let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
-        save(updatedWallet)
+        save(updatedWallet, shouldNotify: true)
     }
 
     func markUnused(chain: ChainModel) {
@@ -169,7 +176,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         unusedChainIds.append(chain.chainId)
         let updatedAccount = wallet.replacingUnusedChainIds(unusedChainIds)
 
-        save(updatedAccount)
+        save(updatedAccount, shouldNotify: true)
     }
 
     func saveHiddenSection(state: HiddenSectionState) {
@@ -184,14 +191,13 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
-        save(updatedAccount)
+        save(updatedAccount, shouldNotify: false)
     }
 }
 
 private extension ChainAssetListInteractor {
     func subscribeToPrice(for chainAssets: [ChainAsset]) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        print("pricesIds: \(pricesIds)")
         guard pricesIds.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))
             return
@@ -285,10 +291,6 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         wallet = event.account
     }
 
-    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
-//        updateChainAssets(using: filters, sorts: sorts)
-    }
-
     func processZeroBalancesSettingChanged() {
         updateChainAssets(using: filters, sorts: sorts)
     }
@@ -306,7 +308,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        updateChainAssets(using: filters, sorts: sorts)
+        reload()
     }
 }
 

@@ -83,7 +83,8 @@ final class BackupPasswordPresenter {
             let request = MetaAccountImportRequest(
                 source: source,
                 username: name,
-                cryptoType: cryptoType
+                cryptoType: cryptoType,
+                defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
         } catch {

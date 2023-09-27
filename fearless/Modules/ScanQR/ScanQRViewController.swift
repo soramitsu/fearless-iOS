@@ -3,7 +3,7 @@ import SoraUI
 import SoraFoundation
 import AVFoundation
 
-final class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignable, HiddableBarWhenPushed {
+class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignable, HiddableBarWhenPushed {
     private enum Constants {
         static let messageVisibilityDuration: TimeInterval = 5.0
         static let decreasingBottomFactor: CGFloat = 0.8

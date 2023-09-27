@@ -9,9 +9,20 @@ enum BalanceType {
 }
 
 enum ExistentialDepositValidationParameters {
-    case utility(spendingAmount: BigUInt?, totalAmount: BigUInt?, minimumBalance: BigUInt?)
+    case utility(spendingAmount: Decimal?, totalAmount: Decimal?, minimumBalance: Decimal?)
     case orml(minimumBalance: Decimal?, feeAndTip: Decimal?, utilityBalance: Decimal?)
     case equilibrium(minimumBalance: Decimal?, totalBalance: Decimal?)
+
+    var minimumBalance: Decimal? {
+        switch self {
+        case let .utility(_, _, minimumBalance):
+            return minimumBalance
+        case let .orml(minimumBalance, _, _):
+            return minimumBalance
+        case let .equilibrium(minimumBalance, _):
+            return minimumBalance
+        }
+    }
 }
 
 class SendDataValidatingFactory: NSObject {
@@ -84,11 +95,18 @@ class SendDataValidatingFactory: NSObject {
                 return
             }
 
+            let existentianDepositValue = "\(parameters.minimumBalance ?? .zero) \(chainAsset.asset.symbolUppercased)"
+
             if !canProceedIfViolated {
-                self?.basePresentable.presentExistentialDepositError(from: view, locale: locale)
+                self?.basePresentable.presentExistentialDepositError(
+                    existentianDepositValue: existentianDepositValue,
+                    from: view,
+                    locale: locale
+                )
             }
 
             self?.basePresentable.presentExistentialDepositWarning(
+                existentianDepositValue: existentianDepositValue,
                 from: view,
                 action: {
                     delegate.didCompleteWarningHandling()

@@ -49,3 +49,13 @@ enum GoogleBackupDebug {
 enum WalletConnect {
     static var projectId: String = "{{ argument.walletConnectProjectId }}"
 }
+
+enum BlockExplorerApiKeys {
+    static var etherscanApiKey: String = "{{ argument.etherscanApiKey }}"
+    static var polygonscanApiKey: String = "{{ argument.polygonscanApiKey }}"
+    static var bscscanApiKey: String = "{{ argument.bscscanApiKey }}"
+}
+
+enum ThirdPartyServicesApiKeys {
+    static var alchemyApiKey: String = "{{ argument.alchemyApiKey }}"
+}

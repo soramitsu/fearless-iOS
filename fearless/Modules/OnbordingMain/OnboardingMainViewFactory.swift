@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import SoraFoundation
 import SSFCloudStorage
+import SSFNetwork
 
 final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
     static func createViewForOnboarding() -> OnboardingMainViewProtocol? {
@@ -60,9 +61,16 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
             uiDelegate: view
         )
 
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
+
         let interactor = OnboardingMainInteractor(
             keystoreImportService: kestoreImportService,
-            cloudStorage: cloudStorage
+            cloudStorage: cloudStorage,
+            featureToggleService: featureToggleProvider,
+            operationQueue: OperationQueue()
         )
 
         let presenter = OnboardingMainPresenter(

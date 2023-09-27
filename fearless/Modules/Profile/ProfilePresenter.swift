@@ -230,4 +230,8 @@ extension ProfilePresenter: WalletsManagmentModuleOutput {
     func showImportGoogle() {
         wireframe.showBackupSelectWallet(from: view)
     }
+
+    func showGetPreinstalledWallet() {
+        wireframe.showGetPreinstalledWallet(from: view)
+    }
 }
