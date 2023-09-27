@@ -51,11 +51,12 @@ final class SendViewController: UIViewController, ViewHolder {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        guard case .soraMainnet = initialData else {
+        switch initialData {
+        case .chainAsset, .address:
             rootView.searchView.textField.becomeFirstResponder()
-            return
+        case .soraMainnet, .soraMainnetSolomon, .bokoloCash:
+            rootView.searchView.textField.resignFirstResponder()
         }
-        rootView.searchView.textField.resignFirstResponder()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -150,6 +151,9 @@ extension SendViewController: SendViewInput {
         rootView.amountView.selectHandler = nil
         rootView.amountView.textField.isUserInteractionEnabled = isUserInteractiveAmount
         rootView.optionsStackView.isHidden = true
+        if isUserInteractiveAmount {
+            rootView.amountView.textField.becomeFirstResponder()
+        }
     }
 
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {

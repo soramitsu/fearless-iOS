@@ -11,4 +11,5 @@ enum SendFlowInitialData {
     case address(String)
     case soraMainnetSolomon(address: String)
     case soraMainnet(qrInfo: SoraQRInfo)
+    case bokoloCash(qrInfo: BokoloCashQRInfo)
 }

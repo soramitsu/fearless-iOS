@@ -9,7 +9,8 @@ final class SendRouter: SendRouterInput {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
-        scamInfo: ScamInfo?
+        scamInfo: ScamInfo?,
+        remark: Data?
     ) {
         guard let controller = WalletSendConfirmViewFactory.createView(
             wallet: wallet,
@@ -17,7 +18,8 @@ final class SendRouter: SendRouterInput {
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
-            scamInfo: scamInfo
+            scamInfo: scamInfo,
+            remark: remark
         )?.controller else {
             return
         }

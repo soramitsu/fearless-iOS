@@ -21,6 +21,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let wallet: MetaAccountModel
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     let dependencyContainer: SendDepencyContainer
+    private let remark: Data?
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -36,7 +37,8 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         signingWrapper: SigningWrapperProtocol,
         dependencyContainer: SendDepencyContainer,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        remark: Data?
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainAsset = chainAsset
@@ -48,6 +50,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.signingWrapper = signingWrapper
         self.dependencyContainer = dependencyContainer
         self.wallet = wallet
+        self.remark = remark
     }
 
     private func provideConstants() {
@@ -103,14 +106,14 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
             do {
                 let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
                 let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
-                let fee = try await transferService.estimateFee(for: transfer)
+                let fee = try await transferService.estimateFee(for: transfer, remark: remark)
                 let runtimeDispatchInfo = RuntimeDispatchInfo(feeValue: fee)
 
                 await MainActor.run {
                     presenter?.didReceiveFee(result: .success(runtimeDispatchInfo))
                 }
 
-                transferService.subscribeForFee(transfer: transfer, listener: self)
+                transferService.subscribeForFee(transfer: transfer, remark: remark, listener: self)
             } catch {
                 await MainActor.run {
                     presenter?.didReceiveFee(result: .failure(error))
@@ -124,7 +127,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
             do {
                 let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
                 let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
-                let txHash = try await transferService.submit(transfer: transfer)
+                let txHash = try await transferService.submit(transfer: transfer, remark: remark)
 
                 await MainActor.run {
                     presenter?.didTransfer(result: .success(txHash))

@@ -260,6 +260,8 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
             initialData = .soraMainnetSolomon(address: address)
         case let .sora(soraQRInfo):
             initialData = .soraMainnet(qrInfo: soraQRInfo)
+        case let .bokoloCash(bokoloQrInfo):
+            initialData = .bokoloCash(qrInfo: bokoloQrInfo)
         }
 
         router.showSendFlow(

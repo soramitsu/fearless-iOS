@@ -26,7 +26,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         unsubscribe()
     }
 
-    func estimateFee(for transfer: Transfer) async throws -> BigUInt {
+    func estimateFee(for transfer: Transfer, remark _: Data?) async throws -> BigUInt {
         switch transfer.chainAsset.asset.ethereumType {
         case .normal:
             let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
@@ -73,7 +73,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         }
     }
 
-    func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
+    func subscribeForFee(transfer: Transfer, remark _: Data?, listener: TransferFeeEstimationListener) {
         func subscribe() throws {
             try ws.subscribeToNewHeads(subscribed: { [weak self] subscriptionId in
                 self?.feeSubscriptionId = subscriptionId.result
@@ -126,7 +126,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
 
     // MARK: Transfers
 
-    func submit(transfer: Transfer) async throws -> String {
+    func submit(transfer: Transfer, remark _: Data?) async throws -> String {
         switch transfer.chainAsset.asset.ethereumType {
         case .normal:
             return try await transferNative(transfer: transfer)

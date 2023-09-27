@@ -103,6 +103,8 @@
 		079FC5292AC33B5400DB2BD0 /* ReceiveAndRequestAssetAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079FC5202AC33B5400DB2BD0 /* ReceiveAndRequestAssetAssembly.swift */; };
 		079FC52A2AC33B5400DB2BD0 /* ReceiveAndRequestAssetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079FC5212AC33B5400DB2BD0 /* ReceiveAndRequestAssetProtocols.swift */; };
 		079FC52B2AC33B5400DB2BD0 /* ReceiveAndRequestAssetInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079FC5222AC33B5400DB2BD0 /* ReceiveAndRequestAssetInteractor.swift */; };
+		079FC52D2AC3E9BE00DB2BD0 /* BokoloCashQRInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079FC52C2AC3E9BE00DB2BD0 /* BokoloCashQRInfo.swift */; };
+		079FC5302AC3EAF700DB2BD0 /* SoraQRInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079FC52F2AC3EAF700DB2BD0 /* SoraQRInfo.swift */; };
 		07B018D128C7135400E05510 /* ScamInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D028C7135400E05510 /* ScamInfo.swift */; };
 		07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */; };
 		07B018DB28C9D66300E05510 /* ScamWarningExpandableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */; };
@@ -1930,7 +1932,7 @@
 		FA17B4D427E9CF2D006E0735 /* UtilityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA17B4D327E9CF2C006E0735 /* UtilityConstants.swift */; };
 		FA1A023C274F51A900DA07CB /* ChainAccountBalanceTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */; };
 		FA1A023E274F55D900DA07CB /* HorizontalKeyValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */; };
-		FA21C86E2AB82143008C0AD2 /* SolomonQRDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA21C86D2AB82143008C0AD2 /* SolomonQRDecoder.swift */; };
+		FA21C86E2AB82143008C0AD2 /* SolomonQRInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA21C86D2AB82143008C0AD2 /* SolomonQRInfo.swift */; };
 		FA256984274CE5A500875A53 /* BalanceLockType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256982274CE5A400875A53 /* BalanceLockType.swift */; };
 		FA256985274CE5A500875A53 /* BalanceLocks+Sort.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256983274CE5A500875A53 /* BalanceLocks+Sort.swift */; };
 		FA256987274CE5B700875A53 /* SHA256.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256986274CE5B700875A53 /* SHA256.swift */; };
@@ -2898,6 +2900,8 @@
 		079FC5202AC33B5400DB2BD0 /* ReceiveAndRequestAssetAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReceiveAndRequestAssetAssembly.swift; sourceTree = "<group>"; };
 		079FC5212AC33B5400DB2BD0 /* ReceiveAndRequestAssetProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReceiveAndRequestAssetProtocols.swift; sourceTree = "<group>"; };
 		079FC5222AC33B5400DB2BD0 /* ReceiveAndRequestAssetInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReceiveAndRequestAssetInteractor.swift; sourceTree = "<group>"; };
+		079FC52C2AC3E9BE00DB2BD0 /* BokoloCashQRInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BokoloCashQRInfo.swift; sourceTree = "<group>"; };
+		079FC52F2AC3EAF700DB2BD0 /* SoraQRInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraQRInfo.swift; sourceTree = "<group>"; };
 		07B018D028C7135400E05510 /* ScamInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfo.swift; sourceTree = "<group>"; };
 		07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamServiceOperationFactory.swift; sourceTree = "<group>"; };
 		07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamWarningExpandableView.swift; sourceTree = "<group>"; };
@@ -4762,7 +4766,7 @@
 		FA17B4D327E9CF2C006E0735 /* UtilityConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UtilityConstants.swift; sourceTree = "<group>"; };
 		FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceTableCell.swift; sourceTree = "<group>"; };
 		FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalKeyValueView.swift; sourceTree = "<group>"; };
-		FA21C86D2AB82143008C0AD2 /* SolomonQRDecoder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolomonQRDecoder.swift; sourceTree = "<group>"; };
+		FA21C86D2AB82143008C0AD2 /* SolomonQRInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SolomonQRInfo.swift; sourceTree = "<group>"; };
 		FA256982274CE5A400875A53 /* BalanceLockType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLockType.swift; sourceTree = "<group>"; };
 		FA256983274CE5A500875A53 /* BalanceLocks+Sort.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BalanceLocks+Sort.swift"; sourceTree = "<group>"; };
 		FA256986274CE5B700875A53 /* SHA256.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SHA256.swift; sourceTree = "<group>"; };
@@ -5983,6 +5987,16 @@
 				079FC5222AC33B5400DB2BD0 /* ReceiveAndRequestAssetInteractor.swift */,
 			);
 			path = ReceiveAndRequestAsset;
+			sourceTree = "<group>";
+		};
+		079FC52E2AC3EADF00DB2BD0 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				FA21C86D2AB82143008C0AD2 /* SolomonQRInfo.swift */,
+				079FC52C2AC3E9BE00DB2BD0 /* BokoloCashQRInfo.swift */,
+				079FC52F2AC3EAF700DB2BD0 /* SoraQRInfo.swift */,
+			);
+			name = Model;
 			sourceTree = "<group>";
 		};
 		07B6BC7D28BC71BF00621864 /* ViewModel */ = {
@@ -13363,7 +13377,7 @@
 		FAADC1BD29265A7900DA9903 /* QRCoding */ = {
 			isa = PBXGroup;
 			children = (
-				FA21C86D2AB82143008C0AD2 /* SolomonQRDecoder.swift */,
+				079FC52E2AC3EADF00DB2BD0 /* Model */,
 				C61566842930A07900391BF3 /* QRCreationOperation.swift */,
 				C615668029309D3900391BF3 /* QRService.swift */,
 				FAADC1C529265C9600DA9903 /* QRCoderFactory.swift */,
@@ -16234,7 +16248,7 @@
 				21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */,
 				84452F4E25D5BB1C00F47EC5 /* RuntimeCoderFactory.swift in Sources */,
 				84452A6025D037AE00F47EC5 /* ChainStorage+Decodable.swift in Sources */,
-				FA21C86E2AB82143008C0AD2 /* SolomonQRDecoder.swift in Sources */,
+				FA21C86E2AB82143008C0AD2 /* SolomonQRInfo.swift in Sources */,
 				F4F65C3D26D8B9DD002EE838 /* FWYAxisChartFormatter.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
 				F40966D026B297D7008CD244 /* AnalyticsStakeInteractor.swift in Sources */,
@@ -17031,6 +17045,7 @@
 				5967C80AC5F477E589DA4793 /* WalletMainContainerRouter.swift in Sources */,
 				4D822D169784790EBF173EEE /* WalletMainContainerPresenter.swift in Sources */,
 				CFAC59D34B15A2FAC4CD8256 /* WalletMainContainerInteractor.swift in Sources */,
+				079FC52D2AC3E9BE00DB2BD0 /* BokoloCashQRInfo.swift in Sources */,
 				6FA6FA6944AD6519FB8A2AC0 /* WalletMainContainerViewController.swift in Sources */,
 				D403B7725ED25E20A20F9D6A /* WalletMainContainerViewLayout.swift in Sources */,
 				FA9A8F1B2A72573C008FA99F /* AlchemyRequest.swift in Sources */,
@@ -17115,6 +17130,7 @@
 				1870655BC8B762AA57717EC6 /* PolkaswapTransaktionSettingsViewController.swift in Sources */,
 				357946E87E1F8D0563286D0F /* PolkaswapTransaktionSettingsViewLayout.swift in Sources */,
 				A64E3CA61C6CEE74F2FD9825 /* PolkaswapTransaktionSettingsAssembly.swift in Sources */,
+				079FC5302AC3EAF700DB2BD0 /* SoraQRInfo.swift in Sources */,
 				54C8E20A8D7DD92AC92B8041 /* SelectMarketProtocols.swift in Sources */,
 				9F664DA212363F5F2C2B530B /* SelectMarketRouter.swift in Sources */,
 				079FC5232AC33B5400DB2BD0 /* ReceiveAssetViewModel.swift in Sources */,

@@ -15,8 +15,11 @@ enum ScanState {
 
 enum ScanFinish {
     case address(String)
-    case solomonAddress(String)
     case sora(SoraQRInfo)
+
+    // this cases for solomon island qr codes. Will be use just one case, unused case must be removed
+    case solomonAddress(String) // perhaps will be removed
+    case bokoloCash(BokoloCashQRInfo) // priority
 
     var address: String {
         switch self {
@@ -26,6 +29,8 @@ enum ScanFinish {
             return address
         case let .sora(soraQRInfo):
             return soraQRInfo.address
+        case let .bokoloCash(bokoloQrInfo):
+            return bokoloQrInfo.address
         }
     }
 }
@@ -207,6 +212,8 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
                 self?.moduleOutput.didFinishWith(scan: .solomonAddress(solomonQRInfo.address))
             } else if let soraQrInfo = addressInfo as? SoraQRInfo {
                 self?.moduleOutput.didFinishWith(scan: .sora(soraQrInfo))
+            } else if let bokoloQrInfo = addressInfo as? BokoloCashQRInfo {
+                self?.moduleOutput.didFinishWith(scan: .bokoloCash(bokoloQrInfo))
             } else {
                 self?.moduleOutput.didFinishWith(scan: .address(addressInfo.address))
             }

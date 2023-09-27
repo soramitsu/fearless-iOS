@@ -26,6 +26,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
+    private var remark: Data?
 
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -136,6 +137,10 @@ final class SendInteractor: RuntimeConstantFetching {
 }
 
 extension SendInteractor: SendInteractorInput {
+    func addRemark(remark: Data) {
+        self.remark = remark
+    }
+
     func setup(with output: SendInteractorOutput) {
         self.output = output
         feeProxy.delegate = self
@@ -179,13 +184,13 @@ extension SendInteractor: SendInteractorInput {
                     tip: tip
                 )
 
-                let fee = try await dependencies.transferService.estimateFee(for: transfer)
+                let fee = try await dependencies.transferService.estimateFee(for: transfer, remark: remark)
 
                 await MainActor.run(body: {
                     output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
                 })
 
-                dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
+                dependencies.transferService.subscribeForFee(transfer: transfer, remark: remark, listener: self)
             } catch {
                 await MainActor.run(body: {
                     output?.didReceiveFee(result: .failure(error))
