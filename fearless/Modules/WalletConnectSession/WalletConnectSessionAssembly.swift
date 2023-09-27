@@ -9,6 +9,10 @@ enum WalletConnectSessionAssembly {
         request: Request,
         session: Session?
     ) -> WalletConnectSessionModuleCreationResult? {
+        guard let wallet = SelectedWalletSettings.shared.value else {
+            return nil
+        }
+
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
@@ -24,10 +28,29 @@ enum WalletConnectSessionAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: accountInfoFetching,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            meta: wallet
+        )
+
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainRepository: AnyDataProviderRepository(chainRepository),
+            chainAssetFetcher: chainAssetFetching,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: eventCenter,
             logger: logger
