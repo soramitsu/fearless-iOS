@@ -95,6 +95,7 @@ final class SendAssembly {
         )
 
         let view = SendViewController(
+            initialData: initialData,
             output: presenter,
             localizationManager: localizationManager
         )

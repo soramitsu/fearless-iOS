@@ -39,6 +39,5 @@ protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, 
 protocol ScanQRModuleInput: AnyObject {}
 
 protocol ScanQRModuleOutput: AnyObject {
-    func didFinishWith(address: String)
-    func didFinishWithSolomon(soraAddress: String)
+    func didFinishWith(scan: ScanFinish)
 }

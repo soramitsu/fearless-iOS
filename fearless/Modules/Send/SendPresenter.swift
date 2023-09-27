@@ -112,8 +112,10 @@ extension SendPresenter: SendViewOutput {
                     didReceive(possibleChains: possibleChains)
                 }
             }
-        case let .soraMainnet(address):
+        case let .soraMainnetSolomon(address):
             handleSolomon(address)
+        case let .soraMainnet(qrInfo):
+            handleSora(qrInfo: qrInfo)
         }
     }
 
@@ -409,6 +411,17 @@ extension SendPresenter: SendInteractorOutput {
 }
 
 extension SendPresenter: ScanQRModuleOutput {
+    func didFinishWith(scan: ScanFinish) {
+        switch scan {
+        case let .address(address):
+            searchTextDidChanged(address)
+        case let .solomonAddress(address):
+            handleSolomon(address)
+        case let .sora(soraQRInfo):
+            handleSora(qrInfo: soraQRInfo)
+        }
+    }
+
     func didFinishWithSolomon(soraAddress: String) {
         handleSolomon(soraAddress)
     }
@@ -721,6 +734,24 @@ private extension SendPresenter {
         router.present(viewModel: alertViewModel, from: view)
     }
 
+    private func showUnsupportedAssetAlert() {
+        let dissmissAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            self?.router.dismiss(view: self?.view)
+        }
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.errorUnsupportedAsset(preferredLanguages: selectedLocale.rLanguages),
+            actions: [dissmissAction],
+            closeAction: nil,
+            dismissCompletion: { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
+        )
+        router.present(viewModel: alertViewModel, from: view)
+    }
+
     func handleSolomon(_ address: String) {
         recipientAddress = address
         Task {
@@ -752,6 +783,42 @@ private extension SendPresenter {
                 provideInputViewModel()
                 interactor.updateSubscriptions(for: soraMainChainAsset)
             })
+        }
+    }
+
+    func handleSora(qrInfo: SoraQRInfo) {
+        recipientAddress = qrInfo.address
+        Task {
+            let possibleChains = await self.interactor.getPossibleChains(for: qrInfo.address)
+            let chainAsset = possibleChains?
+                .first(where: { $0.isSora })?.chainAssets
+                .first(where: { $0.asset.currencyId == qrInfo.assetId })
+
+            guard let qrChainAsset = chainAsset else {
+                showUnsupportedAssetAlert()
+                return
+            }
+
+            selectedChainAsset = qrChainAsset
+
+            var isUserInteractiveAmount: Bool = true
+            if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
+                inputResult = .absolute(qrAmount)
+                isUserInteractiveAmount = false
+            }
+
+            let viewModel = viewModelFactory.buildRecipientViewModel(
+                address: qrInfo.address,
+                isValid: true
+            )
+
+            interactor.updateSubscriptions(for: qrChainAsset)
+            await MainActor.run { [isUserInteractiveAmount] in
+                view?.didReceive(viewModel: viewModel)
+                provideInputViewModel()
+                provideNetworkViewModel(for: qrChainAsset.chain)
+                view?.didBlockUserInteractive(isUserInteractiveAmount: isUserInteractiveAmount)
+            }
         }
     }
 }

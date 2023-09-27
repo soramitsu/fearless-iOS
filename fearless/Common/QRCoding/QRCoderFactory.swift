@@ -64,21 +64,24 @@ struct SoraQRInfo: QRInfo, Equatable {
     public let prefix: String
     public let address: String
     public let rawPublicKey: Data
-    public let username: String?
+    public let username: String
     public let assetId: String
+    public let amount: String?
 
     init(
         prefix: String = SubstrateQR.prefix,
         address: String,
         rawPublicKey: Data,
-        username: String?,
-        assetId: String
+        username: String,
+        assetId: String,
+        amount: String?
     ) {
         self.prefix = prefix
         self.address = address
         self.rawPublicKey = rawPublicKey
         self.username = username
         self.assetId = assetId
+        self.amount = amount
     }
 }
 
@@ -104,8 +107,9 @@ final class SoraQREncoder {
             addressInfo.address,
             addressInfo.rawPublicKey.toHex(includePrefix: true),
             "",
-            addressInfo.assetId
-        ]
+            addressInfo.assetId,
+            addressInfo.amount
+        ].compactMap { $0 }
 
         guard let data = fields.joined(separator: separator).data(using: .utf8) else {
             throw QREncoderError.brokenData
@@ -130,15 +134,17 @@ final class SoraQRDecoder: QRDecodable {
         let prefix = fields[0]
         let address = fields[1]
         let publicKey = try Data(hexStringSSF: fields[2])
-        let username = fields.count > 3 ? fields[3] : nil
+        let username = fields[3]
         let assetId = fields[4]
+        let amount = fields[safe: 5]
 
         if address.hasPrefix("0x") {
             return SoraQRInfo(
                 address: address,
                 rawPublicKey: publicKey,
                 username: username,
-                assetId: assetId
+                assetId: assetId,
+                amount: amount
             )
         }
 
@@ -147,7 +153,8 @@ final class SoraQRDecoder: QRDecodable {
             address: address,
             rawPublicKey: publicKey,
             username: username,
-            assetId: assetId
+            assetId: assetId,
+            amount: amount
         )
     }
 }

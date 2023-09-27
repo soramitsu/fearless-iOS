@@ -13,6 +13,23 @@ enum ScanState {
     case failed(code: String)
 }
 
+enum ScanFinish {
+    case address(String)
+    case solomonAddress(String)
+    case sora(SoraQRInfo)
+
+    var address: String {
+        switch self {
+        case let .address(address):
+            return address
+        case let .solomonAddress(address):
+            return address
+        case let .sora(soraQRInfo):
+            return soraQRInfo.address
+        }
+    }
+}
+
 final class ScanQRPresenter: NSObject {
     let localizationManager: LocalizationManagerProtocol?
 
@@ -105,7 +122,7 @@ final class ScanQRPresenter: NSObject {
 
     private func handleFailedMatching(for code: String) {
         router.close(view: view) {
-            self.moduleOutput.didFinishWith(address: code)
+            self.moduleOutput.didFinishWith(scan: .address(code))
         }
     }
 
@@ -186,10 +203,12 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
 
     func handleMatched(addressInfo: QRInfo) {
         router.close(view: view) { [weak self] in
-            if addressInfo as? SolomonQRInfo == nil {
-                self?.moduleOutput.didFinishWith(address: addressInfo.address)
+            if let solomonQRInfo = addressInfo as? SolomonQRInfo {
+                self?.moduleOutput.didFinishWith(scan: .solomonAddress(solomonQRInfo.address))
+            } else if let soraQrInfo = addressInfo as? SoraQRInfo {
+                self?.moduleOutput.didFinishWith(scan: .sora(soraQrInfo))
             } else {
-                self?.moduleOutput.didFinishWithSolomon(soraAddress: addressInfo.address)
+                self?.moduleOutput.didFinishWith(scan: .address(addressInfo.address))
             }
         }
     }
@@ -197,7 +216,7 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
     func handleAddress(_ address: String) {
         DispatchQueue.main.async { [weak self] in
             self?.router.close(view: self?.view) {
-                self?.moduleOutput.didFinishWith(address: address)
+                self?.moduleOutput.didFinishWith(scan: .address(address))
             }
         }
     }

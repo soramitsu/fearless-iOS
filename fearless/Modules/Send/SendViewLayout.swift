@@ -65,7 +65,7 @@ final class SendViewLayout: UIView {
         return view
     }()
 
-    private let optionsStackView: UIStackView = {
+    let optionsStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
         view.distribution = .fillProportionally

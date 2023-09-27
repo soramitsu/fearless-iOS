@@ -15,6 +15,7 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didStopFeeCalculation()
     func didStopTipCalculation()
     func didReceive(viewModel: RecipientViewModel)
+    func didBlockUserInteractive(isUserInteractiveAmount: Bool)
 }
 
 protocol SendViewOutput: AnyObject {
