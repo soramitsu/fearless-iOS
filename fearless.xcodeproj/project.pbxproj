@@ -2383,7 +2383,7 @@
 		FA9A8F262A72579D008FA99F /* AlchemySortOrder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F242A72579D008FA99F /* AlchemySortOrder.swift */; };
 		FA9A8F272A72579D008FA99F /* AlchemyTokenCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F252A72579D008FA99F /* AlchemyTokenCategory.swift */; };
 		FA9A8F2B2A725B30008FA99F /* SubstrateAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */; };
-		FA9A8F2D2A725B3A008FA99F /* EthereumAccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */; };
+		FA9A8F2D2A725B3A008FA99F /* EthereumRemoteBalanceFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F2C2A725B3A008FA99F /* EthereumRemoteBalanceFetching.swift */; };
 		FA9A8F3E2A776DFD008FA99F /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F382A776DFD008FA99F /* SubstrateDataModel.xcdatamodeld */; };
 		FA9A8F432A78C03D008FA99F /* EthereumTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F422A78C03D008FA99F /* EthereumTransferService.swift */; };
 		FA9A8F452A78C045008FA99F /* SubstrateTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F442A78C045008FA99F /* SubstrateTransferService.swift */; };
@@ -5226,7 +5226,7 @@
 		FA9A8F242A72579D008FA99F /* AlchemySortOrder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemySortOrder.swift; sourceTree = "<group>"; };
 		FA9A8F252A72579D008FA99F /* AlchemyTokenCategory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlchemyTokenCategory.swift; sourceTree = "<group>"; };
 		FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateAccountInfoFetching.swift; sourceTree = "<group>"; };
-		FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumAccountInfoFetching.swift; sourceTree = "<group>"; };
+		FA9A8F2C2A725B3A008FA99F /* EthereumRemoteBalanceFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumRemoteBalanceFetching.swift; sourceTree = "<group>"; };
 		FA9A8F392A776DFD008FA99F /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
 		FA9A8F3A2A776DFD008FA99F /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
 		FA9A8F3B2A776DFD008FA99F /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
@@ -13040,7 +13040,7 @@
 			children = (
 				C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */,
 				FA9A8F2A2A725B30008FA99F /* SubstrateAccountInfoFetching.swift */,
-				FA9A8F2C2A725B3A008FA99F /* EthereumAccountInfoFetching.swift */,
+				FA9A8F2C2A725B3A008FA99F /* EthereumRemoteBalanceFetching.swift */,
 			);
 			path = AccountInfo;
 			sourceTree = "<group>";
@@ -15262,7 +15262,7 @@
 				FA8F6386298253ED004B8CD4 /* AddConnectionError.swift in Sources */,
 				84A8FD8E265FDA76002ADB58 /* CrowdloanContributionConfirmData.swift in Sources */,
 				8428768B24AE046300D91AD8 /* AboutViewFactory.swift in Sources */,
-				FA9A8F2D2A725B3A008FA99F /* EthereumAccountInfoFetching.swift in Sources */,
+				FA9A8F2D2A725B3A008FA99F /* EthereumRemoteBalanceFetching.swift in Sources */,
 				FAFFAEA229AC84D30074AF1F /* HexColorConverter.swift in Sources */,
 				84F98D9625E3E2B10040418E /* InMemoryDataProviderRepository.swift in Sources */,
 				FA2FC82B28B3814000CC0A42 /* DetailsTriangularedViewModel.swift in Sources */,

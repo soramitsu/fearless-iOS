@@ -18,6 +18,7 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let dependencyContainer: ChainAssetListDependencyContainer
+    private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
 
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
@@ -40,7 +41,8 @@ final class ChainAssetListInteractor {
         eventCenter: EventCenter,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoFetchingProvider: AccountInfoFetching,
-        dependencyContainer: ChainAssetListDependencyContainer
+        dependencyContainer: ChainAssetListDependencyContainer,
+        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
     ) {
         self.wallet = wallet
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -50,6 +52,7 @@ final class ChainAssetListInteractor {
         self.accountRepository = accountRepository
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.dependencyContainer = dependencyContainer
+        self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
     }
 
     // MARK: - Private methods
@@ -82,6 +85,7 @@ final class ChainAssetListInteractor {
         }
 
         output?.didReceiveChainAssets(result: .success(chainAssets))
+        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
 
         accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
             self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
@@ -131,6 +135,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
                 self?.accountInfoFetchingProvider.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
+                    self?.ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { _ in }
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
                 }
@@ -192,6 +197,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
         save(updatedAccount, shouldNotify: false)
+    }
+
+    func updateData() {
+        reload()
     }
 }
 

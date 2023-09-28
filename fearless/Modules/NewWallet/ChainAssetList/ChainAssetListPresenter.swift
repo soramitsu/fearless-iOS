@@ -165,6 +165,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     func didTapExpandSections(state: HiddenSectionState) {
         interactor.saveHiddenSection(state: state)
     }
+
+    func didPullToRefresh() {
+        interactor.updateData()
+    }
 }
 
 // MARK: - ChainAssetListInteractorOutput

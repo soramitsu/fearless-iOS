@@ -13,6 +13,7 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
     func didTapExpandSections(state: HiddenSectionState)
+    func didPullToRefresh()
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
@@ -25,6 +26,7 @@ protocol ChainAssetListInteractorInput: AnyObject {
     func showChainAsset(_ chainAsset: ChainAsset)
     func markUnused(chain: ChainModel)
     func saveHiddenSection(state: HiddenSectionState)
+    func updateData()
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {

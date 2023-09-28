@@ -20,12 +20,14 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func addressDidCopied()
     func didTapPolkaswapButton()
     func didTapLockedInfoButton()
+    func didPullToRefresh()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
     func getAvailableExportOptions(for address: String)
     func update(chain: ChainModel)
+    func updateData()
 
     var chainAsset: ChainAsset { get }
     var availableChainAssets: [ChainAsset] { get }
