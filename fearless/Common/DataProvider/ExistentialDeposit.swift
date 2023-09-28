@@ -66,8 +66,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             .vsToken,
             .stable,
             .assetId,
-            .token2,
-            .xcm:
+            .token2:
             fetchSubAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
         case .equilibrium:
             fetchConstant(

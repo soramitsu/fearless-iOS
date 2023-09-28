@@ -150,8 +150,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             .vsToken,
             .stable,
             .assetId,
-            .token2,
-            .xcm:
+            .token2:
             return ormlAssetTransfer(
                 to: receiver,
                 amount: amount,

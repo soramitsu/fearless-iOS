@@ -24,8 +24,7 @@ extension ChainAsset: Identifiable {
             .vsToken,
             .stable,
             .assetId,
-            .token2,
-            .xcm:
+            .token2:
             storagePath = StorageCodingPath.tokens
         case .assets:
             storagePath = StorageCodingPath.assetsAccount

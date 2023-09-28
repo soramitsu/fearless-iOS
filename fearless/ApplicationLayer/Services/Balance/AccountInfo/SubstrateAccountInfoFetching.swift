@@ -101,8 +101,7 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     .vsToken,
                     .stable,
                     .assetId,
-                    .token2,
-                    .xcm:
+                    .token2:
                     self?.handleOrmlAccountInfo(
                         chainAsset: chainAsset,
                         item: item,
@@ -251,8 +250,7 @@ private extension AccountInfoFetching {
             .stable,
             .soraAsset,
             .assetId,
-            .token2,
-            .xcm:
+            .token2:
             guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = createDecodingOperation(
                 for: accountInfoStorageWrapper.data,
                 chainAsset: chainAsset,
