@@ -5,7 +5,7 @@ import Web3Wallet
 import FearlessKeys
 
 protocol WalletConnectService: ApplicationServiceProtocol {
-    func set(delegate: WalletConnectServiceDelegate)
+    func set(listener: WalletConnectServiceDelegate)
     func connect(uri: String) throws
     func disconnect(topic: String) async throws
     func getSessions() -> [Session]
@@ -29,7 +29,7 @@ extension WalletConnectServiceDelegate {
 final class WalletConnectServiceImpl: WalletConnectService {
     static let shared = WalletConnectServiceImpl()
 
-    private weak var delegate: WalletConnectServiceDelegate?
+    private var listeners: [WeakWrapper] = []
     private var cancellablesBag = Set<AnyCancellable>()
 
     private init() {}
@@ -63,8 +63,9 @@ final class WalletConnectServiceImpl: WalletConnectService {
 
     // MARK: - WalletConnectService
 
-    func set(delegate: WalletConnectServiceDelegate) {
-        self.delegate = delegate
+    func set(listener: WalletConnectServiceDelegate) {
+        let weakListener = WeakWrapper(target: listener)
+        listeners.append(weakListener)
     }
 
     func connect(uri: String) throws {
@@ -123,7 +124,9 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 guard let self = self else {
                     return
                 }
-                self.delegate?.session(proposal: proposal)
+                self.listeners.forEach {
+                    ($0.target as? WalletConnectServiceDelegate)?.session(proposal: proposal)
+                }
             }
             .store(in: &cancellablesBag)
 
@@ -133,7 +136,9 @@ final class WalletConnectServiceImpl: WalletConnectService {
                 guard let self = self else {
                     return
                 }
-                self.delegate?.didChange(sessions: sessions)
+                self.listeners.forEach {
+                    ($0.target as? WalletConnectServiceDelegate)?.didChange(sessions: sessions)
+                }
             }
             .store(in: &cancellablesBag)
 
@@ -144,7 +149,9 @@ final class WalletConnectServiceImpl: WalletConnectService {
                     return
                 }
                 let session = Web3Wallet.instance.getSessions().first { $0.topic == request.topic }
-                self.delegate?.sign(request: request, session: session)
+                self.listeners.forEach {
+                    ($0.target as? WalletConnectServiceDelegate)?.sign(request: request, session: session)
+                }
             }
             .store(in: &cancellablesBag)
     }

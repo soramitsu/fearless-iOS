@@ -30,7 +30,7 @@ extension WalletConnectActiveSessionsInteractor: WalletConnectActiveSessionsInte
     func setup(with output: WalletConnectActiveSessionsInteractorOutput) {
         self.output = output
         getSesstion()
-        walletConnectService.set(delegate: self)
+        walletConnectService.set(listener: self)
     }
 
     func setupConnection(uri: String) throws {

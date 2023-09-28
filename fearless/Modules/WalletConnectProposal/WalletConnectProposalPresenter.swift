@@ -184,7 +184,7 @@ final class WalletConnectProposalPresenter {
         router.showMultiSelect(
             canSelect: true,
             dataSource: requiedChains,
-            selectedChains: [],
+            selectedChains: optionalChainsIds,
             moduleOutput: self,
             view: view
         )

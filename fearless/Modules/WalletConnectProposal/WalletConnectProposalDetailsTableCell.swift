@@ -15,7 +15,6 @@ final class WalletConnectProposalDetailsTableCell: UITableViewCell {
         view.subtitleLabel?.font = .p1Paragraph
         view.strokeColor = R.color.colorWhite8()!
         view.borderWidth = 1
-        view.layout = .largeIconTitleSubtitle
         view.iconView.contentMode = .scaleAspectFit
         view.isUserInteractionEnabled = false
         return view
@@ -49,12 +48,17 @@ final class WalletConnectProposalDetailsTableCell: UITableViewCell {
     func bind(viewModel: WalletConnectProposalCellModel.DetailsViewModel) {
         view.title = viewModel.title
         view.subtitle = viewModel.subtitle
-        viewModel.icon?.loadImage(
-            on: view.iconView,
-            placholder: R.image.iconOpenWeb(),
-            targetSize: Constants.iconSize,
-            animated: true
-        )
+        if viewModel.icon != nil {
+            view.layout = .largeIconTitleSubtitle
+            viewModel.icon?.loadImage(
+                on: view.iconView,
+                placholder: R.image.iconOpenWeb(),
+                targetSize: Constants.iconSize,
+                animated: true
+            )
+        } else {
+            view.layout = .withoutIcon
+        }
     }
 
     // MARK: - Private methods

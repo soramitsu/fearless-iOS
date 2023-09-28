@@ -51,7 +51,7 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
             presenter?.didRequestImportAccount()
         }
 
-        walletConnect.set(delegate: self)
+        walletConnect.set(listener: self)
     }
 }
 
