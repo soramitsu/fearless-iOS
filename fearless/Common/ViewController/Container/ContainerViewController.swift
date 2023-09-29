@@ -218,7 +218,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         if let draggable = draggable {
             let fullContentInsets = inheritedInsets
             var compactContentInsets = fullContentInsets
-            compactContentInsets.top = 0.0
+            compactContentInsets.top = UIConstants.defaultOffset
 
             draggable.set(contentInsets: fullContentInsets, for: .full)
             draggable.set(contentInsets: compactContentInsets, for: .compact)
