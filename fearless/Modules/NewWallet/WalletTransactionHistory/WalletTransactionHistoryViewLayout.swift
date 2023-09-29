@@ -183,7 +183,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
     func update(tableViewOffset: CGFloat) {
         backgroundView.snp.remakeConstraints { make in
             make.leading.equalToSuperview().offset(tableViewOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(tableViewOffset)
             make.top.equalToSuperview().offset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }

@@ -203,7 +203,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
 
             currentShadow.frame = view.bounds
 
-            view.insertSubview(currentShadow, belowSubview: draggable.draggableView)
+            scrollView.insertSubview(currentShadow, belowSubview: draggable.draggableView)
         }
     }
 
