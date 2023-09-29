@@ -324,7 +324,7 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
             displayType = .assetChains
         }
 
-        interactor.updateChainAssets(using: filters, sorts: sorts)
+        interactor.updateChainAssets(using: filters, sorts: sorts, useCashe: true)
     }
 }
 

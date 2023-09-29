@@ -20,7 +20,8 @@ protocol ChainAssetListInteractorInput: AnyObject {
     func setup(with output: ChainAssetListInteractorOutput)
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        useCashe: Bool
     )
     func hideChainAsset(_ chainAsset: ChainAsset)
     func showChainAsset(_ chainAsset: ChainAsset)

@@ -105,7 +105,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        useCashe: Bool
     ) {
         mutex.lock()
 
@@ -118,7 +119,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let chainAssetFetching = dependencyContainer.buildDependencies(for: wallet).chainAssetFetching
         chainAssetFetching.fetch(
-            shouldUseCashe: true,
+            shouldUseCashe: useCashe,
             filters: filters,
             sortDescriptors: sorts
         ) { [weak self] result in
@@ -301,7 +302,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processZeroBalancesSettingChanged() {
-        updateChainAssets(using: filters, sorts: sorts)
+        updateChainAssets(using: filters, sorts: sorts, useCashe: true)
     }
 
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent) {
@@ -318,6 +319,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         resetAccountInfoSubscription()
         wallet = event.account
         reload()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        updateChainAssets(using: filters, sorts: sorts, useCashe: false)
     }
 }
 

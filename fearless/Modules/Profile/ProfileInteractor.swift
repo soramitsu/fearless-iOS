@@ -56,6 +56,7 @@ final class ProfileInteractor {
 
             presenter?.didReceive(wallet: wallet)
             selectedMetaAccount = wallet
+            fetchBalances()
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
@@ -67,7 +68,8 @@ final class ProfileInteractor {
     }
 
     private func fetchBalances() {
-        walletBalanceSubscriptionAdapter.subscribeWalletsBalances(
+        walletBalanceSubscriptionAdapter.subscribeWalletBalance(
+            walletId: selectedMetaAccount.identifier,
             deliverOn: .main,
             handler: self
         )
