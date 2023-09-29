@@ -2,21 +2,19 @@ import Foundation
 import SSFModels
 import Web3
 
-protocol EthereumConnectionPoolProtocol {
-    associatedtype T
-
-    func setup(with chains: [ChainModel]) throws
-    func setupConnection(for chain: ChainModel) -> T
-    func getConnection(for chainId: ChainModel.Id) -> T
-}
-
 final class EthereumConnectionPool: ConnectionPoolProtocol {
     typealias T = Web3.Eth
 
     private(set) var connectionsByChainIds: [ChainModel.Id: Web3.Eth] = [:]
     private weak var delegate: ConnectionPoolDelegate?
 
+    private lazy var lock = NSLock()
+
     func setupConnection(for chain: SSFModels.ChainModel) throws -> Web3.Eth {
+        lock.lock()
+        defer {
+            lock.unlock()
+        }
         let ws = try EthereumNodeFetching().getNode(for: chain)
         connectionsByChainIds[chain.chainId] = ws
 
@@ -32,7 +30,11 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
     }
 
     func getConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
-        connectionsByChainIds[chainId]
+        lock.lock()
+        defer {
+            lock.unlock()
+        }
+        return connectionsByChainIds[chainId]
     }
 
     func setDelegate(_ delegate: ConnectionPoolDelegate) {

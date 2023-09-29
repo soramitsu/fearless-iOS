@@ -150,19 +150,11 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
 
                         switch chainAsset.asset.ethereumType {
                         case .normal:
-                            do {
-                                let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
-                                return (chainAsset, accountInfo)
-                            } catch {
-                                return (chainAsset, nil)
-                            }
+                            let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
+                            return (chainAsset, accountInfo)
                         case .erc20, .bep20:
-                            do {
-                                let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
-                                return (chainAsset, accountInfo)
-                            } catch {
-                                return (chainAsset, nil)
-                            }
+                            let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
+                            return (chainAsset, accountInfo)
                         case .none:
                             return (chainAsset, nil)
                         }
