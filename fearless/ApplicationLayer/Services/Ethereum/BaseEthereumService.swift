@@ -68,13 +68,20 @@ class BaseEthereumService {
 
     func queryMaxPriorityFeePerGas() async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
+            var nillableContinuation: CheckedContinuation<EthereumQuantity, Error>? = continuation
             ws.maxPriorityFeePerGas { resp in
+                guard let unwrapedContinuation = nillableContinuation else {
+                    return
+                }
                 if let fee = resp.result {
-                    continuation.resume(with: .success(fee))
+                    unwrapedContinuation.resume(with: .success(fee))
+                    nillableContinuation = nil
                 } else if let error = resp.error {
-                    continuation.resume(with: .failure(error))
+                    unwrapedContinuation.resume(with: .failure(error))
+                    nillableContinuation = nil
                 } else {
-                    continuation.resume(with: .failure(TransferServiceError.unexpected))
+                    unwrapedContinuation.resume(with: .failure(TransferServiceError.unexpected))
+                    nillableContinuation = nil
                 }
             }
         }

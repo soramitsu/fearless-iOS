@@ -109,8 +109,7 @@ final class SendInteractor: RuntimeConstantFetching {
         } else {
             output?.didReceivePriceData(result: .success(nil), for: nil)
         }
-        if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
+        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
            let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
