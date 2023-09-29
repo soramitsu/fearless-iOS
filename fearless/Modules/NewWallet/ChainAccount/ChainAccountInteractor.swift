@@ -167,8 +167,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
         getAvailableChainAssets()
-
         fetchChainAssetBasedData()
+        updateData()
     }
 
     func getAvailableExportOptions(for address: String) {
