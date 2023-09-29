@@ -37,12 +37,31 @@ enum BalanceInfoAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
+            metaAccountRepository: AnyDataProviderRepository(accountRepository),
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainAssetFetcher: chainAssetFetching,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            eventCenter: eventCenter,
+            logger: logger
+        )
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),

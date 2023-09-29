@@ -6,7 +6,8 @@ import SSFModels
 protocol WalletTransactionDetailsViewModelFactoryProtocol {
     func buildViewModel(
         transaction: AssetTransactionData,
-        locale: Locale
+        locale: Locale,
+        chain: ChainModel
     ) -> WalletTransactionDetailsViewModel?
 }
 
@@ -28,7 +29,8 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
     // swiftlint:disable function_body_length
     func buildViewModel(
         transaction: AssetTransactionData,
-        locale: Locale
+        locale: Locale,
+        chain: ChainModel
     ) -> WalletTransactionDetailsViewModel? {
         guard let transactionType = TransactionType(rawValue: transaction.type) else {
             return nil
@@ -52,6 +54,8 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
         let date = Date(timeIntervalSince1970: TimeInterval(transaction.timestamp))
         let dateString = DateFormatter.txDetails.value(for: locale).string(from: date)
 
+        let utilityAsset = chain.utilityChainAssets().first?.asset
+        let feeFormatter = utilityAsset.map { assetBalanceFormatterFactory.createFeeTokenFormatter(for: $0.displayInfo, usageCase: .detailsCrypto) }?.value(for: locale)
         let tokenFormatter = assetBalanceFormatterFactory
             .createTokenFormatter(for: asset.displayInfo, usageCase: .detailsCrypto)
             .value(for: locale)
@@ -63,7 +67,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
             let to = transactionType == .incoming ? accountAddress : transaction.peerName
             let amountString = tokenFormatter.stringFromDecimal(transaction.amount.decimalValue)
             let fee: Decimal = transaction.fees.map(\.amount.decimalValue).reduce(0, +)
-            let feeString = tokenFormatter.stringFromDecimal(fee)
+            let feeString = feeFormatter?.stringFromDecimal(fee)
 
             let total = transaction.amount.decimalValue + fee
             let totalString = tokenFormatter.stringFromDecimal(total)

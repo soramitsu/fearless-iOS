@@ -35,4 +35,8 @@ struct RuntimeDispatchInfo: Codable {
     var fee: String {
         "\(inclusionFee.baseFee + inclusionFee.lenFee + inclusionFee.adjustedWeightFee)"
     }
+
+    init(feeValue: BigUInt) {
+        inclusionFee = FeeDetails(baseFee: feeValue, lenFee: .zero, adjustedWeightFee: .zero)
+    }
 }

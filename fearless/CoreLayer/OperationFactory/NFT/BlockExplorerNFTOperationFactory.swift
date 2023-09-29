@@ -48,17 +48,6 @@ enum BlockExplorerApiKey {
     }
 }
 
-protocol NFTOperationFactoryProtocol {
-    func fetchNFTs(
-        chain: ChainModel,
-        address: String
-    ) -> CompoundOperationWrapper<[NFT]?>
-    func fetchCollections(
-        chain: ChainModel,
-        address: String
-    ) -> CompoundOperationWrapper<[NFTCollection]?>
-}
-
 final class BlockExplorerNFTOperationFactory {
     private func createOperation(
         address: String,
@@ -123,16 +112,15 @@ final class BlockExplorerNFTOperationFactory {
     ) -> BaseOperation<[EtherscanNftResponseElement]> {
         ClosureOperation {
             let remoteTransactions = try remoteOperation.extractNoCancellableResultData().result
-            let tokenIds = remoteTransactions.compactMap { $0.tokenID }.withoutDuplicates()
-
+            let tokenIds = remoteTransactions?.compactMap { $0.tokenID }.withoutDuplicates().compactMap { $0 } ?? []
             var transactions: [EtherscanNftResponseElement] = []
             for tokenId in tokenIds {
-                let tokenTransactions = remoteTransactions.filter { $0.tokenID == tokenId }
-                let sortedTransactions = tokenTransactions.sorted(by: { element1, element2 in
+                let tokenTransactions = remoteTransactions?.filter { $0.tokenID == tokenId }
+                let sortedTransactions = tokenTransactions?.sorted(by: { element1, element2 in
                     element1.date.compare(element2.date) == .orderedDescending
                 })
 
-                if let transaction = sortedTransactions.first, transaction.to == address {
+                if let transaction = sortedTransactions?.first, transaction.to == address {
                     transactions.append(transaction)
                 }
             }
@@ -143,11 +131,11 @@ final class BlockExplorerNFTOperationFactory {
 }
 
 extension BlockExplorerNFTOperationFactory: NFTOperationFactoryProtocol {
-    func fetchNFTs(chain _: SSFModels.ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
+    func fetchNFTs(chain _: ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
         CompoundOperationWrapper.createWithResult([])
     }
 
-    func fetchCollections(chain _: SSFModels.ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFTCollection]?> {
+    func fetchCollections(chain _: ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFTCollection]?> {
         CompoundOperationWrapper.createWithResult([])
     }
 

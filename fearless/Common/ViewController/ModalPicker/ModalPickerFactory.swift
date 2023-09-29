@@ -504,7 +504,7 @@ enum ModalPickerFactory {
     }
 
     static func createPickerForSelectCurrency(
-        supportedCurrencies: [Currency],
+        supportedСurrencies: [Currency],
         selectedCurrency: Currency,
         callback: ModalPickerSelectionCallback?
     ) -> UIViewController? {
@@ -519,10 +519,10 @@ enum ModalPickerFactory {
         viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
         viewController.selectionCallback = callback
         viewController.modalPresentationStyle = .custom
-        viewController.selectedIndex = supportedCurrencies.firstIndex(where: { $0.id == selectedCurrency.id }) ?? 0
+        viewController.selectedIndex = supportedСurrencies.firstIndex(where: { $0.id == selectedCurrency.id }) ?? 0
         viewController.presenterCanDrag = false
 
-        viewController.viewModels = supportedCurrencies.map { action in
+        viewController.viewModels = supportedСurrencies.map { action in
             LocalizableResource { _ in
                 var remoteImageViewModel: RemoteImageViewModel?
                 if let iconUrl = URL(string: action.icon) {

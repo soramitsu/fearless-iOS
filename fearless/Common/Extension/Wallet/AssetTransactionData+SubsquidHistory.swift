@@ -83,7 +83,8 @@ extension AssetTransactionData {
             precision: Int16(asset.precision)
         ) ?? .zero
         let feeValue = BigUInt(string: transfer.fee ?? "") ?? BigUInt(0)
-        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
+        let utilityAsset = chain.utilityChainAssets().first?.asset ?? asset
+        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(utilityAsset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
             identifier: asset.identifier,

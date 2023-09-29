@@ -153,7 +153,6 @@ extension NftSendPresenter: NftSendViewOutput {
 
 extension NftSendPresenter: NftSendInteractorOutput {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
-//        view?.didStopFeeCalculation()
         switch result {
         case let .success(dispatchInfo):
             guard let chainAsset = nft.chain.utilityChainAssets().first else { return }

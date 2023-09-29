@@ -29,28 +29,19 @@ final class BalanceInfoDepencyContainer {
         )
     }
 
-    private func createAccountInfoFetching(for chainAsset: ChainAsset) -> AccountInfoFetchingProtocol {
-        if chainAsset.chain.isEthereum {
-            let chainRegistry = ChainRegistryFacade.sharedRegistry
+    private func createAccountInfoFetching(for _: ChainAsset) -> AccountInfoFetchingProtocol {
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
 
-            return EthereumAccountInfoFetching(
-                operationQueue: OperationManagerFacade.sharedDefaultQueue,
-                chainRegistry: chainRegistry
-            )
-        } else {
-            let substrateRepositoryFactory = SubstrateRepositoryFactory(
-                storageFacade: UserDataStorageFacade.shared
-            )
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
-            let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
 
-            let substrateAccountInfoFetching = AccountInfoFetching(
-                accountInfoRepository: accountInfoRepository,
-                chainRegistry: ChainRegistryFacade.sharedRegistry,
-                operationQueue: OperationManagerFacade.sharedDefaultQueue
-            )
-
-            return substrateAccountInfoFetching
-        }
+        return substrateAccountInfoFetching
     }
 }

@@ -1,6 +1,5 @@
 import Foundation
 import SSFModels
-import SoraFoundation
 
 extension AssetBalanceDisplayInfo {
     static func forCurrency(_ currency: Currency) -> AssetBalanceDisplayInfo {

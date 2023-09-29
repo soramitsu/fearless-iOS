@@ -32,10 +32,6 @@ final class MainNftContainerPresenter {
     }
 
     // MARK: - Private methods
-
-    func updateData() {
-        interactor.fetchData()
-    }
 }
 
 // MARK: - MainNftContainerViewOutput
@@ -44,7 +40,7 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     func didLoad(view: MainNftContainerViewInput) {
         self.view = view
         interactor.setup(with: self)
-        updateData()
+        interactor.fetchData()
     }
 
     func didSelect(collection: NFTCollection) {

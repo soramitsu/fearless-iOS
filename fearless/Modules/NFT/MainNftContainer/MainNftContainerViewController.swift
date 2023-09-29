@@ -69,9 +69,7 @@ extension MainNftContainerViewController: MainNftContainerViewInput {
 // MARK: - Localizable
 
 extension MainNftContainerViewController: Localizable {
-    func applyLocalization() {
-//        reloadEmptyState(animated: true)
-    }
+    func applyLocalization() {}
 }
 
 extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSource {

@@ -104,7 +104,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
                 let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
                 let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
                 let fee = try await transferService.estimateFee(for: transfer)
-                let runtimeDispatchInfo = RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))
+                let runtimeDispatchInfo = RuntimeDispatchInfo(feeValue: fee)
 
                 await MainActor.run {
                     presenter?.didReceiveFee(result: .success(runtimeDispatchInfo))
@@ -186,7 +186,7 @@ extension WalletSendConfirmInteractor: ExtrinsicFeeProxyDelegate {
 extension WalletSendConfirmInteractor: TransferFeeEstimationListener {
     func didReceiveFee(fee: BigUInt) {
         DispatchQueue.main.async { [weak self] in
-            self?.presenter?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+            self?.presenter?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
         }
     }
 
