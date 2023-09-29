@@ -253,7 +253,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         case .compact:
             let preferredContentInsets = createPreferredContentInsets(for: preferredContentHeight)
 
-            let compactOriginY = containerSize.height - preferredContentInsets.bottom
+            let compactOriginY = containerSize.height - preferredContentInsets.bottom + UIConstants.bigOffset
             let compactHeight = preferredContentInsets.bottom
             return CGRect(
                 x: 0.0,

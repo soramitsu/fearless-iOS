@@ -618,7 +618,7 @@ private extension SendPresenter {
                 let selectedChain = selectedChain,
                 let selectedAsset = optionalAsset,
                 let selectedChainAsset = selectedChain.chainAssets.first(where: {
-                    $0.asset.symbol == selectedAsset.symbol
+                    $0.asset.symbol.lowercased() == selectedAsset.symbol.lowercased()
                 }) {
                 self.selectedChainAsset = selectedChainAsset
                 handle(selectedChainAsset: selectedChainAsset)
