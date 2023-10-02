@@ -268,6 +268,20 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
     }
 
     func didFinishWithConnect(uri: String) {
-        interactor.walletConnect(uri: uri)
+        Task {
+            do {
+                try await interactor.walletConnect(uri: uri)
+            } catch {
+                DispatchQueue.main.async {
+                    self.router.present(
+                        message: error.localizedDescription,
+                        title: R.string.localizable.commonErrorInternal(preferredLanguages: self.selectedLocale.rLanguages),
+                        closeAction: nil,
+                        from: self.view,
+                        actions: []
+                    )
+                }
+            }
+        }
     }
 }

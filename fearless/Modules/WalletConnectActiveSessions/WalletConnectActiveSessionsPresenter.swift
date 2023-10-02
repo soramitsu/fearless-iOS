@@ -8,7 +8,7 @@ protocol WalletConnectActiveSessionsViewInput: ControllerBackedProtocol, Hiddabl
 
 protocol WalletConnectActiveSessionsInteractorInput: AnyObject {
     func setup(with output: WalletConnectActiveSessionsInteractorOutput)
-    func setupConnection(uri: String) throws
+    func setupConnection(uri: String) async throws
 }
 
 final class WalletConnectActiveSessionsPresenter {
@@ -104,17 +104,19 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsModul
 
 extension WalletConnectActiveSessionsPresenter: ScanQRModuleOutput {
     func didFinishWithConnect(uri: String) {
-        do {
-            try interactor.setupConnection(uri: uri)
-        } catch {
-            DispatchQueue.main.async {
-                self.router.present(
-                    message: error.localizedDescription,
-                    title: "Error",
-                    closeAction: nil,
-                    from: self.view,
-                    actions: []
-                )
+        Task {
+            do {
+                try await interactor.setupConnection(uri: uri)
+            } catch {
+                DispatchQueue.main.async {
+                    self.router.present(
+                        message: error.localizedDescription,
+                        title: R.string.localizable.commonErrorInternal(preferredLanguages: self.selectedLocale.rLanguages),
+                        closeAction: nil,
+                        from: self.view,
+                        actions: []
+                    )
+                }
             }
         }
     }

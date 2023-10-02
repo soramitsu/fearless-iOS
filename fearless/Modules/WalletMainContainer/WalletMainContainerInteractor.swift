@@ -162,12 +162,8 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         fetchChainSettings()
     }
 
-    func walletConnect(uri: String) {
-        do {
-            try walletConnectService.connect(uri: uri)
-        } catch {
-            print(error)
-        }
+    func walletConnect(uri: String) async throws {
+        try await walletConnectService.connect(uri: uri)
     }
 }
 

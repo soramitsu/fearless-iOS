@@ -33,8 +33,8 @@ extension WalletConnectActiveSessionsInteractor: WalletConnectActiveSessionsInte
         walletConnectService.set(listener: self)
     }
 
-    func setupConnection(uri: String) throws {
-        try walletConnectService.connect(uri: uri)
+    func setupConnection(uri: String) async throws {
+        try await walletConnectService.connect(uri: uri)
     }
 }
 

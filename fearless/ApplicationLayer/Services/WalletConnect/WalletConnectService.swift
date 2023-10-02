@@ -6,7 +6,7 @@ import FearlessKeys
 
 protocol WalletConnectService: ApplicationServiceProtocol {
     func set(listener: WalletConnectServiceDelegate)
-    func connect(uri: String) throws
+    func connect(uri: String) async throws
     func disconnect(topic: String) async throws
     func getSessions() -> [Session]
 
@@ -37,7 +37,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
     // MARK: - // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        #if DEBUG
+        #if F_DEV
             let projectId = WalletConnectDebug.projectId
         #else
             let projectId = WalletConnect.projectId
@@ -68,17 +68,11 @@ final class WalletConnectServiceImpl: WalletConnectService {
         listeners.append(weakListener)
     }
 
-    func connect(uri: String) throws {
+    func connect(uri: String) async throws {
         guard let walletConnectUri = WalletConnectURI(string: uri) else {
             throw ConvenienceError(error: "Invalid uri")
         }
-        Task {
-            do {
-                try await Web3Wallet.instance.pair(uri: walletConnectUri)
-            } catch {
-                throw error
-            }
-        }
+        try await Web3Wallet.instance.pair(uri: walletConnectUri)
     }
 
     func getSessions() -> [Session] {
