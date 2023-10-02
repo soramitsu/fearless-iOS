@@ -93,6 +93,14 @@ private extension ChainAssetListViewController {
         if #available(iOS 15.0, *) {
             rootView.tableView.sectionHeaderTopPadding = 0
         }
+
+        if let refreshControl = rootView.tableView.refreshControl {
+            refreshControl.addTarget(
+                self,
+                action: #selector(handlePullToRefresh),
+                for: .valueChanged
+            )
+        }
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
@@ -126,6 +134,11 @@ private extension ChainAssetListViewController {
 
         rootView.addBanners(view: bannersViewController.view)
         bannersViewController.didMove(toParent: self)
+    }
+
+    @objc func handlePullToRefresh() {
+        output.didPullToRefresh()
+        rootView.tableView.refreshControl?.endRefreshing()
     }
 }
 

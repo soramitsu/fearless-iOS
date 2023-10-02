@@ -5,13 +5,16 @@ import Web3PromiseKit
 import SSFModels
 import RobinHood
 
-final actor EthereumAccountInfoFetching {
-    private let operationQueue: OperationQueue
+final actor EthereumRemoteBalanceFetching {
     private let chainRegistry: ChainRegistryProtocol
+    private let repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
 
-    init(operationQueue: OperationQueue, chainRegistry: ChainRegistryProtocol) {
-        self.operationQueue = operationQueue
+    init(
+        chainRegistry: ChainRegistryProtocol,
+        repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+    ) {
         self.chainRegistry = chainRegistry
+        self.repositoryWrapper = repositoryWrapper
     }
 
     nonisolated private func fetchEthereumBalanceOperation(for chainAsset: ChainAsset, address: String) -> AwaitOperation<[ChainAsset: AccountInfo?]> {
@@ -35,14 +38,22 @@ final actor EthereumAccountInfoFetching {
         let ethereumAddress = try EthereumAddress(rawAddress: address.hexToBytes())
 
         return try await withCheckedThrowingContinuation { continuation in
+            var nillableContinuation: CheckedContinuation<AccountInfo?, Error>? = continuation
+
             ws.getBalance(address: ethereumAddress, block: .latest) { resp in
+                guard let unwrapedContinuation = nillableContinuation else {
+                    return
+                }
                 if let balance = resp.result {
                     let accountInfo = AccountInfo(ethBalance: balance.quantity)
-                    return continuation.resume(with: .success(accountInfo))
+                    unwrapedContinuation.resume(with: .success(accountInfo))
+                    nillableContinuation = nil
                 } else if let error = resp.error {
-                    return continuation.resume(with: .failure(error))
+                    unwrapedContinuation.resume(with: .failure(error))
+                    nillableContinuation = nil
                 } else {
-                    return continuation.resume(with: .success(nil))
+                    unwrapedContinuation.resume(with: .success(nil))
+                    nillableContinuation = nil
                 }
             }
         }
@@ -78,9 +89,20 @@ final actor EthereumAccountInfoFetching {
             })
         }
     }
+
+    nonisolated private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
+        let storagePath = chainAsset.storagePath
+
+        let localKey = try LocalStorageKeyFactory().createFromStoragePath(
+            storagePath,
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+        )
+
+        try repositoryWrapper.save(data: accountInfo, identifier: localKey)
+    }
 }
 
-extension EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
+extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
     nonisolated func fetch(
         for chainAsset: ChainAsset,
         accountId: AccountId,
@@ -95,9 +117,11 @@ extension EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
             switch chainAsset.asset.ethereumType {
             case .normal:
                 let accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
+                try cache(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
                 completionBlock(chainAsset, accountInfo)
             case .erc20, .bep20:
                 let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
+                try cache(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
                 completionBlock(chainAsset, accountInfo)
             case .none:
                 break
@@ -126,19 +150,11 @@ extension EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
 
                         switch chainAsset.asset.ethereumType {
                         case .normal:
-                            do {
-                                let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
-                                return (chainAsset, accountInfo)
-                            } catch {
-                                return (chainAsset, nil)
-                            }
+                            let accountInfo = try? await strongSelf.fetchETHBalance(for: chainAsset, address: address)
+                            return (chainAsset, accountInfo)
                         case .erc20, .bep20:
-                            do {
-                                let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
-                                return (chainAsset, accountInfo)
-                            } catch {
-                                return (chainAsset, nil)
-                            }
+                            let accountInfo = try? await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
+                            return (chainAsset, accountInfo)
                         case .none:
                             return (chainAsset, nil)
                         }
@@ -148,7 +164,17 @@ extension EthereumAccountInfoFetching: AccountInfoFetchingProtocol {
                 var result: [ChainAsset: AccountInfo?] = [:]
 
                 for try await accountInfoByChainAsset in group {
-                    result[accountInfoByChainAsset.0] = accountInfoByChainAsset.1
+                    let chainAsset = accountInfoByChainAsset.0
+                    let accountInfo = accountInfoByChainAsset.1
+                    if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+                        try self?.cache(
+                            accountInfo: accountInfo,
+                            chainAsset: chainAsset,
+                            accountId: accountId
+                        )
+                    }
+
+                    result[chainAsset] = accountInfo
                 }
 
                 return result

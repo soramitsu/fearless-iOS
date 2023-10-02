@@ -30,6 +30,7 @@ final class ChainAssetListViewLayout: UIView {
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
+        view.refreshControl = UIRefreshControl()
         return view
     }()
 

@@ -27,7 +27,6 @@ final class ConnectionPool {
     private weak var delegate: ConnectionPoolDelegate?
     private let operationQueue: OperationQueue
 
-    private let mutex = NSLock()
     private lazy var lock = ReaderWriterLock()
     private lazy var connectionLock = ReaderWriterLock()
 

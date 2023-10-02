@@ -5387,7 +5387,18 @@
             "color": "8D809E",
             "isUtility": true,
             "type": "normal"
-        }],
+        },
+            {
+                        "id": "bc55b3f0-2b34-4561-aeb6-bd4ca9c88b7e",
+                        "type": "ormlAsset",
+                        "name": "tether usd",
+                        "symbol": "usdt",
+                        "precision": 6,
+                        "currencyId": "1",
+                        "priceId": "tether",
+                        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDT.svg",
+                        "color": "26A17B"
+                      }],
         "nodes": [{
             "url": "wss://rpc-pendulum.prd.pendulumchain.tech",
             "name": "PendulumChain node"
