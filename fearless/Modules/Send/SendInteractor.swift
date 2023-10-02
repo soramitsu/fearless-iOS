@@ -110,8 +110,7 @@ final class SendInteractor: RuntimeConstantFetching {
         } else {
             output?.didReceivePriceData(result: .success(nil), for: nil)
         }
-        if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
+        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
            let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
@@ -155,7 +154,7 @@ extension SendInteractor: SendInteractorInput {
         for asset: AssetModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     ) {
-        chainAssetFetching.fetch(shouldUseCashe: true, filters: [], sortDescriptors: []) { result in
+        chainAssetFetching.fetch(shouldUseCache: true, filters: [], sortDescriptors: []) { result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):

@@ -165,6 +165,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     func didTapExpandSections(state: HiddenSectionState) {
         interactor.saveHiddenSection(state: state)
     }
+
+    func didPullToRefresh() {
+        interactor.updateData()
+    }
 }
 
 // MARK: - ChainAssetListInteractorOutput
@@ -320,7 +324,7 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
             displayType = .assetChains
         }
 
-        interactor.updateChainAssets(using: filters, sorts: sorts)
+        interactor.updateChainAssets(using: filters, sorts: sorts, useCashe: true)
     }
 }
 

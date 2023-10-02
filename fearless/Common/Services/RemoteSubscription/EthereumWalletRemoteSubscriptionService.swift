@@ -80,22 +80,34 @@ extension EthereumWalletRemoteSubscriptionService: WalletRemoteSubscriptionServi
         queue _: DispatchQueue?,
         closure _: RemoteSubscriptionClosure?
     ) async -> String? {
-        let uuid = await withUnsafeContinuation { continuation in
+        let uuid = try? await withCheckedThrowingContinuation { continuation in
             guard let ws = chainRegistry.getEthereumConnection(for: chainAsset.chain.chainId) else {
                 return
             }
+            var nillableContinuation: CheckedContinuation<String?, Error>? = continuation
 
             try? handleNewBlock(ws: ws, chainAsset: chainAsset, accountId: accountId)
 
             do {
                 try ws.subscribeToNewHeads { resp in
-                    continuation.resume(returning: resp.result)
+                    guard let unwrapedContinuation = nillableContinuation else {
+                        return
+                    }
+
+                    switch resp.status {
+                    case let .success(subscriptionId):
+                        unwrapedContinuation.resume(with: .success(subscriptionId))
+                        nillableContinuation = nil
+                    case let .failure(error):
+                        unwrapedContinuation.resume(with: .failure(error))
+                        nillableContinuation = nil
+                    }
                 } onEvent: { [weak self]
                     _ in
                     try? self?.handleNewBlock(ws: ws, chainAsset: chainAsset, accountId: accountId)
                 }
             } catch {
-                return continuation.resume(returning: nil)
+                return continuation.resume(with: .failure(error))
                 logger.error("EthereumWalletRemoteSubscriptionService:attachToAccountInfo:error: \(error.localizedDescription)")
             }
         }

@@ -6,6 +6,10 @@ import SoraKeystore
 import SSFModels
 
 final class ChainAccountInteractor {
+    enum Constants {
+        static let remoteFetchTimerTimeInterval: TimeInterval = 30
+    }
+
     weak var presenter: ChainAccountInteractorOutputProtocol?
     var chainAsset: ChainAsset
     var availableChainAssets: [ChainAsset] = []
@@ -20,6 +24,9 @@ final class ChainAccountInteractor {
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let dependencyContainer = BalanceInfoDepencyContainer()
     private var currentDependencies: BalanceInfoDependencies?
+    private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+
+    private var remoteFetchTimer: Timer?
 
     init(
         wallet: MetaAccountModel,
@@ -30,7 +37,8 @@ final class ChainAccountInteractor {
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
+        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
+        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
@@ -41,11 +49,12 @@ final class ChainAccountInteractor {
         self.chainAssetFetching = chainAssetFetching
         self.storageRequestFactory = storageRequestFactory
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
+        self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
     }
 
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
-            shouldUseCashe: true,
+            shouldUseCache: true,
             filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
@@ -162,8 +171,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
         getAvailableChainAssets()
-
         fetchChainAssetBasedData()
+        updateData()
     }
 
     func getAvailableExportOptions(for address: String) {
@@ -201,6 +210,22 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         } else {
             assertionFailure("Unable to select this chain")
         }
+    }
+
+    func updateData() {
+        guard
+            remoteFetchTimer == nil,
+            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.isEthereum
+        else {
+            return
+        }
+
+        remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: Constants.remoteFetchTimerTimeInterval, repeats: false, block: { [weak self] timer in
+            timer.invalidate()
+            self?.remoteFetchTimer = nil
+        })
+        ethRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId, completionBlock: { _, _ in })
     }
 }
 

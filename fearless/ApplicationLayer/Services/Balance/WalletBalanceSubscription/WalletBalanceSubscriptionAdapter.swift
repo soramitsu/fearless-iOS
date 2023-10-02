@@ -116,7 +116,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         delegate = handler
 
-        fetchMetaAccount(by: walletId, chainAsset: nil)
+        fetchMetaAccount(by: walletId, chainAsset: nil, shouldUseCache: true)
     }
 
     func subscribeWalletsBalances(
@@ -129,7 +129,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         delegate = handler
 
-        fetchAllMetaAccounts()
+        fetchAllMetaAccounts(shouldUseCache: true)
     }
 
     func subscribeChainAssetBalance(
@@ -144,7 +144,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         delegate = handler
 
-        fetchMetaAccount(by: walletId, chainAsset: chainAsset)
+        fetchMetaAccount(by: walletId, chainAsset: chainAsset, shouldUseCache: true)
     }
 
     // MARK: - Private methods
@@ -192,14 +192,18 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         subscribeToPrices(for: chainAssets, currencies: currencies)
     }
 
-    private func fetchMetaAccount(by identifier: String, chainAsset: ChainAsset?) {
+    private func fetchMetaAccount(
+        by identifier: String,
+        chainAsset: ChainAsset?,
+        shouldUseCache: Bool
+    ) {
         typealias MergeOperationResult = (metaAccount: MetaAccountModel?, chainAssets: [ChainAsset])
 
         let metaAccountOperation = metaAccountRepository.fetchOperation(
             by: identifier,
             options: RepositoryFetchOptions()
         )
-        let chainsOperation = fetchChainsOperation()
+        let chainsOperation = fetchChainsOperation(shouldUseCache: shouldUseCache)
 
         let mergeOperation = ClosureOperation<MergeOperationResult> {
             let metaAccountOperationResult = try metaAccountOperation.extractNoCancellableResultData()
@@ -239,9 +243,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         operationQueue.addOperations([chainsOperation, metaAccountOperation, mergeOperation], waitUntilFinished: false)
     }
 
-    private func fetchAllMetaAccounts() {
+    private func fetchAllMetaAccounts(shouldUseCache: Bool) {
         let metaAccountsOperation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        let chainsOperation = fetchChainsOperation()
+        let chainsOperation = fetchChainsOperation(shouldUseCache: shouldUseCache)
 
         metaAccountsOperation.addDependency(chainsOperation)
 
@@ -291,8 +295,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         pricesProvider = subscribeToPrices(for: pricesIds, currencies: uniqueQurrencys)
     }
 
-    private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {
-        chainAssetFetcher.fetchAwaitOperation(shouldUseCashe: true, filters: [], sortDescriptors: [])
+    private func fetchChainsOperation(shouldUseCache: Bool) -> BaseOperation<[ChainAsset]> {
+        chainAssetFetcher.fetchAwaitOperation(shouldUseCache: shouldUseCache, filters: [], sortDescriptors: [])
     }
 
     private func handle(_ result: WalletBalancesResult) {
@@ -330,13 +334,13 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         switch subscriptionType {
         case .wallets:
             reset()
-            fetchAllMetaAccounts()
+            fetchAllMetaAccounts(shouldUseCache: false)
         case let .wallet(walletId):
             reset()
-            fetchMetaAccount(by: walletId, chainAsset: nil)
+            fetchMetaAccount(by: walletId, chainAsset: nil, shouldUseCache: false)
         case let .chainAsset(walletId, chainAsset):
             reset()
-            fetchMetaAccount(by: walletId, chainAsset: chainAsset)
+            fetchMetaAccount(by: walletId, chainAsset: chainAsset, shouldUseCache: false)
         case .none:
             break
         }

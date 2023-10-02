@@ -608,6 +608,9 @@ private extension SendPresenter {
     }
 
     func handle(newAddress: String) {
+        guard newAddress.isNotEmpty else {
+            return
+        }
         recipientAddress = newAddress
         guard let chainAsset = selectedChainAsset else { return }
         let viewModel = viewModelFactory.buildRecipientViewModel(
@@ -637,7 +640,7 @@ private extension SendPresenter {
                 let selectedChain = selectedChain,
                 let selectedAsset = optionalAsset,
                 let selectedChainAsset = selectedChain.chainAssets.first(where: {
-                    $0.asset.symbol == selectedAsset.symbol
+                    $0.asset.symbol.lowercased() == selectedAsset.symbol.lowercased()
                 }) {
                 self.selectedChainAsset = selectedChainAsset
                 handle(selectedChainAsset: selectedChainAsset)
@@ -649,6 +652,7 @@ private extension SendPresenter {
     }
 
     func handle(selectedChainAsset: ChainAsset) {
+        fee = nil
         provideNetworkViewModel(for: selectedChainAsset.chain)
         provideAssetVewModel()
         provideInputViewModel()
