@@ -108,12 +108,12 @@ extension WalletConnectActiveSessionsPresenter: ScanQRModuleOutput {
             do {
                 try await interactor.setupConnection(uri: uri)
             } catch {
-                DispatchQueue.main.async {
-                    self.router.present(
+                await MainActor.run {
+                    router.present(
                         message: error.localizedDescription,
-                        title: R.string.localizable.commonErrorInternal(preferredLanguages: self.selectedLocale.rLanguages),
+                        title: R.string.localizable.commonErrorInternal(preferredLanguages: selectedLocale.rLanguages),
                         closeAction: nil,
-                        from: self.view,
+                        from: view,
                         actions: []
                     )
                 }
