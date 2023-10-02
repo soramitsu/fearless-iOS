@@ -32,6 +32,15 @@ final class ChainAssetListAssembly {
 
         let dependencyContainer = ChainAssetListDependencyContainer()
 
+        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -40,7 +49,8 @@ final class ChainAssetListAssembly {
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
-            dependencyContainer: dependencyContainer
+            dependencyContainer: dependencyContainer,
+            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

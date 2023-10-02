@@ -8,6 +8,10 @@ import Web3ContractABI
 final class ChainAssetListInteractor {
     // MARK: - Private properties
 
+    enum Constants {
+        static let remoteFetchTimerTimeInterval: TimeInterval = 30
+    }
+
     private weak var output: ChainAssetListInteractorOutput?
 
     private let assetRepository: AnyDataProviderRepository<AssetModel>
@@ -18,12 +22,14 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let dependencyContainer: ChainAssetListDependencyContainer
+    private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
 
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
     private let mutex = NSLock()
+    private var remoteFetchTimer: Timer?
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -40,7 +46,8 @@ final class ChainAssetListInteractor {
         eventCenter: EventCenter,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoFetchingProvider: AccountInfoFetching,
-        dependencyContainer: ChainAssetListDependencyContainer
+        dependencyContainer: ChainAssetListDependencyContainer,
+        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
     ) {
         self.wallet = wallet
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -50,6 +57,7 @@ final class ChainAssetListInteractor {
         self.accountRepository = accountRepository
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.dependencyContainer = dependencyContainer
+        self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
     }
 
     // MARK: - Private methods
@@ -77,11 +85,17 @@ final class ChainAssetListInteractor {
     }
 
     private func reload() {
-        guard let chainAssets = chainAssets else {
+        guard remoteFetchTimer == nil, let chainAssets = chainAssets else {
             return
         }
 
+        remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: Constants.remoteFetchTimerTimeInterval, repeats: false, block: { [weak self] timer in
+            timer.invalidate()
+            self?.remoteFetchTimer = nil
+        })
+
         output?.didReceiveChainAssets(result: .success(chainAssets))
+        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
 
         accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
             self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
@@ -101,7 +115,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        useCashe: Bool
     ) {
         mutex.lock()
 
@@ -114,7 +129,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let chainAssetFetching = dependencyContainer.buildDependencies(for: wallet).chainAssetFetching
         chainAssetFetching.fetch(
-            shouldUseCashe: true,
+            shouldUseCache: useCashe,
             filters: filters,
             sortDescriptors: sorts
         ) { [weak self] result in
@@ -131,6 +146,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
                 self?.accountInfoFetchingProvider.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
+                    self?.ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { _ in }
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
                 }
@@ -192,6 +208,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
         save(updatedAccount, shouldNotify: false)
+    }
+
+    func updateData() {
+        reload()
     }
 }
 
@@ -292,7 +312,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processZeroBalancesSettingChanged() {
-        updateChainAssets(using: filters, sorts: sorts)
+        updateChainAssets(using: filters, sorts: sorts, useCashe: true)
     }
 
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent) {
@@ -309,6 +329,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         resetAccountInfoSubscription()
         wallet = event.account
         reload()
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        updateChainAssets(using: filters, sorts: sorts, useCashe: false)
     }
 }
 

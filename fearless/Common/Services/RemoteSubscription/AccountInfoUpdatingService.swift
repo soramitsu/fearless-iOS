@@ -86,7 +86,9 @@ final class AccountInfoUpdatingService {
                 return
             }
 
-            let key = chainAsset.uniqueKey(accountId: accountId)
+            guard !chainAsset.chain.isEthereum else {
+                return
+            }
 
             let maybeSubscriptionId = await getRemoteSubscriptionService(for: chainAsset).attachToAccountInfo(
                 of: accountId,
