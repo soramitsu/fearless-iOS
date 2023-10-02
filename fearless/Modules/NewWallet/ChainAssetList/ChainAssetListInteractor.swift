@@ -8,6 +8,10 @@ import Web3ContractABI
 final class ChainAssetListInteractor {
     // MARK: - Private properties
 
+    enum Constants {
+        static let remoteFetchTimerTimeInterval: TimeInterval = 30
+    }
+
     private weak var output: ChainAssetListInteractorOutput?
 
     private let assetRepository: AnyDataProviderRepository<AssetModel>
@@ -25,6 +29,7 @@ final class ChainAssetListInteractor {
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
     private let mutex = NSLock()
+    private var remoteFetchTimer: Timer?
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -80,9 +85,14 @@ final class ChainAssetListInteractor {
     }
 
     private func reload() {
-        guard let chainAssets = chainAssets else {
+        guard remoteFetchTimer == nil, let chainAssets = chainAssets else {
             return
         }
+
+        remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: Constants.remoteFetchTimerTimeInterval, repeats: false, block: { [weak self] timer in
+            timer.invalidate()
+            self?.remoteFetchTimer = nil
+        })
 
         output?.didReceiveChainAssets(result: .success(chainAssets))
         ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
@@ -119,7 +129,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let chainAssetFetching = dependencyContainer.buildDependencies(for: wallet).chainAssetFetching
         chainAssetFetching.fetch(
-            shouldUseCashe: useCashe,
+            shouldUseCache: useCashe,
             filters: filters,
             sortDescriptors: sorts
         ) { [weak self] result in

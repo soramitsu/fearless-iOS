@@ -6,6 +6,10 @@ import SoraKeystore
 import SSFModels
 
 final class ChainAccountInteractor {
+    enum Constants {
+        static let remoteFetchTimerTimeInterval: TimeInterval = 30
+    }
+
     weak var presenter: ChainAccountInteractorOutputProtocol?
     var chainAsset: ChainAsset
     var availableChainAssets: [ChainAsset] = []
@@ -50,7 +54,7 @@ final class ChainAccountInteractor {
 
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
-            shouldUseCashe: true,
+            shouldUseCache: true,
             filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
@@ -210,12 +214,17 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
 
     func updateData() {
         guard
+            remoteFetchTimer == nil,
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
             chainAsset.chain.isEthereum
         else {
             return
         }
 
+        remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: Constants.remoteFetchTimerTimeInterval, repeats: false, block: { [weak self] timer in
+            timer.invalidate()
+            self?.remoteFetchTimer = nil
+        })
         ethRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId, completionBlock: { _, _ in })
     }
 }
