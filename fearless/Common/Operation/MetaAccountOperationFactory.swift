@@ -3,6 +3,7 @@ import SSFUtils
 import IrohaCrypto
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 protocol MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(request: MetaAccountImportMnemonicRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
@@ -226,7 +227,8 @@ private extension MetaAccountOperationFactory {
         substratePublicKey: Data,
         substrateCryptoType: CryptoType,
         ethereumPublicKey: Data?,
-        isBackuped: Bool
+        isBackuped: Bool,
+        defaultChainId: ChainModel.Id? = nil
     ) throws -> MetaAccountModel {
         let substrateAccountId = try substratePublicKey.publicKeyToAccountId()
         let ethereumAddress = try ethereumPublicKey?.ethereumAddressFromPublicKey()
@@ -245,7 +247,7 @@ private extension MetaAccountOperationFactory {
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: nil,
+            chainIdForFilter: defaultChainId,
             assetsVisibility: [],
             zeroBalanceAssetsHidden: false,
             hasBackup: isBackuped
@@ -280,7 +282,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 substratePublicKey: substrateQuery.publicKey,
                 substrateCryptoType: request.cryptoType,
                 ethereumPublicKey: ethereumQuery.publicKey,
-                isBackuped: isBackuped
+                isBackuped: isBackuped,
+                defaultChainId: request.defaultChainId
             )
 
             let metaId = metaAccount.metaId

@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFModels
+import SSFUtils
 
 struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol {
     static func createView(
@@ -177,7 +178,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             )
             let viewModelFactory = StakingUnbondConfirmRelaychainViewModelFactory(
                 asset: chainAsset.asset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
             return StakingUnbondConfirmDependencyContainer(
                 viewModelState: viewModelState,
@@ -215,7 +216,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(
                 asset: chainAsset.asset,
                 bondingDuration: bondingDuration,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             return StakingUnbondConfirmDependencyContainer(
@@ -233,7 +234,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             )
             let viewModelFactory = StakingUnbondConfirmPoolViewModelFactory(
                 asset: chainAsset.asset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
             let strategy = StakingUnbondConfirmPoolStrategy(
                 output: viewModelState,

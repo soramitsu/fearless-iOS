@@ -175,7 +175,7 @@ enum ModalPickerFactory {
             viewController.selectedIndex = NSNotFound
         }
 
-        let iconGenerator = PolkadotIconGenerator()
+        let iconGenerator = UniversalIconGenerator()
 
         viewController.viewModels = accounts.compactMap { account in
             let viewModel: AccountPickerViewModel
@@ -504,7 +504,7 @@ enum ModalPickerFactory {
     }
 
     static func createPickerForSelectCurrency(
-        supportedCurrencys: [Currency],
+        supportedСurrencies: [Currency],
         selectedCurrency: Currency,
         callback: ModalPickerSelectionCallback?
     ) -> UIViewController? {
@@ -519,10 +519,10 @@ enum ModalPickerFactory {
         viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
         viewController.selectionCallback = callback
         viewController.modalPresentationStyle = .custom
-        viewController.selectedIndex = supportedCurrencys.firstIndex(where: { $0.id == selectedCurrency.id }) ?? 0
+        viewController.selectedIndex = supportedСurrencies.firstIndex(where: { $0.id == selectedCurrency.id }) ?? 0
         viewController.presenterCanDrag = false
 
-        viewController.viewModels = supportedCurrencys.map { action in
+        viewController.viewModels = supportedСurrencies.map { action in
             LocalizableResource { _ in
                 var remoteImageViewModel: RemoteImageViewModel?
                 if let iconUrl = URL(string: action.icon) {

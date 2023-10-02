@@ -107,7 +107,7 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
     }
 
     func willDisappear() {
-        guard let view = view else { return }
+        guard let view = view, selectedNetwork == nil else { return }
         router.complete(on: view, selecting: selectedNetwork, contextTag: contextTag)
     }
 }

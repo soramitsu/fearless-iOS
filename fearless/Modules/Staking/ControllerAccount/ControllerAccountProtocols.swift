@@ -4,6 +4,7 @@ import SSFModels
 protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
     func reload(with viewModel: ControllerAccountViewModel)
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>)
+    func didReceive(chainName: String)
 }
 
 protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
@@ -15,7 +16,7 @@ protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
 }
 
 protocol ControllerAccountPresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: ControllerAccountViewProtocol)
     func handleStashAction()
     func handleControllerAction()
     func selectLearnMore()

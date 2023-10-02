@@ -77,8 +77,8 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         switch viewModel.buttonType {
         case let .switchNode(title):
             configureSwitchNodeButton(with: title)
-        case .networkUnavailible:
-            conficureNetworkUnavailibleButton()
+        case let .networkUnavailible(title):
+            configureNetworkUnavailibleButton(with: title)
         case let .missingAccount(title):
             configureMissingAccounteButton(with: title)
         }
@@ -94,8 +94,8 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
     }
 
-    private func conficureNetworkUnavailibleButton() {
-        actionButton.imageWithTitleView?.title = "Resolve"
+    private func configureNetworkUnavailibleButton(with title: String) {
+        actionButton.imageWithTitleView?.title = title
         actionButton.triangularedView?.fillColor = R.color.colorPink()!
         actionButton.triangularedView?.highlightedFillColor = R.color.colorPink()!
 

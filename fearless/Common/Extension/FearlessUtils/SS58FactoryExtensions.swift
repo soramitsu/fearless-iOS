@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-enum SS58AddressFactoryError: Error {
+enum AddressFactoryError: Error {
     case unexpectedAddress
 }
 
@@ -11,7 +11,7 @@ extension SS58AddressFactoryProtocol {
         let addressTypeValue = try type(fromAddress: address)
 
         guard let addressType = SNAddressType(rawValue: addressTypeValue.uint16Value) else {
-            throw SS58AddressFactoryError.unexpectedAddress
+            throw AddressFactoryError.unexpectedAddress
         }
 
         return addressType

@@ -19,6 +19,10 @@ final class ChainAccountInteractor {
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let dependencyContainer = BalanceInfoDepencyContainer()
+    private var currentDependencies: BalanceInfoDependencies?
+    private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+
+    private var remoteFetchTimer: Timer?
 
     init(
         wallet: MetaAccountModel,
@@ -29,7 +33,8 @@ final class ChainAccountInteractor {
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
+        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
+        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
@@ -40,10 +45,12 @@ final class ChainAccountInteractor {
         self.chainAssetFetching = chainAssetFetching
         self.storageRequestFactory = storageRequestFactory
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
+        self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
     }
 
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
+            shouldUseCashe: true,
             filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
@@ -61,21 +68,36 @@ final class ChainAccountInteractor {
             return
         }
 
-        fetchBalanceLocks(
-            runtimeService: dependencies.runtimeService,
-            connection: dependencies.connection
-        )
+        currentDependencies = dependencies
+
+        if let runtimeService = dependencies.runtimeService,
+           let connection = dependencies.connection {
+            fetchBalanceLocks(
+                runtimeService: runtimeService,
+                connection: connection
+            )
+        }
 
         fetchMinimalBalance(
             using: dependencies.existentialDepositService
         )
 
-        walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
-            walletId: wallet.metaId,
-            chainAsset: chainAsset,
-            deliverOn: .main,
-            handler: self
-        )
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
+                guard let strongSelf = self else {
+                    return
+                }
+
+                strongSelf.presenter?.didReceive(accountInfo: accountInfo, for: chainAsset, accountId: accountId)
+
+                strongSelf.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
+                    walletId: strongSelf.wallet.metaId,
+                    chainAsset: chainAsset,
+                    deliverOn: .main,
+                    handler: strongSelf
+                )
+            }
+        }
     }
 
     private func fetchBalanceLocks(
@@ -145,8 +167,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
         getAvailableChainAssets()
-
         fetchChainAssetBasedData()
+        updateData()
     }
 
     func getAvailableExportOptions(for address: String) {
@@ -185,6 +207,17 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             assertionFailure("Unable to select this chain")
         }
     }
+
+    func updateData() {
+        guard
+            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.isEthereum
+        else {
+            return
+        }
+
+        ethRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId, completionBlock: { _, _ in })
+    }
 }
 
 extension ChainAccountInteractor: EventVisitorProtocol {
@@ -197,6 +230,12 @@ extension ChainAccountInteractor: EventVisitorProtocol {
 
             fetchChainAssetBasedData()
         }
+    }
+
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        wallet = event.account
+        fetchChainAssetBasedData()
+        presenter?.didReceiveWallet(wallet: event.account)
     }
 }
 

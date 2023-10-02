@@ -7,6 +7,7 @@ protocol WalletDetailsViewOutputProtocol {
     func didTapCloseButton()
     func didTapExportButton()
     func showActions(for chain: ChainModel, account: ChainAccountResponse?)
+    func searchTextDidChanged(_ text: String?)
 }
 
 protocol WalletDetailsViewProtocol: ControllerBackedProtocol, HiddableBarWhenPushed {

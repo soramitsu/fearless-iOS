@@ -88,7 +88,7 @@ final class AccountCreatePresenter {
 
         if isEthereum {
             predicate = NSPredicate.deriviationPathHardSoft
-            placeholder = DerivationPathConstants.hardSoftPlaceholder
+            placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch cryptoType {
             case .sr25519:
@@ -217,7 +217,9 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         )
     }
 
-    func proceed() {
+    func proceed(withReplaced flow: AccountCreateFlow?) {
+        let unwrappedFlow = flow ?? self.flow
+
         guard
             let mnemonic = mnemonic,
             let substrateViewModel = substrateDerivationPathViewModel,
@@ -244,14 +246,15 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         let ethereumDerivationPath = (ethereumDerivationPathViewModel?.inputHandler.value)
             .nonEmpty(or: DerivationPathConstants.defaultEthereum)
         let substrateDerivationPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
-        switch flow {
+        switch unwrappedFlow {
         case .wallet:
             let request = MetaAccountImportMnemonicRequest(
                 mnemonic: mnemonic,
                 username: usernameSetup.username,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType
+                cryptoType: selectedCryptoType,
+                defaultChainId: nil
             )
             wireframe.confirm(
                 from: view,
@@ -274,7 +277,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 username: usernameSetup.username,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType
+                cryptoType: selectedCryptoType,
+                defaultChainId: nil
             )
             wireframe.showBackupCreatePassword(
                 request: request,
@@ -284,8 +288,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     }
 
     func didTapBackupButton() {
-        flow = .backup
-        proceed()
+        proceed(withReplaced: .backup)
     }
 }
 

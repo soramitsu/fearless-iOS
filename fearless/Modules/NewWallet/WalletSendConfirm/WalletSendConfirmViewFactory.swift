@@ -24,7 +24,7 @@ struct WalletSendConfirmViewFactory {
 
         let wireframe = WalletSendConfirmWireframe()
 
-        let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
+        let accountViewModelFactory = AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
 
         let dataValidatingFactory = SendDataValidatingFactory(presentable: wireframe)
@@ -103,7 +103,8 @@ struct WalletSendConfirmViewFactory {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationManager: operationManager,
             signingWrapper: signingWrapper,
-            dependencyContainer: dependencyContainer
+            dependencyContainer: dependencyContainer,
+            wallet: wallet
         )
     }
 }

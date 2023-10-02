@@ -5,7 +5,8 @@ struct MainTransitionHelper {
     static func transitToMainTabBarController(
         selectingIndex: Int = MainTabBarViewFactory.walletIndex,
         closing controller: UIViewController,
-        animated: Bool
+        animated: Bool,
+        completionBlock: ((Bool) -> Void)? = nil
     ) {
         if let presentingController = controller.presentingViewController {
             presentingController.dismiss(animated: animated, completion: nil)
@@ -30,7 +31,7 @@ struct MainTransitionHelper {
         tabBarController.selectedIndex = selectingIndex
 
         if animated {
-            TransitionAnimator(type: .reveal).animate(view: tabBarController.view, completionBlock: nil)
+            TransitionAnimator(type: .reveal).animate(view: tabBarController.view, completionBlock: completionBlock)
         }
     }
 }

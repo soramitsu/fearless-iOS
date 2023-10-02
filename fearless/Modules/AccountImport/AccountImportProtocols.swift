@@ -51,7 +51,7 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
 }
 
 protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable, DocumentPickerPresentable, AnyDismissable {
-    func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
+    func showEthereumStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.SubstrateStepData)
 
     func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow)
 
@@ -86,6 +86,6 @@ protocol AccountImportViewFactoryProtocol: AnyObject {
 
 extension AccountImportViewFactoryProtocol {
     static func createViewForOnboarding(defaultSource: AccountImportSource) -> AccountImportViewProtocol? {
-        Self.createViewForOnboarding(defaultSource: defaultSource, flow: .wallet(step: .first))
+        Self.createViewForOnboarding(defaultSource: defaultSource, flow: .wallet(step: .substrate))
     }
 }

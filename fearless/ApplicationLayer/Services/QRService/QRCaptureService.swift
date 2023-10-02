@@ -190,6 +190,7 @@ extension QRCaptureService: AVCaptureMetadataOutputObjectsDelegate {
             return
         }
 
+        captureSession?.stopRunning()
         if matcher.match(code: possibleCode) {
             notifyDelegateWithSuccessMatching(of: possibleCode)
         } else {

@@ -30,6 +30,14 @@ protocol AccountFetching {
         address: String,
         closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
     ) -> Bool
+
+    func fetchMetaAccount(
+        chain: ChainModel,
+        address: String,
+        from repository: AnyDataProviderRepository<MetaAccountModel>,
+        operationManager: OperationManagerProtocol,
+        closure: @escaping (Result<MetaAccountModel?, Error>) -> Void
+    )
 }
 
 extension AccountFetching {
@@ -165,6 +173,50 @@ extension AccountFetching {
                     closure(.success(responses))
                 } else {
                     closure(.failure(BaseOperationError.parentOperationCancelled))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
+
+    func fetchMetaAccount(
+        chain: ChainModel,
+        address: String,
+        from repository: AnyDataProviderRepository<MetaAccountModel>,
+        operationManager: OperationManagerProtocol,
+        closure: @escaping (Result<MetaAccountModel?, Error>) -> Void
+    ) {
+        let operation = repository.fetchAllOperation(with: RepositoryFetchOptions())
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                if let result = operation.result {
+                    guard let accounts = try? result.get() else {
+                        closure(.failure(ChainAccountFetchingError.accountNotExists))
+                        return
+                    }
+
+                    for meta in accounts {
+                        let nativeChainAccount = meta.fetch(for: chain.accountRequest())
+                        if let nativeAddress = nativeChainAccount?.toAddress(), nativeAddress == address {
+                            closure(.success(meta))
+                            return
+                        }
+
+                        for chainAccount in meta.chainAccounts {
+                            let chainFormat: ChainFormat = chainAccount.ethereumBased ? .ethereum : .substrate(chain.addressPrefix)
+                            if let chainAddress = try? chainAccount.accountId.toAddress(using: chainFormat),
+                               chainAddress == address {
+                                closure(.success(meta))
+                                return
+                            }
+                        }
+                        closure(.failure(ChainAccountFetchingError.accountNotExists))
+                        return
+                    }
+                } else {
+                    closure(.failure(BaseOperationError.parentOperationCancelled))
+                    return
                 }
             }
         }

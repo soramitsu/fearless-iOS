@@ -133,7 +133,7 @@ private extension AccountCreateViewController {
     }
 
     @objc func actionNext() {
-        presenter.proceed()
+        presenter.proceed(withReplaced: nil)
     }
 
     @objc func actionOpenCryptoType() {

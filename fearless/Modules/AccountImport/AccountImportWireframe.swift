@@ -4,16 +4,16 @@ import IrohaCrypto
 final class AccountImportWireframe: AccountImportWireframeProtocol {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
-    func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData) {
-        guard let secondStep = AccountImportViewFactory.createViewForOnboarding(
+    func showEthereumStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.SubstrateStepData) {
+        guard let ethereumStep = AccountImportViewFactory.createViewForOnboarding(
             defaultSource: .mnemonic,
-            flow: .wallet(step: .second(data: data))
+            flow: .wallet(step: .ethereum(data: data))
         ) else {
             return
         }
 
         if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(secondStep.controller, animated: true)
+            navigationController.pushViewController(ethereumStep.controller, animated: true)
         }
     }
 

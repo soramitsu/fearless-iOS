@@ -11,7 +11,8 @@ final class AccountImportJsonFactory {
 
         return MetaAccountImportPreferredInfo(
             username: info.meta?.name,
-            cryptoType: CryptoType(info.cryptoType)
+            cryptoType: CryptoType(info.cryptoType),
+            isEthereum: info.isEthereum
         )
     }
 }

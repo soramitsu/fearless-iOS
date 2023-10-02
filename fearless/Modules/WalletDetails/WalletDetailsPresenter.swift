@@ -12,6 +12,7 @@ final class WalletDetailsPresenter {
     private let availableExportOptionsProvider = AvailableExportOptionsProvider()
 
     private var chains: [ChainModel] = []
+    private var searchText: String?
 
     init(
         interactor: WalletDetailsInteractorInputProtocol,
@@ -96,6 +97,11 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
 
         interactor.getAvailableExportOptions(for: ChainAccountInfo(chain: chain, account: account))
     }
+
+    func searchTextDidChanged(_ text: String?) {
+        searchText = text
+        provideViewModel(chains: chains)
+    }
 }
 
 extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
@@ -129,6 +135,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             case let .subscan(url):
                 self.wireframe.present(from: view, url: url)
             case let .polkascan(url):
+                self.wireframe.present(from: view, url: url)
+            case let .etherscan(url):
                 self.wireframe.present(from: view, url: url)
             case .replace:
                 let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
@@ -174,14 +182,16 @@ private extension WalletDetailsPresenter {
             let viewModel = viewModelFactory.buildNormalViewModel(
                 flow: flow,
                 chains: chains,
-                locale: selectedLocale
+                locale: selectedLocale,
+                searchText: searchText
             )
             view?.didReceive(state: .normal(viewModel: viewModel))
         case .export:
             let viewModel = viewModelFactory.buildExportViewModel(
                 flow: flow,
                 chains: chains,
-                locale: selectedLocale
+                locale: selectedLocale,
+                searchText: searchText
             )
             view?.didReceive(state: .export(viewModel: viewModel))
         }
@@ -199,6 +209,10 @@ private extension WalletDetailsPresenter {
                 case .polkascan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
                         return .subscan(url: url)
+                    }
+                case .etherscan:
+                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                        return .etherscan(url: url)
                     }
                 case .unknown:
                     return nil

@@ -20,6 +20,7 @@ final class WalletMainContainerPresenter {
 
     private var selectedChain: ChainModel?
     private var issues: [ChainIssue] = []
+    private var onceLoaded: Bool = false
 
     // MARK: - Constructors
 
@@ -115,13 +116,24 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     func didReceiveSelectedChain(_ chain: ChainModel?) {
+        let needsReloadAssetsList: Bool = (chain?.chainId != selectedChain?.chainId) || !onceLoaded
         selectedChain = chain
         provideViewModel()
-        guard let chainId = chain?.chainId else {
-            assetListModuleInput?.updateChainAssets(using: [], sorts: [])
+
+        guard needsReloadAssetsList else {
             return
         }
-        assetListModuleInput?.updateChainAssets(using: [.chainId(chainId)], sorts: [])
+
+        var filters: [ChainAssetsFetching.Filter] = []
+        if let filter: ChainAssetsFetching.Filter = chain.map({ chain in
+            ChainAssetsFetching.Filter.chainId(chain.chainId)
+        }) {
+            filters.append(filter)
+        }
+
+        assetListModuleInput?.updateChainAssets(using: filters, sorts: [])
+
+        onceLoaded = true
     }
 
     func didReceiveError(_ error: Error) {
@@ -143,6 +155,60 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     func didReceive(chainSettings: [ChainSettings]) {
         self.chainSettings = chainSettings
         provideViewModel()
+    }
+
+    func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.controllerAccountIssueAction(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                if hasStashItem {
+                    strongSelf.router.showControllerAccountFlow(
+                        from: strongSelf.view,
+                        chainAsset: issue.chainAsset,
+                        wallet: issue.wallet
+                    )
+                } else {
+                    strongSelf.router.showMainStaking()
+                }
+            }
+        }
+
+        router.present(
+            message: R.string.localizable.stakingControllerDeprecatedDescription(
+                issue.chainAsset.chain.name,
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
+            from: view,
+            actions: [action]
+        )
+    }
+
+    func didReceiveStashAccountIssue(address: String) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.stashAccountIssueAction(
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showImportWallet(defaultSource: .mnemonic, from: strongSelf.view)
+        }
+
+        router.present(
+            message: R.string.localizable.stashAccountIssueMessage(
+                address,
+                preferredLanguages: selectedLocale.rLanguages
+            ),
+            title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: nil,
+            from: view,
+            actions: [action]
+        )
     }
 }
 
@@ -168,6 +234,10 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
     func showImportGoogle() {
         router.showBackupSelectWallet(from: view)
     }
+
+    func showGetPreinstalledWallet() {
+        router.showGetPreinstalledWallet(from: view)
+    }
 }
 
 extension WalletMainContainerPresenter: SelectNetworkDelegate {
@@ -181,11 +251,19 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 }
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
+    func didFinishWithSolomon(soraAddress: String) {
+        router.showSendFlow(
+            from: view,
+            wallet: wallet,
+            initialData: .soraMainnet(address: soraAddress)
+        )
+    }
+
     func didFinishWith(address: String) {
         router.showSendFlow(
             from: view,
             wallet: wallet,
-            address: address
+            initialData: .address(address)
         )
     }
 }

@@ -95,6 +95,13 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
         }
     }
 
+    func saveBatchOperation(
+        _ updateModelsBlock: @escaping () throws -> [T],
+        _ deleteIdsBlock: @escaping () throws -> [String]
+    ) -> RobinHood.BaseOperation<Void> {
+        saveOperation(updateModelsBlock, deleteIdsBlock)
+    }
+
     func replaceOperation(_ newModelsBlock: @escaping () throws -> [Model]) -> BaseOperation<Void> {
         ClosureOperation { [weak self] in
             self?.lock.lock()

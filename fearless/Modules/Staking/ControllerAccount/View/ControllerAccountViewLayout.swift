@@ -145,7 +145,7 @@ final class ControllerAccountViewLayout: UIView {
 
     private func applyLocalization() {
         descriptionLabel.text = R.string.localizable
-            .stakingControllerDeprecatedDescription(preferredLanguages: locale.rLanguages)
+            .stakingControllerDeprecatedDescription("this", preferredLanguages: locale.rLanguages)
         stashHintView.titleLabel.text = R.string.localizable
             .stakingStashCanHint(preferredLanguages: locale.rLanguages)
         controllerHintView.titleLabel.text = R.string.localizable
@@ -157,5 +157,10 @@ final class ControllerAccountViewLayout: UIView {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
+    }
+
+    func bind(chainName: String) {
+        descriptionLabel.text = R.string.localizable
+            .stakingControllerDeprecatedDescription(chainName, preferredLanguages: locale.rLanguages)
     }
 }
