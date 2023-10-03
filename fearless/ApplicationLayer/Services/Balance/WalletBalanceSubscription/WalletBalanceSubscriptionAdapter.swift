@@ -202,7 +202,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private func fetchAllMetaAccounts() {
         accountInfos = [:]
         let metaAccountsOperation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        let chainsOperation = fetchChainsOperation()
+        let chainsOperation = fetchChainsOperation(shouldUseCache: shouldUseCache)
 
         metaAccountsOperation.addDependency(chainsOperation)
         let unwrappedListeners = listeners.compactMap {
@@ -277,8 +277,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         pricesProvider = subscribeToPrices(for: pricesIds, currencies: uniqueQurrencies)
     }
 
-    private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {
-        chainAssetFetcher.fetchAwaitOperation(shouldUseCashe: true, filters: [], sortDescriptors: [])
+    private func fetchChainsOperation(shouldUseCache: Bool) -> BaseOperation<[ChainAsset]> {
+        chainAssetFetcher.fetchAwaitOperation(shouldUseCache: shouldUseCache, filters: [], sortDescriptors: [])
     }
 
     private func notify(

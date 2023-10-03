@@ -64,6 +64,15 @@ enum ChainAccountViewFactory {
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
+        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
         let interactor = ChainAccountInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
@@ -73,7 +82,8 @@ enum ChainAccountViewFactory {
             availableExportOptionsProvider: AvailableExportOptionsProvider(),
             chainAssetFetching: chainAssetFetching,
             storageRequestFactory: storageRequestFactory,
-            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter
+            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
+            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching
         )
 
         let wireframe = ChainAccountWireframe()
