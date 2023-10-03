@@ -409,6 +409,21 @@ extension SendPresenter: SendInteractorOutput {
 }
 
 extension SendPresenter: ScanQRModuleOutput {
+    func didFinishWith(scanType: QRMatcherType) {
+        guard let qrInfo = scanType.qrInfo else {
+            return
+        }
+
+        switch qrInfo {
+        case let .solomon(info):
+            handleSolomon(info.address)
+        case .sora:
+            break
+        case let .cex(info):
+            searchTextDidChanged(info.address)
+        }
+    }
+
     func didFinishWithSolomon(soraAddress: String) {
         handleSolomon(soraAddress)
     }

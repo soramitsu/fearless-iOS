@@ -5,14 +5,12 @@ final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
     // MARK: - Private properties
 
     private weak var output: GetPreinstalledWalletInteractorOutput?
-    private let qrDecoder: QRDecoderProtocol
     private let qrExtractionService: QRExtractionServiceProtocol
     private let qrScanService: QRCaptureServiceProtocol
     private let settings: SelectedWalletSettings
     private let eventCenter: EventCenterProtocol
 
     init(
-        qrDecoder: QRDecoderProtocol,
         qrExtractionService: QRExtractionServiceProtocol,
         qrScanService: QRCaptureServiceProtocol,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
@@ -23,7 +21,6 @@ final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
         settings: SelectedWalletSettings,
         eventCenter: EventCenterProtocol
     ) {
-        self.qrDecoder = qrDecoder
         self.qrExtractionService = qrExtractionService
         self.qrScanService = qrScanService
         self.settings = settings
@@ -90,18 +87,13 @@ extension GetPreinstalledWalletInteractor: GetPreinstalledWalletInteractorInput 
     }
 
     func extractQr(from image: UIImage) {
-        let matcher = QRScanMatcher(decoder: qrDecoder)
-
         qrExtractionService.extract(
             from: image,
-            using: [matcher],
             dispatchCompletionIn: .main
         ) { [weak self] result in
             switch result {
-            case .success:
-                if let addressInfo = matcher.qrInfo {
-                    self?.output?.handleMatched(addressInfo: addressInfo)
-                }
+            case let .success(code):
+                self?.output?.handleMatched(code: code)
             case let .failure(error):
                 if case let QRExtractionServiceError.plainAddress(address) = error {
                     self?.output?.handleAddress(address)

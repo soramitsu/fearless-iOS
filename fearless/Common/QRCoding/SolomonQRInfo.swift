@@ -5,11 +5,11 @@ struct SolomonQRInfo: QRInfo {
     var address: String
 }
 
-final class SolomonQRDecoder: QRDecodable {
+final class SolomonQRDecoder: QRDecoderProtocol {
     static let url = URL(string: "https://mekongdebug.page.link")
     static let addressQuery = "wallAdd"
 
-    func decode(data: Data) throws -> QRInfo {
+    func decode(data: Data) throws -> QRInfoType {
         guard
             let urlRepresentation = URL(dataRepresentation: data, relativeTo: Self.url),
             let components = URLComponents(url: urlRepresentation, resolvingAgainstBaseURL: true),
@@ -18,6 +18,6 @@ final class SolomonQRDecoder: QRDecodable {
             throw QRDecoderError.brokenFormat
         }
 
-        return SolomonQRInfo(address: address)
+        return .solomon(SolomonQRInfo(address: address))
     }
 }

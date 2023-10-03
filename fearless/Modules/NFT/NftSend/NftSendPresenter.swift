@@ -195,9 +195,10 @@ extension NftSendPresenter: Localizable {
 extension NftSendPresenter: NftSendModuleInput {}
 
 extension NftSendPresenter: ScanQRModuleOutput {
-    func didFinishWithSolomon(soraAddress _: String) {}
-
-    func didFinishWith(address: String) {
+    func didFinishWith(scanType: QRMatcherType) {
+        guard let address = scanType.address else {
+            return
+        }
         handle(newAddress: address)
     }
 }

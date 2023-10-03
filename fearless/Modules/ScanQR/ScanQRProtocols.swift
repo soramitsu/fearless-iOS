@@ -28,25 +28,15 @@ protocol ScanQRInteractorInput: AnyObject {
 
 protocol ScanQRInteractorOutput: AnyObject {
     func handleQRService(error: Error)
-    func handleAddress(_ address: String)
-    func handleMatched(addressInfo: QRInfo)
-    func handleMatched(connect: URL)
+    func handleMatched(code: String)
 }
 
-protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable {
+protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable, SheetAlertPresentable {
     func close(view: ControllerBackedProtocol?, completion: @escaping () -> Void)
 }
 
 protocol ScanQRModuleInput: AnyObject {}
 
 protocol ScanQRModuleOutput: AnyObject {
-    func didFinishWith(address: String)
-    func didFinishWithConnect(uri: String)
-    func didFinishWithSolomon(soraAddress: String)
-}
-
-extension ScanQRModuleOutput {
-    func didFinishWith(address _: String) {}
-    func didFinishWithConnect(uri _: String) {}
-    func didFinishWithSolomon(soraAddress _: String) {}
+    func didFinishWith(scanType: QRMatcherType)
 }

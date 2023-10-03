@@ -56,6 +56,24 @@ final class WalletMainContainerPresenter {
 
         view?.didReceiveViewModel(viewModel)
     }
+
+    private func walletConnect(with uri: String) {
+        Task {
+            do {
+                try await interactor.walletConnect(uri: uri)
+            } catch {
+                await MainActor.run {
+                    router.present(
+                        message: error.localizedDescription,
+                        title: R.string.localizable.commonErrorInternal(preferredLanguages: selectedLocale.rLanguages),
+                        closeAction: nil,
+                        from: view,
+                        actions: []
+                    )
+                }
+            }
+        }
+    }
 }
 
 // MARK: - WalletMainContainerViewOutput
@@ -251,6 +269,30 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 }
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
+    func didFinishWith(scanType: QRMatcherType) {
+        switch scanType {
+        case let .qrInfo(qRInfoType):
+            switch qRInfoType {
+            case let .solomon(solomonQRInfo):
+                router.showSendFlow(
+                    from: view,
+                    wallet: wallet,
+                    initialData: .soraMainnet(address: solomonQRInfo.address)
+                )
+            case let .sora(soraQRInfo):
+                break
+            case let .cex(cexQRInfo):
+                router.showSendFlow(
+                    from: view,
+                    wallet: wallet,
+                    initialData: .address(cexQRInfo.address)
+                )
+            }
+        case let .uri(uri):
+            walletConnect(with: uri)
+        }
+    }
+
     func didFinishWithSolomon(soraAddress: String) {
         router.showSendFlow(
             from: view,
@@ -265,23 +307,5 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
             wallet: wallet,
             initialData: .address(address)
         )
-    }
-
-    func didFinishWithConnect(uri: String) {
-        Task {
-            do {
-                try await interactor.walletConnect(uri: uri)
-            } catch {
-                await MainActor.run {
-                    router.present(
-                        message: error.localizedDescription,
-                        title: R.string.localizable.commonErrorInternal(preferredLanguages: selectedLocale.rLanguages),
-                        closeAction: nil,
-                        from: view,
-                        actions: []
-                    )
-                }
-            }
-        }
     }
 }

@@ -4,7 +4,6 @@ import UIKit
 protocol QRExtractionServiceProtocol {
     func extract(
         from image: UIImage,
-        using matchers: [QRMatcherProtocol],
         dispatchCompletionIn queue: DispatchQueue?,
         completionBlock: @escaping (Result<String, QRExtractionServiceError>) -> Void
     )
@@ -24,7 +23,7 @@ final class QRExtractionService {
         self.processingQueue = processingQueue
     }
 
-    private func proccess(image: UIImage, with matcher: QRMatcherProtocol) -> Result<String, QRExtractionServiceError> {
+    private func proccess(image: UIImage) -> Result<String, QRExtractionServiceError> {
         var optionalImage: CIImage?
 
         if let ciImage = CIImage(image: image) {
@@ -54,10 +53,6 @@ final class QRExtractionService {
             return .failure(QRExtractionServiceError.noFeatures)
         }
 
-        guard matcher.match(code: receivedString) else {
-            return .failure(QRExtractionServiceError.plainAddress(address: receivedString))
-        }
-
         return .success(receivedString)
     }
 }
@@ -65,21 +60,18 @@ final class QRExtractionService {
 extension QRExtractionService: QRExtractionServiceProtocol {
     func extract(
         from image: UIImage,
-        using matchers: [QRMatcherProtocol],
         dispatchCompletionIn queue: DispatchQueue?,
         completionBlock: @escaping (Result<String, QRExtractionServiceError>) -> Void
     ) {
-        matchers.forEach { matcher in
-            processingQueue.async {
-                let result = self.proccess(image: image, with: matcher)
+        processingQueue.async {
+            let result = self.proccess(image: image)
 
-                if let queue = queue {
-                    queue.async {
-                        completionBlock(result)
-                    }
-                } else {
+            if let queue = queue {
+                queue.async {
                     completionBlock(result)
                 }
+            } else {
+                completionBlock(result)
             }
         }
     }

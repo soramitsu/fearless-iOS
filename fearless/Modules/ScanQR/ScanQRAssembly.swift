@@ -8,18 +8,12 @@ final class ScanQRAssembly {
     ) -> ScanQRModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let qrDecoder = QRCoderFactory().createDecoder()
-        let qrScanMatcher = QRScanMatcher(decoder: qrDecoder)
-        let qrUriMatcher = QRUriMatcherImpl(scheme: "wc")
-
         let qrScanService = QRCaptureServiceFactory().createService(
-            with: matchers,
             delegate: nil,
             delegateQueue: nil
         )
 
         let interactor = ScanQRInteractor(
-            qrDecoder: qrDecoder,
             qrExtractionService: QRExtractionService(processingQueue: .global()),
             qrScanService: qrScanService
         )
@@ -30,9 +24,7 @@ final class ScanQRAssembly {
             router: router,
             logger: Logger.shared,
             moduleOutput: moduleOutput,
-            qrScanMatcher: qrScanMatcher,
-            qrUriMatcher: qrUriMatcher,
-            qrScanService: qrScanService,
+            matchers: matchers,
             localizationManager: LocalizationManager.shared
         )
 
@@ -46,7 +38,7 @@ final class ScanQRAssembly {
 
     static var defaultMatchers: [QRMatcherProtocol] {
         [
-            QRScanMatcher(decoder: QRCoderFactory().createDecoder()),
+            QRInfoMatcher(decoder: QRCoderFactory().createDecoder()),
             QRUriMatcherImpl(scheme: "wc")
         ]
     }

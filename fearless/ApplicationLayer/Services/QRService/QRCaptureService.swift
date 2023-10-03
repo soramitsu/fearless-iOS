@@ -1,10 +1,6 @@
 import Foundation
 import AVFoundation
 
-protocol QRMatcherProtocol: AnyObject {
-    func match(code: String) -> Bool
-}
-
 protocol QRCaptureServiceProtocol: AnyObject {
     var delegate: QRCaptureServiceDelegate? { get set }
     var delegateQueue: DispatchQueue { get set }
@@ -15,7 +11,6 @@ protocol QRCaptureServiceProtocol: AnyObject {
 
 protocol QRCaptureServiceFactoryProtocol {
     func createService(
-        with matchers: [QRMatcherProtocol],
         delegate: QRCaptureServiceDelegate?,
         delegateQueue: DispatchQueue?
     ) -> QRCaptureServiceProtocol
@@ -30,18 +25,15 @@ enum QRCaptureServiceError: Error {
 protocol QRCaptureServiceDelegate: AnyObject {
     func qrCapture(service: QRCaptureServiceProtocol, didSetup captureSession: AVCaptureSession)
     func qrCapture(service: QRCaptureServiceProtocol, didMatch code: String)
-    func qrCapture(service: QRCaptureServiceProtocol, didFailMatching code: String)
     func qrCapture(service: QRCaptureServiceProtocol, didReceive error: Error)
 }
 
 final class QRCaptureServiceFactory: QRCaptureServiceFactoryProtocol {
     func createService(
-        with matchers: [QRMatcherProtocol],
         delegate: QRCaptureServiceDelegate? = nil,
         delegateQueue: DispatchQueue?
     ) -> QRCaptureServiceProtocol {
         QRCaptureService(
-            matchers: matchers,
             delegate: delegate,
             delegateQueue: delegateQueue
         )
@@ -51,18 +43,15 @@ final class QRCaptureServiceFactory: QRCaptureServiceFactoryProtocol {
 final class QRCaptureService: NSObject {
     static let processingQueue = DispatchQueue(label: "qr.capture.service.queue")
 
-    private(set) var matchers: [QRMatcherProtocol]
     private(set) var captureSession: AVCaptureSession?
 
     weak var delegate: QRCaptureServiceDelegate?
     var delegateQueue: DispatchQueue
 
     init(
-        matchers: [QRMatcherProtocol],
         delegate: QRCaptureServiceDelegate?,
         delegateQueue: DispatchQueue? = nil
     ) {
-        self.matchers = matchers
         self.delegate = delegate
         self.delegateQueue = delegateQueue ?? QRCaptureService.processingQueue
 
@@ -130,12 +119,6 @@ final class QRCaptureService: NSObject {
         }
     }
 
-    private func notifyDelegateWithFailedMatching(of code: String) {
-        run(in: delegateQueue) {
-            self.delegate?.qrCapture(service: self, didFailMatching: code)
-        }
-    }
-
     private func run(in _: DispatchQueue, block: @escaping () -> Void) {
         if delegateQueue != QRCaptureService.processingQueue {
             delegateQueue.async {
@@ -192,13 +175,6 @@ extension QRCaptureService: AVCaptureMetadataOutputObjectsDelegate {
 
         captureSession?.stopRunning()
         captureSession = nil
-
-        matchers.forEach { matcher in
-            if matcher.match(code: possibleCode) {
-                notifyDelegateWithSuccessMatching(of: possibleCode)
-            } else {
-                notifyDelegateWithFailedMatching(of: possibleCode)
-            }
-        }
+        notifyDelegateWithSuccessMatching(of: possibleCode)
     }
 }

@@ -103,7 +103,10 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsModul
 // MARK: - ScanQRModuleOutput
 
 extension WalletConnectActiveSessionsPresenter: ScanQRModuleOutput {
-    func didFinishWithConnect(uri: String) {
+    func didFinishWith(scanType: QRMatcherType) {
+        guard let uri = scanType.uri else {
+            return
+        }
         Task {
             do {
                 try await interactor.setupConnection(uri: uri)
