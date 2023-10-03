@@ -14263,7 +14263,7 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */,
+				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FAF9C2BF2AB227BA00A61D21 /* XCRemoteSwiftPackageReference "Swime" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -14455,7 +14455,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14497,7 +14497,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14608,7 +14608,7 @@
 			);
 			inputPaths = (
 				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
-				"$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift",
+				$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift,
 			);
 			name = "Inject Google Keys";
 			outputFileListPaths = (
@@ -17606,7 +17606,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon$(ICON_SUFFIX)";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
@@ -17617,7 +17617,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.2.3;
+				MARKETING_VERSION = 3.0.3;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -17633,7 +17633,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon$(ICON_SUFFIX)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
@@ -17644,7 +17644,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.2.3;
+				MARKETING_VERSION = 3.0.3;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -17771,7 +17771,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon$(ICON_SUFFIX)";
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 7;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
@@ -17782,7 +17782,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.2.3;
+				MARKETING_VERSION = 3.0.3;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -17863,7 +17863,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */ = {
+		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
@@ -17884,17 +17884,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		FAE39B0B2AA5E6340011A9D6 /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
 		FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
 		FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
 		};
 		FAF9C2C02AB227BA00A61D21 /* Swime */ = {
