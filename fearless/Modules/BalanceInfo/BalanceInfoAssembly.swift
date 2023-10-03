@@ -54,14 +54,7 @@ enum BalanceInfoAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAssetFetcher: chainAssetFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
-        )
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),

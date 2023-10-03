@@ -42,9 +42,6 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             let enabledAssetFiatBalance = enabledAssetFiatBalanceInfo.totalBalance
             let disabledAssetFiatBalance = disabledAssetFiatBalanceInfo.totalBalance
             let totalFiatValue = enabledAssetFiatBalance + disabledAssetFiatBalance
-            print("enabled balance: \(enabledAssetFiatBalance)")
-            print("disabled balance: \(disabledAssetFiatBalance)")
-            print("totalFiatValue: \(totalFiatValue)")
 
             let enabledTotalDayChange = enabledAssetFiatBalanceInfo.totalDayChange
             let disabledTotalDayChange = disabledAssetFiatBalanceInfo.totalDayChange
