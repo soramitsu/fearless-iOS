@@ -15,6 +15,7 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didStopFeeCalculation()
     func didStopTipCalculation()
     func didReceive(viewModel: RecipientViewModel)
+    func didBlockUserInteractive(isUserInteractiveAmount: Bool)
 }
 
 protocol SendViewOutput: AnyObject {
@@ -46,6 +47,7 @@ protocol SendInteractorInput: AnyObject {
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func getPossibleChains(for address: String) async -> [ChainModel]?
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
+    func addRemark(remark: Data)
 }
 
 protocol SendInteractorOutput: AnyObject {
@@ -68,7 +70,8 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
-        scamInfo: ScamInfo?
+        scamInfo: ScamInfo?,
+        remark: Data?
     )
     func presentScan(
         from view: ControllerBackedProtocol?,

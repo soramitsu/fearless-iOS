@@ -12,12 +12,14 @@ struct WalletSendConfirmViewFactory {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
-        scamInfo: ScamInfo?
+        scamInfo: ScamInfo?,
+        remark: Data?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
-            receiverAddress: receiverAddress
+            receiverAddress: receiverAddress,
+            remark: remark
         ) else {
             return nil
         }
@@ -64,7 +66,8 @@ struct WalletSendConfirmViewFactory {
     private static func createInteractor(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String
+        receiverAddress: String,
+        remark: Data?
     ) -> WalletSendConfirmInteractor? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
             return nil
@@ -104,7 +107,8 @@ struct WalletSendConfirmViewFactory {
             operationManager: operationManager,
             signingWrapper: signingWrapper,
             dependencyContainer: dependencyContainer,
-            wallet: wallet
+            wallet: wallet,
+            remark: remark
         )
     }
 }

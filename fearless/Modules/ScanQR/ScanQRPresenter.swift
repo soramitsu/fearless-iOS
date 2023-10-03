@@ -13,6 +13,28 @@ enum ScanState {
     case failed(code: String)
 }
 
+enum ScanFinish {
+    case address(String)
+    case sora(SoraQRInfo)
+
+    // this cases for solomon island qr codes. Will be use just one case, unused case must be removed
+    case solomonAddress(String) // perhaps will be removed
+    case bokoloCash(BokoloCashQRInfo) // priority
+
+    var address: String {
+        switch self {
+        case let .address(address):
+            return address
+        case let .solomonAddress(address):
+            return address
+        case let .sora(soraQRInfo):
+            return soraQRInfo.address
+        case let .bokoloCash(bokoloQrInfo):
+            return bokoloQrInfo.address
+        }
+    }
+}
+
 final class ScanQRPresenter: NSObject {
     let localizationManager: LocalizationManagerProtocol?
 

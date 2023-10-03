@@ -271,41 +271,14 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
     func didFinishWith(scanType: QRMatcherType) {
         switch scanType {
-        case let .qrInfo(qRInfoType):
-            switch qRInfoType {
-            case let .solomon(solomonQRInfo):
-                router.showSendFlow(
-                    from: view,
-                    wallet: wallet,
-                    initialData: .soraMainnet(address: solomonQRInfo.address)
-                )
-            case let .sora(soraQRInfo):
-                break
-            case let .cex(cexQRInfo):
-                router.showSendFlow(
-                    from: view,
-                    wallet: wallet,
-                    initialData: .address(cexQRInfo.address)
-                )
-            }
+        case let .qrInfo(qrInfoType):
+            router.showSendFlow(
+                from: view,
+                wallet: wallet,
+                initialData: .init(qrInfoType: qrInfoType)
+            )
         case let .uri(uri):
             walletConnect(with: uri)
         }
-    }
-
-    func didFinishWithSolomon(soraAddress: String) {
-        router.showSendFlow(
-            from: view,
-            wallet: wallet,
-            initialData: .soraMainnet(address: soraAddress)
-        )
-    }
-
-    func didFinishWith(address: String) {
-        router.showSendFlow(
-            from: view,
-            wallet: wallet,
-            initialData: .address(address)
-        )
     }
 }

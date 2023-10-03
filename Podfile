@@ -26,6 +26,7 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
+  pod 'MPQRCoreSDK'
   
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']

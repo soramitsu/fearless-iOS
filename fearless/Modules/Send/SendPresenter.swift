@@ -4,6 +4,9 @@ import BigInt
 import SSFUtils
 import SSFModels
 
+let bokoloCasheBridgeAddress = "cnSftmQkwkLoX2JEVDZ6xKScLDDiCHZoEZvgnUCrwZgrzEEpy"
+let bokoloCashAssetCurrencyId = "0x00eacaea6599a04358fda986388ef0bb0c17a553ec819d5de2900c0af0862502"
+
 final class SendPresenter {
     enum State {
         case initialSelection
@@ -24,6 +27,7 @@ final class SendPresenter {
 
     private weak var moduleOutput: SendModuleOutput?
 
+    private var remark: Data?
     private var recipientAddress: String?
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset?
@@ -106,14 +110,19 @@ extension SendPresenter: SendViewOutput {
                     }
                     let viewModel = viewModelFactory.buildRecipientViewModel(
                         address: address,
-                        isValid: true
+                        isValid: true,
+                        canEditing: true
                     )
                     view.didReceive(viewModel: viewModel)
                     didReceive(possibleChains: possibleChains)
                 }
             }
-        case let .soraMainnet(address):
+        case let .soraMainnetSolomon(address):
             handleSolomon(address)
+        case let .soraMainnet(qrInfo):
+            handleSora(qrInfo: qrInfo)
+        case let .bokoloCash(bokoloCashQRInfo):
+            handleBokoloCash(qrInfo: bokoloCashQRInfo)
         }
     }
 
@@ -219,7 +228,8 @@ extension SendPresenter: SendViewOutput {
                 receiverAddress: address,
                 amount: amount,
                 tip: strongSelf.tip,
-                scamInfo: strongSelf.scamInfo
+                scamInfo: strongSelf.scamInfo,
+                remark: strongSelf.remark
             )
         }
     }
@@ -415,12 +425,14 @@ extension SendPresenter: ScanQRModuleOutput {
         }
 
         switch qrInfo {
-        case let .solomon(info):
-            handleSolomon(info.address)
-        case .sora:
-            break
-        case let .cex(info):
-            searchTextDidChanged(info.address)
+        case let .bokoloCash(qrInfo):
+            handleBokoloCash(qrInfo: qrInfo)
+        case let .solomon(qrInfo):
+            handleSolomon(qrInfo.address)
+        case let .sora(qrInfo):
+            handleSora(qrInfo: qrInfo)
+        case let .cex(qrInfo):
+            searchTextDidChanged(qrInfo.address)
         }
     }
 
@@ -611,7 +623,8 @@ private extension SendPresenter {
         guard let chainAsset = selectedChainAsset else { return }
         let viewModel = viewModelFactory.buildRecipientViewModel(
             address: newAddress,
-            isValid: interactor.validate(address: newAddress, for: chainAsset.chain).isValid
+            isValid: interactor.validate(address: newAddress, for: chainAsset.chain).isValid,
+            canEditing: true
         )
 
         DispatchQueue.main.async {
@@ -740,6 +753,24 @@ private extension SendPresenter {
         router.present(viewModel: alertViewModel, from: view)
     }
 
+    private func showUnsupportedAssetAlert() {
+        let dissmissAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            self?.router.dismiss(view: self?.view)
+        }
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.errorUnsupportedAsset(preferredLanguages: selectedLocale.rLanguages),
+            actions: [dissmissAction],
+            closeAction: nil,
+            dismissCompletion: { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
+        )
+        router.present(viewModel: alertViewModel, from: view)
+    }
+
     func handleSolomon(_ address: String) {
         recipientAddress = address
         Task {
@@ -756,12 +787,13 @@ private extension SendPresenter {
                         .first(where: { $0.asset.symbol.lowercased() == "xstusd" })
                 #endif
                 guard let soraMainChainAsset = soraMainChainAsset else {
-                    showIncorrectAddressAlert()
+                    showUnsupportedAssetAlert()
                     return
                 }
                 let viewModel = viewModelFactory.buildRecipientViewModel(
                     address: address,
-                    isValid: true
+                    isValid: true,
+                    canEditing: false
                 )
                 fee = nil
                 tip = nil
@@ -771,6 +803,92 @@ private extension SendPresenter {
                 provideInputViewModel()
                 interactor.updateSubscriptions(for: soraMainChainAsset)
             })
+        }
+    }
+
+    func handleSora(qrInfo: SoraQRInfo) {
+        recipientAddress = qrInfo.address
+        Task {
+            let possibleChains = await self.interactor.getPossibleChains(for: qrInfo.address)
+            let chainAsset = possibleChains?
+                .first(where: { $0.isSora })?.chainAssets
+                .first(where: { $0.asset.currencyId == qrInfo.assetId })
+
+            guard let qrChainAsset = chainAsset else {
+                showUnsupportedAssetAlert()
+                return
+            }
+
+            selectedChainAsset = qrChainAsset
+
+            var isUserInteractiveAmount: Bool = true
+            if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
+                inputResult = .absolute(qrAmount)
+                isUserInteractiveAmount = false
+            }
+
+            let viewModel = viewModelFactory.buildRecipientViewModel(
+                address: qrInfo.address,
+                isValid: true,
+                canEditing: false
+            )
+
+            interactor.updateSubscriptions(for: qrChainAsset)
+            await MainActor.run { [isUserInteractiveAmount] in
+                view?.didReceive(viewModel: viewModel)
+                provideInputViewModel()
+                provideNetworkViewModel(for: qrChainAsset.chain)
+                view?.didBlockUserInteractive(isUserInteractiveAmount: isUserInteractiveAmount)
+            }
+        }
+    }
+
+    func handleBokoloCash(qrInfo: BokoloCashQRInfo) {
+        recipientAddress = bokoloCasheBridgeAddress
+        Task {
+            let possibleChains = await self.interactor.getPossibleChains(for: bokoloCasheBridgeAddress)
+            let chainAsset = possibleChains?
+                .first(where: { $0.isSora })?.chainAssets
+                .first(where: { $0.asset.currencyId == bokoloCashAssetCurrencyId })
+
+            guard
+                let qrChainAsset = chainAsset,
+                let remark = qrInfo.address.data(using: .utf8)
+            else {
+                showUnsupportedAssetAlert()
+                return
+            }
+
+            selectedChainAsset = qrChainAsset
+
+            var isUserInteractiveAmount: Bool = true
+            if var qrAmount = Decimal(string: qrInfo.transactionAmount ?? ""), qrAmount != .zero {
+                var drounded = Decimal()
+                NSDecimalRound(&drounded, &qrAmount, 2, .plain)
+                inputResult = .absolute(qrAmount)
+                isUserInteractiveAmount = false
+            }
+
+            let viewModel = viewModelFactory.buildRecipientViewModel(
+                address: bokoloCasheBridgeAddress,
+                isValid: true,
+                canEditing: false
+            )
+
+            interactor.updateSubscriptions(for: qrChainAsset)
+            interactor.addRemark(remark: remark)
+            self.remark = remark
+            await MainActor.run { [isUserInteractiveAmount] in
+                view?.didReceive(viewModel: viewModel)
+                provideInputViewModel()
+                let iconViewModel = qrChainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
+                let networkViewModel = SelectNetworkViewModel(
+                    chainName: "Bokolo cash",
+                    iconViewModel: iconViewModel
+                )
+                view?.didReceive(selectNetworkViewModel: networkViewModel)
+                view?.didBlockUserInteractive(isUserInteractiveAmount: isUserInteractiveAmount)
+            }
         }
     }
 }

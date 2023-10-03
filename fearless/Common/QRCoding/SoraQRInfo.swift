@@ -5,26 +5,29 @@ struct SoraQRInfo: QRInfo, Equatable {
     let prefix: String
     let address: String
     let rawPublicKey: Data
-    let username: String?
+    let username: String
     let assetId: String
+    let amount: String?
 
     init(
         prefix: String = SubstrateQR.prefix,
         address: String,
         rawPublicKey: Data,
-        username: String?,
-        assetId: String
+        username: String,
+        assetId: String,
+        amount: String?
     ) {
         self.prefix = prefix
         self.address = address
         self.rawPublicKey = rawPublicKey
         self.username = username
         self.assetId = assetId
+        self.amount = amount
     }
 }
 
 final class SoraQREncoder {
-    let separator: String
+    private let separator: String
 
     init(separator: String = SubstrateQR.fieldsSeparator) {
         self.separator = separator
@@ -35,9 +38,10 @@ final class SoraQREncoder {
             addressInfo.prefix,
             addressInfo.address,
             addressInfo.rawPublicKey.toHex(includePrefix: true),
-            "",
-            addressInfo.assetId
-        ]
+            addressInfo.username,
+            addressInfo.assetId,
+            addressInfo.amount
+        ].compactMap { $0 }
 
         guard let data = fields.joined(separator: separator).data(using: .utf8) else {
             throw QREncoderError.brokenData
@@ -62,26 +66,29 @@ final class SoraQRDecoder: QRDecoderProtocol {
         let prefix = fields[0]
         let address = fields[1]
         let publicKey = try Data(hexStringSSF: fields[2])
-        let username = fields.count > 3 ? fields[3] : nil
+        let username = fields[3]
         let assetId = fields[4]
+        let amount = fields[safe: 5]
 
         if address.hasPrefix("0x") {
-            let info = SoraQRInfo(
+            let qrInfo = SoraQRInfo(
                 address: address,
                 rawPublicKey: publicKey,
                 username: username,
-                assetId: assetId
+                assetId: assetId,
+                amount: amount
             )
-            return .sora(info)
+            return .sora(qrInfo)
         }
 
-        let info = SoraQRInfo(
+        let qrInfo = SoraQRInfo(
             prefix: prefix,
             address: address,
             rawPublicKey: publicKey,
             username: username,
-            assetId: assetId
+            assetId: assetId,
+            amount: amount
         )
-        return .sora(info)
+        return .sora(qrInfo)
     }
 }

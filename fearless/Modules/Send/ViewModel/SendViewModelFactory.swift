@@ -2,7 +2,11 @@ import SSFUtils
 import SSFModels
 
 protocol SendViewModelFactoryProtocol {
-    func buildRecipientViewModel(address: String, isValid: Bool) -> RecipientViewModel
+    func buildRecipientViewModel(
+        address: String,
+        isValid: Bool,
+        canEditing: Bool
+    ) -> RecipientViewModel
     func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel
 }
 
@@ -13,11 +17,16 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
         self.iconGenerator = iconGenerator
     }
 
-    func buildRecipientViewModel(address: String, isValid: Bool) -> RecipientViewModel {
+    func buildRecipientViewModel(
+        address: String,
+        isValid: Bool,
+        canEditing: Bool
+    ) -> RecipientViewModel {
         RecipientViewModel(
             address: address,
             icon: try? iconGenerator.generateFromAddress(address),
-            isValid: isValid
+            isValid: isValid,
+            canEditing: canEditing
         )
     }
 

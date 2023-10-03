@@ -50,7 +50,8 @@ final class NftSendPresenter {
 
         let viewModel = viewModelFactory.buildRecipientViewModel(
             address: newAddress,
-            isValid: interactor.validate(address: newAddress, for: nft.chain).isValid
+            isValid: interactor.validate(address: newAddress, for: nft.chain).isValid,
+            canEditing: true
         )
 
         DispatchQueue.main.async {
