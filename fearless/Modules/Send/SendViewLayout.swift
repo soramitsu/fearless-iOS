@@ -129,6 +129,7 @@ final class SendViewLayout: UIView {
         selectNetworkviewModel.iconViewModel?.cancel(on: selectNetworkView.iconView)
         selectNetworkView.iconView.image = nil
         selectNetworkviewModel.iconViewModel?.loadAmountInputIcon(on: selectNetworkView.iconView, animated: true)
+        selectNetworkView.actionView.isHidden = !selectNetworkviewModel.canEdit
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
