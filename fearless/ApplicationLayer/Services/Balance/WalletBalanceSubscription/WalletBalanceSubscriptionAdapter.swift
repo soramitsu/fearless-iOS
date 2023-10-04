@@ -6,6 +6,7 @@ typealias WalletBalanceInfos = [MetaAccountId: WalletBalanceInfo]
 typealias WalletBalancesResult = Result<WalletBalanceInfos, Error>
 
 protocol WalletBalanceSubscriptionListener: AnyObject {
+    var type: WalletBalanceListenerType { get }
     func handle(result: WalletBalancesResult)
 }
 
@@ -56,16 +57,6 @@ enum WalletBalanceListenerType {
 }
 
 final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, PriceLocalStorageSubscriber {
-    private final class Listener {
-        let listener: WalletBalanceSubscriptionListener
-        let type: WalletBalanceListenerType
-
-        init(listener: WalletBalanceSubscriptionListener, type: WalletBalanceListenerType) {
-            self.listener = listener
-            self.type = type
-        }
-    }
-
     // MARK: - PriceLocalStorageSubscriber
 
     static let shared = createWalletBalanceAdapter()
@@ -124,8 +115,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         listener: WalletBalanceSubscriptionListener
     ) {
         deliverQueue = queue
-        let typedListener = Listener(listener: listener, type: .wallet(wallet: wallet))
-        let weakListener = WeakWrapper(target: typedListener)
+        let weakListener = WeakWrapper(target: listener)
         listeners.append(weakListener)
 
         if let balances = buildBalance(for: [wallet], chainAssets: chainAssets.map { $0.value }) {
@@ -138,8 +128,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         listener: WalletBalanceSubscriptionListener
     ) {
         deliverQueue = queue
-        let typedListener = Listener(listener: listener, type: .wallets)
-        let weakListener = WeakWrapper(target: typedListener)
+        let weakListener = WeakWrapper(target: listener)
         listeners.append(weakListener)
 
         if let balances = buildBalance(for: metaAccounts, chainAssets: chainAssets.map { $0.value }) {
@@ -154,11 +143,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         listener: WalletBalanceSubscriptionListener
     ) {
         deliverQueue = queue
-        let typedListener = Listener(
-            listener: listener,
-            type: .chainAsset(wallet: wallet, chainAsset: chainAsset)
-        )
-        let weakListener = WeakWrapper(target: typedListener)
+        let weakListener = WeakWrapper(target: listener)
         listeners.append(weakListener)
 
         if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
@@ -206,8 +191,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
         metaAccountsOperation.addDependency(chainsOperation)
         let unwrappedListeners = listeners.compactMap {
-            if let target = $0.target as? Listener {
-                return target.listener
+            if let target = $0.target as? WalletBalanceSubscriptionListener {
+                return target
             }
             return nil
         }
@@ -285,14 +270,16 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         listener: WalletBalanceSubscriptionListener,
         result: WalletBalancesResult
     ) {
+        clearIfNeeded()
         dispatchInQueueWhenPossible(deliverQueue) {
             listener.handle(result: result)
         }
     }
 
     private func notifyIfNeeded(with updatedWallets: [MetaAccountModel], updatedChainAssets: [ChainAsset]) {
+        clearIfNeeded()
         let unwrappedListeners = listeners.compactMap {
-            if let target = $0.target as? Listener {
+            if let target = $0.target as? WalletBalanceSubscriptionListener {
                 return target
             }
             return nil
@@ -301,22 +288,26 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             switch listener.type {
             case .wallets:
                 if let balances = buildBalance(for: self.metaAccounts, chainAssets: self.chainAssets.map { $0.value }) {
-                    notify(listener: listener.listener, result: .success(balances))
+                    notify(listener: listener, result: .success(balances))
                 }
             case let .wallet(wallet):
                 if updatedWallets.contains(wallet) {
                     if let balances = buildBalance(for: [wallet], chainAssets: self.chainAssets.map { $0.value }) {
-                        notify(listener: listener.listener, result: .success(balances))
+                        notify(listener: listener, result: .success(balances))
                     }
                 }
             case let .chainAsset(wallet, chainAsset):
                 if updatedWallets.contains(wallet), updatedChainAssets.contains(chainAsset) {
                     if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
-                        notify(listener: listener.listener, result: .success(balances))
+                        notify(listener: listener, result: .success(balances))
                     }
                 }
             }
         }
+    }
+
+    private func clearIfNeeded() {
+        listeners = listeners.filter { $0.target != nil }
     }
 }
 
@@ -334,7 +325,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
 //        fetchAllMetaAccounts()
         if chainAssets.isEmpty {
             let unwrappedListeners = listeners.compactMap {
-                if let target = $0.target as? Listener {
+                if let target = $0.target as? WalletBalanceSubscriptionListener {
                     return target
                 }
                 return nil
@@ -347,7 +338,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
                     self?.handle([event.account], cas)
                 case let .failure(error):
                     unwrappedListeners.forEach { [weak self] in
-                        self?.notify(listener: $0.listener, result: .failure(error))
+                        self?.notify(listener: $0, result: .failure(error))
                     }
                 }
             }
@@ -401,7 +392,7 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
 extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         let unwrappedListeners = listeners.compactMap {
-            if let target = $0.target as? Listener {
+            if let target = $0.target as? WalletBalanceSubscriptionListener {
                 return target
             }
             return nil
@@ -412,7 +403,7 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
             notifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
         case let .failure(error):
             unwrappedListeners.forEach { listener in
-                notify(listener: listener.listener, result: .failure(error))
+                notify(listener: listener, result: .failure(error))
             }
             logger.error("WalletBalanceFetcher error: \(error.localizedDescription)")
         }

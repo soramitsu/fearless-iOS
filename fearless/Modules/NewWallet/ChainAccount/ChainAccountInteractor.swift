@@ -226,6 +226,10 @@ extension ChainAccountInteractor: EventVisitorProtocol {
 extension ChainAccountInteractor: AccountFetching {}
 
 extension ChainAccountInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .chainAsset(wallet: wallet, chainAsset: chainAsset)
+    }
+
     func handle(result: WalletBalancesResult) {
         presenter?.didReceiveWalletBalancesResult(result)
     }

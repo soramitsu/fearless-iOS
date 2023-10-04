@@ -136,6 +136,10 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
 // MARK: - WalletBalanceSubscriptionHandler
 
 extension BackupWalletInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .wallet(wallet: wallet)
+    }
+
     func handle(result: WalletBalancesResult) {
         output?.didReceiveBalances(result: result)
     }

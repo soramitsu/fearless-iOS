@@ -62,6 +62,7 @@ enum BalanceInfoAssembly {
         )
 
         let interactor = BalanceInfoInteractor(
+            balanceInfoType: type,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory

@@ -146,6 +146,10 @@ extension ProfileInteractor: EventVisitorProtocol {
 }
 
 extension ProfileInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .wallet(wallet: selectedMetaAccount)
+    }
+
     func handle(result: WalletBalancesResult) {
         presenter?.didReceiveWalletBalances(result)
     }

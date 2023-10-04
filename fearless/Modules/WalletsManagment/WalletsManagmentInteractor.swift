@@ -110,6 +110,10 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
 // MARK: - WalletBalanceSubscriptionHandler
 
 extension WalletsManagmentInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .wallets
+    }
+
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalances(result)
     }

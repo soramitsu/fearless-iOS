@@ -8,16 +8,19 @@ final class BalanceInfoInteractor {
 
     private weak var output: BalanceInfoInteractorOutput?
 
+    private let balanceInfoType: BalanceInfoType
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let dependencyContainer = BalanceInfoDepencyContainer()
 
     init(
+        balanceInfoType: BalanceInfoType,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         operationManager: OperationManagerProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol
     ) {
+        self.balanceInfoType = balanceInfoType
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.operationManager = operationManager
         self.storageRequestFactory = storageRequestFactory
@@ -146,6 +149,15 @@ private extension BalanceInfoInteractor {
 // MARK: - WalletBalanceSubscriptionHandler
 
 extension BalanceInfoInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        switch balanceInfoType {
+        case let .wallet(wallet: wallet):
+            return .wallet(wallet: wallet)
+        case let .chainAsset(wallet: wallet, chainAsset: chainAsset):
+            return .chainAsset(wallet: wallet, chainAsset: chainAsset)
+        }
+    }
+
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalancesResult(result)
     }
