@@ -82,7 +82,7 @@ final class WalletConnectActiveSessionsTableCell: UITableViewCell {
         }
         arrowImageView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.width.equalTo(12)
+            make.width.equalTo(24)
         }
     }
 }
