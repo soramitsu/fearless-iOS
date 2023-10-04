@@ -881,10 +881,9 @@ private extension SendPresenter {
             await MainActor.run { [isUserInteractiveAmount] in
                 view?.didReceive(viewModel: viewModel)
                 provideInputViewModel()
-                let iconViewModel = qrChainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
                 let networkViewModel = SelectNetworkViewModel(
                     chainName: "Bokolo cash",
-                    iconViewModel: iconViewModel,
+                    iconViewModel: BundleImageViewModel(image: R.image.bokolocash()),
                     canEdit: false
                 )
                 view?.didReceive(selectNetworkViewModel: networkViewModel)
