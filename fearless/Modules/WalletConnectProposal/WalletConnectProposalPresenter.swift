@@ -204,9 +204,13 @@ final class WalletConnectProposalPresenter {
     }
 
     private func handle(error: Error) {
+        var message = error.localizedDescription
+        if let error = error as? JSONRPCError {
+            message = error.message
+        }
         let viewModel = SheetAlertPresentableViewModel(
-            title: "\(error._code)",
-            message: error.localizedDescription,
+            title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: selectedLocale.rLanguages),
+            message: message,
             actions: [],
             closeAction: nil
         ) { [weak self] in

@@ -43,6 +43,7 @@ final class WalletConnectProposalDetailsTableCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         view.iconImage = nil
+        view.contentInsets = UIEdgeInsets(top: 8.0, left: 8.0, bottom: 8.0, right: 8.0)
     }
 
     func bind(viewModel: WalletConnectProposalCellModel.DetailsViewModel) {
@@ -58,6 +59,9 @@ final class WalletConnectProposalDetailsTableCell: UITableViewCell {
             )
         } else {
             view.layout = .withoutIcon
+        }
+        if !dropTriangleImageView.isHidden {
+            view.contentInsets.right = UIConstants.bigOffset * 2
         }
     }
 

@@ -51,7 +51,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             throw JSONRPCError.unauthorizedChain
         }
 
-        let optionalNetworks = try createNetworksViewModel(
+        let optionalNetworks = try? createNetworksViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
             title: "Optional networks"
@@ -65,7 +65,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             throw JSONRPCError.unauthorizedChain
         }
 
-        let optionalExpandable = try createProposalPermissionsViewModel(
+        let optionalExpandable = try? createProposalPermissionsViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
             cellTitle: "Review optional permissions"
@@ -192,8 +192,9 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             .compactMap { $0 }
             .reduce([], +)
 
-        let resolvedChains = try blockchains.map {
-            try walletConnectModelFactory.resolveChain(for: $0, chains: chains)
+        let resolvedChains = walletConnectModelFactory.resolveChains(for: Set(blockchains), chains: chains)
+        guard resolvedChains.isNotEmpty else {
+            throw JSONRPCError.unauthorizedChain
         }
 
         let subtitle = resolvedChains
@@ -238,7 +239,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             .reduce([], +)
             .joined(separator: ", ")
 
-        if methods.isEmpty, events.isEmpty {
+        if methods.isEmpty, events.isEmpty, resolvedChains.isEmpty {
             return nil
         }
 
