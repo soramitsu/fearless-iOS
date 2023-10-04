@@ -121,9 +121,6 @@ final class SendDepencyContainer {
             )
             let connection = try chainRegistry.getConnection(for: chainAsset.chain)
 
-            let accId = !accountResponse.isChainAccount ? nil : accountResponse.accountId
-            let tag: String = KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accId)
-
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,
                 usedRuntimePaths: [:],
@@ -139,15 +136,16 @@ final class SendDepencyContainer {
                 engine: connection,
                 operationManager: operationManager
             )
-            let secretKey = try keystore.fetchKey(for: tag)
-            let signer = TransactionSigner(publicKeyData: accountResponse.publicKey, secretKeyData: secretKey, cryptoType: SFCryptoType(accountResponse.cryptoType.utilsType))
+            let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
+            let signer = TransactionSigner(
+                publicKeyData: accountResponse.publicKey,
+                secretKeyData: secretKey,
+                cryptoType: SFCryptoType(utilsType: accountResponse.cryptoType.utilsType, isEthereum: chainAsset.chain.isEthereumBased)
+            )
             let callFactory = SubstrateCallFactoryAssembly.createCallFactory(forSSF: runtimeService.runtimeSpecVersion)
             return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
         case .ethereum:
-            let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-            let tag: String = KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-
-            let secretKey = try keystore.fetchKey(for: tag)
+            let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
 
             guard let address = accountResponse.toAddress() else {
                 throw ConvenienceError(error: "Cannot fetch address from chain account")
@@ -174,5 +172,19 @@ final class SendDepencyContainer {
         }
         return EquilibriumTotalBalanceServiceFactory
             .createService(wallet: wallet, chainAsset: chainAsset)
+    }
+
+    private func fetchSecretKey(
+        for chain: ChainModel,
+        accountResponse: ChainAccountResponse
+    ) throws -> Data {
+        let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
+        let tag: String = chain.isEthereumBased
+            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+            : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+
+        let keystore = Keychain()
+        let secretKey = try keystore.fetchKey(for: tag)
+        return secretKey
     }
 }

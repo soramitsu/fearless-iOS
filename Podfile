@@ -42,7 +42,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection', '0.1.4'
           pod 'SSFNetwork', '0.1.17'
-          pod 'SSFUtils', '0.1.20'
+          pod 'SSFUtils', '0.1.22'
           pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.7'
           pod 'SSFCloudStorage'
