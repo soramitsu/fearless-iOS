@@ -263,7 +263,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {
-        chainAssetFetcher.fetchAwaitOperation(shouldUseCashe: true, filters: [], sortDescriptors: [])
+        chainAssetFetcher.fetchAwaitOperation(shouldUseCache: true, filters: [], sortDescriptors: [])
     }
 
     private func notify(
