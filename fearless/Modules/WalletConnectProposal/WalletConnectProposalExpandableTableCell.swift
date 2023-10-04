@@ -117,6 +117,7 @@ final class WalletConnectProposalExpandableTableCell: UITableViewCell {
         eventsLabel.isHidden = viewModel.events.isEmpty
 
         expandableBackground.isHidden = !viewModel.isExpanded
+        expandableAccesoryImageView.image = viewModel.isExpanded ? R.image.basicMinus() : R.image.basicPlus()
     }
 
     // MARK: - Private methods
@@ -145,6 +146,10 @@ final class WalletConnectProposalExpandableTableCell: UITableViewCell {
         expandableBackground.addSubview(expandableContentStack)
         expandableContentStack.snp.makeConstraints { make in
             make.edges.equalToSuperview().inset(UIConstants.offset12)
+        }
+
+        expandableAccesoryImageView.snp.makeConstraints { make in
+            make.size.equalTo(24)
         }
 
         expandableContentStack.addArrangedSubview(chainNameLabel)
