@@ -58,6 +58,9 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewO
     func filterConnection(by text: String?) {
         let sessions = sessions?.filter {
             guard let text = text else { return false }
+            if text.isEmpty {
+                return true
+            }
             return $0.peer.name.lowercased().contains(text.lowercased()) == true
         }
         guard let sessions = sessions else { return }
