@@ -322,7 +322,6 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
     }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
-//        fetchAllMetaAccounts()
         if chainAssets.isEmpty {
             let unwrappedListeners = listeners.compactMap {
                 if let target = $0.target as? WalletBalanceSubscriptionListener {
