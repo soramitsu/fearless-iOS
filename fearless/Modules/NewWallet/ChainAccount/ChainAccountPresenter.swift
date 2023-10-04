@@ -201,6 +201,10 @@ final class ChainAccountPresenter {
 extension ChainAccountPresenter: ChainAccountModuleInput {}
 
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
+    func didPullToRefresh() {
+        interactor.updateData()
+    }
+
     func addressDidCopied() {
         wireframe.presentStatus(
             with: AddressCopiedEvent(locale: selectedLocale),

@@ -3,7 +3,7 @@ import SoraFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
     enum Constants {
-        static let defaultContentHeight: CGFloat = 374
+        static let defaultContentHeight: CGFloat = 310
     }
 
     typealias RootViewType = ChainAccountViewLayout
@@ -154,4 +154,10 @@ extension ChainAccountViewController: Containable {
     }
 
     func setContentInsets(_: UIEdgeInsets, animated _: Bool) {}
+}
+
+extension ChainAccountViewController: Reloadable {
+    func reload() {
+        presenter.didPullToRefresh()
+    }
 }

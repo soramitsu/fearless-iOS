@@ -25,6 +25,16 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
 
     private var draggableState: DraggableState = .compact
 
+    var scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = true
+        scrollView.bounces = true
+
+        return scrollView
+    }()
+
+    var refreshControl = UIRefreshControl()
+
     var content: Containable?
 
     var draggable: Draggable?
@@ -82,6 +92,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         updateContentInsets()
         updateDraggableContentInsets()
 
+        setupScrollView()
         setupContentView()
         setupDraggableView()
 
@@ -95,6 +106,13 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         updateContentInsets()
         updateDraggableLayout()
         updateDraggableContentInsets()
+    }
+
+    @objc private func handleRefresh() {
+        refreshControl.endRefreshing()
+        if let reloadableContent = content as? Reloadable {
+            reloadableContent.reload()
+        }
     }
 
     override func viewWillLayoutSubviews() {
@@ -126,13 +144,24 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         }
     }
 
+    private func setupScrollView() {
+        view.addSubview(scrollView)
+        scrollView.addSubview(refreshControl)
+
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+    }
+
     private func setupContentView() {
         if let content = content {
             if let contentController = content as? UIViewController {
                 addChild(contentController)
             }
 
-            view.addSubview(content.contentView)
+            scrollView.addSubview(content.contentView)
             content.contentView.autoresizingMask = []
 
             content.observable.add(observer: self)
@@ -149,7 +178,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
                 addChild(draggableController)
             }
 
-            view.addSubview(draggable.draggableView)
+            scrollView.addSubview(draggable.draggableView)
             draggable.draggableView.autoresizingMask = []
 
             draggable.delegate = self
@@ -174,7 +203,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
 
             currentShadow.frame = view.bounds
 
-            view.insertSubview(currentShadow, belowSubview: draggable.draggableView)
+            scrollView.insertSubview(currentShadow, belowSubview: draggable.draggableView)
         }
     }
 
@@ -189,7 +218,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         if let draggable = draggable {
             let fullContentInsets = inheritedInsets
             var compactContentInsets = fullContentInsets
-            compactContentInsets.top = 0.0
+            compactContentInsets.top = UIConstants.defaultOffset
 
             draggable.set(contentInsets: fullContentInsets, for: .full)
             draggable.set(contentInsets: compactContentInsets, for: .compact)
@@ -224,7 +253,7 @@ class ContainerViewController: UIViewController, AdaptiveDesignable {
         case .compact:
             let preferredContentInsets = createPreferredContentInsets(for: preferredContentHeight)
 
-            let compactOriginY = containerSize.height - preferredContentInsets.bottom
+            let compactOriginY = containerSize.height - preferredContentInsets.bottom + UIConstants.bigOffset
             let compactHeight = preferredContentInsets.bottom
             return CGRect(
                 x: 0.0,

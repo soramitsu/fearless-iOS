@@ -5,19 +5,19 @@ import SSFModels
 
 protocol ChainAssetFetchingProtocol {
     func fetch(
-        shouldUseCashe: Bool,
+        shouldUseCache: Bool,
         filters: [ChainAssetsFetching.Filter],
         sortDescriptors: [ChainAssetsFetching.SortDescriptor],
         completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
     )
     func fetchAwaitOperation(
-        shouldUseCashe: Bool,
+        shouldUseCache: Bool,
         filters: [ChainAssetsFetching.Filter],
         sortDescriptors: [ChainAssetsFetching.SortDescriptor]
     ) -> BaseOperation<[ChainAsset]>
 
     func fetchAwait(
-        shouldUseCashe: Bool,
+        shouldUseCache: Bool,
         filters: [ChainAssetsFetching.Filter],
         sortDescriptors: [ChainAssetsFetching.SortDescriptor]
     ) async throws -> [ChainAsset]
@@ -81,12 +81,12 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
     }
 
     func fetch(
-        shouldUseCashe: Bool,
+        shouldUseCache: Bool,
         filters: [Filter],
         sortDescriptors: [SortDescriptor],
         completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
     ) {
-        if shouldUseCashe {
+        if shouldUseCache {
             fetchFromCache(filters: filters, sortDescriptors: sortDescriptors, completionBlock: completionBlock)
         } else {
             allChainAssets = nil
@@ -95,7 +95,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
     }
 
     func fetchAwaitOperation(
-        shouldUseCashe: Bool,
+        shouldUseCache: Bool,
         filters: [Filter],
         sortDescriptors: [SortDescriptor]
     ) -> BaseOperation<[ChainAsset]> {
@@ -104,7 +104,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
                 throw BaseOperationError.parentOperationCancelled
             }
             return try await self.fetchAwait(
-                shouldUseCashe: shouldUseCashe,
+                shouldUseCache: shouldUseCache,
                 filters: filters,
                 sortDescriptors: sortDescriptors
             )
@@ -112,13 +112,13 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
     }
 
     func fetchAwait(
-        shouldUseCashe: Bool,
+        shouldUseCache: Bool,
         filters: [Filter],
         sortDescriptors: [SortDescriptor]
     ) async throws -> [ChainAsset] {
         try await withCheckedThrowingContinuation { continuation in
             fetch(
-                shouldUseCashe: shouldUseCashe,
+                shouldUseCache: shouldUseCache,
                 filters: filters,
                 sortDescriptors: sortDescriptors,
                 completionBlock: { result in

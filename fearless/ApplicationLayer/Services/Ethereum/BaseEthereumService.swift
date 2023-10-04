@@ -2,6 +2,10 @@ import Foundation
 import Web3
 import Web3ContractABI
 
+enum BaseEthereumServiceError: Error {
+    case continuationError
+}
+
 class BaseEthereumService {
     let ws: Web3.Eth
 
@@ -41,13 +45,22 @@ class BaseEthereumService {
 
     func queryGasPrice() async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
+            var nillableContinuation: CheckedContinuation<EthereumQuantity, Error>? = continuation
+
             ws.gasPrice { resp in
+                guard let unwrapedContinuation = nillableContinuation else {
+                    return
+                }
+
                 if let price = resp.result {
-                    continuation.resume(with: .success(price))
+                    unwrapedContinuation.resume(with: .success(price))
+                    nillableContinuation = nil
                 } else if let error = resp.error {
-                    continuation.resume(with: .failure(error))
+                    unwrapedContinuation.resume(with: .failure(error))
+                    nillableContinuation = nil
                 } else {
-                    continuation.resume(with: .failure(TransferServiceError.unexpected))
+                    unwrapedContinuation.resume(with: .failure(TransferServiceError.unexpected))
+                    nillableContinuation = nil
                 }
             }
         }
@@ -55,13 +68,20 @@ class BaseEthereumService {
 
     func queryMaxPriorityFeePerGas() async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
+            var nillableContinuation: CheckedContinuation<EthereumQuantity, Error>? = continuation
             ws.maxPriorityFeePerGas { resp in
+                guard let unwrapedContinuation = nillableContinuation else {
+                    return
+                }
                 if let fee = resp.result {
-                    continuation.resume(with: .success(fee))
+                    unwrapedContinuation.resume(with: .success(fee))
+                    nillableContinuation = nil
                 } else if let error = resp.error {
-                    continuation.resume(with: .failure(error))
+                    unwrapedContinuation.resume(with: .failure(error))
+                    nillableContinuation = nil
                 } else {
-                    continuation.resume(with: .failure(TransferServiceError.unexpected))
+                    unwrapedContinuation.resume(with: .failure(TransferServiceError.unexpected))
+                    nillableContinuation = nil
                 }
             }
         }

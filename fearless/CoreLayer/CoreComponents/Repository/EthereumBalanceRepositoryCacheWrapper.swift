@@ -16,7 +16,7 @@ final class EthereumBalanceRepositoryCacheWrapper: RepositoryCacheWrapper {
     private let operationManager: OperationManagerProtocol
 
     private var cache: [String: T?] = [:]
-    private let mutex = NSLock()
+    private let lock = ReaderWriterLock()
 
     init(
         logger: LoggerProtocol,
@@ -29,13 +29,10 @@ final class EthereumBalanceRepositoryCacheWrapper: RepositoryCacheWrapper {
     }
 
     func save(data: T?, identifier: String) throws {
-        mutex.lock()
-        defer {
-            mutex.unlock()
-        }
-
-        guard cache[identifier] != data else {
-            return
+        lock.concurrentlyRead {
+            guard cache[identifier] != data else {
+                return
+            }
         }
 
         let encoded = try JSONEncoder().encode(data)
@@ -49,7 +46,9 @@ final class EthereumBalanceRepositoryCacheWrapper: RepositoryCacheWrapper {
         }
 
         operation.completionBlock = { [weak self] in
-            self?.cache[identifier] = data
+            self?.lock.exclusivelyWrite {
+                self?.cache[identifier] = data
+            }
         }
 
         operationManager.enqueue(operations: [operation], in: .transient)
