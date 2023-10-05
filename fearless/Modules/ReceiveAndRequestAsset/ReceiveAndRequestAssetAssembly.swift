@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 import SoraFoundation
 import SSFModels
 
@@ -46,6 +47,12 @@ final class ReceiveAndRequestAssetAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
+        view.modalPresentationStyle = .custom
+
+        let factory = ModalSheetBlurPresentationFactory(
+            configuration: ModalSheetPresentationConfiguration.fearlessBlur
+        )
+        view.modalTransitioningFactory = factory
 
         return (view, presenter)
     }

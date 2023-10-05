@@ -133,6 +133,7 @@ final class ReceiveAndRequestAssetViewLayout: UIView {
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalTo(copyButton.snp.top)
+            make.height.equalTo(400)
         }
 
         amountView.snp.makeConstraints { make in
@@ -175,6 +176,10 @@ extension ReceiveAndRequestAssetViewLayout: FWSegmentedControlDelegate {
             self.amountView.isHidden = segmentIndex == 0
             let alpha = segmentIndex == 0 ? 0.0 : 1.0
             self.amountView.alpha = alpha
+            let contentViewHeight = segmentIndex == 0 ? 400 : 504
+            self.contentView.snp.updateConstraints { make in
+                make.height.equalTo(contentViewHeight)
+            }
             self.layoutIfNeeded()
         }
     }
