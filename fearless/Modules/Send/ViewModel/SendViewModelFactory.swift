@@ -7,7 +7,7 @@ protocol SendViewModelFactoryProtocol {
         isValid: Bool,
         canEditing: Bool
     ) -> RecipientViewModel
-    func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel
+    func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel
 }
 
 final class SendViewModelFactory: SendViewModelFactoryProtocol {
@@ -30,11 +30,12 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
         )
     }
 
-    func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel {
+    func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel {
         let iconViewModel = chain.icon.map { RemoteImageViewModel(url: $0) }
         return SelectNetworkViewModel(
             chainName: chain.name,
-            iconViewModel: iconViewModel
+            iconViewModel: iconViewModel,
+            canEdit: canEdit
         )
     }
 }

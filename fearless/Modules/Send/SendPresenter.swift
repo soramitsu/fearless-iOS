@@ -97,7 +97,7 @@ extension SendPresenter: SendViewOutput {
         case let .chainAsset(chainAsset):
             selectedChainAsset = chainAsset
             interactor.updateSubscriptions(for: chainAsset)
-            provideNetworkViewModel(for: chainAsset.chain)
+            provideNetworkViewModel(for: chainAsset.chain, canEdit: true)
             provideInputViewModel()
         case let .address(address):
             recipientAddress = address
@@ -592,8 +592,8 @@ private extension SendPresenter {
         }
     }
 
-    func provideNetworkViewModel(for chain: ChainModel) {
-        let viewModel = viewModelFactory.buildNetworkViewModel(chain: chain)
+    func provideNetworkViewModel(for chain: ChainModel, canEdit: Bool) {
+        let viewModel = viewModelFactory.buildNetworkViewModel(chain: chain, canEdit: canEdit)
         DispatchQueue.main.async {
             self.view?.didReceive(selectNetworkViewModel: viewModel)
         }
@@ -662,7 +662,7 @@ private extension SendPresenter {
 
     func handle(selectedChainAsset: ChainAsset) {
         fee = nil
-        provideNetworkViewModel(for: selectedChainAsset.chain)
+        provideNetworkViewModel(for: selectedChainAsset.chain, canEdit: true)
         provideAssetVewModel()
         provideInputViewModel()
         if let recipientAddress = recipientAddress {
@@ -799,7 +799,7 @@ private extension SendPresenter {
                 tip = nil
                 view?.didReceive(viewModel: viewModel)
                 selectedChainAsset = soraMainChainAsset
-                provideNetworkViewModel(for: soraMainChainAsset.chain)
+                provideNetworkViewModel(for: soraMainChainAsset.chain, canEdit: false)
                 provideInputViewModel()
                 interactor.updateSubscriptions(for: soraMainChainAsset)
             })
@@ -837,7 +837,7 @@ private extension SendPresenter {
             await MainActor.run { [isUserInteractiveAmount] in
                 view?.didReceive(viewModel: viewModel)
                 provideInputViewModel()
-                provideNetworkViewModel(for: qrChainAsset.chain)
+                provideNetworkViewModel(for: qrChainAsset.chain, canEdit: false)
                 view?.didBlockUserInteractive(isUserInteractiveAmount: isUserInteractiveAmount)
             }
         }
