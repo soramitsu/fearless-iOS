@@ -870,7 +870,7 @@ private extension SendPresenter {
             }
 
             let viewModel = viewModelFactory.buildRecipientViewModel(
-                address: bokoloCasheBridgeAddress,
+                address: qrInfo.address,
                 isValid: true,
                 canEditing: false
             )
