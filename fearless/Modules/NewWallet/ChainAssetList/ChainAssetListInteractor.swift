@@ -85,7 +85,17 @@ final class ChainAssetListInteractor {
     }
 
     private func reload() {
-        guard remoteFetchTimer == nil, let chainAssets = chainAssets else {
+        guard let chainAssets = chainAssets else {
+            return
+        }
+        output?.didReceiveChainAssets(result: .success(chainAssets))
+
+        accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
+            self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+            self?.subscribeToAccountInfo(for: chainAssets)
+        }
+
+        guard remoteFetchTimer == nil else {
             return
         }
 
@@ -94,13 +104,7 @@ final class ChainAssetListInteractor {
             self?.remoteFetchTimer = nil
         })
 
-        output?.didReceiveChainAssets(result: .success(chainAssets))
         ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
-
-        accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
-            self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-            self?.subscribeToAccountInfo(for: chainAssets)
-        }
     }
 }
 
