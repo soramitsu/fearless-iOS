@@ -160,7 +160,14 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             throw TransferServiceError.transferFailed(reason: "Wallet connect invalid params")
         }
 
-        let call = EthereumCall(to: receiverAddress, value: quantity)
+        let call = EthereumCall(
+            from: senderAddress,
+            to: receiverAddress,
+            gas: transaction.gasLimit,
+            gasPrice: transaction.gasPrice,
+            value: quantity,
+            data: transaction.data
+        )
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
         let gasPrice = try await queryGasPrice()
         let gasLimit = try await queryGasLimit(call: call)

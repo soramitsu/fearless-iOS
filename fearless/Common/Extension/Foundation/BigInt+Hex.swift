@@ -15,4 +15,9 @@ extension BigUInt {
             return BigUInt(hex, radix: 16)
         }
     }
+
+    func toHexString() -> String {
+        let prefix = "0x"
+        return prefix + String(self, radix: 16)
+    }
 }

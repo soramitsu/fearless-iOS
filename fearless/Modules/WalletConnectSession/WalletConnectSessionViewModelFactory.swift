@@ -89,7 +89,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         let wallet = wallets.first { wallet in
             let accountRequest = chain.accountRequest()
             let walletAddress = wallet.fetch(for: accountRequest)?.toAddress()
-            return walletAddress == address
+            return walletAddress?.lowercased() == address.lowercased()
         }
         guard let wallet = wallet else {
             throw JSONRPCError.unsupportedAccounts

@@ -29,10 +29,10 @@ struct WalletConnectEthereumTransaction: Codable {
         to = try container.decode(String?.self, forKey: .to)
         data = try container.decode(String?.self, forKey: .data)
 
-        let gasLimitString = try container.decode(String?.self, forKey: .gasLimit)
-        let gasPriceString = try container.decode(String?.self, forKey: .gasPrice)
-        let valueString = try container.decode(String?.self, forKey: .value)
-        let nonceString = try container.decode(String?.self, forKey: .nonce)
+        let gasLimitString = try? container.decode(String?.self, forKey: .gasLimit)
+        let gasPriceString = try? container.decode(String?.self, forKey: .gasPrice)
+        let valueString = try? container.decode(String?.self, forKey: .value)
+        let nonceString = try? container.decode(String?.self, forKey: .nonce)
 
         gasLimit = BigUInt.fromHexString(gasLimitString)
         gasPrice = BigUInt.fromHexString(gasPriceString)
@@ -47,17 +47,14 @@ struct WalletConnectEthereumTransaction: Codable {
         try container.encode(to, forKey: .to)
         try container.encode(data, forKey: .data)
 
-        try container.encode(gasLimit?.description, forKey: .gasLimit)
-        try container.encode(gasPrice?.description, forKey: .gasPrice)
-        try container.encode(value?.description, forKey: .value)
-        try container.encode(nonce?.description, forKey: .nonce)
+        try container.encode(gasLimit?.toHexString(), forKey: .gasLimit)
+        try container.encode(gasPrice?.toHexString(), forKey: .gasPrice)
+        try container.encode(value?.toHexString(), forKey: .value)
+        try container.encode(nonce?.toHexString(), forKey: .nonce)
     }
 
     func mapToWeb3() throws -> EthereumTransaction {
         guard
-            let nonce = nonce,
-            let gasPrice = gasPrice,
-            let gasLimit = gasLimit,
             let toAddress = to,
             let value = value
         else {
@@ -68,11 +65,11 @@ struct WalletConnectEthereumTransaction: Codable {
         let to = try EthereumAddress(rawAddress: toAddress.hexToBytes())
 
         return EthereumTransaction(
-            nonce: EthereumQuantity(quantity: nonce),
-            gasPrice: EthereumQuantity(quantity: gasPrice),
-            maxFeePerGas: EthereumQuantity(quantity: gasPrice),
-            maxPriorityFeePerGas: EthereumQuantity(quantity: gasPrice),
-            gasLimit: EthereumQuantity(quantity: gasLimit),
+            nonce: nonce?.toEthereumQuantity(),
+            gasPrice: gasPrice?.toEthereumQuantity(),
+            maxFeePerGas: gasPrice?.toEthereumQuantity(),
+            maxPriorityFeePerGas: gasPrice?.toEthereumQuantity(),
+            gasLimit: gasLimit?.toEthereumQuantity(),
             from: from,
             to: to,
             value: EthereumQuantity(quantity: value),
