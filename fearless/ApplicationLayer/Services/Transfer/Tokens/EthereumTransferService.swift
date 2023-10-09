@@ -180,6 +180,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             from: senderAddress,
             to: receiverAddress,
             value: quantity,
+            data: transaction.data,
             accessList: [:],
             transactionType: .eip1559
         )

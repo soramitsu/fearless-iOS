@@ -63,6 +63,10 @@ struct WalletConnectEthereumTransaction: Codable {
 
         let from = try EthereumAddress(rawAddress: from.hexToBytes())
         let to = try EthereumAddress(rawAddress: toAddress.hexToBytes())
+        var transactionData = EthereumData([])
+        if let data = data {
+            transactionData = (try? EthereumData(ethereumValue: data)) ?? EthereumData([])
+        }
 
         return EthereumTransaction(
             nonce: nonce?.toEthereumQuantity(),
@@ -73,6 +77,7 @@ struct WalletConnectEthereumTransaction: Codable {
             from: from,
             to: to,
             value: EthereumQuantity(quantity: value),
+            data: transactionData,
             accessList: [:],
             transactionType: .legacy
         )
