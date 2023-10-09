@@ -42,6 +42,8 @@ protocol WalletBalanceSubscriptionAdapterProtocol {
         deliverOn queue: DispatchQueue?,
         listener: WalletBalanceSubscriptionListener
     )
+
+    func unsubscribe(listener: WalletBalanceSubscriptionListener)
 }
 
 enum WalletBalanceError: Error {
@@ -117,9 +119,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         let weakListener = WeakWrapper(target: listener)
         listeners.append(weakListener)
-
-        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets.map { $0.value }) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            let cas = await getChainAssets()
+            if let balances = buildBalance(for: [wallet], chainAssets: cas) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
@@ -130,9 +134,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         let weakListener = WeakWrapper(target: listener)
         listeners.append(weakListener)
-
-        if let balances = buildBalance(for: metaAccounts, chainAssets: chainAssets.map { $0.value }) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            let cas = await getChainAssets()
+            if let balances = buildBalance(for: metaAccounts, chainAssets: cas) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
@@ -145,9 +151,17 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         let weakListener = WeakWrapper(target: listener)
         listeners.append(weakListener)
-
         if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
             notify(listener: listener, result: .success(balances))
+        }
+    }
+
+    func unsubscribe(listener: WalletBalanceSubscriptionListener) {
+        listeners = listeners.filter {
+            if let target = $0.target as? WalletBalanceSubscriptionListener {
+                return target !== listener
+            }
+            return true
         }
     }
 
@@ -160,7 +174,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             chainAssets,
             prices
         )
-
         return walletBalances
     }
 
@@ -284,22 +297,25 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             }
             return nil
         }
-        unwrappedListeners.forEach { listener in
-            switch listener.type {
-            case .wallets:
-                if let balances = buildBalance(for: self.metaAccounts, chainAssets: self.chainAssets.map { $0.value }) {
-                    notify(listener: listener, result: .success(balances))
-                }
-            case let .wallet(wallet):
-                if updatedWallets.contains(wallet) {
-                    if let balances = buildBalance(for: [wallet], chainAssets: self.chainAssets.map { $0.value }) {
+        Task {
+            let cas = await getChainAssets()
+            unwrappedListeners.forEach { listener in
+                switch listener.type {
+                case .wallets:
+                    if let balances = buildBalance(for: metaAccounts, chainAssets: cas) {
                         notify(listener: listener, result: .success(balances))
                     }
-                }
-            case let .chainAsset(wallet, chainAsset):
-                if updatedWallets.contains(wallet), updatedChainAssets.contains(chainAsset) {
-                    if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
-                        notify(listener: listener, result: .success(balances))
+                case let .wallet(wallet):
+                    if updatedWallets.contains(wallet) {
+                        if let balances = buildBalance(for: [wallet], chainAssets: cas) {
+                            notify(listener: listener, result: .success(balances))
+                        }
+                    }
+                case let .chainAsset(wallet, chainAsset):
+                    if updatedWallets.contains(wallet), updatedChainAssets.contains(chainAsset) {
+                        if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+                            notify(listener: listener, result: .success(balances))
+                        }
                     }
                 }
             }
@@ -322,35 +338,12 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
     }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        if chainAssets.isEmpty {
-            let unwrappedListeners = listeners.compactMap {
-                if let target = $0.target as? WalletBalanceSubscriptionListener {
-                    return target
-                }
-                return nil
-            }
-            let chainsOperation = fetchChainsOperation()
-            chainsOperation.completionBlock = { [weak self] in
-                guard let result = chainsOperation.result else { return }
-                switch result {
-                case let .success(cas):
-                    if self?.metaAccounts.contains(event.account) == true {
-                        self?.notifyIfNeeded(with: [event.account], updatedChainAssets: cas)
-                    } else {
-                        self?.handle([event.account], cas)
-                    }
-                case let .failure(error):
-                    unwrappedListeners.forEach { [weak self] in
-                        self?.notify(listener: $0, result: .failure(error))
-                    }
-                }
-            }
-            operationQueue.addOperation(chainsOperation)
-        } else {
-            if metaAccounts.contains(event.account) {
-                notifyIfNeeded(with: [event.account], updatedChainAssets: chainAssets.map { $0.value })
+        Task {
+            let cas = await getChainAssets()
+            if metaAccounts.contains(event.account) == true {
+                notifyIfNeeded(with: [event.account], updatedChainAssets: cas)
             } else {
-                handle([event.account], chainAssets.map { $0.value })
+                handle([event.account], cas)
             }
         }
     }
@@ -393,6 +386,30 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
             )
         }
     }
+
+    private func getChainAssets() async -> [ChainAsset] {
+        let cas = chainAssets.map { $0.value }
+        if cas.isNotEmpty {
+            return cas
+        } else {
+            return await withCheckedContinuation { continuation in
+                let chainsOperation = fetchChainsOperation()
+                chainsOperation.completionBlock = {
+                    if let result = chainsOperation.result {
+                        switch result {
+                        case let .success(cas):
+                            continuation.resume(returning: cas)
+                        case .failure:
+                            continuation.resume(returning: [])
+                        }
+                    } else {
+                        continuation.resume(returning: [])
+                    }
+                }
+                operationQueue.addOperation(chainsOperation)
+            }
+        }
+    }
 }
 
 // MARK: - PriceLocalSubscriptionHandler
@@ -407,8 +424,11 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
         }
         switch result {
         case let .success(prices):
-            self.prices = prices
-            notifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
+            Task {
+                self.prices = prices
+                let cas = await getChainAssets()
+                notifyIfNeeded(with: metaAccounts, updatedChainAssets: cas)
+            }
         case let .failure(error):
             unwrappedListeners.forEach { listener in
                 notify(listener: listener, result: .failure(error))

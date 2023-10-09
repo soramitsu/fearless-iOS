@@ -8,7 +8,7 @@ final class BalanceInfoInteractor {
 
     private weak var output: BalanceInfoInteractorOutput?
 
-    private let balanceInfoType: BalanceInfoType
+    var balanceInfoType: BalanceInfoType
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
     private let storageRequestFactory: StorageRequestFactoryProtocol
@@ -31,16 +31,15 @@ final class BalanceInfoInteractor {
 
 extension BalanceInfoInteractor: BalanceInfoInteractorInput {
     func setup(
-        with output: BalanceInfoInteractorOutput,
-        for type: BalanceInfoType
+        with output: BalanceInfoInteractorOutput
     ) {
         self.output = output
-        fetchBalanceInfo(for: type)
+        fetchBalanceInfo()
     }
 
-    func fetchBalanceInfo(for type: BalanceInfoType) {
-        fetchBalance(for: type)
-        if case let .chainAsset(wallet, chainAsset) = type {
+    func fetchBalanceInfo() {
+        subscribeOnBalance()
+        if case let .chainAsset(wallet, chainAsset) = balanceInfoType {
             guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
                 return
             }
@@ -60,8 +59,9 @@ extension BalanceInfoInteractor: BalanceInfoInteractorInput {
 }
 
 private extension BalanceInfoInteractor {
-    func fetchBalance(for type: BalanceInfoType) {
-        switch type {
+    func subscribeOnBalance() {
+        walletBalanceSubscriptionAdapter.unsubscribe(listener: self)
+        switch balanceInfoType {
         case let .wallet(metaAccount):
             walletBalanceSubscriptionAdapter.subscribeWalletBalance(
                 wallet: metaAccount,

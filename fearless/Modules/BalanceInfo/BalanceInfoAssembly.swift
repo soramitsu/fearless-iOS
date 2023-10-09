@@ -76,7 +76,6 @@ enum BalanceInfoAssembly {
         )
 
         let presenter = BalanceInfoPresenter(
-            balanceInfoType: type,
             balanceInfoViewModelFactoryProtocol: balanceInfoViewModelFactory,
             interactor: interactor,
             router: router,
