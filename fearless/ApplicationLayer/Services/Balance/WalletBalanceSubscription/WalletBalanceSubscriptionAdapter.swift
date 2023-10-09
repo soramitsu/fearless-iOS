@@ -179,7 +179,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.chainAssets = chainsAssetsMap
         metaAccounts = (metaAccounts + wallets).uniq(predicate: { $0.metaId })
         defineExpectedAccountInfosCount(wallets: metaAccounts, chainAssets: chainAssets)
-        subscribeToAccountInfo(for: metaAccounts, chainAssets)
+        subscribeToAccountInfo(for: wallets, chainAssets)
         let currencies = metaAccounts.map { $0.selectedCurrency }
         subscribeToPrices(for: chainAssets, currencies: currencies)
     }
@@ -334,15 +334,24 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
                 guard let result = chainsOperation.result else { return }
                 switch result {
                 case let .success(cas):
-                    self?.handle([event.account], cas)
+                    if self?.metaAccounts.contains(event.account) == true {
+                        self?.notifyIfNeeded(with: [event.account], updatedChainAssets: cas)
+                    } else {
+                        self?.handle([event.account], cas)
+                    }
                 case let .failure(error):
                     unwrappedListeners.forEach { [weak self] in
                         self?.notify(listener: $0, result: .failure(error))
                     }
                 }
             }
+            operationQueue.addOperation(chainsOperation)
         } else {
-            handle([event.account], chainAssets.map { $0.value })
+            if metaAccounts.contains(event.account) {
+                notifyIfNeeded(with: [event.account], updatedChainAssets: chainAssets.map { $0.value })
+            } else {
+                handle([event.account], chainAssets.map { $0.value })
+            }
         }
     }
 
