@@ -116,7 +116,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         delegate = handler
 
-        fetchMetaAccount(by: walletId, chainAsset: nil, shouldUseCashe: true)
+        fetchMetaAccount(by: walletId, chainAsset: nil, shouldUseCache: true)
     }
 
     func subscribeWalletsBalances(
@@ -129,7 +129,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         delegate = handler
 
-        fetchAllMetaAccounts(shouldUseCashe: true)
+        fetchAllMetaAccounts(shouldUseCache: true)
     }
 
     func subscribeChainAssetBalance(
@@ -144,7 +144,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         delegate = handler
 
-        fetchMetaAccount(by: walletId, chainAsset: chainAsset, shouldUseCashe: true)
+        fetchMetaAccount(by: walletId, chainAsset: chainAsset, shouldUseCache: true)
     }
 
     // MARK: - Private methods
@@ -195,7 +195,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private func fetchMetaAccount(
         by identifier: String,
         chainAsset: ChainAsset?,
-        shouldUseCashe: Bool
+        shouldUseCache: Bool
     ) {
         typealias MergeOperationResult = (metaAccount: MetaAccountModel?, chainAssets: [ChainAsset])
 
@@ -203,7 +203,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             by: identifier,
             options: RepositoryFetchOptions()
         )
-        let chainsOperation = fetchChainsOperation(shouldUseCashe: shouldUseCashe)
+        let chainsOperation = fetchChainsOperation(shouldUseCache: shouldUseCache)
 
         let mergeOperation = ClosureOperation<MergeOperationResult> {
             let metaAccountOperationResult = try metaAccountOperation.extractNoCancellableResultData()
@@ -243,9 +243,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         operationQueue.addOperations([chainsOperation, metaAccountOperation, mergeOperation], waitUntilFinished: false)
     }
 
-    private func fetchAllMetaAccounts(shouldUseCashe: Bool) {
+    private func fetchAllMetaAccounts(shouldUseCache: Bool) {
         let metaAccountsOperation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        let chainsOperation = fetchChainsOperation(shouldUseCashe: shouldUseCashe)
+        let chainsOperation = fetchChainsOperation(shouldUseCache: shouldUseCache)
 
         metaAccountsOperation.addDependency(chainsOperation)
 
@@ -295,8 +295,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         pricesProvider = subscribeToPrices(for: pricesIds, currencies: uniqueQurrencys)
     }
 
-    private func fetchChainsOperation(shouldUseCashe: Bool) -> BaseOperation<[ChainAsset]> {
-        chainAssetFetcher.fetchAwaitOperation(shouldUseCashe: shouldUseCashe, filters: [], sortDescriptors: [])
+    private func fetchChainsOperation(shouldUseCache: Bool) -> BaseOperation<[ChainAsset]> {
+        chainAssetFetcher.fetchAwaitOperation(shouldUseCache: shouldUseCache, filters: [], sortDescriptors: [])
     }
 
     private func handle(_ result: WalletBalancesResult) {
@@ -334,13 +334,13 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         switch subscriptionType {
         case .wallets:
             reset()
-            fetchAllMetaAccounts(shouldUseCashe: false)
+            fetchAllMetaAccounts(shouldUseCache: false)
         case let .wallet(walletId):
             reset()
-            fetchMetaAccount(by: walletId, chainAsset: nil, shouldUseCashe: false)
+            fetchMetaAccount(by: walletId, chainAsset: nil, shouldUseCache: false)
         case let .chainAsset(walletId, chainAsset):
             reset()
-            fetchMetaAccount(by: walletId, chainAsset: chainAsset, shouldUseCashe: false)
+            fetchMetaAccount(by: walletId, chainAsset: chainAsset, shouldUseCache: false)
         case .none:
             break
         }

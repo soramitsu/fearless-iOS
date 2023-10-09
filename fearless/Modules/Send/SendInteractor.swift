@@ -149,7 +149,7 @@ extension SendInteractor: SendInteractorInput {
         for asset: AssetModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     ) {
-        chainAssetFetching.fetch(shouldUseCashe: true, filters: [], sortDescriptors: []) { result in
+        chainAssetFetching.fetch(shouldUseCache: true, filters: [], sortDescriptors: []) { result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):

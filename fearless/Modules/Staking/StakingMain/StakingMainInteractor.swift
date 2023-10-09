@@ -381,7 +381,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         chainAssetFetching.fetch(
-            shouldUseCashe: true,
+            shouldUseCache: true,
             filters: [.assetName(assetName), .chainId(chainAsset.chain.chainId)],
             sortDescriptors: []
         ) { [weak self] result in
