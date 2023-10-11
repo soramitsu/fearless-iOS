@@ -7,10 +7,11 @@ import SSFModels
 // For all the cases we suggest that parachains are disabled
 // Thus, i_ideal = 0.1 and x_ideal = 0.75
 final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
+    let rewardAssetRate: Decimal
+
     private let dayDurationInSeconds: TimeInterval = 60 * 60 * 24
     private var averageTotalRewardsPerEra: Decimal
     private var validators: [EraValidatorInfo] = []
-    private var rewardAssetRate: Decimal
     private let chainId: ChainModel.Id
     private let assetPrecision: Int16
     private let eraDurationInSeconds: TimeInterval
@@ -155,7 +156,7 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
             let eraReturn = calculateReturnForStake(stake, commission: commission)
             let dailyReturn = eraReturn * erasPerDay
-            return dailyReturn * Decimal(period.inDays) * rewardAssetRate
+            return dailyReturn * Decimal(period.inDays)
         case .avg:
             let commission = validators.compactMap { Decimal.fromSubstratePerbill(value: $0.prefs.commission) ?? 0.0 }.reduce(0,+) / Decimal(validators.count)
             let eraReturn = calculateReturnForStake(averageStake, commission: commission)
