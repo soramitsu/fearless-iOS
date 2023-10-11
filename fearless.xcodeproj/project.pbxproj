@@ -121,6 +121,7 @@
 		07B6BC8128BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */; };
 		07B6BC8428BC723500621864 /* NetworkIssuesNotificationTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */; };
 		07BFF8A62AD6635F005A5C58 /* WalletConnectConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF8A52AD6635F005A5C58 /* WalletConnectConfirmationCoordinator.swift */; };
+		07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */; };
 		07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
 		07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */; };
@@ -3024,6 +3025,7 @@
 		07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationCellViewModel.swift; sourceTree = "<group>"; };
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
 		07BFF8A52AD6635F005A5C58 /* WalletConnectConfirmationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletConnectConfirmationCoordinator.swift; path = "/Users/soramitsu/Documents/soramitsu/fearless-iOS/fearless/Modules/Coordinators/WalletConnectConfirmationCoordinator.swift"; sourceTree = "<absolute>"; };
+		07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AutoNamespacesError+Extension.swift"; sourceTree = "<group>"; };
 		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
 		07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncService.swift; sourceTree = "<group>"; };
 		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
@@ -6097,6 +6099,7 @@
 				FA7253F62AC2E48400EC47A6 /* WalletConnectSocketEngine.swift */,
 				FA72541E2AC2E48400EC47A6 /* WalletConnectSocketFactory.swift */,
 				FA7253F32AC2E48400EC47A6 /* CryptoProvider.swift */,
+				07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */,
 			);
 			path = WalletConnect;
 			sourceTree = "<group>";
@@ -16767,6 +16770,7 @@
 				FA21C86E2AB82143008C0AD2 /* SolomonQRInfo.swift in Sources */,
 				F4F65C3D26D8B9DD002EE838 /* FWYAxisChartFormatter.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
+				07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */,
 				F40966D026B297D7008CD244 /* AnalyticsStakeInteractor.swift in Sources */,
 				84585A34251CE2E300390F7A /* ContactsLocalSearchEngine.swift in Sources */,
 				8416A2D8265A99DE0052EE89 /* CrowdloanViewConstants.swift in Sources */,
