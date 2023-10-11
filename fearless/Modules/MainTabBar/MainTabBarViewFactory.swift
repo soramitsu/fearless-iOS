@@ -40,8 +40,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let interactor = MainTabBarInteractor(
             eventCenter: EventCenter.shared,
             serviceCoordinator: serviceCoordinator,
-            keystoreImportService: keystoreImportService,
-            walletConnect: walletConnect
+            keystoreImportService: keystoreImportService
         )
 
         let networkStatusPresenter = NetworkAvailabilityLayerPresenter(
@@ -56,6 +55,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             applicationHandler: ApplicationHandler(),
             networkStatusPresenter: networkStatusPresenter,
             reachability: ReachabilityManager.shared,
+            walletConnectCoordinator: WalletConnectCoordinator(),
             localizationManager: localizationManager
         )
 
@@ -90,17 +90,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         return viewControllers
     }
-
-//    static func reloadWalletView(
-//        on view: MainTabBarViewProtocol,
-//        wireframe _: MainTabBarWireframeProtocol
-//    ) {
-//        guard let walletController = createWalletController(walletConnect: <#WalletConnectService#>) else {
-//            return
-//        }
-//
-//        view.didReplaceView(for: walletController, for: Self.walletIndex)
-//    }
 
     static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
         guard let crowdloanController = createCrowdloanController() else {

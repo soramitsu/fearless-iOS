@@ -227,6 +227,7 @@ final class WalletConnectProposalPresenter {
 
 extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
     func viewDidDisappear() {
+        view?.controller.onInteractionDismiss()
         Task {
             guard let proposal = status.proposal else { return }
             try? await interactor.submit(proposalDecision: .reject(proposal: proposal))

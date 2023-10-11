@@ -111,22 +111,9 @@ final class WalletConnectSessionPresenter {
                 payload: viewModel.payload
             )
             view?.didStopLoading()
-            router.showConfirmation(inputData: inputData, from: view)
+            router.showConfirmation(inputData: inputData)
         } catch {
             handle(error: error, request: request)
-        }
-    }
-
-    private func showAllDone() async {
-        await MainActor.run {
-            view?.didStopLoading()
-            router.showAllDone(
-                title: "All Done",
-                description: "You can now back to your browser",
-                view: view
-            ) { [weak self] in
-                self?.router.dismiss(view: self?.view)
-            }
         }
     }
 
@@ -164,6 +151,7 @@ final class WalletConnectSessionPresenter {
 extension WalletConnectSessionPresenter: WalletConnectSessionViewOutput {
     func viewDidDisappear() {
         sumbitReject(request: request, error: JSONRPCError.userRejected)
+        view?.controller.onInteractionDismiss()
     }
 
     func closeButtonDidTapped() {

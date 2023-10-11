@@ -7,7 +7,8 @@ import RobinHood
 enum WalletConnectSessionAssembly {
     static func configureModule(
         request: Request,
-        session: Session?
+        session: Session?,
+        onGoToConfirmation: ((WalletConnectConfirmationInputData) -> Void)?
     ) -> WalletConnectSessionModuleCreationResult? {
         guard let wallet = SelectedWalletSettings.shared.value else {
             return nil
@@ -63,7 +64,7 @@ enum WalletConnectSessionAssembly {
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let router = WalletConnectSessionRouter()
+        let router = WalletConnectSessionRouter(onGoToConfirmation: onGoToConfirmation)
 
         let walletConnectModelFactory = WalletConnectModelFactoryImpl()
         let walletConnectPayloaFactory = WalletConnectPayloadFactoryImpl()

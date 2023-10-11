@@ -6,7 +6,6 @@ protocol WalletConnectConfirmationViewOutput: AnyObject {
     func backButtonDidTapped()
     func rawDataDidTapped()
     func confirmDidTapped()
-    func viewDidDisappear()
 }
 
 final class WalletConnectConfirmationViewController: UIViewController, ViewHolder {
@@ -42,11 +41,6 @@ final class WalletConnectConfirmationViewController: UIViewController, ViewHolde
         super.viewDidLoad()
         output.didLoad(view: self)
         bindActions()
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        output.viewDidDisappear()
     }
 
     // MARK: - Private methods

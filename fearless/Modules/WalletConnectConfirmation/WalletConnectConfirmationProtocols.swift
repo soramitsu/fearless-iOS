@@ -13,7 +13,6 @@ protocol WalletConnectConfirmationRouterInput: PresentDismissable, SheetAlertPre
         view: ControllerBackedProtocol?,
         closure: @escaping () -> Void
     )
-    func comlete(from view: ControllerBackedProtocol?)
     func showRawData(json: JSON, from view: ControllerBackedProtocol?)
 }
 

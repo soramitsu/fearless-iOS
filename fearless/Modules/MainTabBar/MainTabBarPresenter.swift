@@ -13,6 +13,7 @@ final class MainTabBarPresenter {
 
     private let reachability: ReachabilityManager?
     private let networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol
+    private let walletConnectCoordinator: WalletConnectCoordinator
 
     private var crowdloanListView: UINavigationController?
 
@@ -23,6 +24,7 @@ final class MainTabBarPresenter {
         applicationHandler: ApplicationHandler,
         networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol,
         reachability: ReachabilityManager?,
+        walletConnectCoordinator: WalletConnectCoordinator,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wireframe = wireframe
@@ -31,6 +33,7 @@ final class MainTabBarPresenter {
         self.applicationHandler = applicationHandler
         self.networkStatusPresenter = networkStatusPresenter
         self.reachability = reachability
+        self.walletConnectCoordinator = walletConnectCoordinator
         self.localizationManager = localizationManager
 
         applicationHandler.delegate = self
@@ -55,21 +58,6 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
 
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
-    }
-
-    func didReceive(proposal: Session.Proposal) {
-        wireframe.showSession(
-            proposal: proposal,
-            view: view
-        )
-    }
-
-    func didReceive(request: Request, session: Session?) {
-        wireframe.showSign(
-            request: request,
-            session: session,
-            view: view
-        )
     }
 }
 

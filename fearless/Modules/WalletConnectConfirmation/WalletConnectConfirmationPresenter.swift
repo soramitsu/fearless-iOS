@@ -49,8 +49,9 @@ final class WalletConnectConfirmationPresenter {
             chain: inputData.chain,
             hashString: hash,
             view: view
-        ) { [weak self] in
-            self?.router.comlete(from: self?.view)
+        ) { [weak self, weak view] in
+            self?.router.dismiss(view: self?.view)
+            view?.controller.onInteractionDismiss()
         }
     }
 
@@ -70,12 +71,6 @@ final class WalletConnectConfirmationPresenter {
 // MARK: - WalletConnectConfirmationViewOutput
 
 extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutput {
-    func viewDidDisappear() {
-        Task {
-            try? await interactor.reject()
-        }
-    }
-
     func backButtonDidTapped() {
         router.dismiss(view: view)
     }
