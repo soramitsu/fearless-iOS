@@ -130,8 +130,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         selectedAccount = response
         selectedChainAsset = chainAsset
-
-        provideRewardChainAsset()
     }
 
     func updateSharedState() {
@@ -270,6 +268,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         presenter?.didReceive(newChainAsset: chainAsset)
+        provideRewardChainAsset()
     }
 
     func provideRewardCalculator(from calculatorService: RewardCalculatorServiceProtocol) {

@@ -155,7 +155,7 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
             let eraReturn = calculateReturnForStake(stake, commission: commission)
             let dailyReturn = eraReturn * erasPerDay
-            return dailyReturn * Decimal(period.inDays)
+            return dailyReturn * Decimal(period.inDays) * rewardAssetRate
         case .avg:
             let commission = validators.compactMap { Decimal.fromSubstratePerbill(value: $0.prefs.commission) ?? 0.0 }.reduce(0,+) / Decimal(validators.count)
             let eraReturn = calculateReturnForStake(averageStake, commission: commission)
