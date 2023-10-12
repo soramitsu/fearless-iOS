@@ -106,7 +106,7 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             validator,
             amount: amount,
             period: period,
-            resultType: .value
+            resultType: .percent
         )
     }
 

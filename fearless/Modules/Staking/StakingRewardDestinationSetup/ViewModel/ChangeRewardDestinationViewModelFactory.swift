@@ -59,9 +59,9 @@ final class ChangeRewardDestinationViewModelFactory {
         let payoutEarnings = try calculator.calculateEarnings(amount: bonded, validatorAccountId: validatorId, isCompound: false, period: .year)
 
         let reward = CalculatedReward(
-            restakeReturn: restakeEarnings,
+            restakeReturn: restakeEarnings * calculator.rewardAssetRate,
             restakeReturnPercentage: restakeReturn,
-            payoutReturn: payoutEarnings,
+            payoutReturn: payoutEarnings * calculator.rewardAssetRate,
             payoutReturnPercentage: payoutReturn
         )
 
