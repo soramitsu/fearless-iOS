@@ -212,13 +212,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
         metaAccountsOperation.completionBlock = { [weak self] in
             guard let metaAccountsResult = metaAccountsOperation.result else {
-                unwrappedListeners.forEach { [weak self] in
+                unwrappedListeners.forEach {
                     self?.notify(listener: $0, result: .failure(WalletBalanceError.accountMissing))
                 }
                 return
             }
             guard let chainsResult = chainsOperation.result else {
-                unwrappedListeners.forEach { [weak self] in
+                unwrappedListeners.forEach {
                     self?.notify(listener: $0, result: .failure(WalletBalanceError.chainsMissing))
                 }
                 return
@@ -228,11 +228,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             case let (.success(wallets), .success(chainAssets)):
                 self?.handle(wallets, chainAssets)
             case let (.failure(error), _):
-                unwrappedListeners.forEach { [weak self] in
+                unwrappedListeners.forEach {
                     self?.notify(listener: $0, result: .failure(error))
                 }
             case let (_, .failure(error)):
-                unwrappedListeners.forEach { [weak self] in
+                unwrappedListeners.forEach {
                     self?.notify(listener: $0, result: .failure(error))
                 }
             }
@@ -289,7 +289,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
-    private func notifyIfNeeded(with updatedWallets: [MetaAccountModel], updatedChainAssets: [ChainAsset]) {
+    private func buildAndNotifyIfNeeded(with updatedWallets: [MetaAccountModel], updatedChainAssets: [ChainAsset]) {
         clearIfNeeded()
         let unwrappedListeners = listeners.compactMap {
             if let target = $0.target as? WalletBalanceSubscriptionListener {
@@ -341,7 +341,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         Task {
             let cas = await getChainAssets()
             if metaAccounts.contains(event.account) == true {
-                notifyIfNeeded(with: [event.account], updatedChainAssets: cas)
+                buildAndNotifyIfNeeded(with: [event.account], updatedChainAssets: cas)
             } else {
                 handle([event.account], cas)
             }
@@ -355,7 +355,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
             let key = chainAsset.chainAssetId
             self.chainAssets[key] = chainAsset
         }
-        notifyIfNeeded(with: metaAccounts, updatedChainAssets: updatedChainAssets)
+        buildAndNotifyIfNeeded(with: metaAccounts, updatedChainAssets: updatedChainAssets)
     }
 }
 
@@ -371,11 +371,11 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
             lock.concurrentlyRead {
                 guard expectedChainAccountsCount == accountInfos.keys.count else {
                     if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
-                        notifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
+                        buildAndNotifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
                     }
                     return
                 }
-                notifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
+                buildAndNotifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
             }
         case let .failure(error):
             logger.error("""
@@ -392,21 +392,14 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
         if cas.isNotEmpty {
             return cas
         } else {
-            return await withCheckedContinuation { continuation in
-                let chainsOperation = fetchChainsOperation()
-                chainsOperation.completionBlock = {
-                    if let result = chainsOperation.result {
-                        switch result {
-                        case let .success(cas):
-                            continuation.resume(returning: cas)
-                        case .failure:
-                            continuation.resume(returning: [])
-                        }
-                    } else {
-                        continuation.resume(returning: [])
-                    }
-                }
-                operationQueue.addOperation(chainsOperation)
+            if let cas = try? await chainAssetFetcher.fetchAwait(
+                shouldUseCache: true,
+                filters: [],
+                sortDescriptors: []
+            ) {
+                return cas
+            } else {
+                return []
             }
         }
     }
@@ -427,7 +420,7 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
             Task {
                 self.prices = prices
                 let cas = await getChainAssets()
-                notifyIfNeeded(with: metaAccounts, updatedChainAssets: cas)
+                buildAndNotifyIfNeeded(with: metaAccounts, updatedChainAssets: cas)
             }
         case let .failure(error):
             unwrappedListeners.forEach { listener in
