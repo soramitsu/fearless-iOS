@@ -106,7 +106,7 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             validator,
             amount: amount,
             period: period,
-            resultType: .percent
+            resultType: .value
         )
     }
 
@@ -143,9 +143,12 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     func calculatorReturn(isCompound _: Bool, period: CalculationPeriod, type: RewardReturnType) -> Decimal {
         switch type {
-        case .max:
-            guard let validator = maxValidator else {
+        case let .max(validatorId):
+            guard var validator = maxValidator else {
                 return 0.0
+            }
+            if let validatorId = validatorId, let validatorFromId = validators.first(where: { $0.accountId == validatorId }) {
+                validator = validatorFromId
             }
 
             let commission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0
