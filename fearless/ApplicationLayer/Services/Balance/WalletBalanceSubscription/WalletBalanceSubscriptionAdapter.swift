@@ -119,6 +119,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         let weakListener = WeakWrapper(target: listener)
         listeners.append(weakListener)
+        updateWalletsIfNeeded(with: wallet)
         Task {
             let cas = await getChainAssets()
             if let balances = buildBalance(for: [wallet], chainAssets: cas) {
@@ -325,6 +326,33 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private func clearIfNeeded() {
         listeners = listeners.filter { $0.target != nil }
     }
+
+    private func getChainAssets() async -> [ChainAsset] {
+        let cas = chainAssets.map { $0.value }
+        if cas.isNotEmpty {
+            return cas
+        } else {
+            if let cas = try? await chainAssetFetcher.fetchAwait(
+                shouldUseCache: true,
+                filters: [],
+                sortDescriptors: []
+            ) {
+                return cas
+            } else {
+                return []
+            }
+        }
+    }
+
+    private func updateWalletsIfNeeded(with wallet: MetaAccountModel) {
+        if let index = metaAccounts.firstIndex(where: { $0.metaId == wallet.metaId }), metaAccounts[index] != wallet {
+            metaAccounts[index] = wallet
+            Task {
+                let cas = await getChainAssets()
+                handle([wallet], cas)
+            }
+        }
+    }
 }
 
 // MARK: - EventVisitorProtocol
@@ -340,11 +368,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         Task {
             let cas = await getChainAssets()
-            if metaAccounts.contains(event.account) == true {
-                buildAndNotifyIfNeeded(with: [event.account], updatedChainAssets: cas)
-            } else {
-                handle([event.account], cas)
-            }
+            handle([event.account], cas)
         }
     }
 
@@ -356,6 +380,10 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
             self.chainAssets[key] = chainAsset
         }
         buildAndNotifyIfNeeded(with: metaAccounts, updatedChainAssets: updatedChainAssets)
+    }
+
+    func processLogout() {
+        metaAccounts = []
     }
 }
 
@@ -384,23 +412,6 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
                 chainAsset: \(chainAsset.debugName)
                 """
             )
-        }
-    }
-
-    private func getChainAssets() async -> [ChainAsset] {
-        let cas = chainAssets.map { $0.value }
-        if cas.isNotEmpty {
-            return cas
-        } else {
-            if let cas = try? await chainAssetFetcher.fetchAwait(
-                shouldUseCache: true,
-                filters: [],
-                sortDescriptors: []
-            ) {
-                return cas
-            } else {
-                return []
-            }
         }
     }
 }
