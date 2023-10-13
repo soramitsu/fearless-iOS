@@ -17,6 +17,7 @@ struct SendDependencies {
     let equilibruimTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     let transferService: TransferServiceProtocol
     let accountInfoFetching: AccountInfoFetchingProtocol
+    let polkaswapService: PolkaswapService?
 }
 
 final class SendDepencyContainer {
@@ -56,7 +57,7 @@ final class SendDepencyContainer {
         let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
         let transferService = try await createTransferService(for: chainAsset)
-
+        let polkaswapService = createPolkaswapService(chainAsset: chainAsset, chainRegistry: chainRegistry)
         let accountInfoFetching = createAccountInfoFetching(for: chainAsset)
         let dependencies = SendDependencies(
             wallet: wallet,
@@ -65,7 +66,8 @@ final class SendDepencyContainer {
             existentialDepositService: existentialDepositService,
             equilibruimTotalBalanceService: equilibruimTotalBalanceService,
             transferService: transferService,
-            accountInfoFetching: accountInfoFetching
+            accountInfoFetching: accountInfoFetching,
+            polkaswapService: polkaswapService
         )
 
         cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies
@@ -186,5 +188,36 @@ final class SendDepencyContainer {
         let keystore = Keychain()
         let secretKey = try keystore.fetchKey(for: tag)
         return secretKey
+    }
+
+    private func createPolkaswapService(
+        chainAsset: ChainAsset,
+        chainRegistry: ChainRegistryProtocol
+    ) -> PolkaswapService? {
+        guard chainAsset.chain.isSora else {
+            return nil
+        }
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let repositoryFacade = SubstrateDataStorageFacade.shared
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+            repositoryFacade.createRepository(
+                filter: nil,
+                sortDescriptors: [],
+                mapper: AnyCoreDataMapper(PolkaswapSettingMapper())
+            )
+        let operationFactory = PolkaswapOperationFactory(
+            storageRequestFactory: storageOperationFactory,
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
+        )
+        let polkaswapService = PolkaswapServiceImpl(
+            polkaswapOperationFactory: operationFactory,
+            settingsRepository: AnyDataProviderRepository(settingsRepository),
+            operationManager: operationManager
+        )
+        return polkaswapService
     }
 }

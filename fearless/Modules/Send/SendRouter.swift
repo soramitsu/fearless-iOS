@@ -6,20 +6,16 @@ final class SendRouter: SendRouterInput {
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String,
-        amount: Decimal,
-        tip: Decimal?,
+        call: SendConfirmTransferCall,
         scamInfo: ScamInfo?,
-        remark: Data?
+        feeViewModel: BalanceViewModelProtocol?
     ) {
         guard let controller = WalletSendConfirmViewFactory.createView(
             wallet: wallet,
             chainAsset: chainAsset,
-            receiverAddress: receiverAddress,
-            amount: amount,
-            tip: tip,
+            call: call,
             scamInfo: scamInfo,
-            remark: remark
+            feeViewModel: feeViewModel
         )?.controller else {
             return
         }

@@ -47,7 +47,8 @@ protocol SendInteractorInput: AnyObject {
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func getPossibleChains(for address: String) async -> [ChainModel]?
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
-    func addRemark(remark: Data)
+    func didReceive(xorlessTransfer: XorlessTransfer)
+    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> BigUInt?
 }
 
 protocol SendInteractorOutput: AnyObject {
@@ -67,11 +68,9 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String,
-        amount: Decimal,
-        tip: Decimal?,
+        call: SendConfirmTransferCall,
         scamInfo: ScamInfo?,
-        remark: Data?
+        feeViewModel: BalanceViewModelProtocol?
     )
     func presentScan(
         from view: ControllerBackedProtocol?,

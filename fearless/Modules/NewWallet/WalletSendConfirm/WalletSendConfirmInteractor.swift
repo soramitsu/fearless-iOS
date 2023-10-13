@@ -15,13 +15,12 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
-    private let receiverAddress: String
+    private let call: SendConfirmTransferCall
     private let signingWrapper: SigningWrapperProtocol
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     let dependencyContainer: SendDepencyContainer
-    private let remark: Data?
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -30,27 +29,25 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     init(
         selectedMetaAccount: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String,
+        call: SendConfirmTransferCall,
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signingWrapper: SigningWrapperProtocol,
         dependencyContainer: SendDepencyContainer,
-        wallet: MetaAccountModel,
-        remark: Data?
+        wallet: MetaAccountModel
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainAsset = chainAsset
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.receiverAddress = receiverAddress
+        self.call = call
         self.operationManager = operationManager
         self.signingWrapper = signingWrapper
         self.dependencyContainer = dependencyContainer
         self.wallet = wallet
-        self.remark = remark
     }
 
     private func provideConstants() {
@@ -101,19 +98,20 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 }
 
 extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol {
-    func estimateFee(for amount: BigUInt, tip: BigUInt?) {
+    func estimateFee() {
         Task {
             do {
-                let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
                 let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
-                let fee = try await transferService.estimateFee(for: transfer, remark: remark)
-                let runtimeDispatchInfo = RuntimeDispatchInfo(feeValue: fee)
-
-                await MainActor.run {
-                    presenter?.didReceiveFee(result: .success(runtimeDispatchInfo))
+                let fee: BigUInt
+                switch call {
+                case let .transfer(transfer):
+                    fee = try await transferService.estimateFee(for: transfer, remark: nil)
+                case let .xorlessTransfer(transfer):
+                    fee = try await transferService.estimateFee(for: transfer)
                 }
-
-                transferService.subscribeForFee(transfer: transfer, remark: remark, listener: self)
+                await MainActor.run {
+                    presenter?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
+                }
             } catch {
                 await MainActor.run {
                     presenter?.didReceiveFee(result: .failure(error))
@@ -122,12 +120,18 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
         }
     }
 
-    func submitExtrinsic(for amount: BigUInt, tip: BigUInt?, receiverAddress: String) {
+    func submitExtrinsic() {
         Task {
             do {
-                let transfer = Transfer(chainAsset: chainAsset, amount: amount, receiver: receiverAddress, tip: tip)
                 let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
-                let txHash = try await transferService.submit(transfer: transfer, remark: remark)
+
+                let txHash: String
+                switch call {
+                case let .transfer(transfer):
+                    txHash = try await transferService.submit(transfer: transfer, remark: nil)
+                case let .xorlessTransfer(transfer):
+                    txHash = try await transferService.submit(transfer: transfer)
+                }
 
                 await MainActor.run {
                     presenter?.didTransfer(result: .success(txHash))

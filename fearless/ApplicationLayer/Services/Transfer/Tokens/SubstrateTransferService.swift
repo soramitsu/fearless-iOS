@@ -164,3 +164,54 @@ final class SubstrateTransferService: TransferServiceProtocol {
 
     func unsubscribe() {}
 }
+
+extension SubstrateTransferService {
+    func estimateFee(for transfer: XorlessTransfer) async throws -> BigUInt {
+        let call = callFactory.xorlessTransfer(transfer)
+
+        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
+            var resultBuilder = builder
+            resultBuilder = try builder.adding(call: call)
+            return resultBuilder
+        }
+
+        let feeResult = try await withCheckedThrowingContinuation { continuation in
+            extrinsicService.estimateFee(
+                extrinsicBuilderClosure,
+                runningIn: .main
+            ) { result in
+                switch result {
+                case let .success(fee):
+                    continuation.resume(with: .success(fee.feeValue))
+                case let .failure(error):
+                    continuation.resume(with: .failure(error))
+                }
+            }
+        }
+
+        return feeResult
+    }
+
+    func submit(transfer: XorlessTransfer) async throws -> String {
+        let call = callFactory.xorlessTransfer(transfer)
+
+        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
+            var resultBuilder = builder
+            resultBuilder = try builder.adding(call: call)
+            return resultBuilder
+        }
+
+        let submitResult = try await withCheckedThrowingContinuation { continuation in
+            extrinsicService.submit(extrinsicBuilderClosure, signer: signer, runningIn: .main) { result in
+                switch result {
+                case let .success(hash):
+                    continuation.resume(with: .success(hash))
+                case let .failure(error):
+                    continuation.resume(with: .failure(error))
+                }
+            }
+        }
+
+        return submitResult
+    }
+}
