@@ -332,15 +332,12 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         if cas.isNotEmpty {
             return cas
         } else {
-            if let cas = try? await chainAssetFetcher.fetchAwait(
+            let cas = try? await chainAssetFetcher.fetchAwait(
                 shouldUseCache: true,
                 filters: [],
                 sortDescriptors: []
-            ) {
-                return cas
-            } else {
-                return []
-            }
+            )
+            return cas ?? []
         }
     }
 
@@ -384,6 +381,10 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
 
     func processLogout() {
         metaAccounts = []
+        accountInfosAdapters.values.forEach { adapter in
+            adapter.reset()
+        }
+        accountInfosAdapters = [:]
     }
 }
 
