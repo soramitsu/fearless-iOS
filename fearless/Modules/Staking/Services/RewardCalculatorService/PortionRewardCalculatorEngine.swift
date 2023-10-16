@@ -5,6 +5,8 @@ import IrohaCrypto
 import SSFModels
 
 final class PortionRewardCalculatorEngine: RewardCalculatorEngineProtocol {
+    let rewardAssetRate: Decimal = RewardCalculatorConstants.defaultRewardAssetRate
+
     private let dayDurationInSeconds: TimeInterval = 60 * 60 * 24
     private var averageTotalRewardsPerEra: Decimal
     private var validators: [EraValidatorInfo] = []
