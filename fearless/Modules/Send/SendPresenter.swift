@@ -680,7 +680,7 @@ final class SendPresenter {
                 receiver = AddressFactory.randomAccountId(for: selectedChainAsset.chain)
             }
             let filterMode: PolkaswapLiquidityFilterMode = .disabled
-            let maxAmountIn = (bokoloSwapValues?.fee ?? .zero * 1.5).toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
+            let maxAmountIn = ((bokoloSwapValues?.fee ?? .zero) * 1.5).toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
 
             let amount = inputResult?
                 .absoluteValue(from: balance ?? .zero)
