@@ -89,6 +89,7 @@ final class ChainAssetListInteractor {
             return
         }
         output?.didReceiveChainAssets(result: .success(chainAssets))
+        output?.didReceive(accountInfosByChainAssets: [:])
 
         accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
             self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)

@@ -86,7 +86,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private lazy var metaAccounts: [MetaAccountModel] = []
     private lazy var prices: [PriceData] = []
 
-    private let lock = ReaderWriterLock()
+    private let accountInfosLock = ReaderWriterLock()
+    private let listenersLock = ReaderWriterLock()
 
     // MARK: - Constructor
 
@@ -118,7 +119,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     ) {
         deliverQueue = queue
         let weakListener = WeakWrapper(target: listener)
-        listeners.append(weakListener)
+        listenersLock.exclusivelyWrite { [weak self] in
+            self?.listeners.append(weakListener)
+        }
         updateWalletsIfNeeded(with: wallet)
         Task {
             let cas = await getChainAssets()
@@ -134,7 +137,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     ) {
         deliverQueue = queue
         let weakListener = WeakWrapper(target: listener)
-        listeners.append(weakListener)
+        listenersLock.exclusivelyWrite { [weak self] in
+            self?.listeners.append(weakListener)
+        }
         Task {
             let cas = await getChainAssets()
             if let balances = buildBalance(for: metaAccounts, chainAssets: cas) {
@@ -151,18 +156,26 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     ) {
         deliverQueue = queue
         let weakListener = WeakWrapper(target: listener)
-        listeners.append(weakListener)
+        listenersLock.exclusivelyWrite { [weak self] in
+            self?.listeners.append(weakListener)
+        }
         if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
             notify(listener: listener, result: .success(balances))
         }
     }
 
     func unsubscribe(listener: WalletBalanceSubscriptionListener) {
-        listeners = listeners.filter {
-            if let target = $0.target as? WalletBalanceSubscriptionListener {
-                return target !== listener
+        listenersLock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else {
+                return
             }
-            return true
+
+            strongSelf.listeners = strongSelf.listeners.filter {
+                if let target = $0.target as? WalletBalanceSubscriptionListener {
+                    return target !== listener
+                }
+                return true
+            }
         }
     }
 
@@ -204,11 +217,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         let chainsOperation = fetchChainsOperation()
 
         metaAccountsOperation.addDependency(chainsOperation)
-        let unwrappedListeners = listeners.compactMap {
-            if let target = $0.target as? WalletBalanceSubscriptionListener {
-                return target
+        let unwrappedListeners = listenersLock.concurrentlyRead {
+            listeners.compactMap {
+                if let target = $0.target as? WalletBalanceSubscriptionListener {
+                    return target
+                }
+                return nil
             }
-            return nil
         }
 
         metaAccountsOperation.completionBlock = { [weak self] in
@@ -292,12 +307,16 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     private func buildAndNotifyIfNeeded(with updatedWallets: [MetaAccountModel], updatedChainAssets: [ChainAsset]) {
         clearIfNeeded()
-        let unwrappedListeners = listeners.compactMap {
-            if let target = $0.target as? WalletBalanceSubscriptionListener {
-                return target
+
+        let unwrappedListeners = listenersLock.concurrentlyRead {
+            listeners.compactMap {
+                if let target = $0.target as? WalletBalanceSubscriptionListener {
+                    return target
+                }
+                return nil
             }
-            return nil
         }
+
         Task {
             let cas = await getChainAssets()
             unwrappedListeners.forEach { listener in
@@ -324,7 +343,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     private func clearIfNeeded() {
-        listeners = listeners.filter { $0.target != nil }
+        listenersLock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+
+            strongSelf.listeners = strongSelf.listeners.filter { $0.target != nil }
+        }
     }
 
     private func getChainAssets() async -> [ChainAsset] {
@@ -394,10 +419,10 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            lock.exclusivelyWrite {
+            accountInfosLock.exclusivelyWrite {
                 self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             }
-            lock.concurrentlyRead {
+            accountInfosLock.concurrentlyRead {
                 guard expectedChainAccountsCount == accountInfos.keys.count else {
                     if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
                         buildAndNotifyIfNeeded(with: metaAccounts, updatedChainAssets: chainAssets.map { $0.value })
@@ -421,12 +446,16 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
 
 extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
-        let unwrappedListeners = listeners.compactMap {
-            if let target = $0.target as? WalletBalanceSubscriptionListener {
-                return target
+        let unwrappedListeners = listenersLock.concurrentlyRead {
+            listeners.compactMap {
+                if let target = $0.target as? WalletBalanceSubscriptionListener {
+                    return target
+                }
+
+                return nil
             }
-            return nil
         }
+
         switch result {
         case let .success(prices):
             Task {

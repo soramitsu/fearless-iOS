@@ -14620,7 +14620,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "source $PODS_ROOT/FearlessKeys/FearlessKeys/Classes/google-keys.txt\nGOOGLE_CLIENT_ID=$google_client_id\nINFO_PLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $google_client_id\" \"$INFO_PLIST\"\n";
+			shellScript = "source $PODS_ROOT/FearlessKeys/FearlessKeys/Classes/google-keys.txt\nGOOGLE_CLIENT_ID=$google_client_id\nGOOGLE_URL_SCHEME=$google_url_scheme\nINFO_PLIST=\"$BUILT_PRODUCTS_DIR/$INFOPLIST_PATH\"\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $google_client_id\" \"$INFO_PLIST\"\n/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $google_url_scheme\" \"$INFO_PLIST\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
