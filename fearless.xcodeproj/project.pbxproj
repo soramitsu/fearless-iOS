@@ -103,6 +103,10 @@
 		07B6BC8128BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */; };
 		07B6BC8428BC723500621864 /* NetworkIssuesNotificationTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */; };
 		07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */; };
+		07C96DDD2AC16EEB00CB39F5 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = 07C96DDC2AC16EEB00CB39F5 /* Web3 */; };
+		07C96DDF2AC16EEB00CB39F5 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = 07C96DDE2AC16EEB00CB39F5 /* Web3ContractABI */; };
+		07C96DE12AC16EEB00CB39F5 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = 07C96DE02AC16EEB00CB39F5 /* Web3PromiseKit */; };
+		07C96DE32AC16EF300CB39F5 /* Swime in Frameworks */ = {isa = PBXBuildFile; productRef = 07C96DE22AC16EF300CB39F5 /* Swime */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
 		07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */; };
 		07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */; };
@@ -2665,9 +2669,6 @@
 		FAE39B042AA0655B0011A9D6 /* BaseEthereumService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B032AA0655B0011A9D6 /* BaseEthereumService.swift */; };
 		FAE39B072AA1D4370011A9D6 /* NftSendConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B062AA1D4370011A9D6 /* NftSendConfirmViewModel.swift */; };
 		FAE39B092AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B082AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift */; };
-		FAE39B0C2AA5E6340011A9D6 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0B2AA5E6340011A9D6 /* Web3 */; };
-		FAE39B0E2AA5E6340011A9D6 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */; };
-		FAE39B102AA5E6340011A9D6 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */; };
 		FAE39B172AA965940011A9D6 /* URL+IPFS.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B162AA965940011A9D6 /* URL+IPFS.swift */; };
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
@@ -2706,7 +2707,6 @@
 		FAF9C2B32AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AC2AAF3FDF00A61D21 /* GetPreinstalledWalletViewController.swift */; };
 		FAF9C2B42AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */; };
 		FAF9C2B72AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */; };
-		FAF9C2C12AB227BA00A61D21 /* Swime in Frameworks */ = {isa = PBXBuildFile; productRef = FAF9C2C02AB227BA00A61D21 /* Swime */; };
 		FAFB47D72ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB47D62ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift */; };
 		FAFBEE81284621800036D08C /* SelectedValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */; };
 		FAFBEE83284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */; };
@@ -2899,6 +2899,8 @@
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
 		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
 		07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncService.swift; sourceTree = "<group>"; };
+		07C96DDA2AC16EC000CB39F5 /* Web3.swift */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Web3.swift; path = ../Web3.swift; sourceTree = "<group>"; };
+		07C96DDB2AC16ECE00CB39F5 /* Swime */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = Swime; path = "../public git/Swime"; sourceTree = "<group>"; };
 		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
 		07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolStrategy.swift; sourceTree = "<group>"; };
 		07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolViewModelState.swift; sourceTree = "<group>"; };
@@ -5654,11 +5656,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FAE39B0E2AA5E6340011A9D6 /* Web3ContractABI in Frameworks */,
-				FAF9C2C12AB227BA00A61D21 /* Swime in Frameworks */,
-				FAE39B102AA5E6340011A9D6 /* Web3PromiseKit in Frameworks */,
-				FAE39B0C2AA5E6340011A9D6 /* Web3 in Frameworks */,
+				07C96DDF2AC16EEB00CB39F5 /* Web3ContractABI in Frameworks */,
 				45F819B073C5A7969F81C4F5 /* Pods_fearlessAll_fearless.framework in Frameworks */,
+				07C96DE32AC16EF300CB39F5 /* Swime in Frameworks */,
+				07C96DE12AC16EEB00CB39F5 /* Web3PromiseKit in Frameworks */,
+				07C96DDD2AC16EEB00CB39F5 /* Web3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5983,6 +5985,15 @@
 				169ADB0FB6C83C9CEED2F780 /* NetworkIssuesNotificationViewLayout.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		07C96DD92AC16EC000CB39F5 /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				07C96DDA2AC16EC000CB39F5 /* Web3.swift */,
+				07C96DDB2AC16ECE00CB39F5 /* Swime */,
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 		07D05E4228EEFBFE00B66C70 /* Pool */ = {
@@ -8246,7 +8257,7 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FA145C502A67DF2F00362DE5 /* Packages */,
+				07C96DD92AC16EC000CB39F5 /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -11684,13 +11695,6 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
-		FA145C502A67DF2F00362DE5 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = Packages;
-			sourceTree = "<group>";
-		};
 		FA176BB62851B41900258125 /* Parachain */ = {
 			isa = PBXGroup;
 			children = (
@@ -14196,10 +14200,10 @@
 			);
 			name = fearless;
 			packageProductDependencies = (
-				FAE39B0B2AA5E6340011A9D6 /* Web3 */,
-				FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */,
-				FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */,
-				FAF9C2C02AB227BA00A61D21 /* Swime */,
+				07C96DDC2AC16EEB00CB39F5 /* Web3 */,
+				07C96DDE2AC16EEB00CB39F5 /* Web3ContractABI */,
+				07C96DE02AC16EEB00CB39F5 /* Web3PromiseKit */,
+				07C96DE22AC16EF300CB39F5 /* Swime */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -14263,8 +14267,6 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */,
-				FAF9C2BF2AB227BA00A61D21 /* XCRemoteSwiftPackageReference "Swime" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -14516,7 +14518,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14553,7 +14555,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14608,7 +14610,7 @@
 			);
 			inputPaths = (
 				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
-				"$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift",
+				$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift,
 			);
 			name = "Inject Google Keys";
 			outputFileListPaths = (
@@ -17862,44 +17864,21 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCRemoteSwiftPackageReference section */
-		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
-			requirement = {
-				branch = master;
-				kind = branch;
-			};
-		};
-		FAF9C2BF2AB227BA00A61D21 /* XCRemoteSwiftPackageReference "Swime" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/sendyhalim/Swime";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 3.0.0;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
 /* Begin XCSwiftPackageProductDependency section */
-		FAE39B0B2AA5E6340011A9D6 /* Web3 */ = {
+		07C96DDC2AC16EEB00CB39F5 /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
 			productName = Web3;
 		};
-		FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */ = {
+		07C96DDE2AC16EEB00CB39F5 /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
 			productName = Web3ContractABI;
 		};
-		FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */ = {
+		07C96DE02AC16EEB00CB39F5 /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
 			productName = Web3PromiseKit;
 		};
-		FAF9C2C02AB227BA00A61D21 /* Swime */ = {
+		07C96DE22AC16EF300CB39F5 /* Swime */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAF9C2BF2AB227BA00A61D21 /* XCRemoteSwiftPackageReference "Swime" */;
 			productName = Swime;
 		};
 /* End XCSwiftPackageProductDependency section */

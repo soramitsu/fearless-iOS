@@ -105,7 +105,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         }
     }
 
-    func unsubscribe() {
+    nonisolated func unsubscribe() {
         guard let subscriptionId = feeSubscriptionId else {
             return
         }

@@ -24,39 +24,15 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
     }
 
     func estimateFee(for transfer: NftTransfer) async throws -> BigUInt {
-        guard let smartContract = transfer.nft.smartContract else {
-            throw EthereumNftTransferServiceError.missedSmartContract
-        }
-
-        let tokenId = BigUInt(try Data(hexStringSSF: transfer.nft.tokenId))
-        let ethSenderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
-        let receiverAddress = transfer.receiver.isEmpty ? senderAddress : transfer.receiver
-        let address = try EthereumAddress(rawAddress: receiverAddress.hexToBytes())
-        let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
-        let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
-        let transfer = contract.transferFrom(from: ethSenderAddress, to: address, tokenId: tokenId)
         let gasPrice = try await queryGasPrice()
-        let transferGasLimit = try await queryGasLimit(from: ethSenderAddress, amount: EthereumQuantity(quantity: BigUInt.zero), transfer: transfer)
-
-        return gasPrice.quantity * transferGasLimit.quantity
+        let transferGasLimitQuantity = try await transferGasLimitQuantity(for: transfer)
+        return gasPrice.quantity * transferGasLimitQuantity
     }
 
     func estimateFee(for transfer: NftTransfer, baseFeePerGas: EthereumQuantity) async throws -> BigUInt {
-        guard let smartContract = transfer.nft.smartContract else {
-            throw EthereumNftTransferServiceError.missedSmartContract
-        }
-
-        let tokenId = BigUInt(try Data(hexStringSSF: transfer.nft.tokenId))
-        let ethSenderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
-        let receiverAddress = transfer.receiver.isEmpty ? senderAddress : transfer.receiver
-        let address = try EthereumAddress(rawAddress: receiverAddress.hexToBytes())
-        let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
-        let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
-        let transfer = contract.transferFrom(from: ethSenderAddress, to: address, tokenId: tokenId)
         let maxPriorityFeePerGas = try await queryMaxPriorityFeePerGas()
-        let transferGasLimit = try await queryGasLimit(from: ethSenderAddress, amount: EthereumQuantity(quantity: BigUInt.zero), transfer: transfer)
-
-        return (maxPriorityFeePerGas.quantity + baseFeePerGas.quantity) * transferGasLimit.quantity
+        let transferGasLimitQuantity = try await transferGasLimitQuantity(for: transfer)
+        return (maxPriorityFeePerGas.quantity + baseFeePerGas.quantity) * transferGasLimitQuantity
     }
 
     func subscribeForFee(transfer: NftTransfer, listener: TransferFeeEstimationListener) {
@@ -80,6 +56,35 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
 
     func submit(transfer: NftTransfer) async throws -> String {
         try await transferERC721(transfer: transfer)
+    }
+
+    private func transferGasLimitQuantity(for transfer: NftTransfer) async throws -> BigUInt {
+        guard let smartContract = transfer.nft.smartContract else {
+            throw EthereumNftTransferServiceError.missedSmartContract
+        }
+
+        let tokenId = BigUInt(try Data(hexStringSSF: transfer.nft.tokenId))
+        let ethSenderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+        let receiverAddress = transfer.receiver.isEmpty ? senderAddress : transfer.receiver
+        let address = try EthereumAddress(rawAddress: receiverAddress.hexToBytes())
+        let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
+
+        var transferSolidityInvocation: SolidityInvocation
+        switch transfer.nft.tokenType ?? .erc721 {
+        case .erc721:
+            let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
+            transferSolidityInvocation = contract.transferFrom(from: ethSenderAddress, to: address, tokenId: tokenId)
+        case .erc1155:
+            let contract = ws.Contract(type: GenericERC1155Contract.self, address: contractAddress)
+            transferSolidityInvocation = contract.safeTransferFrom(from: ethSenderAddress, to: address, tokenId: tokenId, value: .zero, data: [])
+        }
+
+        let transferGasLimit = try await queryGasLimit(
+            from: ethSenderAddress,
+            amount: EthereumQuantity(quantity: BigUInt.zero),
+            transfer: transferSolidityInvocation
+        )
+        return transferGasLimit.quantity
     }
 
     private func transferERC721(transfer: NftTransfer) async throws -> String {
@@ -150,9 +155,9 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         }
     }
 
-    override func queryGasLimit(from _: EthereumAddress?, amount _: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
+    override func queryGasLimit(from: EthereumAddress?, amount _: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
-            transfer.estimateGas { quantity, error in
+            transfer.estimateGas(from: from) { quantity, error in
                 if let gas = quantity {
                     return continuation.resume(with: .success(gas))
                 } else if let error = error {

@@ -15,7 +15,7 @@ struct NFT: Codable, Equatable, Hashable {
     let metadata: NFTMetadata?
     let mediaThumbnail: String?
     let media: [NFTMedia]?
-    let tokenType: String?
+    let tokenType: NFTTokenType?
     let attributes: [NftAttribute]?
     let collectionName: String?
     let collection: NFTCollection?
@@ -59,6 +59,11 @@ struct NFT: Codable, Equatable, Hashable {
 
         return "#\(tokenId)"
     }
+}
+
+enum NFTTokenType: String, Codable {
+    case erc721 = "ERC721"
+    case erc1155 = "ERC1155"
 }
 
 struct NFTMetadata: Codable, Equatable, Hashable {
@@ -124,7 +129,7 @@ struct NFTCollection: Codable, Equatable, Hashable {
     let creator: String?
     let price: Float?
     let media: [NFTMedia]?
-    let tokenType: String?
+    let tokenType: NFTTokenType?
     let desc: String?
     let opensea: AlchemyNftOpenseaInfo?
     let chain: ChainModel

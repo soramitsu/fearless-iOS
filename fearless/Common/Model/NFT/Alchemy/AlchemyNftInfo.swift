@@ -10,7 +10,7 @@ struct AlchemyNftContractInfo: Decodable {
 }
 
 struct AlchemyNftTokenMetadata: Decodable {
-    let tokenType: String
+    let tokenType: NFTTokenType
 }
 
 struct AlchemyNftId: Decodable {
