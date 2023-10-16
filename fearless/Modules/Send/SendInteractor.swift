@@ -256,7 +256,7 @@ extension SendInteractor: SendInteractorInput {
         }
     }
 
-    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> BigUInt? {
+    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> SwapValues? {
         guard let polkaswapService = dependencies?.polkaswapService else {
             throw ConvenienceError(error: "Dependencies not ready")
         }

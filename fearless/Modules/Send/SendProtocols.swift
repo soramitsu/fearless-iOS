@@ -48,7 +48,7 @@ protocol SendInteractorInput: AnyObject {
     func getPossibleChains(for address: String) async -> [ChainModel]?
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
     func didReceive(xorlessTransfer: XorlessTransfer)
-    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> BigUInt?
+    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> SwapValues?
 }
 
 protocol SendInteractorOutput: AnyObject {

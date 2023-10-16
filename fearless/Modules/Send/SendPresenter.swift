@@ -63,7 +63,7 @@ final class SendPresenter {
     // MARK: - Bokolo cash properties
 
     private var bokoloCashId: Data?
-    private var bokoloFee: Decimal?
+    private var bokoloSwapValues: (swap: SwapValues, fee: Decimal?)?
 
     // MARK: - Constructors
 
@@ -495,7 +495,7 @@ final class SendPresenter {
             feeAndTip = xorFee
         } else {
             balanceType = .utility(balance: bokoloBalance)
-            feeAndTip = bokoloFee.or(.zero)
+            feeAndTip = bokoloSwapValues?.fee ?? .zero
         }
 
         DataValidationRunner(validators: [
@@ -526,7 +526,7 @@ final class SendPresenter {
         guard let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset) else { return }
 
         let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
-        let viewModel = bokoloFee
+        let viewModel = bokoloSwapValues?.fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
 
@@ -680,8 +680,7 @@ final class SendPresenter {
                 receiver = AddressFactory.randomAccountId(for: selectedChainAsset.chain)
             }
             let filterMode: PolkaswapLiquidityFilterMode = .disabled
-            let reserveOnFee = BigUInt(string: "10000000000000000000") ?? .zero // 10 Xor
-            let maxAmountIn = (bokoloFee.or(.zero) * 1.5).toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
+            let maxAmountIn = (bokoloSwapValues?.fee ?? .zero * 1.5).toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
 
             let amount = inputResult?
                 .absoluteValue(from: balance ?? .zero)
@@ -689,12 +688,13 @@ final class SendPresenter {
                 ?? .zero
             let fee = fee?.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision)) ?? .zero
 
+            let dexId = String(bokoloSwapValues?.swap.dexId ?? 0)
             let transfer = XorlessTransfer(
-                dexId: "0",
+                dexId: dexId,
                 assetId: SoraAssetId(wrappedValue: bokoloCashAssetCurrencyId),
                 receiver: receiver,
                 amount: amount,
-                desiredXorAmount: fee + reserveOnFee,
+                desiredXorAmount: fee,
                 maxAmountIn: maxAmountIn ?? .zero,
                 selectedSourceTypes: [],
                 filterMode: PolkaswapCallFilterModeType(wrappedName: filterMode.code, wrappedValue: nil),
@@ -727,14 +727,16 @@ final class SendPresenter {
                 else {
                     return
                 }
-                let bokoloPaymentsFeeAmount = try await interactor.convert(
+                guard let bokoloSwap = try await interactor.convert(
                     chainAsset: xorChainAsset,
                     toChainAsset: bokoloChainAsset,
                     amount: feeValue
-                )
-                bokoloFee = bokoloPaymentsFeeAmount.map {
-                    Decimal.fromSubstrateAmount($0, precision: Int16(bokoloChainAsset.asset.precision))
-                } ?? nil
+                ) else {
+                    return
+                }
+                let bokoloAmount = BigUInt(bokoloSwap.amount) ?? .zero
+                let bokoloFee = Decimal.fromSubstrateAmount(bokoloAmount, precision: Int16(bokoloChainAsset.asset.precision))
+                bokoloSwapValues = (bokoloSwap, bokoloFee)
                 provideBokoloFeeViewModel(for: bokoloChainAsset)
             }
         }

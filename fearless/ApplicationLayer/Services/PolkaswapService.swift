@@ -8,7 +8,7 @@ protocol PolkaswapService {
         amount: BigUInt,
         fromChainAsset: ChainAsset,
         toChainAsset: ChainAsset
-    ) async throws -> BigUInt?
+    ) async throws -> SwapValues?
 }
 
 final class PolkaswapServiceImpl: PolkaswapService {
@@ -32,7 +32,7 @@ final class PolkaswapServiceImpl: PolkaswapService {
         amount: BigUInt,
         fromChainAsset: ChainAsset,
         toChainAsset: ChainAsset
-    ) async throws -> BigUInt? {
+    ) async throws -> SwapValues? {
         let (market, dexIds) = try await fetchPolkaswapSettings(fromChainAsset: fromChainAsset, toChainAsset: toChainAsset)
         let bestQuote = await fetchBestQuote(
             amount: amount,
@@ -85,8 +85,8 @@ final class PolkaswapServiceImpl: PolkaswapService {
         toChainAsset: ChainAsset,
         market: SwapMarketSourceProtocol?,
         dexIds: [UInt32]
-    ) async -> BigUInt? {
-        await withTaskGroup(of: SwapValues?.self, returning: BigUInt?.self, body: { group in
+    ) async -> SwapValues? {
+        await withTaskGroup(of: SwapValues?.self, returning: SwapValues?.self, body: { group in
             dexIds.forEach { dexId in
                 group.addTask {
                     try? await self.fetchQuote(
@@ -104,7 +104,10 @@ final class PolkaswapServiceImpl: PolkaswapService {
                 swapValues.append(swapValue)
             }
 
-            return swapValues.compactMap { $0?.amount }.compactMap { BigUInt(string: $0) }.max()
+            return swapValues
+                .compactMap { $0 }
+                .sorted(by: { BigUInt(string: $0.amount) ?? .zero > BigUInt(string: $1.amount) ?? .zero })
+                .first
         })
     }
 
