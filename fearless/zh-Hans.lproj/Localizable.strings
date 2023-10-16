@@ -97,7 +97,7 @@
 "application.status.view.offline.title" = "看起来你离线了";
 "application.status.view.reconnected.description" = "连接成功恢复";
 "application.status.view.reconnected.title" = "重新连接";
-"applied.fearless.wallet.bonus" = "Fearless钱包奖金已申请";
+"applied.fearless.wallet.bonus" = "Fearless钱包奖励已生效";
 "apply.fearless.wallet.bonus" = "点按即可申请Fearless钱包奖金";
 "ask.biometry.reason" = "验证以访问账户";
 "ask.faceid.message" = "您是否希望使用Face ID进行身份验证？";
@@ -178,7 +178,7 @@
 "common.address" = "地址";
 "common.advanced" = "高级";
 "common.applied" = "已应用";
-"common.apply" = "申请";
+"common.apply" = "应用";
 "common.available.format" = "可用：%@";
 "common.balance" = "余额";
 "common.balance.format" = "余额：%@";
@@ -248,6 +248,7 @@
 "common.privacy.policy" = "隐私政策";
 "common.proceed" = "继续";
 "common.referral.code.title" = "推荐码";
+"common.request" = "请求";
 "common.reset" = "重置";
 "common.resolve" = "解决";
 "common.retry" = "重试";
@@ -362,6 +363,7 @@
 "error.invalid.address" = "所选链的地址无效";
 "error.message.enter.the.name" = "输入名称...";
 "error.message.enter.the.url.address" = "输入URL地址...";
+"error.unsupported.asset" = "您正在尝试转移一种目前该应用不支持的资产。请选择另一种资产或请求另一个二维码。";
 "ethereum.crypto.type" = "以太坊密钥对加密类型";
 "ethereum.secret.derivation.path" = "以太坊密钥派生路径";
 "example" = "示例： %s";
@@ -621,6 +623,10 @@
 "remove.backup.extension.error.message" = "由Fearless Wallet浏览器扩展程序创建了备份。移动应用无法删除它，因为缺乏凭据。";
 "replace.account" = "更换账户";
 "replace.account.template" = "替换%s账户";
+"required.accounts.not.satisfied" = "无法继续：您的钱包没有必要的账户。请确保在继续之前设置了所需的账户。";
+"required.chains.not.satisfied" = "无法连接到钱包：所请求的区块链网络不受支持或不可用。";
+"required.events.not.satisfied" = "缺少事件通知：该应用程序不支持必要的事件通知";
+"required.methods.not.satisfied" = "功能不支持：所请求的操作不受支持。";
 "roles.common" = "角色";
 "same.address.transfer.warning.message" = "您正在尝试向同一账户进行转账。此操作将收取费用且没有任何意义。";
 "scam.additional.stub" = "附加：";
@@ -696,8 +702,8 @@
 "staking.bonded.inactive" = "你既没有提名也没有验证。";
 "staking.change.your.validators" = "更改您的验证人。";
 "staking.collator.info.title" = "收集人信息";
-"staking.collator.my.oversubscribed.message" = "超额认购。在这个时间段，您将无法从验证者那里获得奖励。";
-"staking.collator.other.oversubscribed.message" = "超额认购。只有最高质押的委托人才能获得奖励支付。";
+"staking.collator.my.oversubscribed.message" = "超额抵押。在这个时间段，您将无法从收集人那里获得奖励。";
+"staking.collator.other.oversubscribed.message" = "超额抵押。只有最高质押的委托人才能获得奖励支付。";
 "staking.collators" = "收集人";
 "staking.common.era" = "时间段";
 "staking.common.event.id" = "事件";
@@ -793,7 +799,7 @@
 "staking.recommended.custom.title" = "选择自定义验证人";
 "staking.recommended.filter.minimum.bond" = "具备相关的最低保证金";
 "staking.recommended.hint1" = "最赚钱";
-"staking.recommended.hint2" = "未超额认购";
+"staking.recommended.hint2" = "未超额抵押";
 "staking.recommended.hint3" = "拥有链上身份";
 "staking.recommended.hint3.addition" = "至少有一个身份联系人";
 "staking.recommended.hint4" = "未惩罚";
@@ -888,9 +894,9 @@
 "staking.validator.estimated.reward" = "预计奖励";
 "staking.validator.info.nominators" = "%@ （最大%@ ）";
 "staking.validator.info.title" = "验证人信息";
-"staking.validator.my.oversubscribed.message" = "超额认购。在这个时间段，您将无法从验证人那里获得奖励。";
+"staking.validator.my.oversubscribed.message" = "超额抵押。在这个时间段，您将无法从验证人那里获得奖励。";
 "staking.validator.nominators" = "提名人";
-"staking.validator.other.oversubscribed.message" = "超额认购。只有最高质押的提名人才能获得奖励支付。";
+"staking.validator.other.oversubscribed.message" = "超额抵押。只有最高质押的提名人才能获得奖励支付。";
 "staking.validator.own.stake" = "自己的";
 "staking.validator.search.empty.title" = "没有搜索结果。\n请确保您输入了完整的账户地址";
 "staking.validator.search.placeholder" = "按地址或姓名搜索";
@@ -910,7 +916,7 @@
 "staking.your.nominated.format" = "已提名：%@";
 "staking.your.not.allocated.description" = "其他没有您的质押分配而活跃的人。";
 "staking.your.not.elected.format" = "未当选（%@）。";
-"staking.your.oversubscribed.message" = "您的代币已分配给超额认购的验证人。在本时间段内，您将无法获得奖励。";
+"staking.your.oversubscribed.message" = "您的代币已分配给超额抵押的验证人。在本时间段内，您将无法获得奖励。";
 "staking.your.selected.format" = "已选择 ( %@ )";
 "staking.your.stake" = "你的质押";
 "staking.your.validator.title" = "你的验证人";
@@ -1105,7 +1111,7 @@
 "enter.phone.number.description" = "您将通过短信收到\n验证码";
 "enter.phone.number.phone.input.field.label" = "电话号码";
 "entry.card.info" = "卡片信息";
-"get.more.xor.dialog.buy.option" = "使用欧元购买XOR";
+"get.more.xor.dialog.buy.option" = "用卡购买XOR";
 "get.more.xor.dialog.description" = "你可以使用 XOR 进行兑换或用欧元购买";
 "get.more.xor.dialog.swap.option" = "用加密货币兑换XOR";
 "get.prepared.alert" = "您只有%@免费尝试机会通过 KYC 流程。此后的所有其他尝试都将花费 € %@ 。下次更新应用程序后将提供付费尝试。";
@@ -1128,6 +1134,7 @@
 "no.free.kyc.attempts.description" = "您已经使用了免费的尝试次数来完成KYC过程。\n\n我们恳请您等待下一次应用程序升级以进行付费尝试。";
 "no.free.kyc.attempts.title" = "没有更多的免费尝试";
 "otp.error.message.wrong.code" = "代码不正确。请再试一次。";
+"paid.attempts.available.later" = "付费尝试将在后期提供";
 "payment.widget.unavailable.confirm" = "是的，我理解。";
 "payment.widget.unavailable.description" = "对于不便我们深表歉意。\n我们正在努力解决此问题。\n请稍后再试。";
 "payment.widget.unavailable.message" = "支付小部件目前不可用。";

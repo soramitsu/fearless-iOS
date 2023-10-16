@@ -246,6 +246,7 @@
 "common.privacy.policy" = "個人情報保護方針";
 "common.proceed" = "続行";
 "common.referral.code.title" = "紹介コード";
+"common.request" = "Request";
 "common.reset" = "リセット";
 "common.resolve" = "解決";
 "common.retry" = "リトライ";
@@ -360,6 +361,7 @@
 "error.invalid.address" = "選択したチェーンのアドレスが無効です";
 "error.message.enter.the.name" = "名前を入力してください…";
 "error.message.enter.the.url.address" = "URLアドレスを入力してください…";
+"error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
 "ethereum.crypto.type" = "イーサリアム(Ethereum)キー・ペアの暗号方式";
 "ethereum.secret.derivation.path" = "イーサリアム(Ethereum)の秘密の派生経路";
 "example" = "例： %s";
@@ -619,6 +621,10 @@
 "remove.backup.extension.error.message" = "バックアップは、フィアレス・ウォレットブラウザ拡張機能によって作成されました。モバイルアプリケーションでは、認証情報が不足しているため削除できません";
 "replace.account" = "アカウントを置き換える";
 "replace.account.template" = "%s アカウントを置き換える";
+"required.accounts.not.satisfied" = "Cannot proceed: Your wallet does not have the necessary accounts. Please make sure you have the required accounts set up before continuing";
+"required.chains.not.satisfied" = "Unable to connect to wallet: The requested blockchain network is not supported or available";
+"required.events.not.satisfied" = "Missing event notifications: the App does not support the necessary event notifications";
+"required.methods.not.satisfied" = "Functionality not supported: The requested action is not supporte";
 "roles.common" = "役割";
 "same.address.transfer.warning.message" = "同じ口座に送信しようとしています。操作には手数料が掛かるので、無駄になりませんか";
 "scam.additional.stub" = "追加：";

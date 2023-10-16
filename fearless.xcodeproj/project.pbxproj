@@ -4427,6 +4427,9 @@
 		C6584E342982524700592A92 /* WalletTransactionHistoryDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryDependencyContainer.swift; sourceTree = "<group>"; };
 		C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoFetching.swift; sourceTree = "<group>"; };
 		C65A6593288E5E0500679D65 /* NSLockExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLockExtension.swift; sourceTree = "<group>"; };
+		C65C7F6C2ADD117D0069D877 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		C65C7F6D2ADD117D0069D877 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = vi; path = vi.lproj/Localizable.strings; sourceTree = "<group>"; };
+		C65C7F6E2ADD117E0069D877 /* vi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = vi; path = vi.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewLayout.swift; sourceTree = "<group>"; };
 		C661B3AF27DF75D4005F1F7D /* AccountCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewModel.swift; sourceTree = "<group>"; };
 		C661B3B127DF99A8005F1F7D /* AccountCreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewController.swift; sourceTree = "<group>"; };
@@ -14260,6 +14263,7 @@
 				ru,
 				ja,
 				"zh-Hans",
+				vi,
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
@@ -17379,6 +17383,7 @@
 				8490146224A9438E008F705E /* ru */,
 				FAF9C2972AAED41500A61D21 /* ja */,
 				FAF9C29B2AAED44400A61D21 /* zh-Hans */,
+				C65C7F6D2ADD117D0069D877 /* vi */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -17398,6 +17403,7 @@
 				84C07EE524AF1990008FC35B /* ru */,
 				FAF9C2992AAED42300A61D21 /* ja */,
 				FAF9C29A2AAED43E00A61D21 /* zh-Hans */,
+				C65C7F6C2ADD117D0069D877 /* vi */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -17409,6 +17415,7 @@
 				AE74EC1F25FCF0A600C494E7 /* ru */,
 				FAF9C2982AAED41C00A61D21 /* ja */,
 				FAF9C29C2AAED44900A61D21 /* zh-Hans */,
+				C65C7F6E2ADD117E0069D877 /* vi */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
