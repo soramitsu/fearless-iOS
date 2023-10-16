@@ -195,26 +195,34 @@ final class SendPresenter {
     }
 
     private func refreshFee(for chainAsset: ChainAsset, address: String?) {
-        if case .bokoloCash = initialData {
+        switch initialData {
+        case .bokoloCash:
             guard let transfer = prepareXorlessTransfer() else {
                 return
             }
             interactor.didReceive(xorlessTransfer: transfer)
-            return
-        }
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0
-        guard let amount = inputAmount.toSubstrateAmount(
-            precision: Int16(chainAsset.asset.precision)
-        ) else {
-            return
-        }
+        case .address, .chainAsset, .soraMainnet, .soraMainnetSolomon:
+            if selectedChainAsset?.isBokolo == true {
+                guard let transfer = prepareXorlessTransfer() else {
+                    return
+                }
+                interactor.didReceive(xorlessTransfer: transfer)
+                return
+            }
+            let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0
+            guard let amount = inputAmount.toSubstrateAmount(
+                precision: Int16(chainAsset.asset.precision)
+            ) else {
+                return
+            }
 
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.didStartFeeCalculation()
-        }
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didStartFeeCalculation()
+            }
 
-        let tip = self.tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
-        interactor.estimateFee(for: amount, tip: tip, for: address, chainAsset: chainAsset)
+            let tip = self.tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+            interactor.estimateFee(for: amount, tip: tip, for: address, chainAsset: chainAsset)
+        }
     }
 
     private func handle(newAddress: String) {
@@ -606,9 +614,16 @@ final class SendPresenter {
         recipientAddress = bokoloCasheBridgeAddress
         Task {
             let possibleChains = await self.interactor.getPossibleChains(for: bokoloCasheBridgeAddress)
-            let chainAsset = possibleChains?
-                .first(where: { $0.isSora })?.chainAssets
-                .first(where: { $0.asset.currencyId == bokoloCashAssetCurrencyId })
+            #if F_DEV
+                let chainAsset = possibleChains?
+                    .first(where: { $0.name.lowercased() == "sora test" })?.chainAssets
+                    .first(where: { $0.asset.currencyId == bokoloCashAssetCurrencyId })
+
+            #else
+                let chainAsset = possibleChains?
+                    .first(where: { $0.isSora })?.chainAssets
+                    .first(where: { $0.asset.currencyId == bokoloCashAssetCurrencyId })
+            #endif
 
             guard
                 let qrChainAsset = chainAsset,
@@ -652,14 +667,18 @@ final class SendPresenter {
 
     private func prepareXorlessTransfer() -> XorlessTransfer? {
         do {
-            guard
-                let selectedChainAsset = selectedChainAsset,
-                let bokoloCashId = bokoloCashId
-            else {
+            guard let selectedChainAsset = selectedChainAsset else {
                 throw ConvenienceError(error: "Can't prepare xorless transfer")
             }
 
-            let bokoloCasheBridgeAddressAccountId = try AddressFactory.accountId(from: bokoloCasheBridgeAddress, chain: selectedChainAsset.chain)
+            let receiver: Data
+            if case .bokoloCash = initialData {
+                receiver = try AddressFactory.accountId(from: bokoloCasheBridgeAddress, chain: selectedChainAsset.chain)
+            } else if let recipientAddress = recipientAddress {
+                receiver = try AddressFactory.accountId(from: recipientAddress, chain: selectedChainAsset.chain)
+            } else {
+                receiver = AddressFactory.randomAccountId(for: selectedChainAsset.chain)
+            }
             let filterMode: PolkaswapLiquidityFilterMode = .disabled
             let reserveOnFee = BigUInt(string: "10000000000000000000") ?? .zero // 10 Xor
             let maxAmountIn = (bokoloFee.or(.zero) * 1.5).toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
@@ -673,18 +692,18 @@ final class SendPresenter {
             let transfer = XorlessTransfer(
                 dexId: "0",
                 assetId: SoraAssetId(wrappedValue: bokoloCashAssetCurrencyId),
-                receiver: bokoloCasheBridgeAddressAccountId,
+                receiver: receiver,
                 amount: amount,
                 desiredXorAmount: fee + reserveOnFee,
                 maxAmountIn: maxAmountIn ?? .zero,
                 selectedSourceTypes: [],
                 filterMode: PolkaswapCallFilterModeType(wrappedName: filterMode.code, wrappedValue: nil),
-                additionalData: bokoloCashId
+                additionalData: bokoloCashId ?? Data()
             )
             return transfer
         } catch {
-            return nil
             logger?.customError(error)
+            return nil
         }
     }
 
@@ -783,13 +802,12 @@ extension SendPresenter: SendViewOutput {
 
     func didTapContinueButton() {
         guard let chainAsset = selectedChainAsset else { return }
-        switch initialData {
-        case .chainAsset, .soraMainnet, .soraMainnetSolomon, .address:
+        if chainAsset.isBokolo {
+            validateXorlessTransfer()
+        } else {
             validateAddress(with: chainAsset) { [weak self] address in
                 self?.validateInputData(with: address, chainAsset: chainAsset)
             }
-        case .bokoloCash:
-            validateXorlessTransfer()
         }
     }
 
@@ -866,7 +884,7 @@ extension SendPresenter: SendInteractorOutput {
                     )
                 } ?? 0
             }
-            if case .bokoloCash = initialData {
+            if selectedChainAsset?.isBokolo == true {
                 checkXorFeePaymentPossibles()
             }
         case let .failure(error):
@@ -908,7 +926,7 @@ extension SendPresenter: SendInteractorOutput {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 
-            if case .bokoloCash = initialData {
+            if selectedChainAsset?.isBokolo == true {
                 checkXorFeePaymentPossibles()
             } else {
                 provideAssetVewModel()
