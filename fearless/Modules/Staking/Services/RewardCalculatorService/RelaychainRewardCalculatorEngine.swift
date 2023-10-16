@@ -7,9 +7,10 @@ import SSFModels
 // For all the cases we suggest that parachains are disabled
 // Thus, i_ideal = 0.1 and x_ideal = 0.75
 final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
+    let rewardAssetRate: Decimal
+
     private var totalIssuance: Decimal
     private var validators: [EraValidatorInfo] = []
-    private var rewardAssetRate: Decimal
 
     private let chainId: ChainModel.Id
     private let assetPrecision: Int16
