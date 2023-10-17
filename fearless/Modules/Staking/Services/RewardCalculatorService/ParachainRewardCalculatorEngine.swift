@@ -6,6 +6,8 @@ import SSFModels
 import SSFModels
 
 final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
+    let rewardAssetRate: Decimal = RewardCalculatorConstants.defaultRewardAssetRate
+
     private var totalIssuance: Decimal
     private var totalStaked: Decimal
     private let chainId: ChainModel.Id
