@@ -7,8 +7,8 @@ struct WalletConnectProposalViewModel {
     let cells: [WalletConnectProposalCellModel]
     let expiryDate: String?
 
-    lazy var selectedWalletIds: [String] = {
-        cells.compactMap {
+    lazy var selectedWalletIds: [String]? = {
+        let metaIds = cells.compactMap {
             switch $0 {
             case let .wallet(viewModel):
                 return viewModel.isSelected ? viewModel.metaId : nil
@@ -16,6 +16,7 @@ struct WalletConnectProposalViewModel {
                 return nil
             }
         }
+        return metaIds.isNotEmpty ? metaIds : nil
     }()
 }
 

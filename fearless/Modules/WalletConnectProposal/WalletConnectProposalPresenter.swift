@@ -133,7 +133,7 @@ final class WalletConnectProposalPresenter {
             do {
                 guard let proposal = status.proposal else { return }
                 let selectedWallets = wallets.filter { wallet in
-                    viewModel?.selectedWalletIds.contains(wallet.metaId) == true
+                    viewModel?.selectedWalletIds?.contains(wallet.metaId) == true
                 }
                 let namespaces = try walletConnectModelFactory.createSessionNamespaces(
                     from: proposal,
