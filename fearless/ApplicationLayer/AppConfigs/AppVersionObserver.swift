@@ -95,7 +95,7 @@ extension AppVersionObserver: AppVersionObserverProtocol {
 
         operationManager.enqueue(operations: [operation] + operation.dependencies, in: .transient)
     }
-    
+
     private func showVersionUnsupportedAlert(from view: ControllerBackedProtocol?) {
         wireframe.presentWarningAlert(
             from: view,
@@ -104,7 +104,7 @@ extension AppVersionObserver: AppVersionObserverProtocol {
             self.wireframe.showAppstoreUpdatePage()
         }
     }
-    
+
     private func showCheckFailedAlert(from view: ControllerBackedProtocol?, callback: AppVersionObserverResult?) {
         wireframe.presentWarningAlert(
             from: view,
