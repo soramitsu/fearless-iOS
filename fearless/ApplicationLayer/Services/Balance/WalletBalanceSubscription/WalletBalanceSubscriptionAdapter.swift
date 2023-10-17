@@ -182,6 +182,10 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     // MARK: - Private methods
 
     private func buildBalance(for wallets: [MetaAccountModel], chainAssets: [ChainAsset]) -> WalletBalanceInfos? {
+        let accountInfos = accountInfosLock.concurrentlyRead {
+            self.accountInfos
+        }
+
         let walletBalances = walletBalanceBuilder.buildBalance(
             for: accountInfos,
             wallets,
@@ -212,7 +216,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     private func fetchAllMetaAccounts() {
-        accountInfos = [:]
+        accountInfosLock.exclusivelyWrite { [weak self] in
+            self?.accountInfos = [:]
+        }
         let metaAccountsOperation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let chainsOperation = fetchChainsOperation()
 
@@ -261,6 +267,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         for wallets: [MetaAccountModel],
         _ chainAssets: [ChainAsset]
     ) {
+        let walletIds = wallets.compactMap { $0.metaId }
+        accountInfosAdapters.map { $0.value }.filter { walletIds.contains($0.wallet.metaId) }.forEach { $0.reset() }
+
         wallets.forEach { wallet in
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -352,13 +361,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
-    private func getChainAssets() async -> [ChainAsset] {
+    private func getChainAssets(shouldUseCache: Bool = true) async -> [ChainAsset] {
         let cas = chainAssets.map { $0.value }
-        if cas.isNotEmpty {
+        if cas.isNotEmpty, shouldUseCache {
             return cas
         } else {
             let cas = try? await chainAssetFetcher.fetchAwait(
-                shouldUseCache: true,
+                shouldUseCache: shouldUseCache,
                 filters: [],
                 sortDescriptors: []
             )
@@ -388,6 +397,11 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
     }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        let existingWalletsIds = metaAccounts.compactMap { $0.metaId }
+        guard !existingWalletsIds.contains(event.account.metaId) else {
+            return
+        }
+
         Task {
             let cas = await getChainAssets()
             handle([event.account], cas)
@@ -410,6 +424,25 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
             adapter.reset()
         }
         accountInfosAdapters = [:]
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        Task {
+            let cas = await getChainAssets(shouldUseCache: false)
+            let chainsAssetsMap = cas.reduce(
+                [ChainAssetId: ChainAsset]()
+            ) { (result, chainAsset) -> [ChainAssetId: ChainAsset] in
+                var dic = result
+
+                let key = chainAsset.chainAssetId
+                dic[key] = chainAsset
+
+                return dic
+            }
+            self.chainAssets = chainsAssetsMap
+            defineExpectedAccountInfosCount(wallets: metaAccounts, chainAssets: cas)
+            subscribeToAccountInfo(for: metaAccounts, cas)
+        }
     }
 }
 

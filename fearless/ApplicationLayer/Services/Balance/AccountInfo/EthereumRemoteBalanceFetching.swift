@@ -135,7 +135,7 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
         Task {
-            let balances = try await withThrowingTaskGroup(of: (ChainAsset, AccountInfo?).self, returning: [ChainAsset: AccountInfo?].self) { [weak self] group in
+            let balances = try await withThrowingTaskGroup(of: (ChainAsset, AccountInfo?)?.self, returning: [ChainAsset: AccountInfo?].self) { [weak self] group in
                 guard let strongSelf = self else {
                     return [:]
                 }
@@ -150,11 +150,19 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
 
                         switch chainAsset.asset.ethereumType {
                         case .normal:
-                            let accountInfo = try? await strongSelf.fetchETHBalance(for: chainAsset, address: address)
-                            return (chainAsset, accountInfo)
+                            do {
+                                let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
+                                return (chainAsset, accountInfo)
+                            } catch {
+                                return nil
+                            }
                         case .erc20, .bep20:
-                            let accountInfo = try? await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
-                            return (chainAsset, accountInfo)
+                            do {
+                                let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
+                                return (chainAsset, accountInfo)
+                            } catch {
+                                return nil
+                            }
                         case .none:
                             return (chainAsset, nil)
                         }
@@ -163,7 +171,7 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
 
                 var result: [ChainAsset: AccountInfo?] = [:]
 
-                for try await accountInfoByChainAsset in group {
+                for try await accountInfoByChainAsset in group.compactMap({ $0 }) {
                     let chainAsset = accountInfoByChainAsset.0
                     let accountInfo = accountInfoByChainAsset.1
                     if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
