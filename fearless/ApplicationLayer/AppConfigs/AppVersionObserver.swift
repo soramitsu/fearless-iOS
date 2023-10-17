@@ -88,20 +88,30 @@ extension AppVersionObserver: AppVersionObserverProtocol {
                 }
             case let .failure(error):
                 DispatchQueue.main.async {
-                    strongSelf.wireframe.presentWarningAlert(
-                        from: view,
-                        config: WarningAlertConfig.connectionProblemAlertConfig(with: strongSelf.locale)
-                    ) {
-                        strongSelf.wireframe.dismiss(view: view)
-
-                        strongSelf.checkVersion(from: view, callback: callback)
-                    }
-
                     callback?(nil, error)
                 }
             }
         }
 
         operationManager.enqueue(operations: [operation] + operation.dependencies, in: .transient)
+    }
+    
+    private func showVersionUnsupportedAlert(from view: ControllerBackedProtocol?) {
+        wireframe.presentWarningAlert(
+            from: view,
+            config: WarningAlertConfig.unsupportedAppVersionConfig(with: locale)
+        ) {
+            self.wireframe.showAppstoreUpdatePage()
+        }
+    }
+    
+    private func showCheckFailedAlert(from view: ControllerBackedProtocol?, callback: AppVersionObserverResult?) {
+        wireframe.presentWarningAlert(
+            from: view,
+            config: WarningAlertConfig.connectionProblemAlertConfig(with: locale)
+        ) {
+            self.wireframe.dismiss(view: view)
+            self.checkVersion(from: view, callback: callback)
+        }
     }
 }
