@@ -82,7 +82,8 @@ enum WalletSendConfirmViewFactory {
             wallet: wallet,
             call: call,
             scamInfo: scamInfo,
-            feeViewModel: feeViewModel
+            feeViewModel: feeViewModel,
+            localizationManager: LocalizationManager.shared
         )
 
         let view = WalletSendConfirmViewController(

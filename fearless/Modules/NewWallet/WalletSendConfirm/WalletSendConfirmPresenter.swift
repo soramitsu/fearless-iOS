@@ -38,7 +38,8 @@ final class WalletSendConfirmPresenter {
         wallet: MetaAccountModel,
         call: SendConfirmTransferCall,
         scamInfo: ScamInfo?,
-        feeViewModel: BalanceViewModelProtocol?
+        feeViewModel: BalanceViewModelProtocol?,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -51,6 +52,7 @@ final class WalletSendConfirmPresenter {
         self.wallet = wallet
         self.scamInfo = scamInfo
         self.feeViewModel = feeViewModel
+        self.localizationManager = localizationManager
     }
 
     private func provideViewModel() {
