@@ -82,7 +82,7 @@ extension AllDonePresenter: AllDoneViewOutput {
     func explorerButtonDidTapped() {
         guard let explorer = self.explorer,
               let hashString = hashString,
-              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: explorer.transactionType)
         else {
             return
         }
@@ -92,7 +92,7 @@ extension AllDonePresenter: AllDoneViewOutput {
     func shareButtonDidTapped() {
         guard let explorer = self.explorer,
               let hashString = hashString,
-              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: explorer.transactionType)
         else {
             return
         }
