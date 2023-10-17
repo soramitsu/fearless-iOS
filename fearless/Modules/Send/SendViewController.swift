@@ -106,10 +106,6 @@ final class SendViewController: UIViewController, ViewHolder {
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
-        rootView.amountView.textField.inputAccessoryView = accessoryView
     }
 
     private func updateActionButton() {
@@ -145,6 +141,16 @@ final class SendViewController: UIViewController, ViewHolder {
 // MARK: - SendViewInput
 
 extension SendViewController: SendViewInput {
+    func setInputAccessoryView(visible: Bool) {
+        rootView.amountView.textField.resignFirstResponder()
+        if visible {
+            let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: selectedLocale)
+            rootView.amountView.textField.inputAccessoryView = accessoryView
+        } else {
+            rootView.amountView.textField.inputAccessoryView = nil
+        }
+    }
+
     func didBlockUserInteractive(isUserInteractiveAmount: Bool) {
         rootView.searchView.isUserInteractionEnabled = false
         rootView.selectNetworkView.isUserInteractionEnabled = false

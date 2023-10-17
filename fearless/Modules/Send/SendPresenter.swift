@@ -29,7 +29,12 @@ final class SendPresenter {
 
     private var recipientAddress: String?
     private var selectedChain: ChainModel?
-    private var selectedChainAsset: ChainAsset?
+    private var selectedChainAsset: ChainAsset? {
+        didSet {
+            view?.setInputAccessoryView(visible: selectedChainAsset?.isBokolo == false)
+        }
+    }
+
     private var selectedAsset: AssetModel?
     private var balance: Decimal?
     private var utilityBalance: Decimal?

@@ -16,6 +16,7 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didStopTipCalculation()
     func didReceive(viewModel: RecipientViewModel)
     func didBlockUserInteractive(isUserInteractiveAmount: Bool)
+    func setInputAccessoryView(visible: Bool)
 }
 
 protocol SendViewOutput: AnyObject {
