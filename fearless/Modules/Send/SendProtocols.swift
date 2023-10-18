@@ -15,6 +15,8 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didStopFeeCalculation()
     func didStopTipCalculation()
     func didReceive(viewModel: RecipientViewModel)
+    func didBlockUserInteractive(isUserInteractiveAmount: Bool)
+    func setInputAccessoryView(visible: Bool)
 }
 
 protocol SendViewOutput: AnyObject {
@@ -46,6 +48,8 @@ protocol SendInteractorInput: AnyObject {
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func getPossibleChains(for address: String) async -> [ChainModel]?
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
+    func didReceive(xorlessTransfer: XorlessTransfer)
+    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> SwapValues?
 }
 
 protocol SendInteractorOutput: AnyObject {
@@ -65,10 +69,9 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String,
-        amount: Decimal,
-        tip: Decimal?,
-        scamInfo: ScamInfo?
+        call: SendConfirmTransferCall,
+        scamInfo: ScamInfo?,
+        feeViewModel: BalanceViewModelProtocol?
     )
     func presentScan(
         from view: ControllerBackedProtocol?,

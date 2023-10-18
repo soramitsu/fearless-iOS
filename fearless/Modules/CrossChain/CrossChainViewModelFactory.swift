@@ -27,7 +27,8 @@ final class CrossChainViewModelFactory: CrossChainViewModelFactoryProtocol {
         RecipientViewModel(
             address: address,
             icon: try? iconGenerator.generateFromAddress(address),
-            isValid: isValid
+            isValid: isValid,
+            canEditing: true
         )
     }
 }

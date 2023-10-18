@@ -14,6 +14,7 @@ protocol SubstrateCallFactoryProtocol {
         to receiver: AccountId,
         amount: BigUInt
     ) -> any RuntimeCallable
+    func xorlessTransfer(_ transfer: XorlessTransfer) -> any RuntimeCallable
     func bond(
         amount: BigUInt,
         controller: String,

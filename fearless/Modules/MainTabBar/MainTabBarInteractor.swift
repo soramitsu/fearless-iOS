@@ -1,4 +1,5 @@
 import Foundation
+import WalletConnectSign
 import SoraKeystore
 import CommonWallet
 import SSFUtils

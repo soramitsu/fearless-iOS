@@ -2,7 +2,7 @@ import Foundation
 import SSFUtils
 
 extension MultiSignature {
-    static func signature(from cryptoType: CryptoType, data: Data) -> MultiSignature? {
+    static func signature(from cryptoType: CryptoType, data: Data) -> MultiSignature {
         switch cryptoType {
         case .sr25519:
             return MultiSignature.sr25519(data: data)

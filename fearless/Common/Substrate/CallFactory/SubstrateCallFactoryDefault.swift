@@ -190,6 +190,15 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         )
     }
 
+    func xorlessTransfer(_ transfer: XorlessTransfer) -> any RuntimeCallable {
+        let path: SubstrateCallPath = .xorlessTransfer
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: transfer
+        )
+    }
+
     func setPayee(for destination: RewardDestinationArg) -> any RuntimeCallable {
         let args = SetPayeeCall(payee: destination)
         let path: SubstrateCallPath = .setPayee

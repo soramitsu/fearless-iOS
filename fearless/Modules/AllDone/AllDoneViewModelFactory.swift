@@ -4,7 +4,7 @@ protocol AllDoneViewModelFactoryProtocol {
     func buildViewModel(
         title: String?,
         description: String?,
-        extrinsicHash: String,
+        extrinsicHash: String?,
         locale: Locale
     ) -> AllDoneViewModel
 }
@@ -13,7 +13,7 @@ final class AllDoneViewModelFactory: AllDoneViewModelFactoryProtocol {
     func buildViewModel(
         title: String?,
         description: String?,
-        extrinsicHash: String,
+        extrinsicHash: String?,
         locale: Locale
     ) -> AllDoneViewModel {
         let defaultTitle = R.string.localizable

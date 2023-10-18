@@ -25,6 +25,8 @@ enum SubstrateCallPath: CaseIterable {
             return (moduleName: "Staking", callName: "payout_stakers")
         case .transfer:
             return (moduleName: "Balances", callName: "transfer")
+        case .xorlessTransfer:
+            return (moduleName: "LiquidityProxy", callName: "xorless_transfer")
         case .setPayee:
             return (moduleName: "Staking", callName: "set_payee")
         case .withdrawUnbonded:
@@ -81,6 +83,7 @@ enum SubstrateCallPath: CaseIterable {
     case nominate
     case payout
     case transfer
+    case xorlessTransfer
     case setPayee
     case withdrawUnbonded
     case setController

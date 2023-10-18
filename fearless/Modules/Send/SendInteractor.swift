@@ -178,13 +178,13 @@ extension SendInteractor: SendInteractorInput {
                     tip: tip
                 )
 
-                let fee = try await dependencies.transferService.estimateFee(for: transfer)
+                let fee = try await dependencies.transferService.estimateFee(for: transfer, remark: nil)
 
                 await MainActor.run(body: {
                     output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
                 })
 
-                dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
+                dependencies.transferService.subscribeForFee(transfer: transfer, remark: nil, listener: self)
             } catch {
                 await MainActor.run(body: {
                     output?.didReceiveFee(result: .failure(error))
@@ -235,6 +235,32 @@ extension SendInteractor: SendInteractorInput {
                 .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
             output?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
         }
+    }
+
+    func didReceive(xorlessTransfer: XorlessTransfer) {
+        guard let dependencies = dependencies else {
+            return
+        }
+
+        Task {
+            do {
+                let fee = try await dependencies.transferService.estimateFee(for: xorlessTransfer)
+                await MainActor.run(body: {
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
+                })
+            } catch {
+                await MainActor.run(body: {
+                    output?.didReceiveFee(result: .failure(error))
+                })
+            }
+        }
+    }
+
+    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> SwapValues? {
+        guard let polkaswapService = dependencies?.polkaswapService else {
+            throw ConvenienceError(error: "Dependencies not ready")
+        }
+        return try await polkaswapService.fetchQuotes(amount: amount, fromChainAsset: chainAsset, toChainAsset: toChainAsset)
     }
 }
 

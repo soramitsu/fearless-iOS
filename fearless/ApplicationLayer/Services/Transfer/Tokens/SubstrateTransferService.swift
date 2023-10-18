@@ -20,7 +20,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
         self.signer = signer
     }
 
-    func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
+    func subscribeForFee(transfer: Transfer, remark: Data?, listener: TransferFeeEstimationListener) {
         func accountId(from address: String?, chain: ChainModel) -> AccountId {
             guard let address = address,
                   let accountId = try? AddressFactory.accountId(from: address, chain: chain)
@@ -37,12 +37,24 @@ final class SubstrateTransferService: TransferServiceProtocol {
             amount: transfer.amount,
             chainAsset: transfer.chainAsset
         )
+
+        var remarkCall: (any RuntimeCallable)?
+        if let remark = remark {
+            remarkCall = callFactory.addRemark(remark)
+        }
+
         let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
-            var nextBuilder = try builder.adding(call: call)
-            if let tip = transfer.tip {
-                nextBuilder = builder.with(tip: tip)
+            var resultBuilder = builder
+            resultBuilder = try builder.adding(call: call)
+
+            if let remarkCall = remarkCall {
+                resultBuilder = try resultBuilder.adding(call: remarkCall)
             }
-            return nextBuilder
+
+            if let tip = transfer.tip {
+                resultBuilder = resultBuilder.with(tip: tip)
+            }
+            return resultBuilder
         }
 
         extrinsicService.estimateFee(extrinsicBuilderClosure, runningIn: .main) { feeResult in
@@ -55,7 +67,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
         }
     }
 
-    func estimateFee(for transfer: Transfer) async throws -> BigUInt {
+    func estimateFee(for transfer: Transfer, remark: Data?) async throws -> BigUInt {
         func accountId(from address: String?, chain: ChainModel) -> AccountId {
             guard let address = address,
                   let accountId = try? AddressFactory.accountId(from: address, chain: chain)
@@ -72,12 +84,24 @@ final class SubstrateTransferService: TransferServiceProtocol {
             amount: transfer.amount,
             chainAsset: transfer.chainAsset
         )
+
+        var remarkCall: (any RuntimeCallable)?
+        if let remark = remark {
+            remarkCall = callFactory.addRemark(remark)
+        }
+
         let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
-            var nextBuilder = try builder.adding(call: call)
-            if let tip = transfer.tip {
-                nextBuilder = builder.with(tip: tip)
+            var resultBuilder = builder
+            resultBuilder = try builder.adding(call: call)
+
+            if let remarkCall = remarkCall {
+                resultBuilder = try resultBuilder.adding(call: remarkCall)
             }
-            return nextBuilder
+
+            if let tip = transfer.tip {
+                resultBuilder = resultBuilder.with(tip: tip)
+            }
+            return resultBuilder
         }
 
         let feeResult = try await withCheckedThrowingContinuation { continuation in
@@ -97,19 +121,31 @@ final class SubstrateTransferService: TransferServiceProtocol {
         return feeResult
     }
 
-    func submit(transfer: Transfer) async throws -> String {
+    func submit(transfer: Transfer, remark: Data?) async throws -> String {
         let accountId = try AddressFactory.accountId(from: transfer.receiver, chain: transfer.chainAsset.chain)
         let call = callFactory.transfer(
             to: accountId,
             amount: transfer.amount,
             chainAsset: transfer.chainAsset
         )
+
+        var remarkCall: (any RuntimeCallable)?
+        if let remark = remark {
+            remarkCall = callFactory.addRemark(remark)
+        }
+
         let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
-            var nextBuilder = try builder.adding(call: call)
-            if let tip = transfer.tip {
-                nextBuilder = builder.with(tip: tip)
+            var resultBuilder = builder
+            resultBuilder = try builder.adding(call: call)
+
+            if let remarkCall = remarkCall {
+                resultBuilder = try resultBuilder.adding(call: remarkCall)
             }
-            return nextBuilder
+
+            if let tip = transfer.tip {
+                resultBuilder = resultBuilder.with(tip: tip)
+            }
+            return resultBuilder
         }
 
         let submitResult = try await withCheckedThrowingContinuation { continuation in
@@ -127,4 +163,55 @@ final class SubstrateTransferService: TransferServiceProtocol {
     }
 
     func unsubscribe() {}
+}
+
+extension SubstrateTransferService {
+    func estimateFee(for transfer: XorlessTransfer) async throws -> BigUInt {
+        let call = callFactory.xorlessTransfer(transfer)
+
+        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
+            var resultBuilder = builder
+            resultBuilder = try builder.adding(call: call)
+            return resultBuilder
+        }
+
+        let feeResult = try await withCheckedThrowingContinuation { continuation in
+            extrinsicService.estimateFee(
+                extrinsicBuilderClosure,
+                runningIn: .main
+            ) { result in
+                switch result {
+                case let .success(fee):
+                    continuation.resume(with: .success(fee.feeValue))
+                case let .failure(error):
+                    continuation.resume(with: .failure(error))
+                }
+            }
+        }
+
+        return feeResult
+    }
+
+    func submit(transfer: XorlessTransfer) async throws -> String {
+        let call = callFactory.xorlessTransfer(transfer)
+
+        let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
+            var resultBuilder = builder
+            resultBuilder = try builder.adding(call: call)
+            return resultBuilder
+        }
+
+        let submitResult = try await withCheckedThrowingContinuation { continuation in
+            extrinsicService.submit(extrinsicBuilderClosure, signer: signer, runningIn: .main) { result in
+                switch result {
+                case let .success(hash):
+                    continuation.resume(with: .success(hash))
+                case let .failure(error):
+                    continuation.resume(with: .failure(error))
+                }
+            }
+        }
+
+        return submitResult
+    }
 }

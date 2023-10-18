@@ -10,20 +10,20 @@ final class AllDonePresenter {
     private let interactor: AllDoneInteractorInput
     private let viewModelFactory: AllDoneViewModelFactoryProtocol
 
-    private let chainAsset: ChainAsset
-    private let hashString: String
+    private let chainAsset: ChainAsset?
+    private let hashString: String?
     private var closure: (() -> Void)?
 
     private var title: String?
     private var description: String?
 
-    private var blockExplorer: ChainModel.ExternalApiExplorer?
+    private var explorer: ChainModel.ExternalApiExplorer?
 
     // MARK: - Constructors
 
     init(
-        chainAsset: ChainAsset,
-        hashString: String,
+        chainAsset: ChainAsset?,
+        hashString: String?,
         interactor: AllDoneInteractorInput,
         router: AllDoneRouterInput,
         viewModelFactory: AllDoneViewModelFactoryProtocol,
@@ -56,12 +56,16 @@ final class AllDonePresenter {
         view?.didReceive(viewModel: viewModel)
     }
 
-    private func prepareBlockExplorer() {
-        let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
+    private func prepareExplorer() {
+        guard hashString != nil else {
+            view?.didReceive(explorer: nil)
+            return
+        }
+        let explorer = chainAsset?.chain.externalApi?.explorers?.first(where: {
             $0.type == .subscan || $0.type == .etherscan
         })
-        view?.didReceive(explorer: subscanExplorer)
-        blockExplorer = subscanExplorer
+        view?.didReceive(explorer: explorer)
+        self.explorer = explorer
     }
 }
 
@@ -72,25 +76,27 @@ extension AllDonePresenter: AllDoneViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
-        prepareBlockExplorer()
+        prepareExplorer()
     }
 
-    func subscanButtonDidTapped() {
-        guard let blockExplorer = self.blockExplorer,
-              let url = blockExplorer.explorerUrl(for: hashString, type: blockExplorer.transactionType)
+    func explorerButtonDidTapped() {
+        guard let explorer = self.explorer,
+              let hashString = hashString,
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
         else {
             return
         }
-        router.presentSubscan(from: view, url: url)
+        router.presentSubscan(from: view, url: explorerUrl)
     }
 
     func shareButtonDidTapped() {
-        guard let blockExplorer = self.blockExplorer,
-              let url = blockExplorer.explorerUrl(for: hashString, type: blockExplorer.transactionType)
+        guard let explorer = self.explorer,
+              let hashString = hashString,
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
         else {
             return
         }
-        router.share(sources: [url], from: view, with: nil)
+        router.share(sources: [explorerUrl], from: view, with: nil)
     }
 
     func dismiss() {

@@ -23,6 +23,8 @@ struct UIConstants {
     static let accessoryItemsSpacing: CGFloat = 12.0
     static let cellHeight: CGFloat = 48.0
     static let cellHeight54: CGFloat = 54.0
+    static let cellHeight64: CGFloat = 64.0
+    static let cellHeight40: CGFloat = 40.0
     static let tableHeaderHeight: CGFloat = 40.0
     static let separatorHeight: CGFloat = 1.0 / UIScreen.main.scale
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)

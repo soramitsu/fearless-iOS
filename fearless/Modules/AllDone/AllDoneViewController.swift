@@ -61,7 +61,7 @@ final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePrese
     }
 
     @objc private func handleSubscanTapped() {
-        output.subscanButtonDidTapped()
+        output.explorerButtonDidTapped()
     }
 
     @objc private func handleShareTapped() {

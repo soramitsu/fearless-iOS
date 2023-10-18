@@ -27,7 +27,8 @@ abstract_target 'fearlessAll' do
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   pod 'FearlessKeys'
-
+  pod 'MPQRCoreSDK'
+  
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
           pod 'SSFXCM', :configurations => ['DEBUG']
@@ -36,14 +37,14 @@ abstract_target 'fearlessAll' do
           pod 'SSFExtrinsicKit'
           pod 'SSFCrypto', '0.1.17'
           pod 'SSFSigner'
-          pod 'SSFModels'
+          pod 'SSFModels', '0.1.23'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection', '0.1.4'
           pod 'SSFNetwork', '0.1.17'
-          pod 'SSFUtils', '0.1.22'
+          pod 'SSFUtils'
           pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.7'
           pod 'SSFCloudStorage'
@@ -100,6 +101,8 @@ post_install do |installer|
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
             config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+            config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+            config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
             xcconfig_path = config.base_configuration_reference.real_path
             xcconfig = File.read(xcconfig_path)
             xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")

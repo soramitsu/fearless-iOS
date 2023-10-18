@@ -4,8 +4,8 @@ import SSFModels
 
 final class AllDoneAssembly {
     static func configureModule(
-        chainAsset: ChainAsset,
-        hashString: String,
+        chainAsset: ChainAsset?,
+        hashString: String?,
         title: String? = nil,
         description: String? = nil,
         closure: (() -> Void)? = nil
