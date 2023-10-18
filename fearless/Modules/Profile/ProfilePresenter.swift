@@ -91,8 +91,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .zeroBalances:
             break
-        case .walletConnect:
-            wireframe.showWalletConnect(from: view)
+//        case .walletConnect:
+//            wireframe.showWalletConnect(from: view)
         }
     }
 
