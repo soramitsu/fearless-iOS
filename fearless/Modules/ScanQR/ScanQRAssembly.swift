@@ -38,10 +38,10 @@ final class ScanQRAssembly {
 
     static var defaultMatchers: [QRMatcherProtocol] {
         [
-            QRInfoMatcher(decoder: QRCoderFactory().createDecoder()),
-            QRUriMatcherImpl(scheme: "wc")
+            QRInfoMatcher(decoder: QRCoderFactory().createDecoder()) /* ,
+             QRUriMatcherImpl(scheme: "wc") */
         ]
     }
 
-    static let wcSchemeMatcher = QRUriMatcherImpl(scheme: "wc")
+//    static let wcSchemeMatcher = QRUriMatcherImpl(scheme: "wc")
 }
