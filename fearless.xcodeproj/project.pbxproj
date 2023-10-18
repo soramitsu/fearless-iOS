@@ -2246,6 +2246,7 @@
 		FA7336F82A0E3E1B0096A291 /* NetworkingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336F72A0E3E1B0096A291 /* NetworkingError.swift */; };
 		FA7336FD2A132F740096A291 /* AlchemyHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */; };
 		FA7337092A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */; };
+		FA73969B2ADF8CBC00CEBFBA /* SoraRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA73969A2ADF8CBC00CEBFBA /* SoraRewardOperationFactory.swift */; };
 		FA74359529C0733E0085A47E /* Array+Difference.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359429C0733E0085A47E /* Array+Difference.swift */; };
 		FA74359729C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359629C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift */; };
 		FA74359929C0735B0085A47E /* ChainSettingsRepositoryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359829C0735B0085A47E /* ChainSettingsRepositoryFactory.swift */; };
@@ -5078,6 +5079,7 @@
 		FA7336F72A0E3E1B0096A291 /* NetworkingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkingError.swift; sourceTree = "<group>"; };
 		FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+AlchemyHistory.swift"; sourceTree = "<group>"; };
+		FA73969A2ADF8CBC00CEBFBA /* SoraRewardOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraRewardOperationFactory.swift; sourceTree = "<group>"; };
 		FA74359429C0733E0085A47E /* Array+Difference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Difference.swift"; sourceTree = "<group>"; };
 		FA74359629C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CDAccountInfo+CoreDataCodable.swift"; sourceTree = "<group>"; };
 		FA74359829C0735B0085A47E /* ChainSettingsRepositoryFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettingsRepositoryFactory.swift; sourceTree = "<group>"; };
@@ -12462,6 +12464,7 @@
 				FA6C175929935DC700A55254 /* RewardOperationFactory.swift */,
 				FA6C175A29935DC700A55254 /* SubqueryRewardOperationFactory.swift */,
 				FA97E68A2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift */,
+				FA73969A2ADF8CBC00CEBFBA /* SoraRewardOperationFactory.swift */,
 			);
 			path = Rewards;
 			sourceTree = "<group>";
@@ -14263,7 +14266,7 @@
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
-				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */,
+				FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FAF9C2BF2AB227BA00A61D21 /* XCRemoteSwiftPackageReference "Swime" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -14511,7 +14514,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14553,7 +14556,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -14608,7 +14611,7 @@
 			);
 			inputPaths = (
 				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
-				"$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift",
+				$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift,
 			);
 			name = "Inject Google Keys";
 			outputFileListPaths = (
@@ -15146,6 +15149,7 @@
 				AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */,
 				FA7A4C7F2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift in Sources */,
 				07DFA4462897EE370035A8AB /* WalletsManagmentViewModelFactory.swift in Sources */,
+				FA73969B2ADF8CBC00CEBFBA /* SoraRewardOperationFactory.swift in Sources */,
 				07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */,
 				FAA0137E28DA12F0000A5230 /* StakingRedeemPoolViewModelFactory.swift in Sources */,
 				FAFFAE8529AC84B10074AF1F /* SubqueryRewardOrSlash.swift in Sources */,
@@ -17863,7 +17867,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */ = {
+		FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
@@ -17884,17 +17888,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		FAE39B0B2AA5E6340011A9D6 /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
 		FAE39B0D2AA5E6340011A9D6 /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
 		FAE39B0F2AA5E6340011A9D6 /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FAE39B0A2AA5E6340011A9D6 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
 		};
 		FAF9C2C02AB227BA00A61D21 /* Swime */ = {

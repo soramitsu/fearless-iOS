@@ -281,7 +281,7 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/Specs.git:
     - AppAuth
     - BigInt
     - Charts
@@ -408,7 +408,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
+PODFILE CHECKSUM: d833ed29d5d1db41d39e96e6adfcf88739be2404
 
-PODFILE CHECKSUM: aa9a773bdee630d339652453cda8d96190593c0b
-
-COCOAPODS: 1.12.1
+COCOAPODS: 1.11.3

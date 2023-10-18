@@ -4870,6 +4870,10 @@
                 "type": "sora",
                 "url": "https://api.subquery.network/sq/sora-xor/sora-prod-sub4"
             },
+            "staking": {
+                "type": "sora",
+                "url": "https://squid.subsquid.io/sora/v/v2/graphql"
+            },
             "explorers": [{
                 "type": "subscan",
                 "types": [
