@@ -20,8 +20,8 @@ final class CexQRDecoder: QRDecoderProtocol {
             throw QRDecoderError.brokenFormat
         }
 
-        let substrateAccountId = try? address.toAccountId()
-        let ethereumAccountId = try? address.toAccountId()
+        let substrateAccountId = try? address.toAccountIdWithTryExtractPrefix()
+        let ethereumAccountId = try? address.toAccountIdWithTryExtractPrefix()
 
         guard substrateAccountId != nil || ethereumAccountId != nil else {
             throw QRDecoderError.brokenFormat
