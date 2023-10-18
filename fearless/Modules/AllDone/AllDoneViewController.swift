@@ -52,6 +52,7 @@ final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePrese
         }
         rootView.subscanButton.addTarget(self, action: #selector(handleSubscanTapped), for: .touchUpInside)
         rootView.shareButton.addTarget(self, action: #selector(handleShareTapped), for: .touchUpInside)
+        rootView.mainCloseButton.addTarget(self, action: #selector(dismissSelf), for: .touchUpInside)
     }
 
     // MARK: - Private actions

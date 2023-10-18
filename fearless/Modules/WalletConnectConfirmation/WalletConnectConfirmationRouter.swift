@@ -13,7 +13,8 @@ final class WalletConnectConfirmationRouter: WalletConnectConfirmationRouterInpu
         let module = AllDoneAssembly.configureModule(
             chainAsset: chain.chainAssets.first,
             hashString: hashString,
-            closure: closure
+            closure: closure,
+            isWalletConnectResult: true
         )
         guard let controller = module?.view.controller else {
             return

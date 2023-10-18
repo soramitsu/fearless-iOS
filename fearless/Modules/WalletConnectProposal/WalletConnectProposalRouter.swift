@@ -14,7 +14,8 @@ final class WalletConnectProposalRouter: WalletConnectProposalRouterInput {
             hashString: nil,
             title: title,
             description: description,
-            closure: closure
+            closure: closure,
+            isWalletConnectResult: true
         )
         guard let controller = module?.view.controller else {
             return
