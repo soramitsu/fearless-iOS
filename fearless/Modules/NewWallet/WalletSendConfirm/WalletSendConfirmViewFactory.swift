@@ -23,7 +23,7 @@ enum SendConfirmTransferCall {
         case let .transfer(transfer):
             return transfer.receiver
         case let .xorlessTransfer(xorlessTransfer):
-            let bokoloId = String(data: xorlessTransfer.receiver, encoding: .utf8)
+            let bokoloId = String(data: xorlessTransfer.additionalData, encoding: .utf8)
             if let bokoloAddress = bokoloId, bokoloAddress.isNotEmpty {
                 return bokoloAddress
             } else if let receiver = try? AddressFactory.address(for: xorlessTransfer.receiver, chainFormat: .substrate(69)) {
