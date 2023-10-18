@@ -70,7 +70,7 @@ final class MultiSelectNetworksPresenter {
         )
         view?.didReceive(viewModel: viewModel)
 
-        if searchText != nil {
+        if searchText != nil, searchText?.isNotEmpty == true {
             let cells = self.viewModel?.cells ?? []
             let searchCells = viewModel.cells
             let newCells = Array(Set(cells + searchCells))
