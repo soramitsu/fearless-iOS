@@ -31,7 +31,9 @@ final class SendPresenter {
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset? {
         didSet {
-            view?.setInputAccessoryView(visible: selectedChainAsset?.isBokolo == false)
+            DispatchQueue.main.async {
+                self.view?.setInputAccessoryView(visible: self.selectedChainAsset?.isBokolo == false)
+            }
         }
     }
 

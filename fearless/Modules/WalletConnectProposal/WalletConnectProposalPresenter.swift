@@ -133,7 +133,7 @@ final class WalletConnectProposalPresenter {
             do {
                 guard let proposal = status.proposal else { return }
                 let selectedWallets = wallets.filter { wallet in
-                    viewModel?.selectedWalletIds.contains(wallet.metaId) == true
+                    viewModel?.selectedWalletIds?.contains(wallet.metaId) == true
                 }
                 let namespaces = try walletConnectModelFactory.createSessionNamespaces(
                     from: proposal,
@@ -142,7 +142,8 @@ final class WalletConnectProposalPresenter {
                     optionalChainIds: optionalChainsIds
                 )
                 try await interactor.submit(proposalDecision: .approve(proposal: proposal, namespaces: namespaces))
-                await showAllDone(description: "You can now back to your browser")
+                let dApp = proposal.proposer.name
+                await showAllDone(description: "Сonnection from \(dApp) with ethers has been successfully completed")
             } catch {
                 logger.customError(error)
                 handle(error: error)
@@ -150,11 +151,11 @@ final class WalletConnectProposalPresenter {
         }
     }
 
-    private func submitDisconnect(topic: String) {
+    private func submitDisconnect(topic: String, name: String) {
         Task {
             do {
                 try await interactor.submitDisconnect(topic: topic)
-                await showAllDone(description: "Disconnection from React App with ethers has been successfully completed")
+                await showAllDone(description: "Disconnection from React \(name) ethers has been successfully completed")
             } catch {
                 logger.customError(error)
                 handle(error: error)
@@ -244,7 +245,7 @@ extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
         case .proposal:
             submitApprove()
         case let .active(session):
-            submitDisconnect(topic: session.topic)
+            submitDisconnect(topic: session.topic, name: session.peer.name)
         }
     }
 

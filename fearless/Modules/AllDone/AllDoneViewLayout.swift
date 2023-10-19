@@ -103,6 +103,7 @@ final class AllDoneViewLayout: UIView {
 
     let subscanButton: TriangularedButton = UIFactory.default.createDisabledButton()
     let shareButton: TriangularedButton = UIFactory.default.createMainActionButton()
+    let mainCloseButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
     init() {
         super.init(frame: .zero)
@@ -144,6 +145,12 @@ final class AllDoneViewLayout: UIView {
             hashString.append(imageString)
             hashView.valueLabel.attributedText = hashString
             hashView.isHidden = false
+            mainCloseButton.isHidden = true
+        } else if viewModel.isWalletConnectResult {
+            hashView.isHidden = true
+            successView.isHidden = true
+            infoBackground.isHidden = true
+            mainCloseButton.isHidden = false
         }
     }
 
@@ -174,6 +181,8 @@ final class AllDoneViewLayout: UIView {
             .allDoneAlertSuccessStub(preferredLanguages: locale.rLanguages)
         shareButton.imageWithTitleView?.title = R.string.localizable
             .commonShare(preferredLanguages: locale.rLanguages)
+        mainCloseButton.imageWithTitleView?.title = R.string.localizable
+            .commonClose(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -233,6 +242,7 @@ final class AllDoneViewLayout: UIView {
         buttonHStachView.distribution = .fillEqually
         buttonHStachView.addArrangedSubview(subscanButton)
         buttonHStachView.addArrangedSubview(shareButton)
+        buttonHStachView.addArrangedSubview(mainCloseButton)
         contentStackView.setCustomSpacing(Constants.spacing24, after: infoBackground)
         contentStackView.addArrangedSubview(buttonHStachView)
 

@@ -16,6 +16,7 @@ final class AllDonePresenter {
 
     private var title: String?
     private var description: String?
+    private let isWalletConnectResult: Bool
 
     private var explorer: ChainModel.ExternalApiExplorer?
 
@@ -30,6 +31,7 @@ final class AllDonePresenter {
         closure: (() -> Void)?,
         title: String? = nil,
         description: String? = nil,
+        isWalletConnectResult: Bool,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.chainAsset = chainAsset
@@ -40,6 +42,7 @@ final class AllDonePresenter {
         self.closure = closure
         self.title = title
         self.description = description
+        self.isWalletConnectResult = isWalletConnectResult
         self.localizationManager = localizationManager
     }
 
@@ -50,7 +53,8 @@ final class AllDonePresenter {
             title: title,
             description: description,
             extrinsicHash: hashString,
-            locale: selectedLocale
+            locale: selectedLocale,
+            isWalletConnectResult: isWalletConnectResult
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -82,7 +86,7 @@ extension AllDonePresenter: AllDoneViewOutput {
     func explorerButtonDidTapped() {
         guard let explorer = self.explorer,
               let hashString = hashString,
-              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: explorer.transactionType)
         else {
             return
         }
@@ -92,7 +96,7 @@ extension AllDonePresenter: AllDoneViewOutput {
     func shareButtonDidTapped() {
         guard let explorer = self.explorer,
               let hashString = hashString,
-              let explorerUrl = explorer.explorerUrl(for: hashString, type: .extrinsic)
+              let explorerUrl = explorer.explorerUrl(for: hashString, type: explorer.transactionType)
         else {
             return
         }

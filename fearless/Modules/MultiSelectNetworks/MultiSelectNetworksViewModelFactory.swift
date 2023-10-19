@@ -16,7 +16,7 @@ final class MultiSelectNetworksViewModelFactoryImpl: MultiSelectNetworksViewMode
         searchText: String?
     ) -> MultiSelectNetworksViewModel {
         var filtredDataSource = dataSource
-        if let searchText = searchText {
+        if let searchText = searchText, searchText.isNotEmpty {
             filtredDataSource = dataSource.filter { $0.name.lowercased().contains(searchText.lowercased()) }
         }
 
