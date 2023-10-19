@@ -21,8 +21,9 @@ final class WalletsManagmentTableCell: UITableViewCell {
         view.highlightedFillColor = R.color.colorSemiBlack()!
         view.strokeColor = .clear
         view.highlightedStrokeColor = R.color.colorPink()!
-        view.strokeWidth = 0.5
+        view.strokeWidth = 1
         view.shadowOpacity = 0
+        view.gradientBorderColors = UIColor.walletBorderGradientColors
         return view
     }()
 
@@ -81,7 +82,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         iconImageView.image = R.image.iconBirdGreen()
         walletNameLabel.text = viewModel.walletName
         dayChangeLabel.attributedText = viewModel.dayChange
-        backgroundTriangularedView.set(highlighted: viewModel.isSelected, animated: false)
+        backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: true)
 
         fiatBalanceLabel.text = viewModel.fiatBalance
 

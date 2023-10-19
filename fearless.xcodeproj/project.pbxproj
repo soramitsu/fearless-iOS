@@ -110,6 +110,7 @@
 		076D9D6229506CFA002762E3 /* polkaswapSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = 076D9D6129506CE3002762E3 /* polkaswapSettings.json */; };
 		076D9D6629507B39002762E3 /* PolkaswapSettingsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D6529507B39002762E3 /* PolkaswapSettingsFactory.swift */; };
 		076D9D6829509F1C002762E3 /* PolkaswapSettingMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D6729509F1C002762E3 /* PolkaswapSettingMapper.swift */; };
+		0783EEAE2AE1342F006476F4 /* UIColor+Gradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0783EEAD2AE1342F006476F4 /* UIColor+Gradient.swift */; };
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
@@ -3019,6 +3020,7 @@
 		076D9D6129506CE3002762E3 /* polkaswapSettings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = polkaswapSettings.json; sourceTree = "<group>"; };
 		076D9D6529507B39002762E3 /* PolkaswapSettingsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapSettingsFactory.swift; sourceTree = "<group>"; };
 		076D9D6729509F1C002762E3 /* PolkaswapSettingMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapSettingMapper.swift; sourceTree = "<group>"; };
+		0783EEAD2AE1342F006476F4 /* UIColor+Gradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Gradient.swift"; sourceTree = "<group>"; };
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
@@ -9092,6 +9094,7 @@
 				07089AF228B63386001566CA /* UIButton.swift */,
 				07B6BC7B28B875D800621864 /* UIControl.swift */,
 				071BC676292B21CC007685D1 /* UIImage.swift */,
+				0783EEAD2AE1342F006476F4 /* UIColor+Gradient.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -15849,6 +15852,7 @@
 				FAD428982A860C9B001D6A16 /* EthereumNodeFetching.swift in Sources */,
 				AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */,
 				8463A72D25E3A8E1003B8160 /* ChainStorageDecodedItem.swift in Sources */,
+				0783EEAE2AE1342F006476F4 /* UIColor+Gradient.swift in Sources */,
 				FA3F5B17281A790A00BEF03B /* StakingAmountFlow.swift in Sources */,
 				84DD5F30263D84F300425ACF /* RuntimeConstantFetching.swift in Sources */,
 				C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */,
