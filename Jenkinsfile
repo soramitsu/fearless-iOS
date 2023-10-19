@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/debug') _
 
 // Job properties
 def jobParams = [
@@ -8,9 +8,9 @@ def jobParams = [
 def appPipline = new org.ios.AppPipeline(
     steps: this,
     appTests: false,
-    appPushNoti: true,
+    appPushNoti: false,
     jobParams: jobParams,
-    label: 'mac-fearless',
+    label: 'mac-ios-2',
     effectJiraTasks: true
     )
 appPipline.runPipeline('fearless')
