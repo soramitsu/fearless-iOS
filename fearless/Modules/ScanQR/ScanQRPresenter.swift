@@ -129,6 +129,12 @@ final class ScanQRPresenter: NSObject {
         }
     }
 
+    private func handleConnect(uri: String) {
+        router.close(view: view) { [weak self] in
+            self?.moduleOutput?.didFinishWith(scanType: .uri(uri))
+        }
+    }
+
     private func searchMetcher(code: String) {
         let qrMatcherTypes = matchers.map { $0.match(code: code) }.compactMap { $0 }
         if qrMatcherTypes.isEmpty {

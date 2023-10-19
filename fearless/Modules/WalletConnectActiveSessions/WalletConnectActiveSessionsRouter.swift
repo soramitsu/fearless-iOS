@@ -17,7 +17,7 @@ final class WalletConnectActiveSessionsRouter: WalletConnectActiveSessionsRouter
         output: ScanQRModuleOutput,
         view: ControllerBackedProtocol?
     ) {
-        let module = ScanQRAssembly.configureModule(moduleOutput: output, matchers: [])
+        let module = ScanQRAssembly.configureModule(moduleOutput: output, matchers: [ScanQRAssembly.wcSchemeMatcher])
         guard let controller = module?.view.controller else {
             return
         }
