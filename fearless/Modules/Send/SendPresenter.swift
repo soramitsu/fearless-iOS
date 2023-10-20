@@ -453,6 +453,9 @@ final class SendPresenter {
         }
 
         DataValidationRunner(validators: [
+            dataValidatingFactory.has(exsitentialDeposit: minimumBalanceDecimal, locale: selectedLocale, onError: { [weak self] in
+                self?.interactor.provideConstants(for: chainAsset)
+            }),
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee(for: chainAsset, address: address)
             }),

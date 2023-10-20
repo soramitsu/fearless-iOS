@@ -50,18 +50,6 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.wallet = wallet
     }
 
-    private func provideConstants() {
-        Task {
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
-
-            dependencies.existentialDepositService.fetchExistentialDeposit(
-                chainAsset: chainAsset
-            ) { [weak self] result in
-                self?.presenter?.didReceiveMinimumBalance(result: result)
-            }
-        }
-    }
-
     private func subscribeToAccountInfo() {
         var chainsAssets = [chainAsset]
         if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
@@ -163,6 +151,18 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
                 let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
                     .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
                 presenter?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+            }
+        }
+    }
+
+    func provideConstants() {
+        Task {
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+
+            dependencies.existentialDepositService.fetchExistentialDeposit(
+                chainAsset: chainAsset
+            ) { [weak self] result in
+                self?.presenter?.didReceiveMinimumBalance(result: result)
             }
         }
     }

@@ -50,6 +50,7 @@ protocol SendInteractorInput: AnyObject {
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
     func didReceive(xorlessTransfer: XorlessTransfer)
     func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> SwapValues?
+    func provideConstants(for chainAsset: ChainAsset)
 }
 
 protocol SendInteractorOutput: AnyObject {
