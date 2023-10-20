@@ -5,13 +5,12 @@ final class StakingRewardDetailsWireframe: StakingRewardDetailsWireframeProtocol
     func showPayoutConfirmation(
         from view: ControllerBackedProtocol?,
         payoutInfo: PayoutInfo,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let confirmationView = StakingPayoutConfirmationViewFactory.createView(
-            chainAsset: ChainAsset(chain: chain, asset: asset),
-            wallet: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             flow: .relaychain(payouts: [payoutInfo])
         ) else { return }
 
