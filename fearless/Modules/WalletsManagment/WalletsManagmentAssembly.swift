@@ -11,7 +11,6 @@ final class WalletsManagmentAssembly {
         contextTag: Int = 0,
         moduleOutput: WalletsManagmentModuleOutput?
     ) -> WalletsManagmentModuleCreationResult? {
-        guard let wallet = SelectedWalletSettings.shared.value else { return nil }
         let sharedDefaultQueue = OperationManagerFacade.sharedDefaultQueue
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared

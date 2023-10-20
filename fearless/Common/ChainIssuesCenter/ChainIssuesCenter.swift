@@ -112,11 +112,8 @@ extension ChainsIssuesCenter: NetworkIssuesCenterListener {
 }
 
 extension ChainsIssuesCenter: EventVisitorProtocol {
-    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        guard let wallet = SelectedWalletSettings.shared.value else {
-            return
-        }
-        self.wallet = wallet
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        wallet = event.account
 
         missingAccountFetcher.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in
             self?.missingAccountsChains = missingAccounts
