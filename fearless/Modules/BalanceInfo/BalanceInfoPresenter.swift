@@ -47,8 +47,8 @@ final class BalanceInfoPresenter {
             locale: selectedLocale
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceiveViewModel(viewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveViewModel(viewModel)
         }
     }
 

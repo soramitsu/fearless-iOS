@@ -144,7 +144,8 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
     }
 
     func presentExsitentialDepositNotReceived(from view: ControllerBackedProtocol, locale: Locale?) {
-        let message = R.string.localizable.existentialDepositReceivedError(preferredLanguages: locale?.rLanguages)
+        let message = ""
+//        let message = R.string.localizable.existentialDepositReceivedError(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.commonErrorInternal(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonRetry(preferredLanguages: locale?.rLanguages)
 
