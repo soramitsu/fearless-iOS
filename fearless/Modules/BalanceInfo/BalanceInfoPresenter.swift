@@ -47,7 +47,9 @@ final class BalanceInfoPresenter {
             locale: selectedLocale
         )
 
-        view?.didReceiveViewModel(viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceiveViewModel(viewModel)
+        }
     }
 
     private func createBalanceContext() -> BalanceContext? {
