@@ -1161,3 +1161,4 @@
 "verify.phone.number.title" = "验证您的电话号码";
 "error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
 "common.request" = "Request";
+"existential.deposit.received.error" = "Existential Deposit not received";

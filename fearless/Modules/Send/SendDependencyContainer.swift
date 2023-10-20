@@ -96,7 +96,6 @@ final class SendDepencyContainer {
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             throw ChainAccountFetchingError.accountNotExists
         }
-        let keystore = Keychain()
 
         switch chainAsset.chain.chainBaseType {
         case .substrate:
