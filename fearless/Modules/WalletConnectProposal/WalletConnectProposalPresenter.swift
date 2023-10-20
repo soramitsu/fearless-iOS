@@ -120,7 +120,7 @@ final class WalletConnectProposalPresenter {
             do {
                 guard let proposal = status.proposal else { return }
                 try await interactor.submit(proposalDecision: .reject(proposal: proposal))
-                await showAllDone(description: "Rejected")
+                await showAllDone(description: R.string.localizable.commonRejected(preferredLanguages: selectedLocale.rLanguages))
             } catch {
                 logger.customError(error)
                 handle(error: error)
@@ -143,7 +143,8 @@ final class WalletConnectProposalPresenter {
                 )
                 try await interactor.submit(proposalDecision: .approve(proposal: proposal, namespaces: namespaces))
                 let dApp = proposal.proposer.name
-                await showAllDone(description: "Сonnection from \(dApp) with ethers has been successfully completed")
+                let description = R.string.localizable.walletConnectConnectionComplete(dApp, preferredLanguages: selectedLocale.rLanguages)
+                await showAllDone(description: description)
             } catch {
                 logger.customError(error)
                 handle(error: error)
@@ -155,7 +156,8 @@ final class WalletConnectProposalPresenter {
         Task {
             do {
                 try await interactor.submitDisconnect(topic: topic)
-                await showAllDone(description: "Disconnection from React \(name) ethers has been successfully completed")
+                let description = R.string.localizable.walletConnectConnectionDissconnected(name, preferredLanguages: selectedLocale.rLanguages)
+                await showAllDone(description: description)
             } catch {
                 logger.customError(error)
                 handle(error: error)
@@ -195,7 +197,7 @@ final class WalletConnectProposalPresenter {
         await MainActor.run {
             view?.didStopLoading()
             router.showAllDone(
-                title: "All Done",
+                title: R.string.localizable.allDoneAlertAllDoneStub(preferredLanguages: selectedLocale.rLanguages),
                 description: description,
                 view: view
             ) { [weak self] in

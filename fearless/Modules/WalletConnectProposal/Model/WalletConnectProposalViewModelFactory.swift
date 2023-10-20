@@ -39,14 +39,14 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         proposal: Session.Proposal,
         chains: [ChainModel],
         wallets: [MetaAccountModel],
-        locale _: Locale
+        locale: Locale
     ) throws -> WalletConnectProposalViewModel {
         let dApp = createDAppViewModel(from: proposal)
 
         guard let requiredNetwroks = try createNetworksViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
-            title: "Required networks"
+            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages)
         ) else {
             throw JSONRPCError.unauthorizedChain
         }
@@ -54,13 +54,13 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         let optionalNetworks = try? createNetworksViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
-            title: "Optional networks"
+            title: R.string.localizable.optionalNetworks(preferredLanguages: locale.rLanguages)
         )
 
         guard let requiredExpandable = try createProposalPermissionsViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
-            cellTitle: "Review required permissions"
+            cellTitle: R.string.localizable.reviewRequiredPermissions(preferredLanguages: locale.rLanguages)
         ) else {
             throw JSONRPCError.unauthorizedChain
         }
@@ -68,7 +68,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         let optionalExpandable = try? createProposalPermissionsViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
-            cellTitle: "Review optional permissions"
+            cellTitle: R.string.localizable.reviewOptionalPermissions(preferredLanguages: locale.rLanguages)
         )
 
         let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
@@ -105,7 +105,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         guard let requiredExpandable = try createSessionPermissionsViewModel(
             from: session.namespaces,
             chains: chains,
-            cellTitle: "Review permissions"
+            cellTitle: R.string.localizable.reviewPermissions(preferredLanguages: locale.rLanguages)
         ) else {
             throw JSONRPCError.unauthorizedChain
         }

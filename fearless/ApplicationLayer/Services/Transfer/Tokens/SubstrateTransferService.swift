@@ -20,7 +20,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
         self.signer = signer
     }
 
-    func subscribeForFee(transfer: Transfer, remark: Data?, listener: TransferFeeEstimationListener) {
+    func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
         func accountId(from address: String?, chain: ChainModel) -> AccountId {
             guard let address = address,
                   let accountId = try? AddressFactory.accountId(from: address, chain: chain)
@@ -38,18 +38,9 @@ final class SubstrateTransferService: TransferServiceProtocol {
             chainAsset: transfer.chainAsset
         )
 
-        var remarkCall: (any RuntimeCallable)?
-        if let remark = remark {
-            remarkCall = callFactory.addRemark(remark)
-        }
-
         let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
             var resultBuilder = builder
             resultBuilder = try builder.adding(call: call)
-
-            if let remarkCall = remarkCall {
-                resultBuilder = try resultBuilder.adding(call: remarkCall)
-            }
 
             if let tip = transfer.tip {
                 resultBuilder = resultBuilder.with(tip: tip)
@@ -67,7 +58,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
         }
     }
 
-    func estimateFee(for transfer: Transfer, remark: Data?) async throws -> BigUInt {
+    func estimateFee(for transfer: Transfer) async throws -> BigUInt {
         func accountId(from address: String?, chain: ChainModel) -> AccountId {
             guard let address = address,
                   let accountId = try? AddressFactory.accountId(from: address, chain: chain)
@@ -85,18 +76,9 @@ final class SubstrateTransferService: TransferServiceProtocol {
             chainAsset: transfer.chainAsset
         )
 
-        var remarkCall: (any RuntimeCallable)?
-        if let remark = remark {
-            remarkCall = callFactory.addRemark(remark)
-        }
-
         let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
             var resultBuilder = builder
             resultBuilder = try builder.adding(call: call)
-
-            if let remarkCall = remarkCall {
-                resultBuilder = try resultBuilder.adding(call: remarkCall)
-            }
 
             if let tip = transfer.tip {
                 resultBuilder = resultBuilder.with(tip: tip)
@@ -121,7 +103,7 @@ final class SubstrateTransferService: TransferServiceProtocol {
         return feeResult
     }
 
-    func submit(transfer: Transfer, remark: Data?) async throws -> String {
+    func submit(transfer: Transfer) async throws -> String {
         let accountId = try AddressFactory.accountId(from: transfer.receiver, chain: transfer.chainAsset.chain)
         let call = callFactory.transfer(
             to: accountId,
@@ -129,18 +111,9 @@ final class SubstrateTransferService: TransferServiceProtocol {
             chainAsset: transfer.chainAsset
         )
 
-        var remarkCall: (any RuntimeCallable)?
-        if let remark = remark {
-            remarkCall = callFactory.addRemark(remark)
-        }
-
         let extrinsicBuilderClosure: ExtrinsicBuilderClosure = { builder in
             var resultBuilder = builder
             resultBuilder = try builder.adding(call: call)
-
-            if let remarkCall = remarkCall {
-                resultBuilder = try resultBuilder.adding(call: remarkCall)
-            }
 
             if let tip = transfer.tip {
                 resultBuilder = resultBuilder.with(tip: tip)

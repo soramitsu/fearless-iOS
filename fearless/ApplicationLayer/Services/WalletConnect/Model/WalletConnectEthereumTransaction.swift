@@ -3,7 +3,7 @@ import BigInt
 import Web3
 
 struct WalletConnectEthereumTransaction: Codable {
-    let from: String
+    let from: String?
     let to: String?
     let data: String?
 
@@ -25,14 +25,14 @@ struct WalletConnectEthereumTransaction: Codable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        from = try container.decode(String.self, forKey: .from)
+        from = try container.decode(String?.self, forKey: .from)
         to = try container.decode(String?.self, forKey: .to)
         data = try container.decode(String?.self, forKey: .data)
 
-        let gasLimitString = try? container.decode(String?.self, forKey: .gasLimit)
-        let gasPriceString = try? container.decode(String?.self, forKey: .gasPrice)
-        let valueString = try? container.decode(String?.self, forKey: .value)
-        let nonceString = try? container.decode(String?.self, forKey: .nonce)
+        let gasLimitString = try container.decodeIfPresent(String.self, forKey: .gasLimit)
+        let gasPriceString = try container.decodeIfPresent(String.self, forKey: .gasPrice)
+        let valueString = try container.decodeIfPresent(String.self, forKey: .value)
+        let nonceString = try container.decodeIfPresent(String.self, forKey: .nonce)
 
         gasLimit = BigUInt.fromHexString(gasLimitString)
         gasPrice = BigUInt.fromHexString(gasPriceString)
@@ -61,7 +61,10 @@ struct WalletConnectEthereumTransaction: Codable {
             throw ConvenienceError(error: "Missing requared params WCEthereumTransaction")
         }
 
-        let from = try EthereumAddress(rawAddress: from.hexToBytes())
+        var fromAddress: EthereumAddress?
+        if let from = from {
+            fromAddress = try EthereumAddress(rawAddress: from.hexToBytes())
+        }
         let to = try EthereumAddress(rawAddress: toAddress.hexToBytes())
         var transactionData = EthereumData([])
         if let data = data {
@@ -74,7 +77,7 @@ struct WalletConnectEthereumTransaction: Codable {
             maxFeePerGas: gasPrice?.toEthereumQuantity(),
             maxPriorityFeePerGas: gasPrice?.toEthereumQuantity(),
             gasLimit: gasLimit?.toEthereumQuantity(),
-            from: from,
+            from: fromAddress,
             to: to,
             value: EthereumQuantity(quantity: value),
             data: transactionData,

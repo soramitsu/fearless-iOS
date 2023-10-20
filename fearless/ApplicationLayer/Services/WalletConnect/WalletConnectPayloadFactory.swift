@@ -14,7 +14,7 @@ protocol WalletConnectPayloadFactory {
 }
 
 final class WalletConnectPayloadFactoryImpl: WalletConnectPayloadFactory {
-    private lazy var polkadotParser: WalletConnectPolkadorParser = {
+    private lazy var polkadotParser: WalletConnectPolkadotParser = {
         WalletConnectPolkadorParserImpl()
     }()
 

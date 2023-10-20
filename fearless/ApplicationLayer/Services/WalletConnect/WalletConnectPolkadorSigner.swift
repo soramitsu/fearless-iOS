@@ -1,11 +1,3 @@
-//
-//  WalletConnectPolkadorSigner.swift
-//  fearless
-//
-//  Created by Soramitsu on 19.09.2023.
-//  Copyright © 2023 Soramitsu. All rights reserved.
-//
-
 import Foundation
 import Commons
 import SSFSigner
@@ -26,7 +18,7 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
         OperationQueue()
     }()
 
-    private lazy var polkadotParser: WalletConnectPolkadorParser = {
+    private lazy var polkadotParser: WalletConnectPolkadotParser = {
         WalletConnectPolkadorParserImpl()
     }()
 

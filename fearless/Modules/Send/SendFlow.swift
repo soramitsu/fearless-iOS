@@ -9,7 +9,6 @@ enum SendFlowType {
 enum SendFlowInitialData {
     case chainAsset(ChainAsset)
     case address(String)
-    case soraMainnetSolomon(address: String)
     case soraMainnet(qrInfo: SoraQRInfo)
     case bokoloCash(qrInfo: BokoloCashQRInfo)
 
@@ -17,8 +16,6 @@ enum SendFlowInitialData {
         switch qrInfoType {
         case let .bokoloCash(bokoloCashQRInfo):
             self = .bokoloCash(qrInfo: bokoloCashQRInfo)
-        case let .solomon(solomonQRInfo):
-            self = .soraMainnetSolomon(address: solomonQRInfo.address)
         case let .sora(soraQRInfo):
             self = .soraMainnet(qrInfo: soraQRInfo)
         case let .cex(cexQRInfo):

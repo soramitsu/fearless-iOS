@@ -142,7 +142,7 @@ final class ReceiveAndRequestAssetPresenter {
             let balance = getBalance()
             var inputAmount = inputResult?.absoluteValue(from: balance).stringWithPointSeparator
             if
-                chainAsset.asset.currencyId == bokoloCashAssetCurrencyId,
+                chainAsset.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId,
                 var input = inputResult?.absoluteValue(from: balance) {
                 var drounded = Decimal()
                 NSDecimalRound(&drounded, &input, 2, .plain)

@@ -10,8 +10,6 @@ enum QRMatcherType {
         switch self {
         case let .qrInfo(qRInfoType):
             switch qRInfoType {
-            case let .solomon(solomonQRInfo):
-                return solomonQRInfo.address
             case let .sora(soraQRInfo):
                 return soraQRInfo.address
             case let .cex(cexQRInfo):

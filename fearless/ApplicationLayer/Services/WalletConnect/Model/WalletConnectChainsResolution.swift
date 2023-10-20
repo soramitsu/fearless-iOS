@@ -1,7 +1,6 @@
 import Foundation
 import WalletConnectUtils
 import SSFModels
-// import WalletConnectSwiftV2
 
 struct WalletConnectChainsResolution {
     let requiredChains: ChainsResolution

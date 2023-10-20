@@ -68,8 +68,8 @@ final class MultiSelectNetworksViewLayout: UIView {
 
     func handleSelectAllButton(allSelected: Bool) {
         allSelected
-            ? selectAllButton.setTitle("Deselect all", for: .normal)
-            : selectAllButton.setTitle("Select all", for: .normal)
+            ? selectAllButton.setTitle(R.string.localizable.stakingCustomDeselectButtonTitle(preferredLanguages: locale.rLanguages), for: .normal)
+            : selectAllButton.setTitle(R.string.localizable.commonSelectAll(preferredLanguages: locale.rLanguages), for: .normal)
     }
 
     func setTitle(text: String) {
@@ -106,8 +106,8 @@ final class MultiSelectNetworksViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        selectAllButton.setTitle("Select all", for: .normal)
-        doneButton.setTitle("Done", for: .normal)
-        searchTextField.textField.placeholder = "Search"
+        selectAllButton.setTitle(R.string.localizable.commonSelectAll(preferredLanguages: locale.rLanguages), for: .normal)
+        doneButton.setTitle(R.string.localizable.commonDone(preferredLanguages: locale.rLanguages), for: .normal)
+        searchTextField.textField.placeholder = R.string.localizable.commonSearch(preferredLanguages: locale.rLanguages)
     }
 }
