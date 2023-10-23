@@ -53,6 +53,8 @@ enum CalculationPeriod {
 }
 
 protocol RewardCalculatorEngineProtocol {
+    var rewardAssetRate: Decimal { get }
+
     func calculateEarnings(
         amount: Decimal,
         validatorAccountId: AccountId,
