@@ -123,7 +123,8 @@ final class SendPresenter {
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
             balance: balance,
-            priceData: priceData
+            priceData: priceData,
+            selectable: initialData.selectableAsset
         ).value(for: selectedLocale)
 
         DispatchQueue.main.async {
@@ -176,8 +177,7 @@ final class SendPresenter {
     }
 
     private func provideInputViewModel() {
-        guard let chainAsset = selectedChainAsset
-        else { return }
+        guard let chainAsset = selectedChainAsset else { return }
 
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
 
@@ -718,7 +718,6 @@ final class SendPresenter {
         }
 
         if xorBalance > xorFee {
-            provideAssetVewModel()
             provideFeeViewModel()
         } else {
             Task {
@@ -875,8 +874,6 @@ extension SendPresenter: SendInteractorOutput {
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? 0.0
-
-                provideAssetVewModel()
             } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
                       utilityAsset == chainAsset {
                 utilityBalance = accountInfo.map {
@@ -887,7 +884,10 @@ extension SendPresenter: SendInteractorOutput {
                 } ?? 0
             }
             if selectedChainAsset?.isBokolo == true {
+                provideAssetVewModel()
                 checkXorFeePaymentPossibles()
+            } else {
+                provideAssetVewModel()
             }
         case let .failure(error):
             logger?.error("Did receive account info error: \(error)")
@@ -931,9 +931,9 @@ extension SendPresenter: SendInteractorOutput {
             if selectedChainAsset?.isBokolo == true {
                 checkXorFeePaymentPossibles()
             } else {
-                provideAssetVewModel()
                 provideFeeViewModel()
             }
+            provideAssetVewModel()
 
             switch inputResult {
             case .rate:

@@ -22,4 +22,13 @@ enum SendFlowInitialData {
             self = .address(cexQRInfo.address)
         }
     }
+
+    var selectableAsset: Bool {
+        switch self {
+        case .chainAsset, .address:
+            return true
+        case .soraMainnet, .bokoloCash:
+            return false
+        }
+    }
 }
