@@ -18,5 +18,12 @@ final class OperationManagerFacade {
         return operationQueue
     }()
 
+    static let persistentQueue: OperationQueue = {
+        let operationQueue = OperationQueue()
+        operationQueue.qualityOfService = .userInitiated
+        operationQueue.maxConcurrentOperationCount = 20
+        return operationQueue
+    }()
+
     static let sharedManager = OperationManager(operationQueue: sharedDefaultQueue)
 }

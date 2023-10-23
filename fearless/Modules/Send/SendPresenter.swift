@@ -450,6 +450,9 @@ final class SendPresenter {
         }
 
         DataValidationRunner(validators: [
+            dataValidatingFactory.has(exsitentialDeposit: minimumBalanceDecimal, locale: selectedLocale, onError: { [weak self] in
+                self?.interactor.provideConstants(for: chainAsset)
+            }),
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee(for: chainAsset, address: address)
             }),
@@ -491,8 +494,7 @@ final class SendPresenter {
         guard
             let bokoloChainAsset = selectedChainAsset,
             let xorBalance = utilityBalance,
-            let bokoloBalance = balance,
-            let xorFee = fee
+            let bokoloBalance = balance
         else {
             return
         }
@@ -500,16 +502,25 @@ final class SendPresenter {
         var sendAmountDecimal = inputResult?.absoluteValue(from: bokoloBalance)
         var balanceType: BalanceType
         var feeAndTip: Decimal
-        if xorBalance > xorFee {
+        var feeForValidation: Decimal?
+        if let xorFee = fee, xorBalance > xorFee {
             balanceType = .orml(balance: bokoloBalance, utilityBalance: xorBalance)
             feeAndTip = xorFee
+            feeForValidation = fee
         } else {
             balanceType = .utility(balance: bokoloBalance)
             feeAndTip = bokoloSwapValues?.fee ?? .zero
             sendAmountDecimal = (sendAmountDecimal ?? .zero) - (bokoloSwapValues?.fee ?? .zero)
+            feeForValidation = bokoloSwapValues?.fee
         }
 
         DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: feeForValidation, locale: selectedLocale, onError: { [weak self] in
+                guard let transfer = self?.prepareXorlessTransfer() else {
+                    return
+                }
+                self?.interactor.didReceive(xorlessTransfer: transfer)
+            }),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: balanceType,
                 feeAndTip: feeAndTip,

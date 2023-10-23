@@ -49,37 +49,6 @@ final class SendInteractor: RuntimeConstantFetching {
 
     // MARK: - Private methods
 
-    private func provideConstants(for chainAsset: ChainAsset) {
-        guard let dependencies = dependencies else {
-            return
-        }
-
-        Task {
-            guard let runtimeService = dependencies.runtimeService else {
-                return
-            }
-
-            dependencies.existentialDepositService.fetchExistentialDeposit(
-                chainAsset: chainAsset
-            ) { [weak self] result in
-                self?.output?.didReceiveMinimumBalance(result: result)
-            }
-
-            if chainAsset.chain.isTipRequired {
-                fetchConstant(
-                    for: .defaultTip,
-                    runtimeCodingService: runtimeService,
-                    operationManager: operationManager
-                ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
-                    self?.output?.didReceiveTip(result: result)
-                }
-            }
-            if chainAsset.chain.isEquilibrium {
-                equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
-            }
-        }
-    }
-
     private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
         guard let dependencies = dependencies else {
             return
@@ -261,6 +230,37 @@ extension SendInteractor: SendInteractorInput {
             throw ConvenienceError(error: "Dependencies not ready")
         }
         return try await polkaswapService.fetchQuotes(amount: amount, fromChainAsset: chainAsset, toChainAsset: toChainAsset)
+    }
+
+    func provideConstants(for chainAsset: ChainAsset) {
+        guard let dependencies = dependencies else {
+            return
+        }
+
+        Task {
+            guard let runtimeService = dependencies.runtimeService else {
+                return
+            }
+
+            dependencies.existentialDepositService.fetchExistentialDeposit(
+                chainAsset: chainAsset
+            ) { [weak self] result in
+                self?.output?.didReceiveMinimumBalance(result: result)
+            }
+
+            if chainAsset.chain.isTipRequired {
+                fetchConstant(
+                    for: .defaultTip,
+                    runtimeCodingService: runtimeService,
+                    operationManager: operationManager
+                ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
+                    self?.output?.didReceiveTip(result: result)
+                }
+            }
+            if chainAsset.chain.isEquilibrium {
+                equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
+            }
+        }
     }
 }
 

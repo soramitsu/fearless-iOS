@@ -36,10 +36,7 @@ final class WalletConnectSessionInteractor {
     // MARK: - Private methods
 
     private func fetchBalances() {
-        walletBalanceSubscriptionAdapter.subscribeWalletsBalances(
-            deliverOn: .main,
-            handler: self
-        )
+        walletBalanceSubscriptionAdapter.subscribeWalletsBalances(deliverOn: .main, listener: self)
     }
 
     private func fetchChainModels() {
@@ -92,7 +89,11 @@ extension WalletConnectSessionInteractor: WalletConnectSessionInteractorInput {
 
 // MARK: - WalletBalanceSubscriptionHandler
 
-extension WalletConnectSessionInteractor: WalletBalanceSubscriptionHandler {
+extension WalletConnectSessionInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .wallets
+    }
+
     func handle(result: WalletBalancesResult) {
         output?.didReceiveBalance(result: result)
     }

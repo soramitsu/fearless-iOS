@@ -43,19 +43,10 @@ enum WalletConnectSessionAssembly {
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            meta: wallet
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAssetFetcher: chainAssetFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
-        )
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let interactor = WalletConnectSessionInteractor(
             walletConnect: WalletConnectServiceImpl.shared,

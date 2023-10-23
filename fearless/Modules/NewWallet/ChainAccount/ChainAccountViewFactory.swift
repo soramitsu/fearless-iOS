@@ -39,9 +39,7 @@ enum ChainAccountViewFactory {
         operationQueue.qualityOfService = .background
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
+            operationQueue: operationQueue
         )
 
         let keyFactory = StorageKeyFactory()
@@ -64,14 +62,8 @@ enum ChainAccountViewFactory {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAssetFetcher: chainAssetFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
-        )
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
+
         let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: accountInfoRepository,

@@ -10,7 +10,6 @@ final class BalanceInfoPresenter {
     private let interactor: BalanceInfoInteractorInput
     private let eventCenter: EventCenterProtocol
 
-    private var balanceInfoType: BalanceInfoType
     private let balanceInfoViewModelFactoryProtocol: BalanceInfoViewModelFactoryProtocol
     private let logger: LoggerProtocol
 
@@ -21,7 +20,6 @@ final class BalanceInfoPresenter {
     // MARK: - Constructors
 
     init(
-        balanceInfoType: BalanceInfoType,
         balanceInfoViewModelFactoryProtocol: BalanceInfoViewModelFactoryProtocol,
         interactor: BalanceInfoInteractorInput,
         router: BalanceInfoRouterInput,
@@ -29,7 +27,6 @@ final class BalanceInfoPresenter {
         localizationManager: LocalizationManagerProtocol,
         eventCenter: EventCenterProtocol
     ) {
-        self.balanceInfoType = balanceInfoType
         self.balanceInfoViewModelFactoryProtocol = balanceInfoViewModelFactoryProtocol
         self.interactor = interactor
         self.router = router
@@ -44,17 +41,19 @@ final class BalanceInfoPresenter {
 
     private func buildBalance() {
         let viewModel = balanceInfoViewModelFactoryProtocol.buildBalanceInfo(
-            with: balanceInfoType,
+            with: interactor.balanceInfoType,
             balances: balances,
             infoButtonEnabled: createBalanceContext() != nil,
             locale: selectedLocale
         )
 
-        view?.didReceiveViewModel(viewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveViewModel(viewModel)
+        }
     }
 
     private func createBalanceContext() -> BalanceContext? {
-        guard case let .chainAsset(wallet, chainAsset) = balanceInfoType,
+        guard case let .chainAsset(wallet, chainAsset) = interactor.balanceInfoType,
               let balance = balances[wallet.metaId] else {
             return nil
         }
@@ -91,7 +90,7 @@ final class BalanceInfoPresenter {
 extension BalanceInfoPresenter: BalanceInfoViewOutput {
     func didLoad(view: BalanceInfoViewInput) {
         self.view = view
-        interactor.setup(with: self, for: balanceInfoType)
+        interactor.setup(with: self)
         view.didReceiveViewModel(nil)
     }
 }
@@ -136,23 +135,23 @@ extension BalanceInfoPresenter: Localizable {
 
 extension BalanceInfoPresenter: BalanceInfoModuleInput {
     func replace(infoType: BalanceInfoType) {
-        balanceInfoType = infoType
-        interactor.fetchBalanceInfo(for: infoType)
+        interactor.balanceInfoType = infoType
+        interactor.fetchBalanceInfo()
     }
 }
 
 extension BalanceInfoPresenter: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        switch balanceInfoType {
-        case let .chainAsset(wallet, chainAsset):
+        switch interactor.balanceInfoType {
+        case let .chainAsset(_, chainAsset):
             let newType = BalanceInfoType.chainAsset(wallet: event.account, chainAsset: chainAsset)
-            balanceInfoType = newType
-            interactor.fetchBalanceInfo(for: newType)
+            interactor.balanceInfoType = newType
+            interactor.fetchBalanceInfo()
 
-        case let .wallet(wallet):
+        case .wallet:
             let newType = BalanceInfoType.wallet(wallet: event.account)
-            balanceInfoType = newType
-            interactor.fetchBalanceInfo(for: newType)
+            interactor.balanceInfoType = newType
+            interactor.fetchBalanceInfo()
         }
     }
 }

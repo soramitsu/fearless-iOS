@@ -11,7 +11,6 @@ final class WalletsManagmentAssembly {
         contextTag: Int = 0,
         moduleOutput: WalletsManagmentModuleOutput?
     ) -> WalletsManagmentModuleCreationResult? {
-        guard let wallet = SelectedWalletSettings.shared.value else { return nil }
         let sharedDefaultQueue = OperationManagerFacade.sharedDefaultQueue
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
@@ -32,33 +31,12 @@ final class WalletsManagmentAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
-        let substrateAccountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: substrateAccountInfoFetching,
-            operationQueue: sharedDefaultQueue,
-            meta: wallet
+            operationQueue: sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAssetFetcher: chainAssetFetching,
-            operationQueue: sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
-        )
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let featureToggleProvider = FeatureToggleProvider(
             networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),

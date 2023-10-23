@@ -171,8 +171,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
                 validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory,
-                wallet: wallet
+                collatorOperationFactory: collatorOperationFactory
             )
 
             sharedState.eraValidatorService.throttle()

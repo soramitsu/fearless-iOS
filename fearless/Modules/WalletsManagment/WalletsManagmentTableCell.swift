@@ -187,7 +187,7 @@ extension WalletsManagmentTableCell: SkeletonLoadable {
     }
 
     private func setupSkeleton() {
-        let spaceSize = frame.size
+        let spaceSize = CGSizeMake(frame.width - Constants.optionsButtonSize.width, frame.height)
 
         guard spaceSize != .zero else {
             self.skeletonView = Skrull(size: .zero, decorations: [], skeletons: []).build()

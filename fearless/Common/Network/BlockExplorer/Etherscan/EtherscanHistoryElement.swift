@@ -1,6 +1,6 @@
 import Foundation
-import SSFUtils
 import BigInt
+import SSFUtils
 
 struct EtherscanHistoryElement: Decodable {
     let blockNumber: String?

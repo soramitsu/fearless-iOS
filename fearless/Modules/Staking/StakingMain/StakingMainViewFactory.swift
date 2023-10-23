@@ -188,17 +188,9 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .userInitiated
 
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: selectedAccount
+            operationQueue: operationQueue
         )
 
         return StakingMainInteractor(
@@ -228,7 +220,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     private static func createSharedState(
         with chainAsset: ChainAsset,
         stakingSettings: StakingAssetSettings,
-        wallet: MetaAccountModel
+        wallet _: MetaAccountModel
     ) throws -> StakingSharedState {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -263,8 +255,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             for: chainAsset,
             assetPrecision: chainAsset.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory,
-            wallet: wallet
+            collatorOperationFactory: collatorOperationFactory
         )
 
         let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
