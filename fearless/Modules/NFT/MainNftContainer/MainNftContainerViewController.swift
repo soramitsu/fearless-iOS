@@ -45,6 +45,11 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
         }
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        output.viewAppeared()
+    }
+
     // MARK: - Private methods
 
     @objc private func actionRefresh() {

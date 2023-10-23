@@ -41,21 +41,20 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
             throw AddressFactoryError.unexpectedAddress
         }
 
-        return nil
-//        return try await withCheckedThrowingContinuation { continuation in
-//            let fetchNftsOperation = operationFactory.fetchNFTs(chain: chain, address: address)
-//
-//            fetchNftsOperation.targetOperation.completionBlock = {
-//                do {
-//                    let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
-//                    continuation.resume(with: .success(nfts))
-//                } catch {
-//                    continuation.resume(with: .failure(error))
-//                }
-//            }
-//
-//            self.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
-//        }
+        return try await withCheckedThrowingContinuation { continuation in
+            let fetchNftsOperation = operationFactory.fetchNFTs(chain: chain, address: address)
+
+            fetchNftsOperation.targetOperation.completionBlock = {
+                do {
+                    let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
+                    continuation.resume(with: .success(nfts))
+                } catch {
+                    continuation.resume(with: .failure(error))
+                }
+            }
+
+            self.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
+        }
     }
 }
 
