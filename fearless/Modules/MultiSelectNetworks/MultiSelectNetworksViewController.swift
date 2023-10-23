@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 import SoraFoundation
 import SnapKit
 
@@ -94,6 +95,7 @@ extension MultiSelectNetworksViewController: MultiSelectNetworksViewInput {
         rootView.setTitle(text: viewModel.selectedCountTitle)
         self.viewModel = viewModel
         rootView.tableView.reloadData()
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -144,5 +146,39 @@ extension MultiSelectNetworksViewController: UITableViewDelegate {
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         output.didSelectRow(at: indexPath)
+    }
+}
+
+// MARK: - EmptyStateViewOwnerProtocol
+
+extension MultiSelectNetworksViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+// MARK: - EmptyStateDataSource
+
+extension MultiSelectNetworksViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarning()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable.emptyStateMessage(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .bigFilledShadow
+        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView.container
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension MultiSelectNetworksViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        viewModel?.cells.isEmpty == true
     }
 }

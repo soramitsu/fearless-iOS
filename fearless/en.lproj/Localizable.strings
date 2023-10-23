@@ -1201,3 +1201,4 @@ belongs to the right network";
 "common.disconnect" = "Disconnect";
 "common.expiry" = "Expiry";
 "sign.this.message" = "Sign this message?";
+"empty.state.message" = "Nothing found for your request";

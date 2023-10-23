@@ -49,6 +49,7 @@ final class MultiSelectNetworksViewLayout: UIView {
         return button
     }()
 
+    let container = UIView()
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.backgroundColor = R.color.colorBlack19()
@@ -81,7 +82,8 @@ final class MultiSelectNetworksViewLayout: UIView {
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(searchTextField)
-        addSubview(tableView)
+        addSubview(container)
+        container.addSubview(tableView)
 
         navigationBar.addArrangedSubview(selectAllButton)
         navigationBar.addArrangedSubview(titleLabel)
@@ -98,10 +100,14 @@ final class MultiSelectNetworksViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        tableView.snp.makeConstraints { make in
+        container.snp.makeConstraints { make in
             make.top.equalTo(searchTextField.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
+        }
+
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
 
