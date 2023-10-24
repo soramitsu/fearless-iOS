@@ -1,9 +1,13 @@
 import UIKit
 import SoraFoundation
 import RobinHood
+import SSFUtils
 
 final class WalletMainContainerAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        walletConnect: WalletConnectService
+    ) -> WalletMainContainerModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let localizationManager = LocalizationManager.shared
 
@@ -40,6 +44,21 @@ final class WalletMainContainerAssembly {
 
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createRepository()
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+        let deprecatedAccountsCheckService = DeprecatedControllerStashAccountCheckService(
+            chainRegistry: chainRegistry,
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            storageRequestFactory: storageOperationFactory,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            walletRepository: AnyDataProviderRepository(accountRepository),
+            stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
+        )
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -48,7 +67,10 @@ final class WalletMainContainerAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry)
+            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
+            deprecatedAccountsCheckService: deprecatedAccountsCheckService,
+            applicationHandler: ApplicationHandler(),
+            walletConnectService: walletConnect
         )
 
         let router = WalletMainContainerRouter()
@@ -58,7 +80,7 @@ final class WalletMainContainerAssembly {
             let assetListModule = Self.configureAssetListModule(
                 metaAccount: wallet
             ),
-            let nftModule = Self.configureNftModule()
+            let nftModule = Self.configureNftModule(wallet: wallet)
         else {
             return nil
         }
@@ -99,7 +121,7 @@ final class WalletMainContainerAssembly {
         return chainAssetListModule
     }
 
-    private static func configureNftModule() -> MainNftContainerModuleCreationResult? {
-        MainNftContainerAssembly.configureModule()
+    private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {
+        MainNftContainerAssembly.configureModule(wallet: wallet)
     }
 }

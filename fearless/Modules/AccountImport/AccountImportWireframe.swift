@@ -4,17 +4,20 @@ import IrohaCrypto
 final class AccountImportWireframe: AccountImportWireframeProtocol {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
-    func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData) {
-        guard let secondStep = AccountImportViewFactory.createViewForOnboarding(.wallet(step: .second(data: data))) else {
+    func showEthereumStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.SubstrateStepData) {
+        guard let ethereumStep = AccountImportViewFactory.createViewForOnboarding(
+            defaultSource: .mnemonic,
+            flow: .wallet(step: .ethereum(data: data))
+        ) else {
             return
         }
 
         if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(secondStep.controller, animated: true)
+            navigationController.pushViewController(ethereumStep.controller, animated: true)
         }
     }
 
-    func proceed(from _: AccountImportViewProtocol?, flow: AccountImportFlow) {
+    func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow) {
         switch flow {
         case .wallet:
             guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
@@ -22,9 +25,7 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
             }
             rootAnimator.animateTransition(to: pincodeViewController)
         case .chain:
-            DispatchQueue.main.async {
-                UIApplication.shared.keyWindow?.rootViewController?.dismiss(animated: true)
-            }
+            dismiss(view: view)
         }
     }
 

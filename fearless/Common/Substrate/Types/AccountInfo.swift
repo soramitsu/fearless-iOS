@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
-import BigInt
 import RobinHood
+import BigInt
 
 // MARK: - Normal
 
@@ -15,6 +15,13 @@ struct AccountInfo: Codable, Equatable {
     @StringCodable var consumers: UInt32
     @StringCodable var providers: UInt32
     let data: AccountData
+
+    init(ethBalance: BigUInt) {
+        nonce = 0
+        consumers = 0
+        providers = 0
+        data = AccountData(ethBalance: ethBalance)
+    }
 
     init(nonce: UInt32, consumers: UInt32, providers: UInt32, data: AccountData) {
         self.nonce = nonce
@@ -94,6 +101,13 @@ struct AccountData: Codable, Equatable {
     @StringCodable var frozen: BigUInt
     @StringCodable var flags: BigUInt
 
+    init(ethBalance: BigUInt) {
+        free = ethBalance
+        reserved = 0
+        frozen = 0
+        flags = 0
+    }
+
     init(free: BigUInt, reserved: BigUInt, frozen: BigUInt, flags: BigUInt? = .zero) {
         self.free = free
         self.reserved = reserved
@@ -112,8 +126,18 @@ struct AccountData: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
-        reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
+        do {
+            free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
+        } catch {
+            free = try container.decode(BigUInt.self, forKey: .free)
+        }
+
+        do {
+            reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
+        } catch {
+            reserved = try container.decode(BigUInt.self, forKey: .reserved)
+        }
+
         do {
             flags = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .flags).value
         } catch {
@@ -123,10 +147,14 @@ struct AccountData: Codable, Equatable {
         do {
             frozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .frozen).value
         } catch {
-            let feeFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .feeFrozen).value
-            let miscFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .miscFrozen).value
+            do {
+                frozen = try container.decode(BigUInt.self, forKey: .frozen)
+            } catch {
+                let feeFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .feeFrozen).value
+                let miscFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .miscFrozen).value
 
-            frozen = max(feeFrozen, miscFrozen)
+                frozen = max(feeFrozen, miscFrozen)
+            }
         }
     }
 }

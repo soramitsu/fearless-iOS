@@ -64,6 +64,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     func logout(from _: ProfileViewProtocol?) {
         if let window = UIApplication.shared.windows.first {
             window.rootViewController?.dismiss(animated: true, completion: nil)
+            window.rootViewController = nil
             let presenter = RootPresenterFactory.createPresenter(with: window)
             presenter.reload()
         }
@@ -101,6 +102,17 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
             return
         }
         view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showWalletConnect(from view: ControllerBackedProtocol?) {
+        let module = WalletConnectActiveSessionsAssembly.configureModule()
+        guard let controller = module?.view.controller else {
+            return
+        }
+
+        let navigation = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigation, animated: true)
     }
 
     // MARK: Private

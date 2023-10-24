@@ -8,12 +8,14 @@ protocol AccountInfoUpdatingServiceProtocol: ApplicationServiceProtocol {
 
 final class AccountInfoUpdatingService {
     struct SubscriptionInfo {
-        let subscriptionId: UUID
+        let subscriptionId: String
+        let accountId: AccountId
     }
 
     private(set) var selectedMetaAccount: MetaAccountModel
     private let chainRegistry: ChainRegistryProtocol
-    private let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
+    private let substrateRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
+    private let ethereumRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private var chains: [ChainModel.Id: ChainModel] = [:]
@@ -31,12 +33,14 @@ final class AccountInfoUpdatingService {
         selectedAccount: MetaAccountModel,
         chainRegistry: ChainRegistryProtocol,
         remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
+        ethereumRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
         logger: LoggerProtocol?,
         eventCenter: EventCenterProtocol
     ) {
         selectedMetaAccount = selectedAccount
         self.chainRegistry = chainRegistry
-        self.remoteSubscriptionService = remoteSubscriptionService
+        substrateRemoteSubscriptionService = remoteSubscriptionService
+        self.ethereumRemoteSubscriptionService = ethereumRemoteSubscriptionService
         self.logger = logger
         self.eventCenter = eventCenter
     }
@@ -47,14 +51,22 @@ final class AccountInfoUpdatingService {
         }
     }
 
+    private func getRemoteSubscriptionService(for chainAsset: ChainAsset) -> WalletRemoteSubscriptionServiceProtocol {
+        if chainAsset.chain.isEthereum {
+            return ethereumRemoteSubscriptionService
+        } else {
+            return substrateRemoteSubscriptionService
+        }
+    }
+
     private func handle(changes: [DataProviderChange<ChainModel>]) {
         for change in changes {
             switch change {
             case let .insert(newItem):
+                chains[newItem.chainId] = newItem
+
                 if chainRegistry.availableChainIds.or([]).contains(newItem.chainId) {
                     addSubscriptionIfNeeded(for: newItem)
-                } else {
-                    chains[newItem.chainId] = newItem
                 }
             case .update:
                 break
@@ -65,6 +77,10 @@ final class AccountInfoUpdatingService {
     }
 
     private func addSubscriptionIfNeeded(for chainModel: ChainModel, closure: RemoteSubscriptionClosure? = nil) {
+        guard !chainModel.isEthereum else {
+            return
+        }
+        
         guard getSubscription(for: chainModel.chainId) == nil else {
             return
         }
@@ -98,7 +114,7 @@ final class AccountInfoUpdatingService {
             return
         }
 
-        remoteSubscriptionService.detachFromAccountInfo(
+        getRemoteSubscriptionService(for: chainAsset).detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
             chainId: chainModel.chainId,
             queue: nil
@@ -124,12 +140,27 @@ final class AccountInfoUpdatingService {
 
         setSubscription(nil, for: chainId)
 
-        remoteSubscriptionService.detachFromAccountInfo(
-            for: subscriptionInfo.subscriptionId,
-            chainId: chainId,
-            queue: nil,
-            closure: nil
-        )
+        guard let ecosystem = key.components(separatedBy: ":")[safe: 1],
+              let chainBaseType = ChainBaseType(rawValue: ecosystem) else {
+            return
+        }
+
+        switch chainBaseType {
+        case .ethereum:
+            ethereumRemoteSubscriptionService.detachFromAccountInfo(
+                for: subscriptionInfo.subscriptionId,
+                chainId: chainId,
+                queue: nil,
+                closure: nil
+            )
+        case .substrate:
+            substrateRemoteSubscriptionService.detachFromAccountInfo(
+                for: subscriptionInfo.subscriptionId,
+                chainId: chainId,
+                queue: nil,
+                closure: nil
+            )
+        }
     }
 
     private func subscribeToChains() {
@@ -159,11 +190,12 @@ extension AccountInfoUpdatingService: AccountInfoUpdatingServiceProtocol {
     }
 
     func update(selectedMetaAccount: MetaAccountModel) {
-        unsubscribeFromChains()
-
+        removeAllSubscriptions()
         self.selectedMetaAccount = selectedMetaAccount
 
-        subscribeToChains()
+        chains.values.compactMap { $0.chainAssets }.reduce([], +).forEach {
+            addSubscriptionIfNeeded(for: $0)
+        }
     }
 }
 

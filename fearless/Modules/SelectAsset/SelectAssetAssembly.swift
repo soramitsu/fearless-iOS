@@ -26,20 +26,9 @@ final class SelectAssetAssembly {
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .userInitiated
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
+            operationQueue: operationQueue
         )
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(

@@ -12,6 +12,10 @@ protocol PolkaswapRemoteSubscriptionServiceProtocol {
         updateClosure: @escaping (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void
     )
 
+    func subscribeToBlocks(
+        updateClosure: @escaping (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void
+    )
+
     func unsubscribe()
 }
 
@@ -23,6 +27,20 @@ final class PolkaswapRemoteSubscriptionService: PolkaswapRemoteSubscriptionServi
     init(connection: ChainConnection, logger: LoggerProtocol) {
         self.connection = connection
         self.logger = logger
+    }
+
+    func subscribeToBlocks(
+        updateClosure: @escaping (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void
+    ) {
+        do {
+            let storageKeys = try createBlocksStorageKeys()
+            try subscribeOn(
+                storageKeys: storageKeys,
+                updateClosure: updateClosure
+            )
+        } catch {
+            logger.customError(error)
+        }
     }
 
     func subscribsToPools(
@@ -70,6 +88,14 @@ final class PolkaswapRemoteSubscriptionService: PolkaswapRemoteSubscriptionServi
     }
 
     // MARK: - Private methods
+
+    private func createBlocksStorageKeys() throws -> [String] {
+        [try StorageKeyFactory()
+            .createStorageKey(
+                moduleName: StorageCodingPath.blockNumber.moduleName,
+                storageName: StorageCodingPath.blockNumber.itemName
+            ).toHex(includePrefix: true)]
+    }
 
     private func createSmartPoolStorageKeys(
         for fromAssetId: AssetModel.Id,

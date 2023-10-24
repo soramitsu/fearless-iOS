@@ -12,7 +12,7 @@ extension ChainAsset: Identifiable {
     var storagePath: StorageCodingPath {
         var storagePath: StorageCodingPath
         switch chainAssetType {
-        case .normal, .equilibrium:
+        case .normal, .equilibrium, .none:
             storagePath = StorageCodingPath.account
         case
             .ormlChain,
@@ -37,5 +37,9 @@ extension ChainAsset: Identifiable {
         }
 
         return storagePath
+    }
+
+    var isBokolo: Bool {
+        asset.currencyId == bokoloCashAssetCurrencyId
     }
 }

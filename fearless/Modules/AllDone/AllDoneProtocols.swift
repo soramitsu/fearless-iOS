@@ -13,7 +13,7 @@ protocol AllDoneViewOutput: AnyObject {
     func dismiss()
     func didCopyTapped()
     func presentationControllerWillDismiss()
-    func subscanButtonDidTapped()
+    func explorerButtonDidTapped()
     func shareButtonDidTapped()
 }
 

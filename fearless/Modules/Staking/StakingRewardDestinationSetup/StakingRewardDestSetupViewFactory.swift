@@ -38,7 +38,7 @@ struct StakingRewardDestSetupViewFactory {
 
         let rewardDestinationViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: rewardBalanceViewModelFactory,
-            iconGenerator: UniversalIconGenerator(chain: chain),
+            iconGenerator: UniversalIconGenerator(),
             chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
@@ -155,8 +155,7 @@ struct StakingRewardDestSetupViewFactory {
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
             for: ChainAsset(chain: settings.chain, asset: settings.asset),
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory,
-            wallet: selectedAccount
+            validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory
         )
 
         let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)

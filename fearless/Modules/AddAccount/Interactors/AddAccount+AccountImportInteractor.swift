@@ -15,7 +15,8 @@ extension AddAccount {
             operationManager: OperationManagerProtocol,
             settings: SelectedWalletSettings,
             keystoreImportService: KeystoreImportServiceProtocol,
-            eventCenter: EventCenterProtocol
+            eventCenter: EventCenterProtocol,
+            defaultSource: AccountImportSource
         ) {
             self.settings = settings
             self.eventCenter = eventCenter
@@ -24,7 +25,8 @@ extension AddAccount {
                 accountOperationFactory: accountOperationFactory,
                 accountRepository: accountRepository,
                 operationManager: operationManager,
-                keystoreImportService: keystoreImportService
+                keystoreImportService: keystoreImportService,
+                defaultSource: defaultSource
             )
         }
 
@@ -50,7 +52,7 @@ extension AddAccount {
                     switch saveOperation.result {
                     case .success:
                         self?.settings.setup()
-                        self?.eventCenter.notify(with: SelectedAccountChanged())
+                        self?.eventCenter.notify(with: SelectedAccountChanged(account: item))
                         self?.presenter?.didCompleteAccountImport()
 
                     case let .failure(error):

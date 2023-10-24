@@ -50,8 +50,8 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
     func didFailToDeriveMetadataFromKeystore()
 }
 
-protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable, DocumentPickerPresentable {
-    func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
+protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable, DocumentPickerPresentable, AnyDismissable {
+    func showEthereumStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.SubstrateStepData)
 
     func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow)
 
@@ -73,13 +73,19 @@ protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable
 }
 
 protocol AccountImportViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
-    static func createViewForAdding(_ flow: AccountImportFlow) -> AccountImportViewProtocol?
+    static func createViewForOnboarding(
+        defaultSource: AccountImportSource,
+        flow: AccountImportFlow
+    ) -> AccountImportViewProtocol?
+    static func createViewForAdding(
+        defaultSource: AccountImportSource,
+        _ flow: AccountImportFlow
+    ) -> AccountImportViewProtocol?
     static func createViewForSwitch() -> AccountImportViewProtocol?
 }
 
 extension AccountImportViewFactoryProtocol {
-    static func createViewForOnboarding() -> AccountImportViewProtocol? {
-        Self.createViewForOnboarding(.wallet(step: .first))
+    static func createViewForOnboarding(defaultSource: AccountImportSource) -> AccountImportViewProtocol? {
+        Self.createViewForOnboarding(defaultSource: defaultSource, flow: .wallet(step: .substrate))
     }
 }

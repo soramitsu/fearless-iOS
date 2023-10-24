@@ -42,7 +42,7 @@ final class PolkaswapSwapConfirmationInteractor: RuntimeConstantFetching {
             slip = params.minMaxValue.toSubstrateAmount(precision: precisionToAsset) ?? .zero
         case .desiredOutput:
             desired = params.toAmount.toSubstrateAmount(precision: precisionToAsset) ?? .zero
-            slip = params.fromAmount.toSubstrateAmount(precision: precisionFromAsset) ?? .zero
+            slip = params.minMaxValue.toSubstrateAmount(precision: precisionFromAsset) ?? .zero
         }
 
         let swapAmount = SwapAmount(

@@ -91,6 +91,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .zeroBalances:
             break
+//        case .walletConnect:
+//            wireframe.showWalletConnect(from: view)
         }
     }
 
@@ -152,6 +154,7 @@ extension ProfilePresenter: CheckPincodeModuleOutput {
         interactor.logout { [weak self] in
             DispatchQueue.main.async {
                 self?.wireframe.logout(from: self?.view)
+                self?.eventCenter.notify(with: LogoutEvent())
             }
         }
     }
@@ -221,7 +224,15 @@ extension ProfilePresenter: WalletsManagmentModuleOutput {
         wireframe.showCreateNewWallet(from: view)
     }
 
-    func showImportWallet() {
-        wireframe.showImportWallet(from: view)
+    func showImportWallet(defaultSource: AccountImportSource) {
+        wireframe.showImportWallet(defaultSource: defaultSource, from: view)
+    }
+
+    func showImportGoogle() {
+        wireframe.showBackupSelectWallet(from: view)
+    }
+
+    func showGetPreinstalledWallet() {
+        wireframe.showGetPreinstalledWallet(from: view)
     }
 }

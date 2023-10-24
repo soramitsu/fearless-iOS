@@ -2,6 +2,16 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFModels
+import Web3ContractABI
+import Web3
+import SoraKeystore
+import SSFSigner
+import SSFCrypto
+import SSFExtrinsicKit
+import SSFNetwork
+import SSFChainRegistry
+import SSFChainConnection
 
 final class SendAssembly {
     static func configureModule(
@@ -33,22 +43,11 @@ final class SendAssembly {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .userInitiated
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
+            operationQueue: operationQueue
         )
         let addressChainDefiner = AddressChainDefiner(
             operationManager: operationManager,
@@ -70,7 +69,7 @@ final class SendAssembly {
         )
         let router = SendRouter()
 
-        let viewModelFactory = SendViewModelFactory(iconGenerator: PolkadotIconGenerator())
+        let viewModelFactory = SendViewModelFactory(iconGenerator: UniversalIconGenerator())
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = SendPresenter(
             interactor: interactor,
@@ -85,6 +84,7 @@ final class SendAssembly {
         )
 
         let view = SendViewController(
+            initialData: initialData,
             output: presenter,
             localizationManager: localizationManager
         )

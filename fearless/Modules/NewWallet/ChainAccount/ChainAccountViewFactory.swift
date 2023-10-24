@@ -22,6 +22,7 @@ enum ChainAccountViewFactory {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
@@ -38,9 +39,7 @@ enum ChainAccountViewFactory {
         operationQueue.qualityOfService = .background
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
+            operationQueue: operationQueue
         )
 
         let keyFactory = StorageKeyFactory()
@@ -57,15 +56,23 @@ enum ChainAccountViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
+
+        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
         let interactor = ChainAccountInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
@@ -75,7 +82,8 @@ enum ChainAccountViewFactory {
             availableExportOptionsProvider: AvailableExportOptionsProvider(),
             chainAssetFetching: chainAssetFetching,
             storageRequestFactory: storageRequestFactory,
-            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter
+            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
+            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching
         )
 
         let wireframe = ChainAccountWireframe()

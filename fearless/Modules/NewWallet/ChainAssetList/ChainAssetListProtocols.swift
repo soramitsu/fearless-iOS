@@ -5,6 +5,7 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
+    func reloadBanners()
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
@@ -12,18 +13,21 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
     func didTapExpandSections(state: HiddenSectionState)
+    func didPullToRefresh()
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
     func setup(with output: ChainAssetListInteractorOutput)
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        useCashe: Bool
     )
     func hideChainAsset(_ chainAsset: ChainAsset)
     func showChainAsset(_ chainAsset: ChainAsset)
     func markUnused(chain: ChainModel)
     func saveHiddenSection(state: HiddenSectionState)
+    func reload(fetchPrices: Bool)
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {

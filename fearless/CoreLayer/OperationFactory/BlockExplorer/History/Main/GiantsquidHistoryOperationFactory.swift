@@ -12,14 +12,11 @@ final class GiantsquidHistoryOperationFactory {
     }
 
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
-    private let runtimeService: RuntimeCodingServiceProtocol
 
     init(
-        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-        runtimeService: RuntimeCodingServiceProtocol
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     ) {
         self.txStorage = txStorage
-        self.runtimeService = runtimeService
     }
 
     private func createOperation(
@@ -301,7 +298,6 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         let chainAsset = ChainAsset(chain: chain, asset: asset)
-        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
@@ -332,7 +328,7 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
-        var dependencies: [Operation] = [remoteHistoryOperation, runtimeOperation]
+        var dependencies: [Operation] = [remoteHistoryOperation]
 
         let localFetchOperation: BaseOperation<[TransactionHistoryItem]>?
 

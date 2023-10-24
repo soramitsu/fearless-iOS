@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraUI
+import SSFNetwork
 
 final class WalletsManagmentAssembly {
     static func configureModule(
@@ -30,13 +31,16 @@ final class WalletsManagmentAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+        let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
+            operationQueue: sharedDefaultQueue
+        )
+
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
+
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
         )
 
         let interactor = WalletsManagmentInteractor(
@@ -45,7 +49,8 @@ final class WalletsManagmentAssembly {
             metaAccountRepository: AnyDataProviderRepository(managedMetaAccountRepository),
             operationQueue: sharedDefaultQueue,
             settings: SelectedWalletSettings.shared,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            featureToggleService: featureToggleProvider
         )
         let router = WalletsManagmentRouter()
 

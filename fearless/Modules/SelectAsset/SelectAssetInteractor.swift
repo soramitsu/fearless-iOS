@@ -45,6 +45,7 @@ final class SelectAssetInteractor {
             return
         }
         chainAssetFetching.fetch(
+            shouldUseCache: true,
             filters: [],
             sortDescriptors: []
         ) { [weak self] result in

@@ -23,6 +23,8 @@ struct UIConstants {
     static let accessoryItemsSpacing: CGFloat = 12.0
     static let cellHeight: CGFloat = 48.0
     static let cellHeight54: CGFloat = 54.0
+    static let cellHeight64: CGFloat = 64.0
+    static let cellHeight40: CGFloat = 40.0
     static let tableHeaderHeight: CGFloat = 40.0
     static let separatorHeight: CGFloat = 1.0 / UIScreen.main.scale
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
@@ -42,6 +44,7 @@ struct UIConstants {
     static let infoButtonSize: CGFloat = 14.0
     static let minButtonSize = CGSize(width: 44, height: 44)
     static let roundedButtonHeight: CGFloat = 56.0
+    static let roundedCloseButtonSize: CGFloat = 32.0
 }
 
 enum AccountViewMode {
@@ -237,6 +240,7 @@ final class UIFactory: UIFactoryProtocol {
         view.backgroundView.strokeColor = .clear
         view.backgroundView.highlightedStrokeColor = .clear
         view.backgroundView.strokeWidth = 0.0
+        view.backgroundView.shadowOpacity = 0
 
         view.titleLabel.textColor = R.color.colorLightGray()!
         view.titleLabel.font = UIFont.p2Paragraph

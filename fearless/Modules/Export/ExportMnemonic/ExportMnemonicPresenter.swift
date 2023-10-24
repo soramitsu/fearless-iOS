@@ -60,13 +60,13 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
         let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
         let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
 
-        let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let exportAction = SheetAlertPresentableAction(title: exportTitle) { [weak self] in
+        let exportTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
+        let exportAction = SheetAlertPresentableAction(title: exportTitle, style: .pinkBackgroundWhiteText)
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        let cancelAction = SheetAlertPresentableAction(title: cancelTitle) { [weak self] in
             self?.wireframe.back(view: self?.view)
         }
-
-        let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
-        let cancelAction = SheetAlertPresentableAction(title: cancelTitle)
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
@@ -92,7 +92,7 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
             return
         }
 
-        wireframe.openConfirmationForMnemonic(exportData.mnemonic, from: view)
+        wireframe.openConfirmationForMnemonic(exportData.mnemonic, wallet: flow.wallet, from: view)
     }
 
     func activateAccessoryOption() {}

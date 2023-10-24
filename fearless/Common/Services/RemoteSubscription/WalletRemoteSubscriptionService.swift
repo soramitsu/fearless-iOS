@@ -7,10 +7,10 @@ protocol WalletRemoteSubscriptionServiceProtocol {
         chainModel: ChainModel,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
-    ) -> UUID?
+    ) async -> String?
 
     func detachFromAccountInfo(
-        for subscriptionId: UUID,
+        for subscriptionId: String,
         chainId: ChainModel.Id,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
@@ -23,7 +23,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
         chainModel: ChainModel,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?
-    ) -> UUID? {
+    ) async -> String? {
         do {
             let requests: [SubscriptionRequestProtocol] = try chainModel.chainAssets.compactMap { chainAsset in
                 guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
@@ -72,7 +72,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
                 cacheKey: chainModel.chainId,
                 queue: queue,
                 closure: closure
-            )
+            ).uuidString
         } catch {
             callbackClosureIfProvided(closure, queue: queue, result: .failure(error))
             return nil
@@ -80,7 +80,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
     }
 
     func detachFromAccountInfo(
-        for subscriptionId: UUID,
+        for subscriptionId: String,
         chainId: ChainModel.Id,
         queue: DispatchQueue?,
         closure: RemoteSubscriptionClosure?

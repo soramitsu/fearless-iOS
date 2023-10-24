@@ -89,7 +89,7 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
         settings.save(value: item.info, runningCompletionIn: .main) { [weak self] result in
             switch result {
             case .success:
-                self?.eventCenter.notify(with: SelectedAccountChanged())
+                self?.eventCenter.notify(with: SelectedAccountChanged(account: item.info))
 
                 self?.presenter?.didCompleteSelection(of: item.info)
             case let .failure(error):

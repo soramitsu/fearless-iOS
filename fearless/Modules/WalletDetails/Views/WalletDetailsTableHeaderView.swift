@@ -26,7 +26,7 @@ final class WalletDetailsTableHeaderView: UITableViewHeaderFooterView {
     private func setupLayout() {
         addSubview(label)
         label.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
         }
     }

@@ -25,6 +25,8 @@ final class ChainAssetListViewController:
 
     private let output: ChainAssetListViewOutput
 
+    private weak var bannersViewController: UIViewController?
+
     private var viewModel: ChainAssetListViewModel?
     private var hiddenSectionState: HiddenSectionState = .expanded
     private lazy var locale: Locale = {
@@ -34,9 +36,11 @@ final class ChainAssetListViewController:
     // MARK: - Constructor
 
     init(
+        bannersViewController: UIViewController?,
         output: ChainAssetListViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.bannersViewController = bannersViewController
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -57,6 +61,7 @@ final class ChainAssetListViewController:
         super.viewDidLoad()
         output.didLoad(view: self)
         configureTableView()
+        setupEmbededViews()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -88,12 +93,20 @@ private extension ChainAssetListViewController {
         if #available(iOS 15.0, *) {
             rootView.tableView.sectionHeaderTopPadding = 0
         }
+
+        if let refreshControl = rootView.tableView.refreshControl {
+            refreshControl.addTarget(
+                self,
+                action: #selector(handlePullToRefresh),
+                for: .valueChanged
+            )
+        }
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
         if
-            let section = viewModel?.sections[indexPath.section],
-            let cellModel = viewModel?.cellsForSections[section]?[indexPath.row] {
+            let section = viewModel?.sections[safe: indexPath.section],
+            let cellModel = viewModel?.cellsForSections[section]?[safe: indexPath.row] {
             return cellModel
         }
         return nil
@@ -111,12 +124,38 @@ private extension ChainAssetListViewController {
         output.didTapExpandSections(state: hiddenSectionState)
         rootView.tableView.reloadData()
     }
+
+    func setupEmbededViews() {
+        guard let bannersViewController = bannersViewController else {
+            return
+        }
+
+        addChild(bannersViewController)
+
+        rootView.addBanners(view: bannersViewController.view)
+        bannersViewController.didMove(toParent: self)
+    }
+
+    @objc func handlePullToRefresh() {
+        output.didPullToRefresh()
+        rootView.tableView.refreshControl?.endRefreshing()
+    }
 }
 
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
+    func reloadBanners() {
+        guard viewModel != nil else {
+            return
+        }
+        rootView.tableView.setAndLayoutTableHeaderView(header: rootView.headerViewContainer)
+    }
+
     func didReceive(viewModel: ChainAssetListViewModel) {
+        UIView.animate(withDuration: 0.3) {
+            self.rootView.bannersView?.isHidden = viewModel.bannerIsHidden
+        }
         let isInitialReload = self.viewModel == nil
 
         self.viewModel = viewModel

@@ -5,14 +5,14 @@ import SnapKit
 
 final class WalletDetailsViewController: UIViewController, ViewHolder {
     enum Constants {
-        static let cellHeight: CGFloat = 48
+        static let cellHeight: CGFloat = 72
     }
 
     typealias RootViewType = WalletDetailsViewLayout
 
     let output: WalletDetailsViewOutputProtocol
     private var chainViewModels: [WalletDetailsCellViewModel]?
-    private var inputViewModel: InputViewModelProtocol?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     private var state: WalletDetailsViewState?
 
@@ -34,18 +34,16 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         configure()
-
+        bindSearchTextView()
         output.didLoad(ui: self)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        setupKeyboardHandler()
-    }
 
-    override func viewWillDisappear(_: Bool) {
-        output.willDisappear()
-        super.viewWillDisappear(true)
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -75,6 +73,12 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
             rootView.tableView.reloadData()
         }
     }
+
+    private func bindSearchTextView() {
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.output.searchTextDidChanged(text)
+        }
+    }
 }
 
 extension WalletDetailsViewController: WalletDetailsViewProtocol {
@@ -83,50 +87,15 @@ extension WalletDetailsViewController: WalletDetailsViewProtocol {
         applyState()
     }
 
-    func setInput(viewModel: InputViewModelProtocol) {
-        inputViewModel = viewModel
-        rootView.walletView.animatedInputField.title = viewModel.title
-        rootView.walletView.animatedInputField.text = viewModel.inputHandler.value
-    }
-
     func didReceive(locale: Locale) {
         rootView.locale = locale
     }
 }
 
-extension WalletDetailsViewController: AnimatedTextFieldDelegate {
-    func animatedTextField(
-        _ textField: AnimatedTextField,
-        shouldChangeCharactersIn range: NSRange,
-        replacementString string: String
-    ) -> Bool {
-        guard let viewModel = inputViewModel else {
-            return true
-        }
-
-        let shouldApply = viewModel.inputHandler.didReceiveReplacement(string, for: range)
-
-        if !shouldApply, textField.text != viewModel.inputHandler.value {
-            textField.text = viewModel.inputHandler.value
-        }
-
-        return shouldApply
-    }
-
-    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
-        textField.resignFirstResponder()
-
-        return false
-    }
-}
-
 private extension WalletDetailsViewController {
     func configure() {
-        rootView.walletView.animatedInputField.delegate = self
-
         rootView.tableView.registerClassForCell(WalletDetailsTableCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: WalletDetailsTableHeaderView.self)
-
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
@@ -242,14 +211,9 @@ extension WalletDetailsViewController: WalletDetailsTableCellDelegate {
     }
 }
 
-extension WalletDetailsViewController: HiddableBarWhenPushed {}
-
 extension WalletDetailsViewController: KeyboardViewAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
-    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
-        0
-    }
-
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
     func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }

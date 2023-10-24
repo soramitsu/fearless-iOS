@@ -17,6 +17,7 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 }
 
 enum ProfileOption: UInt, CaseIterable {
+//    case walletConnect
     case accountList
     case currency
     case language
@@ -91,19 +92,25 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         from wallet: MetaAccountModel,
         balance: WalletBalanceInfo?,
         locale: Locale
-    ) -> ProfileUserViewModelProtocol {
-        let icon = try? iconGenerator.generateFromAddress("")
-
-        var details: String = ""
+    ) -> WalletsManagmentCellViewModel {
+        var fiatBalance: String = ""
+        var dayChange: NSAttributedString?
         if let balance = balance {
             let formatter = tokenFormatter(for: balance.currency, locale: locale)
-            details = formatter.stringFromDecimal(balance.totalFiatValue) ?? ""
+            fiatBalance = formatter.stringFromDecimal(balance.totalFiatValue) ?? ""
+            dayChange = getDayChangeAttributedString(
+                currency: balance.currency,
+                dayChange: balance.dayChangePercent,
+                dayChangeValue: balance.dayChangeValue,
+                locale: locale
+            )
         }
 
-        return ProfileUserViewModel(
-            name: wallet.name,
-            details: details,
-            icon: icon
+        return WalletsManagmentCellViewModel(
+            isSelected: false,
+            walletName: wallet.name,
+            fiatBalance: fiatBalance,
+            dayChange: dayChange
         )
     }
 
@@ -116,6 +123,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
+//            case .walletConnect:
+//                return createWalletConnectViewModel(locale: locale)
             case .accountList:
                 return createAccountListViewModel(
                     for: locale,
@@ -140,6 +149,17 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
         return optionViewModels
     }
+
+//    private func createWalletConnectViewModel(locale _: Locale) -> ProfileOptionViewModel {
+//        ProfileOptionViewModel(
+//            title: "Wallet connect",
+//            icon: R.image.iconWalletConnect(),
+//            accessoryTitle: nil,
+//            accessoryImage: nil,
+//            accessoryType: .arrow,
+//            option: .walletConnect
+//        )
+//    }
 
     private func createLogoutViewModel(locale: Locale) -> ProfileOptionViewModelProtocol {
         let title = R.string.localizable
@@ -278,5 +298,43 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         )
 
         return viewModel
+    }
+
+    private func getDayChangeAttributedString(
+        currency: Currency,
+        dayChange: Decimal,
+        dayChangeValue: Decimal,
+        locale: Locale
+    ) -> NSAttributedString? {
+        let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
+        let dayChangePercent = dayChange.percentString(locale: locale) ?? ""
+
+        var dayChangeValue: String = balanceTokenFormatterValue.stringFromDecimal(abs(dayChangeValue)) ?? ""
+        dayChangeValue = "(\(dayChangeValue))"
+        let priceWithChangeString = [dayChangePercent, dayChangeValue].joined(separator: " ")
+        let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)
+
+        let color = dayChange > 0
+            ? R.color.colorGreen()
+            : R.color.colorRed()
+
+        if let color = color, let colorLightGray = R.color.colorStrokeGray() {
+            priceWithChangeAttributed.addAttributes(
+                [NSAttributedString.Key.foregroundColor: color],
+                range: NSRange(
+                    location: 0,
+                    length: dayChangePercent.count
+                )
+            )
+            priceWithChangeAttributed.addAttributes(
+                [NSAttributedString.Key.foregroundColor: colorLightGray],
+                range: NSRange(
+                    location: dayChangePercent.count + 1,
+                    length: dayChangeValue.count
+                )
+            )
+        }
+
+        return priceWithChangeAttributed
     }
 }

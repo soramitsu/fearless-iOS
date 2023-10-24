@@ -162,7 +162,7 @@ struct StakingBondMoreViewFactory {
                 existentialDepositService: existentialDepositService
             )
             let viewModelFactory = StakingBondMoreRelaychainViewModelFactory(
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
             )
             return StakingBondMoreDependencyContainer(
                 viewModelState: viewModelState,
@@ -193,7 +193,7 @@ struct StakingBondMoreViewFactory {
 
             let viewModelFactory = StakingBondMoreParachainViewModelFactory(
                 accountViewModelFactory:
-                AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+                AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
             )
 
             return StakingBondMoreDependencyContainer(
@@ -222,7 +222,7 @@ struct StakingBondMoreViewFactory {
                 existentialDepositService: existentialDepositService
             )
             let viewModelFactory = StakingBondMorePoolViewModelFactory(
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator())
             )
 
             return StakingBondMoreDependencyContainer(

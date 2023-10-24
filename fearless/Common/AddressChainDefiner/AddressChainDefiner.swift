@@ -26,7 +26,7 @@ enum AddressValidationResult {
 }
 
 protocol AddressChainDefinerProtocol {
-    func getPossibleChains(for address: String, completionBlock: @escaping ([ChainModel]?) -> Void)
+    func getPossibleChains(for address: String) async -> [ChainModel]?
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
 }
 
@@ -47,20 +47,20 @@ final class AddressChainDefiner {
         self.wallet = wallet
     }
 
-    func getPossibleChains(for address: String, completionBlock: @escaping ([ChainModel]?) -> Void) {
+    func getPossibleChains(for address: String) async -> [ChainModel]? {
         let fetchOperation = chainModelRepository.fetchAllOperation(with: RepositoryFetchOptions())
+        operationManager.enqueue(operations: [fetchOperation], in: .transient)
 
-        fetchOperation.completionBlock = {
-            let chains = try? fetchOperation.extractNoCancellableResultData()
-            let posssibleChains = chains?.filter { [weak self, address] chain in
-                guard let strongSelf = self else { return false }
-                return strongSelf.validate(address: address, for: chain).isValidOrSame
-            }
-            DispatchQueue.main.async {
-                completionBlock(posssibleChains)
+        return await withCheckedContinuation { continuation in
+            fetchOperation.completionBlock = {
+                let chains = try? fetchOperation.extractNoCancellableResultData()
+                let posssibleChains = chains?.filter { [weak self, address] chain in
+                    guard let strongSelf = self else { return false }
+                    return strongSelf.validate(address: address, for: chain).isValidOrSame
+                }
+                continuation.resume(returning: posssibleChains)
             }
         }
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {

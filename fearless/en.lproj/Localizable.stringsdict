@@ -18,6 +18,22 @@
         <string>%li days</string>
       </dict>
     </dict>
+    <key>common.days.left.format</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>%li day left</string>
+        <key>other</key>
+        <string>%li days left</string>
+      </dict>
+    </dict>
     <key>common.hours.format</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -34,7 +50,7 @@
         <string>%li hours</string>
       </dict>
     </dict>
-    <key>common.days.left.format</key>
+    <key>plus.others.template</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -45,9 +61,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>%li day left</string>
+        <string>+ %li other</string>
         <key>other</key>
-        <string>%li days left</string>
+        <string>+ %li others</string>
       </dict>
     </dict>
     <key>staking.analytics.validators.eras.counter</key>
@@ -66,7 +82,7 @@
         <string>%li eras</string>
       </dict>
     </dict>
-    <key>plus.others.template</key>
+    <key>verification.rejected.screen.attempts.left</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -77,9 +93,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>+ %i other</string>
+        <string>You have %li more free KYC attempt</string>
         <key>other</key>
-        <string>+ %i others</string>
+        <string>You have %li more free KYC attempts</string>
       </dict>
     </dict>
   </dict>

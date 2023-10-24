@@ -39,13 +39,9 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        let receiveView = ReceiveAssetViewFactory.createView(
-            account: wallet,
-            chain: chainAsset.chain,
-            asset: chainAsset.asset
-        )
+        let module = ReceiveAndRequestAssetAssembly.configureModule(wallet: wallet, chainAsset: chainAsset)
 
-        guard let controller = receiveView?.controller else {
+        guard let controller = module?.view.controller else {
             return
         }
 
@@ -91,7 +87,8 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
 
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let importController = AccountImportViewFactory.createViewForOnboarding(
-            .chain(model: uniqueChainModel)
+            defaultSource: .mnemonic,
+            flow: .chain(model: uniqueChainModel)
         )?.controller else {
             return
         }

@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFModels
+import SSFUtils
 
 struct StakingBondMoreConfirmViewFactory {
     static func createView(
@@ -71,19 +72,19 @@ struct StakingBondMoreConfirmViewFactory {
         case .relaychain:
             confirmationViewModelFactory = StakingBondMoreConfirmRelaychainViewModelFactory(
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
         case .parachain:
             confirmationViewModelFactory = StakingBondMoreConfirmParachainViewModelFactory(
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
         case .pool:
             confirmationViewModelFactory = StakingBondMoreConfirmPoolViewModelFactory(
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
         }

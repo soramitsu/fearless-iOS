@@ -13,13 +13,13 @@ class BaseAccountConfirmInteractor {
     let operationManager: OperationManagerProtocol
 
     init(
-        flow: AccountConfirmFlow,
+        flow: AccountConfirmFlow?,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol
     ) {
         self.flow = flow
-        shuffledWords = flow.mnemonic.allWords().shuffled()
+        shuffledWords = flow?.mnemonic.allWords().shuffled() ?? []
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
@@ -45,7 +45,7 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
         }
         switch confirmFlow {
         case let .wallet(request):
-            createAccount(request)
+            createAccount(request, isBackuped: true)
         case let .chain(request):
             importUniqueChain(request)
         }
@@ -57,7 +57,7 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
         }
         switch confirmFlow {
         case let .wallet(request):
-            createAccount(request)
+            createAccount(request, isBackuped: false)
         case let .chain(request):
             importUniqueChain(request)
         }
@@ -65,8 +65,8 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
 }
 
 private extension BaseAccountConfirmInteractor {
-    func createAccount(_ request: MetaAccountImportMnemonicRequest) {
-        let operation = accountOperationFactory.newMetaAccountOperation(request: request)
+    func createAccount(_ request: MetaAccountImportMnemonicRequest, isBackuped: Bool) {
+        let operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: isBackuped)
         createAccountUsingOperation(operation)
     }
 

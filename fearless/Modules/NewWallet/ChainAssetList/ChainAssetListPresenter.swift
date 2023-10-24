@@ -165,6 +165,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     func didTapExpandSections(state: HiddenSectionState) {
         interactor.saveHiddenSection(state: state)
     }
+
+    func didPullToRefresh() {
+        interactor.reload(fetchPrices: prices.updated)
+    }
 }
 
 // MARK: - ChainAssetListInteractorOutput
@@ -179,7 +183,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     }
 
     func handleWalletChanged(wallet: MetaAccountModel) {
-        accountInfos = [:]
+        lock.exclusivelyWrite { [weak self] in
+            self?.accountInfos = [:]
+        }
         self.wallet = wallet
     }
 
@@ -214,6 +220,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
             lock.exclusivelyWrite { [weak self] in
                 guard let self = self else { return }
+
                 self.accountInfos[key] = accountInfo
             }
             provideViewModel()
@@ -231,6 +238,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 let priceDataUpdated = (pricesData: priceDataResult, updated: true)
                 self.prices = priceDataUpdated
             case .failure:
+                guard !self.prices.updated else {
+                    return
+                }
+
                 let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
                 self.prices = priceDataUpdated
             }
@@ -268,7 +279,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
         lock.exclusivelyWrite { [weak self] in
             guard let self = self else { return }
-            self.accountInfos = balances
+            self.accountInfos = balances.merging(self.accountInfos, uniquingKeysWith: { old, _ in
+                old
+            })
         }
         provideViewModel()
     }
@@ -315,6 +328,16 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
             displayType = .assetChains
         }
 
-        interactor.updateChainAssets(using: filters, sorts: sorts)
+        interactor.updateChainAssets(using: filters, sorts: sorts, useCashe: true)
+    }
+}
+
+// MARK: - BannersModuleOutput?
+
+extension ChainAssetListPresenter: BannersModuleOutput {
+    func reloadBannersView() {
+        DispatchQueue.main.async {
+            self.view?.reloadBanners()
+        }
     }
 }

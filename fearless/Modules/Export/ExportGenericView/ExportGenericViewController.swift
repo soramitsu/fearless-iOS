@@ -92,7 +92,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
 
     override func loadView() {
         view = UIView()
-        view.backgroundColor = R.color.colorBlack()
+        view.backgroundColor = R.color.colorBlack19()
 
         setupContainerView()
         setupButtonsContainerView()
@@ -336,7 +336,7 @@ extension ExportGenericViewController {
     private func setupAnimatingView() {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
-        view.backgroundColor = R.color.colorBlack()
+        view.backgroundColor = R.color.colorBlack19()
         containerView.stackView.insertSubview(view, at: 0)
 
         view.leadingAnchor.constraint(equalTo: containerView.stackView.leadingAnchor).isActive = true
@@ -382,7 +382,7 @@ extension ExportGenericViewController {
         }
 
         let newOptionView = exportViewModel.accept(binder: binder, locale: selectedLocale)
-        newOptionView.backgroundColor = R.color.colorBlack()!
+        newOptionView.backgroundColor = R.color.colorBlack19()!
         newOptionView.translatesAutoresizingMaskIntoConstraints = false
 
         #if DEBUG
@@ -421,7 +421,7 @@ extension ExportGenericViewController {
 
     private func setupSourceTypeView() {
         let view = uiFactory.createDetailsView(with: .smallIconTitleSubtitle, filled: true)
-        view.backgroundColor = R.color.colorBlack()!
+        view.backgroundColor = R.color.colorBlack19()!
         view.translatesAutoresizingMaskIntoConstraints = false
         containerView.stackView.addArrangedSubview(view)
         containerView.stackView.setCustomSpacing(Constants.verticalSpacing, after: view)
@@ -438,7 +438,7 @@ extension ExportGenericViewController {
 
     private func setupExpandableActionView() {
         let view = uiFactory.createExpandableActionControl()
-        view.backgroundColor = .black
+        view.backgroundColor = R.color.colorBlack19()
         view.translatesAutoresizingMaskIntoConstraints = false
         containerView.stackView.addArrangedSubview(view)
 

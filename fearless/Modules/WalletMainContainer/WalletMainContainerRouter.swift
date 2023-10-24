@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import SSFModels
+// import WalletConnectSwiftV2
 
 final class WalletMainContainerRouter: WalletMainContainerRouterInput {
     func showWalletManagment(
@@ -97,14 +98,35 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
-        address: String
+        initialData: SendFlowInitialData
     ) {
-        let sendModule = SendAssembly.configureModule(wallet: wallet, initialData: .address(address))
+        let sendModule = SendAssembly.configureModule(wallet: wallet, initialData: initialData)
         guard let controller = sendModule?.view.controller else {
             return
         }
 
         let navigationController = FearlessNavigationController(rootViewController: controller)
         view?.controller.present(navigationController, animated: true)
+    }
+
+    func showControllerAccountFlow(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel) {
+        guard let controllerAccount = ControllerAccountViewFactory.createView(
+            chain: chainAsset.chain,
+            asset: chainAsset.asset,
+            selectedAccount: wallet
+        ) else {
+            return
+        }
+        let navigationController = ImportantFlowViewFactory.createNavigation(
+            from: controllerAccount.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showMainStaking() {
+        if let tabBar = UIApplication.shared.keyWindow?.rootViewController as? MainTabBarViewController? {
+            tabBar?.selectedIndex = 2
+        }
     }
 }

@@ -27,3 +27,35 @@ enum XOneCIKeys {
     static var x1EndpointUrlDebug: String = "{{ argument.x1EndpointUrlDebug }}"
     static var x1WidgetIdDebug: String = "{{ argument.x1WidgetIdDebug }}"
 }
+
+enum EthereumNodesApiKeys {
+    static var ethereumApiKey: String = "{{ argument.ethereumApiKey }}"
+    static var bscApiKey: String = "{{ argument.bscApiKey }}"
+    static var sepoliaApiKey: String = "{{ argument.sepoliaApiKey }}"
+    static var goerliApiKey: String = "{{ argument.goerliApiKey }}"
+    static var polygonApiKey: String = "{{ argument.polygonApiKey }}"
+}
+
+enum GoogleBackup {
+    static var googleToken: String = "{{ argument.webClientIdRelease }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeRelease }}"
+}
+
+enum GoogleBackupDebug {
+    static var googleToken: String = "{{ argument.webClientIdDebug }}"
+    static var googleUrlScheme: String = "{{ argument.fearlessGoogleUrlSchemeDebug }}"
+}
+
+enum WalletConnect {
+    static var projectId: String = "{{ argument.walletConnectProjectId }}"
+}
+
+enum BlockExplorerApiKeys {
+    static var etherscanApiKey: String = "{{ argument.etherscanApiKey }}"
+    static var polygonscanApiKey: String = "{{ argument.polygonscanApiKey }}"
+    static var bscscanApiKey: String = "{{ argument.bscscanApiKey }}"
+}
+
+enum ThirdPartyServicesApiKeys {
+    static var alchemyApiKey: String = "{{ argument.alchemyApiKey }}"
+}

@@ -7,10 +7,20 @@ import SSFModels
 enum BalanceInfoType {
     case wallet(wallet: MetaAccountModel)
     case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
+
+    var wallet: MetaAccountModel {
+        switch self {
+        case let .wallet(wallet):
+            return wallet
+        case let .chainAsset(wallet, _):
+            return wallet
+        }
+    }
 }
 
 enum BalanceInfoAssembly {
     static func configureModule(with type: BalanceInfoType) -> BalanceInfoModuleCreationResult? {
+        guard let wallet = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
@@ -27,14 +37,24 @@ enum BalanceInfoAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
         )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -42,6 +62,7 @@ enum BalanceInfoAssembly {
         )
 
         let interactor = BalanceInfoInteractor(
+            balanceInfoType: type,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory
@@ -55,12 +76,12 @@ enum BalanceInfoAssembly {
         )
 
         let presenter = BalanceInfoPresenter(
-            balanceInfoType: type,
             balanceInfoViewModelFactoryProtocol: balanceInfoViewModelFactory,
             interactor: interactor,
             router: router,
             logger: logger,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            eventCenter: EventCenter.shared
         )
 
         let view = BalanceInfoViewController(

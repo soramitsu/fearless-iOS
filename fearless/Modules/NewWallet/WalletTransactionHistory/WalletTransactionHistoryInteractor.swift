@@ -14,7 +14,7 @@ final class WalletTransactionHistoryInteractor {
     let logger: LoggerProtocol?
     var defaultFilter: WalletHistoryRequest
     var chainAsset: ChainAsset
-    let selectedAccount: MetaAccountModel
+    var selectedAccount: MetaAccountModel
     private(set) var selectedFilter: WalletHistoryRequest
     var filters: [FilterSet]
     let transactionsPerPage: Int
@@ -371,6 +371,11 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
 
 extension WalletTransactionHistoryInteractor: EventVisitorProtocol {
     func processNewTransaction(event _: WalletNewTransactionInserted) {
+        reload()
+    }
+
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        selectedAccount = event.account
         reload()
     }
 }

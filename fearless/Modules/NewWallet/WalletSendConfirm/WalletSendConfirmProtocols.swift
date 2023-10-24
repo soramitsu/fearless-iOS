@@ -1,4 +1,5 @@
 import BigInt
+import Foundation
 import SSFModels
 
 protocol WalletSendConfirmViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
@@ -16,10 +17,11 @@ protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
     var dependencyContainer: SendDepencyContainer { get }
 
     func setup()
-    func submitExtrinsic(for transferAmount: BigUInt, tip: BigUInt?, receiverAddress: String)
-    func estimateFee(for amount: BigUInt, tip: BigUInt?)
+    func submitExtrinsic()
+    func estimateFee()
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal)
+    func provideConstants()
 }
 
 protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {

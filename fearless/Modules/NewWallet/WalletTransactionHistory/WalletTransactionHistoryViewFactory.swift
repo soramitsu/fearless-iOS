@@ -37,7 +37,7 @@ enum WalletTransactionHistoryViewFactory {
             includesFeeInAmount: false,
             transactionTypes: [.incoming, .outgoing],
             chainAsset: ChainAsset(chain: chain, asset: asset),
-            iconGenerator: PolkadotIconGenerator()
+            iconGenerator: UniversalIconGenerator()
         )
 
         let presenter = WalletTransactionHistoryPresenter(
@@ -87,18 +87,19 @@ enum WalletTransactionHistoryViewFactory {
         for chainAsset: ChainAsset
     ) -> (HistoryServiceProtocol, HistoryDataProviderFactoryProtocol)? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+
+        guard
+            let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
+                chainAsset: chainAsset,
+                txStorage: AnyDataProviderRepository(txStorage)
+            )
+        else {
             return nil
         }
 
-        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
-
-        let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
-            chainAsset: chainAsset,
-            txStorage: AnyDataProviderRepository(txStorage),
-            runtimeService: runtimeService
-        )
         let dataProviderFactory = HistoryDataProviderFactory(
             cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory

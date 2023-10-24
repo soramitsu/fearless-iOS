@@ -25,19 +25,19 @@ enum AccountImportFlow {
             return model.chain.isEthereumBased
         case let .wallet(step):
             switch step {
-            case .first:
+            case .substrate:
                 return false
-            case .second:
+            case .ethereum:
                 return true
             }
         }
     }
 
-    func provideFirstStepDataIfNeed() -> AccountCreationStep.FirstStepData? {
+    func provideSubstrateStepDataIfNeed() -> AccountCreationStep.SubstrateStepData? {
         switch self {
         case let .wallet(step):
             switch step {
-            case let .second(data):
+            case let .ethereum(data):
                 return data
             default:
                 return nil
@@ -77,7 +77,7 @@ struct PreferredData {
     let cryptoType: CryptoType?
     let derivationPath: String?
 
-    init(stepData: AccountCreationStep.FirstStepData) {
+    init(stepData: AccountCreationStep.SubstrateStepData) {
         sourceType = stepData.sourceType
         source = stepData.source
         username = stepData.username
@@ -154,9 +154,9 @@ private extension AccountImportPresenter {
             view?.setSource(type: selectedSourceType, chainType: chainType, selectable: true)
         case let .wallet(step):
             switch step {
-            case .first:
+            case .substrate:
                 view?.setSource(type: selectedSourceType, chainType: .substrate, selectable: true)
-            case let .second(data):
+            case let .ethereum(data):
                 selectedCryptoType = data.cryptoType
                 view?.setSource(type: selectedSourceType, chainType: .ethereum, selectable: false)
             }
@@ -170,9 +170,9 @@ private extension AccountImportPresenter {
             username = model.meta.name
         case let .wallet(step):
             switch step {
-            case .first:
+            case .substrate:
                 username = preferredData?.username ?? ""
-            case let .second(data):
+            case let .ethereum(data):
                 username = data.username
             }
         }
@@ -384,7 +384,7 @@ private extension AccountImportPresenter {
         let placeholder: String
         if isEthereum {
             predicate = NSPredicate.deriviationPathHardSoft
-            placeholder = DerivationPathConstants.hardSoftPlaceholder
+            placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch (cryptoType, sourceType) {
             case (.sr25519, .mnemonic):
@@ -535,10 +535,11 @@ private extension AccountImportPresenter {
             let request = MetaAccountImportRequest(
                 source: source,
                 username: data.username,
-                cryptoType: data.selectedCryptoType
+                cryptoType: data.selectedCryptoType,
+                defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
-        case (.seed, .first):
+        case (.seed, .substrate):
             askIfNeedAddEthereum { [weak self] in
                 self?.showSecondStep(data: data)
             } closeHandler: { [weak self] in
@@ -552,11 +553,12 @@ private extension AccountImportPresenter {
                 let request = MetaAccountImportRequest(
                     source: source,
                     username: data.username,
-                    cryptoType: data.selectedCryptoType
+                    cryptoType: data.selectedCryptoType,
+                    defaultChainId: nil
                 )
                 self?.interactor.importMetaAccount(request: request)
             }
-        case (.keystore, .first):
+        case (.keystore, .substrate):
             askIfNeedAddEthereum { [weak self] in
                 self?.showSecondStep(data: data)
             } closeHandler: { [weak self] in
@@ -570,11 +572,12 @@ private extension AccountImportPresenter {
                 let request = MetaAccountImportRequest(
                     source: source,
                     username: data.username,
-                    cryptoType: data.selectedCryptoType
+                    cryptoType: data.selectedCryptoType,
+                    defaultChainId: nil
                 )
                 self?.interactor.importMetaAccount(request: request)
             }
-        case let (.seed, .second(previousStepData)):
+        case let (.seed, .ethereum(previousStepData)):
             let sourceData = MetaAccountImportRequestSource.SeedImportRequestData(
                 substrateSeed: previousStepData.source,
                 ethereumSeed: data.source,
@@ -585,10 +588,11 @@ private extension AccountImportPresenter {
             let request = MetaAccountImportRequest(
                 source: source,
                 username: previousStepData.username,
-                cryptoType: previousStepData.cryptoType
+                cryptoType: previousStepData.cryptoType,
+                defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
-        case let (.keystore, .second(previousStepData)):
+        case let (.keystore, .ethereum(previousStepData)):
             let sourceData = MetaAccountImportRequestSource.KeystoreImportRequestData(
                 substrateKeystore: previousStepData.source,
                 ethereumKeystore: data.source,
@@ -599,14 +603,15 @@ private extension AccountImportPresenter {
             let request = MetaAccountImportRequest(
                 source: source,
                 username: previousStepData.username,
-                cryptoType: previousStepData.cryptoType
+                cryptoType: previousStepData.cryptoType,
+                defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
         }
     }
 
     func showSecondStep(data: AccountImportRequestData) {
-        let data = AccountCreationStep.FirstStepData(
+        let data = AccountCreationStep.SubstrateStepData(
             sourceType: data.selectedSourceType,
             source: data.source,
             username: data.username,
@@ -614,7 +619,7 @@ private extension AccountImportPresenter {
             cryptoType: data.selectedCryptoType,
             derivationPath: data.substrateDerivationPath
         )
-        wireframe.showSecondStep(from: view, with: data)
+        wireframe.showEthereumStep(from: view, with: data)
     }
 
     func importUniqueChain(data: UniqueChainImportRequestData) {
@@ -672,7 +677,7 @@ private extension AccountImportPresenter {
 extension AccountImportPresenter: AccountImportPresenterProtocol {
     func setup() {
         interactor.setup()
-        if let data = flow.provideFirstStepDataIfNeed() {
+        if let data = flow.provideSubstrateStepDataIfNeed() {
             selectedSourceType = data.sourceType
             selectedCryptoType = data.cryptoType
             applySourceType(preferredData: PreferredData(stepData: data))
@@ -970,9 +975,28 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     }
 
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?) {
+        guard validateJsonForStep(preferredInfo: preferredInfo) else {
+            let viewModel = SheetAlertPresentableViewModel(
+                title: R.string.localizable.importJsonInvalidFormatTitle(preferredLanguages: selectedLocale.rLanguages),
+                message: R.string.localizable.importJsonInvalidImportTypeMessage(preferredLanguages: selectedLocale.rLanguages),
+                actions: [],
+                closeAction: nil,
+                icon: R.image.iconWarningBig()
+            )
+            wireframe.present(viewModel: viewModel, from: view)
+            return
+        }
+        input = text
         selectedSourceType = .keystore
         let preferredData = PreferredData(jsonData: preferredInfo)
         applySourceType(text, preferredData: preferredData)
+    }
+
+    func validateJsonForStep(preferredInfo: MetaAccountImportPreferredInfo?) -> Bool {
+        if case let .wallet(step) = flow, case .substrate = step, let info = preferredInfo {
+            return info.isEthereum != true
+        }
+        return true
     }
 
     func didFailToDeriveMetadataFromKeystore() {

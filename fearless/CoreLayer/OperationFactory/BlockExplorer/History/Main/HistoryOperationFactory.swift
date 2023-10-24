@@ -7,20 +7,23 @@ import SSFModels
 final class HistoryOperationFactoriesAssembly {
     static func createOperationFactory(
         chainAsset: ChainAsset,
-        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> HistoryOperationFactoryProtocol {
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>
+    ) -> HistoryOperationFactoryProtocol? {
         switch chainAsset.chain.externalApi?.history?.type {
         case .subquery:
-            return SubqueryHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
+            return SubqueryHistoryOperationFactory(txStorage: txStorage, chainRegistry: ChainRegistryFacade.sharedRegistry)
         case .subsquid:
-            return SubsquidHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
+            return SubsquidHistoryOperationFactory(txStorage: txStorage)
         case .giantsquid:
-            return GiantsquidHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
+            return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         case .sora:
             return SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
+        case .alchemy:
+            return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
+        case .etherscan:
+            return EtherscanHistoryOperationFactory()
         case .none:
-            return GiantsquidHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
+            return nil
         }
     }
 }

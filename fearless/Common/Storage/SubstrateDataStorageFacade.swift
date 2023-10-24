@@ -2,7 +2,7 @@ import RobinHood
 import CoreData
 
 enum SubstrateStorageParams {
-    static let modelVersion: SubstrateStorageVersion = .version4
+    static let modelVersion: SubstrateStorageVersion = .version5
     static let modelDirectory: String = "SubstrateDataModel.momd"
     static let databaseName = "SubstrateDataModel.sqlite"
 

@@ -6,13 +6,12 @@ protocol WalletDetailsViewOutputProtocol {
     func updateData()
     func didTapCloseButton()
     func didTapExportButton()
-    func willDisappear()
     func showActions(for chain: ChainModel, account: ChainAccountResponse?)
+    func searchTextDidChanged(_ text: String?)
 }
 
-protocol WalletDetailsViewProtocol: ControllerBackedProtocol {
+protocol WalletDetailsViewProtocol: ControllerBackedProtocol, HiddableBarWhenPushed {
     func didReceive(state: WalletDetailsViewState)
-    func setInput(viewModel: InputViewModelProtocol)
     func didReceive(locale: Locale)
 }
 
@@ -33,7 +32,8 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
 protocol WalletDetailsWireframeProtocol: ErrorPresentable,
     SheetAlertPresentable,
     ModalAlertPresenting,
-    AuthorizationPresentable {
+    AuthorizationPresentable,
+    AnyDismissable {
     func close(_ view: WalletDetailsViewProtocol)
     func presentActions(
         from view: ControllerBackedProtocol?,

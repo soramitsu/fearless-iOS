@@ -192,7 +192,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             let viewModelFactory = StakingRedeemRelaychainViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             return StakingRedeemDependencyContainer(
@@ -229,7 +229,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             let viewModelFactory = StakingRedeemParachainViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             return StakingRedeemDependencyContainer(
@@ -247,7 +247,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             let viewModelFactory = StakingRedeemPoolViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
             let strategy = StakingRedeemPoolStrategy(
                 output: viewModelState,
