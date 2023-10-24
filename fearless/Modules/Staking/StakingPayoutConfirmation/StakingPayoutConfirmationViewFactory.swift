@@ -170,7 +170,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             let viewModelFactory = StakingPayoutConfirmationRelaychainViewModelFactory(
                 chainAsset: chainAsset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             let strategy = StakingPayoutConfirmationRelayachainStrategy(
@@ -207,7 +207,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             let viewModelFactory = StakingPayoutConfirmationPoolViewModelFactory(
                 chainAsset: chainAsset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             let strategy = StakingPayoutConfirmationPoolStrategy(

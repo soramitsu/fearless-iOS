@@ -125,7 +125,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         chainAsset: ChainAsset
     ) -> any RuntimeCallable {
         switch chainAsset.chainAssetType {
-        case .normal:
+        case .normal, .none:
             if chainAsset.chain.isSora {
                 return ormlAssetTransfer(
                     to: receiver,

@@ -22,6 +22,26 @@
         <string>%li дней</string>
       </dict>
     </dict>
+    <key>common.days.left.format</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>one</key>
+        <string>Остался %li день</string>
+        <key>few</key>
+        <string>Осталось %li дня</string>
+        <key>many</key>
+        <string>Осталось %li дней</string>
+        <key>other</key>
+        <string>Осталось %li дней</string>
+      </dict>
+    </dict>
     <key>common.hours.format</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
@@ -42,7 +62,7 @@
         <string>%li час</string>
       </dict>
     </dict>
-    <key>common.days.left.format</key>
+    <key>plus.others.template</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -53,13 +73,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>Остался %li день</string>
+        <string>+%li другой</string>
         <key>few</key>
-        <string>Осталось %li дня</string>
+        <string>+%li других</string>
         <key>many</key>
-        <string>Осталось %li дней</string>
+        <string>+%li других</string>
         <key>other</key>
-        <string>Осталось %li дней</string>
+        <string>+%li других</string>
       </dict>
     </dict>
     <key>staking.analytics.validators.eras.counter</key>
@@ -82,7 +102,7 @@
         <string>%li эры</string>
       </dict>
     </dict>
-    <key>plus.others.template</key>
+    <key>verification.rejected.screen.attempts.left</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>
       <string>%#@format@</string>
@@ -93,13 +113,13 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string>+%li другой</string>
+        <string>У вас осталась %li бесплатная попытка</string>
         <key>few</key>
-        <string>+%li других</string>
+        <string>У вас осталось %li бесплатные попытки</string>
         <key>many</key>
-        <string>+%li других</string>
+        <string>У вас осталось %li бесплатных попыток</string>
         <key>other</key>
-        <string>+%li других</string>
+        <string>У вас осталось %li бесплатные попытки</string>
       </dict>
     </dict>
   </dict>

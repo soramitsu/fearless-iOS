@@ -39,7 +39,7 @@
 //
 //        let wireframe = MockProfileWireframeProtocol()
 //
-//        let viewModelFactory = ProfileViewModelFactory(iconGenerator: PolkadotIconGenerator())
+//        let viewModelFactory = ProfileViewModelFactory(iconGenerator: UniversalIconGenerator())
 //
 //        let presenter = ProfilePresenter(viewModelFactory: viewModelFactory)
 //

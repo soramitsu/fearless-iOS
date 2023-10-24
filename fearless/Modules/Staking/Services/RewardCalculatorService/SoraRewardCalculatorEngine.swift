@@ -7,10 +7,11 @@ import SSFModels
 // For all the cases we suggest that parachains are disabled
 // Thus, i_ideal = 0.1 and x_ideal = 0.75
 final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
+    let rewardAssetRate: Decimal
+
     private let dayDurationInSeconds: TimeInterval = 60 * 60 * 24
     private var averageTotalRewardsPerEra: Decimal
     private var validators: [EraValidatorInfo] = []
-    private var rewardAssetRate: Decimal
     private let chainId: ChainModel.Id
     private let assetPrecision: Int16
     private let eraDurationInSeconds: TimeInterval
@@ -142,9 +143,12 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     func calculatorReturn(isCompound _: Bool, period: CalculationPeriod, type: RewardReturnType) -> Decimal {
         switch type {
-        case .max:
-            guard let validator = maxValidator else {
+        case let .max(validatorId):
+            guard var validator = maxValidator else {
                 return 0.0
+            }
+            if let validatorId = validatorId, let validatorFromId = validators.first(where: { $0.accountId == validatorId }) {
+                validator = validatorFromId
             }
 
             let commission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0

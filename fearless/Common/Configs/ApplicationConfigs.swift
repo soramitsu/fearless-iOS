@@ -161,9 +161,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v1/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v4/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v1/chains.json")
+            GitHubUrl.url(suffix: "chains/v4/chains.json")
         #endif
     }
 
@@ -192,7 +192,15 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv")
+        GitHubUrl.url(suffix: "scamDetection/Polkadot_Hot_Wallet_Attributions.csv")
+    }
+
+    var featureToggleURL: URL? {
+        #if F_DEV
+            GitHubUrl.url(suffix: "appConfigs/feature_toggle", branch: .developFree)
+        #else
+            GitHubUrl.url(suffix: "appConfigs/feature_toggle")
+        #endif
     }
 }
 
@@ -207,6 +215,7 @@ private enum GitHubUrl {
         case develop
         case v4
         case developFree = "develop-free"
+        case xcmLocationDevelop = "updated-xcm-locations"
     }
 
     static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL? {

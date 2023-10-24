@@ -9,7 +9,7 @@ final class ExportSeedPresenter {
     let flow: ExportFlow
     let localizationManager: LocalizationManager
 
-    private(set) var exportViewModels: [ExportStringViewModel]?
+    private var valueForBackup: [String]?
 
     init(flow: ExportFlow, localizationManager: LocalizationManager) {
         self.flow = flow
@@ -46,9 +46,17 @@ final class ExportSeedPresenter {
     func share(_ value: String) {
         wireframe.share(source: TextSharingSource(message: value), from: view) { [weak self] completed in
             if completed {
-                self?.wireframe.close(view: self?.view)
+                self?.checkBackuped(for: value)
             }
         }
+    }
+
+    private func checkBackuped(for value: String) {
+        valueForBackup?.removeAll(where: { $0 == value })
+        guard valueForBackup.or([]).isEmpty else {
+            return
+        }
+        interactor.didBackupSeed(wallet: flow.wallet)
     }
 }
 
@@ -59,13 +67,13 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
         let title = R.string.localizable.accountExportWarningTitle(preferredLanguages: locale.rLanguages)
         let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
 
-        let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let exportAction = SheetAlertPresentableAction(title: exportTitle) { [weak self] in
+        let exportTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
+        let exportAction = SheetAlertPresentableAction(title: exportTitle, style: .pinkBackgroundWhiteText)
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        let cancelAction = SheetAlertPresentableAction(title: cancelTitle) { [weak self] in
             self?.wireframe.back(view: self?.view)
         }
-
-        let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
-        let cancelAction = SheetAlertPresentableAction(title: cancelTitle) {}
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
@@ -100,7 +108,7 @@ extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
             )
         }
 
-        exportViewModels = viewModels
+        valueForBackup = viewModels.map { $0.data }
 
         let multipleExportViewModel = MultiExportViewModel(
             viewModels: viewModels,

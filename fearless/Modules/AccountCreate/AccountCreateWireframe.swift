@@ -39,4 +39,15 @@ final class AccountCreateWireframe: AccountCreateWireframeProtocol {
             completion: nil
         )
     }
+
+    func showBackupCreatePassword(
+        request: MetaAccountImportMnemonicRequest,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let controller = BackupCreatePasswordAssembly.configureModule(with: .createWallet(request))?.view.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
 }

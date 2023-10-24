@@ -128,7 +128,15 @@ final class NetworkFeeView: UIView {
             activityIndicator.startAnimating()
         }
 
-        tokenLabel.text = viewModel?.amount
+        UIView.transition(
+            with: tokenLabel,
+            duration: 0.25,
+            options: .transitionCrossDissolve,
+            animations: {
+                self.tokenLabel.text = viewModel?.amount
+            },
+            completion: nil
+        )
 
         if let fiatAmount = viewModel?.price {
             addFiatLabelIfNeeded()

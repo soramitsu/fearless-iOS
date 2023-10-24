@@ -10,7 +10,7 @@ final class SelectCurrencyPresenter {
     private let viewModelFactory: SelectCurrencyViewModelFactoryProtocol
 
     private var selectedCurrency: Currency?
-    private var supportedCurrencys: [Currency]?
+    private var supportedСurrencies: [Currency]?
 
     // MARK: - Constructors
 
@@ -30,14 +30,14 @@ final class SelectCurrencyPresenter {
 
     private func provideViewModel() {
         guard
-            let supportedCurrencys = supportedCurrencys,
+            let supportedСurrencies = supportedСurrencies,
             let selectedCurrency = selectedCurrency
         else {
             return
         }
 
         let viewModel = viewModelFactory.buildViewModel(
-            supportedCurrencys: supportedCurrencys,
+            supportedСurrencies: supportedСurrencies,
             selectedCurrency: selectedCurrency
         )
         view?.didRecieve(viewModel: viewModel)
@@ -53,7 +53,7 @@ extension SelectCurrencyPresenter: SelectCurrencyViewOutput {
     }
 
     func didSelect(viewModel: SelectCurrencyCellViewModel) {
-        guard var currency = supportedCurrencys?.first(where: { $0.id == viewModel.id }) else { return }
+        guard var currency = supportedСurrencies?.first(where: { $0.id == viewModel.id }) else { return }
         currency.isSelected = true
         interactor.didSelect(currency)
         router.proceed(from: view)
@@ -67,10 +67,10 @@ extension SelectCurrencyPresenter: SelectCurrencyViewOutput {
 // MARK: - SelectCurrencyInteractorOutput
 
 extension SelectCurrencyPresenter: SelectCurrencyInteractorOutput {
-    func didRecieve(supportedCurrencys: Result<[Currency], Error>) {
-        switch supportedCurrencys {
-        case let .success(supportedCurrencys):
-            self.supportedCurrencys = supportedCurrencys
+    func didRecieve(supportedСurrencies: Result<[Currency], Error>) {
+        switch supportedСurrencies {
+        case let .success(supportedСurrencies):
+            self.supportedСurrencies = supportedСurrencies
             provideViewModel()
         case let .failure(error):
             router.present(error: error, from: view, locale: localizationManager?.selectedLocale)

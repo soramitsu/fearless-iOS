@@ -28,8 +28,8 @@ class SwapAmount: Codable {
            !container.allKeys.isEmpty {
             let slip = try container.decode(String.self, forKey: CodingKeysIn.slip)
             let desired = try container.decode(String.self, forKey: CodingKeysIn.desired)
-            self.slip = BigUInt(slip) ?? 0
-            self.desired = BigUInt(desired) ?? 0
+            self.slip = BigUInt(string: slip) ?? 0
+            self.desired = BigUInt(string: desired) ?? 0
             type = .desiredInput
         } else
         if let container = try? decoder.container(keyedBy: CodingKeysOut.self),

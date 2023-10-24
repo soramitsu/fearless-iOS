@@ -81,7 +81,7 @@ final class StakingPoolJoinConfigAssembly {
         )
         let router = StakingPoolJoinConfigRouter()
 
-        let iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
+        let iconGenerator = UniversalIconGenerator()
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: iconGenerator)
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(

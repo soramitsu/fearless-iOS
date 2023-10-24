@@ -620,7 +620,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
                 return BigUInt.zero
             }
 
-            let claimable = BigUInt(claimableString)
+            let claimable = BigUInt(string: claimableString)
 
             return claimable
         }

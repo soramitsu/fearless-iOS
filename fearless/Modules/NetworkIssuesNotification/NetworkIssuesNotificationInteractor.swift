@@ -108,7 +108,6 @@ extension NetworkIssuesNotificationInteractor: NetworkIssuesNotificationInteract
 
             chainSettings.setIssueMuted(true)
             self?.save(chainSettings: chainSettings)
-            self?.eventCenter.notify(with: ChainsSettingsChanged())
         }
 
         operationQueue.addOperation(fetchChainSettingsOperation)

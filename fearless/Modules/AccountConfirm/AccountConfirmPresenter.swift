@@ -15,6 +15,35 @@ final class AccountConfirmPresenter {
         self.wireframe = wireframe
         self.localizationManager = localizationManager
     }
+
+    private func showNotBackedupAlert() {
+        let cancelActionTitle = R.string.localizable
+            .commonCancel(preferredLanguages: selectedLocale.rLanguages)
+        let cancelAction = SheetAlertPresentableAction(title: cancelActionTitle)
+
+        let confirmActionTitle = R.string.localizable
+            .backupNotBackedUpConfirm(preferredLanguages: selectedLocale.rLanguages)
+        let confirmAction = SheetAlertPresentableAction(
+            title: confirmActionTitle,
+            style: .pinkBackgroundWhiteText,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            self?.interactor.skipConfirmation()
+        }
+        let action = [cancelAction, confirmAction]
+        let alertTitle = R.string.localizable
+            .backupNotBackedUpTitle(preferredLanguages: selectedLocale.rLanguages)
+        let alertMessage = R.string.localizable
+            .backupNotBackedUpMessage(preferredLanguages: selectedLocale.rLanguages)
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: alertTitle,
+            message: alertMessage,
+            actions: action,
+            closeAction: nil,
+            actionAxis: .horizontal
+        )
+        wireframe.present(viewModel: alertViewModel, from: view)
+    }
 }
 
 extension AccountConfirmPresenter: AccountConfirmPresenterProtocol {
@@ -32,7 +61,7 @@ extension AccountConfirmPresenter: AccountConfirmPresenterProtocol {
     }
 
     func skip() {
-        interactor.skipConfirmation()
+        showNotBackedupAlert()
     }
 }
 

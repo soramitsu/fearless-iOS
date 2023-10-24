@@ -14,17 +14,20 @@ class BaseAccountImportInteractor {
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
+    let defaultSource: AccountImportSource
 
     init(
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
-        keystoreImportService: KeystoreImportServiceProtocol
+        keystoreImportService: KeystoreImportServiceProtocol,
+        defaultSource: AccountImportSource
     ) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.keystoreImportService = keystoreImportService
+        self.defaultSource = defaultSource
     }
 
     private func setupKeystoreImportObserver() {
@@ -53,7 +56,7 @@ class BaseAccountImportInteractor {
     private func provideMetadata() {
         let metadata = MetaAccountImportMetadata(
             availableSources: AccountImportSource.allCases,
-            defaultSource: .mnemonic,
+            defaultSource: defaultSource,
             availableCryptoTypes: CryptoType.allCases,
             defaultCryptoType: .sr25519
         )
@@ -79,9 +82,10 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 username: request.username,
                 substrateDerivationPath: data.substrateDerivationPath,
                 ethereumDerivationPath: data.ethereumDerivationPath,
-                cryptoType: request.cryptoType
+                cryptoType: request.cryptoType,
+                defaultChainId: request.defaultChainId
             )
-            operation = accountOperationFactory.newMetaAccountOperation(request: request)
+            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: true)
         case let .seed(data):
             let request = MetaAccountImportSeedRequest(
                 substrateSeed: data.substrateSeed,
@@ -91,7 +95,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 ethereumDerivationPath: data.ethereumDerivationPath,
                 cryptoType: request.cryptoType
             )
-            operation = accountOperationFactory.newMetaAccountOperation(request: request)
+            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: true)
         case let .keystore(data):
             let request = MetaAccountImportKeystoreRequest(
                 substrateKeystore: data.substrateKeystore,
@@ -101,7 +105,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 username: request.username,
                 cryptoType: request.cryptoType
             )
-            operation = accountOperationFactory.newMetaAccountOperation(request: request)
+            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: true)
         }
         importAccountUsingOperation(operation)
     }

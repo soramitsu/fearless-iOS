@@ -40,7 +40,7 @@ class SelectExportAccountViewModelFactory {
 
         return SelectExportAccountCellViewModel(
             title: R.string.localizable
-                .accountsWithOneKey(preferredLanguages: locale.rLanguages),
+                .accountsWithSharedSecret(preferredLanguages: locale.rLanguages),
             subtitle: chainName,
             hint: hint,
             imageViewModel: imageViewModel,

@@ -13,15 +13,6 @@ final class CrossChainAssembly {
     ) -> CrossChainModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(
-                for: chainAsset.chain.chainId
-            )
-        else {
-            return nil
-        }
-
         let repositoryFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: repositoryFacade
@@ -83,7 +74,7 @@ final class CrossChainAssembly {
         )
         let router = CrossChainRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
-        let iconGenerator = PolkadotIconGenerator()
+        let iconGenerator = UniversalIconGenerator()
         let viewModelFactory = CrossChainViewModelFactory(iconGenerator: iconGenerator)
         let presenter = CrossChainPresenter(
             originChainAsset: chainAsset,

@@ -13,6 +13,14 @@ final class WalletOptionViewLayout: UIView {
         return titleLabel
     }()
 
+    let backupWalletButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.triangularedView?.fillColor = R.color.colorBlack1()!
+        button.triangularedView?.shadowOpacity = 0
+        button.imageWithTitleView?.titleFont = .h4Title
+        return button
+    }()
+
     let walletDetailsButton: TriangularedButton = {
         let button = TriangularedButton()
         button.triangularedView?.fillColor = R.color.colorBlack1()!
@@ -21,7 +29,7 @@ final class WalletOptionViewLayout: UIView {
         return button
     }()
 
-    let exportWalletButton: TriangularedButton = {
+    let changeWalletNameButton: TriangularedButton = {
         let button = TriangularedButton()
         button.triangularedView?.fillColor = R.color.colorBlack1()!
         button.triangularedView?.shadowOpacity = 0
@@ -46,8 +54,9 @@ final class WalletOptionViewLayout: UIView {
 
     private lazy var buttons: [TriangularedButton] = {
         [
+            backupWalletButton,
             walletDetailsButton,
-            exportWalletButton,
+            changeWalletNameButton,
             deleteWalletButton
         ]
     }()
@@ -67,12 +76,14 @@ final class WalletOptionViewLayout: UIView {
     private func applyLocale() {
         titleLabel.text = R.string.localizable.walletOptionsTitle(preferredLanguages: locale.rLanguages)
 
+        backupWalletButton.imageWithTitleView?.title = R.string.localizable.walletOptionsExport(
+            preferredLanguages: locale.rLanguages
+        )
         walletDetailsButton.imageWithTitleView?.title = R.string.localizable.walletOptionsDetails(
             preferredLanguages: locale.rLanguages
         )
-        exportWalletButton.imageWithTitleView?.title = R.string.localizable.walletOptionsExport(
-            preferredLanguages: locale.rLanguages
-        )
+        changeWalletNameButton.imageWithTitleView?.title = R.string.localizable
+            .backupWalletNameEditingTitle(preferredLanguages: locale.rLanguages)
         deleteWalletButton.imageWithTitleView?.title = R.string.localizable.walletOptionsDelete(
             preferredLanguages: locale.rLanguages
         )
@@ -119,8 +130,9 @@ final class WalletOptionViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.accessoryItemsSpacing)
         }
 
+        vStackView.addArrangedSubview(backupWalletButton)
         vStackView.addArrangedSubview(walletDetailsButton)
-        vStackView.addArrangedSubview(exportWalletButton)
+        vStackView.addArrangedSubview(changeWalletNameButton)
         vStackView.addArrangedSubview(deleteWalletButton)
     }
 }

@@ -22,6 +22,12 @@ class CommonInputView: UIView {
         return field
     }()
 
+    let rightButton: UIButton = {
+        let button = UIButton()
+        button.isHidden = true
+        return button
+    }()
+
     var text: String? {
         get {
             animatedInputField.text
@@ -58,10 +64,21 @@ class CommonInputView: UIView {
             make.height.equalTo(52.0)
         }
 
-        addSubview(animatedInputField)
-        animatedInputField.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
+        let container = UIFactory.default.createHorizontalStackView()
+
+        addSubview(container)
+        container.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
             make.top.bottom.equalToSuperview().inset(4.0)
+        }
+        container.addArrangedSubview(animatedInputField)
+        animatedInputField.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+        }
+        container.addArrangedSubview(rightButton)
+        rightButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.size.equalTo(52)
         }
     }
 }

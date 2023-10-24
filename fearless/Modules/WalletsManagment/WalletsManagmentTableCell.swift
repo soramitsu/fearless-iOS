@@ -12,7 +12,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         static let conentEdgeInstets = UIEdgeInsets(
             top: 8, left: 12, bottom: 8, right: 12
         )
-        static let optionsButtonSize = CGSize(width: 24, height: 24)
+        static let optionsButtonSize = CGSize(width: 44, height: 44)
     }
 
     private let backgroundTriangularedView: TriangularedView = {
@@ -22,6 +22,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         view.strokeColor = .clear
         view.highlightedStrokeColor = R.color.colorPink()!
         view.strokeWidth = 0.5
+        view.shadowOpacity = 0
         return view
     }()
 
@@ -52,12 +53,18 @@ final class WalletsManagmentTableCell: UITableViewCell {
     private let optionsButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconHorMore(), for: .normal)
-        button.backgroundColor = R.color.colorWhite8()!
         button.clipsToBounds = true
+        button.isHidden = true
         return button
     }()
 
-    weak var delegate: WalletsManagmentTableCellDelegate?
+    private var skeletonView: SkrullableView?
+
+    weak var delegate: WalletsManagmentTableCellDelegate? {
+        didSet {
+            optionsButton.isHidden = false
+        }
+    }
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -70,17 +77,19 @@ final class WalletsManagmentTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        optionsButton.rounded()
-    }
-
     func bind(to viewModel: WalletsManagmentCellViewModel) {
         iconImageView.image = R.image.iconBirdGreen()
         walletNameLabel.text = viewModel.walletName
-        fiatBalanceLabel.text = viewModel.fiatBalance
         dayChangeLabel.attributedText = viewModel.dayChange
         backgroundTriangularedView.set(highlighted: viewModel.isSelected, animated: false)
+
+        fiatBalanceLabel.text = viewModel.fiatBalance
+
+        if viewModel.fiatBalance == nil {
+            startLoadingIfNeeded()
+        } else {
+            stopLoadingIfNeeded()
+        }
     }
 
     private func configure() {
@@ -93,7 +102,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
 
     private func setupLayout() {
         selectionStyle = .none
-        backgroundColor = R.color.colorBlack()!
+        backgroundColor = .clear
 
         contentView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
@@ -124,8 +133,106 @@ final class WalletsManagmentTableCell: UITableViewCell {
         optionsButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.size.equalTo(Constants.optionsButtonSize)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview()
             make.leading.equalTo(vStackView.snp.trailing).offset(UIConstants.defaultOffset)
         }
+    }
+}
+
+extension WalletsManagmentTableCell: SkeletonLoadable {
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
+
+    func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
+        skeletonView?.startSkrulling()
+    }
+
+    func didUpdateSkeletonLayout() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
+        }
+    }
+
+    func startLoadingIfNeeded() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        fiatBalanceLabel.alpha = 0.0
+        dayChangeLabel.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoadingIfNeeded() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        fiatBalanceLabel.alpha = 1.0
+        dayChangeLabel.alpha = 1.0
+    }
+
+    private func setupSkeleton() {
+        let spaceSize = frame.size
+
+        guard spaceSize != .zero else {
+            self.skeletonView = Skrull(size: .zero, decorations: [], skeletons: []).build()
+            return
+        }
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        self.skeletonView = skeletonView
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: contentView)
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let defaultBigWidth = 72.0
+        let defaultHeight = 16.0
+        let smallHeight = 10.0
+
+        let titleWidth = fiatBalanceLabel.text?.widthOfString(usingFont: fiatBalanceLabel.font)
+        let incomeWidth = dayChangeLabel.text?.widthOfString(usingFont: dayChangeLabel.font)
+
+        let titleSize = CGSize(width: titleWidth ?? defaultBigWidth, height: defaultHeight)
+        let incomeSize = CGSize(width: incomeWidth ?? defaultBigWidth, height: smallHeight)
+
+        return [
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset, y: spaceSize.height / 2),
+                size: titleSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: UIConstants.offset12 + UIConstants.normalAddressIconSize.width + UIConstants.hugeOffset, y: spaceSize.height / 2 + defaultHeight / 2 + UIConstants.offset12),
+                size: incomeSize
+            )
+        ]
     }
 }

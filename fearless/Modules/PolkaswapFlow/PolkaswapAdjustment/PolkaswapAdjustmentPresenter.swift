@@ -237,26 +237,13 @@ final class PolkaswapAdjustmentPresenter {
 
         let task = DispatchWorkItem { [weak self] in
             self?.interactor.fetchQuotes(with: quoteParams)
-            self?.view?.didUpdating()
         }
         quotesWorkItem = task
         DispatchQueue.global().asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
     }
 
     private func subscribeToPoolUpdates() {
-        guard let swapFromAssetId = swapFromChainAsset?.asset.currencyId,
-              let swapToAssetId = swapToChainAsset?.asset.currencyId,
-              let polkaswapRemoteSettings = polkaswapRemoteSettings
-        else {
-            return
-        }
-
-        interactor.subscribeOnPool(
-            for: swapFromAssetId,
-            toAssetId: swapToAssetId,
-            liquiditySourceType: selectedLiquiditySourceType,
-            availablePolkaswapDex: polkaswapRemoteSettings.availableDexIds
-        )
+        interactor.subscribeOnBlocks()
     }
 
     private func provideAmount(

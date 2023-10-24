@@ -15,12 +15,14 @@ protocol AccountCreateViewProtocol: ControllerBackedProtocol {
 }
 
 protocol AccountCreatePresenterProtocol: AnyObject {
+    var flow: AccountCreateFlow { get }
     func setup()
     func selectSubstrateCryptoType()
     func activateInfo()
     func validateSubstrate()
     func validateEthereum()
-    func proceed()
+    func proceed(withReplaced flow: AccountCreateFlow?)
+    func didTapBackupButton()
 }
 
 protocol AccountCreateInteractorInputProtocol: AnyObject {
@@ -45,6 +47,11 @@ protocol AccountCreateWireframeProtocol: SheetAlertPresentable, ErrorPresentable
         selectedType: CryptoType,
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
+    )
+
+    func showBackupCreatePassword(
+        request: MetaAccountImportMnemonicRequest,
+        from view: ControllerBackedProtocol?
     )
 }
 

@@ -70,7 +70,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
             chainIdForFilter: entity.chainIdForFilter,
             assetsVisibility: assetsVisibility ?? [],
-            zeroBalanceAssetsHidden: entity.zeroBalanceAssetsHidden
+            zeroBalanceAssetsHidden: entity.zeroBalanceAssetsHidden,
+            hasBackup: entity.hasBackup
         )
     }
 
@@ -93,6 +94,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.assetFilterOptions = assetFilterOptions
         entity.chainIdForFilter = model.chainIdForFilter
         entity.zeroBalanceAssetsHidden = model.zeroBalanceAssetsHidden
+        entity.hasBackup = model.hasBackup
 
         for assetVisibility in model.assetsVisibility {
             var assetVisibilityEntity = entity.assetsVisibility?.first { entity in
@@ -112,8 +114,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {
                 if let entity = $0 as? CDChainAccount,
-                   entity.chainId == chainAccount.chainId,
-                   entity.accountId == chainAccount.accountId.toHex() {
+                   entity.chainId == chainAccount.chainId {
                     return true
                 } else {
                     return false

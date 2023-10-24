@@ -12,15 +12,14 @@ final class ChainAssetListAssembly {
             storageFacade: UserDataStorageFacade.shared
         )
 
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationQueue()
         )
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(
@@ -33,6 +32,15 @@ final class ChainAssetListAssembly {
 
         let dependencyContainer = ChainAssetListDependencyContainer()
 
+        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -40,8 +48,9 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetching: accountInfoFetching,
-            dependencyContainer: dependencyContainer
+            accountInfoFetchingProvider: accountInfoFetching,
+            dependencyContainer: dependencyContainer,
+            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
@@ -57,11 +66,18 @@ final class ChainAssetListAssembly {
             viewModelFactory: viewModelFactory
         )
 
+        let bannersModule = Self.configureBannersModule(moduleOutput: presenter)
+        let bannersViewController = bannersModule?.view.controller
         let view = ChainAssetListViewController(
+            bannersViewController: bannersViewController,
             output: presenter,
             localizationManager: localizationManager
         )
 
         return (view, presenter)
+    }
+
+    private static func configureBannersModule(moduleOutput: BannersModuleOutput?) -> BannersModuleCreationResult? {
+        BannersAssembly.configureModule(output: moduleOutput)
     }
 }

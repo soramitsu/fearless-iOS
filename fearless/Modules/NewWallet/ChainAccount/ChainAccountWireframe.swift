@@ -169,12 +169,14 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let importController = AccountImportViewFactory.createViewForOnboarding(
-            .chain(model: uniqueChainModel)
+            defaultSource: .mnemonic,
+            flow: .chain(model: uniqueChainModel)
         )?.controller else {
             return
         }
         importController.hidesBottomBarWhenPushed = true
-        view?.controller.navigationController?.pushViewController(importController, animated: true)
+        let navigationController = FearlessNavigationController(rootViewController: importController)
+        view?.controller.navigationController?.present(navigationController, animated: true)
     }
 
     func showSelectNetwork(

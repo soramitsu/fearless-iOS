@@ -169,7 +169,7 @@ extension StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmRela
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):
-            if let fee = BigUInt(dispatchInfo.fee) {
+            if let fee = BigUInt(string: dispatchInfo.fee) {
                 self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(chainAsset.asset.precision))
             }
 

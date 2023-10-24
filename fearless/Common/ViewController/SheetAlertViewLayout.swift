@@ -7,6 +7,12 @@ final class SheetAlertViewLayout: UIView {
         static let imageViewContainerSize: CGFloat = 80.0
         static let imageViewSize = CGSize(width: 48, height: 42)
         static let closeButton: CGFloat = 32.0
+        static var popupWindowHeightRatio: CGFloat {
+            let window = UIApplication.shared.windows.first
+            let topPadding = window?.safeAreaInsets.top ?? .zero
+            let bottomPadding = window?.safeAreaInsets.bottom ?? .zero
+            return (window?.frame.height ?? UIScreen.main.bounds.height * 0.7) - topPadding - bottomPadding
+        }
     }
 
     private let viewModel: SheetAlertPresentableViewModel
@@ -25,7 +31,12 @@ final class SheetAlertViewLayout: UIView {
         return stack
     }()
 
-    private let actionsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.verticalInset)
+    private let actionsStackView: UIStackView = {
+        let stack = UIStackView()
+        stack.spacing = UIConstants.verticalInset
+        return stack
+    }()
+
     private let imageViewContainer = UIView()
     private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
@@ -41,6 +52,12 @@ final class SheetAlertViewLayout: UIView {
         return label
     }()
 
+    private let scrollableView: ScrollableContainerView = {
+        let view = ScrollableContainerView()
+        view.isHidden = true
+        return view
+    }()
+
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -50,6 +67,7 @@ final class SheetAlertViewLayout: UIView {
 
     init(viewModel: SheetAlertPresentableViewModel) {
         self.viewModel = viewModel
+        actionsStackView.axis = viewModel.actionAxis
         super.init(frame: .zero)
         applyStyle(viewModel: viewModel)
         setupLayout()
@@ -65,6 +83,7 @@ final class SheetAlertViewLayout: UIView {
         super.layoutSubviews()
         closeButton.rounded()
         imageViewContainer.rounded()
+        descriptionLabelLayoutSubviews()
     }
 
     private func bind(viewModel: SheetAlertPresentableViewModel) {
@@ -73,23 +92,55 @@ final class SheetAlertViewLayout: UIView {
         imageView.image = viewModel.icon
         imageViewContainer.isHidden = viewModel.icon == nil
 
-        bindActions(actions: viewModel.actions)
+        bindActions(actions: viewModel.actions, actionAxis: viewModel.actionAxis)
 
         if let closeAction = viewModel.closeAction {
             let action = SheetAlertPresentableAction(
                 title: closeAction
             )
-            bindActions(actions: [action])
+            bindActions(actions: [action], actionAxis: viewModel.actionAxis)
         }
     }
 
-    private func bindActions(actions: [SheetAlertPresentableAction]) {
+    private func descriptionLabelLayoutSubviews() {
+        guard let descriptionText = descriptionLabel.text else {
+            return
+        }
+        let labelFullHeight = descriptionText.height(
+            withConstrainedWidth: frame.width - UIConstants.horizontalInset * 2,
+            font: viewModel.messageStyle?.font ?? descriptionLabel.font
+        )
+        let viewHeight = bounds.height - labelFullHeight
+
+        if (labelFullHeight + viewHeight) >= Constants.popupWindowHeightRatio {
+            scrollableView.isHidden = false
+            descriptionLabel.removeFromSuperview()
+            scrollableView.stackView.addArrangedSubview(descriptionLabel)
+            scrollableView.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(labelFullHeight / 2)
+            }
+            scrollableView.scrollView.flashScrollIndicators()
+        }
+    }
+
+    private func bindActions(actions: [SheetAlertPresentableAction], actionAxis: NSLayoutConstraint.Axis) {
         actions.forEach { action in
             let button = createButton(with: action)
             actionsStackView.addArrangedSubview(button)
-            button.snp.makeConstraints { make in
-                make.height.equalTo(UIConstants.actionHeight)
-                make.leading.trailing.equalToSuperview()
+            switch actionAxis {
+            case .horizontal:
+                actionsStackView.distribution = .fillEqually
+                button.snp.makeConstraints { make in
+                    make.height.equalTo(UIConstants.actionHeight)
+                }
+            case .vertical:
+                button.snp.makeConstraints { make in
+                    make.height.equalTo(UIConstants.actionHeight)
+                    make.leading.trailing.equalToSuperview()
+                }
+            @unknown default:
+                preconditionFailure()
             }
         }
     }
@@ -185,6 +236,15 @@ final class SheetAlertViewLayout: UIView {
 
         contentStackView.addArrangedSubview(descriptionLabel)
         contentStackView.setCustomSpacing(24, after: descriptionLabel)
+        descriptionLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        contentStackView.addArrangedSubview(scrollableView)
+        contentStackView.setCustomSpacing(24, after: scrollableView)
+        scrollableView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
 
         if !viewModel.isInfo {
             contentStackView.addArrangedSubview(actionsStackView)

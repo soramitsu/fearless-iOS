@@ -38,16 +38,9 @@ extension AssetListSearchPresenter: AssetListSearchViewOutput {
             return
         }
 
-        var filters: [ChainAssetsFetching.Filter] = []
         if text.isNotEmpty {
-            filters.append(.search(text))
             assetListModuleInput?.updateChainAssets(
-                using: filters,
-                sorts: []
-            )
-        } else {
-            assetListModuleInput?.updateChainAssets(
-                using: [.searchEmpty],
+                using: [.search(text)],
                 sorts: []
             )
         }
@@ -57,7 +50,7 @@ extension AssetListSearchPresenter: AssetListSearchViewOutput {
         self.view = view
         interactor.setup(with: self)
         assetListModuleInput?.updateChainAssets(
-            using: [.searchEmpty],
+            using: [],
             sorts: []
         )
     }

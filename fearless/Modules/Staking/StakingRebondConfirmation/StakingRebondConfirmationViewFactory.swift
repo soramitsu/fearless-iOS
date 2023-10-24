@@ -167,7 +167,7 @@ struct StakingRebondConfirmationViewFactory {
             let viewModelFactory = StakingRebondConfirmationRelaychainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
             let strategy = StakingRebondConfirmationRelaychainStrategy(
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -204,7 +204,7 @@ struct StakingRebondConfirmationViewFactory {
                 balanceViewModelFactory: balanceViewModelFactory,
                 chainAsset: chainAsset,
                 wallet: wallet,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
             let strategy = StakingRebondConfirmationParachainStrategy(
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
