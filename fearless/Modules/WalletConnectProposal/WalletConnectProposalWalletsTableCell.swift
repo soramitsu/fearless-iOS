@@ -12,7 +12,7 @@ final class WalletConnectProposalWalletsTableCell: UITableViewCell {
         view.highlightedFillColor = R.color.colorSemiBlack()!
         view.titleLabel.font = .h5Title
         view.strokeColor = R.color.colorWhite8()!
-        view.borderWidth = 1
+        view.borderWidth = 2
         view.layout = .singleTitle
         view.highlightedStrokeColor = R.color.colorPink()!
         view.iconImage = R.image.iconBirdGreen()
