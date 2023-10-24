@@ -47,7 +47,7 @@ final class SoraRewardOperationFactory {
 
         return """
                 query MyQuery {
-                  stakingRewards(orderBy: timestamp_DESC, where: {account_containsInsensitive: \"\(address)\",  \(timestampFilter)}) {
+                  stakingRewards(orderBy: timestamp_DESC, where: {payee_containsInsensitive: \"\(address)\",  \(timestampFilter)}) {
                     id
                     amount
                     timestamp
