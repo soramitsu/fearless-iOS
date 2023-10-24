@@ -4872,7 +4872,7 @@
             },
             "staking": {
                 "type": "sora",
-                "url": "https://squid.subsquid.io/sora/v/v2/graphql"
+                "url": "https://squid.subsquid.io/sora/v/v3/graphql"
             },
             "explorers": [{
                 "type": "subscan",
