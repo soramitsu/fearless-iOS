@@ -83,8 +83,13 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
     }
 
     private func updateActionButton() {
-        let enabled = viewModel?.selectedWalletIds?.isNotEmpty ?? false
-        rootView.mainActionButton.set(enabled: enabled)
+        switch status {
+        case .proposal:
+            let enabled = viewModel?.selectedWalletIds?.isNotEmpty ?? false
+            rootView.mainActionButton.set(enabled: enabled)
+        case .active:
+            rootView.mainActionButton.set(enabled: true)
+        }
     }
 }
 
