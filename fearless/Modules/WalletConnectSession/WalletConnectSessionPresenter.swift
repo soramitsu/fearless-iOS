@@ -150,8 +150,8 @@ final class WalletConnectSessionPresenter {
 
 extension WalletConnectSessionPresenter: WalletConnectSessionViewOutput {
     func viewDidDisappear() {
-        sumbitReject(request: request, error: JSONRPCError.userRejected)
         view?.controller.onInteractionDismiss()
+        sumbitReject(request: request, error: JSONRPCError.userRejected)
     }
 
     func closeButtonDidTapped() {
