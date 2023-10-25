@@ -46,15 +46,17 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         guard let requiredNetwroks = try createNetworksViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
-            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages)
+            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
+            isRequired: true
         ) else {
-            throw JSONRPCError.unauthorizedChain
+            throw AutoNamespacesError.requiredChainsNotSatisfied
         }
 
         let optionalNetworks = try? createNetworksViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
-            title: R.string.localizable.optionalNetworks(preferredLanguages: locale.rLanguages)
+            title: R.string.localizable.optionalNetworks(preferredLanguages: locale.rLanguages),
+            isRequired: false
         )
 
         guard let requiredExpandable = try createProposalPermissionsViewModel(
@@ -62,7 +64,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             chains: chains,
             cellTitle: R.string.localizable.reviewRequiredPermissions(preferredLanguages: locale.rLanguages)
         ) else {
-            throw JSONRPCError.unauthorizedChain
+            throw AutoNamespacesError.requiredChainsNotSatisfied
         }
 
         let optionalExpandable = try? createProposalPermissionsViewModel(
@@ -107,7 +109,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             chains: chains,
             cellTitle: R.string.localizable.reviewPermissions(preferredLanguages: locale.rLanguages)
         ) else {
-            throw JSONRPCError.unauthorizedChain
+            throw AutoNamespacesError.requiredChainsNotSatisfied
         }
 
         let blockchains = Set(session.requiredNamespaces.map { $0.value }.compactMap { $0.chains }.reduce([], +))
@@ -183,7 +185,8 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     private func createNetworksViewModel(
         from namespaces: [String: ProposalNamespace]?,
         chains: [ChainModel],
-        title: String
+        title: String,
+        isRequired: Bool
     ) throws -> WalletConnectProposalCellModel.DetailsViewModel? {
         guard let namespaces = namespaces else { return nil }
         let blockchains = namespaces
@@ -193,8 +196,10 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             .reduce([], +)
 
         let resolvedChains = walletConnectModelFactory.resolveChains(for: Set(blockchains), chains: chains)
-        guard resolvedChains.isNotEmpty else {
-            throw JSONRPCError.unauthorizedChain
+        if isRequired, blockchains.count > resolvedChains.count {
+            throw AutoNamespacesError.requiredChainsNotSatisfied
+        } else if resolvedChains.isEmpty {
+            return nil
         }
 
         let subtitle = resolvedChains

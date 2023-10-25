@@ -92,7 +92,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             return walletAddress?.lowercased() == address?.lowercased()
         }
         guard let wallet = wallet else {
-            throw JSONRPCError.unsupportedAccounts
+            throw AutoNamespacesError.requiredAccountsNotSatisfied
         }
         return wallet
     }

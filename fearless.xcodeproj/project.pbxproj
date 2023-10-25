@@ -74,6 +74,7 @@
 		073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
+		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
 		074EB7AD290B9F64000A2A6A /* AddressCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */; };
 		074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */; };
@@ -2984,6 +2985,7 @@
 		073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalWalletService.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
 		073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDisconnectService.swift; sourceTree = "<group>"; };
+		073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalDataValidating.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
 		074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCopiedEvent.swift; sourceTree = "<group>"; };
 		074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOfflineEvent.swift; sourceTree = "<group>"; };
@@ -6159,6 +6161,14 @@
 				07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */,
 			);
 			path = Swipable;
+			sourceTree = "<group>";
+		};
+		073B34BD2AE91FC600DC5106 /* Validators */ = {
+			isa = PBXGroup;
+			children = (
+				073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */,
+			);
+			name = Validators;
 			sourceTree = "<group>";
 		};
 		074EB7AB290B9F02000A2A6A /* Events */ = {
@@ -12841,6 +12851,7 @@
 		FA6262282AC2E35A005D3D95 /* WalletConnectProposal */ = {
 			isa = PBXGroup;
 			children = (
+				073B34BD2AE91FC600DC5106 /* Validators */,
 				07F67C9C2ACFC2DC0044047D /* Model */,
 				07F67C9B2ACFC2C00044047D /* Cells */,
 				FA6262292AC2E35A005D3D95 /* WalletConnectProposalProtocols.swift */,
@@ -17720,6 +17731,7 @@
 				DE9FA0FA5A6B685CBD593025 /* AllDoneInteractor.swift in Sources */,
 				65E0BC7A96EDE5E52D32A11B /* AllDoneViewController.swift in Sources */,
 				AB678EAA622BFEAEEA8166F2 /* AllDoneViewLayout.swift in Sources */,
+				073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */,
 				37AE170856990F9FBEF052FC /* AllDoneAssembly.swift in Sources */,
 				FA7336EB2A0E3D0A0096A291 /* HTTPHeader.swift in Sources */,
 				E2645EB7614F4C7A60B48777 /* PolkaswapAdjustmentProtocols.swift in Sources */,
