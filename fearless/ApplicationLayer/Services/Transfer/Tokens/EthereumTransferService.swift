@@ -142,10 +142,15 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
     ) async throws -> EthereumData {
         guard
             let receiverAddress = transaction.to,
-            let senderAddress = transaction.from,
-            let quantity = transaction.value
+            let senderAddress = transaction.from
         else {
             throw TransferServiceError.transferFailed(reason: "Wallet connect invalid params")
+        }
+        let quantity: EthereumQuantity
+        if let value = transaction.value {
+            quantity = value
+        } else {
+            quantity = EthereumQuantity(quantity: .zero)
         }
 
         let call = EthereumCall(
@@ -153,7 +158,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             to: receiverAddress,
             gas: transaction.gasLimit,
             gasPrice: transaction.gasPrice,
-            value: quantity,
+            value: transaction.value,
             data: transaction.data
         )
         let nonce = try await queryNonce(ethereumAddress: senderAddress)

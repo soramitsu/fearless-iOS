@@ -54,18 +54,6 @@ struct WalletConnectEthereumTransaction: Codable {
     }
 
     func mapToWeb3() throws -> EthereumTransaction {
-        guard
-            let toAddress = to,
-            let value = value
-        else {
-            throw ConvenienceError(error: "Missing requared params WCEthereumTransaction")
-        }
-
-        var fromAddress: EthereumAddress?
-        if let from = from {
-            fromAddress = try EthereumAddress(rawAddress: from.hexToBytes())
-        }
-        let to = try EthereumAddress(rawAddress: toAddress.hexToBytes())
         var transactionData = EthereumData([])
         if let data = data {
             transactionData = (try? EthereumData(ethereumValue: data)) ?? EthereumData([])
@@ -77,12 +65,30 @@ struct WalletConnectEthereumTransaction: Codable {
             maxFeePerGas: gasPrice?.toEthereumQuantity(),
             maxPriorityFeePerGas: gasPrice?.toEthereumQuantity(),
             gasLimit: gasLimit?.toEthereumQuantity(),
-            from: fromAddress,
-            to: to,
+            from: try EthereumAddress(rawAddress: from?.hexToBytes()),
+            to: try EthereumAddress(rawAddress: to?.hexToBytes()),
             value: EthereumQuantity(quantity: value),
             data: transactionData,
             accessList: [:],
             transactionType: .legacy
         )
+    }
+}
+
+extension EthereumAddress {
+    init?(rawAddress: Bytes?) throws {
+        guard let rawAddress = rawAddress else {
+            return nil
+        }
+        try self.init(rawAddress: rawAddress)
+    }
+}
+
+extension EthereumQuantity {
+    init?(quantity: BigUInt?) {
+        guard let quantity = quantity else {
+            return nil
+        }
+        self.init(quantity: quantity)
     }
 }

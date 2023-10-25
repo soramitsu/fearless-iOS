@@ -176,6 +176,7 @@ extension WalletConnectSessionPresenter: WalletConnectSessionInteractorOutput {
         switch chainsResult {
         case let .success(chains):
             chainModels = chains
+            provideViewModel()
         case let .failure(failure):
             logger.customError(failure)
         }
