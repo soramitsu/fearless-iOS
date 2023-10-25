@@ -78,7 +78,7 @@ final class WalletConnectModelFactoryImpl: WalletConnectModelFactory {
         let sessionProposal = try AutoNamespaces.build(
             sessionProposal: proposal,
             chains: requiredBlockChains.map { $0.blockchain } + optionalBlockChains.map { $0.blockchain },
-            methods: methods.filter { WalletConnectMethod.allCases.map { $0.rawValue }.contains($0) },
+            methods: methods,
             events: events,
             accounts: requiredAccounts + optionalAccounts
         )
