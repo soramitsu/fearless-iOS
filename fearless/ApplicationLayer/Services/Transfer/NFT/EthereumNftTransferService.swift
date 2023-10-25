@@ -76,7 +76,7 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
             transferSolidityInvocation = contract.transferFrom(from: ethSenderAddress, to: address, tokenId: tokenId)
         case .erc1155:
             let contract = ws.Contract(type: GenericERC1155Contract.self, address: contractAddress)
-            transferSolidityInvocation = contract.safeTransferFrom(from: ethSenderAddress, to: address, tokenId: tokenId, value: .zero, data: [])
+            transferSolidityInvocation = contract.safeTransferFrom(from: ethSenderAddress, to: address, tokenId: tokenId, value: 1, data: [])
         }
 
         let transferGasLimit = try await queryGasLimit(
@@ -100,8 +100,16 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
         let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
-        let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
-        let transferCall = contract.transferFrom(from: senderAddress, to: address, tokenId: tokenId)
+
+        var transferCall: SolidityInvocation
+        switch transfer.nft.tokenType ?? .erc721 {
+        case .erc721:
+            let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
+            transferCall = contract.transferFrom(from: senderAddress, to: address, tokenId: tokenId)
+        case .erc1155:
+            let contract = ws.Contract(type: GenericERC1155Contract.self, address: contractAddress)
+            transferCall = contract.safeTransferFrom(from: senderAddress, to: address, tokenId: tokenId, value: 1, data: [])
+        }
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
         let gasPrice = try await queryGasPrice()
         let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: .zero), transfer: transferCall)
