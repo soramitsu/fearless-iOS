@@ -28,7 +28,7 @@ extension ScanQRInteractor: ScanQRInteractorInput {
     func extractQr(from image: UIImage) {
         qrExtractionService.extract(
             from: image,
-            dispatchCompletionIn: .main
+            dispatchCompletionIn: .global()
         ) { [weak self] result in
             switch result {
             case let .success(code):

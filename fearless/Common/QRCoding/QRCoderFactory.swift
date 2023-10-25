@@ -11,7 +11,6 @@ protocol QREncoderProtocol {
 
 enum QRInfoType {
     case bokoloCash(BokoloCashQRInfo)
-    case solomon(SolomonQRInfo)
     case sora(SoraQRInfo)
     case cex(CexQRInfo)
 }
@@ -49,7 +48,6 @@ final class QREncoder: QREncoderProtocol {
 final class QRDecoder: QRDecoderProtocol {
     private lazy var qrDecoders: [QRDecoderProtocol] = [
         BokoloCashDecoder(),
-        SolomonQRDecoder(),
         SoraQRDecoder(),
         CexQRDecoder()
     ]

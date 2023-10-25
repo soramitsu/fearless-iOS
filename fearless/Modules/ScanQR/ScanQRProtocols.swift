@@ -4,7 +4,7 @@ import SSFUtils
 
 typealias ScanQRModuleCreationResult = (view: ScanQRViewInput, input: ScanQRModuleInput)
 
-protocol ScanQRViewInput: ControllerBackedProtocol {
+protocol ScanQRViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(session: AVCaptureSession)
     func present(message: String, animated: Bool)
 }

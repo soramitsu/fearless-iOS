@@ -150,8 +150,8 @@ final class WalletConnectSessionPresenter {
 
 extension WalletConnectSessionPresenter: WalletConnectSessionViewOutput {
     func viewDidDisappear() {
-        sumbitReject(request: request, error: JSONRPCError.userRejected)
         view?.controller.onInteractionDismiss()
+        sumbitReject(request: request, error: JSONRPCError.userRejected)
     }
 
     func closeButtonDidTapped() {
@@ -176,6 +176,7 @@ extension WalletConnectSessionPresenter: WalletConnectSessionInteractorOutput {
         switch chainsResult {
         case let .success(chains):
             chainModels = chains
+            provideViewModel()
         case let .failure(failure):
             logger.customError(failure)
         }

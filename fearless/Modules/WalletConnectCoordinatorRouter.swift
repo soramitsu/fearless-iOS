@@ -8,19 +8,38 @@ protocol WalletConnectCoordinatorRouter {
 }
 
 final class WalletConnectCoordinatorRouterImpl: WalletConnectCoordinatorRouter {
-    private let rootViewController: UIViewController? = {
-        UIApplication.topViewController()
-    }()
+    private var coveringWindow: UIWindow?
 
     func setRoot(controller: UIViewController) {
-        rootViewController?.present(controller, animated: true)
+        prepareWindow()
+        coveringWindow?.rootViewController?.present(controller, animated: true)
     }
 
     func present(controller: UIViewController) {
-        rootViewController?.topModalViewController.present(controller, animated: true)
+        coveringWindow?.rootViewController?.topModalViewController.present(controller, animated: true)
     }
 
     func dismiss(completion: (() -> Void)?) {
-        rootViewController?.dismiss(animated: true, completion: completion)
+        dismissWindow(completion: completion)
+    }
+
+    private func dismissWindow(completion: (() -> Void)?) {
+        coveringWindow?.rootViewController?.dismiss(animated: true, completion: { [weak self] in
+            self?.coveringWindow?.isHidden = true
+            self?.coveringWindow = nil
+            completion?()
+        })
+    }
+
+    private func prepareWindow() {
+        coveringWindow = UIWindow(frame: UIScreen.main.bounds)
+
+        if let coveringWindow = coveringWindow {
+            coveringWindow.windowLevel = UIWindow.Level.alert + 1
+            coveringWindow.isHidden = false
+            coveringWindow.backgroundColor = .clear
+            coveringWindow.rootViewController = UIViewController()
+            coveringWindow.makeKeyAndVisible()
+        }
     }
 }

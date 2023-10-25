@@ -66,7 +66,8 @@ final class MultiSelectNetworksPresenter {
         let viewModel = viewModelFactory.buildViewModel(
             dataSource: dataSource,
             selectedChains: selectedChains,
-            searchText: searchText
+            searchText: searchText,
+            locale: selectedLocale
         )
         view?.didReceive(viewModel: viewModel)
 
@@ -89,7 +90,8 @@ final class MultiSelectNetworksPresenter {
         let viewModel = viewModelFactory.buildViewModel(
             dataSource: dataSource,
             selectedChains: selectedChains,
-            searchText: nil
+            searchText: nil,
+            locale: selectedLocale
         )
         view?.didReceive(viewModel: viewModel)
         self.viewModel = viewModel

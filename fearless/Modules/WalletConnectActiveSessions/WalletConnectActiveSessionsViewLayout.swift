@@ -75,8 +75,8 @@ final class WalletConnectActiveSessionsViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Connections")
-        searchView.textField.placeholder = "Search by connection"
-        createNewConnectionButton.imageWithTitleView?.title = "Create new connection"
+        navigationBar.setTitle(R.string.localizable.commonConnections(preferredLanguages: locale.rLanguages))
+        searchView.textField.placeholder = R.string.localizable.searchByConnection(preferredLanguages: locale.rLanguages)
+        createNewConnectionButton.imageWithTitleView?.title = R.string.localizable.createNewConnection(preferredLanguages: locale.rLanguages)
     }
 }

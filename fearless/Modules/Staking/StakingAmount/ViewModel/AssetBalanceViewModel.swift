@@ -6,6 +6,7 @@ protocol AssetBalanceViewModelProtocol {
     var fiatBalance: String? { get }
     var price: String? { get }
     var iconViewModel: ImageViewModelProtocol? { get }
+    var selectable: Bool { get }
 }
 
 extension AssetBalanceViewModelProtocol {
@@ -19,6 +20,7 @@ struct AssetBalanceViewModel: AssetBalanceViewModelProtocol {
     let fiatBalance: String?
     let price: String?
     let iconViewModel: ImageViewModelProtocol?
+    let selectable: Bool
 }
 
 extension ImageViewModelProtocol {

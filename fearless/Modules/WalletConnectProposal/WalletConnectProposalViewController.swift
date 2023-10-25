@@ -83,8 +83,13 @@ final class WalletConnectProposalViewController: UIViewController, ViewHolder {
     }
 
     private func updateActionButton() {
-        let enabled = viewModel?.selectedWalletIds?.isNotEmpty ?? true
-        rootView.mainActionButton.set(enabled: enabled)
+        switch status {
+        case .proposal:
+            let enabled = viewModel?.selectedWalletIds?.isNotEmpty ?? false
+            rootView.mainActionButton.set(enabled: enabled)
+        case .active:
+            rootView.mainActionButton.set(enabled: true)
+        }
     }
 }
 
@@ -152,11 +157,8 @@ extension WalletConnectProposalViewController: UITableViewDataSource {
             }
             cell.locale = selectedLocale
             cell.bind(viewModel: viewModel)
-        case let .wallet(viewModel):
-            guard let cell = cell as? WalletConnectProposalWalletsTableCell else {
-                return UITableViewCell()
-            }
-            cell.bind(viewModel: viewModel)
+        case .wallet:
+            break
         case let .requiredNetworks(viewModel):
             guard let cell = cell as? WalletConnectProposalDetailsTableCell else {
                 return UITableViewCell()
@@ -181,6 +183,22 @@ extension WalletConnectProposalViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension WalletConnectProposalViewController: UITableViewDelegate {
+    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard let viewModel = viewModel?.cells[safe: indexPath.row] else {
+            return
+        }
+
+        switch viewModel {
+        case let .wallet(viewModel):
+            guard let cell = cell as? WalletConnectProposalWalletsTableCell else {
+                return
+            }
+            cell.bind(viewModel: viewModel)
+        default:
+            break
+        }
+    }
+
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard let viewModel = viewModel?.cells[safe: indexPath.row] else {
             return UITableView.automaticDimension

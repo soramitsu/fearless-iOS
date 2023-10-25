@@ -7,12 +7,9 @@ final class WalletConnectSocketFactory: WebSocketFactory {
     }()
 
     func create(with url: URL) -> WalletConnectRelay.WebSocketConnecting {
-        var request = URLRequest(url: url)
-//        request.addValue("allowed.domain.com", forHTTPHeaderField: "Origin")
-        let connection = WalletConnectSocketEngine(
-            request: request,
+        WalletConnectSocketEngine(
+            request: URLRequest(url: url),
             logger: logger
         )
-        return connection
     }
 }
