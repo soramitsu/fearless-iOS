@@ -428,6 +428,8 @@ final class SendPresenter {
                 minBalance,
                 precision: Int16(chainAsset.asset.precision)
             )
+        } else if chainAsset.chain.isEthereum {
+            minimumBalanceDecimal = .zero
         }
 
         let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
