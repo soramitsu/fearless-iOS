@@ -12,9 +12,9 @@ final class PolkaswapSwapConfirmationRouter: PolkaswapSwapConfirmationRouterInpu
         let presenter = view?.controller.navigationController?.presentingViewController
 
         if let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: hashString, closure: {
-               completeClosure?()
-               view?.controller.navigationController?.popViewController(animated: true)
-           })?.view.controller {
+            completeClosure?()
+            view?.controller.navigationController?.popViewController(animated: true)
+        })?.view.controller {
             controller.modalPresentationStyle = .custom
 
             let factory = ModalSheetBlurPresentationFactory(
