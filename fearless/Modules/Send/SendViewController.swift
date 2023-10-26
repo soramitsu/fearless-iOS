@@ -49,16 +49,6 @@ final class SendViewController: UIViewController, ViewHolder {
         setupKeyboardHandler()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        switch initialData {
-        case .chainAsset, .address:
-            rootView.searchView.textField.becomeFirstResponder()
-        case .soraMainnet, .bokoloCash:
-            rootView.searchView.textField.resignFirstResponder()
-        }
-    }
-
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
@@ -230,11 +220,15 @@ extension SendViewController: UITextFieldDelegate {
         if textField == rootView.amountView.textField {
             return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         } else if textField == rootView.searchView.textField {
-            guard let text = textField.text as NSString? else {
+            if range.length == 1, string.isEmpty {
+                output.searchTextDidChanged("")
+                textField.text = ""
                 return true
+            } else if range.length == 0, range.location == 0, string.count > 1 {
+                output.searchTextDidChanged(string)
+            } else {
+                return false
             }
-            let newString = text.replacingCharacters(in: range, with: string)
-            output.searchTextDidChanged(newString)
         }
         return false
     }
