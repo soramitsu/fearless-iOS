@@ -638,7 +638,7 @@
 "required.accounts.not.satisfied" = "Cannot proceed: Your wallet does not have the necessary accounts. Please make sure you have the required accounts set up before continuing";
 "required.chains.not.satisfied" = "Unable to connect to wallet: The requested blockchain network is not supported or available";
 "required.events.not.satisfied" = "Missing event notifications: the App does not support the necessary event notifications";
-"required.methods.not.satisfied" = "Functionality not supported: The requested action is not supporte";
+"required.methods.not.satisfied" = "Certain methods requested by Wallet Connect are not currently supported by the App. Although the connection can be established, certain functionalities of the dApp may not be available.";
 "required.networks" = "Required networks";
 "review.optional.permissions" = "Review optional permissions";
 "review.required.permissions" = "Review required permissions";

@@ -640,7 +640,7 @@
 "required.accounts.not.satisfied" = "无法继续：您的钱包没有必要的账户。请确保在继续之前设置了所需的账户。";
 "required.chains.not.satisfied" = "无法连接到钱包：所请求的区块链网络不受支持或不可用。";
 "required.events.not.satisfied" = "缺少事件通知：该应用程序不支持必要的事件通知";
-"required.methods.not.satisfied" = "功能不支持：所请求的操作不受支持。";
+"required.methods.not.satisfied" = "Certain methods requested by Wallet Connect are not currently supported by the App. Although the connection can be established, certain functionalities of the dApp may not be available.";
 "required.networks" = "Required networks";
 "review.optional.permissions" = "Review optional permissions";
 "review.required.permissions" = "Review required permissions";
