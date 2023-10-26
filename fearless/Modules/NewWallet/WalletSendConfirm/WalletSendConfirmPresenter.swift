@@ -206,9 +206,6 @@ final class WalletSendConfirmPresenter {
         }
 
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(exsitentialDeposit: minimumBalanceDecimal, locale: selectedLocale, onError: { [weak self] in
-                self?.interactor.provideConstants()
-            }),
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee()
             }),
