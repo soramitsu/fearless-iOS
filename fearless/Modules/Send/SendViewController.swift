@@ -84,11 +84,9 @@ final class SendViewController: UIViewController, ViewHolder {
             action: #selector(historyButtonClicked),
             for: .touchUpInside
         )
-        rootView.pasteButton.addTarget(
-            self,
-            action: #selector(pasteButtonClicked),
-            for: .touchUpInside
-        )
+        rootView.searchView.onPasteTapped = { [weak self] in
+            self?.output.didTapPasteButton()
+        }
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectNetworkClicked))
         rootView.selectNetworkView.addGestureRecognizer(tapGesture)
@@ -113,10 +111,6 @@ final class SendViewController: UIViewController, ViewHolder {
 
     @objc private func scanButtonClicked() {
         output.didTapScanButton()
-    }
-
-    @objc private func pasteButtonClicked() {
-        output.didTapPasteButton()
     }
 
     @objc private func historyButtonClicked() {
@@ -257,6 +251,9 @@ extension SendViewController: UITextFieldDelegate {
         rootView.amountView.set(highlighted: amountIsFirstResponder, animated: false)
         let searchIsFirstResponder = textField == rootView.searchView.textField
         rootView.searchView.set(highlighted: searchIsFirstResponder, animated: false)
+        if searchIsFirstResponder {
+            textField.resignFirstResponder()
+        }
     }
 
     func textFieldDidEndEditing(_: UITextField) {

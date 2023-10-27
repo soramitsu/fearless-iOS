@@ -88,14 +88,7 @@ final class SendViewLayout: UIView {
         return button
     }()
 
-    let pasteButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyStackButtonStyle()
-        button.imageWithTitleView?.iconImage = R.image.iconCopy()
-        return button
-    }()
-
-    let searchView = SearchTriangularedView()
+    let searchView = SearchTriangularedView(withPasteButton: true)
 
     var locale = Locale.current {
         didSet {
@@ -225,7 +218,6 @@ private extension SendViewLayout {
 
         optionsStackView.addArrangedSubview(scanButton)
         optionsStackView.addArrangedSubview(historyButton)
-        optionsStackView.addArrangedSubview(pasteButton)
 
         bottomContainer.addSubview(optionsStackView)
         optionsStackView.snp.makeConstraints { make in
@@ -240,6 +232,7 @@ private extension SendViewLayout {
         feeView.locale = locale
         amountView.locale = locale
         scamWarningView.locale = locale
+        searchView.locale = locale
 
         searchView.textField.attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.searchTextfieldPlaceholder(
@@ -261,10 +254,6 @@ private extension SendViewLayout {
         ).uppercased()
 
         historyButton.imageWithTitleView?.title = R.string.localizable.walletHistoryTitle_v190(
-            preferredLanguages: locale.rLanguages
-        ).uppercased()
-
-        pasteButton.imageWithTitleView?.title = R.string.localizable.commonPaste(
             preferredLanguages: locale.rLanguages
         ).uppercased()
 
