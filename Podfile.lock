@@ -135,9 +135,9 @@ PODS:
   - Sourcery (1.9.2):
     - Sourcery/CLI-Only (= 1.9.2)
   - Sourcery/CLI-Only (1.9.2)
-  - SSFChainConnection (0.1.4):
+  - SSFChainConnection (0.1.24):
     - SSFUtils
-  - SSFChainRegistry (0.1.4):
+  - SSFChainRegistry (0.1.24):
     - RobinHood
     - SSFChainConnection
     - SSFLogger
@@ -145,7 +145,7 @@ PODS:
     - SSFNetwork
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFCloudStorage (0.1.15):
+  - SSFCloudStorage (0.1.23):
     - GoogleAPIClientForREST/Drive (~> 1.2.1)
     - GoogleSignIn (~> 7.0.0)
     - IrohaCrypto/Scrypt
@@ -203,7 +203,7 @@ PODS:
     - SSFCrypto
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFUtils (0.1.22):
+  - SSFUtils (0.1.24):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -216,7 +216,7 @@ PODS:
     - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
-  - SSFXCM (0.1.13):
+  - SSFXCM (0.1.24):
     - IrohaCrypto
     - RobinHood
     - SSFChainConnection
@@ -258,20 +258,20 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - SSFChainConnection (= 0.1.4)
-  - SSFChainRegistry (= 0.1.4)
+  - SSFChainConnection
+  - SSFChainRegistry
   - SSFCloudStorage
-  - SSFCrypto (= 0.1.17)
+  - SSFCrypto
   - SSFEraKit
   - SSFExtrinsicKit
-  - SSFHelpers (= 0.1.7)
+  - SSFHelpers
   - SSFLogger
   - SSFModels
-  - SSFNetwork (= 0.1.17)
+  - SSFNetwork
   - SSFRuntimeCodingService
   - SSFSigner
   - SSFStorageQueryKit
-  - SSFUtils (= 0.1.22)
+  - SSFUtils
   - SSFXCM
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
@@ -383,9 +383,9 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
-  SSFChainConnection: 760f0bbe0d711cc0f184b951dea9e840a2962346
-  SSFChainRegistry: adfcfa6f8e7dae4730e258989c2a58ee674bf1e1
-  SSFCloudStorage: 37fbba3ad3e93a637d9c1a9b85910f4fa29596de
+  SSFChainConnection: 3f1452832b534410c5e94f80f6407ed09bbe88fd
+  SSFChainRegistry: 3351679f2ab8436a62e0a281dff70e7bcae797a7
+  SSFCloudStorage: c4123454b3084015ea8d88af92f51de79fce7f2c
   SSFCrypto: 7ea544e61213538744ef8fd075e5e4487b7cf502
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
@@ -396,8 +396,8 @@ SPEC CHECKSUMS:
   SSFRuntimeCodingService: 9c527ab5b8c15c3d580d641df54eabc7e105e5cf
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
   SSFStorageQueryKit: 3063fdf0a84c9b7c1c2a2a08b862162bd0d38694
-  SSFUtils: 121326605c2cb1f87c0178980d7d26bb3485f750
-  SSFXCM: 2e8458396a85185631b8003619b9873583b67e10
+  SSFUtils: 1ee96f5916d6bbcd4a2f38eb63f736ef4e5df838
+  SSFXCM: 4a57ad08e65af3d84121081c64c289bd3867eb4a
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -408,7 +408,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
+PODFILE CHECKSUM: bf10ac4ec865ec58be86f5f8a9578ef87681ee46
 
-PODFILE CHECKSUM: aa9a773bdee630d339652453cda8d96190593c0b
-
-COCOAPODS: 1.12.1
+COCOAPODS: 1.11.3
