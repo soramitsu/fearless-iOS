@@ -28,7 +28,7 @@ final class SendViewLayout: UIView {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
         view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
-        view.stackView.spacing = LayoutConstants.verticalOffset
+        view.stackView.spacing = LayoutConstants.stackViewSpacing
         return view
     }()
 
