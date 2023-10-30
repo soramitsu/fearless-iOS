@@ -95,10 +95,10 @@ final class ChainAccountInteractor {
                 strongSelf.presenter?.didReceive(accountInfo: accountInfo, for: chainAsset, accountId: accountId)
 
                 strongSelf.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
-                    walletId: strongSelf.wallet.metaId,
+                    wallet: strongSelf.wallet,
                     chainAsset: chainAsset,
                     deliverOn: .main,
-                    handler: strongSelf
+                    listener: strongSelf
                 )
             }
         }
@@ -250,7 +250,11 @@ extension ChainAccountInteractor: EventVisitorProtocol {
 
 extension ChainAccountInteractor: AccountFetching {}
 
-extension ChainAccountInteractor: WalletBalanceSubscriptionHandler {
+extension ChainAccountInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .chainAsset(wallet: wallet, chainAsset: chainAsset)
+    }
+
     func handle(result: WalletBalancesResult) {
         presenter?.didReceiveWalletBalancesResult(result)
     }

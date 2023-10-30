@@ -104,6 +104,17 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(module.view.controller, animated: true)
     }
 
+    func showWalletConnect(from view: ControllerBackedProtocol?) {
+        let module = WalletConnectActiveSessionsAssembly.configureModule()
+        guard let controller = module?.view.controller else {
+            return
+        }
+
+        let navigation = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigation, animated: true)
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {

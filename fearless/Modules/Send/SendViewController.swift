@@ -9,15 +9,18 @@ final class SendViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: SendViewOutput
+    private let initialData: SendFlowInitialData
 
     private var amountInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
 
     init(
+        initialData: SendFlowInitialData,
         output: SendViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.initialData = initialData
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -48,7 +51,12 @@ final class SendViewController: UIViewController, ViewHolder {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        rootView.searchView.textField.becomeFirstResponder()
+        switch initialData {
+        case .chainAsset, .address:
+            rootView.searchView.textField.becomeFirstResponder()
+        case .soraMainnet, .bokoloCash:
+            rootView.searchView.textField.resignFirstResponder()
+        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -98,10 +106,6 @@ final class SendViewController: UIViewController, ViewHolder {
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
-        rootView.amountView.textField.inputAccessoryView = accessoryView
     }
 
     private func updateActionButton() {
@@ -137,6 +141,27 @@ final class SendViewController: UIViewController, ViewHolder {
 // MARK: - SendViewInput
 
 extension SendViewController: SendViewInput {
+    func setInputAccessoryView(visible: Bool) {
+        rootView.amountView.textField.resignFirstResponder()
+        if visible {
+            let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: selectedLocale)
+            rootView.amountView.textField.inputAccessoryView = accessoryView
+        } else {
+            rootView.amountView.textField.inputAccessoryView = nil
+        }
+    }
+
+    func didBlockUserInteractive(isUserInteractiveAmount: Bool) {
+        rootView.searchView.isUserInteractionEnabled = false
+        rootView.selectNetworkView.isUserInteractionEnabled = false
+        rootView.amountView.selectHandler = nil
+        rootView.amountView.textField.isUserInteractionEnabled = isUserInteractiveAmount
+        rootView.optionsStackView.isHidden = true
+        if isUserInteractiveAmount {
+            rootView.amountView.textField.becomeFirstResponder()
+        }
+    }
+
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {
         if let assetViewModel = assetBalanceViewModel {
             rootView.bind(assetViewModel: assetViewModel)

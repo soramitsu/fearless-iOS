@@ -5,19 +5,56 @@ import SoraFoundation
 import SoraKeystore
 import SSFModels
 
-struct WalletSendConfirmViewFactory {
+enum SendConfirmTransferCall {
+    case transfer(Transfer)
+    case xorlessTransfer(XorlessTransfer)
+
+    var amount: BigUInt {
+        switch self {
+        case let .transfer(transfer):
+            return transfer.amount
+        case let .xorlessTransfer(xorlessTransfer):
+            return xorlessTransfer.amount
+        }
+    }
+
+    var receiverAddress: String {
+        switch self {
+        case let .transfer(transfer):
+            return transfer.receiver
+        case let .xorlessTransfer(xorlessTransfer):
+            let bokoloId = String(data: xorlessTransfer.additionalData, encoding: .utf8)
+            if let bokoloAddress = bokoloId, bokoloAddress.isNotEmpty {
+                return bokoloAddress
+            } else if let receiver = try? AddressFactory.address(for: xorlessTransfer.receiver, chainFormat: .substrate(69)) {
+                return receiver
+            }
+            return ""
+        }
+    }
+
+    var tip: BigUInt? {
+        switch self {
+        case let .transfer(transfer):
+            return transfer.tip
+        case .xorlessTransfer:
+            return nil
+        }
+    }
+}
+
+enum WalletSendConfirmViewFactory {
     static func createView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String,
-        amount: Decimal,
-        tip: Decimal?,
-        scamInfo: ScamInfo?
+        call: SendConfirmTransferCall,
+        scamInfo: ScamInfo?,
+        feeViewModel: BalanceViewModelProtocol?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
-            receiverAddress: receiverAddress
+            call: call
         ) else {
             return nil
         }
@@ -43,10 +80,10 @@ struct WalletSendConfirmViewFactory {
             logger: Logger.shared,
             chainAsset: chainAsset,
             wallet: wallet,
-            receiverAddress: receiverAddress,
-            amount: amount,
-            tip: tip,
-            scamInfo: scamInfo
+            call: call,
+            scamInfo: scamInfo,
+            feeViewModel: feeViewModel,
+            localizationManager: LocalizationManager.shared
         )
 
         let view = WalletSendConfirmViewController(
@@ -64,7 +101,7 @@ struct WalletSendConfirmViewFactory {
     private static func createInteractor(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String
+        call: SendConfirmTransferCall
     ) -> WalletSendConfirmInteractor? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
             return nil
@@ -94,7 +131,7 @@ struct WalletSendConfirmViewFactory {
         return WalletSendConfirmInteractor(
             selectedMetaAccount: selectedMetaAccount,
             chainAsset: chainAsset,
-            receiverAddress: receiverAddress,
+            call: call,
             feeProxy: feeProxy,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,

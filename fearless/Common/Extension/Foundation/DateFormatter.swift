@@ -65,4 +65,14 @@ extension DateFormatter {
             return dateFormatter
         }
     }
+
+    static var connectionExpiry: LocalizableResource<DateFormatter> {
+        LocalizableResource { locale in
+            let format = DateFormatter.dateFormat(fromTemplate: "EEE, MMM d, yyyy", options: 0, locale: locale)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = format
+            dateFormatter.locale = locale
+            return dateFormatter
+        }
+    }
 }

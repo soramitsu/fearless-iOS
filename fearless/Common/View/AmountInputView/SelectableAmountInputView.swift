@@ -145,6 +145,7 @@ final class SelectableAmountInputView: UIView {
         symbolLabel.text = viewModel.symbol.uppercased()
 
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
+        iconSelect.isHidden = !viewModel.selectable
     }
 
     // MARK: - Private methods

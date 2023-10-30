@@ -73,6 +73,7 @@ PODS:
   - keccak.c (0.1.3)
   - Kingfisher (7.9.1)
   - MediaView (0.2.0)
+  - MPQRCoreSDK (2.0.7)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
@@ -234,7 +235,7 @@ PODS:
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.53.0)
+  - SwiftLint (0.52.4)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
   - XNetworking (0.0.37)
@@ -250,6 +251,7 @@ DEPENDENCIES:
   - keccak.c
   - Kingfisher
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
+  - MPQRCoreSDK
   - R.swift (= 6.1.0)
   - ReachabilitySwift
   - RobinHood (= 2.6.8)
@@ -296,6 +298,7 @@ SPEC REPOS:
     - IrohaCrypto
     - keccak.c
     - Kingfisher
+    - MPQRCoreSDK
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
@@ -372,6 +375,7 @@ SPEC CHECKSUMS:
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
   Kingfisher: 1d14e9f59cbe19389f591c929000332bf70efd32
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
+  MPQRCoreSDK: ea95312df244a90b5041cc8bafe089d07cac2bd2
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -402,7 +406,7 @@ SPEC CHECKSUMS:
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 5ce4d6a8ff83f1b5fd5ad5dbf30965d35af65e44
+  SwiftLint: 1cc5cd61ba9bacb2194e340aeb47a2a37fda00b3
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf

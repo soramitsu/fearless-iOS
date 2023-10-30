@@ -14,6 +14,7 @@ final class MainNftContainerInteractor {
     private let logger: LoggerProtocol
     private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
+    private var isReady: Bool = false
 
     init(
         nftFetchingService: NFTFetchingServiceProtocol,
@@ -32,11 +33,24 @@ final class MainNftContainerInteractor {
 // MARK: - MainNftContainerInteractorInput
 
 extension MainNftContainerInteractor: MainNftContainerInteractorInput {
+    func initialSetup() {
+        let wasReady = isReady
+        isReady = true
+
+        if !wasReady {
+            fetchData()
+        }
+    }
+
     func setup(with output: MainNftContainerInteractorOutput) {
         self.output = output
     }
 
     func fetchData() {
+        guard isReady else {
+            return
+        }
+
         Task {
             do {
                 let nfts = try await nftFetchingService.fetchNfts(for: wallet)

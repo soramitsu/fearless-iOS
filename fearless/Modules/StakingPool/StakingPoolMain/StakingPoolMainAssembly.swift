@@ -74,8 +74,7 @@ final class StakingPoolMainAssembly {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: nil,
-            wallet: wallet
+            collatorOperationFactory: nil
         ) else {
             return nil
         }
@@ -171,8 +170,7 @@ final class StakingPoolMainAssembly {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory,
-            wallet: wallet
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }

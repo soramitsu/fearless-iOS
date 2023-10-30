@@ -19,7 +19,7 @@ protocol GetPreinstalledWalletInteractorInput: AccountImportInteractorInputProto
 protocol GetPreinstalledWalletInteractorOutput: AnyObject, QRCaptureServiceDelegate {
     func handleQRService(error: Error)
     func handleAddress(_ address: String)
-    func handleMatched(addressInfo: QRInfo)
+    func handleMatched(code: String)
     func didCompleteAccountImport()
     func didReceiveAccountImport(error: Error)
 }
