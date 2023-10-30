@@ -189,12 +189,12 @@ final class WalletConnectConfirmationViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Preview")
+        navigationBar.setTitle(R.string.localizable.commonPreview(preferredLanguages: locale.rLanguages))
         dAppView.titleLabel.text = "dApp"
         hostView.titleLabel.text = "host"
-        chainNameView.titleLabel.text = "Network"
-        rawDataView.titleLabel.text = "Transaction raw data"
-        confirmButton.imageWithTitleView?.title = "Sign"
+        chainNameView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
+        rawDataView.titleLabel.text = R.string.localizable.commonTransactionRawData(preferredLanguages: locale.rLanguages)
+        confirmButton.imageWithTitleView?.title = R.string.localizable.commonSign(preferredLanguages: locale.rLanguages)
     }
 
     private func setupRawDataTap() {

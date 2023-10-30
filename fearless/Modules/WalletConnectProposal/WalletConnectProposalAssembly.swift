@@ -33,6 +33,7 @@ final class WalletConnectProposalAssembly {
             status: status,
             walletConnectModelFactory: walletConnectModelFactory,
             viewModelFactory: viewModelFactory,
+            dataValidatingFactory: WalletConnectProposalDataValidating(presentable: router),
             logger: Logger.shared,
             interactor: interactor,
             router: router,

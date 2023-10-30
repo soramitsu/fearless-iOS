@@ -27,7 +27,7 @@ abstract_target 'fearlessAll' do
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   pod 'FearlessKeys'
-  pod 'MPQRCoreSDK'
+  pod 'MPQRCoreSDK', :configurations => ['Release']
   
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
@@ -102,7 +102,6 @@ post_install do |installer|
       target.build_configurations.each do |config|
             config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
             config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
-            config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
             xcconfig_path = config.base_configuration_reference.real_path
             xcconfig = File.read(xcconfig_path)
             xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")

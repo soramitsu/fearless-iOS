@@ -85,7 +85,8 @@ protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, S
     )
     func showConfirmation(
         with params: PolkaswapPreviewParams,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        completeClosure: (() -> Void)?
     ) -> PolkaswapSwapConfirmationModuleInput?
     func showDisclaimer(
         moduleOutput: PolkaswapDisclaimerModuleOutput?,

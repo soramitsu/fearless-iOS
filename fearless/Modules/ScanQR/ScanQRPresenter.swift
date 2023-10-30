@@ -16,16 +16,11 @@ enum ScanState {
 enum ScanFinish {
     case address(String)
     case sora(SoraQRInfo)
-
-    // this cases for solomon island qr codes. Will be use just one case, unused case must be removed
-    case solomonAddress(String) // perhaps will be removed
-    case bokoloCash(BokoloCashQRInfo) // priority
+    case bokoloCash(BokoloCashQRInfo)
 
     var address: String {
         switch self {
         case let .address(address):
-            return address
-        case let .solomonAddress(address):
             return address
         case let .sora(soraQRInfo):
             return soraQRInfo.address
@@ -129,10 +124,17 @@ final class ScanQRPresenter: NSObject {
         }
     }
 
+    private func handleConnect(uri: String) {
+        router.close(view: view) { [weak self] in
+            self?.moduleOutput?.didFinishWith(scanType: .uri(uri))
+        }
+    }
+
     private func searchMetcher(code: String) {
         let qrMatcherTypes = matchers.map { $0.match(code: code) }.compactMap { $0 }
         if qrMatcherTypes.isEmpty {
             DispatchQueue.main.async {
+                self.view?.didStartLoading()
                 let viewModel = SheetAlertPresentableViewModel(
                     title: R.string.localizable.otpErrorMessageWrongCode(
                         preferredLanguages: self.selectedLocale.rLanguages
@@ -142,7 +144,9 @@ final class ScanQRPresenter: NSObject {
                     closeAction: nil,
                     dismissCompletion: { [weak self] in
                         self?.scanState = .initializing(accessRequested: true)
-                        self?.interactor.startScanning()
+                        DispatchQueue.global().async {
+                            self?.interactor.startScanning()
+                        }
                     }
                 )
                 self.router.present(viewModel: viewModel, from: self.view)
@@ -240,6 +244,7 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
 extension ScanQRPresenter: QRCaptureServiceDelegate {
     func qrCapture(service _: QRCaptureServiceProtocol, didSetup captureSession: AVCaptureSession) {
         DispatchQueue.main.async {
+            self.view?.didStopLoading()
             self.handleReceived(captureSession: captureSession)
         }
     }

@@ -49,16 +49,6 @@ final class SendViewController: UIViewController, ViewHolder {
         setupKeyboardHandler()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        switch initialData {
-        case .chainAsset, .address:
-            rootView.searchView.textField.becomeFirstResponder()
-        case .soraMainnet, .soraMainnetSolomon, .bokoloCash:
-            rootView.searchView.textField.resignFirstResponder()
-        }
-    }
-
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
@@ -94,11 +84,9 @@ final class SendViewController: UIViewController, ViewHolder {
             action: #selector(historyButtonClicked),
             for: .touchUpInside
         )
-        rootView.pasteButton.addTarget(
-            self,
-            action: #selector(pasteButtonClicked),
-            for: .touchUpInside
-        )
+        rootView.searchView.onPasteTapped = { [weak self] in
+            self?.output.didTapPasteButton()
+        }
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectNetworkClicked))
         rootView.selectNetworkView.addGestureRecognizer(tapGesture)
@@ -123,10 +111,6 @@ final class SendViewController: UIViewController, ViewHolder {
 
     @objc private func scanButtonClicked() {
         output.didTapScanButton()
-    }
-
-    @objc private func pasteButtonClicked() {
-        output.didTapPasteButton()
     }
 
     @objc private func historyButtonClicked() {
@@ -230,11 +214,15 @@ extension SendViewController: UITextFieldDelegate {
         if textField == rootView.amountView.textField {
             return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         } else if textField == rootView.searchView.textField {
-            guard let text = textField.text as NSString? else {
+            if range.length == 1, string.isEmpty {
+                output.searchTextDidChanged("")
+                textField.text = ""
                 return true
+            } else if range.length == 0, range.location == 0, string.count > 1 {
+                output.searchTextDidChanged(string)
+            } else {
+                return false
             }
-            let newString = text.replacingCharacters(in: range, with: string)
-            output.searchTextDidChanged(newString)
         }
         return false
     }
@@ -263,6 +251,9 @@ extension SendViewController: UITextFieldDelegate {
         rootView.amountView.set(highlighted: amountIsFirstResponder, animated: false)
         let searchIsFirstResponder = textField == rootView.searchView.textField
         rootView.searchView.set(highlighted: searchIsFirstResponder, animated: false)
+        if searchIsFirstResponder {
+            textField.resignFirstResponder()
+        }
     }
 
     func textFieldDidEndEditing(_: UITextField) {

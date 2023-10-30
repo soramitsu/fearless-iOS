@@ -39,36 +39,38 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         proposal: Session.Proposal,
         chains: [ChainModel],
         wallets: [MetaAccountModel],
-        locale _: Locale
+        locale: Locale
     ) throws -> WalletConnectProposalViewModel {
         let dApp = createDAppViewModel(from: proposal)
 
         guard let requiredNetwroks = try createNetworksViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
-            title: "Required networks"
+            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
+            isRequired: true
         ) else {
-            throw JSONRPCError.unauthorizedChain
+            throw AutoNamespacesError.requiredChainsNotSatisfied
         }
 
         let optionalNetworks = try? createNetworksViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
-            title: "Optional networks"
+            title: R.string.localizable.optionalNetworks(preferredLanguages: locale.rLanguages),
+            isRequired: false
         )
 
         guard let requiredExpandable = try createProposalPermissionsViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
-            cellTitle: "Review required permissions"
+            cellTitle: R.string.localizable.reviewRequiredPermissions(preferredLanguages: locale.rLanguages)
         ) else {
-            throw JSONRPCError.unauthorizedChain
+            throw AutoNamespacesError.requiredChainsNotSatisfied
         }
 
         let optionalExpandable = try? createProposalPermissionsViewModel(
             from: proposal.optionalNamespaces,
             chains: chains,
-            cellTitle: "Review optional permissions"
+            cellTitle: R.string.localizable.reviewOptionalPermissions(preferredLanguages: locale.rLanguages)
         )
 
         let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
@@ -105,9 +107,9 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         guard let requiredExpandable = try createSessionPermissionsViewModel(
             from: session.namespaces,
             chains: chains,
-            cellTitle: "Review permissions"
+            cellTitle: R.string.localizable.reviewPermissions(preferredLanguages: locale.rLanguages)
         ) else {
-            throw JSONRPCError.unauthorizedChain
+            throw AutoNamespacesError.requiredChainsNotSatisfied
         }
 
         let blockchains = Set(session.requiredNamespaces.map { $0.value }.compactMap { $0.chains }.reduce([], +))
@@ -176,14 +178,15 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         WalletConnectProposalCellModel.DetailsViewModel(
             title: proposal.proposer.name,
             subtitle: URL(string: proposal.proposer.url)?.host ?? proposal.proposer.url,
-            icon: RemoteImageViewModel(string: proposal.proposer.url)
+            icon: RemoteImageViewModel(string: proposal.proposer.icons.first)
         )
     }
 
     private func createNetworksViewModel(
         from namespaces: [String: ProposalNamespace]?,
         chains: [ChainModel],
-        title: String
+        title: String,
+        isRequired: Bool
     ) throws -> WalletConnectProposalCellModel.DetailsViewModel? {
         guard let namespaces = namespaces else { return nil }
         let blockchains = namespaces
@@ -193,8 +196,10 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             .reduce([], +)
 
         let resolvedChains = walletConnectModelFactory.resolveChains(for: Set(blockchains), chains: chains)
-        guard resolvedChains.isNotEmpty else {
-            throw JSONRPCError.unauthorizedChain
+        if isRequired, blockchains.count > resolvedChains.count {
+            throw AutoNamespacesError.requiredChainsNotSatisfied
+        } else if resolvedChains.isEmpty {
+            return nil
         }
 
         let subtitle = resolvedChains

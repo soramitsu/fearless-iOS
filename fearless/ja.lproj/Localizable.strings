@@ -177,6 +177,7 @@
 "common.advanced" = "高度な";
 "common.applied" = "適用されました";
 "common.apply" = "適用する";
+"common.approve" = "Approve";
 "common.available.format" = "利用可能： %@";
 "common.balance" = "残高";
 "common.balance.format" = "残高: %@";
@@ -196,6 +197,7 @@
 "common.confirm.title" = "確認";
 "common.confirmation.title" = "本当によいですか？";
 "common.confirmed" = "確認済み";
+"common.connections" = "Connections";
 "common.continue" = "続行";
 "common.copied" = "クリップボードにコピーしました";
 "common.copy" = "コピー";
@@ -229,7 +231,10 @@
 "common.keep.editing.action" = "操作に戻る";
 "common.learn.more" = "もっと詳しく知る";
 "common.max" = "最大";
+"common.message" = "Message";
+"common.methods" = "Methods";
 "common.module" = "モジュール";
+"common.name" = "名前";
 "common.network" = "ネットワーク";
 "common.network.fee" = "ネットワーク手数料";
 "common.next" = "次へ";
@@ -246,6 +251,9 @@
 "common.privacy.policy" = "個人情報保護方針";
 "common.proceed" = "続行";
 "common.referral.code.title" = "紹介コード";
+"common.reject" = "Reject";
+"common.rejected" = "Rejected";
+"common.request" = "Request";
 "common.reset" = "リセット";
 "common.resolve" = "解決";
 "common.retry" = "リトライ";
@@ -255,11 +263,14 @@
 "common.search.start.title" = "検索結果はここに表示されます";
 "common.secret.derivation.path" = "秘密の派生経路";
 "common.select" = "選択";
+"common.select.all" = "Select all";
 "common.select.asset" = "アセットの選択";
 "common.select.network" = "ネットワークの選択";
+"common.selected.count" = "Selected: %@";
 "common.set.password" = "パスワードを設定してください";
 "common.share" = "共有";
 "common.show" = "表示";
+"common.sign" = "Sign";
 "common.skip" = "スキップ";
 "common.staking" = "ステーキング";
 "common.terms.and.conditions" = "利用規約";
@@ -268,6 +279,7 @@
 "common.time.left.format" = "%@ 残り";
 "common.total" = "合計";
 "common.transaction.failed" = "取引に失敗しました。後でもう一度お試しください";
+"common.transaction.raw.data" = "トランザクションの生データ";
 "common.transaction.submitted" = "送信されたトランザクション";
 "common.undefined.error.message" = "別の入力でもう一度お試しください。エラーが再度表示される場合は、サポートにお問い合わせください";
 "common.undefined.error.title" = "未定義のエラー";
@@ -277,12 +289,14 @@
 "common.use" = "設定";
 "common.wallet" = "ウォレット";
 "common.warning" = "警告";
+"common.warning.capitalized" = "WARNING:";
 "common.watch" = "見る";
 "common.yes" = "はい";
 "confirm.mnemonic.mismatch.error.message" = "単語の順番をもう一度確認してください";
 "confirm.mnemonic.mismatch.error.message.2.0" = "ニーモニック・パスフレーズが無効です。語順をもう一度確認してください";
 "confirm.mnemonic.mismatch.error.title" = "無効なニーモニック";
 "confirmation.skip.action" = "プロセスをスキップ";
+"connect.details" = "Connect details";
 "connection.add.already.exists.error" = "ノードは既に追加されています。別のノードを試してください";
 "connection.add.invalid.error" = "ノードとの接続を確立できません。別のものを試してください";
 "connection.add.unsupported.error" = "残念ながら、ネットワークはサポートされていません。次のいずれかを試してください： %@";
@@ -360,6 +374,7 @@
 "error.invalid.address" = "選択したチェーンのアドレスが無効です";
 "error.message.enter.the.name" = "名前を入力してください…";
 "error.message.enter.the.url.address" = "URLアドレスを入力してください…";
+"error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
 "ethereum.crypto.type" = "イーサリアム(Ethereum)キー・ペアの暗号方式";
 "ethereum.secret.derivation.path" = "イーサリアム(Ethereum)の秘密の派生経路";
 "example" = "例： %s";
@@ -479,6 +494,7 @@
 "onboarding.terms.and.conditions.1" = "私は規約と条件、個人情報保護方針を読み、同意します";
 "operation.error.message" = "後でもう一度お試しください";
 "operation.error.title" = "操作できません";
+"optional.networks" = "Optional networks";
 "options.common" = "オプション";
 "parachain.crowdloans" = "パラチェーン・クラウドローン";
 "parachain.staking.collator" = "コレーター";
@@ -619,6 +635,13 @@
 "remove.backup.extension.error.message" = "バックアップは、フィアレス・ウォレットブラウザ拡張機能によって作成されました。モバイルアプリケーションでは、認証情報が不足しているため削除できません";
 "replace.account" = "アカウントを置き換える";
 "replace.account.template" = "%s アカウントを置き換える";
+"required.accounts.not.satisfied" = "Cannot proceed: Your wallet does not have the necessary accounts. Please make sure you have the required accounts set up before continuing";
+"required.chains.not.satisfied" = "Unable to connect to wallet: The requested blockchain network is not supported or available";
+"required.events.not.satisfied" = "Missing event notifications: the App does not support the necessary event notifications";
+"required.methods.not.satisfied" = "Certain methods requested by Wallet Connect are not currently supported by the App. Although the connection can be established, certain functionalities of the dApp may not be available.";
+"required.networks" = "Required networks";
+"review.optional.permissions" = "Review optional permissions";
+"review.required.permissions" = "Review required permissions";
 "roles.common" = "役割";
 "same.address.transfer.warning.message" = "同じ口座に送信しようとしています。操作には手数料が掛かるので、無駄になりませんか";
 "scam.additional.stub" = "追加：";
@@ -633,6 +656,7 @@
 "scan.qr.subtitle" = "受信者からQRコードをスキャン";
 "scan.qr.title" = "QRコード";
 "scan.qr.upload.button.title" = "写真からアップロード";
+"search.by.connection" = "Search by connection";
 "search.textfield.placeholder" = "パブリック・アドレス";
 "search.view.title" = "送信先";
 "select.asset.search.empty.subtitle" = "アセットが見つかりませんでした";
@@ -966,7 +990,7 @@
 "transfer.title" = "送信";
 "try.again" = "もう一度やり直してください";
 "update.needed.text" = "更新が必要です";
-"username.setup.choose.title" = "名前";
+"username.setup.choose.title" = "ウォレットのニックネーム";
 "username.setup.hint" = "この名前はあなたにのみ表示され、あなたのデバイスの中に保存されます。";
 "username.setup.hint.2.0" = "例：貯蓄、投資、クラウドローン、ステーキング。このニックネームはあなたにのみ表示され、あなたのデバイスの中に保存されます";
 "username.setup.title" = "アカウントを作成する";
@@ -990,6 +1014,9 @@
 "wallet.balance.redeemable" = "償還可能";
 "wallet.balance.reserved" = "予約済み";
 "wallet.balance.unbonding_v1.9.0" = "ステーキング解除";
+"wallet.connect.connection.complete" = "Сonnection from %@ with ethers has been successfully completed";
+"wallet.connect.connection.dissconnected" = "Disconnection from %@ ethers has been successfully completed";
+"wallet.connect.sign.warning.message" = "Signing this message can have dangerous side effect. Only sign message from sites you fully trust with your entire account.";
 "wallet.contacts.empty.title" = "送信先のアカウントと連絡先がここに表示されます";
 "wallet.contacts.empty.title_v1.10" = "送信先のアカウントと連絡先がここに表示されます";
 "wallet.contacts.search.placeholder" = "アカウントのアドレスまたはアカウント名";
@@ -1061,3 +1088,12 @@
 "error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
 "common.request" = "Request";
 "existential.deposit.received.error" = "Existential Deposit not received";
+"create.new.connection" = "Create new connection";
+"review.permissions" = "Review permissions";
+"common.events" = "Events";
+"common.disconnect" = "Disconnect";
+"common.expiry" = "Expiry";
+"sign.this.message" = "Sign this message?";
+"empty.state.message" = "Nothing found for your request";
+"wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
+"wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";

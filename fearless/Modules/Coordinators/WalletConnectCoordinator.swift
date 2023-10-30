@@ -46,7 +46,9 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
         let coordinator = WalletConnectProposalCoordinator(router: router, proposal: proposal)
         coordinator.finishFlow = { [weak self, weak coordinator] in
             self?.removeDependency(coordinator)
-            self?.presentNextIfPossible()
+            self?.router.dismiss { [weak self] in
+                self?.presentNextIfPossible()
+            }
         }
         addDependency(coordinator)
         if childCoordinators.count == 1 {

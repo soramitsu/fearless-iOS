@@ -78,7 +78,7 @@ final class WalletConnectModelFactoryImpl: WalletConnectModelFactory {
         let sessionProposal = try AutoNamespaces.build(
             sessionProposal: proposal,
             chains: requiredBlockChains.map { $0.blockchain } + optionalBlockChains.map { $0.blockchain },
-            methods: methods.filter { WalletConnectMethod.allCases.map { $0.rawValue }.contains($0) },
+            methods: methods,
             events: events,
             accounts: requiredAccounts + optionalAccounts
         )
@@ -91,7 +91,7 @@ final class WalletConnectModelFactoryImpl: WalletConnectModelFactory {
     ) throws -> ChainModel {
         let resolution = resolveChains(from: [blockchain], chains: chains)
         guard let chain = resolution.allowed.first?.chain else {
-            throw JSONRPCError.unauthorizedChain
+            throw AutoNamespacesError.requiredChainsNotSatisfied
         }
         return chain
     }
@@ -105,7 +105,7 @@ final class WalletConnectModelFactoryImpl: WalletConnectModelFactory {
 
     func parseMethod(from request: Request) throws -> WalletConnectMethod {
         guard let method = WalletConnectMethod(rawValue: request.method) else {
-            throw JSONRPCError.unauthorizedMethod
+            throw AutoNamespacesError.requiredMethodsNotSatisfied
         }
         return method
     }

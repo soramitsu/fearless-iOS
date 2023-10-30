@@ -106,13 +106,13 @@ final class WalletConnectProposalViewLayout: UIView {
     private func applyLocalization() {
         switch status {
         case .proposal:
-            navigationBar.setTitle("Connection details")
-            mainActionButton.imageWithTitleView?.title = "Approve"
-            rejectButton.imageWithTitleView?.title = "Reject"
+            navigationBar.setTitle(R.string.localizable.connectDetails(preferredLanguages: locale.rLanguages))
+            mainActionButton.imageWithTitleView?.title = R.string.localizable.commonApprove(preferredLanguages: locale.rLanguages)
+            rejectButton.imageWithTitleView?.title = R.string.localizable.commonReject(preferredLanguages: locale.rLanguages)
         case .active:
-            navigationBar.setTitle("Connect details")
-            mainActionButton.imageWithTitleView?.title = "Disconnect"
-            expiryDateView.titleLabel.text = "Expiry"
+            navigationBar.setTitle(R.string.localizable.connectDetails(preferredLanguages: locale.rLanguages))
+            mainActionButton.imageWithTitleView?.title = R.string.localizable.commonDisconnect(preferredLanguages: locale.rLanguages)
+            expiryDateView.titleLabel.text = R.string.localizable.commonExpiry(preferredLanguages: locale.rLanguages)
         }
     }
 }

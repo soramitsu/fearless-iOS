@@ -205,8 +205,8 @@ final class WalletConnectSessionViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        messageView.title = "Message"
-        navigationTitle.text = "Sign this message?"
-        actionButton.imageWithTitleView?.title = "Preview"
+        messageView.title = R.string.localizable.commonMessage(preferredLanguages: locale.rLanguages)
+        navigationTitle.text = R.string.localizable.signThisMessage(preferredLanguages: locale.rLanguages)
+        actionButton.imageWithTitleView?.title = R.string.localizable.commonPreview(preferredLanguages: locale.rLanguages)
     }
 }

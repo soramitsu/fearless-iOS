@@ -172,8 +172,6 @@ final class WalletSendConfirmPresenter {
         let tip = Decimal.fromSubstrateAmount(call.tip ?? .zero, precision: Int16(tipPaymentPrecision)) ?? .zero
 
         let sendAmountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0
-        let spendingValue = sendAmountValue +
-            (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
 
         let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
@@ -184,6 +182,8 @@ final class WalletSendConfirmPresenter {
                 minBalance,
                 precision: Int16(chainAsset.asset.precision)
             )
+        } else if chainAsset.chain.isEthereum {
+            minimumBalanceDecimal = .zero
         }
 
         let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
@@ -206,9 +206,6 @@ final class WalletSendConfirmPresenter {
         }
 
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(exsitentialDeposit: minimumBalanceDecimal, locale: selectedLocale, onError: { [weak self] in
-                self?.interactor.provideConstants()
-            }),
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee()
             }),

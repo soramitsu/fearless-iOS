@@ -1,13 +1,9 @@
 import Foundation
 
-// MARK: - Welcome
-
 struct WalletConnectPolkadotTransaction: Codable {
     let address: String
     let transactionPayload: TransactionPayload
 }
-
-// MARK: - TransactionPayload
 
 struct TransactionPayload: Codable {
     let address: String

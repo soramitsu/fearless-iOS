@@ -10,20 +10,11 @@ enum WalletConnectSessionAssembly {
         session: Session?,
         onGoToConfirmation: ((WalletConnectConfirmationInputData) -> Void)?
     ) -> WalletConnectSessionModuleCreationResult? {
-        guard let wallet = SelectedWalletSettings.shared.value else {
-            return nil
-        }
-
         let localizationManager = LocalizationManager.shared
-        let eventCenter = EventCenter.shared
         let logger = Logger.shared
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -34,18 +25,6 @@ enum WalletConnectSessionAssembly {
         )
 
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let interactor = WalletConnectSessionInteractor(
@@ -84,7 +63,8 @@ enum WalletConnectSessionAssembly {
         view.modalPresentationStyle = .custom
 
         let factory = ModalSheetBlurPresentationFactory(
-            configuration: ModalSheetPresentationConfiguration.fearlessBlur
+            configuration: ModalSheetPresentationConfiguration.fearlessBlur,
+            shouldDissmissWhenTapOnBlurArea: false
         )
         view.modalTransitioningFactory = factory
 
