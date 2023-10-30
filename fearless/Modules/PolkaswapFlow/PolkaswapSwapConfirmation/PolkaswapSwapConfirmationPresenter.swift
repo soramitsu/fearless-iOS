@@ -10,6 +10,7 @@ final class PolkaswapSwapConfirmationPresenter {
 
     private var params: PolkaswapPreviewParams
     private let viewModelFactory: PolkaswapSwapConfirmationViewModelFactoryProtocol
+    private let completeClosure: (() -> Void)?
 
     // MARK: - Constructors
 
@@ -18,12 +19,14 @@ final class PolkaswapSwapConfirmationPresenter {
         viewModelFactory: PolkaswapSwapConfirmationViewModelFactoryProtocol,
         interactor: PolkaswapSwapConfirmationInteractorInput,
         router: PolkaswapSwapConfirmationRouterInput,
+        completeClosure: (() -> Void)?,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.params = params
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
+        self.completeClosure = completeClosure
         self.localizationManager = localizationManager
     }
 
@@ -63,7 +66,12 @@ extension PolkaswapSwapConfirmationPresenter: PolkaswapSwapConfirmationInteracto
 
         switch extrinsicResult {
         case let .success(hash):
-            router.complete(on: view, hashString: hash, chainAsset: params.soraChinAsset)
+            router.complete(
+                on: view,
+                hashString: hash,
+                chainAsset: params.soraChinAsset,
+                completeClosure: completeClosure
+            )
         case let .failure(error):
             guard let view = view else {
                 return

@@ -73,7 +73,7 @@ public extension NumberFormatter {
     ) -> NumberFormatter {
         let formatter = NumberFormatter()
         formatter.locale = locale
-        formatter.minimumFractionDigits = 3
+        formatter.minimumFractionDigits = 0
         formatter.maximumFractionDigits = 8
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping

@@ -6,21 +6,22 @@ final class PolkaswapSwapConfirmationRouter: PolkaswapSwapConfirmationRouterInpu
     func complete(
         on view: ControllerBackedProtocol?,
         hashString: String,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        completeClosure: (() -> Void)?
     ) {
         let presenter = view?.controller.navigationController?.presentingViewController
 
-        view?.controller.navigationController?.dismiss(animated: true, completion: nil)
-
-        if let presenter = presenter as? ControllerBackedProtocol,
-           let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: hashString)?.view.controller {
+        if let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: hashString, closure: {
+               completeClosure?()
+               view?.controller.navigationController?.popViewController(animated: true)
+           })?.view.controller {
             controller.modalPresentationStyle = .custom
 
             let factory = ModalSheetBlurPresentationFactory(
                 configuration: ModalSheetPresentationConfiguration.fearlessBlur
             )
             controller.modalTransitioningFactory = factory
-            presenter.controller.present(controller, animated: true)
+            view?.controller.present(controller, animated: true)
         }
     }
 }
