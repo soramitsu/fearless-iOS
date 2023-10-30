@@ -40,6 +40,6 @@ extension ChainAsset: Identifiable {
     }
 
     var isBokolo: Bool {
-        asset.currencyId == bokoloCashAssetCurrencyId
+        asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId
     }
 }

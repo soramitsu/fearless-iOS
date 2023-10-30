@@ -3,7 +3,7 @@ typealias WalletConnectSessionModuleCreationResult = (
     input: WalletConnectSessionModuleInput
 )
 
-protocol WalletConnectSessionRouterInput: AnyDismissable, SheetAlertPresentable, ModalAlertPresenting, HiddableBarWhenPushed {
+protocol WalletConnectSessionRouterInput: PresentDismissable, SheetAlertPresentable, ModalAlertPresenting, HiddableBarWhenPushed {
     func showConfirmation(inputData: WalletConnectConfirmationInputData)
 }
 

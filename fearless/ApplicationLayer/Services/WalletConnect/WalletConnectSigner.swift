@@ -1,4 +1,5 @@
 import Foundation
+import WalletConnectSign
 import JSONRPC
 import Commons
 import SoraKeystore
@@ -88,7 +89,7 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
 
     private func extractPrivateKey(for chain: ChainModel) throws -> Data {
         guard let accountResponse = wallet.fetch(for: chain.accountRequest()) else {
-            throw JSONRPCError.unsupportedAccounts
+            throw AutoNamespacesError.requiredAccountsNotSatisfied
         }
         let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
         let tag: String = chain.isEthereumBased
@@ -102,7 +103,7 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
 
     private func extractPublicKey(for chain: ChainModel) throws -> Data {
         guard let response = wallet.fetch(for: chain.accountRequest()) else {
-            throw JSONRPCError.unsupportedAccounts
+            throw AutoNamespacesError.requiredAccountsNotSatisfied
         }
 
         return response.publicKey
@@ -119,7 +120,7 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         let privateKey = try EthereumPrivateKey(privateKey: secretKey.bytes)
 
         guard let senderAddress = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
-            throw JSONRPCError.unsupportedAccounts
+            throw AutoNamespacesError.requiredAccountsNotSatisfied
         }
 
         return EthereumTransferService(

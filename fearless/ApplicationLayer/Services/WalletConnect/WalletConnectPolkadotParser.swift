@@ -3,14 +3,14 @@ import BigInt
 import SSFUtils
 import SSFModels
 
-protocol WalletConnectPolkadorParser {
+protocol WalletConnectPolkadotParser {
     func parse(
         transactionPayload: TransactionPayload,
         chain: ChainModel
     ) async throws -> WalletConnectExtrinsic
 }
 
-final class WalletConnectPolkadorParserImpl: WalletConnectPolkadorParser {
+final class WalletConnectPolkadorParserImpl: WalletConnectPolkadotParser {
     private lazy var chainRegistry = {
         ChainRegistryFacade.sharedRegistry
     }()
@@ -30,10 +30,10 @@ final class WalletConnectPolkadorParserImpl: WalletConnectPolkadorParser {
             let tip = BigUInt.fromHexString(transactionPayload.tip),
             let transactionVersion = BigUInt.fromHexString(transactionPayload.transactionVersion)
         else {
-            throw ConvenienceError(error: "Can't create requared params from transaction payload")
+            throw ConvenienceError(error: "Can't create required params from transaction payload")
         }
 
-        let era = try createEra(era: transactionPayload.era)
+        let era = try decodeEraFrom(scale: transactionPayload.era)
         let method = try await createCall(chain: chain, transactionPayload: transactionPayload)
 
         return WalletConnectExtrinsic(
@@ -54,8 +54,8 @@ final class WalletConnectPolkadorParserImpl: WalletConnectPolkadorParser {
 
     // MARK: - Private methods
 
-    private func createEra(era: String) throws -> Era {
-        let data = try Data(hexStringSSF: era)
+    private func decodeEraFrom(scale: String) throws -> Era {
+        let data = try Data(hexStringSSF: scale)
         let scaleDecoder = try ScaleDecoder(data: data)
         let era = try Era(scaleDecoder: scaleDecoder)
         return era

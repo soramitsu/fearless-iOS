@@ -5,7 +5,8 @@ protocol MultiSelectNetworksViewModelFactory {
     func buildViewModel(
         dataSource: [ChainModel],
         selectedChains: [ChainModel.Id]?,
-        searchText: String?
+        searchText: String?,
+        locale: Locale
     ) -> MultiSelectNetworksViewModel
 }
 
@@ -13,7 +14,8 @@ final class MultiSelectNetworksViewModelFactoryImpl: MultiSelectNetworksViewMode
     func buildViewModel(
         dataSource: [ChainModel],
         selectedChains: [ChainModel.Id]?,
-        searchText: String?
+        searchText: String?,
+        locale: Locale
     ) -> MultiSelectNetworksViewModel {
         var filtredDataSource = dataSource
         if let searchText = searchText, searchText.isNotEmpty {
@@ -28,7 +30,8 @@ final class MultiSelectNetworksViewModelFactoryImpl: MultiSelectNetworksViewMode
                 isSelected: selectedChains?.contains($0.chainId) == true
             )
         }
-        let selectedCountTitle = "Selected: \(cells.filter { $0.isSelected }.count)"
+        let selectedCount = "\(cells.filter { $0.isSelected }.count)"
+        let selectedCountTitle = R.string.localizable.commonSelectedCount(selectedCount, preferredLanguages: locale.rLanguages)
         let allIsSelected = filtredDataSource.compactMap {
             selectedChains?.contains($0.chainId)
         }.filter { $0 == true }

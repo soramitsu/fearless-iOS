@@ -23,6 +23,7 @@ final class WalletConnectProposalPresenter {
     private let status: SessionStatus
     private let walletConnectModelFactory: WalletConnectModelFactory
     private let viewModelFactory: WalletConnectProposalViewModelFactory
+    private let dataValidatingFactory: WalletConnectProposalDataValidating
     private let logger: LoggerProtocol
 
     private var viewModel: WalletConnectProposalViewModel?
@@ -36,6 +37,7 @@ final class WalletConnectProposalPresenter {
         status: SessionStatus,
         walletConnectModelFactory: WalletConnectModelFactory,
         viewModelFactory: WalletConnectProposalViewModelFactory,
+        dataValidatingFactory: WalletConnectProposalDataValidating,
         logger: LoggerProtocol,
         interactor: WalletConnectProposalInteractorInput,
         router: WalletConnectProposalRouterInput,
@@ -44,6 +46,7 @@ final class WalletConnectProposalPresenter {
         self.status = status
         self.walletConnectModelFactory = walletConnectModelFactory
         self.viewModelFactory = viewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
         self.interactor = interactor
         self.router = router
@@ -120,7 +123,7 @@ final class WalletConnectProposalPresenter {
             do {
                 guard let proposal = status.proposal else { return }
                 try await interactor.submit(proposalDecision: .reject(proposal: proposal))
-                await showAllDone(description: "Rejected")
+                await showAllDone(description: R.string.localizable.commonRejected(preferredLanguages: selectedLocale.rLanguages))
             } catch {
                 logger.customError(error)
                 handle(error: error)
@@ -129,24 +132,40 @@ final class WalletConnectProposalPresenter {
     }
 
     private func submitApprove() {
-        Task {
-            do {
-                guard let proposal = status.proposal else { return }
-                let selectedWallets = wallets.filter { wallet in
-                    viewModel?.selectedWalletIds?.contains(wallet.metaId) == true
+        guard let proposal = status.proposal else { return }
+        let selectedWallets = wallets.filter { wallet in
+            viewModel?.selectedWalletIds?.contains(wallet.metaId) == true
+        }
+        let requiredNamespaces = proposal.requiredNamespaces.map { $0.value }
+        let requiredMethods = requiredNamespaces.map { $0.methods }.reduce([], +)
+        DataValidationRunner(validators: [
+            dataValidatingFactory.validate(
+                requiredMethods: requiredMethods,
+                view: view,
+                locale: selectedLocale,
+                onReject: { [weak self] in
+                    self?.submitReject()
                 }
-                let namespaces = try walletConnectModelFactory.createSessionNamespaces(
-                    from: proposal,
-                    wallets: selectedWallets,
-                    chains: chains,
-                    optionalChainIds: optionalChainsIds
-                )
-                try await interactor.submit(proposalDecision: .approve(proposal: proposal, namespaces: namespaces))
-                let dApp = proposal.proposer.name
-                await showAllDone(description: "Сonnection from \(dApp) with ethers has been successfully completed")
-            } catch {
-                logger.customError(error)
-                handle(error: error)
+            )
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self else { return }
+            Task {
+                do {
+                    let namespaces = try strongSelf.walletConnectModelFactory.createSessionNamespaces(
+                        from: proposal,
+                        wallets: selectedWallets,
+                        chains: strongSelf.chains,
+                        optionalChainIds: strongSelf.optionalChainsIds
+                    )
+                    try await strongSelf.interactor.submit(proposalDecision: .approve(proposal: proposal, namespaces: namespaces))
+                    let dApp = proposal.proposer.name
+                    let description = R.string.localizable
+                        .walletConnectConnectionComplete(dApp, preferredLanguages: strongSelf.selectedLocale.rLanguages)
+                    await strongSelf.showAllDone(description: description)
+                } catch {
+                    strongSelf.logger.customError(error)
+                    strongSelf.handle(error: error)
+                }
             }
         }
     }
@@ -155,7 +174,8 @@ final class WalletConnectProposalPresenter {
         Task {
             do {
                 try await interactor.submitDisconnect(topic: topic)
-                await showAllDone(description: "Disconnection from React \(name) ethers has been successfully completed")
+                let description = R.string.localizable.walletConnectConnectionDissconnected(name, preferredLanguages: selectedLocale.rLanguages)
+                await showAllDone(description: description)
             } catch {
                 logger.customError(error)
                 handle(error: error)
@@ -195,7 +215,7 @@ final class WalletConnectProposalPresenter {
         await MainActor.run {
             view?.didStopLoading()
             router.showAllDone(
-                title: "All Done",
+                title: R.string.localizable.allDoneAlertAllDoneStub(preferredLanguages: selectedLocale.rLanguages),
                 description: description,
                 view: view
             ) { [weak self] in
@@ -213,7 +233,7 @@ final class WalletConnectProposalPresenter {
             title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: selectedLocale.rLanguages),
             message: message,
             actions: [],
-            closeAction: nil
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         ) { [weak self] in
             self?.router.dismiss(view: self?.view)
         }
@@ -240,11 +260,11 @@ extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
     }
 
     func mainActionButtonDidTapped() {
-        view?.didStartLoading()
         switch status {
         case .proposal:
             submitApprove()
         case let .active(session):
+            view?.didStartLoading()
             submitDisconnect(topic: session.topic, name: session.peer.name)
         }
     }

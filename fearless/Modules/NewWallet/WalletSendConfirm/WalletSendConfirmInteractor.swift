@@ -93,7 +93,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
                 let fee: BigUInt
                 switch call {
                 case let .transfer(transfer):
-                    fee = try await transferService.estimateFee(for: transfer, remark: nil)
+                    fee = try await transferService.estimateFee(for: transfer)
                 case let .xorlessTransfer(transfer):
                     fee = try await transferService.estimateFee(for: transfer)
                 }
@@ -116,7 +116,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
                 let txHash: String
                 switch call {
                 case let .transfer(transfer):
-                    txHash = try await transferService.submit(transfer: transfer, remark: nil)
+                    txHash = try await transferService.submit(transfer: transfer)
                 case let .xorlessTransfer(transfer):
                     txHash = try await transferService.submit(transfer: transfer)
                 }

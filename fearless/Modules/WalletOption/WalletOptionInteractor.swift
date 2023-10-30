@@ -10,17 +10,20 @@ final class WalletOptionInteractor {
     private let wallet: ManagedMetaAccountModel
     private let metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
+    private let walletConnectDisconnectService: WalletConnectDisconnectService
 
     init(
         wallet: ManagedMetaAccountModel,
         metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
-        moduleOutput: WalletOptionModuleOutput?
+        moduleOutput: WalletOptionModuleOutput?,
+        walletConnectDisconnectService: WalletConnectDisconnectService
     ) {
         self.wallet = wallet
         self.metaAccountRepository = metaAccountRepository
         self.operationQueue = operationQueue
         self.moduleOutput = moduleOutput
+        self.walletConnectDisconnectService = walletConnectDisconnectService
     }
 
     // MARK: - Private methods
@@ -49,7 +52,10 @@ extension WalletOptionInteractor: WalletOptionInteractorInput {
             }
         )
 
-        operation.completionBlock = { [weak self] in
+        operation.completionBlock = { [weak self, wallet] in
+            Task { [weak self] in
+                try await self?.walletConnectDisconnectService.disconnect(wallet: wallet.info)
+            }
             self?.moduleOutput?.walletWasRemoved()
             self?.output?.walletRemoved()
         }

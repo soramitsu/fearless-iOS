@@ -79,7 +79,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
     }
 
     private func findWallet(
-        for address: String,
+        for address: String?,
         wallets: [MetaAccountModel],
         chains: [ChainModel]
     ) throws -> MetaAccountModel {
@@ -89,10 +89,10 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         let wallet = wallets.first { wallet in
             let accountRequest = chain.accountRequest()
             let walletAddress = wallet.fetch(for: accountRequest)?.toAddress()
-            return walletAddress?.lowercased() == address.lowercased()
+            return walletAddress?.lowercased() == address?.lowercased()
         }
         guard let wallet = wallet else {
-            throw JSONRPCError.unsupportedAccounts
+            throw AutoNamespacesError.requiredAccountsNotSatisfied
         }
         return wallet
     }
@@ -135,15 +135,18 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         return viewModel
     }
 
-    private func createWarning(locale _: Locale) -> NSAttributedString {
-        let warning = NSMutableAttributedString(string: "WARNING: Signing this message can have dangerous side effect. Only sign message from sites you fully trust with your entire account.")
+    private func createWarning(locale: Locale) -> NSAttributedString {
+        let warningLabel = R.string.localizable.commonWarningCapitalized(preferredLanguages: locale.rLanguages)
+        let warningMessage = R.string.localizable.walletConnectSignWarningMesssage(preferredLanguages: locale.rLanguages)
+        let warningFullString = [warningLabel, warningMessage].joined(separator: " ")
+        let warning = NSMutableAttributedString(string: warningFullString)
 
         warning.addAttribute(
             NSAttributedString.Key.foregroundColor,
             value: R.color.colorOrange()!.cgColor,
             range: NSRange(
                 location: 0,
-                length: "WARNING:".count
+                length: warningLabel.count
             )
         )
 
@@ -152,7 +155,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             value: UIFont.h6Title,
             range: NSRange(
                 location: 0,
-                length: "WARNING:".count
+                length: warningLabel.count
             )
         )
 
@@ -160,8 +163,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             NSAttributedString.Key.font,
             value: UIFont.p2Paragraph,
             range: NSRange(
-                location: "WARNING:".count,
-                length: warning.string.count - "WARNING:".count
+                location: warningLabel.count,
+                length: warning.string.count - warningLabel.count
             )
         )
 
@@ -169,8 +172,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             NSAttributedString.Key.foregroundColor,
             value: R.color.colorStrokeGray()!.cgColor,
             range: NSRange(
-                location: "WARNING:".count,
-                length: warning.string.count - "WARNING:".count
+                location: warningLabel.count,
+                length: warning.string.count - warningLabel.count
             )
         )
         return warning

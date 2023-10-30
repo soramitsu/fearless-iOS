@@ -82,7 +82,7 @@ final class RawDataViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        navigationBar.setTitle("Transaction raw data")
-        closeButton.imageWithTitleView?.title = "Close"
+        navigationBar.setTitle(R.string.localizable.commonTransactionRawData(preferredLanguages: locale.rLanguages))
+        closeButton.imageWithTitleView?.title = R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
     }
 }

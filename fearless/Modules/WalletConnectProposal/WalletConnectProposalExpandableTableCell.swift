@@ -165,7 +165,7 @@ final class WalletConnectProposalExpandableTableCell: UITableViewCell {
     }
 
     private func applyLocalization() {
-        methodsTitleLabel.text = "Methods"
-        eventsTitleLabel.text = "Events"
+        methodsTitleLabel.text = R.string.localizable.commonMethods(preferredLanguages: locale.rLanguages)
+        eventsTitleLabel.text = R.string.localizable.commonEvents(preferredLanguages: locale.rLanguages)
     }
 }

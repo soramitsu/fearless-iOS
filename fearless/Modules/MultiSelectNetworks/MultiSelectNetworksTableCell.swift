@@ -41,13 +41,8 @@ final class MultiSelectNetworksTableCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
-
         backgroundColor = R.color.colorBlack19()
         selectionStyle = .none
-
-//        selectedBackgroundView = UIView()
-//        selectedBackgroundView?.backgroundColor = R.color.colorCellSelection()
-
         setupLayout()
     }
 

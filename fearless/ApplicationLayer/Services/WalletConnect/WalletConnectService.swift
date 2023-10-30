@@ -34,7 +34,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
 
     private init() {}
 
-    // MARK: - // MARK: - ApplicationServiceProtocol
+    // MARK: - ApplicationServiceProtocol
 
     func setup() {
         #if F_DEV

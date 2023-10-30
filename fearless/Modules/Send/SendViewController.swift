@@ -54,7 +54,7 @@ final class SendViewController: UIViewController, ViewHolder {
         switch initialData {
         case .chainAsset, .address:
             rootView.searchView.textField.becomeFirstResponder()
-        case .soraMainnet, .soraMainnetSolomon, .bokoloCash:
+        case .soraMainnet, .bokoloCash:
             rootView.searchView.textField.resignFirstResponder()
         }
     }

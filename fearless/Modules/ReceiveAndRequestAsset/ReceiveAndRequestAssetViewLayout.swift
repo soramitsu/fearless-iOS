@@ -90,6 +90,11 @@ final class ReceiveAndRequestAssetViewLayout: UIView {
     func bind(assetViewModel: AssetBalanceViewModelProtocol?) {
         segmentedControl.isHidden = assetViewModel == nil
         amountView.bind(viewModel: assetViewModel)
+        if assetViewModel == nil {
+            contentView.snp.updateConstraints { make in
+                make.height.equalTo(400 - LayoutConstants.segmentedControlHeight - UIConstants.bigOffset)
+            }
+        }
     }
 
     private func applyLocale() {
