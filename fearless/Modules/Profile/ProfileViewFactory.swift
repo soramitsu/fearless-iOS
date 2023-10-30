@@ -21,15 +21,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             settings: settings
         )
 
-        let eventCenter = EventCenter.shared
-        let logger = Logger.shared
-
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -68,6 +61,12 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             accountInfoFetcher: substrateAccountInfoFetching
         )
 
+        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
+        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl(
+            walletConnectModelFactory: walletConnectModelFactory,
+            chainAssetFetcher: chainAssetFetching
+        )
+
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
             eventCenter: EventCenter.shared,
@@ -76,7 +75,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             selectedMetaAccount: selectedMetaAccount,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             walletRepository: accountRepository,
-            chainsIssuesCenter: chainsIssuesCenter
+            chainsIssuesCenter: chainsIssuesCenter,
+            walletConnectDisconnectService: walletConnectDisconnectService
         )
 
         let presenter = ProfilePresenter(

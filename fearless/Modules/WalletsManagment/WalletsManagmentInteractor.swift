@@ -74,20 +74,24 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
             output?.didCompleteSelection()
             return
         }
-        let oldMetaAccount = settings.value
+        DispatchQueue.global().async {
+            let oldMetaAccount = self.settings.value
 
-        guard wallet.info.identifier != oldMetaAccount?.identifier else {
-            output?.didCompleteSelection()
-            return
-        }
+            guard wallet.info.identifier != oldMetaAccount?.identifier else {
+                DispatchQueue.main.async {
+                    self.output?.didCompleteSelection()
+                }
+                return
+            }
 
-        settings.save(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
-            switch result {
-            case .success:
-                self?.eventCenter.notify(with: SelectedAccountChanged(account: wallet.info))
-                self?.output?.didCompleteSelection()
-            case let .failure(error):
-                self?.output?.didReceive(error: error)
+            self.settings.save(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.eventCenter.notify(with: SelectedAccountChanged(account: wallet.info))
+                    self?.output?.didCompleteSelection()
+                case let .failure(error):
+                    self?.output?.didReceive(error: error)
+                }
             }
         }
     }

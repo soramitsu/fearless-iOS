@@ -288,7 +288,11 @@ extension ChainAssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubsc
 }
 
 extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
+        guard let selectedAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, selectedAccountId == accountId else {
+            return
+        }
+
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }

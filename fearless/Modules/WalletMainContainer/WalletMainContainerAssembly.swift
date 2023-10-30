@@ -4,7 +4,10 @@ import RobinHood
 import SSFUtils
 
 final class WalletMainContainerAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        walletConnect: WalletConnectService
+    ) -> WalletMainContainerModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let localizationManager = LocalizationManager.shared
 
@@ -66,7 +69,8 @@ final class WalletMainContainerAssembly {
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
-            applicationHandler: ApplicationHandler()
+            applicationHandler: ApplicationHandler(),
+            walletConnectService: walletConnect
         )
 
         let router = WalletMainContainerRouter()

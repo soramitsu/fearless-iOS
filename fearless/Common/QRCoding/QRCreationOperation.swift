@@ -31,7 +31,7 @@ public final class QRCreationOperation: BaseOperation<UIImage> {
         }
 
         filter.setValue(payload, forKey: "inputMessage")
-        filter.setValue("M", forKey: "inputCorrectionLevel")
+        filter.setValue("Q", forKey: "inputCorrectionLevel")
 
         guard let qrImage = filter.outputImage else {
             if !isCancelled {

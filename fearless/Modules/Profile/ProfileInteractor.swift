@@ -19,6 +19,7 @@ final class ProfileInteractor {
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainsIssuesCenter: ChainsIssuesCenterProtocol
+    private let walletConnectDisconnectService: WalletConnectDisconnectService
 
     private lazy var currentCurrency: Currency? = {
         selectedMetaAccount.selectedCurrency
@@ -34,7 +35,8 @@ final class ProfileInteractor {
         selectedMetaAccount: MetaAccountModel,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
-        chainsIssuesCenter: ChainsIssuesCenterProtocol
+        chainsIssuesCenter: ChainsIssuesCenterProtocol,
+        walletConnectDisconnectService: WalletConnectDisconnectService
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -44,6 +46,7 @@ final class ProfileInteractor {
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.walletRepository = walletRepository
         self.chainsIssuesCenter = chainsIssuesCenter
+        self.walletConnectDisconnectService = walletConnectDisconnectService
     }
 
     // MARK: - Private methods
@@ -100,7 +103,10 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
 
     func logout(completion: @escaping () -> Void) {
         let operation = repository.deleteAllOperation()
-        operation.completionBlock = completion
+        operation.completionBlock = { [weak self] in
+            self?.walletConnectDisconnectService.disconnectAllSessions()
+            completion()
+        }
         operationQueue.addOperation(operation)
     }
 

@@ -19,3 +19,26 @@ extension ChainModel: Identifiable {
         }
     }
 }
+
+// MARK: - Wallet connect
+
+extension ChainModel {
+    func match(_ caip2ChainId: Caip2ChainId) -> Bool {
+        switch chainBaseType {
+        case .substrate:
+            let namespace = "polkadot"
+            let knownChainCaip2ChainId = Caip2ChainId(
+                namespace: namespace,
+                reference: chainId
+            )
+            return knownChainCaip2ChainId.reference.hasPrefix(caip2ChainId.reference) && namespace == caip2ChainId.namespace
+        case .ethereum:
+            let namespace = "eip155"
+            let knownChainCaip2ChainId = Caip2ChainId(
+                namespace: namespace,
+                reference: chainId.replacingOccurrences(of: "0x", with: "")
+            )
+            return caip2ChainId == knownChainCaip2ChainId
+        }
+    }
+}

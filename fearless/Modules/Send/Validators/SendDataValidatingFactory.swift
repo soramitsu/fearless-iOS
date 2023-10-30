@@ -84,6 +84,20 @@ class SendDataValidatingFactory: NSObject {
         }, preservesCondition: { fee != nil })
     }
 
+    func has(exsitentialDeposit: Decimal?, locale: Locale, onError: (() -> Void)?) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            defer {
+                onError?()
+            }
+
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentExsitentialDepositNotReceived(from: view, locale: locale)
+        }, preservesCondition: { exsitentialDeposit != nil })
+    }
+
     func exsitentialDepositIsNotViolated(
         parameters: ExistentialDepositValidationParameters,
         locale: Locale,
