@@ -643,11 +643,10 @@ extension CrossChainPresenter: SelectNetworkDelegate {
 // MARK: - ScanQRModuleOutput
 
 extension CrossChainPresenter: ScanQRModuleOutput {
-    func didFinishWithSolomon(soraAddress: String) {
-        handle(newAddress: soraAddress)
-    }
-
-    func didFinishWith(address: String) {
+    func didFinishWith(scanType: QRMatcherType) {
+        guard let address = scanType.address else {
+            return
+        }
         handle(newAddress: address)
     }
 }

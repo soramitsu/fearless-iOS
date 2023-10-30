@@ -287,11 +287,14 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
-        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
+        guard
+            let ethereumConnectionPool = self.ethereumConnectionPool,
+            let chain = chains.first(where: { $0.chainId == chainId })
+        else {
             return nil
         }
 
-        return ethereumConnectionPool.getConnection(for: chainId)
+        return try? ethereumConnectionPool.setupConnection(for: chain)
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {

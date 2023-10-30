@@ -146,8 +146,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
                 validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory,
-                wallet: wallet
+                collatorOperationFactory: collatorOperationFactory
             )
 
             rewardCalculationService = rewardCalculatorService

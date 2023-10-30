@@ -53,8 +53,7 @@ struct ValidatorSearchViewFactory {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory,
-            wallet: wallet
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }

@@ -26,22 +26,11 @@ final class CrossChainAssembly {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: repositoryFacade
-        )
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .userInitiated
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: accountInfoFetching,
-            operationQueue: operationQueue,
-            meta: wallet
+            operationQueue: operationQueue
         )
 
         let depsContainer = CrossChainDepsContainer(wallet: wallet)

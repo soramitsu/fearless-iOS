@@ -38,12 +38,11 @@ extension AssetListSearchPresenter: AssetListSearchViewOutput {
             return
         }
 
-        if text.isNotEmpty {
-            assetListModuleInput?.updateChainAssets(
-                using: [.search(text)],
-                sorts: []
-            )
-        }
+        let filters: [ChainAssetsFetching.Filter] = text.isNotEmpty ? [.search(text)] : []
+        assetListModuleInput?.updateChainAssets(
+            using: filters,
+            sorts: []
+        )
     }
 
     func didLoad(view: AssetListSearchViewInput) {

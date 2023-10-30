@@ -114,8 +114,8 @@ final class PolkaswapAdjustmentPresenter {
 
     private func provideFromAssetVewModel() {
         var balance: Decimal? = swapFromBalance
-        if swapFromChainAsset == xorChainAsset {
-            balance = xorBalance
+        if swapFromChainAsset == xorChainAsset, let xorBalance = xorBalance, let networkFee = networkFee {
+            balance = xorBalance - networkFee
         }
         let inputAmount = swapFromInputResult?
             .absoluteValue(from: balance ?? .zero)
@@ -683,6 +683,11 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             sendAmount = amounts.toAmount
         }
 
+        var feeAndTip: Decimal = .zero
+        if swapFromChainAsset?.identifier == xorChainAsset.identifier {
+            feeAndTip = networkFee
+        }
+
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: networkFee, locale: selectedLocale, onError: { [weak self] in
                 self?.fetchSwapFee(amounts: amounts)
@@ -695,7 +700,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             ),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: swapFromBalance),
-                feeAndTip: .zero,
+                feeAndTip: feeAndTip,
                 sendAmount: sendAmount,
                 locale: selectedLocale
             )

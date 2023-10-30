@@ -87,6 +87,7 @@ final class AllDoneViewLayout: UIView {
         view.valueLabel.lineBreakMode = .byTruncatingMiddle
         view.borderView.isHidden = true
         view.equalsLabelsWidth = true
+        view.isHidden = true
         return view
     }()
 
@@ -102,6 +103,7 @@ final class AllDoneViewLayout: UIView {
 
     let subscanButton: TriangularedButton = UIFactory.default.createDisabledButton()
     let shareButton: TriangularedButton = UIFactory.default.createMainActionButton()
+    let mainCloseButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
     init() {
         super.init(frame: .zero)
@@ -124,23 +126,32 @@ final class AllDoneViewLayout: UIView {
     func bind(_ viewModel: AllDoneViewModel) {
         titleLabel.text = viewModel.title
         descriptionLabel.text = viewModel.description
-        self.hashString = viewModel.extrinsicHash
-        let hashString = NSMutableAttributedString(string: viewModel.extrinsicHash + "  ")
+        if let extrinsicHash = viewModel.extrinsicHash {
+            self.hashString = viewModel.extrinsicHash
+            let hashString = NSMutableAttributedString(string: extrinsicHash + "  ")
 
-        let imageAttachment = NSTextAttachment()
-        imageAttachment.bounds = CGRect(
-            x: 0,
-            y: -Constants.imageVerticalPosition,
-            width: Constants.imageWidth,
-            height: Constants.imageHeight
-        )
-        if let iconAboutArrowImage = R.image.iconCopy() {
-            imageAttachment.image = iconAboutArrowImage
+            let imageAttachment = NSTextAttachment()
+            imageAttachment.bounds = CGRect(
+                x: 0,
+                y: -Constants.imageVerticalPosition,
+                width: Constants.imageWidth,
+                height: Constants.imageHeight
+            )
+            if let iconAboutArrowImage = R.image.iconCopy() {
+                imageAttachment.image = iconAboutArrowImage
+            }
+
+            let imageString = NSAttributedString(attachment: imageAttachment)
+            hashString.append(imageString)
+            hashView.valueLabel.attributedText = hashString
+            hashView.isHidden = false
+            mainCloseButton.isHidden = true
+        } else if viewModel.isWalletConnectResult {
+            hashView.isHidden = true
+            successView.isHidden = true
+            infoBackground.isHidden = true
+            mainCloseButton.isHidden = false
         }
-
-        let imageString = NSAttributedString(attachment: imageAttachment)
-        hashString.append(imageString)
-        hashView.valueLabel.attributedText = hashString
     }
 
     func updateState(for explorer: ChainModel.ExternalApiExplorer?) {
@@ -170,6 +181,8 @@ final class AllDoneViewLayout: UIView {
             .allDoneAlertSuccessStub(preferredLanguages: locale.rLanguages)
         shareButton.imageWithTitleView?.title = R.string.localizable
             .commonShare(preferredLanguages: locale.rLanguages)
+        mainCloseButton.imageWithTitleView?.title = R.string.localizable
+            .commonClose(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -229,6 +242,7 @@ final class AllDoneViewLayout: UIView {
         buttonHStachView.distribution = .fillEqually
         buttonHStachView.addArrangedSubview(subscanButton)
         buttonHStachView.addArrangedSubview(shareButton)
+        buttonHStachView.addArrangedSubview(mainCloseButton)
         contentStackView.setCustomSpacing(Constants.spacing24, after: infoBackground)
         contentStackView.addArrangedSubview(buttonHStachView)
 

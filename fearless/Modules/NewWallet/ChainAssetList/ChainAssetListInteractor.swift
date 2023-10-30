@@ -83,29 +83,6 @@ final class ChainAssetListInteractor {
 
         operationQueue.addOperation(saveOperation)
     }
-
-    private func reload() {
-        guard let chainAssets = chainAssets else {
-            return
-        }
-        output?.didReceiveChainAssets(result: .success(chainAssets))
-
-        accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
-            self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
-            self?.subscribeToAccountInfo(for: chainAssets)
-        }
-
-        guard remoteFetchTimer == nil else {
-            return
-        }
-
-        remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: Constants.remoteFetchTimerTimeInterval, repeats: false, block: { [weak self] timer in
-            timer.invalidate()
-            self?.remoteFetchTimer = nil
-        })
-
-        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
-    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -214,8 +191,32 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         save(updatedAccount, shouldNotify: false)
     }
 
-    func updateData() {
-        reload()
+    func reload(fetchPrices: Bool) {
+        guard let chainAssets = chainAssets else {
+            return
+        }
+        output?.didReceiveChainAssets(result: .success(chainAssets))
+        output?.didReceive(accountInfosByChainAssets: [:])
+
+        accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
+            self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+            self?.subscribeToAccountInfo(for: chainAssets)
+
+            if fetchPrices {
+                self?.subscribeToPrice(for: chainAssets)
+            }
+        }
+
+        guard remoteFetchTimer == nil else {
+            return
+        }
+
+        remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: Constants.remoteFetchTimerTimeInterval, repeats: false, block: { [weak self] timer in
+            timer.invalidate()
+            self?.remoteFetchTimer = nil
+        })
+
+        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
     }
 }
 
@@ -287,7 +288,11 @@ extension ChainAssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubsc
 }
 
 extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
+        guard let selectedAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, selectedAccountId == accountId else {
+            return
+        }
+
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }
@@ -332,7 +337,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        reload()
+        reload(fetchPrices: false)
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
