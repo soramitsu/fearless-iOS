@@ -46,13 +46,10 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chain: ChainModel,
         wallet: MetaAccountModel
     ) {
-        let receiveView = ReceiveAssetViewFactory.createView(
-            account: wallet,
-            chain: chain,
-            asset: asset
-        )
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
+        let module = ReceiveAndRequestAssetAssembly.configureModule(wallet: wallet, chainAsset: chainAsset)
 
-        guard let controller = receiveView?.controller else {
+        guard let controller = module?.view.controller else {
             return
         }
 

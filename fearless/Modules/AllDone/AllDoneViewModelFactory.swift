@@ -4,8 +4,9 @@ protocol AllDoneViewModelFactoryProtocol {
     func buildViewModel(
         title: String?,
         description: String?,
-        extrinsicHash: String,
-        locale: Locale
+        extrinsicHash: String?,
+        locale: Locale,
+        isWalletConnectResult: Bool
     ) -> AllDoneViewModel
 }
 
@@ -13,8 +14,9 @@ final class AllDoneViewModelFactory: AllDoneViewModelFactoryProtocol {
     func buildViewModel(
         title: String?,
         description: String?,
-        extrinsicHash: String,
-        locale: Locale
+        extrinsicHash: String?,
+        locale: Locale,
+        isWalletConnectResult: Bool
     ) -> AllDoneViewModel {
         let defaultTitle = R.string.localizable
             .allDoneAlertAllDoneStub(preferredLanguages: locale.rLanguages)
@@ -24,7 +26,8 @@ final class AllDoneViewModelFactory: AllDoneViewModelFactoryProtocol {
         return AllDoneViewModel(
             title: title ?? defaultTitle,
             description: description ?? defaultDesription,
-            extrinsicHash: extrinsicHash
+            extrinsicHash: extrinsicHash,
+            isWalletConnectResult: isWalletConnectResult
         )
     }
 }

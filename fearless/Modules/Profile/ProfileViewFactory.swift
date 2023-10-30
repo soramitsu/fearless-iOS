@@ -49,19 +49,10 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: substrateAccountInfoFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            meta: selectedMetaAccount
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAssetFetcher: chainAssetFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
-        )
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let missingAccountHelper = MissingAccountFetcher(
             chainRepository: AnyDataProviderRepository(chainRepository),

@@ -1164,3 +1164,6 @@ belongs to the right network";
 "verify.phone.number.description" = "Enter SMS code that has been sent to\n%@";
 "verify.phone.number.send.code" = "SEND CODE";
 "verify.phone.number.title" = "Verify your phone number";
+"error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
+"common.request" = "Request";
+"existential.deposit.received.error" = "Existential Deposit not received";

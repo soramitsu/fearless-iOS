@@ -8,9 +8,11 @@ protocol MainNftContainerViewOutput: AnyObject {
     func didLoad(view: MainNftContainerViewInput)
     func didSelect(collection: NFTCollection)
     func didPullToRefresh()
+    func viewAppeared()
 }
 
 protocol MainNftContainerInteractorInput: AnyObject {
+    func initialSetup()
     func setup(with output: MainNftContainerInteractorOutput)
     func fetchData()
 }

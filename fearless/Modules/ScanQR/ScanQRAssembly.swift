@@ -2,20 +2,18 @@ import UIKit
 import SoraFoundation
 
 final class ScanQRAssembly {
-    static func configureModule(moduleOutput: ScanQRModuleOutput) -> ScanQRModuleCreationResult? {
+    static func configureModule(
+        moduleOutput: ScanQRModuleOutput,
+        matchers: [QRMatcherProtocol] = ScanQRAssembly.defaultMatchers
+    ) -> ScanQRModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let qrDecoder = QRCoderFactory().createDecoder()
-        let qrScanMatcher = QRScanMatcher(decoder: qrDecoder)
-
         let qrScanService = QRCaptureServiceFactory().createService(
-            with: qrScanMatcher,
             delegate: nil,
             delegateQueue: nil
         )
 
         let interactor = ScanQRInteractor(
-            qrDecoder: qrDecoder,
             qrExtractionService: QRExtractionService(processingQueue: .global()),
             qrScanService: qrScanService
         )
@@ -26,8 +24,7 @@ final class ScanQRAssembly {
             router: router,
             logger: Logger.shared,
             moduleOutput: moduleOutput,
-            qrScanMatcher: qrScanMatcher,
-            qrScanService: qrScanService,
+            matchers: matchers,
             localizationManager: LocalizationManager.shared
         )
 
@@ -38,4 +35,13 @@ final class ScanQRAssembly {
 
         return (view, presenter)
     }
+
+    static var defaultMatchers: [QRMatcherProtocol] {
+        [
+            QRInfoMatcher(decoder: QRCoderFactory().createDecoder()) /* ,
+             QRUriMatcherImpl(scheme: "wc") */
+        ]
+    }
+
+//    static let wcSchemeMatcher = QRUriMatcherImpl(scheme: "wc")
 }

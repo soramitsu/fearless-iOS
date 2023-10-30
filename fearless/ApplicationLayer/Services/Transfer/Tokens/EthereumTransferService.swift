@@ -6,7 +6,19 @@ import Web3ContractABI
 import Web3PromiseKit
 import SSFUtils
 
-final class EthereumTransferService: BaseEthereumService, TransferServiceProtocol {
+protocol WalletConnectEthereumTransferService {
+    func sign(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) throws -> EthereumData
+
+    func send(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) async throws -> EthereumData
+}
+
+final class EthereumTransferService: BaseEthereumService, TransferServiceProtocol, WalletConnectEthereumTransferService {
     private let privateKey: EthereumPrivateKey
     private let senderAddress: String
     private var feeSubscriptionId: String?
@@ -26,7 +38,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         unsubscribe()
     }
 
-    func estimateFee(for transfer: Transfer) async throws -> BigUInt {
+    func estimateFee(for transfer: Transfer, remark _: Data?) async throws -> BigUInt {
         switch transfer.chainAsset.asset.ethereumType {
         case .normal:
             let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
@@ -73,7 +85,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         }
     }
 
-    func subscribeForFee(transfer: Transfer, listener: TransferFeeEstimationListener) {
+    func subscribeForFee(transfer: Transfer, remark _: Data?, listener: TransferFeeEstimationListener) {
         func subscribe() throws {
             try ws.subscribeToNewHeads(subscribed: { [weak self] subscriptionId in
                 self?.feeSubscriptionId = subscriptionId.result
@@ -124,9 +136,75 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         }
     }
 
+    // MARK: - WalletConnectTransferService
+
+    func sign(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) throws -> EthereumData {
+        let chainId = EthereumQuantity(chain.chainId.hexToBytes())
+        let signed = try transaction.sign(with: privateKey, chainId: chainId)
+
+        return try signed.rawTransaction()
+    }
+
+    func send(
+        transaction: EthereumTransaction,
+        chain: ChainModel
+    ) async throws -> EthereumData {
+        guard
+            let receiverAddress = transaction.to,
+            let senderAddress = transaction.from,
+            let quantity = transaction.value
+        else {
+            throw TransferServiceError.transferFailed(reason: "Wallet connect invalid params")
+        }
+
+        let call = EthereumCall(
+            from: senderAddress,
+            to: receiverAddress,
+            gas: transaction.gasLimit,
+            gasPrice: transaction.gasPrice,
+            value: quantity,
+            data: transaction.data
+        )
+        let nonce = try await queryNonce(ethereumAddress: senderAddress)
+        let gasPrice = try await queryGasPrice()
+        let gasLimit = try await queryGasLimit(call: call)
+        let tx = EthereumTransaction(
+            nonce: nonce,
+            gasPrice: gasPrice,
+            maxFeePerGas: gasPrice,
+            maxPriorityFeePerGas: gasPrice,
+            gasLimit: gasLimit,
+            from: senderAddress,
+            to: receiverAddress,
+            value: quantity,
+            data: transaction.data,
+            accessList: [:],
+            transactionType: .eip1559
+        )
+        let chainIdValue = EthereumQuantity(chain.chainId.hexToBytes())
+        let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try ws.sendRawTransaction(transaction: rawTransaction) { resp in
+                    if let hash = resp.result {
+                        continuation.resume(with: .success(hash))
+                    } else if let error = resp.error {
+                        continuation.resume(with: .failure(error))
+                    }
+                }
+            } catch {
+                continuation.resume(with: .failure(error))
+            }
+        }
+    }
+
     // MARK: Transfers
 
-    func submit(transfer: Transfer) async throws -> String {
+    func submit(transfer: Transfer, remark _: Data?) async throws -> String {
         switch transfer.chainAsset.asset.ethereumType {
         case .normal:
             return try await transferNative(transfer: transfer)

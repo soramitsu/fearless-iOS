@@ -43,6 +43,10 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
         interactor.fetchData()
     }
 
+    func viewAppeared() {
+        interactor.initialSetup()
+    }
+
     func didSelect(collection: NFTCollection) {
         guard let address = wallet.fetch(for: collection.chain.accountRequest())?.toAddress() else {
             return

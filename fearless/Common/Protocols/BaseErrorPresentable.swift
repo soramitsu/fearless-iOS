@@ -3,6 +3,7 @@ import Foundation
 protocol BaseErrorPresentable {
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
+    func presentExsitentialDepositNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
 
@@ -140,5 +141,14 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
             viewModel: viewModel,
             from: view
         )
+    }
+
+    func presentExsitentialDepositNotReceived(from view: ControllerBackedProtocol, locale: Locale?) {
+        let message = ""
+//        let message = R.string.localizable.existentialDepositReceivedError(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.commonErrorInternal(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonRetry(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 }

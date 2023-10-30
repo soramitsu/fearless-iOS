@@ -4,10 +4,12 @@ import RobinHood
 final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
     static let shared = SelectedWalletSettings(
         storageFacade: UserDataStorageFacade.shared,
-        operationQueue: OperationManagerFacade.sharedDefaultQueue
+        operationQueue: OperationManagerFacade.persistentQueue
     )
 
     let operationQueue: OperationQueue
+    let mapper = ManagedMetaAccountMapper()
+    lazy var repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
 
     init(storageFacade: StorageFacadeProtocol, operationQueue: OperationQueue) {
         self.operationQueue = operationQueue
@@ -42,9 +44,6 @@ final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
         value: MetaAccountModel,
         completionClosure: @escaping (Result<MetaAccountModel, Error>) -> Void
     ) {
-        let mapper = ManagedMetaAccountMapper()
-        let repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
-
         let options = RepositoryFetchOptions(includesProperties: true, includesSubentities: true)
         let maybeCurrentAccountOperation = internalValue.map {
             repository.fetchOperation(by: $0.identifier, options: options)

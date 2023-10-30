@@ -17,6 +17,7 @@ final class WalletMainContainerInteractor {
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
     private let applicationHandler: ApplicationHandler
+    private let walletConnectService: WalletConnectService
 
     // MARK: - Constructor
 
@@ -29,7 +30,8 @@ final class WalletMainContainerInteractor {
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
         deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
-        applicationHandler: ApplicationHandler
+        applicationHandler: ApplicationHandler,
+        walletConnectService: WalletConnectService
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -40,7 +42,7 @@ final class WalletMainContainerInteractor {
         self.chainSettingsRepository = chainSettingsRepository
         self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
         self.applicationHandler = applicationHandler
-
+        self.walletConnectService = walletConnectService
         applicationHandler.delegate = self
     }
 
@@ -158,6 +160,10 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
         fetchChainSettings()
+    }
+
+    func walletConnect(uri: String) async throws {
+        try await walletConnectService.connect(uri: uri)
     }
 }
 

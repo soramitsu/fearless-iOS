@@ -38,4 +38,8 @@ extension ChainAsset: Identifiable {
 
         return storagePath
     }
+
+    var isBokolo: Bool {
+        asset.currencyId == bokoloCashAssetCurrencyId
+    }
 }

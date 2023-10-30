@@ -167,7 +167,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didPullToRefresh() {
-        interactor.updateData()
+        interactor.reload(fetchPrices: prices.updated)
     }
 }
 
@@ -238,6 +238,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 let priceDataUpdated = (pricesData: priceDataResult, updated: true)
                 self.prices = priceDataUpdated
             case .failure:
+                guard !self.prices.updated else {
+                    return
+                }
+
                 let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
                 self.prices = priceDataUpdated
             }

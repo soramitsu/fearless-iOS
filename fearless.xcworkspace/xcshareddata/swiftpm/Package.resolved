@@ -37,6 +37,15 @@
       }
     },
     {
+      "identity" : "qrcode",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/WalletConnect/QRCode",
+      "state" : {
+        "revision" : "263f280d2c8144adfb0b6676109846cfc8dd552b",
+        "version" : "14.3.1"
+      }
+    },
+    {
       "identity" : "quick",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Quick/Quick",
@@ -109,12 +118,39 @@
       }
     },
     {
+      "identity" : "swift-qrcode-generator",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dagronf/swift-qrcode-generator",
+      "state" : {
+        "revision" : "5ca09b6a2ad190f94aa3d6ddef45b187f8c0343b",
+        "version" : "1.0.3"
+      }
+    },
+    {
+      "identity" : "swiftimagereadwrite",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dagronf/SwiftImageReadWrite",
+      "state" : {
+        "revision" : "5596407d1cf61b953b8e658fa8636a471df3c509",
+        "version" : "1.1.6"
+      }
+    },
+    {
       "identity" : "swime",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sendyhalim/Swime",
       "state" : {
         "revision" : "4e538834483059ceefaaad8cdb3abe0d7d1c5146",
         "version" : "3.1.0"
+      }
+    },
+    {
+      "identity" : "walletconnectswiftv2",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
+      "state" : {
+        "branch" : "main",
+        "revision" : "13446a81e678e8eddc6ab506e85c522df0163f1f"
       }
     },
     {

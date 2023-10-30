@@ -126,6 +126,8 @@ extension BackupPasswordInteractor: BackupPasswordInteractorInput {
     }
 
     func signInIfNeeded() {
-        cloudStorage?.signInIfNeeded(completion: nil)
+        DispatchQueue.main.async { [weak self] in
+            self?.cloudStorage?.signInIfNeeded(completion: nil)
+        }
     }
 }
