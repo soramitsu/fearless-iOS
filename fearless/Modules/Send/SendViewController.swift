@@ -9,15 +9,18 @@ final class SendViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: SendViewOutput
+    private let initialData: SendFlowInitialData
 
     private var amountInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
 
     init(
+        initialData: SendFlowInitialData,
         output: SendViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.initialData = initialData
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -44,11 +47,6 @@ final class SendViewController: UIViewController, ViewHolder {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupKeyboardHandler()
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        rootView.searchView.textField.becomeFirstResponder()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -86,11 +84,9 @@ final class SendViewController: UIViewController, ViewHolder {
             action: #selector(historyButtonClicked),
             for: .touchUpInside
         )
-        rootView.pasteButton.addTarget(
-            self,
-            action: #selector(pasteButtonClicked),
-            for: .touchUpInside
-        )
+        rootView.searchView.onPasteTapped = { [weak self] in
+            self?.output.didTapPasteButton()
+        }
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectNetworkClicked))
         rootView.selectNetworkView.addGestureRecognizer(tapGesture)
@@ -98,10 +94,6 @@ final class SendViewController: UIViewController, ViewHolder {
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
-        rootView.amountView.textField.inputAccessoryView = accessoryView
     }
 
     private func updateActionButton() {
@@ -121,10 +113,6 @@ final class SendViewController: UIViewController, ViewHolder {
         output.didTapScanButton()
     }
 
-    @objc private func pasteButtonClicked() {
-        output.didTapPasteButton()
-    }
-
     @objc private func historyButtonClicked() {
         output.didTapHistoryButton()
     }
@@ -137,6 +125,27 @@ final class SendViewController: UIViewController, ViewHolder {
 // MARK: - SendViewInput
 
 extension SendViewController: SendViewInput {
+    func setInputAccessoryView(visible: Bool) {
+        rootView.amountView.textField.resignFirstResponder()
+        if visible {
+            let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: selectedLocale)
+            rootView.amountView.textField.inputAccessoryView = accessoryView
+        } else {
+            rootView.amountView.textField.inputAccessoryView = nil
+        }
+    }
+
+    func didBlockUserInteractive(isUserInteractiveAmount: Bool) {
+        rootView.searchView.isUserInteractionEnabled = false
+        rootView.selectNetworkView.isUserInteractionEnabled = false
+        rootView.amountView.selectHandler = nil
+        rootView.amountView.textField.isUserInteractionEnabled = isUserInteractiveAmount
+        rootView.optionsStackView.isHidden = true
+        if isUserInteractiveAmount {
+            rootView.amountView.textField.becomeFirstResponder()
+        }
+    }
+
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {
         if let assetViewModel = assetBalanceViewModel {
             rootView.bind(assetViewModel: assetViewModel)
@@ -205,11 +214,15 @@ extension SendViewController: UITextFieldDelegate {
         if textField == rootView.amountView.textField {
             return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         } else if textField == rootView.searchView.textField {
-            guard let text = textField.text as NSString? else {
+            if range.length == 1, string.isEmpty {
+                output.searchTextDidChanged("")
+                textField.text = ""
                 return true
+            } else if range.length == 0, range.location == 0, string.count > 1 {
+                output.searchTextDidChanged(string)
+            } else {
+                return false
             }
-            let newString = text.replacingCharacters(in: range, with: string)
-            output.searchTextDidChanged(newString)
         }
         return false
     }
@@ -238,6 +251,9 @@ extension SendViewController: UITextFieldDelegate {
         rootView.amountView.set(highlighted: amountIsFirstResponder, animated: false)
         let searchIsFirstResponder = textField == rootView.searchView.textField
         rootView.searchView.set(highlighted: searchIsFirstResponder, animated: false)
+        if searchIsFirstResponder {
+            textField.resignFirstResponder()
+        }
     }
 
     func textFieldDidEndEditing(_: UITextField) {

@@ -122,8 +122,7 @@ final class StakingPoolManagementAssembly {
             for: chainAsset,
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory,
-            wallet: wallet
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }

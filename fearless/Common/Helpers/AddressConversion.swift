@@ -74,6 +74,15 @@ extension AccountAddress {
             return try SS58AddressFactory().accountId(from: self)
         }
     }
+
+    func toAccountIdWithTryExtractPrefix() throws -> AccountId {
+        if hasPrefix("0x") {
+            return try AccountId(hexStringSSF: self)
+        } else {
+            let prefix = try SS58AddressFactory().type(fromAddress: self)
+            return try SS58AddressFactory().accountId(fromAddress: self, addressPrefix: prefix.uint16Value)
+        }
+    }
 }
 
 extension ChainModel {

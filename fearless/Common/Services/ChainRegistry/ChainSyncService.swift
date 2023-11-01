@@ -174,8 +174,10 @@ final class ChainSyncService {
             syncChanges.removedItems.map { $0.identifier }
         })
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.complete(result: .success(syncChanges))
+        localSaveOperation.completionBlock = {
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                self?.complete(result: .success(syncChanges))
+            }
         }
 
         operationQueue.addOperation(localSaveOperation)

@@ -100,7 +100,7 @@ final class SearchTriangularedView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func updateState(icon: DrawableIcon?) {
+    func updateState(icon: DrawableIcon?, clearButtonIsHidden: Bool? = nil) {
         if let text = textField.text, text.isNotEmpty {
             cleanButton.isHidden = false
             pasteButton.isHidden = true
@@ -115,6 +115,9 @@ final class SearchTriangularedView: UIView {
         } else {
             addressImage.isHidden = true
             placeholderImage.isHidden = false
+        }
+        if let clearButtonIsHidden = clearButtonIsHidden {
+            cleanButton.isHidden = clearButtonIsHidden
         }
     }
 

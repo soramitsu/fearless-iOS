@@ -50,7 +50,8 @@ final class NftSendPresenter {
 
         let viewModel = viewModelFactory.buildRecipientViewModel(
             address: newAddress,
-            isValid: interactor.validate(address: newAddress, for: nft.chain).isValid
+            isValid: interactor.validate(address: newAddress, for: nft.chain).isValid,
+            canEditing: true
         )
 
         DispatchQueue.main.async {
@@ -195,9 +196,10 @@ extension NftSendPresenter: Localizable {
 extension NftSendPresenter: NftSendModuleInput {}
 
 extension NftSendPresenter: ScanQRModuleOutput {
-    func didFinishWithSolomon(soraAddress _: String) {}
-
-    func didFinishWith(address: String) {
+    func didFinishWith(scanType: QRMatcherType) {
+        guard let address = scanType.address else {
+            return
+        }
         handle(newAddress: address)
     }
 }

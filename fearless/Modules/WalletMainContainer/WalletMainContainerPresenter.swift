@@ -56,6 +56,18 @@ final class WalletMainContainerPresenter {
 
         view?.didReceiveViewModel(viewModel)
     }
+
+    private func walletConnect(with uri: String) {
+        Task {
+            do {
+                try await interactor.walletConnect(uri: uri)
+            } catch {
+                await MainActor.run(body: {
+                    router.present(error: error, from: view, locale: selectedLocale)
+                })
+            }
+        }
+    }
 }
 
 // MARK: - WalletMainContainerViewOutput
@@ -251,19 +263,16 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 }
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
-    func didFinishWithSolomon(soraAddress: String) {
-        router.showSendFlow(
-            from: view,
-            wallet: wallet,
-            initialData: .soraMainnet(address: soraAddress)
-        )
-    }
-
-    func didFinishWith(address: String) {
-        router.showSendFlow(
-            from: view,
-            wallet: wallet,
-            initialData: .address(address)
-        )
+    func didFinishWith(scanType: QRMatcherType) {
+        switch scanType {
+        case let .qrInfo(qrInfoType):
+            router.showSendFlow(
+                from: view,
+                wallet: wallet,
+                initialData: .init(qrInfoType: qrInfoType)
+            )
+        case let .uri(uri):
+            walletConnect(with: uri)
+        }
     }
 }

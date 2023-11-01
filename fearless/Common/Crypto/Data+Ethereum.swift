@@ -65,3 +65,14 @@ private enum EthereumUtil {
         return serializedPublicKey
     }
 }
+
+extension Data {
+    func ethereumPersonalSignMessage() -> Data? {
+        let signMessage = "\u{19}Ethereum Signed Message:\n\(String(count))"
+        guard let prefixData = signMessage.data(using: .utf8) else {
+            return nil
+        }
+
+        return prefixData + self
+    }
+}

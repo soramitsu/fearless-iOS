@@ -1,6 +1,7 @@
 import Foundation
 import SSFModels
 import Web3
+import SSFUtils
 
 final class EthereumConnectionPool: ConnectionPoolProtocol {
     typealias T = Web3.Eth
@@ -11,10 +12,15 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
     private lazy var lock = NSLock()
 
     func setupConnection(for chain: SSFModels.ChainModel) throws -> Web3.Eth {
+        if let connection = connectionsByChainIds[chain.chainId] {
+            return connection
+        }
+
         lock.lock()
         defer {
             lock.unlock()
         }
+
         let ws = try EthereumNodeFetching().getNode(for: chain)
         connectionsByChainIds[chain.chainId] = ws
 
@@ -34,6 +40,7 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
         defer {
             lock.unlock()
         }
+
         return connectionsByChainIds[chainId]
     }
 

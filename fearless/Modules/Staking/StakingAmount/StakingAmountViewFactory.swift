@@ -325,8 +325,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             for: ChainAsset(chain: chain, asset: asset),
             assetPrecision: Int16(asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory,
-            wallet: selectedAccount
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }

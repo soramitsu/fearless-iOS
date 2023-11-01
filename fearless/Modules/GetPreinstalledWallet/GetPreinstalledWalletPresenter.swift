@@ -11,7 +11,6 @@ final class GetPreinstalledWalletPresenter: NSObject {
     private let router: GetPreinstalledWalletRouterInput
     private let interactor: GetPreinstalledWalletInteractorInput
     private let logger: LoggerProtocol
-    private let qrScanMatcher: QRScanMatcher
     private var scanState: ScanState = .initializing(accessRequested: false)
     private var processingIsActive: Bool = false
 
@@ -21,13 +20,11 @@ final class GetPreinstalledWalletPresenter: NSObject {
         interactor: GetPreinstalledWalletInteractorInput,
         router: GetPreinstalledWalletRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol,
-        qrScanMatcher: QRScanMatcher
+        logger: LoggerProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
-        self.qrScanMatcher = qrScanMatcher
         super.init()
         self.localizationManager = localizationManager
     }
@@ -215,8 +212,8 @@ extension GetPreinstalledWalletPresenter: GetPreinstalledWalletInteractorOutput 
         logger.error("Unexpected qr service error \(error)")
     }
 
-    func handleMatched(addressInfo: QRInfo) {
-        handle(qrString: addressInfo.address)
+    func handleMatched(code: String) {
+        handle(qrString: code)
     }
 
     func handleAddress(_ address: String) {
@@ -243,19 +240,8 @@ extension GetPreinstalledWalletPresenter: QRCaptureServiceDelegate {
         }
     }
 
-    func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
-        guard let qrInfo = qrScanMatcher.qrInfo else {
-            logger.warning("Can't find receiver's info for matched code")
-            return
-        }
-
-        handle(qrString: qrInfo.address)
-    }
-
-    func qrCapture(service _: QRCaptureServiceProtocol, didFailMatching code: String) {
-        DispatchQueue.main.async {
-            self.handleFailedMatching(for: code)
-        }
+    func qrCapture(service _: QRCaptureServiceProtocol, didMatch code: String) {
+        handle(qrString: code)
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didReceive error: Error) {

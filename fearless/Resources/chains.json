@@ -5619,6 +5619,30 @@
                 "color": "8247E5",
                 "type": "normal",
                 "ethereumType": "erc20"
+            },
+            {
+                "isUtility": false,
+                "id": "0xc7d9c108d4e1dd1484d3e2568d7f74bfd763d356",
+                "name": "sora synthetic usd",
+                "symbol": "xstusd",
+                "precision": 18,
+                "priceId": "sora-synthetic-usd",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XSTUSD.svg",
+                "color": "8247E5",
+                "type": "normal",
+                "ethereumType": "erc20"
+            },
+            {
+                "isUtility": false,
+                "id": "0xe88f8313e61A97cEc1871EE37fBbe2a8bf3ed1E4",
+                "name": "sora validator token",
+                "symbol": "val",
+                "precision": 18,
+                "priceId": "sora-validator-token",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/VAL.svg",
+                "color": "F3B966",
+                "type": "normal",
+                "ethereumType": "erc20"
             }
         ],
         "nodes": [

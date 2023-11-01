@@ -22,6 +22,10 @@ extension BundleImageViewModel: ImageViewModelProtocol {
         imageView.image = image
     }
 
+    func loadImage(on imageView: UIImageView, placholder _: Placeholder?, targetSize _: CGSize, animated _: Bool) {
+        imageView.image = image
+    }
+
     func cancel(on imageView: UIImageView) {
         imageView.image = nil
     }

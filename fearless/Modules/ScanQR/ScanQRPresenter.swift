@@ -13,18 +13,35 @@ enum ScanState {
     case failed(code: String)
 }
 
+enum ScanFinish {
+    case address(String)
+    case sora(SoraQRInfo)
+    case bokoloCash(BokoloCashQRInfo)
+
+    var address: String {
+        switch self {
+        case let .address(address):
+            return address
+        case let .sora(soraQRInfo):
+            return soraQRInfo.address
+        case let .bokoloCash(bokoloQrInfo):
+            return bokoloQrInfo.address
+        }
+    }
+}
+
 final class ScanQRPresenter: NSObject {
     let localizationManager: LocalizationManagerProtocol?
 
     // MARK: Private properties
 
     private weak var view: ScanQRViewInput?
+    private weak var moduleOutput: ScanQRModuleOutput?
+
     private let router: ScanQRRouterInput
     private let interactor: ScanQRInteractorInput
-    private let moduleOutput: ScanQRModuleOutput
-    private let qrScanMatcher: QRScanMatcher
+    private let matchers: [QRMatcherProtocol]
     private let logger: LoggerProtocol
-    private let qrScanService: QRCaptureServiceProtocol
 
     private var scanState: ScanState = .initializing(accessRequested: false)
 
@@ -34,17 +51,15 @@ final class ScanQRPresenter: NSObject {
         interactor: ScanQRInteractorInput,
         router: ScanQRRouterInput,
         logger: LoggerProtocol,
-        moduleOutput: ScanQRModuleOutput,
-        qrScanMatcher: QRScanMatcher,
-        qrScanService: QRCaptureServiceProtocol,
+        moduleOutput: ScanQRModuleOutput?,
+        matchers: [QRMatcherProtocol],
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
-        self.qrScanMatcher = qrScanMatcher
+        self.matchers = matchers
         self.moduleOutput = moduleOutput
-        self.qrScanService = qrScanService
 
         self.localizationManager = localizationManager
     }
@@ -103,15 +118,52 @@ final class ScanQRPresenter: NSObject {
         }
     }
 
-    private func handleFailedMatching(for code: String) {
-        router.close(view: view) {
-            self.moduleOutput.didFinishWith(address: code)
-        }
-    }
-
     private func didCompleteImageSelection(with selectedImages: [UIImage]) {
         if let image = selectedImages.first {
             interactor.extractQr(from: image)
+        }
+    }
+
+    private func handleConnect(uri: String) {
+        router.close(view: view) { [weak self] in
+            self?.moduleOutput?.didFinishWith(scanType: .uri(uri))
+        }
+    }
+
+    private func searchMetcher(code: String) {
+        let qrMatcherTypes = matchers.map { $0.match(code: code) }.compactMap { $0 }
+        if qrMatcherTypes.isEmpty {
+            DispatchQueue.main.async {
+                self.view?.didStartLoading()
+                let viewModel = SheetAlertPresentableViewModel(
+                    title: R.string.localizable.otpErrorMessageWrongCode(
+                        preferredLanguages: self.selectedLocale.rLanguages
+                    ),
+                    message: nil,
+                    actions: [],
+                    closeAction: nil,
+                    dismissCompletion: { [weak self] in
+                        self?.scanState = .initializing(accessRequested: true)
+                        DispatchQueue.global().async {
+                            self?.interactor.startScanning()
+                        }
+                    }
+                )
+                self.router.present(viewModel: viewModel, from: self.view)
+            }
+        }
+        guard
+            qrMatcherTypes.count == 1,
+            let qrType = qrMatcherTypes.first
+        else {
+            logger.error("QR must have one matching")
+            return
+        }
+
+        DispatchQueue.main.async {
+            self.router.close(view: self.view) { [weak self] in
+                self?.moduleOutput?.didFinishWith(scanType: qrType)
+            }
         }
     }
 }
@@ -166,6 +218,10 @@ extension ScanQRPresenter: ScanQRViewOutput {
 // MARK: - ScanQRInteractorOutput
 
 extension ScanQRPresenter: ScanQRInteractorOutput {
+    func handleMatched(code: String) {
+        searchMetcher(code: code)
+    }
+
     func handleQRService(error: Error) {
         if let captureError = error as? QRCaptureServiceError {
             handleQRCaptureService(error: captureError)
@@ -183,48 +239,18 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
 
         logger.error("Unexpected qr service error \(error)")
     }
-
-    func handleMatched(addressInfo: QRInfo) {
-        router.close(view: view) { [weak self] in
-            if addressInfo as? SolomonQRInfo == nil {
-                self?.moduleOutput.didFinishWith(address: addressInfo.address)
-            } else {
-                self?.moduleOutput.didFinishWithSolomon(soraAddress: addressInfo.address)
-            }
-        }
-    }
-
-    func handleAddress(_ address: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.router.close(view: self?.view) {
-                self?.moduleOutput.didFinishWith(address: address)
-            }
-        }
-    }
 }
 
 extension ScanQRPresenter: QRCaptureServiceDelegate {
     func qrCapture(service _: QRCaptureServiceProtocol, didSetup captureSession: AVCaptureSession) {
         DispatchQueue.main.async {
+            self.view?.didStopLoading()
             self.handleReceived(captureSession: captureSession)
         }
     }
 
-    func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
-        guard let addressInfo = qrScanMatcher.qrInfo else {
-            logger.warning("Can't find receiver's info for matched code")
-            return
-        }
-
-        DispatchQueue.main.async {
-            self.handleMatched(addressInfo: addressInfo)
-        }
-    }
-
-    func qrCapture(service _: QRCaptureServiceProtocol, didFailMatching code: String) {
-        DispatchQueue.main.async {
-            self.handleFailedMatching(for: code)
-        }
+    func qrCapture(service _: QRCaptureServiceProtocol, didMatch code: String) {
+        searchMetcher(code: code)
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didReceive error: Error) {

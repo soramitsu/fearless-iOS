@@ -61,7 +61,7 @@ final class WalletsManagmentInteractor {
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletsBalances(
             deliverOn: .main,
-            handler: self
+            listener: self
         )
     }
 }
@@ -74,20 +74,24 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
             output?.didCompleteSelection()
             return
         }
-        let oldMetaAccount = settings.value
+        DispatchQueue.global().async {
+            let oldMetaAccount = self.settings.value
 
-        guard wallet.info.identifier != oldMetaAccount?.identifier else {
-            output?.didCompleteSelection()
-            return
-        }
+            guard wallet.info.identifier != oldMetaAccount?.identifier else {
+                DispatchQueue.main.async {
+                    self.output?.didCompleteSelection()
+                }
+                return
+            }
 
-        settings.save(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
-            switch result {
-            case .success:
-                self?.eventCenter.notify(with: SelectedAccountChanged(account: wallet.info))
-                self?.output?.didCompleteSelection()
-            case let .failure(error):
-                self?.output?.didReceive(error: error)
+            self.settings.save(value: wallet.info, runningCompletionIn: .main) { [weak self] result in
+                switch result {
+                case .success:
+                    self?.eventCenter.notify(with: SelectedAccountChanged(account: wallet.info))
+                    self?.output?.didCompleteSelection()
+                case let .failure(error):
+                    self?.output?.didReceive(error: error)
+                }
             }
         }
     }
@@ -109,7 +113,11 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
 
 // MARK: - WalletBalanceSubscriptionHandler
 
-extension WalletsManagmentInteractor: WalletBalanceSubscriptionHandler {
+extension WalletsManagmentInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .wallets
+    }
+
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalances(result)
     }
