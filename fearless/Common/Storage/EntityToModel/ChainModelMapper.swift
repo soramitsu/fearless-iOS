@@ -290,7 +290,8 @@ final class ChainModelMapper {
             xcmVersion: version,
             destWeightIsPrimitive: entity.xcmConfig?.destWeightIsPrimitive,
             availableAssets: assets,
-            availableDestinations: destinations
+            availableDestinations: destinations,
+            bridgeParachainId: entity.xcmConfig?.bridgeParachainId
         )
     }
 
@@ -377,6 +378,7 @@ final class ChainModelMapper {
         let configEntity = CDChainXcmConfig(context: context)
         configEntity.xcmVersion = xcmConfig.xcmVersion?.rawValue
         configEntity.destWeightIsPrimitive = xcmConfig.destWeightIsPrimitive ?? false
+        configEntity.bridgeParachainId = xcmConfig.bridgeParachainId
 
         let availableAssets = xcmConfig.availableAssets.map {
             let entity = CDXcmAvailableAsset(context: context)

@@ -70,6 +70,7 @@
         <attribute name="identifier" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CDChainXcmConfig" representedClassName="CDChainXcmConfig" syncable="YES" codeGenerationType="class">
+        <attribute name="bridgeParachainId" optional="YES" attributeType="String"/>
         <attribute name="destWeightIsPrimitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="xcmVersion" optional="YES" attributeType="String"/>
         <relationship name="availableAssets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableAsset"/>

@@ -161,14 +161,14 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v4/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v4/chains_dev.json", branch: .rococo)
         #else
             GitHubUrl.url(suffix: "chains/v4/chains.json")
         #endif
     }
 
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "chains/all_chains_types.json")
+        GitHubUrl.url(suffix: "chains/all_chains_types.json", branch: .rococo)
     }
 
     var appVersionURL: URL? {
@@ -216,6 +216,7 @@ private enum GitHubUrl {
         case v4
         case developFree = "develop-free"
         case xcmLocationDevelop = "updated-xcm-locations"
+        case rococo = "feature/rococo"
     }
 
     static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL? {
