@@ -91,6 +91,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .zeroBalances:
             break
+        case .walletConnect:
+            wireframe.showWalletConnect(from: view)
         }
     }
 
@@ -152,6 +154,7 @@ extension ProfilePresenter: CheckPincodeModuleOutput {
         interactor.logout { [weak self] in
             DispatchQueue.main.async {
                 self?.wireframe.logout(from: self?.view)
+                self?.eventCenter.notify(with: LogoutEvent())
             }
         }
     }

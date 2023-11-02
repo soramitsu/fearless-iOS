@@ -57,9 +57,7 @@ struct YourValidatorListViewFactory {
     ) -> YourValidatorListDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
@@ -111,8 +109,7 @@ struct YourValidatorListViewFactory {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory,
-            wallet: wallet
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }

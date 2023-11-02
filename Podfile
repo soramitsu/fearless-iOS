@@ -11,7 +11,7 @@ abstract_target 'fearlessAll' do
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
   pod 'SoraUI', '~> 1.10.3'
   pod 'IrohaCrypto'
-  pod 'RobinHood', '~> 2.6.8'
+  pod 'RobinHood', '2.6.8'
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
@@ -26,6 +26,8 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
+  pod 'FearlessKeys'
+  pod 'MPQRCoreSDK', :configurations => ['Release']
   
   def pods_with_configurations
       if %r{^true$}i.match ENV['F_DEV']
@@ -35,17 +37,17 @@ abstract_target 'fearlessAll' do
           pod 'SSFExtrinsicKit'
           pod 'SSFCrypto', '0.1.17'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.20'
+          pod 'SSFModels', '0.1.23'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection', '0.1.4'
           pod 'SSFNetwork', '0.1.17'
-          pod 'SSFUtils', '0.1.20'
+          pod 'SSFUtils', '0.1.21'
           pod 'SSFChainRegistry', '0.1.4'
           pod 'SSFHelpers', '0.1.7'
-          pod 'SSFCloudStorage'
+          pod 'SSFCloudStorage', '0.1.23'
           pod 'FearlessKeys'
       end
   end
@@ -82,7 +84,7 @@ abstract_target 'fearlessAll' do
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
     pod 'IrohaCrypto'
-    pod 'RobinHood', '~> 2.6.8'
+    pod 'RobinHood', '2.6.8'
     pod 'CommonWallet/Core'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'
@@ -99,6 +101,11 @@ post_install do |installer|
     installer.pods_project.targets.each do |target|
       target.build_configurations.each do |config|
             config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+            config.build_settings['CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES'] = 'YES'
+            xcconfig_path = config.base_configuration_reference.real_path
+            xcconfig = File.read(xcconfig_path)
+            xcconfig_mod = xcconfig.gsub(/DT_TOOLCHAIN_DIR/, "TOOLCHAIN_DIR")
+            File.open(xcconfig_path, "w") { |file| file << xcconfig_mod }
           end
         if target.name == 'SSFXCM'
             target.build_configurations.each do |config|

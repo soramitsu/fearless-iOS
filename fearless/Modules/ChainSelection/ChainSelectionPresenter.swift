@@ -40,13 +40,13 @@ final class ChainSelectionPresenter {
         guard
             showBalances,
             let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
-            let utilityChainAssets = chain.utilityChainAssets().first
+            let utilityChainAsset = chain.utilityChainAssets().first
         else {
             return nil
         }
 
-        let assetInfo = utilityChainAssets.asset.displayInfo
-        let accountInfoResult = accountInfoResults[utilityChainAssets.uniqueKey(accountId: accountId)]
+        let assetInfo = utilityChainAsset.asset.displayInfo
+        let accountInfoResult = accountInfoResults[utilityChainAsset.uniqueKey(accountId: accountId)]
         guard case let .success(accountInfo) = accountInfoResult else {
             return nil
         }

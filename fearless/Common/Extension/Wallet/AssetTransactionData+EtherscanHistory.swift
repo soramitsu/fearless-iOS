@@ -15,7 +15,11 @@ extension AssetTransactionData {
             TransactionType.incoming
 
         let timestamp: Int64 = {
-            let timestamp = Int64(item.timeStamp) ?? 0
+            guard let timestampValue = item.timeStamp else {
+                return 0
+            }
+
+            let timestamp = Int64(timestampValue) ?? 0
             return timestamp
         }()
 
@@ -33,9 +37,9 @@ extension AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(item.value, precision: Int16(asset.precision)) ?? .zero
 
         return AssetTransactionData(
-            transactionId: item.hash,
+            transactionId: item.hash ?? "",
             status: .commited,
-            assetId: item.contractAddress,
+            assetId: item.contractAddress ?? "",
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,

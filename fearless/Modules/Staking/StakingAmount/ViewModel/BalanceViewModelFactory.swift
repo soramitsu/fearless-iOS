@@ -11,8 +11,12 @@ protocol BalanceViewModelFactoryProtocol {
     func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool, usageCase: NumberFormatterUsageCase)
         -> LocalizableResource<BalanceViewModelProtocol>
     func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<IAmountInputViewModel>
-    func createAssetBalanceViewModel(_ amount: Decimal?, balance: Decimal?, priceData: PriceData?)
-        -> LocalizableResource<AssetBalanceViewModelProtocol>
+    func createAssetBalanceViewModel(
+        _ amount: Decimal?,
+        balance: Decimal?,
+        priceData: PriceData?,
+        selectable: Bool
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol>
 }
 
 extension BalanceViewModelFactoryProtocol {
@@ -22,6 +26,14 @@ extension BalanceViewModelFactoryProtocol {
         usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         balanceFromPrice(amount, priceData: priceData, isApproximately: false, usageCase: usageCase)
+    }
+
+    func createAssetBalanceViewModel(
+        _ amount: Decimal?,
+        balance: Decimal?,
+        priceData: PriceData?
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
+        createAssetBalanceViewModel(amount, balance: balance, priceData: priceData, selectable: true)
     }
 }
 
@@ -119,7 +131,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     func createAssetBalanceViewModel(
         _ amount: Decimal?,
         balance: Decimal?,
-        priceData: PriceData?
+        priceData: PriceData?,
+        selectable: Bool
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
         let localizableBalanceFormatter = formatterFactory.createPlainTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
@@ -165,7 +178,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
                 balance: balanceString,
                 fiatBalance: fiatBalance,
                 price: priceString,
-                iconViewModel: iconViewModel
+                iconViewModel: iconViewModel,
+                selectable: selectable
             )
         }
     }

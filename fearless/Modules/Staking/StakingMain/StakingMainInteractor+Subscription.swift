@@ -111,7 +111,7 @@ extension StakingMainInteractor {
 
         controllerAccountProvider = controllerAccountItemProvider
 
-        let updateClosure = { [weak presenter] (changes: [DataProviderChange<MetaAccountModel>]) in
+        let updateClosure: ([DataProviderChange<MetaAccountModel>]) -> Void = { [weak presenter] (changes: [DataProviderChange<MetaAccountModel>]) in
             if
                 let controller = changes.reduceToLastChange(),
                 let accountItem = controller.fetch(for: chain.accountRequest()) {

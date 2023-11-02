@@ -10,6 +10,10 @@ class BaseNavigationBar: BaseTopBar {
         case present
     }
 
+    let indicator: UIView = {
+        UIFactory.default.createIndicatorView()
+    }()
+
     let backButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
@@ -39,6 +43,13 @@ class BaseNavigationBar: BaseTopBar {
 
         backButton.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.backButtonSize)
+        }
+
+        addSubview(indicator)
+        indicator.snp.makeConstraints { make in
+            make.size.equalTo(UIConstants.indicatorSize)
+            make.top.equalToSuperview()
+            make.centerX.equalToSuperview()
         }
     }
 

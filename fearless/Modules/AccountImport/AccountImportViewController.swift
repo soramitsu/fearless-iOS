@@ -118,9 +118,13 @@ private extension AccountImportViewController {
         var isEnabled: Bool = true
 
         if let viewModel = sourceViewModel, viewModel.inputHandler.required {
-            let uploadViewActive = !rootView.uploadViewContainer.isHidden && !(rootView.uploadView.subtitle?.isEmpty ?? false)
-            let textViewActive = !rootView.textViewContainer.isHidden && !rootView.textView.text.isEmpty
-            isEnabled = isEnabled && (uploadViewActive || textViewActive)
+            let uploadViewActive = !rootView.uploadViewContainer.isHidden
+            let textViewActive = !rootView.textViewContainer.isHidden
+            if uploadViewActive {
+                isEnabled = isEnabled && sourceViewModel?.inputHandler.normalizedValue.isNotEmpty ?? false
+            } else if textViewActive {
+                isEnabled = isEnabled && !rootView.textView.text.isEmpty
+            }
         }
 
         if let viewModel = usernameViewModel, viewModel.inputHandler.required {

@@ -6,7 +6,7 @@ struct AlchemyNftSpamInfo: Decodable {
 }
 
 struct AlchemyNftContractInfo: Decodable {
-    let address: String
+    let address: String?
 }
 
 struct AlchemyNftTokenMetadata: Decodable {
@@ -14,19 +14,13 @@ struct AlchemyNftTokenMetadata: Decodable {
 }
 
 struct AlchemyNftId: Decodable {
-    let tokenId: String
+    let tokenId: String?
     let tokenMetadata: AlchemyNftTokenMetadata?
-}
-
-struct AlchemyNftAttribute: Decodable {
-    let value: String
-    let traitType: String
 }
 
 struct AlchemyNftMetadata: Decodable {
     let name: String?
     let description: String?
-//    let attributes: [AlchemyNftAttribute]?
     let backgroundColor: String?
     let poster: String?
 }
@@ -44,10 +38,10 @@ struct AlchemyNftInfo: Decodable {
         case contractMetadata
     }
 
-    let title: String
+    let title: String?
     let description: String?
     let media: [AlchemyNftMediaInfo]?
-    let id: AlchemyNftId
+    let id: AlchemyNftId?
     let balance: String?
     let contract: AlchemyNftContractInfo?
     let metadata: AlchemyNftMetadata?
@@ -56,8 +50,8 @@ struct AlchemyNftInfo: Decodable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
-        title = try container.decode(String.self, forKey: .title)
-        id = try container.decode(AlchemyNftId.self, forKey: .id)
+        title = try? container.decode(String.self, forKey: .title)
+        id = try? container.decode(AlchemyNftId.self, forKey: .id)
 
         description = try? container.decode(String.self, forKey: .description)
         media = try? container.decode([AlchemyNftMediaInfo]?.self, forKey: .media)

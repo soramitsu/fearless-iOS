@@ -85,7 +85,8 @@ final class NftSendConfirmAssembly {
             return EthereumNftTransferService(
                 ws: ws,
                 privateKey: try EthereumPrivateKey(privateKey: secretKey.bytes),
-                senderAddress: address
+                senderAddress: address,
+                logger: Logger.shared
             )
         }
     }

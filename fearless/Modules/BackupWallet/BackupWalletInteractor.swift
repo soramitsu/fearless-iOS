@@ -49,9 +49,9 @@ final class BackupWalletInteractor {
 
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletBalance(
-            walletId: wallet.identifier,
+            wallet: wallet,
             deliverOn: nil,
-            handler: self
+            listener: self
         )
     }
 
@@ -135,7 +135,11 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
 
 // MARK: - WalletBalanceSubscriptionHandler
 
-extension BackupWalletInteractor: WalletBalanceSubscriptionHandler {
+extension BackupWalletInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        .wallet(wallet: wallet)
+    }
+
     func handle(result: WalletBalancesResult) {
         output?.didReceiveBalances(result: result)
     }

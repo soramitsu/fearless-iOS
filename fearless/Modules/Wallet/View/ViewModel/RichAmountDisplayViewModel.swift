@@ -17,6 +17,7 @@ struct RichAmountDisplayViewModel: RichAmountDisplayViewModelProtocol {
     let balance: String?
     let fiatBalance: String?
     let price: String?
+    let selectable: Bool
 
     func accept(definition: WalletFormDefining) -> WalletFormItemView? {
         if let definition = definition as? WalletFearlessFormDefining {

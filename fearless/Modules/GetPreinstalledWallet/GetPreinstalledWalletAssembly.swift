@@ -16,11 +16,7 @@ final class GetPreinstalledWalletAssembly {
     private static func configureModule(router: GetPreinstalledWalletRouterInput) -> GetPreinstalledWalletModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let qrDecoder = QRCoderFactory().createDecoder()
-        let qrScanMatcher = QRScanMatcher(decoder: qrDecoder)
-
         let qrScanService = QRCaptureServiceFactory().createService(
-            with: qrScanMatcher,
             delegate: nil,
             delegateQueue: nil
         )
@@ -41,7 +37,6 @@ final class GetPreinstalledWalletAssembly {
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let interactor = GetPreinstalledWalletInteractor(
-            qrDecoder: qrDecoder,
             qrExtractionService: qrExtractionService,
             qrScanService: qrScanService,
             accountOperationFactory: accountOperationFactory,
@@ -57,8 +52,7 @@ final class GetPreinstalledWalletAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            logger: Logger.shared,
-            qrScanMatcher: qrScanMatcher
+            logger: Logger.shared
         )
 
         let view = GetPreinstalledWalletViewController(

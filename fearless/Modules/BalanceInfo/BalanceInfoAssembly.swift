@@ -43,7 +43,7 @@ enum BalanceInfoAssembly {
 
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
-        let substrateAccountInfoFetching = AccountInfoFetching(
+        let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
@@ -51,19 +51,10 @@ enum BalanceInfoAssembly {
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
-            accountInfoFetching: substrateAccountInfoFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            meta: type.wallet
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAssetFetcher: chainAssetFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
-        )
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let storageRequestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -71,6 +62,7 @@ enum BalanceInfoAssembly {
         )
 
         let interactor = BalanceInfoInteractor(
+            balanceInfoType: type,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory
@@ -84,7 +76,6 @@ enum BalanceInfoAssembly {
         )
 
         let presenter = BalanceInfoPresenter(
-            balanceInfoType: type,
             balanceInfoViewModelFactoryProtocol: balanceInfoViewModelFactory,
             interactor: interactor,
             router: router,

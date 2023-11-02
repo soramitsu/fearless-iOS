@@ -174,15 +174,14 @@ final class AlchemyNFTOperationFactory {
 
                 return NFT(
                     chain: chain,
-                    tokenId: $0.id.tokenId,
+                    tokenId: $0.id?.tokenId,
                     title: $0.title,
                     description: $0.description,
                     smartContract: $0.contract?.address,
                     metadata: nil,
                     mediaThumbnail: $0.metadata?.poster ?? $0.media?.first?.thumbnail,
                     media: media,
-                    tokenType: $0.id.tokenMetadata?.tokenType,
-                    attributes: nil,
+                    tokenType: $0.id?.tokenMetadata?.tokenType,
                     collectionName: $0.contractMetadata?.name,
                     collection: collection
                 )

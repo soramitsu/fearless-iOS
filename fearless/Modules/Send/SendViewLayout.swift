@@ -65,7 +65,7 @@ final class SendViewLayout: UIView {
         return view
     }()
 
-    private let optionsStackView: UIStackView = {
+    let optionsStackView: UIStackView = {
         let view = UIStackView()
         view.axis = .horizontal
         view.distribution = .fillProportionally
@@ -129,6 +129,7 @@ final class SendViewLayout: UIView {
         selectNetworkviewModel.iconViewModel?.cancel(on: selectNetworkView.iconView)
         selectNetworkView.iconView.image = nil
         selectNetworkviewModel.iconViewModel?.loadAmountInputIcon(on: selectNetworkView.iconView, animated: true)
+        selectNetworkView.actionView.isHidden = !selectNetworkviewModel.canEdit
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
@@ -153,7 +154,7 @@ final class SendViewLayout: UIView {
 
     func bind(viewModel: RecipientViewModel) {
         searchView.textField.text = viewModel.address
-        searchView.updateState(icon: viewModel.icon)
+        searchView.updateState(icon: viewModel.icon, clearButtonIsHidden: !viewModel.canEditing)
     }
 }
 

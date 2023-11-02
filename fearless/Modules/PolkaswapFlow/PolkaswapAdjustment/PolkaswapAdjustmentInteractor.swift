@@ -223,7 +223,7 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         listeningSubscription.removeAll()
         unsubscribePool()
 
-        subscriptionService.subscribToBlocks { [weak self] update in
+        subscriptionService.subscribeToBlocks { [weak self] update in
             guard let strongSelf = self else {
                 return
             }

@@ -46,9 +46,10 @@ final class PolkaswapAdjustmentRouter: PolkaswapAdjustmentRouterInput {
 
     func showConfirmation(
         with params: PolkaswapPreviewParams,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        completeClosure: (() -> Void)?
     ) -> PolkaswapSwapConfirmationModuleInput? {
-        guard let module = PolkaswapSwapConfirmationAssembly.configureModule(params: params) else {
+        guard let module = PolkaswapSwapConfirmationAssembly.configureModule(params: params, completeClosure: completeClosure) else {
             return nil
         }
 
