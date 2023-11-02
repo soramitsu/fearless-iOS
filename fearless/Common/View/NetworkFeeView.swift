@@ -132,8 +132,8 @@ final class NetworkFeeView: UIView {
             with: tokenLabel,
             duration: 0.25,
             options: .transitionCrossDissolve,
-            animations: {
-                self.tokenLabel.text = viewModel?.amount
+            animations: { [weak self] in
+                self?.tokenLabel.text = viewModel?.amount
             },
             completion: nil
         )

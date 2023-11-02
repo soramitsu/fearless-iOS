@@ -49,37 +49,6 @@ final class SendInteractor: RuntimeConstantFetching {
 
     // MARK: - Private methods
 
-    private func provideConstants(for chainAsset: ChainAsset) {
-        guard let dependencies = dependencies else {
-            return
-        }
-
-        Task {
-            guard let runtimeService = dependencies.runtimeService else {
-                return
-            }
-
-            dependencies.existentialDepositService.fetchExistentialDeposit(
-                chainAsset: chainAsset
-            ) { [weak self] result in
-                self?.output?.didReceiveMinimumBalance(result: result)
-            }
-
-            if chainAsset.chain.isTipRequired {
-                fetchConstant(
-                    for: .defaultTip,
-                    runtimeCodingService: runtimeService,
-                    operationManager: operationManager
-                ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
-                    self?.output?.didReceiveTip(result: result)
-                }
-            }
-            if chainAsset.chain.isEquilibrium {
-                equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
-            }
-        }
-    }
-
     private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
         guard let dependencies = dependencies else {
             return
@@ -109,8 +78,7 @@ final class SendInteractor: RuntimeConstantFetching {
         } else {
             output?.didReceivePriceData(result: .success(nil), for: nil)
         }
-        if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
+        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
            let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
@@ -150,7 +118,7 @@ extension SendInteractor: SendInteractorInput {
         for asset: AssetModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     ) {
-        chainAssetFetching.fetch(shouldUseCashe: true, filters: [], sortDescriptors: []) { result in
+        chainAssetFetching.fetch(shouldUseCache: true, filters: [], sortDescriptors: []) { result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):
@@ -182,7 +150,7 @@ extension SendInteractor: SendInteractorInput {
                 let fee = try await dependencies.transferService.estimateFee(for: transfer)
 
                 await MainActor.run(body: {
-                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
                 })
 
                 dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
@@ -237,6 +205,63 @@ extension SendInteractor: SendInteractorInput {
             output?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
         }
     }
+
+    func didReceive(xorlessTransfer: XorlessTransfer) {
+        guard let dependencies = dependencies else {
+            return
+        }
+
+        Task {
+            do {
+                let fee = try await dependencies.transferService.estimateFee(for: xorlessTransfer)
+                await MainActor.run(body: {
+                    output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
+                })
+            } catch {
+                await MainActor.run(body: {
+                    output?.didReceiveFee(result: .failure(error))
+                })
+            }
+        }
+    }
+
+    func convert(chainAsset: ChainAsset, toChainAsset: ChainAsset, amount: BigUInt) async throws -> SwapValues? {
+        guard let polkaswapService = dependencies?.polkaswapService else {
+            throw ConvenienceError(error: "Dependencies not ready")
+        }
+        return try await polkaswapService.fetchQuotes(amount: amount, fromChainAsset: chainAsset, toChainAsset: toChainAsset)
+    }
+
+    func provideConstants(for chainAsset: ChainAsset) {
+        guard let dependencies = dependencies else {
+            return
+        }
+
+        Task {
+            guard let runtimeService = dependencies.runtimeService else {
+                return
+            }
+
+            dependencies.existentialDepositService.fetchExistentialDeposit(
+                chainAsset: chainAsset
+            ) { [weak self] result in
+                self?.output?.didReceiveMinimumBalance(result: result)
+            }
+
+            if chainAsset.chain.isTipRequired {
+                fetchConstant(
+                    for: .defaultTip,
+                    runtimeCodingService: runtimeService,
+                    operationManager: operationManager
+                ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
+                    self?.output?.didReceiveTip(result: result)
+                }
+            }
+            if chainAsset.chain.isEquilibrium {
+                equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
+            }
+        }
+    }
 }
 
 extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
@@ -264,7 +289,7 @@ extension SendInteractor: ExtrinsicFeeProxyDelegate {
 extension SendInteractor: TransferFeeEstimationListener {
     func didReceiveFee(fee: BigUInt) {
         DispatchQueue.main.async { [weak self] in
-            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))))
+            self?.output?.didReceiveFee(result: .success(RuntimeDispatchInfo(feeValue: fee)))
         }
     }
 

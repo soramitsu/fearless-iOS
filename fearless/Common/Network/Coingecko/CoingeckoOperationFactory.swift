@@ -5,7 +5,7 @@ import SSFModels
 protocol CoingeckoOperationFactoryProtocol {
     func fetchPriceOperation(
         for tokenIds: [String],
-        currencys: [Currency]
+        currencies: [Currency]
     ) -> BaseOperation<[PriceData]>
 }
 
@@ -13,7 +13,7 @@ final class CoingeckoOperationFactory {
     private func buildURLForAssets(
         _ tokenIds: [String],
         method: String,
-        currencys: [Currency]
+        currencies: [Currency]
     ) -> URL? {
         guard var components = URLComponents(
             url: CoingeckoAPI.baseURL.appendingPathComponent(method),
@@ -21,7 +21,7 @@ final class CoingeckoOperationFactory {
         ) else { return nil }
 
         let tokenIDParam = tokenIds.joined(separator: ",")
-        let currencyParam = currencys.map { $0.id }.joined(separator: ",")
+        let currencyParam = currencies.map { $0.id }.joined(separator: ",")
 
         components.queryItems = [
             URLQueryItem(name: "ids", value: tokenIDParam),
@@ -36,12 +36,12 @@ final class CoingeckoOperationFactory {
 extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
     func fetchPriceOperation(
         for tokenIds: [String],
-        currencys: [Currency]
+        currencies: [Currency]
     ) -> BaseOperation<[PriceData]> {
         guard let url = buildURLForAssets(
             tokenIds,
             method: CoingeckoAPI.price,
-            currencys: currencys
+            currencies: currencies
         ) else {
             return BaseOperation.createWithError(NetworkBaseError.invalidUrl)
         }
@@ -67,7 +67,7 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
                     return nil
                 }
 
-                return currencys.compactMap { currency in
+                return currencies.compactMap { currency in
                     let price = priceDataJson[currency.id] as? CGFloat
                     let dayChange = priceDataJson["\(currency.id)_24h_change"] as? CGFloat
 

@@ -45,6 +45,11 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
         }
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        output.viewAppeared()
+    }
+
     // MARK: - Private methods
 
     @objc private func actionRefresh() {
@@ -69,9 +74,7 @@ extension MainNftContainerViewController: MainNftContainerViewInput {
 // MARK: - Localizable
 
 extension MainNftContainerViewController: Localizable {
-    func applyLocalization() {
-//        reloadEmptyState(animated: true)
-    }
+    func applyLocalization() {}
 }
 
 extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSource {

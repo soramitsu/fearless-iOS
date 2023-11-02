@@ -4,7 +4,8 @@ import SoraKeystore
 
 final class PolkaswapSwapConfirmationAssembly {
     static func configureModule(
-        params: PolkaswapPreviewParams
+        params: PolkaswapPreviewParams,
+        completeClosure: (() -> Void)?
     ) -> PolkaswapSwapConfirmationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
@@ -48,6 +49,7 @@ final class PolkaswapSwapConfirmationAssembly {
             viewModelFactory: PolkaswapSwapConfirmationViewModelFactory(),
             interactor: interactor,
             router: router,
+            completeClosure: completeClosure,
             localizationManager: localizationManager
         )
 

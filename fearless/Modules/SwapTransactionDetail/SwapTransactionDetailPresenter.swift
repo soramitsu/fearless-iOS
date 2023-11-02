@@ -52,7 +52,7 @@ final class SwapTransactionDetailPresenter {
         }
     }
 
-    private func prepareSubscanExplorer() {
+    private func prepareBlockExplorer() {
         let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
             $0.type == .subscan
         })
@@ -68,7 +68,7 @@ extension SwapTransactionDetailPresenter: SwapTransactionDetailViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
-        prepareSubscanExplorer()
+        prepareBlockExplorer()
     }
 
     func didTapDismiss() {

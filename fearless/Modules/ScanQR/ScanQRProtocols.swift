@@ -4,7 +4,7 @@ import SSFUtils
 
 typealias ScanQRModuleCreationResult = (view: ScanQRViewInput, input: ScanQRModuleInput)
 
-protocol ScanQRViewInput: ControllerBackedProtocol {
+protocol ScanQRViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(session: AVCaptureSession)
     func present(message: String, animated: Bool)
 }
@@ -28,17 +28,15 @@ protocol ScanQRInteractorInput: AnyObject {
 
 protocol ScanQRInteractorOutput: AnyObject {
     func handleQRService(error: Error)
-    func handleAddress(_ address: String)
-    func handleMatched(addressInfo: QRInfo)
+    func handleMatched(code: String)
 }
 
-protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable {
+protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable, SheetAlertPresentable {
     func close(view: ControllerBackedProtocol?, completion: @escaping () -> Void)
 }
 
 protocol ScanQRModuleInput: AnyObject {}
 
 protocol ScanQRModuleOutput: AnyObject {
-    func didFinishWith(address: String)
-    func didFinishWithSolomon(soraAddress: String)
+    func didFinishWith(scanType: QRMatcherType)
 }

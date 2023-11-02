@@ -1,14 +1,9 @@
 import Foundation
 import SSFModels
 
-struct NftAttribute: Codable, Equatable, Hashable {
-    let value: String
-    let key: String
-}
-
 struct NFT: Codable, Equatable, Hashable {
     let chain: ChainModel
-    let tokenId: String
+    let tokenId: String?
     let title: String?
     let description: String?
     let smartContract: String?
@@ -53,11 +48,15 @@ struct NFT: Codable, Equatable, Hashable {
             return name
         }
 
-        if let collectionName = collection?.displayName {
+        if let collectionName = collection?.displayName, let tokenId = tokenId {
             return "\(collectionName) #\(tokenId)"
         }
 
-        return "#\(tokenId)"
+        if let tokenId = tokenId {
+            return "#\(tokenId)"
+        }
+
+        return nil
     }
 }
 
@@ -106,8 +105,7 @@ struct NFTMedia: Codable, Equatable, Hashable {
             return false
         }
 
-        let imageExtensions = "jpg, jpeg, png, bmp, heic"
-        return imageExtensions.contains(format)
+        return MimePathExtensions.imageExtensions.contains(format)
     }
 
     var isVideo: Bool {
@@ -115,8 +113,7 @@ struct NFTMedia: Codable, Equatable, Hashable {
             return false
         }
 
-        let videoExtensions = "mp4, mkv, mov, avi"
-        return videoExtensions.contains(format)
+        return MimePathExtensions.videoExtensions.contains(format)
     }
 }
 

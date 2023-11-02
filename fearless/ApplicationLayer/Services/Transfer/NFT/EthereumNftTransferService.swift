@@ -5,31 +5,77 @@ import Web3ContractABI
 enum EthereumNftTransferServiceError: Error {
     case incorrectTokenId(tokenId: String)
     case missedSmartContract
+    case missedTokenId
 }
 
 final class EthereumNftTransferService: BaseEthereumService, NftTransferService {
     private let privateKey: EthereumPrivateKey
     private let senderAddress: String
-    private var feeSubscriptionId: UInt16?
+    private var feeSubscriptionId: String?
+    private let logger: LoggerProtocol?
 
     init(
         ws: Web3.Eth,
         privateKey: EthereumPrivateKey,
-        senderAddress: String
+        senderAddress: String,
+        logger: LoggerProtocol?
     ) {
         self.privateKey = privateKey
         self.senderAddress = senderAddress
+        self.logger = logger
 
         super.init(ws: ws)
     }
 
+    deinit {
+        if let feeSubscriptionId = feeSubscriptionId {
+            do {
+                try ws.unsubscribe(subscriptionId: feeSubscriptionId) { [weak self] unsubscribed in
+                    self?.logger?.debug("Subscription #\(feeSubscriptionId) unsubscribe success: \(unsubscribed)")
+                }
+            } catch {
+                logger?.error("Subscription #\(feeSubscriptionId) unsubscribe success: \(false)")
+            }
+        }
+    }
+
     func estimateFee(for transfer: NftTransfer) async throws -> BigUInt {
+        guard let smartContract = transfer.nft.smartContract else {
+            throw EthereumNftTransferServiceError.missedSmartContract
+        }
+
+        guard let tokenIdString = transfer.nft.tokenId else {
+            throw EthereumNftTransferServiceError.missedTokenId
+        }
+
+        let tokenId = BigUInt(try Data(hexStringSSF: tokenIdString))
+        let ethSenderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+        let receiverAddress = transfer.receiver.isEmpty ? senderAddress : transfer.receiver
+        let address = try EthereumAddress(rawAddress: receiverAddress.hexToBytes())
+        let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
+        let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
+        let transfer = contract.transferFrom(from: ethSenderAddress, to: address, tokenId: tokenId)
         let gasPrice = try await queryGasPrice()
         let transferGasLimitQuantity = try await transferGasLimitQuantity(for: transfer)
         return gasPrice.quantity * transferGasLimitQuantity
     }
 
     func estimateFee(for transfer: NftTransfer, baseFeePerGas: EthereumQuantity) async throws -> BigUInt {
+        guard let smartContract = transfer.nft.smartContract else {
+            throw EthereumNftTransferServiceError.missedSmartContract
+        }
+
+        guard let tokenIdString = transfer.nft.tokenId else {
+            throw EthereumNftTransferServiceError.missedTokenId
+        }
+
+        let tokenId = BigUInt(try Data(hexStringSSF: tokenIdString))
+        let ethSenderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+        let receiverAddress = transfer.receiver.isEmpty ? senderAddress : transfer.receiver
+        let address = try EthereumAddress(rawAddress: receiverAddress.hexToBytes())
+        let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
+        let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
+        let transfer = contract.transferFrom(from: ethSenderAddress, to: address, tokenId: tokenId)
         let maxPriorityFeePerGas = try await queryMaxPriorityFeePerGas()
         let transferGasLimitQuantity = try await transferGasLimitQuantity(for: transfer)
         return (maxPriorityFeePerGas.quantity + baseFeePerGas.quantity) * transferGasLimitQuantity
@@ -38,8 +84,8 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
     func subscribeForFee(transfer: NftTransfer, listener: TransferFeeEstimationListener) {
         do {
             try ws.subscribeToNewHeads(subscribed: {
-                _ in
-
+                subscriptionId in
+                self.feeSubscriptionId = subscriptionId.result
             }, onEvent: { [weak self, weak listener] result in
                 if let blockObject = result.result, let listener = listener {
                     self?.handle(newHead: blockObject, listener: listener, transfer: transfer)
@@ -92,7 +138,11 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
             throw EthereumNftTransferServiceError.missedSmartContract
         }
 
-        let tokenId = BigUInt(try Data(hexStringSSF: transfer.nft.tokenId))
+        guard let tokenIdString = transfer.nft.tokenId else {
+            throw EthereumNftTransferServiceError.missedTokenId
+        }
+
+        let tokenId = BigUInt(try Data(hexStringSSF: tokenIdString))
         guard let chainId = BigUInt(string: transfer.nft.chain.chainId) else {
             throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
         }
@@ -151,9 +201,17 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         return result.hex()
     }
 
-    private func handle(newHead: EthereumBlockObject, listener: TransferFeeEstimationListener, transfer: NftTransfer) {
+    private func handle(
+        newHead: EthereumBlockObject,
+        listener: TransferFeeEstimationListener,
+        transfer: NftTransfer
+    ) {
         guard let baseFeePerGas = newHead.baseFeePerGas else {
-            listener.didReceiveFeeError(feeError: TransferServiceError.cannotEstimateFee(reason: "unexpected new block head response"))
+            Task {
+                let fee = try await estimateFee(for: transfer)
+                listener.didReceiveFee(fee: fee)
+            }
+
             return
         }
 

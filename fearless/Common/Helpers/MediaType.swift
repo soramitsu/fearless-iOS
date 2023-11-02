@@ -58,11 +58,11 @@ enum MediaType: CaseIterable {
     var pathExtensions: [String] {
         switch self {
         case .image:
-            return ["jpg", "jpeg", "png", "heic", "tiff", "bmp"]
+            return MimePathExtensions.imageExtensions
         case .video:
-            return ["mp4", "mpeg", "mov", "mkv"]
+            return MimePathExtensions.videoExtensions
         case .gif:
-            return ["gif"]
+            return MimePathExtensions.gifExtensions
         }
     }
 }

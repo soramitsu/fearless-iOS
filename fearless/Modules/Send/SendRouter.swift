@@ -6,18 +6,16 @@ final class SendRouter: SendRouterInput {
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        receiverAddress: String,
-        amount: Decimal,
-        tip: Decimal?,
-        scamInfo: ScamInfo?
+        call: SendConfirmTransferCall,
+        scamInfo: ScamInfo?,
+        feeViewModel: BalanceViewModelProtocol?
     ) {
         guard let controller = WalletSendConfirmViewFactory.createView(
             wallet: wallet,
             chainAsset: chainAsset,
-            receiverAddress: receiverAddress,
-            amount: amount,
-            tip: tip,
-            scamInfo: scamInfo
+            call: call,
+            scamInfo: scamInfo,
+            feeViewModel: feeViewModel
         )?.controller else {
             return
         }
@@ -32,7 +30,8 @@ final class SendRouter: SendRouterInput {
         from view: ControllerBackedProtocol?,
         moduleOutput: ScanQRModuleOutput
     ) {
-        guard let module = ScanQRAssembly.configureModule(moduleOutput: moduleOutput) else {
+        let matcher = QRInfoMatcher(decoder: QRCoderFactory().createDecoder())
+        guard let module = ScanQRAssembly.configureModule(moduleOutput: moduleOutput, matchers: [matcher]) else {
             return
         }
 

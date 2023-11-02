@@ -12,7 +12,7 @@ protocol PolkaswapRemoteSubscriptionServiceProtocol {
         updateClosure: @escaping (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void
     )
 
-    func subscribToBlocks(
+    func subscribeToBlocks(
         updateClosure: @escaping (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void
     )
 
@@ -29,7 +29,7 @@ final class PolkaswapRemoteSubscriptionService: PolkaswapRemoteSubscriptionServi
         self.logger = logger
     }
 
-    func subscribToBlocks(
+    func subscribeToBlocks(
         updateClosure: @escaping (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void
     ) {
         do {

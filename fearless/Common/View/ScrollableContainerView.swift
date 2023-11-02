@@ -32,6 +32,14 @@ final class ScrollableContainerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func addArrangedSubview(_ view: UIView) {
+        stackView.addArrangedSubview(view)
+    }
+
+    func setCustomSpacing(_ spacing: CGFloat, after arrangedSubview: UIView) {
+        stackView.setCustomSpacing(spacing, after: arrangedSubview)
+    }
+
     private func configureScrollView() {
         scrollView.backgroundColor = .clear
         scrollView.translatesAutoresizingMaskIntoConstraints = false

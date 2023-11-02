@@ -14,7 +14,7 @@ final class AccountInfoUpdatingService {
 
     private(set) var selectedMetaAccount: MetaAccountModel
     private let chainRegistry: ChainRegistryProtocol
-    private let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
+    private let substrateRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     private let ethereumRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
@@ -39,7 +39,7 @@ final class AccountInfoUpdatingService {
     ) {
         selectedMetaAccount = selectedAccount
         self.chainRegistry = chainRegistry
-        self.remoteSubscriptionService = remoteSubscriptionService
+        substrateRemoteSubscriptionService = remoteSubscriptionService
         self.ethereumRemoteSubscriptionService = ethereumRemoteSubscriptionService
         self.logger = logger
         self.eventCenter = eventCenter
@@ -55,7 +55,7 @@ final class AccountInfoUpdatingService {
         if chainAsset.chain.isEthereum {
             return ethereumRemoteSubscriptionService
         } else {
-            return remoteSubscriptionService
+            return substrateRemoteSubscriptionService
         }
     }
 
@@ -86,7 +86,9 @@ final class AccountInfoUpdatingService {
                 return
             }
 
-            let key = chainAsset.uniqueKey(accountId: accountId)
+            guard !chainAsset.chain.isEthereum else {
+                return
+            }
 
             let maybeSubscriptionId = await getRemoteSubscriptionService(for: chainAsset).attachToAccountInfo(
                 of: accountId,
@@ -167,7 +169,7 @@ final class AccountInfoUpdatingService {
                 closure: nil
             )
         case .substrate:
-            remoteSubscriptionService.detachFromAccountInfo(
+            substrateRemoteSubscriptionService.detachFromAccountInfo(
                 for: subscriptionInfo.subscriptionId,
                 chainAssetKey: key,
                 queue: nil,

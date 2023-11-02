@@ -5387,7 +5387,18 @@
             "color": "8D809E",
             "isUtility": true,
             "type": "normal"
-        }],
+        },
+            {
+                        "id": "bc55b3f0-2b34-4561-aeb6-bd4ca9c88b7e",
+                        "type": "ormlAsset",
+                        "name": "tether usd",
+                        "symbol": "usdt",
+                        "precision": 6,
+                        "currencyId": "1",
+                        "priceId": "tether",
+                        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDT.svg",
+                        "color": "26A17B"
+                      }],
         "nodes": [{
             "url": "wss://rpc-pendulum.prd.pendulumchain.tech",
             "name": "PendulumChain node"
@@ -5602,6 +5613,30 @@
                 "priceId": "matic-network",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
                 "color": "8247E5",
+                "type": "normal",
+                "ethereumType": "erc20"
+            },
+            {
+                "isUtility": false,
+                "id": "0xc7d9c108d4e1dd1484d3e2568d7f74bfd763d356",
+                "name": "sora synthetic usd",
+                "symbol": "xstusd",
+                "precision": 18,
+                "priceId": "sora-synthetic-usd",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XSTUSD.svg",
+                "color": "8247E5",
+                "type": "normal",
+                "ethereumType": "erc20"
+            },
+            {
+                "isUtility": false,
+                "id": "0xe88f8313e61A97cEc1871EE37fBbe2a8bf3ed1E4",
+                "name": "sora validator token",
+                "symbol": "val",
+                "precision": 18,
+                "priceId": "sora-validator-token",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/VAL.svg",
+                "color": "F3B966",
                 "type": "normal",
                 "ethereumType": "erc20"
             }

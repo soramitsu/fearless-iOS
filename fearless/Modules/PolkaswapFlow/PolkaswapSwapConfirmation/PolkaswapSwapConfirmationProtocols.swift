@@ -30,7 +30,8 @@ protocol PolkaswapSwapConfirmationRouterInput: PushDismissable, SheetAlertPresen
     func complete(
         on view: ControllerBackedProtocol?,
         hashString: String,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        completeClosure: (() -> Void)?
     )
 }
 

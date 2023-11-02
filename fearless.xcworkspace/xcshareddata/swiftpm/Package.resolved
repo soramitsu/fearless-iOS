@@ -20,30 +20,12 @@
         }
       },
       {
-        "package": "CwlCatchException",
-        "repositoryURL": "https://github.com/mattgallagher/CwlCatchException.git",
-        "state": {
-          "branch": null,
-          "revision": "3b123999de19bf04905bc1dfdb76f817b0f2cc00",
-          "version": "2.1.2"
-        }
-      },
-      {
-        "package": "CwlPreconditionTesting",
-        "repositoryURL": "https://github.com/mattgallagher/CwlPreconditionTesting.git",
-        "state": {
-          "branch": null,
-          "revision": "a23ded2c91df9156628a6996ab4f347526f17b6b",
-          "version": "2.1.2"
-        }
-      },
-      {
         "package": "Nimble",
         "repositoryURL": "https://github.com/Quick/Nimble",
         "state": {
           "branch": null,
-          "revision": "1f3bde57bde12f5e7b07909848c071e9b73d6edc",
-          "version": "10.0.0"
+          "revision": "e9d769113660769a4d9dd3afb855562c0b7ae7b0",
+          "version": "7.3.4"
         }
       },
       {
@@ -56,12 +38,21 @@
         }
       },
       {
+        "package": "QRCode",
+        "repositoryURL": "https://github.com/WalletConnect/QRCode",
+        "state": {
+          "branch": null,
+          "revision": "263f280d2c8144adfb0b6676109846cfc8dd552b",
+          "version": "14.3.1"
+        }
+      },
+      {
         "package": "Quick",
         "repositoryURL": "https://github.com/Quick/Quick",
         "state": {
           "branch": null,
-          "revision": "f9d519828bb03dfc8125467d8f7b93131951124c",
-          "version": "5.0.1"
+          "revision": "f2b5a06440ea87eba1a167cab37bf6496646c52e",
+          "version": "1.3.4"
         }
       },
       {
@@ -125,6 +116,42 @@
           "branch": null,
           "revision": "e7403c35ca6bb539a7ca353b91cc2d8ec0362d58",
           "version": "1.19.0"
+        }
+      },
+      {
+        "package": "swift-qrcode-generator",
+        "repositoryURL": "https://github.com/dagronf/swift-qrcode-generator",
+        "state": {
+          "branch": null,
+          "revision": "5ca09b6a2ad190f94aa3d6ddef45b187f8c0343b",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "SwiftImageReadWrite",
+        "repositoryURL": "https://github.com/dagronf/SwiftImageReadWrite",
+        "state": {
+          "branch": null,
+          "revision": "5596407d1cf61b953b8e658fa8636a471df3c509",
+          "version": "1.1.6"
+        }
+      },
+      {
+        "package": "Swime",
+        "repositoryURL": "https://github.com/sendyhalim/Swime",
+        "state": {
+          "branch": null,
+          "revision": "4e538834483059ceefaaad8cdb3abe0d7d1c5146",
+          "version": "3.1.0"
+        }
+      },
+      {
+        "package": "WalletConnect",
+        "repositoryURL": "https://github.com/WalletConnect/WalletConnectSwiftV2",
+        "state": {
+          "branch": "main",
+          "revision": "f22bcf48fbf8bb7c730fa2bb4e800a5eba730c69",
+          "version": null
         }
       },
       {

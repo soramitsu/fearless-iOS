@@ -27,7 +27,6 @@ final class ConnectionPool {
     private weak var delegate: ConnectionPoolDelegate?
     private let operationQueue: OperationQueue
 
-    private let mutex = NSLock()
     private lazy var lock = ReaderWriterLock()
     private lazy var connectionLock = ReaderWriterLock()
 
@@ -66,11 +65,17 @@ extension ConnectionPool: ConnectionPoolProtocol {
         }
 
         var chainFailedUrls = getFailedUrls(for: chain.chainId).or([])
-        let node = chain.selectedNode ?? chain.nodes
-            .first(where: {
-                ($0.url != ignoredUrl) && !chainFailedUrls.contains($0.url)
-            })
         chainFailedUrls.insert(ignoredUrl)
+
+//        If all available nodes are in blacklist => Remove all nodes except last one checked
+        if chainFailedUrls.count == chain.nodes.count {
+            lock.exclusivelyWrite { [weak self] in
+                self?.failedUrls[chain.chainId] = [ignoredUrl]
+            }
+        }
+        let node = chain.selectedNode ?? chain.nodes.first(where: {
+            ($0.url != ignoredUrl) && !chainFailedUrls.contains($0.url)
+        })
 
         lock.exclusivelyWrite { [weak self] in
             self?.failedUrls[chain.chainId] = chainFailedUrls

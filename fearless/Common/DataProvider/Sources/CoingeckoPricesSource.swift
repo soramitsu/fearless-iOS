@@ -7,7 +7,7 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
     typealias Model = [PriceData]
 
     private let pricesIds: [AssetModel.PriceId]
-    private var currencys: [Currency]?
+    private var currencies: [Currency]?
 
     private let eventCenter: EventCenterProtocol = {
         EventCenter.shared
@@ -15,21 +15,21 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
 
     private let readWriterLock = ReaderWriterLock()
 
-    init(pricesIds: [AssetModel.PriceId], currencys: [Currency]? = nil) {
+    init(pricesIds: [AssetModel.PriceId], currencies: [Currency]? = nil) {
         self.pricesIds = pricesIds
-        self.currencys = currencys
+        self.currencies = currencies
         setup()
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
-        let currencys = readWriterLock.concurrentlyRead {
-            self.currencys ?? [SelectedWalletSettings.shared.value?.selectedCurrency].compactMap { $0 }
+        let currencies = readWriterLock.concurrentlyRead {
+            self.currencies ?? [SelectedWalletSettings.shared.value?.selectedCurrency].compactMap { $0 }
         }
 
-        if currencys.isNotEmpty {
+        if currencies.isNotEmpty {
             let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(
                 for: pricesIds,
-                currencys: currencys.compactMap { $0 }
+                currencies: currencies.compactMap { $0 }
             )
 
             let targetOperation: BaseOperation<[PriceData]?> = ClosureOperation {
@@ -58,8 +58,8 @@ extension CoingeckoPricesSource: EventVisitorProtocol {
             guard let strongSelf = self else {
                 return
             }
-            if strongSelf.currencys != [event.account.selectedCurrency] {
-                strongSelf.currencys = [event.account.selectedCurrency]
+            if strongSelf.currencies != [event.account.selectedCurrency] {
+                strongSelf.currencies = [event.account.selectedCurrency]
             }
         }
     }

@@ -17,6 +17,7 @@ struct SendDependencies {
     let equilibruimTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     let transferService: TransferServiceProtocol
     let accountInfoFetching: AccountInfoFetchingProtocol
+    let polkaswapService: PolkaswapService?
 }
 
 final class SendDepencyContainer {
@@ -56,7 +57,7 @@ final class SendDepencyContainer {
         let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
         let transferService = try await createTransferService(for: chainAsset)
-
+        let polkaswapService = createPolkaswapService(chainAsset: chainAsset, chainRegistry: chainRegistry)
         let accountInfoFetching = createAccountInfoFetching(for: chainAsset)
         let dependencies = SendDependencies(
             wallet: wallet,
@@ -65,7 +66,8 @@ final class SendDepencyContainer {
             existentialDepositService: existentialDepositService,
             equilibruimTotalBalanceService: equilibruimTotalBalanceService,
             transferService: transferService,
-            accountInfoFetching: accountInfoFetching
+            accountInfoFetching: accountInfoFetching,
+            polkaswapService: polkaswapService
         )
 
         cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies
@@ -94,7 +96,6 @@ final class SendDepencyContainer {
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             throw ChainAccountFetchingError.accountNotExists
         }
-        let keystore = Keychain()
 
         switch chainAsset.chain.chainBaseType {
         case .substrate:
@@ -121,9 +122,6 @@ final class SendDepencyContainer {
             )
             let connection = try chainRegistry.getConnection(for: chainAsset.chain)
 
-            let accId = !accountResponse.isChainAccount ? nil : accountResponse.accountId
-            let tag: String = KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accId)
-
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,
                 usedRuntimePaths: [:],
@@ -139,15 +137,16 @@ final class SendDepencyContainer {
                 engine: connection,
                 operationManager: operationManager
             )
-            let secretKey = try keystore.fetchKey(for: tag)
-            let signer = TransactionSigner(publicKeyData: accountResponse.publicKey, secretKeyData: secretKey, cryptoType: SFCryptoType(accountResponse.cryptoType.utilsType))
+            let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
+            let signer = TransactionSigner(
+                publicKeyData: accountResponse.publicKey,
+                secretKeyData: secretKey,
+                cryptoType: SFCryptoType(utilsType: accountResponse.cryptoType.utilsType, isEthereum: chainAsset.chain.isEthereumBased)
+            )
             let callFactory = SubstrateCallFactoryAssembly.createCallFactory(forSSF: runtimeService.runtimeSpecVersion)
             return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
         case .ethereum:
-            let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-            let tag: String = KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-
-            let secretKey = try keystore.fetchKey(for: tag)
+            let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
 
             guard let address = accountResponse.toAddress() else {
                 throw ConvenienceError(error: "Cannot fetch address from chain account")
@@ -174,5 +173,50 @@ final class SendDepencyContainer {
         }
         return EquilibriumTotalBalanceServiceFactory
             .createService(wallet: wallet, chainAsset: chainAsset)
+    }
+
+    private func fetchSecretKey(
+        for chain: ChainModel,
+        accountResponse: ChainAccountResponse
+    ) throws -> Data {
+        let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
+        let tag: String = chain.isEthereumBased
+            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+            : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+
+        let keystore = Keychain()
+        let secretKey = try keystore.fetchKey(for: tag)
+        return secretKey
+    }
+
+    private func createPolkaswapService(
+        chainAsset: ChainAsset,
+        chainRegistry: ChainRegistryProtocol
+    ) -> PolkaswapService? {
+        guard chainAsset.chain.isSora else {
+            return nil
+        }
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let repositoryFacade = SubstrateDataStorageFacade.shared
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+            repositoryFacade.createRepository(
+                filter: nil,
+                sortDescriptors: [],
+                mapper: AnyCoreDataMapper(PolkaswapSettingMapper())
+            )
+        let operationFactory = PolkaswapOperationFactory(
+            storageRequestFactory: storageOperationFactory,
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
+        )
+        let polkaswapService = PolkaswapServiceImpl(
+            polkaswapOperationFactory: operationFactory,
+            settingsRepository: AnyDataProviderRepository(settingsRepository),
+            operationManager: operationManager
+        )
+        return polkaswapService
     }
 }

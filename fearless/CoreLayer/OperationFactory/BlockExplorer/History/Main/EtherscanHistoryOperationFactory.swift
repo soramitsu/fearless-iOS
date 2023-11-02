@@ -74,12 +74,12 @@ final class EtherscanHistoryOperationFactory {
         ClosureOperation {
             let remoteTransactions = try remoteOperation.extractNoCancellableResultData().result
 
-            let transactions = remoteTransactions
-                .filter { asset.ethereumType == .normal ? true : $0.contractAddress.lowercased() == asset.id.lowercased() }
+            let transactions = remoteTransactions?
+                .filter { asset.ethereumType == .normal ? true : $0.contractAddress?.lowercased() == asset.id.lowercased() }
                 .sorted(by: { $0.timestampInSeconds > $1.timestampInSeconds })
                 .compactMap {
                     AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
-                }.filter { $0.amount.decimalValue > 0 }
+                }.filter { $0.amount.decimalValue > 0 } ?? []
 
             return AssetTransactionPageData(transactions: transactions)
         }

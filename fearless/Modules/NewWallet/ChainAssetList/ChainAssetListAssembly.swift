@@ -16,7 +16,7 @@ final class ChainAssetListAssembly {
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let substrateAccountInfoFetching = AccountInfoFetching(
+        let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationQueue()
@@ -32,6 +32,15 @@ final class ChainAssetListAssembly {
 
         let dependencyContainer = ChainAssetListDependencyContainer()
 
+        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+            logger: Logger.shared,
+            repository: accountInfoRepository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
+        )
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -39,8 +48,9 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            accountInfoFetchingProviders: [substrateAccountInfoFetching],
-            dependencyContainer: dependencyContainer
+            accountInfoFetchingProvider: accountInfoFetching,
+            dependencyContainer: dependencyContainer,
+            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
