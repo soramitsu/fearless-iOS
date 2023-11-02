@@ -155,6 +155,42 @@
         }
       },
       {
+        "package": "swift-qrcode-generator",
+        "repositoryURL": "https://github.com/dagronf/swift-qrcode-generator",
+        "state": {
+          "branch": null,
+          "revision": "5ca09b6a2ad190f94aa3d6ddef45b187f8c0343b",
+          "version": "1.0.3"
+        }
+      },
+      {
+        "package": "SwiftImageReadWrite",
+        "repositoryURL": "https://github.com/dagronf/SwiftImageReadWrite",
+        "state": {
+          "branch": null,
+          "revision": "5596407d1cf61b953b8e658fa8636a471df3c509",
+          "version": "1.1.6"
+        }
+      },
+      {
+        "package": "Swime",
+        "repositoryURL": "https://github.com/sendyhalim/Swime",
+        "state": {
+          "branch": null,
+          "revision": "4e538834483059ceefaaad8cdb3abe0d7d1c5146",
+          "version": "3.1.0"
+        }
+      },
+      {
+        "package": "WalletConnect",
+        "repositoryURL": "https://github.com/WalletConnect/WalletConnectSwiftV2",
+        "state": {
+          "branch": "main",
+          "revision": "f22bcf48fbf8bb7c730fa2bb4e800a5eba730c69",
+          "version": null
+        }
+      },
+      {
         "package": "websocket-kit",
         "repositoryURL": "https://github.com/vapor/websocket-kit",
         "state": {
