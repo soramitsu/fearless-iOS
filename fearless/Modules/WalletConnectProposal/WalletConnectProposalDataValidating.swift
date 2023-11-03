@@ -14,9 +14,9 @@ final class WalletConnectProposalDataValidating {
         onReject: (() -> Void)?
     ) -> DataValidating {
         WarningConditionViolation { [weak self] delegate in
-            let proceedTitle = R.string.localizable
-                .commonProceed(preferredLanguages: locale.rLanguages)
-            let proceedAction = SheetAlertPresentableAction(title: proceedTitle, style: .pinkBackgroundWhiteText) {
+            let approveTitle = R.string.localizable
+                .commonApprove(preferredLanguages: locale.rLanguages)
+            let approveAction = SheetAlertPresentableAction(title: approveTitle, style: .pinkBackgroundWhiteText) {
                 delegate.didCompleteWarningHandling()
             }
 
@@ -28,10 +28,10 @@ final class WalletConnectProposalDataValidating {
 
             self?.basePresentable.present(
                 message: AutoNamespacesError.requiredMethodsNotSatisfied.localizedDescription,
-                title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale.rLanguages),
+                title: "",
                 closeAction: nil,
                 from: view,
-                actions: [proceedAction, rejectAction]
+                actions: [approveAction, rejectAction]
             )
         } preservesCondition: {
             let fearlessWalletMethods = WalletConnectMethod.allCases.map { $0.rawValue }
