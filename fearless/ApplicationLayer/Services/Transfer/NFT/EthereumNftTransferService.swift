@@ -71,7 +71,7 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
     }
 
     func submit(transfer: NftTransfer) async throws -> String {
-        try await transferERC721(transfer: transfer)
+        try await transferERC(transfer: transfer)
     }
 
     private func transferGasLimitQuantity(for transfer: NftTransfer) async throws -> BigUInt {
@@ -90,13 +90,13 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
 
         var transferSolidityInvocation: SolidityInvocation
-        switch transfer.nft.tokenType ?? .erc721 {
-        case .erc721:
+        switch transfer.nft.tokenType {
+        case .erc721, .none:
             let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
             transferSolidityInvocation = contract.transferFrom(from: ethSenderAddress, to: address, tokenId: tokenId)
         case .erc1155:
             let contract = ws.Contract(type: GenericERC1155Contract.self, address: contractAddress)
-            transferSolidityInvocation = contract.safeTransferFrom(from: ethSenderAddress, to: address, tokenId: tokenId, value: 1, data: [])
+            transferSolidityInvocation = contract.safeTransferFrom(from: ethSenderAddress, to: address, tokenId: tokenId, value: transfer.value, data: [])
         }
 
         let transferGasLimit = try await queryGasLimit(
@@ -107,7 +107,7 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         return transferGasLimit.quantity
     }
 
-    private func transferERC721(transfer: NftTransfer) async throws -> String {
+    private func transferERC(transfer: NftTransfer) async throws -> String {
         guard let smartContract = transfer.nft.smartContract else {
             throw EthereumNftTransferServiceError.missedSmartContract
         }
@@ -126,8 +126,8 @@ final class EthereumNftTransferService: BaseEthereumService, NftTransferService 
         let contractAddress = try EthereumAddress(rawAddress: smartContract.hexToBytes())
 
         var transferCall: SolidityInvocation
-        switch transfer.nft.tokenType ?? .erc721 {
-        case .erc721:
+        switch transfer.nft.tokenType {
+        case .erc721, .none:
             let contract = ws.Contract(type: GenericERC721Contract.self, address: contractAddress)
             transferCall = contract.transferFrom(from: senderAddress, to: address, tokenId: tokenId)
         case .erc1155:
