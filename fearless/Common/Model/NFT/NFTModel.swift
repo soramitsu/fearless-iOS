@@ -11,7 +11,6 @@ struct NFT: Codable, Equatable, Hashable {
     let mediaThumbnail: String?
     let media: [NFTMedia]?
     let tokenType: NFTTokenType?
-    let attributes: [NftAttribute]?
     let collectionName: String?
     let collection: NFTCollection?
 
