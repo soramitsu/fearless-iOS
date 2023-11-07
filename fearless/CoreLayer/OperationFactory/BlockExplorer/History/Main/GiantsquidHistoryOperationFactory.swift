@@ -46,7 +46,7 @@ final class GiantsquidHistoryOperationFactory {
         let resultFactory = AnyNetworkResultFactory<GiantsquidResponseData> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<GiantsquidResponseData>.self,
+                    GraphQLResponse<GiantsquidResponseData>.self,
                     from: data
                 )
 

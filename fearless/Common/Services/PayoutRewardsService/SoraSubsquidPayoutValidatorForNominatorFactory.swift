@@ -17,11 +17,15 @@ final class SoraSubsquidPayoutValidatorsForNominatorFactory {
         address: AccountAddress,
         historyRange: @escaping () -> EraRange?
     ) -> NetworkRequestFactoryProtocol {
-        BlockNetworkRequestFactory {
-            var request = URLRequest(url: self.url)
+        BlockNetworkRequestFactory { [weak self] in
+            guard let strongSelf = self else {
+                throw ConvenienceError(error: "factory unavailable")
+            }
+
+            var request = URLRequest(url: strongSelf.url)
 
             let eraRange = historyRange()
-            let params = self.requestParams(accountAddress: address, eraRange: eraRange)
+            let params = strongSelf.requestParams(accountAddress: address, eraRange: eraRange)
             let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
             request.httpBody = try JSONEncoder().encode(info)
             request.setValue(

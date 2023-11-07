@@ -64,7 +64,7 @@ extension ParachainSubsquidHistoryOperationFactory: ParachainHistoryOperationFac
         let resultFactory = AnyNetworkResultFactory<DelegatorHistoryResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<SubsquidDelegatorHistoryData>.self,
+                    GraphQLResponse<SubsquidDelegatorHistoryData>.self,
                     from: data
                 )
 

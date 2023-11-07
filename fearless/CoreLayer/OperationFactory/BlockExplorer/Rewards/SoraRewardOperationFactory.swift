@@ -93,7 +93,7 @@ extension SoraRewardOperationFactory: RewardOperationFactoryProtocol {
                 endTimestamp: endTimestamp
             )
 
-            guard let url = self?.url else {
+            guard let url = strongSelf.url else {
                 throw SubqueryRewardOperationFactoryError.urlMissing
             }
 
@@ -112,7 +112,7 @@ extension SoraRewardOperationFactory: RewardOperationFactoryProtocol {
 
         let resultFactory = AnyNetworkResultFactory<RewardOrSlashResponse> { data in
             let response = try JSONDecoder().decode(
-                SubqueryResponse<GiantsquidResponseData>.self,
+                GraphQLResponse<GiantsquidResponseData>.self,
                 from: data
             )
 

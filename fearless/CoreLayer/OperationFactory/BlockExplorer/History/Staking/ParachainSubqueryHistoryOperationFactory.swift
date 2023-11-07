@@ -84,7 +84,7 @@ extension ParachainSubqueryHistoryOperationFactory: ParachainHistoryOperationFac
         let resultFactory = AnyNetworkResultFactory<DelegatorHistoryResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<SubqueryDelegatorHistoryData>.self,
+                    GraphQLResponse<SubqueryDelegatorHistoryData>.self,
                     from: data
                 )
 

@@ -3,7 +3,7 @@ import IrohaCrypto
 import SSFModels
 
 final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
-    let chainAsset: ChainAsset
+    private let chainAsset: ChainAsset
 
     init(chainAsset: ChainAsset) {
         self.chainAsset = chainAsset
