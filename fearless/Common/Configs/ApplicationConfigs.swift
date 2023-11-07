@@ -1,5 +1,6 @@
 import Foundation
 import os
+import SSFXCM
 
 protocol ApplicationConfigProtocol {
     var termsURL: URL { get }
@@ -30,8 +31,8 @@ protocol ApplicationConfigProtocol {
 
     // MARK: - GitHub
 
-    var chainListURL: URL? { get }
-    var chainsTypesURL: URL? { get }
+    var chainsSourceUrl: URL { get }
+    var chainTypesSourceUrl: URL { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
     var polkaswapSettingsURL: URL? { get }
@@ -41,7 +42,7 @@ final class ApplicationConfig {
     static let shared = ApplicationConfig()
 }
 
-extension ApplicationConfig: ApplicationConfigProtocol {
+extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     var termsURL: URL {
         URL(string: "https://fearlesswallet.io/terms")!
     }
@@ -159,7 +160,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     // MARK: - GitHub
 
-    var chainListURL: URL? {
+    var chainsSourceUrl: URL {
         #if F_DEV
             GitHubUrl.url(suffix: "chains/v4/chains_dev.json", branch: .rococo)
         #else
@@ -167,8 +168,18 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         #endif
     }
 
-    var chainsTypesURL: URL? {
+    var chainTypesSourceUrl: URL {
         GitHubUrl.url(suffix: "chains/all_chains_types.json", branch: .rococo)
+    }
+
+    // MARK: - xcm
+
+    var destinationFeeSourceUrl: URL {
+        GitHubUrl.url(suffix: "xcm/v2/xcm_fees.json", branch: .rococo)
+    }
+
+    var tokenLocationsSourceUrl: URL {
+        GitHubUrl.url(suffix: "xcm/v2/xcm_token_locations.json")
     }
 
     var appVersionURL: URL? {
@@ -219,7 +230,7 @@ private enum GitHubUrl {
         case rococo = "feature/rococo"
     }
 
-    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL? {
-        URL(string: url.rawValue)?.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
+    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL {
+        URL(string: url.rawValue)!.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
     }
 }
