@@ -25,7 +25,7 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
             chain: nft.chain.name,
             imageViewModel: imageViewModel,
             nft: nft,
-            tokenType: nft.tokenType
+            tokenType: nft.tokenType?.rawValue
         )
     }
 }

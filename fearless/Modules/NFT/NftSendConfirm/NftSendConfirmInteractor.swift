@@ -43,7 +43,8 @@ extension NftSendConfirmInteractor: NftSendConfirmInteractorInput {
 
                 let transfer = NftTransfer(
                     nft: nft,
-                    receiver: address
+                    receiver: address,
+                    value: 1
                 )
 
                 let fee = try await transferService.estimateFee(for: transfer)
@@ -64,7 +65,7 @@ extension NftSendConfirmInteractor: NftSendConfirmInteractorInput {
     func submitExtrinsic(nft: NFT, receiverAddress: String) {
         Task {
             do {
-                let transfer = NftTransfer(nft: nft, receiver: receiverAddress)
+                let transfer = NftTransfer(nft: nft, receiver: receiverAddress, value: 1)
                 let txHash = try await transferService.submit(transfer: transfer)
 
                 await MainActor.run {
