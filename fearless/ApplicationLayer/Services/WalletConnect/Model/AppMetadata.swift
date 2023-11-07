@@ -7,7 +7,8 @@ extension AppMetadata {
             name: "Fearless wallet",
             description: "Defi wallet",
             url: "https://fearlesswallet.io",
-            icons: [""]
+            icons: [""],
+            redirect: AppMetadata.Redirect(native: "", universal: nil)
         )
     }
 }
