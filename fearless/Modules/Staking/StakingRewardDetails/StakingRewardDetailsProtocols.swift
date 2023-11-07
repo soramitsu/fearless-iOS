@@ -23,17 +23,15 @@ protocol StakingRewardDetailsWireframeProtocol: AnyObject, AddressOptionsPresent
     func showPayoutConfirmation(
         from view: ControllerBackedProtocol?,
         payoutInfo: PayoutInfo,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 
 protocol StakingRewardDetailsViewFactoryProtocol: AnyObject {
     static func createView(
-        selectedAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         input: StakingRewardDetailsInput
     ) -> StakingRewardDetailsViewProtocol?
 }

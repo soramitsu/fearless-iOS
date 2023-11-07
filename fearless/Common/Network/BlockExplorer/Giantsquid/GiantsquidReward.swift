@@ -5,6 +5,17 @@ import IrohaCrypto
 import SSFModels
 
 struct GiantsquidReward: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case amount
+        case era
+        case accountId
+        case validator
+        case timestamp
+        case extrinsicHash
+        case blockNumber
+        case id
+    }
+
     let amount: String
     let era: Int?
     let accountId: String?
@@ -18,6 +29,25 @@ struct GiantsquidReward: Decodable {
         let dateFormatter = DateFormatter.giantsquidDate
         let date = dateFormatter.value(for: Locale.current).date(from: timestamp)
         return Int64(date?.timeIntervalSince1970 ?? 0)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        amount = try container.decode(String.self, forKey: .amount)
+        era = try container.decodeIfPresent(Int.self, forKey: .era)
+        accountId = try container.decodeIfPresent(String.self, forKey: .accountId)
+        validator = try container.decodeIfPresent(String.self, forKey: .validator)
+        extrinsicHash = try container.decodeIfPresent(String.self, forKey: .extrinsicHash)
+        blockNumber = try container.decodeIfPresent(UInt32.self, forKey: .blockNumber)
+        id = try container.decode(String.self, forKey: .id)
+
+        do {
+            timestamp = try container.decode(String.self, forKey: .timestamp)
+        } catch {
+            let timestampValue = try container.decode(UInt64.self, forKey: .timestamp)
+            timestamp = "\(timestampValue)"
+        }
     }
 }
 

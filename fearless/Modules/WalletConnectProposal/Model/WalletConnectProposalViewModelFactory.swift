@@ -178,7 +178,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         WalletConnectProposalCellModel.DetailsViewModel(
             title: proposal.proposer.name,
             subtitle: URL(string: proposal.proposer.url)?.host ?? proposal.proposer.url,
-            icon: RemoteImageViewModel(string: proposal.proposer.url)
+            icon: RemoteImageViewModel(string: proposal.proposer.icons.first)
         )
     }
 

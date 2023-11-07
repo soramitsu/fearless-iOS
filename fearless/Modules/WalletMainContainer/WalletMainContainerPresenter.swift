@@ -62,15 +62,9 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.walletConnect(uri: uri)
             } catch {
-                await MainActor.run {
-                    router.present(
-                        message: error.localizedDescription,
-                        title: R.string.localizable.commonErrorInternal(preferredLanguages: selectedLocale.rLanguages),
-                        closeAction: nil,
-                        from: view,
-                        actions: []
-                    )
-                }
+                await MainActor.run(body: {
+                    router.present(error: error, from: view, locale: selectedLocale)
+                })
             }
         }
     }

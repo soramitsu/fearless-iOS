@@ -4,6 +4,7 @@ import BigInt
 struct NftTransfer {
     let nft: NFT
     let receiver: String
+    let value: BigUInt
 }
 
 protocol NftTransferService {
