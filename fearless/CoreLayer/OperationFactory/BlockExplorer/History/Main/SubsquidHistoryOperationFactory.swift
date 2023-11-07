@@ -45,7 +45,7 @@ final class SubsquidHistoryOperationFactory {
         let resultFactory = AnyNetworkResultFactory<SubsquidHistoryResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<SubsquidHistoryResponse>.self,
+                    GraphQLResponse<SubsquidHistoryResponse>.self,
                     from: data
                 )
 

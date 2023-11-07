@@ -3,12 +3,10 @@ import IrohaCrypto
 import SSFModels
 
 final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
-    let chain: ChainModel
-    let asset: AssetModel
+    private let chainAsset: ChainAsset
 
-    init(chain: ChainModel, asset: AssetModel) {
-        self.chain = chain
-        self.asset = asset
+    init(chainAsset: ChainAsset) {
+        self.chainAsset = chainAsset
     }
 
     func calculate(
@@ -20,19 +18,19 @@ final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
     ) throws -> PayoutInfo? {
         guard
             let totalRewardAmount = erasRewardDistribution.totalValidatorRewardByEra[era],
-            let totalReward = Decimal.fromSubstrateAmount(totalRewardAmount, precision: Int16(asset.precision)),
+            let totalReward = Decimal.fromSubstrateAmount(totalRewardAmount, precision: Int16(chainAsset.asset.precision)),
             let points = erasRewardDistribution.validatorPointsDistributionByEra[era] else {
             return nil
         }
 
         guard
             let ownStake = Decimal
-            .fromSubstrateAmount(validatorInfo.exposure.own, precision: Int16(asset.precision)),
+            .fromSubstrateAmount(validatorInfo.exposure.own, precision: Int16(chainAsset.asset.precision)),
             let comission = Decimal.fromSubstratePerbill(value: validatorInfo.prefs.commission),
             let validatorPoints = points.individual
             .first(where: { $0.accountId == validatorInfo.accountId })?.rewardPoint,
             let totalStake = Decimal
-            .fromSubstrateAmount(validatorInfo.exposure.total, precision: Int16(asset.precision)) else {
+            .fromSubstrateAmount(validatorInfo.exposure.total, precision: Int16(chainAsset.asset.precision)) else {
             return nil
         }
 
@@ -43,7 +41,7 @@ final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
         let commissionReward = validatorTotalReward * comission
 
         let validatorAddress = try AddressFactory
-            .address(for: validatorInfo.accountId, chainFormat: chain.chainFormat)
+            .address(for: validatorInfo.accountId, chainFormat: chainAsset.chain.chainFormat)
 
         return PayoutInfo(
             era: era,

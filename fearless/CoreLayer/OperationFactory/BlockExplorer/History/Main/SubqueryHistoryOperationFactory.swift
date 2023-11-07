@@ -47,7 +47,7 @@ class SubqueryHistoryOperationFactory {
 
         let resultFactory = AnyNetworkResultFactory<SubqueryHistoryData> { data in
             let response = try JSONDecoder().decode(
-                SubqueryResponse<SubqueryHistoryData>.self,
+                GraphQLResponse<SubqueryHistoryData>.self,
                 from: data
             )
 

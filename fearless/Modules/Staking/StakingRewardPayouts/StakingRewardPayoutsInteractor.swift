@@ -30,8 +30,7 @@ final class StakingRewardPayoutsInteractor {
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         payoutService: PayoutRewardsServiceProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -46,7 +45,7 @@ final class StakingRewardPayoutsInteractor {
         self.runtimeService = runtimeService
         self.logger = logger
         self.connection = connection
-        chainAsset = ChainAsset(chain: chain, asset: asset)
+        self.chainAsset = chainAsset
     }
 
     private func fetchEraCompletionTime() {

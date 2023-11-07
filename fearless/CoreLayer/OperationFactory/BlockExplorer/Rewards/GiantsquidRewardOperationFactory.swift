@@ -163,7 +163,7 @@ extension GiantsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         let resultFactory = AnyNetworkResultFactory<CollatorAprResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<SubsquidCollatorAprResponse>.self,
+                    GraphQLResponse<SubsquidCollatorAprResponse>.self,
                     from: data
                 )
 
@@ -227,7 +227,7 @@ extension GiantsquidRewardOperationFactory: RewardOperationFactoryProtocol {
 
         let resultFactory = AnyNetworkResultFactory<RewardOrSlashResponse> { data in
             let response = try JSONDecoder().decode(
-                SubqueryResponse<GiantsquidResponseData>.self,
+                GraphQLResponse<GiantsquidResponseData>.self,
                 from: data
             )
 

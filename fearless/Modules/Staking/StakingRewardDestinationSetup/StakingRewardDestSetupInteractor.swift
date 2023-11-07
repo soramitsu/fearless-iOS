@@ -291,6 +291,8 @@ extension StakingRewardDestSetupInteractor: RelaychainStakingLocalStorageSubscri
                 rewardDestination = .payout(account: stashItem.stash)
             }
 
+            estimateFee(rewardDestination: rewardDestination)
+
             switch rewardDestination {
             case .restake:
                 presenter.didReceiveRewardDestinationAccount(result: .success(.restake))
@@ -312,8 +314,10 @@ extension StakingRewardDestSetupInteractor: RelaychainStakingLocalStorageSubscri
                                 result: .success(.payout(account: account))
                             )
                         }
-                    case let .failure(error):
-                        self?.presenter.didReceiveRewardDestinationAccount(result: .failure(error))
+                    case .failure:
+                        self?.presenter.didReceiveRewardDestinationAddress(
+                            result: .success(.payout(account: account))
+                        )
                     }
                 }
             }
