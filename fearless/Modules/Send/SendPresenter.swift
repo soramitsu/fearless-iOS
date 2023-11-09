@@ -873,6 +873,10 @@ extension SendPresenter: SendInteractorOutput {
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? 0.0
+
+                if chainAsset.isUtility {
+                    utilityBalance = balance
+                }
             } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
                       utilityAsset == chainAsset {
                 utilityBalance = accountInfo.map {
