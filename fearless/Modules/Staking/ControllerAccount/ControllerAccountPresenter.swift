@@ -58,7 +58,8 @@ final class ControllerAccountPresenter {
         let viewModel = viewModelFactory.createViewModel(
             stashItem: stashItem,
             stashAccountItem: stashAccountItem,
-            chosenAccountItem: chosenAccountItem
+            chosenAccountItem: chosenAccountItem,
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
         canChooseOtherController = viewModel.canChooseOtherController
         view?.reload(with: viewModel)
