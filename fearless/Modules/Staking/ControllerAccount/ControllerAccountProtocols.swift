@@ -11,7 +11,8 @@ protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         stashItem: StashItem,
         stashAccountItem: ChainAccountResponse?,
-        chosenAccountItem: ChainAccountResponse?
+        chosenAccountItem: ChainAccountResponse?,
+        chainAsset: ChainAsset
     ) -> ControllerAccountViewModel
 }
 
