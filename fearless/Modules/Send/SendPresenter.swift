@@ -421,7 +421,7 @@ final class SendPresenter {
         let spendingValue = (sendAmountDecimal ?? 0) + (fee ?? 0) + (tip ?? 0)
 
         let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
-            .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
+            .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: utilityBalance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
             minimumBalanceDecimal = Decimal.fromSubstrateAmount(
@@ -873,6 +873,10 @@ extension SendPresenter: SendInteractorOutput {
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? 0.0
+
+                if chainAsset.isUtility {
+                    utilityBalance = balance
+                }
             } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
                       utilityAsset == chainAsset {
                 utilityBalance = accountInfo.map {
