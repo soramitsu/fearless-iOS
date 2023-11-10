@@ -7,9 +7,8 @@ final class StakingPayoutConfirmationPresenter {
     weak var view: StakingPayoutConfirmationViewProtocol?
     var wireframe: StakingPayoutConfirmationWireframeProtocol!
     var interactor: StakingPayoutConfirmationInteractorInputProtocol!
-
-    private var priceData: [PriceData] = []
-
+  
+    private var pricesData: [PriceData] = []
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmationViewModelFactoryProtocol
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
@@ -90,8 +89,8 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
     func didReceivePriceData(result: Result<[PriceData], Error>) {
         switch result {
-        case let .success(priceData):
-            self.priceData = priceData
+        case let .success(pricesData):
+            self.pricesData = pricesData
             provideFee()
             provideViewModel()
         case let .failure(error):
@@ -142,7 +141,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
 
     func provideFee() {
         if let fee = viewModelState.fee {
-            let price = priceData.first(where: { $0.priceId == chainAsset.chain.utilityChainAssets().first?.asset.priceId })
+            let price = pricesData.first(where: { $0.priceId == chainAsset.chain.utilityChainAssets().first?.asset.priceId })
             let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: price, usageCase: .detailsCrypto)
             view?.didReceive(feeViewModel: viewModel)
         } else {
@@ -151,8 +150,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
     }
 
     func provideViewModel() {
-        let price = priceData.first(where: { $0.priceId == chainAsset.asset.priceId })
-
+        let price = pricesData.first(where: { $0.priceId == chainAsset.asset.priceId })
         let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
             viewModelState: viewModelState,
             priceData: price
