@@ -184,7 +184,7 @@ PODS:
     - SSFUtils
   - SSFLogger (0.1.0):
     - SwiftyBeaver
-  - SSFModels (0.1.23):
+  - SSFModels (0.1.27):
     - IrohaCrypto
   - SSFNetwork (0.1.17):
     - RobinHood
@@ -268,7 +268,7 @@ DEPENDENCIES:
   - SSFExtrinsicKit
   - SSFHelpers (= 0.1.7)
   - SSFLogger
-  - SSFModels (= 0.1.23)
+  - SSFModels (= 0.1.27)
   - SSFNetwork (= 0.1.17)
   - SSFRuntimeCodingService
   - SSFSigner
@@ -283,7 +283,7 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/Specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - AppAuth
     - BigInt
     - Charts
@@ -395,7 +395,7 @@ SPEC CHECKSUMS:
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
   SSFHelpers: 0d021637faf643bdfe0062aec6fd0b4f036e0cdb
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
-  SSFModels: d72aaaefd5e1ee4eb2c18d3d3d1668e67dae4d99
+  SSFModels: d8e0a94d8204680aba4957ba33e0a96911e890ad
   SSFNetwork: 734ad619a28f5b37599c4e1fb599b899536f0d65
   SSFRuntimeCodingService: 9c527ab5b8c15c3d580d641df54eabc7e105e5cf
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
@@ -412,6 +412,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: cdd9aff7587823c1c215cb377d1baeb6a19f7321
+PODFILE CHECKSUM: de44cfea39ded8c8cca205eafe8a346a6e45ed41
 
 COCOAPODS: 1.11.3
