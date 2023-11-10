@@ -46,17 +46,17 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
     func showSelectNetwork(
         from view: WalletMainContainerViewInput?,
         wallet: MetaAccountModel,
-        selectedChainId: ChainModel.Id?,
-        chainModels: [ChainModel]?,
-        delegate: SelectNetworkDelegate?
+        select: NetworkManagmentSelect,
+        delegate: NetworkManagmentModuleOutput?
     ) {
         guard
-            let module = SelectNetworkAssembly.configureModule(
+            let module = NetworkManagmentAssembly.configureModule(
                 wallet: wallet,
-                selectedChainId: selectedChainId,
-                chainModels: chainModels,
-                searchTextsViewModel: .searchNetworkPlaceholder,
-                delegate: delegate
+                select: select,
+                includingMultiSelectRow: true,
+                chains: nil,
+                contextTag: nil,
+                moduleOutput: delegate
             )
         else {
             return

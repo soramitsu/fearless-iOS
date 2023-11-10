@@ -3,7 +3,8 @@ import SSFModels
 
 protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
-        selectedChain: ChainModel?,
+        selectedFilter: NetworkManagmentSelect,
+        selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
         chainsIssues: [ChainIssue],
         locale: Locale,
@@ -13,16 +14,33 @@ protocol WalletMainContainerViewModelFactoryProtocol {
 
 final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
-        selectedChain: ChainModel?,
+        selectedFilter: NetworkManagmentSelect,
+        selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
         chainsIssues: [ChainIssue],
         locale: Locale,
         chainSettings: [ChainSettings]
     ) -> WalletMainContainerViewModel {
-        let networkName = selectedChain?.name
-            ?? R.string.localizable.chainSelectionAllNetworks(
+        var selectedChain: ChainModel?
+        let selectedFilterName: String
+        let selectedFilterImage: ImageViewModelProtocol?
+        switch selectedFilter {
+        case let .chain(id):
+            selectedChain = selectedChains.first(where: { $0.chainId == id })
+            selectedFilterName = selectedChain?.name ?? ""
+            selectedFilterImage = selectedChain?.icon.map { RemoteImageViewModel(url: $0) }
+        case .all:
+            selectedFilterName = R.string.localizable.chainSelectionAllNetworks(
                 preferredLanguages: locale.rLanguages
             )
+            selectedFilterImage = selectedFilter.filterImage
+        case .popular:
+            selectedFilterName = R.string.localizable.networkManagementPopular(preferredLanguages: locale.rLanguages)
+            selectedFilterImage = selectedFilter.filterImage
+        case .favourite:
+            selectedFilterName = R.string.localizable.networkManagmentFavourite(preferredLanguages: locale.rLanguages)
+            selectedFilterImage = selectedFilter.filterImage
+        }
 
         var address: String?
         if
@@ -49,7 +67,8 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
 
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
-            selectedChainName: networkName,
+            selectedFilter: selectedFilterName,
+            selectedFilterImage: selectedFilterImage,
             address: address,
             hasNetworkIssues: hasIssues
         )

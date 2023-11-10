@@ -247,10 +247,11 @@ private extension MetaAccountOperationFactory {
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: defaultChainId,
+            networkManagmentFilter: defaultChainId,
             assetsVisibility: [],
             zeroBalanceAssetsHidden: false,
-            hasBackup: isBackuped
+            hasBackup: isBackuped,
+            favouriteChainIds: []
         )
     }
 }
@@ -429,10 +430,11 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 canExportEthereumMnemonic: true,
                 unusedChainIds: nil,
                 selectedCurrency: Currency.defaultCurrency(),
-                chainIdForFilter: nil,
+                networkManagmentFilter: nil,
                 assetsVisibility: [],
                 zeroBalanceAssetsHidden: false,
-                hasBackup: isBackuped
+                hasBackup: isBackuped,
+                favouriteChainIds: []
             )
         }
     }
