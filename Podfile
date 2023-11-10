@@ -33,11 +33,11 @@ abstract_target 'fearlessAll' do
       if %r{^true$}i.match ENV['F_DEV']
           pod 'SSFXCM', :configurations => ['DEBUG']
       else
-          pod 'SSFXCM', '0.1.13'
+          pod 'SSFXCM', '0.1.25'
           pod 'SSFExtrinsicKit'
           pod 'SSFCrypto'
           pod 'SSFSigner'
-          pod 'SSFModels'
+          pod 'SSFModels', '0.1.25'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService'
@@ -46,7 +46,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFNetwork'
           pod 'SSFUtils'
           pod 'SSFChainRegistry'
-          pod 'SSFHelpers'
+          pod 'SSFHelpers', '0.1.25'
           pod 'SSFCloudStorage'
           pod 'FearlessKeys'
       end
