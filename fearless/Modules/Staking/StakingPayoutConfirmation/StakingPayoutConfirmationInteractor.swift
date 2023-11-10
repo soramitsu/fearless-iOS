@@ -13,7 +13,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     private let wallet: MetaAccountModel
     private let strategy: StakingPayoutConfirmationStrategy
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol?
 
@@ -28,16 +28,26 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
         self.wallet = wallet
         self.strategy = strategy
     }
+
+    private func subscribeForPrices() {
+        var priceIds: [String] = []
+        if let utilityPriceId = chainAsset.chain.utilityChainAssets().first?.asset.priceId {
+            priceIds.append(utilityPriceId)
+        }
+
+        if let priceId = chainAsset.asset.priceId, !priceIds.contains(priceId) {
+            priceIds.append(priceId)
+        }
+
+        priceProvider = subscribeToPrices(for: priceIds)
+    }
 }
 
 // MARK: - StakingPayoutConfirmationInteractorInputProtocol
 
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
-
+        subscribeForPrices()
         strategy.setup()
     }
 
@@ -51,7 +61,7 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
 }
 
 extension StakingPayoutConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrices(result: Result<[PriceData], Error>) {
         presenter?.didReceivePriceData(result: result)
     }
 }

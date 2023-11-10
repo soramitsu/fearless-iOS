@@ -12,8 +12,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         flow: StakingPayoutConfirmationFlow
     ) -> StakingPayoutConfirmationViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: chainAsset.asset.displayInfo,
-
+            targetAssetInfo: chainAsset.chain.utilityChainAssets().first?.asset.displayInfo ?? chainAsset.asset.displayInfo,
             selectedMetaAccount: wallet
         )
 
