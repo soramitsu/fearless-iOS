@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/DOPS-2841/sonar-apple') _
 
 // Job properties
 def jobParams = [
@@ -14,7 +14,6 @@ def appPipline = new org.ios.AppPipeline(
     sonar: true,
     sonarProjectName: 'fearless-ios',
     sonarProjectKey: 'fearless:fearless-ios',
-    sonarTestsDirs: './fearlessTests,./fearlessIntegrationTests',
     dojoProductType: 'fearless',
     effectJiraTasks: true
 )
