@@ -61,8 +61,7 @@ final class ValidatorInfoViewFactory {
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
                 validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory,
-                wallet: wallet
+                collatorOperationFactory: collatorOperationFactory
             ) else {
                 return nil
             }
@@ -91,7 +90,7 @@ final class ValidatorInfoViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorInfoRelaychainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
 
@@ -132,7 +131,7 @@ final class ValidatorInfoViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorInfoParachainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory,
                 chainAsset: chainAsset
             )
@@ -185,8 +184,7 @@ final class ValidatorInfoViewFactory {
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
                 validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory,
-                wallet: wallet
+                collatorOperationFactory: collatorOperationFactory
             ) else {
                 return nil
             }
@@ -215,7 +213,7 @@ final class ValidatorInfoViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorInfoPoolViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
 

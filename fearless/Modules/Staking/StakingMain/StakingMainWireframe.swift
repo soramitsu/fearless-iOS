@@ -87,15 +87,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     func showRewardPayoutsForNominator(
         from view: ControllerBackedProtocol?,
         stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
             .createViewForNominator(
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount,
+                chainAsset: chainAsset,
+                wallet: wallet,
                 stashAddress: stashAddress
             ) else { return }
 
@@ -109,15 +107,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     func showRewardPayoutsForValidator(
         from view: ControllerBackedProtocol?,
         stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
             .createViewForValidator(
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount,
+                chainAsset: chainAsset,
+                wallet: wallet,
                 stashAddress: stashAddress
             ) else { return }
 

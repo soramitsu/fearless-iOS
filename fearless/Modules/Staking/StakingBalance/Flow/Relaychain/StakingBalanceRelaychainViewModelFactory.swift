@@ -214,7 +214,11 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                 return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
             } else {
                 return R.string.localizable
-                    .commonDaysLeftFormat(format: daysLeft, format: daysLeft, preferredLanguages: locale.rLanguages)
+                    .commonDaysLeftFormat(
+                        format: daysLeft,
+                        format: daysLeft,
+                        preferredLanguages: locale.rLanguages
+                    )
             }
         }()
 

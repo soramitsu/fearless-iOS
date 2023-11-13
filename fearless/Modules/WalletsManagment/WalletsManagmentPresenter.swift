@@ -17,6 +17,8 @@ final class WalletsManagmentPresenter {
     private var wallets: [ManagedMetaAccountModel] = []
     private var balances: [MetaAccountId: WalletBalanceInfo] = [:]
 
+    private var featureToggleConfig = FeatureToggleConfig.defaultConfig
+
     // MARK: - Constructors
 
     init(
@@ -102,18 +104,37 @@ final class WalletsManagmentPresenter {
             }
         }
 
+        let preinstalledButton = TriangularedButton()
+        preinstalledButton.imageWithTitleView?.iconImage = R.image.iconPreinstalledWallet()
+        preinstalledButton.applyDisabledStyle()
+        let preinstalledTitle = R.string.localizable
+            .onboardingPreinstalledWalletButtonText(preferredLanguages: preferredLanguages)
+        let preinstalledAction = SheetAlertPresentableAction(
+            title: preinstalledTitle,
+            button: preinstalledButton
+        ) { [weak self] in
+            self?.router.dissmis(view: self?.view) { [weak self] in
+                self?.moduleOutput?.showGetPreinstalledWallet()
+            }
+        }
+
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: preferredLanguages)
         let cancelAction = SheetAlertPresentableAction(
             title: cancelTitle,
             style: .pinkBackgroundWhiteText
         )
 
+        var actions = [mnemonicAction, rawAction, jsonAction, googleAction]
+        if featureToggleConfig.pendulumCaseEnabled == true {
+            actions.append(preinstalledAction)
+        }
+        actions.append(cancelAction)
         let title = R.string.localizable
             .googleBackupChoiceTitle(preferredLanguages: preferredLanguages)
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
-            actions: [mnemonicAction, rawAction, jsonAction, googleAction, cancelAction],
+            actions: actions,
             closeAction: nil,
             icon: nil
         )
@@ -191,6 +212,15 @@ extension WalletsManagmentPresenter: WalletsManagmentInteractorOutput {
             provideViewModel()
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
+        }
+    }
+
+    func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?) {
+        switch result {
+        case let .success(config):
+            featureToggleConfig = config
+        default:
+            break
         }
     }
 }

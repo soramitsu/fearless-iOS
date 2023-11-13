@@ -16,55 +16,55 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             )
         let settings = SettingsManager.shared
         let profileViewModelFactory = ProfileViewModelFactory(
-            iconGenerator: PolkadotIconGenerator(),
+            iconGenerator: UniversalIconGenerator(),
             biometry: BiometryAuth(),
             settings: settings
         )
 
-        let eventCenter = EventCenter.shared
-        let logger = Logger.shared
-
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
-            metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: eventCenter,
-            logger: logger
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
         )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+
+        let substrateAccountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let missingAccountHelper = MissingAccountFetcher(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
+        // TODO: Eth account info fetching
         let chainsIssuesCenter = ChainsIssuesCenter(
             wallet: selectedMetaAccount,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
             missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetching
+            accountInfoFetcher: substrateAccountInfoFetching
+        )
+
+        let walletConnectModelFactory = WalletConnectModelFactoryImpl()
+        let walletConnectDisconnectService = WalletConnectDisconnectServiceImpl(
+            walletConnectModelFactory: walletConnectModelFactory,
+            chainAssetFetcher: chainAssetFetching
         )
 
         let interactor = ProfileInteractor(
@@ -75,7 +75,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             selectedMetaAccount: selectedMetaAccount,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             walletRepository: accountRepository,
-            chainsIssuesCenter: chainsIssuesCenter
+            chainsIssuesCenter: chainsIssuesCenter,
+            walletConnectDisconnectService: walletConnectDisconnectService
         )
 
         let presenter = ProfilePresenter(
@@ -90,7 +91,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
 
         let view = ProfileViewController(
             presenter: presenter,
-            iconGenerating: PolkadotIconGenerator(),
+            iconGenerating: UniversalIconGenerator(),
             localizationManager: localizationManager
         )
 

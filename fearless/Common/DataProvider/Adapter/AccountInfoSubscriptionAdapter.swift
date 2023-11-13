@@ -57,7 +57,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     // MARK: - Private properties
 
     private var subscriptions: [ChainAssetId: StreamableProvider<AccountInfoStorageWrapper>] = [:]
-    private var selectedMetaAccount: MetaAccountModel
+    private(set) var wallet: MetaAccountModel
 
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
         AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
@@ -73,7 +73,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         selectedMetaAccount: MetaAccountModel
     ) {
         self.walletLocalSubscriptionFactory = walletLocalSubscriptionFactory
-        self.selectedMetaAccount = selectedMetaAccount
+        wallet = selectedMetaAccount
     }
 
     // MARK: - Public methods
@@ -97,6 +97,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
+
             strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
             strongSelf.subscriptions[chainAsset.chainAssetId] = nil
 
@@ -117,12 +118,11 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
             strongSelf.deliveryQueue = queue
 
             chainsAssets.forEach { chainAsset in
-
                 strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
                 strongSelf.subscriptions[chainAsset.chainAssetId] = nil
 
                 let accountRequest = chainAsset.chain.accountRequest()
-                if let accountId = strongSelf.selectedMetaAccount.fetch(for: accountRequest)?.accountId,
+                if let accountId = strongSelf.wallet.fetch(for: accountRequest)?.accountId,
                    let subscription = strongSelf.wrapper.subscribeAccountProvider(
                        for: accountId,
                        chainAsset: chainAsset

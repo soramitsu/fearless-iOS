@@ -20,7 +20,9 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
         locale: Locale,
         cellsDelegate: NodeSelectionTableCellViewModelDelegate?
     ) -> NodeSelectionViewModel {
-        let defaultNodeCellViewModels: [NodeSelectionTableCellViewModel] = chain.nodes.compactMap { node in
+        let defaultNodeCellViewModels: [NodeSelectionTableCellViewModel] = chain.nodes.sorted(by: { node1, node2 in
+            node1.name < node2.name
+        }).filter { $0.url.absoluteString.contains("wss") }.compactMap { node in
             NodeSelectionTableCellViewModel(
                 node: node,
                 selected: node.url == chain.selectedNode?.url,
@@ -30,7 +32,7 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
             )
         }
 
-        let customNodeCellViewModels: [NodeSelectionTableCellViewModel] = chain.customNodes?.compactMap { node in
+        let customNodeCellViewModels: [NodeSelectionTableCellViewModel] = chain.customNodes?.filter { $0.url.absoluteString.contains("wss") }.compactMap { node in
             NodeSelectionTableCellViewModel(
                 node: node,
                 selected: node.url == chain.selectedNode?.url,

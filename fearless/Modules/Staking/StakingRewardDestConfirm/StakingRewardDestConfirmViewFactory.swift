@@ -3,6 +3,7 @@ import SoraKeystore
 import RobinHood
 import SoraFoundation
 import SSFModels
+import SSFUtils
 
 struct StakingRewardDestConfirmViewFactory {
     static func createView(
@@ -33,7 +34,7 @@ struct StakingRewardDestConfirmViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             rewardDestination: rewardDestination,
-            confirmModelFactory: StakingRewardDestConfirmVMFactory(iconGenerator: UniversalIconGenerator(chain: chain)),
+            confirmModelFactory: StakingRewardDestConfirmVMFactory(iconGenerator: UniversalIconGenerator()),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,

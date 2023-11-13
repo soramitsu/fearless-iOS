@@ -63,6 +63,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
 
         let kusamaChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .kusama }).slice
         let polkadotChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .polkadot }).slice
+        let ethereumChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .ethereum }).slice
 
         let kusamaAssetChainAssetsArray = createAssetChainAssets(
             from: kusamaChainAssets,
@@ -76,7 +77,14 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             pricesData: prices.pricesData,
             wallet: wallet
         )
-        let assetChainAssetsArray = kusamaAssetChainAssetsArray + polkadotAssetChainAssetsArray
+        let ethereumAssetChainAssetsArray = createAssetChainAssets(
+            from: ethereumChainAssets,
+            accountInfos: accountInfos,
+            pricesData: prices.pricesData,
+            wallet: wallet
+        )
+
+        let assetChainAssetsArray = kusamaAssetChainAssetsArray + polkadotAssetChainAssetsArray + ethereumAssetChainAssetsArray
 
         let sortedAssetChainAssets = sortAssetList(
             wallet: wallet,
@@ -131,11 +139,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             if case ChainAssetsFetching.Filter.search = $0 {
                 return true
             }
-
-            if case ChainAssetsFetching.Filter.searchEmpty = $0 {
-                return false
-            }
-
             return true
         }
         let emptyStateIsActive = activeSectionCellModels.isEmpty && hiddenSectionCellModels.isEmpty && shouldShowEmptyStatePerFilter.contains(where: { $0 == true })
@@ -143,11 +146,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             if case ChainAssetsFetching.Filter.search = $0 {
                 return true
             }
-
-            if case ChainAssetsFetching.Filter.searchEmpty = $0 {
-                return true
-            }
-
             return false
         }
         return ChainAssetListViewModel(
@@ -248,17 +246,15 @@ private extension ChainAssetListViewModelFactory {
             wallet: wallet
         )
 
-        let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }
-        var chainImages = Array(Set(shownChainAssetsIconsArray))
+        let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }.filter { $0 != chainAsset.chain.icon }
+        let chainImages = Array(Set(shownChainAssetsIconsArray))
             .map { $0.map { RemoteImageViewModel(url: $0) }}
-        if !shownChainAssetsIconsArray.contains(chainAsset.chain.icon) {
-            let chainImageUrl = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
-            chainImages.insert(chainImageUrl, at: 0)
-        }
+            .compactMap { $0 }
+        let mainChainImageUrl = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
 
         let chainIconsViewModel = ChainCollectionViewModel(
             maxImagesCount: 5,
-            chainImages: chainImages
+            chainImages: chainImages.sorted(by: { $0.url.absoluteString > $1.url.absoluteString }) + [mainChainImageUrl]
         )
 
         let viewModel = ChainAccountBalanceCellViewModel(
@@ -543,11 +539,13 @@ private extension ChainAssetListViewModelFactory {
         (
             ca1.chain.isTestnet.intValue,
             ca1.isParentChain().invert().intValue,
-            ca1.defineEcosystem().isKusama.intValue
+            ca1.defineEcosystem().isKusama.intValue,
+            ca1.chain.chainId
         ) < (
             ca2.chain.isTestnet.intValue,
             ca2.isParentChain().invert().intValue,
-            ca2.defineEcosystem().isKusama.intValue
+            ca2.defineEcosystem().isKusama.intValue,
+            ca2.chain.chainId
         )
     }
 
@@ -620,6 +618,9 @@ extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {
 
 extension ChainAsset {
     func defineEcosystem() -> ChainEcosystem {
+        if chain.options?.contains(.ethereum) == true {
+            return .ethereum
+        }
         if chain.parentId == Chain.polkadot.genesisHash || chain.chainId == Chain.polkadot.genesisHash {
             return .polkadot
         }

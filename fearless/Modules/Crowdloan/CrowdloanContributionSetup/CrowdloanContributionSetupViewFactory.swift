@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import SoraFoundation
 import SSFModels
+import SSFUtils
 
 struct CrowdloanContributionSetupViewFactory {
     static func createView(
@@ -34,7 +35,7 @@ struct CrowdloanContributionSetupViewFactory {
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
             assetInfo: assetInfo,
             chainDateCalculator: ChainDateCalculator(),
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator()
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(

@@ -4,7 +4,10 @@ import RobinHood
 import SSFUtils
 
 final class WalletMainContainerAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        walletConnect: WalletConnectService
+    ) -> WalletMainContainerModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let localizationManager = LocalizationManager.shared
 
@@ -66,7 +69,8 @@ final class WalletMainContainerAssembly {
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
-            applicationHandler: ApplicationHandler()
+            applicationHandler: ApplicationHandler(),
+            walletConnectService: walletConnect
         )
 
         let router = WalletMainContainerRouter()
@@ -76,7 +80,7 @@ final class WalletMainContainerAssembly {
             let assetListModule = Self.configureAssetListModule(
                 metaAccount: wallet
             ),
-            let nftModule = Self.configureNftModule()
+            let nftModule = Self.configureNftModule(wallet: wallet)
         else {
             return nil
         }
@@ -117,7 +121,7 @@ final class WalletMainContainerAssembly {
         return chainAssetListModule
     }
 
-    private static func configureNftModule() -> MainNftContainerModuleCreationResult? {
-        MainNftContainerAssembly.configureModule()
+    private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {
+        MainNftContainerAssembly.configureModule(wallet: wallet)
     }
 }

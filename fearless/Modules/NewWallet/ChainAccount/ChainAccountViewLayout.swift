@@ -171,6 +171,23 @@ final class ChainAccountViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func didMoveToSuperview() {
+        super.didMoveToSuperview()
+
+        var view: UIView?
+
+        if let superview = superview?.superview {
+            view = superview
+        } else {
+            view = self
+        }
+
+        view?.insertSubview(backgroundImageView, at: 0)
+        backgroundImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
     func bind(balanceViewModel: ChainAccountBalanceViewModel?) {
         balanceInfoStackView.isHidden = balanceViewModel == nil
 
@@ -196,11 +213,6 @@ final class ChainAccountViewLayout: UIView {
 
 private extension ChainAccountViewLayout {
     func setupLayout() {
-        addSubview(backgroundImageView)
-        backgroundImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide.snp.top).offset(5)

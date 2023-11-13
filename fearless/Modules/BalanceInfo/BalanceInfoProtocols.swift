@@ -4,7 +4,7 @@ import SSFModels
 typealias BalanceInfoModuleCreationResult = (view: BalanceInfoViewInput, input: BalanceInfoModuleInput)
 
 protocol BalanceInfoViewInput: ControllerBackedProtocol {
-    func didReceiveViewModel(_ viewModel: BalanceInfoViewModel)
+    func didReceiveViewModel(_ viewModel: BalanceInfoViewModel?)
 }
 
 protocol BalanceInfoViewOutput: AnyObject {
@@ -12,8 +12,10 @@ protocol BalanceInfoViewOutput: AnyObject {
 }
 
 protocol BalanceInfoInteractorInput: AnyObject {
-    func setup(with output: BalanceInfoInteractorOutput, for type: BalanceInfoType)
-    func fetchBalanceInfo(for type: BalanceInfoType)
+    var balanceInfoType: BalanceInfoType { get set }
+
+    func setup(with output: BalanceInfoInteractorOutput)
+    func fetchBalanceInfo()
 }
 
 protocol BalanceInfoInteractorOutput: AnyObject {

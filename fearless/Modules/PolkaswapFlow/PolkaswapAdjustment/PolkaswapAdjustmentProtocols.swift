@@ -43,12 +43,7 @@ protocol PolkaswapAdjustmentInteractorInput: AnyObject {
     func setup(with output: PolkaswapAdjustmentInteractorOutput)
     func didReceive(_ fromChainAsset: ChainAsset?, _ toChainAsset: ChainAsset?)
     func fetchQuotes(with params: PolkaswapQuoteParams)
-    func subscribeOnPool(
-        for fromAssetId: AssetModel.Id,
-        toAssetId: AssetModel.Id,
-        liquiditySourceType: LiquiditySourceType,
-        availablePolkaswapDex: [PolkaswapDex]
-    )
+    func subscribeOnBlocks()
     func estimateFee(
         dexId: String,
         fromAssetId: String,
@@ -90,7 +85,8 @@ protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, S
     )
     func showConfirmation(
         with params: PolkaswapPreviewParams,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        completeClosure: (() -> Void)?
     ) -> PolkaswapSwapConfirmationModuleInput?
     func showDisclaimer(
         moduleOutput: PolkaswapDisclaimerModuleOutput?,

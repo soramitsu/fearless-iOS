@@ -7,25 +7,21 @@ import SSFModels
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
     static func createViewForNominator(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol? {
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-
         let validatorsResolutionFactory = PayoutValidatorsFactoryAssembly.createPayoutValidatorsFactory(chainAsset: chainAsset)
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
-            addressPrefix: chain.addressPrefix,
-            precision: Int16(asset.precision),
+            addressPrefix: chainAsset.chain.addressPrefix,
+            precision: Int16(chainAsset.asset.precision),
             chainAsset: chainAsset
         )
 
         return createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             stashAddress: stashAddress,
             validatorsResolutionFactory: validatorsResolutionFactory,
             payoutInfoFactory: payoutInfoFactory
@@ -33,22 +29,19 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     }
 
     static func createViewForValidator(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol? {
-        let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory(chainAsset: ChainAsset(chain: chain, asset: asset))
+        let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory(chainAsset: chainAsset)
 
         let payoutInfoFactory = ValidatorPayoutInfoFactory(
-            chain: chain,
-            asset: asset
+            chainAsset: chainAsset
         )
 
         return createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             stashAddress: stashAddress,
             validatorsResolutionFactory: validatorsResolutionFactory,
             payoutInfoFactory: payoutInfoFactory
@@ -56,9 +49,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     }
 
     private static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         stashAddress: AccountAddress,
         validatorsResolutionFactory: PayoutValidatorsFactoryProtocol?,
         payoutInfoFactory: PayoutInfoFactoryProtocol
@@ -67,8 +59,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let operationManager = OperationManagerFacade.sharedManager
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeProvider = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeProvider = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
@@ -80,7 +72,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
 
         let payoutService = PayoutRewardsService(
-            chain: chain,
+            chain: chainAsset.chain,
             selectedAccountAddress: stashAddress,
             validatorsResolutionFactory: validatorsResolutionFactory,
             runtimeCodingService: runtimeProvider,
@@ -93,36 +85,32 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
 
         return createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             payoutService: payoutService
         )
     }
 
     private static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         payoutService: PayoutRewardsServiceProtocol
     ) -> StakingRewardPayoutsViewProtocol? {
         let operationManager = OperationManagerFacade.sharedManager
 
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
-
-            selectedMetaAccount: selectedAccount
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            selectedMetaAccount: wallet
         )
 
         let payoutsViewModelFactory = StakingPayoutViewModelFactory(
-            chain: chain,
+            chain: chainAsset.chain,
             balanceViewModelFactory: balanceViewModelFactory,
             timeFormatter: TotalTimeFormatter()
         )
         let presenter = StakingRewardPayoutsPresenter(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             viewModelFactory: payoutsViewModelFactory
         )
         let view = StakingRewardPayoutsViewController(
@@ -144,8 +132,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
@@ -163,8 +151,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             payoutService: payoutService,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             operationManager: operationManager,
             runtimeService: runtimeService,

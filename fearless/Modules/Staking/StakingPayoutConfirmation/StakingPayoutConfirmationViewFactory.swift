@@ -12,8 +12,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         flow: StakingPayoutConfirmationFlow
     ) -> StakingPayoutConfirmationViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: chainAsset.asset.displayInfo,
-
+            targetAssetInfo: chainAsset.chain.utilityChainAssets().first?.asset.displayInfo ?? chainAsset.asset.displayInfo,
             selectedMetaAccount: wallet
         )
 
@@ -170,7 +169,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             let viewModelFactory = StakingPayoutConfirmationRelaychainViewModelFactory(
                 chainAsset: chainAsset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             let strategy = StakingPayoutConfirmationRelayachainStrategy(
@@ -207,7 +206,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             let viewModelFactory = StakingPayoutConfirmationPoolViewModelFactory(
                 chainAsset: chainAsset,
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator()
             )
 
             let strategy = StakingPayoutConfirmationPoolStrategy(

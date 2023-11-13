@@ -332,15 +332,13 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo) {
-        guard let chainAsset = chainAsset else {
-            return
-        }
+        let managedItems: [StakingManageOption] = [.parachainStakingBalance(info: delegation), .yourCollator(info: delegation)]
 
-        wireframe.showStakingBalance(
+        wireframe.showManageStaking(
             from: view,
-            chainAsset: chainAsset,
-            wallet: selectedMetaAccount,
-            flow: .parachain(delegation: delegation.delegation, collator: delegation.collator)
+            items: managedItems,
+            delegate: self,
+            context: managedItems as NSArray
         )
     }
 
@@ -799,9 +797,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showRewardPayoutsForValidator(
                     from: view,
                     stashAddress: stashAddress,
-                    chain: chainAsset.chain,
-                    asset: chainAsset.asset,
-                    selectedAccount: selectedAccount
+                    chainAsset: chainAsset,
+                    wallet: selectedAccount
                 )
                 return
             }
@@ -811,9 +808,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showRewardPayoutsForNominator(
                     from: view,
                     stashAddress: stashAddress,
-                    chain: chainAsset.chain,
-                    asset: chainAsset.asset,
-                    selectedAccount: selectedAccount
+                    chainAsset: stashState.commonData.rewardChainAsset ?? chainAsset,
+                    wallet: selectedAccount
                 )
                 return
             }
@@ -912,5 +908,9 @@ extension StakingMainPresenter: WalletsManagmentModuleOutput {
 
     func showImportGoogle() {
         wireframe.showBackupSelectWallet(from: view)
+    }
+
+    func showGetPreinstalledWallet() {
+        wireframe.showGetPreinstalledWallet(from: view)
     }
 }

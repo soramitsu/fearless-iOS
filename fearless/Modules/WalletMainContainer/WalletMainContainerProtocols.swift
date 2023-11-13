@@ -1,4 +1,5 @@
 import SSFModels
+// import WalletConnectSwiftV2
 
 typealias WalletMainContainerModuleCreationResult = (
     view: WalletMainContainerViewInput,
@@ -23,6 +24,7 @@ protocol WalletMainContainerViewOutput: AnyObject {
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
     func saveChainIdForFilter(_ chainId: ChainModel.Id?)
+    func walletConnect(uri: String) async throws
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {
@@ -62,7 +64,7 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
-        address: String
+        initialData: SendFlowInitialData
     )
 
     func showControllerAccountFlow(

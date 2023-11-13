@@ -7,14 +7,14 @@ import SSFModels
 
 class SubqueryHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
-    private let runtimeService: RuntimeCodingServiceProtocol
+    private let chainRegistry: ChainRegistryProtocol
 
     init(
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-        runtimeService: RuntimeCodingServiceProtocol
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.txStorage = txStorage
-        self.runtimeService = runtimeService
+        self.chainRegistry = chainRegistry
     }
 
     private func createOperation(
@@ -47,7 +47,7 @@ class SubqueryHistoryOperationFactory {
 
         let resultFactory = AnyNetworkResultFactory<SubqueryHistoryData> { data in
             let response = try JSONDecoder().decode(
-                SubqueryResponse<SubqueryHistoryData>.self,
+                GraphQLResponse<SubqueryHistoryData>.self,
                 from: data
             )
 
@@ -314,6 +314,9 @@ extension SubqueryHistoryOperationFactory: HistoryOperationFactoryProtocol {
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(RuntimeProviderError.providerUnavailable)
+        }
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let historyContext = TransactionHistoryContext(

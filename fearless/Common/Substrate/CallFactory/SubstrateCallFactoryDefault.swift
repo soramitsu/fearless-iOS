@@ -125,7 +125,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         chainAsset: ChainAsset
     ) -> any RuntimeCallable {
         switch chainAsset.chainAssetType {
-        case .normal:
+        case .normal, .none:
             if chainAsset.chain.isSora {
                 return ormlAssetTransfer(
                     to: receiver,
@@ -187,6 +187,15 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             moduleName: path.moduleName,
             callName: path.callName,
             args: args
+        )
+    }
+
+    func xorlessTransfer(_ transfer: XorlessTransfer) -> any RuntimeCallable {
+        let path: SubstrateCallPath = .xorlessTransfer
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: transfer
         )
     }
 

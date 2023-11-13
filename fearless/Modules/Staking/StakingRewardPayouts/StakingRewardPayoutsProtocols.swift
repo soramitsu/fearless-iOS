@@ -40,30 +40,26 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
         payoutInfo: PayoutInfo,
         activeEra: EraIndex,
         historyDepth: UInt32,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
     func showPayoutConfirmation(
         for payouts: [PayoutInfo],
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
     static func createViewForNominator(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol?
     static func createViewForValidator(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol?
 }

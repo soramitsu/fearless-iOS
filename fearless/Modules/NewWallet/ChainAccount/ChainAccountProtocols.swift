@@ -1,4 +1,5 @@
 import BigInt
+import Foundation
 import SSFModels
 
 protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
@@ -19,12 +20,14 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func addressDidCopied()
     func didTapPolkaswapButton()
     func didTapLockedInfoButton()
+    func didPullToRefresh()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
     func getAvailableExportOptions(for address: String)
     func update(chain: ChainModel)
+    func updateData()
 
     var chainAsset: ChainAsset { get }
     var availableChainAssets: [ChainAsset] { get }
@@ -36,6 +39,8 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
     func didReceiveWalletBalancesResult(_ result: WalletBalancesResult)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
+    func didReceive(accountInfo: AccountInfo?, for chainAsset: ChainAsset, accountId: AccountId)
+    func didReceiveWallet(wallet: MetaAccountModel)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,

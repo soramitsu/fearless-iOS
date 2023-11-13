@@ -13,18 +13,16 @@ final class WalletSendConfirmPresenter {
     private let dataValidatingFactory: SendDataValidatingFactory
     private let logger: LoggerProtocol?
     private let chainAsset: ChainAsset
-    private let receiverAddress: String
-    private let amount: Decimal
+    private let call: SendConfirmTransferCall
     private let wallet: MetaAccountModel
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
+    private let feeViewModel: BalanceViewModelProtocol?
 
-    private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
     private var priceData: PriceData?
     private var utilityPriceData: PriceData?
-    private var tip: Decimal?
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
     private var eqUilibriumTotalBalance: Decimal?
@@ -38,10 +36,10 @@ final class WalletSendConfirmPresenter {
         logger: LoggerProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        receiverAddress: String,
-        amount: Decimal,
-        tip: Decimal?,
-        scamInfo: ScamInfo?
+        call: SendConfirmTransferCall,
+        scamInfo: ScamInfo?,
+        feeViewModel: BalanceViewModelProtocol?,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -50,33 +48,36 @@ final class WalletSendConfirmPresenter {
         self.walletSendConfirmViewModelFactory = walletSendConfirmViewModelFactory
         self.logger = logger
         self.chainAsset = chainAsset
-        self.receiverAddress = receiverAddress
-        self.amount = amount
-        self.tip = tip
+        self.call = call
         self.wallet = wallet
         self.scamInfo = scamInfo
+        self.feeViewModel = feeViewModel
+        self.localizationManager = localizationManager
     }
 
     private func provideViewModel() {
-        let parameters = WalletSendConfirmViewModelFactoryParameters(
-            amount: amount,
-            senderAccountViewModel: provideSenderAccountViewModel(),
-            receiverAccountViewModel: provideReceiverAccountViewModel(),
-            assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chainAsset.chain.isTipRequired,
-            tipViewModel: provideTipViewModel(),
-            feeViewModel: provideFeeViewModel(),
-            wallet: wallet,
-            locale: selectedLocale,
-            scamInfo: scamInfo,
-            assetModel: chainAsset.asset
-        )
-        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
-            parameters: parameters
-        )
+        Task {
+            let amount = Decimal.fromSubstrateAmount(call.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
+            let parameters = WalletSendConfirmViewModelFactoryParameters(
+                amount: amount,
+                senderAccountViewModel: provideSenderAccountViewModel(),
+                receiverAccountViewModel: provideReceiverAccountViewModel(),
+                assetBalanceViewModel: try await provideAssetVewModel(),
+                tipRequired: chainAsset.chain.isTipRequired,
+                tipViewModel: try await provideTipViewModel(),
+                feeViewModel: try await provideFeeViewModel(),
+                wallet: wallet,
+                locale: selectedLocale,
+                scamInfo: scamInfo,
+                assetModel: chainAsset.asset
+            )
+            let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+                parameters: parameters
+            )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(state: .loaded(viewModel))
+            await MainActor.run {
+                self.view?.didReceive(state: .loaded(viewModel))
+            }
         }
     }
 
@@ -86,7 +87,7 @@ final class WalletSendConfirmPresenter {
 
         return accountViewModelFactory.buildViewModel(
             title: title,
-            address: receiverAddress,
+            address: call.receiverAddress,
             locale: selectedLocale
         )
     }
@@ -108,47 +109,129 @@ final class WalletSendConfirmPresenter {
         )
     }
 
-    private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
-        guard let balanceViewModelFactory = interactor
-            .dependencyContainer
-            .prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory else { return nil }
-        return balanceViewModelFactory.createAssetBalanceViewModel(
+    private func provideAssetVewModel() async throws -> AssetBalanceViewModelProtocol? {
+        let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
+        let amount = Decimal.fromSubstrateAmount(call.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
+        return balanceViewModelFactory?.createAssetBalanceViewModel(
             amount,
             balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
     }
 
-    private func provideTipViewModel() -> BalanceViewModelProtocol? {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory else { return nil }
+    private func provideTipViewModel() async throws -> BalanceViewModelProtocol? {
+        guard
+            let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
+            let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
+        else { return nil }
+
+        let tip = Decimal.fromSubstrateAmount(call.tip ?? .zero, precision: Int16(chainAsset.asset.precision))
         return tip
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 
-    private func provideFeeViewModel() -> BalanceViewModelProtocol? {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-              let balanceViewModelFactory = interactor
-              .dependencyContainer
-              .prepareDepencies(chainAsset: utilityAsset)?
-              .balanceViewModelFactory else { return nil }
+    private func provideFeeViewModel() async throws -> BalanceViewModelProtocol? {
+        guard
+            let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
+            let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset),
+            feeViewModel == nil
+        else {
+            fee = Decimal(string: feeViewModel?.amount ?? "")
+            return feeViewModel
+        }
         return fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 
     private func refreshFee() {
-        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-              let amount = amount.toSubstrateAmount(precision: Int16(utilityAsset.asset.precision)) else {
-            return
+        interactor.estimateFee()
+    }
+
+    private func buildBalanceViewModelFactory(
+        wallet: MetaAccountModel,
+        for chainAsset: ChainAsset?
+    ) -> BalanceViewModelFactoryProtocol? {
+        guard let chainAsset = chainAsset else {
+            return nil
+        }
+        let assetInfo = chainAsset.asset
+            .displayInfo(with: chainAsset.chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: wallet
+        )
+        return balanceViewModelFactory
+    }
+
+    private func validateAndSubmitTransfer() {
+        let amount = Decimal.fromSubstrateAmount(call.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
+        let tipPaymentChainAsset = interactor.getFeePaymentChainAsset(for: chainAsset)
+        let tipPaymentPrecision = tipPaymentChainAsset?.asset.precision ?? chainAsset.asset.precision
+        let tip = Decimal.fromSubstrateAmount(call.tip ?? .zero, precision: Int16(tipPaymentPrecision)) ?? .zero
+
+        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0
+
+        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
+            .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
+
+        var minimumBalanceDecimal: Decimal?
+        if let minBalance = minimumBalance {
+            minimumBalanceDecimal = Decimal.fromSubstrateAmount(
+                minBalance,
+                precision: Int16(chainAsset.asset.precision)
+            )
+        } else if chainAsset.chain.isEthereum {
+            minimumBalanceDecimal = .zero
         }
 
-        let tip = self.tip?.toSubstrateAmount(precision: Int16(utilityAsset.asset.precision))
-        interactor.estimateFee(for: amount, tip: tip)
+        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
+        var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
+            .orml(
+                minimumBalance: minimumBalanceDecimal,
+                feeAndTip: (fee ?? 0) + tip,
+                utilityBalance: utilityBalance
+            ) :
+            .utility(
+                spendingAmount: amount + (fee ?? .zero),
+                totalAmount: balance,
+                minimumBalance: minimumBalanceDecimal
+            )
+        if chainAsset.chain.isEquilibrium {
+            edParameters = .equilibrium(
+                minimumBalance: minimumBalanceDecimal,
+                totalBalance: eqUilibriumTotalBalance
+            )
+        }
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                self?.refreshFee()
+            }),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: balanceType,
+                feeAndTip: (fee ?? 0) + tip,
+                sendAmount: amount,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                parameters: edParameters,
+                locale: selectedLocale,
+                chainAsset: chainAsset
+            )
+
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.view?.didStartLoading()
+            strongSelf.interactor.submitExtrinsic()
+        }
+    }
+
+    private func submitXorlessTransfer() {
+        view?.didStartLoading()
+        interactor.submitExtrinsic()
     }
 }
 
@@ -187,69 +270,11 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     }
 
     func didTapConfirmButton() {
-        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0
-        let spendingValue = sendAmountValue +
-            (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
-
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
-            .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
-
-        var minimumBalanceDecimal: Decimal?
-        if let minBalance = minimumBalance {
-            minimumBalanceDecimal = Decimal.fromSubstrateAmount(
-                minBalance,
-                precision: Int16(chainAsset.asset.precision)
-            )
-        }
-
-        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
-        var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
-            .orml(
-                minimumBalance: minimumBalanceDecimal,
-                feeAndTip: (fee ?? 0) + (tip ?? 0),
-                utilityBalance: utilityBalance
-            ) :
-            .utility(
-                spendingAmount: spendingValue,
-                totalAmount: totalBalanceValue,
-                minimumBalance: minimumBalance
-            )
-        if chainAsset.chain.isEquilibrium {
-            edParameters = .equilibrium(
-                minimumBalance: minimumBalanceDecimal,
-                totalBalance: eqUilibriumTotalBalance
-            )
-        }
-
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-                self?.refreshFee()
-            }),
-            dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: balanceType,
-                feeAndTip: (fee ?? 0) + (tip ?? 0),
-                sendAmount: amount,
-                locale: selectedLocale
-            ),
-
-            dataValidatingFactory.exsitentialDepositIsNotViolated(
-                parameters: edParameters,
-                locale: selectedLocale,
-                chainAsset: chainAsset
-            )
-
-        ]).runValidation { [weak self] in
-            guard let strongSelf = self else { return }
-            let tip = strongSelf.tip?.toSubstrateAmount(
-                precision: Int16(strongSelf.chainAsset.asset.precision)
-            )
-
-            strongSelf.view?.didStartLoading()
-            strongSelf.interactor.submitExtrinsic(
-                for: sendAmountValue,
-                tip: tip,
-                receiverAddress: strongSelf.receiverAddress
-            )
+        switch call {
+        case .transfer:
+            validateAndSubmitTransfer()
+        case .xorlessTransfer:
+            submitXorlessTransfer()
         }
     }
 }
@@ -277,7 +302,6 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(accountInfo):
             if chainAsset == self.chainAsset {
-                totalBalanceValue = accountInfo?.data.total ?? 0
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
@@ -329,12 +353,17 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(dispatchInfo):
             guard let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return }
-            fee = BigUInt(dispatchInfo.fee).map {
+            fee = BigUInt(string: dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 
             provideViewModel()
-            let fullAmount = amount + fee.or(.zero) + tip.or(.zero)
+            let amount = Decimal.fromSubstrateAmount(call.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
+            let tipPaymentChainAsset = interactor.getFeePaymentChainAsset(for: chainAsset)
+            let tipPaymentPrecision = tipPaymentChainAsset?.asset.precision ?? chainAsset.asset.precision
+            let tip = Decimal.fromSubstrateAmount(call.tip ?? .zero, precision: Int16(tipPaymentPrecision)) ?? .zero
+
+            let fullAmount = amount + fee.or(.zero) + tip
             interactor.fetchEquilibriumTotalBalance(chainAsset: chainAsset, amount: fullAmount)
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")

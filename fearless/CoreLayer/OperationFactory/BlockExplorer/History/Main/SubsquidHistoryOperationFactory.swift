@@ -7,14 +7,11 @@ import SSFModels
 
 final class SubsquidHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
-    private let runtimeService: RuntimeCodingServiceProtocol
 
     init(
-        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-        runtimeService: RuntimeCodingServiceProtocol
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     ) {
         self.txStorage = txStorage
-        self.runtimeService = runtimeService
     }
 
     private func createOperation(
@@ -48,7 +45,7 @@ final class SubsquidHistoryOperationFactory {
         let resultFactory = AnyNetworkResultFactory<SubsquidHistoryResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<SubsquidHistoryResponse>.self,
+                    GraphQLResponse<SubsquidHistoryResponse>.self,
                     from: data
                 )
 
@@ -283,8 +280,6 @@ extension SubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
-        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
@@ -316,7 +311,7 @@ extension SubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
-        var dependencies: [Operation] = [remoteHistoryOperation, runtimeOperation]
+        var dependencies: [Operation] = [remoteHistoryOperation]
 
         let localFetchOperation: BaseOperation<[TransactionHistoryItem]>?
 

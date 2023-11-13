@@ -88,7 +88,7 @@ final class AccountCreatePresenter {
 
         if isEthereum {
             predicate = NSPredicate.deriviationPathHardSoft
-            placeholder = DerivationPathConstants.hardSoftPlaceholder
+            placeholder = DerivationPathConstants.defaultEthereum
         } else {
             switch cryptoType {
             case .sr25519:
@@ -253,7 +253,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 username: usernameSetup.username,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType
+                cryptoType: selectedCryptoType,
+                defaultChainId: nil
             )
             wireframe.confirm(
                 from: view,
@@ -276,7 +277,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 username: usernameSetup.username,
                 substrateDerivationPath: substrateDerivationPath,
                 ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType
+                cryptoType: selectedCryptoType,
+                defaultChainId: nil
             )
             wireframe.showBackupCreatePassword(
                 request: request,

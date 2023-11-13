@@ -7,17 +7,35 @@ final class OnboardingMainInteractor {
 
     private let keystoreImportService: KeystoreImportServiceProtocol
     private let cloudStorage: FearlessCompatibilityProtocol
+    private let featureToggleService: FeatureToggleProviderProtocol
+    private let operationQueue: OperationQueue
 
     init(
         keystoreImportService: KeystoreImportServiceProtocol,
-        cloudStorage: FearlessCompatibilityProtocol
+        cloudStorage: FearlessCompatibilityProtocol,
+        featureToggleService: FeatureToggleProviderProtocol,
+        operationQueue: OperationQueue
     ) {
         self.keystoreImportService = keystoreImportService
         self.cloudStorage = cloudStorage
+        self.featureToggleService = featureToggleService
+        self.operationQueue = operationQueue
     }
 
     deinit {
         cloudStorage.disconnect()
+    }
+
+    private func fetchFeatureToggleConfig() {
+        let fetchOperation = featureToggleService.fetchConfigOperation()
+
+        fetchOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                self?.presenter?.didReceiveFeatureToggleConfig(result: fetchOperation.result)
+            }
+        }
+
+        operationQueue.addOperation(fetchOperation)
     }
 }
 
@@ -28,6 +46,8 @@ extension OnboardingMainInteractor: OnboardingMainInteractorInputProtocol {
         if keystoreImportService.definition != nil {
             presenter?.didSuggestKeystoreImport()
         }
+
+        fetchFeatureToggleConfig()
     }
 
     func activateGoogleBackup() {

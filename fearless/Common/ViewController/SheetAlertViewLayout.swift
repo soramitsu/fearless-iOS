@@ -7,7 +7,12 @@ final class SheetAlertViewLayout: UIView {
         static let imageViewContainerSize: CGFloat = 80.0
         static let imageViewSize = CGSize(width: 48, height: 42)
         static let closeButton: CGFloat = 32.0
-        static let popupWindowHeightRatio = UIScreen.main.bounds.height * 0.7
+        static var popupWindowHeightRatio: CGFloat {
+            let window = UIApplication.shared.windows.first
+            let topPadding = window?.safeAreaInsets.top ?? .zero
+            let bottomPadding = window?.safeAreaInsets.bottom ?? .zero
+            return (window?.frame.height ?? UIScreen.main.bounds.height * 0.7) - topPadding - bottomPadding
+        }
     }
 
     private let viewModel: SheetAlertPresentableViewModel
@@ -47,7 +52,12 @@ final class SheetAlertViewLayout: UIView {
         return label
     }()
 
-    private let scrollableView = ScrollableContainerView()
+    private let scrollableView: ScrollableContainerView = {
+        let view = ScrollableContainerView()
+        view.isHidden = true
+        return view
+    }()
+
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -96,19 +106,22 @@ final class SheetAlertViewLayout: UIView {
         guard let descriptionText = descriptionLabel.text else {
             return
         }
-        let labelFullHeight = descriptionText.height(withConstrainedWidth: frame.width, font: descriptionLabel.font)
-        let viewHeight = bounds.height
+        let labelFullHeight = descriptionText.height(
+            withConstrainedWidth: frame.width - UIConstants.horizontalInset * 2,
+            font: viewModel.messageStyle?.font ?? descriptionLabel.font
+        )
+        let viewHeight = bounds.height - labelFullHeight
 
-        if (labelFullHeight + viewHeight) > Constants.popupWindowHeightRatio {
+        if (labelFullHeight + viewHeight) >= Constants.popupWindowHeightRatio {
+            scrollableView.isHidden = false
+            descriptionLabel.removeFromSuperview()
+            scrollableView.stackView.addArrangedSubview(descriptionLabel)
             scrollableView.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
                 make.height.equalTo(labelFullHeight / 2)
             }
-        } else {
-            scrollableView.snp.makeConstraints { make in
-                make.height.equalTo(labelFullHeight)
-            }
+            scrollableView.scrollView.flashScrollIndicators()
         }
-        scrollableView.scrollView.flashScrollIndicators()
     }
 
     private func bindActions(actions: [SheetAlertPresentableAction], actionAxis: NSLayoutConstraint.Axis) {
@@ -221,7 +234,8 @@ final class SheetAlertViewLayout: UIView {
             contentStackView.setCustomSpacing(24, after: titleLabel)
         }
 
-        scrollableView.stackView.addArrangedSubview(descriptionLabel)
+        contentStackView.addArrangedSubview(descriptionLabel)
+        contentStackView.setCustomSpacing(24, after: descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
         }

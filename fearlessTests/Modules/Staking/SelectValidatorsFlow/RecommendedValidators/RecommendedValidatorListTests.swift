@@ -16,7 +16,7 @@
 //
 //        let view = MockRecommendedValidatorListViewProtocol()
 //        let wireframe = MockRecommendedValidatorListWireframeProtocol()
-//        let viewModelFactory = RecommendedValidatorListViewModelFactory(iconGenerator: PolkadotIconGenerator())
+//        let viewModelFactory = RecommendedValidatorListViewModelFactory(iconGenerator: UniversalIconGenerator())
 //
 //        let presenter = RecommendedValidatorListPresenter(viewModelFactory: viewModelFactory, validators: validators, maxTargets: 16)
 //

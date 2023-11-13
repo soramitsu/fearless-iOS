@@ -6,26 +6,24 @@ import SSFModels
 
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
     static func createView(
-        selectedAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         input: StakingRewardDetailsInput
     ) -> StakingRewardDetailsViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
+            targetAssetInfo: chainAsset.asset.displayInfo,
 
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: wallet
         )
 
         let viewModelFactory = StakingRewardDetailsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator()
         )
 
         let presenter = StakingRewardDetailsPresenter(
-            asset: asset,
-            selectedAccount: selectedAccount,
-            chain: chain,
+            chainAsset: chainAsset,
+            wallet: wallet,
             input: input,
             viewModelFactory: viewModelFactory
         )
@@ -39,7 +37,7 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
 
         let interactor = StakingRewardDetailsInteractor(
-            asset: asset,
+            asset: chainAsset.asset,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
         )
         let wireframe = StakingRewardDetailsWireframe()

@@ -20,6 +20,7 @@ final class WalletMainContainerPresenter {
 
     private var selectedChain: ChainModel?
     private var issues: [ChainIssue] = []
+    private var onceLoaded: Bool = false
 
     // MARK: - Constructors
 
@@ -54,6 +55,18 @@ final class WalletMainContainerPresenter {
         )
 
         view?.didReceiveViewModel(viewModel)
+    }
+
+    private func walletConnect(with uri: String) {
+        Task {
+            do {
+                try await interactor.walletConnect(uri: uri)
+            } catch {
+                await MainActor.run(body: {
+                    router.present(error: error, from: view, locale: selectedLocale)
+                })
+            }
+        }
     }
 }
 
@@ -115,13 +128,24 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     func didReceiveSelectedChain(_ chain: ChainModel?) {
+        let needsReloadAssetsList: Bool = (chain?.chainId != selectedChain?.chainId) || !onceLoaded
         selectedChain = chain
         provideViewModel()
-        guard let chainId = chain?.chainId else {
-            assetListModuleInput?.updateChainAssets(using: [], sorts: [])
+
+        guard needsReloadAssetsList else {
             return
         }
-        assetListModuleInput?.updateChainAssets(using: [.chainId(chainId)], sorts: [])
+
+        var filters: [ChainAssetsFetching.Filter] = []
+        if let filter: ChainAssetsFetching.Filter = chain.map({ chain in
+            ChainAssetsFetching.Filter.chainId(chain.chainId)
+        }) {
+            filters.append(filter)
+        }
+
+        assetListModuleInput?.updateChainAssets(using: filters, sorts: [])
+
+        onceLoaded = true
     }
 
     func didReceiveError(_ error: Error) {
@@ -222,6 +246,10 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
     func showImportGoogle() {
         router.showBackupSelectWallet(from: view)
     }
+
+    func showGetPreinstalledWallet() {
+        router.showGetPreinstalledWallet(from: view)
+    }
 }
 
 extension WalletMainContainerPresenter: SelectNetworkDelegate {
@@ -235,11 +263,16 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 }
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
-    func didFinishWith(address: String) {
-        router.showSendFlow(
-            from: view,
-            wallet: wallet,
-            address: address
-        )
+    func didFinishWith(scanType: QRMatcherType) {
+        switch scanType {
+        case let .qrInfo(qrInfoType):
+            router.showSendFlow(
+                from: view,
+                wallet: wallet,
+                initialData: .init(qrInfoType: qrInfoType)
+            )
+        case let .uri(uri):
+            walletConnect(with: uri)
+        }
     }
 }

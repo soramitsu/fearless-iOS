@@ -147,6 +147,7 @@ final class CrossChainInteractor {
                     }
 
                 chainAssetFetching.fetch(
+                    shouldUseCache: true,
                     filters: [.chainIds(availableChainIds)],
                     sortDescriptors: []
                 ) { result in

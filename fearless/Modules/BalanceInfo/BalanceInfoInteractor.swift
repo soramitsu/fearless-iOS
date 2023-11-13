@@ -8,16 +8,19 @@ final class BalanceInfoInteractor {
 
     private weak var output: BalanceInfoInteractorOutput?
 
+    var balanceInfoType: BalanceInfoType
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let dependencyContainer = BalanceInfoDepencyContainer()
 
     init(
+        balanceInfoType: BalanceInfoType,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         operationManager: OperationManagerProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol
     ) {
+        self.balanceInfoType = balanceInfoType
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.operationManager = operationManager
         self.storageRequestFactory = storageRequestFactory
@@ -28,45 +31,49 @@ final class BalanceInfoInteractor {
 
 extension BalanceInfoInteractor: BalanceInfoInteractorInput {
     func setup(
-        with output: BalanceInfoInteractorOutput,
-        for type: BalanceInfoType
+        with output: BalanceInfoInteractorOutput
     ) {
         self.output = output
-        fetchBalanceInfo(for: type)
+        fetchBalanceInfo()
     }
 
-    func fetchBalanceInfo(for type: BalanceInfoType) {
-        fetchBalance(for: type)
-        if case let .chainAsset(wallet, chainAsset) = type {
+    func fetchBalanceInfo() {
+        subscribeOnBalance()
+        if case let .chainAsset(wallet, chainAsset) = balanceInfoType {
             guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
                 return
             }
             fetchMinimalBalance(for: chainAsset, service: dependencies.existentialDepositService)
-            fetchBalanceLocks(
-                for: wallet,
-                chainAsset: chainAsset,
-                runtimeService: dependencies.runtimeService,
-                connection: dependencies.connection
-            )
+
+            if let runtimeService = dependencies.runtimeService,
+               let connection = dependencies.connection {
+                fetchBalanceLocks(
+                    for: wallet,
+                    chainAsset: chainAsset,
+                    runtimeService: runtimeService,
+                    connection: connection
+                )
+            }
         }
     }
 }
 
 private extension BalanceInfoInteractor {
-    func fetchBalance(for type: BalanceInfoType) {
-        switch type {
+    func subscribeOnBalance() {
+        walletBalanceSubscriptionAdapter.unsubscribe(listener: self)
+        switch balanceInfoType {
         case let .wallet(metaAccount):
             walletBalanceSubscriptionAdapter.subscribeWalletBalance(
-                walletId: metaAccount.metaId,
+                wallet: metaAccount,
                 deliverOn: .main,
-                handler: self
+                listener: self
             )
         case let .chainAsset(metaAccount, chainAsset):
             walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
-                walletId: metaAccount.metaId,
+                wallet: metaAccount,
                 chainAsset: chainAsset,
                 deliverOn: .main,
-                handler: self
+                listener: self
             )
         }
     }
@@ -141,7 +148,16 @@ private extension BalanceInfoInteractor {
 
 // MARK: - WalletBalanceSubscriptionHandler
 
-extension BalanceInfoInteractor: WalletBalanceSubscriptionHandler {
+extension BalanceInfoInteractor: WalletBalanceSubscriptionListener {
+    var type: WalletBalanceListenerType {
+        switch balanceInfoType {
+        case let .wallet(wallet: wallet):
+            return .wallet(wallet: wallet)
+        case let .chainAsset(wallet: wallet, chainAsset: chainAsset):
+            return .chainAsset(wallet: wallet, chainAsset: chainAsset)
+        }
+    }
+
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalancesResult(result)
     }

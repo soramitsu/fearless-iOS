@@ -8,9 +8,30 @@ final class RemoteImageViewModel: NSObject {
     init(url: URL) {
         self.url = url
     }
+
+    init?(url: URL?) {
+        guard let url = url else {
+            return nil
+        }
+        self.url = url
+    }
+
+    init?(string: String?) {
+        guard
+            let string = string,
+            let url = URL(string: string)
+        else {
+            return nil
+        }
+        self.url = url
+    }
 }
 
 extension RemoteImageViewModel: ImageViewModelProtocol {
+    func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat) {
+        loadImage(on: imageView, targetSize: targetSize, animated: animated, cornerRadius: cornerRadius, completionHandler: nil)
+    }
+
     func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat, additionalOptions: KingfisherOptionsInfo) {
         let processor = SVGProcessor()
             |> DownsamplingImageProcessor(size: targetSize)
@@ -34,7 +55,7 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
         )
     }
 
-    func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat) {
+    func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool, cornerRadius: CGFloat, completionHandler: ((Result<RetrieveImageResult, KingfisherError>) -> Void)? = nil) {
         let processor = SVGProcessor()
             |> DownsamplingImageProcessor(size: targetSize)
             |> RoundCornerImageProcessor(cornerRadius: cornerRadius)
@@ -53,12 +74,37 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
 
         imageView.kf.setImage(
             with: url,
-            options: options
+            options: options,
+            completionHandler: completionHandler
         )
     }
 
     func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool) {
         loadImage(on: imageView, targetSize: targetSize, animated: animated, cornerRadius: targetSize.height / 2.0)
+    }
+
+    func loadImage(on imageView: UIImageView, placholder: Placeholder?, targetSize: CGSize, animated: Bool) {
+        let processor = SVGProcessor()
+            |> DownsamplingImageProcessor(size: targetSize)
+            |> RoundCornerImageProcessor(cornerRadius: targetSize.height / 2.0)
+
+        var options: KingfisherOptionsInfo = [
+            .processor(processor),
+            .scaleFactor(UIScreen.main.scale),
+            .cacheSerializer(RemoteSerializer.shared),
+            .cacheOriginalImage,
+            .diskCacheExpiration(.days(1))
+        ]
+
+        if animated {
+            options.append(.transition(.fade(0.25)))
+        }
+
+        imageView.kf.setImage(
+            with: url,
+            placeholder: placholder,
+            options: options
+        )
     }
 
     func cancel(on imageView: UIImageView) {

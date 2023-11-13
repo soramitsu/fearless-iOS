@@ -14,19 +14,22 @@ final class ServiceCoordinator {
     private let githubPhishingService: ApplicationServiceProtocol
     private let scamSyncService: ScamSyncServiceProtocol
     private let polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
+    private let walletConnect: WalletConnectService
 
     init(
         walletSettings: SelectedWalletSettings,
         accountInfoService: AccountInfoUpdatingServiceProtocol,
         githubPhishingService: ApplicationServiceProtocol,
         scamSyncService: ScamSyncServiceProtocol,
-        polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
+        polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
+        walletConnect: WalletConnectService
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
         self.githubPhishingService = githubPhishingService
         self.scamSyncService = scamSyncService
         self.polkaswapSettingsService = polkaswapSettingsService
+        self.walletConnect = walletConnect
     }
 }
 
@@ -46,16 +49,21 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         accountInfoService.setup()
         scamSyncService.syncUp()
         polkaswapSettingsService.syncUp()
+        walletConnect.setup()
     }
 
     func throttle() {
         githubPhishingService.throttle()
         accountInfoService.throttle()
+        walletConnect.throttle()
     }
 }
 
 extension ServiceCoordinator {
-    static func createDefault(with selectedMetaAccount: MetaAccountModel) -> ServiceCoordinatorProtocol {
+    static func createDefault(
+        with selectedMetaAccount: MetaAccountModel,
+        walletConnect: WalletConnectService
+    ) -> ServiceCoordinatorProtocol {
         let githubPhishingAPIService = GitHubPhishingServiceFactory.createService()
         let scamSyncService = ScamSyncServiceFactory.createService()
         let polkaswapSettingsService = PolkaswapSettingsFactory.createService()
@@ -72,10 +80,25 @@ extension ServiceCoordinator {
             logger: logger
         )
 
+        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+            logger: logger,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let ethereumWalletRemoteSubscription = EthereumWalletRemoteSubscriptionService(
+            chainRegistry: chainRegistry,
+            logger: logger,
+            repository: repository,
+            operationManager: OperationManagerFacade.sharedManager,
+            repositoryWrapper: ethereumBalanceRepositoryWrapper
+        )
+
         let accountInfoService = AccountInfoUpdatingService(
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
             remoteSubscriptionService: walletRemoteSubscription,
+            ethereumRemoteSubscriptionService: ethereumWalletRemoteSubscription,
             logger: logger,
             eventCenter: EventCenter.shared
         )
@@ -85,7 +108,8 @@ extension ServiceCoordinator {
             accountInfoService: accountInfoService,
             githubPhishingService: githubPhishingAPIService,
             scamSyncService: scamSyncService,
-            polkaswapSettingsService: polkaswapSettingsService
+            polkaswapSettingsService: polkaswapSettingsService,
+            walletConnect: walletConnect
         )
     }
 }

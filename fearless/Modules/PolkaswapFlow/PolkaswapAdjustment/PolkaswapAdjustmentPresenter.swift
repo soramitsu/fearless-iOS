@@ -114,8 +114,8 @@ final class PolkaswapAdjustmentPresenter {
 
     private func provideFromAssetVewModel() {
         var balance: Decimal? = swapFromBalance
-        if swapFromChainAsset == xorChainAsset {
-            balance = xorBalance
+        if swapFromChainAsset == xorChainAsset, let xorBalance = xorBalance, let networkFee = networkFee {
+            balance = xorBalance - networkFee
         }
         let inputAmount = swapFromInputResult?
             .absoluteValue(from: balance ?? .zero)
@@ -237,26 +237,13 @@ final class PolkaswapAdjustmentPresenter {
 
         let task = DispatchWorkItem { [weak self] in
             self?.interactor.fetchQuotes(with: quoteParams)
-            self?.view?.didUpdating()
         }
         quotesWorkItem = task
         DispatchQueue.global().asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
     }
 
     private func subscribeToPoolUpdates() {
-        guard let swapFromAssetId = swapFromChainAsset?.asset.currencyId,
-              let swapToAssetId = swapToChainAsset?.asset.currencyId,
-              let polkaswapRemoteSettings = polkaswapRemoteSettings
-        else {
-            return
-        }
-
-        interactor.subscribeOnPool(
-            for: swapFromAssetId,
-            toAssetId: swapToAssetId,
-            liquiditySourceType: selectedLiquiditySourceType,
-            availablePolkaswapDex: polkaswapRemoteSettings.availableDexIds
-        )
+        interactor.subscribeOnBlocks()
     }
 
     private func provideAmount(
@@ -696,6 +683,11 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             sendAmount = amounts.toAmount
         }
 
+        var feeAndTip: Decimal = .zero
+        if swapFromChainAsset?.identifier == xorChainAsset.identifier {
+            feeAndTip = networkFee
+        }
+
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: networkFee, locale: selectedLocale, onError: { [weak self] in
                 self?.fetchSwapFee(amounts: amounts)
@@ -708,12 +700,15 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             ),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: swapFromBalance),
-                feeAndTip: .zero,
+                feeAndTip: feeAndTip,
                 sendAmount: sendAmount,
                 locale: selectedLocale
             )
         ]).runValidation { [weak self] in
-            self?.confirmationScreenModuleInput = self?.router.showConfirmation(with: params, from: self?.view)
+            self?.confirmationScreenModuleInput = self?.router.showConfirmation(with: params, from: self?.view, completeClosure: {
+                self?.updateToAmount(.zero)
+                self?.updateFromAmount(.zero)
+            })
         }
     }
 

@@ -15,3 +15,14 @@ extension ConvenienceError: ErrorContentConvertible {
         ErrorContent(title: error, message: "")
     }
 }
+
+struct ConvenienceContentError: Error {
+    let title: String
+    let message: String
+}
+
+extension ConvenienceContentError: ErrorContentConvertible {
+    func toErrorContent(for _: Locale?) -> ErrorContent {
+        ErrorContent(title: title, message: message)
+    }
+}

@@ -97,9 +97,9 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
-        address: String
+        initialData: SendFlowInitialData
     ) {
-        let sendModule = SendAssembly.configureModule(wallet: wallet, initialData: .address(address))
+        let sendModule = SendAssembly.configureModule(wallet: wallet, initialData: initialData)
         guard let controller = sendModule?.view.controller else {
             return
         }

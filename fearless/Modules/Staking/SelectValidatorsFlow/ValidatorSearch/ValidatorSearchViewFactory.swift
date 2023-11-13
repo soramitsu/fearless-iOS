@@ -53,8 +53,7 @@ struct ValidatorSearchViewFactory {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory,
-            wallet: wallet
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }
@@ -90,7 +89,7 @@ struct ValidatorSearchViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorSearchRelaychainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory
             )
             return ValidatorSearchDependencyContainer(
@@ -110,7 +109,7 @@ struct ValidatorSearchViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorSearchParachainViewModelFactory(
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                iconGenerator: UniversalIconGenerator(),
                 balanceViewModelFactory: balanceViewModelFactory,
                 chainAsset: chainAsset
             )
