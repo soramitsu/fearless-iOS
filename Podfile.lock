@@ -179,12 +179,12 @@ PODS:
     - SSFRuntimeCodingService
     - SSFSigner
     - SSFUtils
-  - SSFHelpers (0.1.25):
+  - SSFHelpers (0.1.27):
     - SSFModels
     - SSFUtils
   - SSFLogger (0.1.0):
     - SwiftyBeaver
-  - SSFModels (0.1.25):
+  - SSFModels (0.1.27):
     - IrohaCrypto
   - SSFNetwork (0.1.17):
     - RobinHood
@@ -266,9 +266,9 @@ DEPENDENCIES:
   - SSFCrypto
   - SSFEraKit
   - SSFExtrinsicKit
-  - SSFHelpers (= 0.1.25)
+  - SSFHelpers (= 0.1.27)
   - SSFLogger
-  - SSFModels (= 0.1.25)
+  - SSFModels (= 0.1.27)
   - SSFNetwork
   - SSFRuntimeCodingService
   - SSFSigner
@@ -393,9 +393,9 @@ SPEC CHECKSUMS:
   SSFCrypto: 7ea544e61213538744ef8fd075e5e4487b7cf502
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
-  SSFHelpers: 09523dd0e1e76c6518fdef73f83c8cad532f620a
+  SSFHelpers: 7ff56eb3240e945ff2008951000d680575a8b46c
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
-  SSFModels: 9a2b6e28f1db3bde9b99810b42e821a20d45e934
+  SSFModels: d8e0a94d8204680aba4957ba33e0a96911e890ad
   SSFNetwork: 734ad619a28f5b37599c4e1fb599b899536f0d65
   SSFRuntimeCodingService: 9c527ab5b8c15c3d580d641df54eabc7e105e5cf
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
@@ -412,6 +412,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: cff4a8009d3b7e1dd4ff3b511c816b3f7af75061
+PODFILE CHECKSUM: b4b97f0fefe46ba62a44abdd69a90496a5180824
 
 COCOAPODS: 1.11.3

@@ -162,20 +162,20 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v4/chains_dev.json", branch: .rococo)
+            GitHubUrl.url(suffix: "chains/v4/chains_dev.json", branch: .developFree)
         #else
             GitHubUrl.url(suffix: "chains/v4/chains.json")
         #endif
     }
 
     var chainTypesSourceUrl: URL {
-        GitHubUrl.url(suffix: "chains/all_chains_types.json", branch: .rococo)
+        GitHubUrl.url(suffix: "chains/all_chains_types.json")
     }
 
     // MARK: - xcm
 
     var destinationFeeSourceUrl: URL {
-        GitHubUrl.url(suffix: "xcm/v2/xcm_fees.json", branch: .rococo)
+        GitHubUrl.url(suffix: "xcm/v2/xcm_fees.json")
     }
 
     var tokenLocationsSourceUrl: URL {
