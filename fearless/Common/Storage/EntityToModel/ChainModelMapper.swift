@@ -282,6 +282,7 @@ final class ChainModelMapper {
             }
             return XcmAvailableDestination(
                 chainId: chainId,
+                bridgeParachainId: $0.bridgeParachainId,
                 assets: assets
             )
         }
@@ -397,6 +398,7 @@ final class ChainModelMapper {
                 return entity
             }
             destinationEntity.assets = Set(availableAssets) as NSSet
+            destinationEntity.bridgeParachainId = $0.bridgeParachainId
 
             return destinationEntity
         }
