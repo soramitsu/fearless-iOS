@@ -74,6 +74,23 @@ final class NetworkManagmentViewLayout: UIView {
         allFilterButton.isSelected = filter.isAllFilter || filter.isChainSelected
         popularFilterButton.isSelected = filter.isPopularFilter
         favouriteFilterButton.isSelected = filter.isFavouriteFilter
+
+        switch filter {
+        case .chain:
+            break
+        case .all:
+            allFilterButton.triangularedView?.strokeWidth = 1
+            popularFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
+            favouriteFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        case .popular:
+            allFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
+            popularFilterButton.triangularedView?.strokeWidth = 1
+            favouriteFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        case .favourite:
+            allFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
+            popularFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
+            favouriteFilterButton.triangularedView?.strokeWidth = 1
+        }
     }
 
     // MARK: - Private methods
@@ -125,7 +142,6 @@ final class NetworkManagmentViewLayout: UIView {
         button.triangularedView?.highlightedFillColor = R.color.colorBlack50()!
         button.triangularedView?.strokeColor = R.color.colorStrokeGray()!
         button.triangularedView?.highlightedStrokeColor = R.color.colorPink()!
-        button.triangularedView?.strokeWidth = 1
 
         button.imageWithTitleView?.titleColor = R.color.colorStrokeGray()
         button.imageWithTitleView?.titleFont = .h6Title
