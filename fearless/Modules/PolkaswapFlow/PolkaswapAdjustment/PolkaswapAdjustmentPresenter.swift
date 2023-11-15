@@ -62,6 +62,8 @@ final class PolkaswapAdjustmentPresenter {
 
     private var loadingCollector = PolkaswapAdjustmentViewLoadingCollector()
 
+    private var disclaimerWasShown = false
+
     // MARK: - Constructors
 
     init(
@@ -493,6 +495,11 @@ final class PolkaswapAdjustmentPresenter {
 // MARK: - PolkaswapAdjustmentViewOutput
 
 extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
+    func viewDidAppear() {
+        interactor.fetchDisclaimerVisible()
+        disclaimerWasShown = true
+    }
+
     func didLoad(view: PolkaswapAdjustmentViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -719,10 +726,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         }
         detailsViewModel = provideDetailsViewModel(with: amounts)
     }
-
-    func didTapReadDisclaimer() {
-        router.showDisclaimer(moduleOutput: self, from: view)
-    }
 }
 
 // MARK: - PolkaswapAdjustmentInteractorOutput
@@ -868,8 +871,11 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         fetchQuotes()
     }
 
-    func didReceiveDisclaimer(visible: Bool) {
-        view?.setDisclaimer(visible: visible)
+    func didReceiveDisclaimer(isRead: Bool) {
+        guard !isRead, !disclaimerWasShown else {
+            return
+        }
+        router.showDisclaimer(moduleOutput: nil, from: view)
     }
 }
 
@@ -949,13 +955,5 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
             }
             detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
         }
-    }
-}
-
-// MARK: - PolkaswapDisclaimerModuleOutput
-
-extension PolkaswapAdjustmentPresenter: PolkaswapDisclaimerModuleOutput {
-    func disclaimerDidRead() {
-        view?.setDisclaimer(visible: false)
     }
 }

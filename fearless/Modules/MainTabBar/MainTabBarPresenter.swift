@@ -41,6 +41,13 @@ final class MainTabBarPresenter {
 }
 
 extension MainTabBarPresenter: MainTabBarPresenterProtocol {
+    func presentPolkaswap() {
+        guard let wallet = SelectedWalletSettings.shared.value else {
+            return
+        }
+        wireframe.presentPolkaswap(on: view, wallet: wallet)
+    }
+
     func didLoad(view: MainTabBarViewProtocol) {
         self.view = view
 
