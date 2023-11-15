@@ -66,7 +66,7 @@ final class TabBar: UITabBar {
     }
 
     private func createMaskLayer() -> CAShapeLayer {
-        let padding: CGFloat = 4.0
+        let padding: CGFloat = 6.0
         let centerButtonHeight: CGFloat = 56.0
         let r = CGFloat(28)
 

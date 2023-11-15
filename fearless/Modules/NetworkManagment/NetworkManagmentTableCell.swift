@@ -24,8 +24,8 @@ final class NetworkManagmentTableCell: UITableViewCell {
 
     let checkmarkImageView = UIImageView()
 
-    let favouriteButton: ExtendedTouchAreaButton = {
-        let button = ExtendedTouchAreaButton()
+    let favouriteButton: UIButton = {
+        let button = UIButton()
         let image = R.image.iconStar()?.withRenderingMode(.alwaysTemplate)
         button.setImage(image, for: .normal)
         return button
@@ -40,7 +40,7 @@ final class NetworkManagmentTableCell: UITableViewCell {
     override var isSelected: Bool {
         didSet {
             if isSelected {
-                let image = R.image.listCheckmarkIcon()
+                let image = R.image.listCheckmarkIconPink()
                 checkmarkImageView.image = image?.tinted(with: R.color.colorPink()!)
             }
             checkmarkImageView.isHidden = !isSelected
@@ -72,6 +72,16 @@ final class NetworkManagmentTableCell: UITableViewCell {
         titleLabel.text = viewModel.name
         if let isFavourite = viewModel.isFavourite {
             favouriteButton.tintColor = isFavourite ? R.color.colorPink()! : R.color.colorWhite16()!
+            checkmarkImageView.snp.makeConstraints { make in
+                make.size.equalTo(16)
+                make.centerY.equalToSuperview()
+                make.trailing.equalToSuperview()
+            }
+        } else {
+            checkmarkImageView.snp.makeConstraints { make in
+                make.size.equalTo(16)
+                make.center.equalToSuperview()
+            }
         }
         favouriteButton.isHidden = viewModel.isFavourite == nil
         viewModel.icon?.loadImage(on: iconImageView, targetSize: Constants.iconSize, animated: true)
@@ -103,10 +113,6 @@ final class NetworkManagmentTableCell: UITableViewCell {
         }
         checkmarkImageViewContainer.snp.makeConstraints { make in
             make.size.equalTo(44)
-        }
-        checkmarkImageView.snp.makeConstraints { make in
-            make.size.equalTo(20)
-            make.center.equalToSuperview()
         }
         favouriteButton.snp.makeConstraints { make in
             make.size.equalTo(44)

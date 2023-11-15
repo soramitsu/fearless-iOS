@@ -125,7 +125,7 @@ final class NetworkManagmentViewLayout: UIView {
         button.triangularedView?.highlightedFillColor = R.color.colorBlack50()!
         button.triangularedView?.strokeColor = R.color.colorStrokeGray()!
         button.triangularedView?.highlightedStrokeColor = R.color.colorPink()!
-        button.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        button.triangularedView?.strokeWidth = 1
 
         button.imageWithTitleView?.titleColor = R.color.colorStrokeGray()
         button.imageWithTitleView?.titleFont = .h6Title
