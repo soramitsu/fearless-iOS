@@ -41,7 +41,7 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
             case .favourite:
                 networkItems = filtredChains
                     .filter { favouriteChainIds.contains($0.chainId) }
-                    .sorted(by: { $0.rank ?? 0 > $1.rank ?? 0 })
+                    .sorted(by: { $0.name < $1.name })
                     .map { NetworkManagmentItem.chain($0) }
                 if favouriteChainIds.isNotEmpty {
                     networkItems.insert(.favourite, at: 0)
@@ -49,7 +49,7 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
             case .popular:
                 networkItems = filtredChains
                     .filter { $0.rank != nil }
-                    .sorted(by: { $0.name < $1.name })
+                    .sorted(by: { $0.rank ?? 0 < $1.rank ?? 0 })
                     .map { NetworkManagmentItem.chain($0) }
                 networkItems.insert(.popular, at: 0)
             }
