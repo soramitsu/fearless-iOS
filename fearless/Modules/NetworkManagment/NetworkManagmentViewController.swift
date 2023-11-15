@@ -100,6 +100,7 @@ extension NetworkManagmentViewController: NetworkManagmentViewInput {
         self.viewModel = viewModel
         rootView.setSelected(filter: viewModel.activeFilter)
         rootView.tableView.reloadData()
+        reloadEmptyState(animated: true)
     }
 }
 
