@@ -72,13 +72,13 @@ final class NetworkManagmentTableCell: UITableViewCell {
         titleLabel.text = viewModel.name
         if let isFavourite = viewModel.isFavourite {
             favouriteButton.tintColor = isFavourite ? R.color.colorPink()! : R.color.colorWhite16()!
-            checkmarkImageView.snp.makeConstraints { make in
+            checkmarkImageView.snp.remakeConstraints { make in
                 make.size.equalTo(16)
                 make.centerY.equalToSuperview()
                 make.trailing.equalToSuperview()
             }
         } else {
-            checkmarkImageView.snp.makeConstraints { make in
+            checkmarkImageView.snp.remakeConstraints { make in
                 make.size.equalTo(16)
                 make.center.equalToSuperview()
             }
