@@ -7,12 +7,18 @@ import SSFModels
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(
-        swapChainAsset: ChainAsset,
+        chainAsset: ChainAsset?,
         swapVariant: SwapVariant = .desiredInput,
         wallet: MetaAccountModel
     ) -> PolkaswapAdjustmentModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let connection = chainRegistry.getConnection(for: swapChainAsset.chain.chainId),
+        var swapChainAsset = chainAsset
+        if chainAsset == nil {
+            swapChainAsset = chainRegistry.getChain(for: Chain.soraMain.genesisHash)?.utilityChainAssets().first
+        }
+
+        guard let swapChainAsset = swapChainAsset,
+              let connection = chainRegistry.getConnection(for: swapChainAsset.chain.chainId),
               let accountResponse = wallet.fetch(for: swapChainAsset.chain.accountRequest()),
               let runtimeService = chainRegistry.getRuntimeProvider(for: swapChainAsset.chain.chainId),
               let xorChainAsset = swapChainAsset.chain.utilityChainAssets().first

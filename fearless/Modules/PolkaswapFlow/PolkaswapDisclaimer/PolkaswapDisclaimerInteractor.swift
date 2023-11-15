@@ -2,7 +2,7 @@ import UIKit
 import SoraKeystore
 
 enum PolkaswapDisclaimerKeys: String {
-    case polkaswapDisclaimerIsRead
+    case polkaswapDisclaimerIsRead2
 }
 
 protocol PolkaswapDisclaimerInteractorOutput: AnyObject {
@@ -22,7 +22,7 @@ final class PolkaswapDisclaimerInteractor {
     // MARK: - Private func
 
     private func fetchDisclaimerIsRead() {
-        let isRead = userDefaultsStorage.bool(for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead.rawValue)
+        let isRead = userDefaultsStorage.bool(for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue)
         output?.didReceiveDisclaimer(isRead: isRead.or(false))
     }
 }
@@ -36,6 +36,6 @@ extension PolkaswapDisclaimerInteractor: PolkaswapDisclaimerInteractorInput {
     }
 
     func setDisclaimerIsRead() {
-        userDefaultsStorage.set(value: true, for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead.rawValue)
+        userDefaultsStorage.set(value: true, for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue)
     }
 }

@@ -144,13 +144,6 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: [operation], in: .transient)
     }
-
-    private func fetchDisclaimerVisible() {
-        let isRead = userDefaultsStorage.bool(
-            for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead.rawValue
-        ) ?? false
-        output?.didReceiveDisclaimer(visible: !isRead)
-    }
 }
 
 // MARK: - PolkaswapAdjustmentInteractorInput
@@ -272,6 +265,13 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
             reuseIdentifier: reuseIdentifier,
             setupBy: builderClosure
         )
+    }
+
+    func fetchDisclaimerVisible() {
+        let isRead = userDefaultsStorage.bool(
+            for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead2.rawValue
+        ) ?? false
+        output?.didReceiveDisclaimer(isRead: isRead)
     }
 }
 

@@ -3,6 +3,19 @@ import CommonWallet
 import WalletConnectSign
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
+    func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+        guard
+            let tabBarController = view?.controller,
+            let viewController = PolkaswapAdjustmentAssembly.configureModule(chainAsset: nil, wallet: wallet)?.view.controller
+        else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: viewController)
+        let presentingController = tabBarController.topModalViewController
+        presentingController.present(navigationController, animated: true, completion: nil)
+    }
+
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
         if let view = view {
             return MainTabBarViewFactory.reloadCrowdloanView(
