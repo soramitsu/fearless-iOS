@@ -22,10 +22,11 @@ final class NetworkManagmentViewLayout: UIView {
         searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
         searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
         searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
-        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
-        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.fillColor = R.color.colorBlack50()!
+        searchTextField.triangularedView?.highlightedFillColor = R.color.colorBlack50()!
         searchTextField.triangularedView?.shadowOpacity = 0
-        searchTextField.backgroundColor = R.color.colorBlack19()
+        searchTextField.textField.backgroundColor = R.color.colorBlack50()
+        searchTextField.textField.tintColor = R.color.colorWhite50()
         return searchTextField
     }()
 
@@ -120,8 +121,8 @@ final class NetworkManagmentViewLayout: UIView {
     private func createFilterButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.triangularedView?.shadowOpacity = 0
-        button.triangularedView?.fillColor = R.color.colorWhite8()!
-        button.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        button.triangularedView?.fillColor = R.color.colorBlack50()!
+        button.triangularedView?.highlightedFillColor = R.color.colorBlack50()!
         button.triangularedView?.strokeColor = R.color.colorStrokeGray()!
         button.triangularedView?.highlightedStrokeColor = R.color.colorPink()!
         button.triangularedView?.strokeWidth = UIConstants.separatorHeight
