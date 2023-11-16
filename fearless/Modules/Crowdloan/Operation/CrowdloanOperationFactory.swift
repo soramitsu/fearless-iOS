@@ -43,8 +43,13 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
 
         let codingKeyFactory = StorageKeyFactory()
 
+        guard let type = runtimeService.snapshot?.metadata.schema?.types
+            .first(where: { $0.type.path.contains("primitives") && $0.type.path.contains("Id") })?.type.path
+            .joined(by: "::") else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "type polkadot_primitives::Id not found"))
+        }
         let mapper = StorageKeySuffixMapper<StringScaleMapper<UInt32>>(
-            type: SubstrateConstants.paraIdType,
+            type: String(type),
             suffixLength: SubstrateConstants.paraIdLength,
             coderFactoryClosure: { try coderFactoryOperation.extractNoCancellableResultData() }
         )
