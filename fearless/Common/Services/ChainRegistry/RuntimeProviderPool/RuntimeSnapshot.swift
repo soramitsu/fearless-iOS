@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 struct RuntimeSnapshot {
     let localCommonHash: String?
@@ -9,7 +10,7 @@ struct RuntimeSnapshot {
     let txVersion: UInt32
     let metadata: RuntimeMetadata
 
-    var runtimeSpecVersion: RuntimeSpecVersion {
-        RuntimeSpecVersion(rawValue: specVersion) ?? RuntimeSpecVersion.defaultVersion
+    func runtimeSpecVersion(for chain: ChainModel) -> RuntimeSpecVersion {
+        RuntimeSpecVersion.version(for: chain, rawValue: specVersion) ?? RuntimeSpecVersion.defaultVersion(for: chain)
     }
 }
