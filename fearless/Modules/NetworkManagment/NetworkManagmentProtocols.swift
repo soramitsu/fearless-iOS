@@ -8,5 +8,5 @@ protocol NetworkManagmentRouterInput: AnyDismissable {}
 protocol NetworkManagmentModuleInput: AnyObject {}
 
 protocol NetworkManagmentModuleOutput: AnyObject {
-    func did(select: NetworkManagmentSelect, contextTag: Int?)
+    func did(select: NetworkManagmentFilter, contextTag: Int?)
 }

@@ -18,7 +18,7 @@ struct MetaAccountModel: Equatable, Codable {
     let canExportEthereumMnemonic: Bool
     let unusedChainIds: [String]?
     let selectedCurrency: Currency
-    let networkManagmentFilter: ChainModel.Id?
+    let networkManagmentFilter: String?
     let assetsVisibility: [AssetVisibility]
     let zeroBalanceAssetsHidden: Bool
     let hasBackup: Bool

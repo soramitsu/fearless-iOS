@@ -70,7 +70,7 @@ final class NetworkManagmentViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setSelected(filter: NetworkManagmentSelect) {
+    func setSelected(filter: NetworkManagmentFilter) {
         allFilterButton.isSelected = filter.isAllFilter || filter.isChainSelected
         popularFilterButton.isSelected = filter.isPopularFilter
         favouriteFilterButton.isSelected = filter.isFavouriteFilter

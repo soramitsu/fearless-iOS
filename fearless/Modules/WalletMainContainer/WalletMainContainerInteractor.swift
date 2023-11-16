@@ -69,7 +69,7 @@ final class WalletMainContainerInteractor {
             switch result {
             case let .success(chains):
                 DispatchQueue.main.async {
-                    self?.output?.didReceiveSelected(tuple: (select: NetworkManagmentSelect(identifier: identifier), chains))
+                    self?.output?.didReceiveSelected(tuple: (select: NetworkManagmentFilter(identifier: identifier), chains))
                 }
             case let .failure(error):
                 self?.output?.didReceiveError(error)
@@ -139,7 +139,7 @@ final class WalletMainContainerInteractor {
 // MARK: - WalletMainContainerInteractorInput
 
 extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
-    func saveNetworkManagment(_ select: NetworkManagmentSelect) {
+    func saveNetworkManagment(_ select: NetworkManagmentFilter) {
         var updatedAccount: MetaAccountModel?
 
         if select.identifier != wallet.networkManagmentFilter {

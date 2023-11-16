@@ -21,15 +21,13 @@ final class NetworkManagmentPresenter {
 
     private var wallet: MetaAccountModel
     private let viewModelFactory: NetworkManagmentViewModelFactory
-    private let initialSelect: NetworkManagmentSelect
-    private var selectedChainId: ChainModel.Id?
-    private let includingMultiSelectRow: Bool
     private let contextTag: Int?
     private let logger: LoggerProtocol
 
     private var chains: [ChainModel] = []
     private var searchText: String?
-    private var filterSelect: NetworkManagmentSelect?
+    private var initialFilter: NetworkManagmentFilter
+    private var selectedFilter: NetworkManagmentFilter?
     private var currentViewModel: NetworkManagmentViewModel?
 
     // MARK: - Constructors
@@ -41,8 +39,6 @@ final class NetworkManagmentPresenter {
         moduleOutput: NetworkManagmentModuleOutput?,
         logger: LoggerProtocol,
         viewModelFactory: NetworkManagmentViewModelFactory,
-        select: NetworkManagmentSelect,
-        includingMultiSelectRow: Bool,
         contextTag: Int?,
         localizationManager: LocalizationManagerProtocol
     ) {
@@ -52,10 +48,9 @@ final class NetworkManagmentPresenter {
         self.moduleOutput = moduleOutput
         self.logger = logger
         self.viewModelFactory = viewModelFactory
-        self.includingMultiSelectRow = includingMultiSelectRow
         self.contextTag = contextTag
-        initialSelect = select
-        selectedChainId = select.selectedChainId
+
+        initialFilter = NetworkManagmentFilter(identifier: wallet.networkManagmentFilter)
 
         self.localizationManager = localizationManager
     }
@@ -66,10 +61,8 @@ final class NetworkManagmentPresenter {
         let viewModel = viewModelFactory.createViewModel(
             wallet: wallet,
             chains: chains,
-            filterSelect: filterSelect,
-            initialSelect: initialSelect,
-            favouriteChainIds: wallet.favouriteChainIds,
-            includingMultiSelectRow: includingMultiSelectRow,
+            selectedFilter: selectedFilter,
+            initialFilter: initialFilter,
             searchText: searchText,
             locale: selectedLocale
         )
@@ -111,17 +104,17 @@ extension NetworkManagmentPresenter: NetworkManagmentViewOutput {
     }
 
     func didSelectAllFilter() {
-        filterSelect = .all
+        selectedFilter = .all
         provideViewModel()
     }
 
     func didSelectPopularFilter() {
-        filterSelect = .popular
+        selectedFilter = .popular
         provideViewModel()
     }
 
     func didSelectFavouriteFilter() {
-        filterSelect = .favourite
+        selectedFilter = .favourite
         provideViewModel()
     }
 

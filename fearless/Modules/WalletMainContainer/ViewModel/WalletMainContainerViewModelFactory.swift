@@ -3,7 +3,7 @@ import SSFModels
 
 protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
-        selectedFilter: NetworkManagmentSelect,
+        selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
         chainsIssues: [ChainIssue],
@@ -14,7 +14,7 @@ protocol WalletMainContainerViewModelFactoryProtocol {
 
 final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
-        selectedFilter: NetworkManagmentSelect,
+        selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
         chainsIssues: [ChainIssue],

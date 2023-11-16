@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import SSFModels
 
-enum NetworkManagmentSelect: Identifiable {
+enum NetworkManagmentFilter: Identifiable {
     case chain(ChainModel.Id)
     case all
     case popular

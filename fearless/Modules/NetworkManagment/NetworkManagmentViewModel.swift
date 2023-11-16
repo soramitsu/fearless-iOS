@@ -5,10 +5,10 @@ struct NetworkManagmentCellViewModel {
     let name: String
     let isSelected: Bool
     let isFavourite: Bool?
-    let networkSelectType: NetworkManagmentSelect
+    let networkSelectType: NetworkManagmentFilter
 }
 
 struct NetworkManagmentViewModel {
-    let activeFilter: NetworkManagmentSelect
+    let activeFilter: NetworkManagmentFilter
     let cells: [NetworkManagmentCellViewModel]
 }

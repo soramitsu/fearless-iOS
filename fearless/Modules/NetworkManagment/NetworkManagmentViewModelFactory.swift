@@ -5,10 +5,8 @@ protocol NetworkManagmentViewModelFactory {
     func createViewModel(
         wallet: MetaAccountModel,
         chains: [ChainModel],
-        filterSelect: NetworkManagmentSelect?,
-        initialSelect: NetworkManagmentSelect,
-        favouriteChainIds: [ChainModel.Id],
-        includingMultiSelectRow: Bool,
+        selectedFilter: NetworkManagmentFilter?,
+        initialFilter: NetworkManagmentFilter,
         searchText: String?,
         locale: Locale
     ) -> NetworkManagmentViewModel
@@ -18,10 +16,8 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
     func createViewModel(
         wallet: MetaAccountModel,
         chains: [ChainModel],
-        filterSelect: NetworkManagmentSelect?,
-        initialSelect: NetworkManagmentSelect,
-        favouriteChainIds: [ChainModel.Id],
-        includingMultiSelectRow: Bool,
+        selectedFilter: NetworkManagmentFilter?,
+        initialFilter: NetworkManagmentFilter,
         searchText: String?,
         locale: Locale
     ) -> NetworkManagmentViewModel {
@@ -32,7 +28,7 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
         }
 
         if filtredChains.isNotEmpty {
-            switch filterSelect ?? initialSelect {
+            switch selectedFilter ?? initialFilter {
             case .chain, .all:
                 networkItems = filtredChains
                     .sorted(by: { $0.name < $1.name })
@@ -40,10 +36,10 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
                 networkItems.insert(.allItem, at: 0)
             case .favourite:
                 networkItems = filtredChains
-                    .filter { favouriteChainIds.contains($0.chainId) }
+                    .filter { wallet.favouriteChainIds.contains($0.chainId) }
                     .sorted(by: { $0.name < $1.name })
                     .map { NetworkManagmentItem.chain($0) }
-                if favouriteChainIds.isNotEmpty {
+                if wallet.favouriteChainIds.isNotEmpty {
                     networkItems.insert(.favourite, at: 0)
                 }
             case .popular:
@@ -52,15 +48,6 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
                     .sorted(by: { $0.rank ?? 0 < $1.rank ?? 0 })
                     .map { NetworkManagmentItem.chain($0) }
                 networkItems.insert(.popular, at: 0)
-            }
-        }
-
-        if !includingMultiSelectRow {
-            networkItems = networkItems.filter {
-                switch $0 {
-                case .chain: return true
-                default: return false
-                }
             }
         }
 
@@ -75,15 +62,15 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
                 return NetworkManagmentCellViewModel(
                     icon: chain.icon.map { RemoteImageViewModel(url: $0) },
                     name: chain.name,
-                    isSelected: chain.chainId == initialSelect.identifier,
-                    isFavourite: favouriteChainIds.contains(chain.chainId),
+                    isSelected: chain.chainId == initialFilter.identifier,
+                    isFavourite: wallet.favouriteChainIds.contains(chain.chainId),
                     networkSelectType: .chain(chain.chainId)
                 )
             case .allItem:
                 return NetworkManagmentCellViewModel(
                     icon: BundleImageViewModel(image: R.image.iconNetwotkManagmentAll()),
                     name: R.string.localizable.stakingAnalyticsPeriodAll(preferredLanguages: locale.rLanguages).uppercased(),
-                    isSelected: initialSelect.isAllFilter,
+                    isSelected: initialFilter.isAllFilter,
                     isFavourite: nil,
                     networkSelectType: .all
                 )
@@ -91,7 +78,7 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
                 return NetworkManagmentCellViewModel(
                     icon: BundleImageViewModel(image: R.image.iconNetwotkManagmentPopular()),
                     name: R.string.localizable.networkManagementPopular(preferredLanguages: locale.rLanguages).uppercased(),
-                    isSelected: initialSelect.isPopularFilter,
+                    isSelected: initialFilter.isPopularFilter,
                     isFavourite: nil,
                     networkSelectType: .popular
                 )
@@ -99,7 +86,7 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
                 return NetworkManagmentCellViewModel(
                     icon: BundleImageViewModel(image: R.image.iconNetwotkManagmentFavourite()),
                     name: R.string.localizable.networkManagmentFavourite(preferredLanguages: locale.rLanguages).uppercased(),
-                    isSelected: initialSelect.isFavouriteFilter,
+                    isSelected: initialFilter.isFavouriteFilter,
                     isFavourite: nil,
                     networkSelectType: .favourite
                 )
@@ -107,7 +94,7 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
         }
 
         let viewModel = NetworkManagmentViewModel(
-            activeFilter: filterSelect ?? initialSelect,
+            activeFilter: selectedFilter ?? initialFilter,
             cells: cells
         )
         return viewModel

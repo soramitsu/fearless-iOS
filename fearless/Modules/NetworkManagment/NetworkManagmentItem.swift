@@ -1,11 +1,3 @@
-//
-//  NetworkManagmentItem.swift
-//  fearless
-//
-//  Created by Soramitsu on 08.11.2023.
-//  Copyright © 2023 Soramitsu. All rights reserved.
-//
-
 import Foundation
 import SSFModels
 

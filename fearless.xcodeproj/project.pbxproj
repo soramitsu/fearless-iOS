@@ -23,7 +23,7 @@
 		0702B35229791357003519F5 /* SoraHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0702B35129791357003519F5 /* SoraHistoryOperationFactory.swift */; };
 		0702B355297948C8003519F5 /* SwapTransactionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0702B354297948C8003519F5 /* SwapTransactionViewModel.swift */; };
 		0702B35729794BA6003519F5 /* SwapTransactionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0702B35629794BA6003519F5 /* SwapTransactionViewModelFactory.swift */; };
-		0705400D2AFB9165004AEC50 /* NetworkManagmentSelect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0705400C2AFB9165004AEC50 /* NetworkManagmentSelect.swift */; };
+		0705400D2AFB9165004AEC50 /* NetworkManagmentFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0705400C2AFB9165004AEC50 /* NetworkManagmentFilter.swift */; };
 		0705400F2AFB949E004AEC50 /* NetworkManagmentItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0705400E2AFB949E004AEC50 /* NetworkManagmentItem.swift */; };
 		070540152AFC9C87004AEC50 /* MultiassetV11MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070540142AFC9C87004AEC50 /* MultiassetV11MigrationPolicy.swift */; };
 		070540172AFCA17C004AEC50 /* UserDataModelV10toV11.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 070540162AFCA17C004AEC50 /* UserDataModelV10toV11.xcmappingmodel */; };
@@ -2953,7 +2953,7 @@
 		0702B35129791357003519F5 /* SoraHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		0702B354297948C8003519F5 /* SwapTransactionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTransactionViewModel.swift; sourceTree = "<group>"; };
 		0702B35629794BA6003519F5 /* SwapTransactionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTransactionViewModelFactory.swift; sourceTree = "<group>"; };
-		0705400C2AFB9165004AEC50 /* NetworkManagmentSelect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagmentSelect.swift; sourceTree = "<group>"; };
+		0705400C2AFB9165004AEC50 /* NetworkManagmentFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagmentFilter.swift; sourceTree = "<group>"; };
 		0705400E2AFB949E004AEC50 /* NetworkManagmentItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagmentItem.swift; sourceTree = "<group>"; };
 		070540112AFBB6D2004AEC50 /* MultiassetUserDataModel_v11.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v11.xcdatamodel; sourceTree = "<group>"; };
 		070540142AFC9C87004AEC50 /* MultiassetV11MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiassetV11MigrationPolicy.swift; sourceTree = "<group>"; };
@@ -6222,7 +6222,7 @@
 			isa = PBXGroup;
 			children = (
 				074FB3F02AFA623D00837A94 /* NetworkManagmentViewModel.swift */,
-				0705400C2AFB9165004AEC50 /* NetworkManagmentSelect.swift */,
+				0705400C2AFB9165004AEC50 /* NetworkManagmentFilter.swift */,
 				0705400E2AFB949E004AEC50 /* NetworkManagmentItem.swift */,
 				070540182AFCFE54004AEC50 /* NetworkManagmentViewModelFactory.swift */,
 			);
@@ -17871,7 +17871,7 @@
 				FA6262472AC2E35A005D3D95 /* WalletConnectSessionProtocols.swift in Sources */,
 				FA6262602AC2E35A005D3D95 /* RawDataPresenter.swift in Sources */,
 				B2E3219218E3F54EEB7D5C3C /* NftSendViewController.swift in Sources */,
-				0705400D2AFB9165004AEC50 /* NetworkManagmentSelect.swift in Sources */,
+				0705400D2AFB9165004AEC50 /* NetworkManagmentFilter.swift in Sources */,
 				CBC2B73D7749D5C635EECEE8 /* NftSendViewLayout.swift in Sources */,
 				DE6DC04509EFEE35FFBADC59 /* NftSendAssembly.swift in Sources */,
 				069C7D4C9648112115B90234 /* NftSendConfirmProtocols.swift in Sources */,

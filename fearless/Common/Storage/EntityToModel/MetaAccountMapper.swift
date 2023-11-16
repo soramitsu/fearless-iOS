@@ -54,8 +54,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             return AssetVisibility(assetId: assetId, hidden: $0.hidden)
         }
         var favouriteChainIds: [String] = []
-        if let entityFavouriteCHainIds = entity.favouriteChainIds {
-            favouriteChainIds = (entityFavouriteCHainIds as? [String]) ?? []
+        if let entityFavouriteChainIds = entity.favouriteChainIds {
+            favouriteChainIds = (entityFavouriteChainIds as? [String]) ?? []
         }
 
         return DataProviderModel(

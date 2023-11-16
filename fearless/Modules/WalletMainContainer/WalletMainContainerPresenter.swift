@@ -19,7 +19,7 @@ final class WalletMainContainerPresenter {
     // MARK: - State
 
     private var selectedChains: [ChainModel]?
-    private var selectedNetworkManagmentFilter: NetworkManagmentSelect?
+    private var selectedNetworkManagmentFilter: NetworkManagmentFilter?
     private var issues: [ChainIssue] = []
     private var onceLoaded: Bool = false
 
@@ -107,7 +107,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         router.showSelectNetwork(
             from: view,
             wallet: wallet,
-            select: select,
             delegate: self
         )
     }
@@ -131,7 +130,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
 // MARK: - WalletMainContainerInteractorOutput
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
-    func didReceiveSelected(tuple: (select: NetworkManagmentSelect, chains: [SSFModels.ChainModel])) {
+    func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [SSFModels.ChainModel])) {
         let needsReloadAssetsList: Bool = (tuple.select.identifier != selectedNetworkManagmentFilter?.identifier) || !onceLoaded
         selectedNetworkManagmentFilter = tuple.select
 
@@ -275,7 +274,7 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
 // MARK: - NetworkManagmentModuleOutput
 
 extension WalletMainContainerPresenter: NetworkManagmentModuleOutput {
-    func did(select: NetworkManagmentSelect, contextTag _: Int?) {
+    func did(select: NetworkManagmentFilter, contextTag _: Int?) {
         interactor.saveNetworkManagment(select)
     }
 }

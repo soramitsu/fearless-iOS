@@ -23,13 +23,13 @@ protocol WalletMainContainerViewOutput: AnyObject {
 
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
-    func saveNetworkManagment(_ select: NetworkManagmentSelect)
+    func saveNetworkManagment(_ select: NetworkManagmentFilter)
     func walletConnect(uri: String) async throws
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveAccount(_ account: MetaAccountModel)
-    func didReceiveSelected(tuple: (select: NetworkManagmentSelect, chains: [ChainModel]))
+    func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [ChainModel]))
     func didReceiveError(_ error: Error)
     func didReceiveChainsIssues(chainsIssues: [ChainIssue])
     func didReceive(chainSettings: [ChainSettings])
@@ -47,7 +47,6 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
     func showSelectNetwork(
         from view: WalletMainContainerViewInput?,
         wallet: MetaAccountModel,
-        select: NetworkManagmentSelect,
         delegate: NetworkManagmentModuleOutput?
     )
     func showSelectCurrency(

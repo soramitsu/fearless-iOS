@@ -6,8 +6,6 @@ import SSFModels
 final class NetworkManagmentAssembly {
     static func configureModule(
         wallet: MetaAccountModel,
-        select: NetworkManagmentSelect,
-        includingMultiSelectRow: Bool,
         chains: [ChainModel]?,
         contextTag: Int?,
         moduleOutput: NetworkManagmentModuleOutput?
@@ -39,8 +37,6 @@ final class NetworkManagmentAssembly {
             moduleOutput: moduleOutput,
             logger: Logger.shared,
             viewModelFactory: NetworkManagmentViewModelFactoryImpl(),
-            select: select,
-            includingMultiSelectRow: includingMultiSelectRow,
             contextTag: contextTag,
             localizationManager: localizationManager
         )
