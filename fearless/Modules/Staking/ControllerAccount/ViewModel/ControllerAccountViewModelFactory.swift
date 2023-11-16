@@ -1,6 +1,7 @@
 import IrohaCrypto
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactoryProtocol {
     let iconGenerator: IconGenerating
@@ -14,7 +15,8 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
     func createViewModel(
         stashItem: StashItem,
         stashAccountItem: ChainAccountResponse?,
-        chosenAccountItem: ChainAccountResponse?
+        chosenAccountItem: ChainAccountResponse?,
+        chainAsset: ChainAsset
     ) -> ControllerAccountViewModel {
         let stashAddress = stashItem.stash
         let stashViewModel = LocalizableResource<AccountInfoViewModel> { locale in
@@ -55,6 +57,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             stashItem.controller == currentAccountItem.toAddress()
 
         return ControllerAccountViewModel(
+            chainAsset: chainAsset,
             stashViewModel: stashViewModel,
             controllerViewModel: controllerViewModel,
             currentAccountIsController: currentAccountIsController,

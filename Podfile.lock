@@ -235,7 +235,7 @@ PODS:
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.52.4)
+  - SwiftLint (0.53.0)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
   - XNetworking (0.0.37)
@@ -274,7 +274,7 @@ DEPENDENCIES:
   - SSFSigner
   - SSFStorageQueryKit
   - SSFUtils (= 0.1.21)
-  - SSFXCM
+  - SSFXCM (= 0.1.13)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
@@ -283,7 +283,7 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/Specs.git:
     - AppAuth
     - BigInt
     - Charts
@@ -406,12 +406,12 @@ SPEC CHECKSUMS:
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 1cc5cd61ba9bacb2194e340aeb47a2a37fda00b3
+  SwiftLint: 5ce4d6a8ff83f1b5fd5ad5dbf30965d35af65e44
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 9d289dc5ef57e4345a899f386f30cfd31e4efdd4
+PODFILE CHECKSUM: cdd9aff7587823c1c215cb377d1baeb6a19f7321
 
 COCOAPODS: 1.11.3

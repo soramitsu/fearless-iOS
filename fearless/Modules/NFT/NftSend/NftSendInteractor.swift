@@ -53,7 +53,8 @@ extension NftSendInteractor: NftSendInteractorInput {
 
                 let transfer = NftTransfer(
                     nft: nft,
-                    receiver: address
+                    receiver: address,
+                    value: 1
                 )
 
                 let fee = try await transferService.estimateFee(for: transfer)

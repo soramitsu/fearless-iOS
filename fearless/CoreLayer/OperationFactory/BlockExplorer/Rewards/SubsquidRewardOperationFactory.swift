@@ -205,7 +205,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         let resultFactory = AnyNetworkResultFactory<CollatorAprResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<SubsquidCollatorAprResponse>.self,
+                    GraphQLResponse<SubsquidCollatorAprResponse>.self,
                     from: data
                 )
 
@@ -257,7 +257,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         let resultFactory = AnyNetworkResultFactory<RewardHistoryResponseProtocol> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<SubsquidDelegatorRewardsData>.self,
+                    GraphQLResponse<SubsquidDelegatorRewardsData>.self,
                     from: data
                 )
 
@@ -308,7 +308,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
 
         let resultFactory = AnyNetworkResultFactory<RewardOrSlashResponse> { data in
             let response = try JSONDecoder().decode(
-                SubqueryResponse<SubsquidHistoryResponse>.self,
+                GraphQLResponse<SubsquidHistoryResponse>.self,
                 from: data
             )
 

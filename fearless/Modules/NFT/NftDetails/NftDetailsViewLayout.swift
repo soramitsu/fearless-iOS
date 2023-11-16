@@ -187,7 +187,5 @@ final class NftDetailsViewLayout: UIView {
         tokenTypeView.valueLabel.text = viewModel.tokenType
 
         mediaView.bind(mediaURL: viewModel.nft.media?.first?.normalizedURL, animating: true)
-
-        sendButton.isHidden = viewModel.tokenType?.lowercased() != "erc721"
     }
 }

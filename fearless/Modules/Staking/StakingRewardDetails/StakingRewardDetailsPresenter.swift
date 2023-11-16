@@ -11,20 +11,17 @@ final class StakingRewardDetailsPresenter {
     private let input: StakingRewardDetailsInput
     private let viewModelFactory: StakingRewardDetailsViewModelFactoryProtocol
     private var priceData: PriceData?
-    private var chain: ChainModel
-    private let asset: AssetModel
-    private let selectedAccount: MetaAccountModel
+    private var chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
 
     init(
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         input: StakingRewardDetailsInput,
         viewModelFactory: StakingRewardDetailsViewModelFactoryProtocol
     ) {
-        self.asset = asset
-        self.selectedAccount = selectedAccount
-        self.chain = chain
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.input = input
         self.viewModelFactory = viewModelFactory
     }
@@ -45,9 +42,8 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
         wireframe.showPayoutConfirmation(
             from: view,
             payoutInfo: input.payoutInfo,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 
@@ -62,7 +58,7 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
         wireframe.presentAccountOptions(
             from: view,
             address: address,
-            chain: chain,
+            chain: chainAsset.chain,
             locale: locale
         )
     }

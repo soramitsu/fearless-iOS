@@ -62,7 +62,8 @@ final class ChainAssetListViewLayout: UIView {
 
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.leading.top.trailing.equalToSuperview()
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
     }
 }

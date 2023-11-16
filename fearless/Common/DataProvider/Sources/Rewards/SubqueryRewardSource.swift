@@ -141,19 +141,32 @@ final class SubqueryRewardSource {
     private func calculateReward(from remoteItems: [RewardOrSlashData]) -> Decimal {
         remoteItems.reduce(Decimal(0.0)) { amount, remoteItem in
             guard
-                let rewardOrSlash = remoteItem.rewardInfo,
-                let nextAmount = BigUInt(string: rewardOrSlash.amount),
-                let nextAmountDecimal = Decimal.fromSubstrateAmount(
-                    nextAmount,
-                    precision: assetPrecision
-                )
+                let rewardOrSlash = remoteItem.rewardInfo
             else {
                 logger?.error("Broken reward: \(remoteItem)")
                 return amount
             }
 
+            let nextAmountDecimal = getReward(from: rewardOrSlash)
+
             return rewardOrSlash.isReward ? amount + nextAmountDecimal : amount - nextAmountDecimal
         }
+    }
+
+    private func getReward(from rewardOrSlash: RewardOrSlash) -> Decimal {
+        if let nextAmount = BigUInt(string: rewardOrSlash.amount),
+           let nextAmountDecimal = Decimal.fromSubstrateAmount(
+               nextAmount,
+               precision: assetPrecision
+           ) {
+            return nextAmountDecimal
+        }
+
+        if let amount = Decimal(string: rewardOrSlash.amount) {
+            return amount
+        }
+
+        return .zero
     }
 }
 

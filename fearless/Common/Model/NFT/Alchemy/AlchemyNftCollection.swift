@@ -16,7 +16,7 @@ struct AlchemyNftCollection: Decodable {
     let title: String?
     let symbol: String?
     let totalSupply: String?
-    let tokenType: String?
+    let tokenType: NFTTokenType?
     let contractDeployer: String?
     let deployedBlockNumber: UInt64?
     let openSea: AlchemyNftOpenseaInfo?
