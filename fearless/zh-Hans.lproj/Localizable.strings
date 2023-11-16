@@ -1112,3 +1112,5 @@
 "your.validators.stop.nominating.title" = "停止提名";
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
+"common.attention" = "Attention";
+"sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
