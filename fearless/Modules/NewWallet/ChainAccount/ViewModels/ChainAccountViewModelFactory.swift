@@ -4,7 +4,8 @@ import SSFModels
 protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        mode: ChainAccountViewMode
     ) -> ChainAccountViewModel
 }
 
@@ -17,7 +18,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
 
     func buildChainAccountViewModel(
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        mode: ChainAccountViewMode
     ) -> ChainAccountViewModel {
         var address: String?
         if
@@ -49,7 +51,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             assetModel: chainAssetModel,
             buyButtonVisible: buyButtonVisible,
             polkaswapButtonVisible: polkaswapButtonVisible,
-            xcmButtomVisible: xcmButtomVisible
+            xcmButtomVisible: xcmButtomVisible,
+            mode: mode
         )
     }
 }

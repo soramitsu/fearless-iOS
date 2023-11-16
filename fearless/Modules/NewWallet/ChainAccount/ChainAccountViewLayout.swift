@@ -208,6 +208,14 @@ final class ChainAccountViewLayout: UIView {
         buyButton.isHidden = !viewModel.buyButtonVisible
         polkaswapButton.isHidden = !viewModel.polkaswapButtonVisible
         crossChainButton.isHidden = !viewModel.xcmButtomVisible
+        actionsView.isHidden = viewModel.mode == .simple
+
+        switch viewModel.mode {
+        case .simple:
+            selectNetworkButton.setTitle(R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages), for: .normal)
+        case .extended:
+            selectNetworkButton.setTitle(viewModel.selectedChainName, for: .normal)
+        }
     }
 }
 

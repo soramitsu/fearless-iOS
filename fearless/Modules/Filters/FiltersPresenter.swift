@@ -42,6 +42,10 @@ extension FiltersPresenter: FiltersPresenterProtocol {
     func didTapCloseButton() {
         wireframe.close(view: view)
     }
+
+    func didSelectSort(viewModel: SortFilterCellViewModel) {
+        interactor.applySort(sortId: viewModel.id)
+    }
 }
 
 extension FiltersPresenter: FiltersInteractorOutputProtocol {

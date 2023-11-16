@@ -6,7 +6,7 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset
     ) {
-        guard let chainAssetView = WalletChainAccountDashboardViewFactory.createView(
+        guard let chainAssetView = WalletChainAccountDashboardViewFactory.createNetworksView(
             chainAsset: chainAsset
         ) else {
             return
