@@ -553,8 +553,8 @@ final class SendPresenter {
 
         DispatchQueue.main.async {
             self.view?.didReceive(feeViewModel: viewModel)
+            self.feeViewModel = viewModel
         }
-        feeViewModel = viewModel
     }
 
     // MARK: - QR handlers

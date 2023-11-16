@@ -66,7 +66,7 @@ struct ReferralCrowdloanViewFactory {
                 return BifrostBonusService(
                     paraId: paraId,
                     operationManager: OperationManagerFacade.sharedManager,
-                    callFactory: SubstrateCallFactoryAssembly.createCallFactory(for: .defaultVersion)
+                    callFactory: SubstrateCallFactoryAssembly.createCallFactory(for: .v9370)
                 )
             }
         }()
