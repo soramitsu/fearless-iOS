@@ -20,8 +20,8 @@ final class NetworkManagmentViewLayout: UIView {
     let searchTextField: SearchTextField = {
         let searchTextField = SearchTextField()
         searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
-        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
-        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
+        searchTextField.triangularedView?.strokeWidth = 1
+        searchTextField.triangularedView?.strokeColor = R.color.colorWhite8()!
         searchTextField.triangularedView?.fillColor = R.color.colorBlack50()!
         searchTextField.triangularedView?.highlightedFillColor = R.color.colorBlack50()!
         searchTextField.triangularedView?.shadowOpacity = 0
@@ -74,23 +74,6 @@ final class NetworkManagmentViewLayout: UIView {
         allFilterButton.isSelected = filter.isAllFilter || filter.isChainSelected
         popularFilterButton.isSelected = filter.isPopularFilter
         favouriteFilterButton.isSelected = filter.isFavouriteFilter
-
-        switch filter {
-        case .chain:
-            break
-        case .all:
-            allFilterButton.triangularedView?.strokeWidth = 1
-            popularFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
-            favouriteFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
-        case .popular:
-            allFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
-            popularFilterButton.triangularedView?.strokeWidth = 1
-            favouriteFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
-        case .favourite:
-            allFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
-            popularFilterButton.triangularedView?.strokeWidth = UIConstants.separatorHeight
-            favouriteFilterButton.triangularedView?.strokeWidth = 1
-        }
     }
 
     // MARK: - Private methods
@@ -140,8 +123,9 @@ final class NetworkManagmentViewLayout: UIView {
         button.triangularedView?.shadowOpacity = 0
         button.triangularedView?.fillColor = R.color.colorBlack50()!
         button.triangularedView?.highlightedFillColor = R.color.colorBlack50()!
-        button.triangularedView?.strokeColor = R.color.colorStrokeGray()!
+        button.triangularedView?.strokeColor = R.color.colorWhite8()!
         button.triangularedView?.highlightedStrokeColor = R.color.colorPink()!
+        button.triangularedView?.strokeWidth = 1
 
         button.imageWithTitleView?.titleColor = R.color.colorStrokeGray()
         button.imageWithTitleView?.titleFont = .h6Title
