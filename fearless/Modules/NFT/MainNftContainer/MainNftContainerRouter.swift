@@ -16,4 +16,6 @@ final class MainNftContainerRouter: MainNftContainerRouterInput {
 
         view?.controller.navigationController?.present(navigationController, animated: true)
     }
+
+    func showFilters(from _: ControllerBackedProtocol?) {}
 }

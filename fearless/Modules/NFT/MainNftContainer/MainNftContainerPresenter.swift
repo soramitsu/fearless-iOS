@@ -1,5 +1,10 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
+
+enum NftAppearanceKeys: String {
+    case showNftsLikeCollection
+}
 
 final class MainNftContainerPresenter {
     // MARK: Private properties
@@ -10,6 +15,7 @@ final class MainNftContainerPresenter {
     private let viewModelFactory: NftListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
+    private let userDefaultsStorage: SettingsManagerProtocol
 
     // MARK: - Constructors
 
@@ -19,19 +25,28 @@ final class MainNftContainerPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: NftListViewModelFactoryProtocol,
         wallet: MetaAccountModel,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
         self.eventCenter = eventCenter
+        self.userDefaultsStorage = userDefaultsStorage
         self.localizationManager = localizationManager
 
         eventCenter.add(observer: self)
     }
 
     // MARK: - Private methods
+
+    private func setupAppearance() {
+        let showNftsLikeCollection: Bool = userDefaultsStorage.bool(
+            for: NftAppearanceKeys.showNftsLikeCollection.rawValue
+        ) ?? true
+        view?.didReceive(appearance: showNftsLikeCollection ? .collection : .table)
+    }
 }
 
 // MARK: - MainNftContainerViewOutput
@@ -45,6 +60,7 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
 
     func viewAppeared() {
         interactor.initialSetup()
+        setupAppearance()
     }
 
     func didSelect(collection: NFTCollection) {
@@ -58,13 +74,31 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     func didPullToRefresh() {
         interactor.fetchData()
     }
+
+    func didTapFilterButton() {
+        router.showFilters(from: view)
+    }
+
+    func didTapCollectionButton() {
+        userDefaultsStorage.set(
+            value: true,
+            for: NftAppearanceKeys.showNftsLikeCollection.rawValue
+        )
+    }
+
+    func didTapTableButton() {
+        userDefaultsStorage.set(
+            value: false,
+            for: NftAppearanceKeys.showNftsLikeCollection.rawValue
+        )
+    }
 }
 
 // MARK: - MainNftContainerInteractorOutput
 
 extension MainNftContainerPresenter: MainNftContainerInteractorOutput {
     func didReceive(collections: [NFTCollection]) {
-        let viewModels = viewModelFactory.buildViewModel(from: collections)
+        let viewModels = viewModelFactory.buildViewModel(from: collections, locale: localizationManager?.selectedLocale ?? Locale.current)
         view?.didReceive(viewModels: viewModels)
     }
 }

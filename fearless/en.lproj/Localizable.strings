@@ -1204,3 +1204,7 @@ belongs to the right network";
 "empty.state.message" = "Nothing found for your request";
 "wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
 "wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
+"nfts.collection.count" = "Quantity: %d/%d";
+"nfts.filters.title" = "Hide NFTs";
+"nfts.filters.spam" = "SPAM";
+"nfts.filters.airdrop" = "AirDrop";

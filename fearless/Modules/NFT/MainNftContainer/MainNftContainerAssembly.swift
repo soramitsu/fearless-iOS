@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFNetwork
+import SoraKeystore
 
 final class MainNftContainerAssembly {
     static func configureModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {
@@ -31,7 +32,8 @@ final class MainNftContainerAssembly {
             localizationManager: localizationManager,
             viewModelFactory: NftListViewModelFactory(),
             wallet: wallet,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            userDefaultsStorage: SettingsManager.shared
         )
 
         let view = MainNftContainerViewController(

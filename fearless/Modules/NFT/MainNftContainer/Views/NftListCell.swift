@@ -35,33 +35,17 @@ class NftListCell: UITableViewCell {
         return label
     }()
 
-    let nftNameLabel: UILabel = {
+    let collectionNameLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
         label.textColor = R.color.colorWhite()
         return label
     }()
 
-    let collectionNameLabel: UILabel = {
+    let nftCountLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite50()
-        return label
-    }()
-
-    let detailsArrowImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.iconNftDetailsArrow()
-        return imageView
-    }()
-
-    let nftCountLabel: InsettedLabel = {
-        let label = InsettedLabel(insets: UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4))
         label.font = .h5Title
         label.textColor = R.color.colorWhite50()
-        label.backgroundColor = R.color.colorWhite8()
-        label.layer.cornerRadius = 6
-        label.layer.masksToBounds = true
         return label
     }()
 
@@ -99,9 +83,12 @@ class NftListCell: UITableViewCell {
             )
 
             chainLabel.text = viewModel.chainNameLabelText
-            nftNameLabel.text = viewModel.nftNameLabelText
-            collectionNameLabel.attributedText = viewModel.priceLabelAttributedText
-            nftCountLabel.text = viewModel.nftCountLabelText
+            collectionNameLabel.text = viewModel.collection.name
+            nftCountLabel.text = R.string.localizable.nftsCollectionCount(
+                viewModel.currentCount,
+                viewModel.availableCount,
+                preferredLanguages: viewModel.locale.rLanguages
+            )
         } else {
             startLoadingIfNeeded()
         }
@@ -112,12 +99,11 @@ class NftListCell: UITableViewCell {
         cardView.addSubview(nftImageView)
         cardView.addSubview(verticalSeparatorView)
         cardView.addSubview(stackView)
-        cardView.addSubview(detailsArrowImageView)
         cardView.addSubview(nftCountLabel)
 
         stackView.addArrangedSubview(chainLabel)
-        stackView.addArrangedSubview(nftNameLabel)
         stackView.addArrangedSubview(collectionNameLabel)
+        stackView.addArrangedSubview(nftCountLabel)
 
         setupConstraints()
     }
@@ -131,7 +117,7 @@ class NftListCell: UITableViewCell {
         nftImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
             make.centerY.equalToSuperview()
-            make.top.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.top.equalToSuperview().inset(UIConstants.bigOffset)
             make.size.equalTo(LayoutConstants.imageSize)
         }
 
@@ -141,26 +127,18 @@ class NftListCell: UITableViewCell {
             make.leading.equalTo(nftImageView.snp.trailing).offset(UIConstants.defaultOffset)
         }
 
-        detailsArrowImageView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
-            make.leading.equalTo(nftCountLabel.snp.trailing).offset(UIConstants.minimalOffset)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(16)
-        }
-
-        nftCountLabel.snp.makeConstraints { make in
-            make.height.equalTo(22)
-            make.centerY.equalToSuperview()
-        }
-
         stackView.snp.makeConstraints { make in
             make.leading.equalTo(verticalSeparatorView.snp.trailing).offset(UIConstants.defaultOffset)
-            make.trailing.equalTo(nftCountLabel.snp.leading).offset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().offset(UIConstants.defaultOffset)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
         collectionNameLabel.snp.makeConstraints { make in
             make.height.greaterThanOrEqualTo(15)
+        }
+
+        nftCountLabel.snp.makeConstraints { make in
+            make.height.equalTo(15)
         }
     }
 }
@@ -193,7 +171,6 @@ extension NftListCell: SkeletonLoadable {
         }
 
         chainLabel.alpha = 0.0
-        nftNameLabel.alpha = 0.0
         collectionNameLabel.alpha = 0.0
         nftImageView.alpha = 0.0
 
@@ -210,7 +187,6 @@ extension NftListCell: SkeletonLoadable {
         skeletonView = nil
 
         chainLabel.alpha = 1.0
-        nftNameLabel.alpha = 1.0
         collectionNameLabel.alpha = 1.0
         nftImageView.alpha = 1.0
     }
@@ -244,13 +220,13 @@ extension NftListCell: SkeletonLoadable {
     private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
         let defaultBigWidth = 100.0
 
-        let nftNameWidth = nftNameLabel.text?.widthOfString(usingFont: nftNameLabel.font)
         let chainNameWidth = chainLabel.text?.widthOfString(usingFont: chainLabel.font)
         let collectionNameWidth = collectionNameLabel.text?.widthOfString(usingFont: collectionNameLabel.font)
+        let nftCountWidth = nftCountLabel.text?.widthOfString(usingFont: nftCountLabel.font)
 
-        let nftNameSize = CGSize(width: nftNameWidth ?? defaultBigWidth, height: 14)
         let chainNameSize = CGSize(width: chainNameWidth ?? defaultBigWidth, height: 10)
         let collectionNameSize = CGSize(width: collectionNameWidth ?? defaultBigWidth, height: 12)
+        let nftCountSize = CGSize(width: nftCountWidth ?? defaultBigWidth, height: 12)
 
         let textOffset = UIConstants.bigOffset + UIConstants.defaultOffset + LayoutConstants.imageSize + UIConstants.defaultOffset * 2
         return [
@@ -267,12 +243,12 @@ extension NftListCell: SkeletonLoadable {
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
                 position: CGPoint(x: textOffset, y: spaceSize.height / 2),
-                size: nftNameSize
+                size: collectionNameSize
             ),
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
-                position: CGPoint(x: textOffset, y: spaceSize.height / 2 + collectionNameSize.height + UIConstants.defaultOffset * 2),
-                size: collectionNameSize
+                position: CGPoint(x: textOffset, y: spaceSize.height / 2 + nftCountSize.height + UIConstants.defaultOffset * 2),
+                size: nftCountSize
             )
         ]
     }

@@ -119,7 +119,7 @@ struct NFTMedia: Codable, Equatable, Hashable {
 struct NFTCollection: Codable, Equatable, Hashable {
     let address: String?
     let numberOfTokens: UInt32?
-    let isSpam: String?
+    let isSpam: Bool?
     let title: String?
     let name: String?
     let creator: String?
@@ -131,6 +131,7 @@ struct NFTCollection: Codable, Equatable, Hashable {
     let chain: ChainModel
 
     var nfts: [NFT]?
+    var availableNfts: [NFT]?
 
     var displayName: String? {
         if let name = opensea?.collectionName, name.isNotEmpty {

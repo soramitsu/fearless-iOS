@@ -21,18 +21,18 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            let fetchNftsOperation = operationFactory.fetchCollections(chain: chain, address: address)
+            let fetchCollectionsOperation = operationFactory.fetchCollections(chain: chain, address: address)
 
-            fetchNftsOperation.targetOperation.completionBlock = {
+            fetchCollectionsOperation.targetOperation.completionBlock = {
                 do {
-                    let collections = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
+                    let collections = try fetchCollectionsOperation.targetOperation.extractNoCancellableResultData()
                     continuation.resume(with: .success(collections))
                 } catch {
                     continuation.resume(with: .failure(error))
                 }
             }
 
-            self.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
+            self.operationQueue.addOperations(fetchCollectionsOperation.allOperations, waitUntilFinished: true)
         }
     }
 
@@ -43,6 +43,23 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
 
         return try await withCheckedThrowingContinuation { continuation in
             let fetchNftsOperation = operationFactory.fetchNFTs(chain: chain, address: address)
+
+            fetchNftsOperation.targetOperation.completionBlock = {
+                do {
+                    let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
+                    continuation.resume(with: .success(nfts))
+                } catch {
+                    continuation.resume(with: .failure(error))
+                }
+            }
+
+            self.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
+        }
+    }
+
+    private func fetchCollectionNfts(for chain: ChainModel, address: String) async throws -> [NFT]? {
+        try await withCheckedThrowingContinuation { continuation in
+            let fetchNftsOperation = operationFactory.fetchCollectionNfts(chain: chain, address: address)
 
             fetchNftsOperation.targetOperation.completionBlock = {
                 do {
@@ -119,5 +136,17 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
         }
 
         return collections
+    }
+
+    func fetchCollectionNfts(collectionAddress: String, chain: ChainModel) async throws -> [NFT] {
+        let nfts = await withThrowingTaskGroup(of: [NFT]?.self) { [weak self] _ in
+            guard let strongSelf = self else {
+                return [NFT]()
+            }
+
+            let result = try? await strongSelf.fetchCollectionNfts(for: chain, address: collectionAddress)
+            return result ?? []
+        }
+        return nfts
     }
 }

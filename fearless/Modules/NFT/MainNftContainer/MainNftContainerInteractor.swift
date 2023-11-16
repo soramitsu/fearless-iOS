@@ -55,36 +55,47 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
             do {
                 let nfts = try await nftFetchingService.fetchNfts(for: wallet)
 
-                let nftsBySmartContract: [String: [NFT]] = nfts.reduce([String: [NFT]]()) { partialResult, nft in
-                    var map = partialResult
+                var ownedCollections = try await nftFetchingService.fetchCollections(for: wallet)
 
-                    guard let smartContract = nft.smartContract else {
-                        return map
+                ownedCollections = ownedCollections.map { collection in
+                    var ownedCollection = collection
+                    ownedCollection.nfts = nfts.filter { $0.smartContract == collection.address }
+                    return ownedCollection
+                }.filter { $0.nfts?.isEmpty == false }
+
+                let filledCollections = try await withThrowingTaskGroup(of: [NFT]?.self) { [weak self] group in
+                    guard let strongSelf = self else {
+                        return ownedCollections
                     }
 
-                    if var nfts = partialResult[smartContract] {
-                        nfts.append(nft)
-                        map[smartContract] = nfts
-                    } else {
-                        map[smartContract] = [nft]
+                    var updatedCollections: [NFTCollection] = []
+
+                    for collection in ownedCollections {
+                        if let address = collection.address {
+                            group.addTask {
+                                let nfts = try? await strongSelf.nftFetchingService.fetchCollectionNfts(
+                                    collectionAddress: address,
+                                    chain: collection.chain
+                                )
+                                return nfts
+                            }
+                        } else {
+                            updatedCollections.append(collection)
+                        }
                     }
-
-                    return map
-                }
-
-                let collections: [NFTCollection] = nftsBySmartContract.compactMap { _, value in
-                    guard let nft = value.first else {
-                        return nil
+                    for try await collectionNfts in group {
+                        if var collection = ownedCollections.first(where: { collection in
+                            collection.address == collectionNfts?.first?.smartContract
+                        }) {
+                            collection.availableNfts = collectionNfts
+                            updatedCollections.append(collection)
+                        }
                     }
-
-                    var collection = nft.collection
-                    collection?.nfts = value
-
-                    return collection
+                    return updatedCollections
                 }
 
                 await MainActor.run(body: {
-                    output?.didReceive(collections: collections)
+                    output?.didReceive(collections: filledCollections)
                 })
             } catch {
                 logger.error(error.localizedDescription)

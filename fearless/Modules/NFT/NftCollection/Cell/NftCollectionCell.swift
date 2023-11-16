@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 
 class NftCollectionCell: UICollectionViewCell {
     private enum LayoutConstants {
@@ -7,7 +8,25 @@ class NftCollectionCell: UICollectionViewCell {
 
     let imageView = UIImageView()
 
-    let nftNameLabel: UILabel = {
+    let nftCountLabel: InsettedLabel = {
+        let label = InsettedLabel(insets: UIEdgeInsets(top: 4, left: 4, bottom: 4, right: 4))
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite50()
+        label.backgroundColor = R.color.colorBlurOverlay()
+        label.layer.cornerRadius = 6
+        label.layer.masksToBounds = true
+        return label
+    }()
+
+    let chainNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h6Title
+        label.numberOfLines = 0
+        label.textColor = R.color.colorWhite50()
+        return label
+    }()
+
+    let collectionNameLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
         label.numberOfLines = 0
@@ -16,21 +35,8 @@ class NftCollectionCell: UICollectionViewCell {
     }()
 
     let infoStackView: UIStackView = UIFactory.default.createVerticalStackView()
-    let priceStackView: UIStackView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.minimalOffset)
 
-    let priceTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p2Paragraph
-        label.textColor = R.color.colorGray()
-        return label
-    }()
-
-    let priceValueLabel: UILabel = {
-        let label = UILabel()
-        label.font = .capsTitle
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
+    private var skeletonView: SkrullableView?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -52,11 +58,10 @@ class NftCollectionCell: UICollectionViewCell {
 
     private func setupSubviews() {
         contentView.addSubview(imageView)
+        addSubview(nftCountLabel)
         addSubview(infoStackView)
-        infoStackView.addArrangedSubview(nftNameLabel)
-        infoStackView.addArrangedSubview(priceStackView)
-        priceStackView.addArrangedSubview(priceTitleLabel)
-        priceStackView.addArrangedSubview(priceValueLabel)
+        infoStackView.addArrangedSubview(chainNameLabel)
+        infoStackView.addArrangedSubview(collectionNameLabel)
 
         setupConstraints()
     }
@@ -67,6 +72,11 @@ class NftCollectionCell: UICollectionViewCell {
             make.size.equalTo(LayoutConstants.imageSize)
         }
 
+        nftCountLabel.snp.makeConstraints { make in
+            make.top.equalTo(imageView).offset(UIConstants.minimalOffset)
+            make.trailing.equalTo(imageView).inset(UIConstants.minimalOffset)
+        }
+
         infoStackView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.top.equalTo(imageView.snp.bottom).offset(UIConstants.defaultOffset)
@@ -75,6 +85,122 @@ class NftCollectionCell: UICollectionViewCell {
 
     func bind(cellModel: NftCollectionCellViewModel) {
         cellModel.imageViewModel?.loadImage(on: imageView, targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize), animated: true, cornerRadius: 0)
-        nftNameLabel.text = cellModel.name
+        chainNameLabel.text = cellModel.nft.collection?.chain.name
+    }
+
+    func bind(cellModel: NftListCellModel?) {
+        if let cellModel = cellModel {
+            cellModel.imageViewModel?.loadImage(on: imageView, targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize), animated: true, cornerRadius: 0)
+            nftCountLabel.text = "\(cellModel.currentCount)/\(cellModel.availableCount)"
+            chainNameLabel.text = cellModel.collection.chain.name
+            collectionNameLabel.text = cellModel.collection.name
+        } else {
+            startLoadingIfNeeded()
+        }
+    }
+}
+
+extension NftCollectionCell: SkeletonLoadable {
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
+
+    func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
+        skeletonView?.startSkrulling()
+    }
+
+    func didUpdateSkeletonLayout() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
+        }
+    }
+
+    func startLoadingIfNeeded() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        chainNameLabel.alpha = 0.0
+        collectionNameLabel.alpha = 0.0
+        imageView.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoadingIfNeeded() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        chainNameLabel.alpha = 1.0
+        collectionNameLabel.alpha = 1.0
+        imageView.alpha = 1.0
+    }
+
+    private func setupSkeleton() {
+        let spaceSize = frame.size
+
+        guard spaceSize != .zero else {
+            self.skeletonView = Skrull(size: .zero, decorations: [], skeletons: []).build()
+            return
+        }
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        self.skeletonView = skeletonView
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: contentView)
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let defaultBigWidth = 100.0
+
+        let chainNameWidth = chainNameLabel.text?.widthOfString(usingFont: chainNameLabel.font)
+        let collectionNameWidth = collectionNameLabel.text?.widthOfString(usingFont: collectionNameLabel.font)
+        let nftCountWidth = nftCountLabel.text?.widthOfString(usingFont: nftCountLabel.font)
+
+        let chainNameSize = CGSize(width: chainNameWidth ?? defaultBigWidth, height: 10)
+        let collectionNameSize = CGSize(width: collectionNameWidth ?? defaultBigWidth, height: 12)
+        let nftCountSize = CGSize(width: nftCountWidth ?? defaultBigWidth, height: 12)
+
+        return [
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: 0, y: LayoutConstants.imageSize / 2),
+                size: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize)
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: UIConstants.defaultOffset, y: LayoutConstants.imageSize + UIConstants.defaultOffset + chainNameSize.height / 2),
+                size: chainNameSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: UIConstants.defaultOffset, y: LayoutConstants.imageSize + UIConstants.defaultOffset * 2 + chainNameSize.height + collectionNameSize.height / 2),
+                size: collectionNameSize
+            )
+        ]
     }
 }

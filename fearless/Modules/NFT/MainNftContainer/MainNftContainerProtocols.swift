@@ -2,6 +2,7 @@ typealias MainNftContainerModuleCreationResult = (view: MainNftContainerViewInpu
 
 protocol MainNftContainerViewInput: ControllerBackedProtocol {
     func didReceive(viewModels: [NftListCellModel]?)
+    func didReceive(appearance: NftCollectionAppearance)
 }
 
 protocol MainNftContainerViewOutput: AnyObject {
@@ -9,6 +10,9 @@ protocol MainNftContainerViewOutput: AnyObject {
     func didSelect(collection: NFTCollection)
     func didPullToRefresh()
     func viewAppeared()
+    func didTapFilterButton()
+    func didTapCollectionButton()
+    func didTapTableButton()
 }
 
 protocol MainNftContainerInteractorInput: AnyObject {
@@ -28,6 +32,8 @@ protocol MainNftContainerRouterInput: AnyObject {
         address: String,
         from view: ControllerBackedProtocol?
     )
+
+    func showFilters(from view: ControllerBackedProtocol?)
 }
 
 protocol MainNftContainerModuleInput: AnyObject {}
