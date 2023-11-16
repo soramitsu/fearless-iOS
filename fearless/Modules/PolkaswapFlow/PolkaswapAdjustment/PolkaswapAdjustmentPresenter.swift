@@ -68,8 +68,8 @@ final class PolkaswapAdjustmentPresenter {
 
     init(
         wallet: MetaAccountModel,
-        soraChainAsset: ChainAsset,
-        swapChainAsset: ChainAsset,
+        xorChainAsset: ChainAsset,
+        swapChainAsset: ChainAsset?,
         viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
         logger: LoggerProtocol = Logger.shared,
@@ -79,7 +79,7 @@ final class PolkaswapAdjustmentPresenter {
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wallet = wallet
-        xorChainAsset = soraChainAsset
+        self.xorChainAsset = xorChainAsset
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
