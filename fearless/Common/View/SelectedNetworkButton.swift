@@ -2,18 +2,31 @@ import Foundation
 import UIKit
 import SoraUI
 
-final class SelectedNetworkButton: UIButton {
+final class SelectedNetworkButton: UIControl {
     private enum Constants {
-        static let verticvalInset: CGFloat = 2
-        static let horizontalInset: CGFloat = 18
+        static let insets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
         static let imageVerticalPosition: CGFloat = 3
         static let imageWidth: CGFloat = 12
         static let imageHeight: CGFloat = 6
     }
 
+    private let iconImageView = UIImageView()
+
+    private let title: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        return label
+    }()
+
+    private let dropTraingleImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.dropTriangle()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setDot()
         setup()
     }
 
@@ -28,46 +41,34 @@ final class SelectedNetworkButton: UIButton {
         clipsToBounds = true
     }
 
-    override func setTitle(_ title: String?, for state: UIControl.State) {
-        let fullString = NSMutableAttributedString(string: (title ?? "") + "  ")
-
-        let imageAttachment = NSTextAttachment()
-        imageAttachment.image = R.image.dropTriangle()
-        imageAttachment.bounds = CGRect(
-            x: 0,
-            y: Constants.imageVerticalPosition,
-            width: Constants.imageWidth,
-            height: Constants.imageHeight
-        )
-
-        let imageString = NSAttributedString(attachment: imageAttachment)
-        fullString.append(imageString)
-
-        setAttributedTitle(fullString, for: state)
-    }
-
-    override func imageRect(forContentRect contentRect: CGRect) -> CGRect {
-        let rect = super.imageRect(forContentRect: contentRect)
-
-        return CGRect(
-            x: rect.minX - Constants.imageWidth / 2,
-            y: rect.minY,
-            width: rect.width,
-            height: rect.height
-        )
+    func set(text: String, image: ImageViewModelProtocol?) {
+        title.text = text
+        image?.loadImage(on: iconImageView, targetSize: CGSize(width: 16, height: 16), animated: true)
     }
 
     private func setup() {
         backgroundColor = R.color.colorWhite8()
-        contentEdgeInsets = UIEdgeInsets(
-            top: Constants.verticvalInset,
-            left: Constants.horizontalInset,
-            bottom: Constants.verticvalInset,
-            right: Constants.horizontalInset
-        )
-    }
+        let container = UIFactory.default.createHorizontalStackView(spacing: 4)
+        container.alignment = .center
+        addSubview(container)
+        container.addArrangedSubview(iconImageView)
+        container.addArrangedSubview(title)
+        container.addArrangedSubview(dropTraingleImageView)
 
-    private func setDot() {
-        setImage(R.image.pinkDot(), for: .normal)
+        [container, iconImageView, title, dropTraingleImageView].forEach {
+            $0.isUserInteractionEnabled = false
+        }
+
+        container.snp.makeConstraints { make in
+            make.edges.equalToSuperview().inset(Constants.insets)
+        }
+
+        iconImageView.snp.makeConstraints { make in
+            make.size.equalTo(16)
+        }
+
+        dropTraingleImageView.snp.makeConstraints { make in
+            make.size.equalTo(10)
+        }
     }
 }

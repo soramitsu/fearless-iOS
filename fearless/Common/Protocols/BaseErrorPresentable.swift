@@ -18,6 +18,10 @@ protocol BaseErrorPresentable {
         from view: ControllerBackedProtocol,
         locale: Locale?
     )
+    func presentSoraBridgeLowAmountError(
+        from view: ControllerBackedProtocol,
+        locale: Locale
+    )
 }
 
 extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
@@ -149,5 +153,15 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let closeAction = R.string.localizable.commonRetry(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentSoraBridgeLowAmountError(
+        from view: ControllerBackedProtocol,
+        locale: Locale
+    ) {
+        let title = R.string.localizable.commonAttention(preferredLanguages: locale.rLanguages)
+        let message = R.string.localizable.soraBridgeLowAmountAlert(preferredLanguages: locale.rLanguages)
+        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+        present(message: message, title: title, closeAction: closeTitle, from: view, actions: [])
     }
 }
