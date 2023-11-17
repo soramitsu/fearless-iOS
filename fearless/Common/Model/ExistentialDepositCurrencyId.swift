@@ -58,6 +58,8 @@ enum ExistentialDepositCurrencyId {
             self = .token(tokenSymbol: id)
         case let .token2(id):
             self = .token(tokenSymbol: id)
+        case .xcm:
+            return nil
         }
     }
 }

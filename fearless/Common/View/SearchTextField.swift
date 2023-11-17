@@ -56,7 +56,7 @@ class SearchTextField: BackgroundedContentControl {
 
         addSubview(textField)
         textField.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(1)
             make.leading.trailing.equalToSuperview().inset(Constants.textFieldInsets)
             make.height.equalTo(Constants.searchTextFieldHeight)
         }
