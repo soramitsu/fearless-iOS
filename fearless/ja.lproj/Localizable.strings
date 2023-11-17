@@ -1,4 +1,8 @@
 "\"staking.pool.create.missing.pool.name\" = \"Cannot create pool\";" = "プールを作成できません";
+"NSCameraUsageDescription" = "QRコードを撮るためにカメラを使用する";
+"NSFaceIDUsageDescription" = "フィアレスは顔認証を使用して、権限のないユーザーがアプリにアクセスすることを制限します。顔認証は、アプリ内での認証に使用されます";
+"NSPhotoLibraryAddUsageDescription" = "QRコードで取引申請を保存する";
+"NSPhotoLibraryUsageDescription" = "ライブラリーから写真をアップロードする";
 "about.announcement" = "お知らせを受け取る";
 "about.ask.for.support" = "サポートを求める";
 "about.contact.email" = "お問い合わせ";
@@ -88,14 +92,10 @@
 "application.status.view.copied.description" = "ウォレットアドレスが正常にコピーされました";
 "application.status.view.copied.title" = "アドレスをコピーしました";
 "application.status.view.hash.copied.description" = "ハッシュが正常にコピーされました";
-"application.status.view.hash.copied.description" = "ハッシュが正常にコピーされました";
-"application.status.view.hash.copied.title" = "ハッシュをコピーしました";
 "application.status.view.hash.copied.title" = "ハッシュをコピーしました";
 "application.status.view.offline.description" = "インターネット接続を確認し、もう一度お試しください";
 "application.status.view.offline.title" = "インターネットに繋がってないようです";
 "application.status.view.reconnected.description" = "接続が正常に復元されました";
-"application.status.view.reconnected.description" = "接続が正常に復元されました";
-"application.status.view.reconnected.title" = "再接続されました";
 "application.status.view.reconnected.title" = "再接続されました";
 "applied.fearless.wallet.bonus" = "フィアレス・ウォレットのボーナスが適用されました";
 "apply.fearless.wallet.bonus" = "タップしてフィアレス・ウォレットのボーナスを適用";
@@ -178,6 +178,7 @@
 "common.applied" = "適用されました";
 "common.apply" = "適用する";
 "common.approve" = "Approve";
+"common.attention" = "Attention";
 "common.available.format" = "利用可能： %@";
 "common.balance" = "残高";
 "common.balance.format" = "残高: %@";
@@ -266,7 +267,6 @@
 "common.search.results.number" = "検索結果： %d";
 "common.search.start.title" = "検索結果はここに表示されます";
 "common.secret.derivation.path" = "秘密の派生経路";
-"common.select" = "選択";
 "common.select" = "選択";
 "common.select.all" = "Select all";
 "common.select.asset" = "アセットの選択";
@@ -463,6 +463,7 @@
 同意の証明として、署名されたsystem.remarkの外部トランザクションが送信されます。\
 この情報は、ポルカドット・リレーチェーン上で処理・保存されます。\
 この取引に署名することで、ポルカドット・ネットワークでの取引手数料が発生することにご注意ください";
+"moonbeam.registration.description.system.remark" = "system.remark";
 "moonbeam.signed.successful" = "ムーンビーム・クラウドローン(Moonbeam Crowdloan)の利用規約に同意し、取引が送信されました。\
 \
 これがあなたの取引ハッシュです：";
@@ -489,6 +490,7 @@
 "nft.stub.text" = "NFTがもうすぐ登場します";
 "nft.stub.title" = "失礼しました";
 "nft.tokenid.title" = "トークンID";
+"nfts.collection.count" = "Quantity: %d/%d";
 "nfts.stub" = "NFT";
 "no.access.to.google" = "Googleにアクセスできません";
 "no.account.found" = "アカウントが見つかりません";
@@ -564,20 +566,17 @@
 "polkaswap.disclaimer.title" = "免責事項";
 "polkaswap.liqudity.fee.info" = "各取引の一部(0.3%)は、プロトコル・インセンティブとして流動性プロバイダー(LP)に送られます";
 "polkaswap.liquidity.provider.fee" = "流動性プロバイダー手数料";
-"polkaswap.liquidity.provider.fee" = "流動性プロバイダー手数料";
 "polkaswap.market.alert.choose.action" = "アセットの選択";
 "polkaswap.market.alert.message" = "スワップ調整が完了していません。一方または両方のアセットが選択されていないため、マーケット選択は利用できません";
 "polkaswap.market.alert.title" = "マーケット選択は利用できません";
 "polkaswap.market.algorithm.title" = "マーケット・アルゴリズム";
 "polkaswap.market.smart.description" = "SMART流動性ルーティングは、利用可能なすべてのマーケットから最良の価格オプションだけ組み合わせることで、あらゆる取引の最良の価格を保証します。XYKプールや他のプールが利用される場合より資産価格が手頃であれば、可能な限りトークン・ボンディング・カーブ(TBC)が流動性に使用されます";
 "polkaswap.market.stub" = "マーケット：";
-"polkaswap.market.stub" = "マーケット";
 "polkaswap.market.tbc.description" = "TBC ー トークン・ボンディング・カーブ(プライマリー・マーケット)からのみの購入。XYKプール(セカンダリー・マーケット)と比較して不利な価格になる可能性がありますが、既得権報酬から得られる価値は、時間の経過とともにはるかに有利になる可能性があります";
 "polkaswap.market.xyk.description" = "XYK — XYKプール(セカンダリー・マーケット)からのみ購入します。x*y=k 曲線上のマーケット・メーカーの位置をシフトすることで、誰でもアセットを売買できる従来のXYKプールスワップ";
 "polkaswap.max.received" = "最大販売数";
 "polkaswap.maximum.sold.info" = "確認される前に大きくて不利な価格変動があった場合、取引は元に戻ります";
 "polkaswap.min.received" = "受信した最少";
-"polkaswap.min.received" = "最少受信";
 "polkaswap.minimum.received.info" = "確認される前に大きくて不利な価格変動があった場合、取引は元に戻ります";
 "polkaswap.network.fee" = "ネットワーク手数料";
 "polkaswap.network.fee.info" = "ネットワーク手数料は、SORAシステムの発展と安定したパフォーマンスを確保するために使用されます";
@@ -686,6 +685,7 @@
 "settings.hide.zero.balances" = "残高ゼロを隠す";
 "share.referral.code" = "紹介コードを共有";
 "sign.this.message" = "Sign this message?";
+"sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
 "sora.card.status.failure.text" = "本人確認(KYC)処理が終了したか、そうでなければ失敗しました";
 "sora.card.status.failure.title" = "検証失敗";
 "sora.card.status.pending.title" = "検証中";
@@ -805,11 +805,8 @@
 "staking.pool.create.root" = "ルート";
 "staking.pool.create.stateToggler" = "状態トグラー";
 "staking.pool.create.title" = "プールを作成";
-"staking.pool.create.title" = "プールを作成";
 "staking.pool.info.title" = "プール情報";
 "staking.pool.management.select.validators.subtitle" = "続行するには、\nバリデーターを選択してください";
-"staking.pool.management.select.validators.subtitle" = "続行するには、\nバリデーターを選択してください";
-"staking.pool.management.select.validators.title" = "プールバリデーターの選択";
 "staking.pool.management.select.validators.title" = "プールバリデーターの選択";
 "staking.pool.rewards.delay.text" = "いつでもステークできます。%@以降に利息が発生します";
 "staking.pool.select.validators.manual" = "手動で選択";
@@ -867,7 +864,6 @@
 "staking.rewards.title" = "報酬";
 "staking.round.title" = "ラウンド #%@";
 "staking.select.suggested" = "提案されたものを選択";
-"staking.select.validators.confirm.title" = "バリデーターの選択";
 "staking.select.validators.confirm.title" = "バリデーターの選択";
 "staking.select.validators.custom.button.title" = "自分で選択してください";
 "staking.select.validators.custom.desc" = "ノミネーターが有能かつ誠実に行動することを信頼すべきです。現在の収益性だけで判断すると、利益の減少や資金喪失につながる可能性があります";
@@ -1095,7 +1091,6 @@
 "what.accounts.for.export" = "ウォレット内のどのアカウントをエクスポートしますか?";
 "xcm.cross.chain.button.title" = "クロス・チェーン";
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
-"xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
 "xcm.cross.chain.invalid.address.title" = "ネットワーク・アドレスではありません";
 "xcm.destination.network.fee.title" = "宛先ネットワーク手数料";
 "xcm.destination.network.title" = "宛先ネットワーク";
@@ -1107,5 +1102,3 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
-"common.attention" = "Attention";
-"sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
