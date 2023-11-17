@@ -43,11 +43,7 @@ final class WalletMainContainerViewLayout: UIView {
         return label
     }()
 
-    let selectNetworkButton: SelectedNetworkButton = {
-        let button = SelectedNetworkButton()
-        button.titleLabel?.font = .p1Paragraph
-        return button
-    }()
+    let selectNetworkButton = SelectedNetworkButton()
 
     let scanQRButton: UIButton = {
         let button = UIButton()
@@ -122,7 +118,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     func bind(viewModel: WalletMainContainerViewModel) {
         walletNameTitle.text = viewModel.walletName
-        selectNetworkButton.setTitle(viewModel.selectedChainName, for: .normal)
+        selectNetworkButton.set(text: viewModel.selectedFilter, image: viewModel.selectedFilterImage)
         if let address = viewModel.address {
             addressCopyableLabel.isHidden = false
             addressCopyableLabel.bind(title: address)

@@ -168,7 +168,7 @@ final class ChainRegistry {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-
+        _ = try ethereumConnectionPool.setupConnection(for: newChain)
         chains.append(newChain)
     }
 
@@ -193,7 +193,7 @@ final class ChainRegistry {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-
+        _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
         chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }

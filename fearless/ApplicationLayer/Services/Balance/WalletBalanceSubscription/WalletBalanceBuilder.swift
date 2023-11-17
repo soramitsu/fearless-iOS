@@ -130,7 +130,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             }
             let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-            if let chainIdForFilter = metaAccount.chainIdForFilter {
+            if let chainIdForFilter = metaAccount.networkManagmentFilter {
                 if chainAsset.chain.chainId == chainIdForFilter {
                     enabledChainAssets.append(chainAsset)
                 } else {
