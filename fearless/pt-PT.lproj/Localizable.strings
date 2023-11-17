@@ -275,7 +275,7 @@
 "common.skip" = "Saltar";
 "common.staking" = "Staking";
 "common.terms.and.conditions" = "Termos e Condições";
-"common.till.date" = "até %@";
+"common.till.date" = "até %s";
 "common.time.left" = "Tempo restante";
 "common.time.left.format" = "%@ saiu";
 "common.total" = "Total";
@@ -380,7 +380,7 @@
 "error.unsupported.asset" = "Você está tentando fazer uma transferência do ativo que atualmente não é compatível com o aplicativo. Escolha outro ativo ou solicite outro código QR.";
 "ethereum.crypto.type" = "Criptografia de par de chaves do tipo Ethereum";
 "ethereum.secret.derivation.path" = "Caminho de derivação secreto da Ethereum";
-"example" = "Exemplo: %@";
+"example" = "Exemplo: %s";
 "existential.deposit.received.error" = "Depósito existencial não recebido";
 "export.ethereum.title" = "Exportar para Ethereum";
 "export.mnemonic.hint" = "Use meios não digitais para fazer backup, como escrever a sequência de palavras mnemónicas e o caminho de derivação (se definido) em papel.";
@@ -594,7 +594,7 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "pool.claimable.title" = "Reclamável";
 "pool.common" = "pool";
 "pool.join.no.validators.message" = "A pool ainda não escolheu nenhum validador. Se você aderir, não receberá nenhuma recompensa até que os validadores sejam selecionados";
-"pool.root.unbond.too.high.text" = "Você é o proprietário de uma pool e sua aposta deve ser de pelo menos %s . Se você quiser destruir sua pool e expulsar seus membros, use o link Polkadot.js.plus";
+"pool.root.unbond.too.high.text" = "Você é o proprietário de uma pool e sua aposta deve ser de pelo menos %@ . Se você quiser destruir sua pool e expulsar seus membros, use o link Polkadot.js.plus";
 "pool.root.unbond.too.high.title" = "Você não pode retirar uma aposta por completo";
 "pool.staking.bouncer" = "Segurança";
 "pool.staking.choosepool.button.title" = "Escolher";
@@ -1063,7 +1063,7 @@ as operações aparecerão aqui";
 "wallet.options.export" = "Exportar carteira";
 "wallet.options.title" = "Opções da carteira";
 "wallet.receive.description" = "Mostrar este código QR ao remetente";
-"wallet.receive.navigation.title" = "Receba %@";
+"wallet.receive.navigation.title" = "Receba %s";
 "wallet.receive.qr.description" = "Mostre este código QR ao remetente";
 "wallet.receive.share.message" = "O meu endereço %@ para receber %@ :";
 "wallet.search.accounts" = "as minhas contas";
