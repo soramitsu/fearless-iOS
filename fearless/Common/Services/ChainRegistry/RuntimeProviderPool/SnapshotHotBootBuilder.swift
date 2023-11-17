@@ -38,13 +38,8 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
     // MARK: - Public
 
     func startHotBoot() {
-        guard
-            let chainsTypesUrl = ApplicationConfig.shared.chainsTypesURL,
-            let chainsUrl = ApplicationConfig.shared.chainListURL
-        else {
-            assertionFailure()
-            return
-        }
+        let chainsTypesUrl = ApplicationConfig.shared.chainTypesSourceUrl
+        let chainsUrl = ApplicationConfig.shared.chainsSourceUrl
         let chainsTypesFetchOperation = fetchChainsTypes(url: chainsTypesUrl)
         let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let chainModelOperation = fetchChains(url: chainsUrl)

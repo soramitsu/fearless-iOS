@@ -14,6 +14,7 @@ final class MainTabBarViewController: UITabBarController {
     private var viewAppeared: Bool = false
 
     init(
+        viewControllers: [UIViewController],
         presenter: MainTabBarPresenterProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
@@ -21,6 +22,7 @@ final class MainTabBarViewController: UITabBarController {
 
         super.init(nibName: nil, bundle: nil)
 
+        self.viewControllers = viewControllers
         self.localizationManager = localizationManager
     }
 
@@ -31,10 +33,7 @@ final class MainTabBarViewController: UITabBarController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         delegate = self
-
-        configureTabBar()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -45,30 +44,13 @@ final class MainTabBarViewController: UITabBarController {
             presenter.didLoad(view: self)
         }
 
-        applyLocalization()
-    }
-
-    private func configureTabBar() {
-        let blurEffect = UIBlurEffect(style: .dark)
-
-        if #available(iOS 13.0, *) {
-            let appearance = UITabBarAppearance()
-            appearance.backgroundEffect = blurEffect
-            tabBar.standardAppearance = appearance
-
-            if #available(iOS 15.0, *) {
-                tabBar.scrollEdgeAppearance = appearance
-            }
-        } else {
-            tabBar.backgroundImage = UIImage()
-            tabBar.barTintColor = .clear
-            tabBar.layer.backgroundColor = UIColor.clear.cgColor
-
-            let blurView = UIVisualEffectView(effect: blurEffect)
-            blurView.frame = tabBar.bounds
-            blurView.autoresizingMask = .flexibleWidth
-            tabBar.insertSubview(blurView, at: 0)
+        let tabBar = TabBar(frame: tabBar.frame)
+        tabBar.middleButton.addAction { [weak self] in
+            self?.presenter.presentPolkaswap()
         }
+        setValue(tabBar, forKey: "tabBar")
+
+        applyLocalization()
     }
 
     @objc private func didTapFailedMemoView(_: UIGestureRecognizer) {

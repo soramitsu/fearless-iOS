@@ -158,6 +158,10 @@ final class WalletConnectConfirmationViewLayout: UIView {
             make.height.equalTo(UIConstants.cellHeight54)
         }
 
+        infoBackground.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
         contentView.setCustomSpacing(UIConstants.accessoryItemsSpacing, after: amountLabel)
         contentView.setCustomSpacing(UIConstants.hugeOffset, after: walletView)
         contentView.setCustomSpacing(UIConstants.hugeOffset, after: infoBackground)

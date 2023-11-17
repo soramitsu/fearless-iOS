@@ -43,11 +43,7 @@ final class WalletMainContainerViewLayout: UIView {
         return label
     }()
 
-    let selectNetworkButton: SelectedNetworkButton = {
-        let button = SelectedNetworkButton()
-        button.titleLabel?.font = .p1Paragraph
-        return button
-    }()
+    let selectNetworkButton = SelectedNetworkButton()
 
     let scanQRButton: UIButton = {
         let button = UIButton()
@@ -122,7 +118,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     func bind(viewModel: WalletMainContainerViewModel) {
         walletNameTitle.text = viewModel.walletName
-        selectNetworkButton.setTitle(viewModel.selectedChainName, for: .normal)
+        selectNetworkButton.set(text: viewModel.selectedFilter, image: viewModel.selectedFilterImage)
         if let address = viewModel.address {
             addressCopyableLabel.isHidden = false
             addressCopyableLabel.bind(title: address)
@@ -266,7 +262,7 @@ final class WalletMainContainerViewLayout: UIView {
         pageViewControllerContainer.snp.makeConstraints { make in
             make.top.equalTo(contentView.snp.bottom).offset(32)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
+            make.bottom.equalToSuperview()
         }
         pageViewController.view.snp.makeConstraints { make in
             make.edges.equalToSuperview()

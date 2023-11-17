@@ -282,6 +282,7 @@ final class ChainModelMapper {
             }
             return XcmAvailableDestination(
                 chainId: chainId,
+                bridgeParachainId: $0.bridgeParachainId,
                 assets: assets
             )
         }
@@ -397,6 +398,7 @@ final class ChainModelMapper {
                 return entity
             }
             destinationEntity.assets = Set(availableAssets) as NSSet
+            destinationEntity.bridgeParachainId = $0.bridgeParachainId
 
             return destinationEntity
         }
@@ -446,12 +448,16 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
 
         let options = entity.options as? [String]
-
         let externalApiSet = createExternalApi(from: entity)
-
         let xcm = createXcmConfig(from: entity)
 
+        var rank: UInt16?
+        if let rankString = entity.rank {
+            rank = UInt16(rankString)
+        }
+
         let chainModel = ChainModel(
+            rank: rank,
             disabled: entity.disabled,
             chainId: entity.chainId!,
             parentId: entity.parentId,
@@ -487,6 +493,9 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         from model: ChainModel,
         using context: NSManagedObjectContext
     ) throws {
+        if let rank = model.rank {
+            entity.rank = "\(rank)"
+        }
         entity.disabled = model.disabled
         entity.chainId = model.chainId
         entity.parentId = model.parentId
