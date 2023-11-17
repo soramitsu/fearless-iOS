@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import SSFModels
 
 enum NftAppearanceKeys: String {
     case showNftsLikeCollection
@@ -16,6 +17,7 @@ final class MainNftContainerPresenter {
     private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
     private let userDefaultsStorage: SettingsManagerProtocol
+    private let stateHolder: MainNftContainerStateHolder
 
     // MARK: - Constructors
 
@@ -26,7 +28,8 @@ final class MainNftContainerPresenter {
         viewModelFactory: NftListViewModelFactoryProtocol,
         wallet: MetaAccountModel,
         eventCenter: EventCenterProtocol,
-        userDefaultsStorage: SettingsManagerProtocol
+        userDefaultsStorage: SettingsManagerProtocol,
+        stateHolder: MainNftContainerStateHolder
     ) {
         self.interactor = interactor
         self.router = router
@@ -34,6 +37,7 @@ final class MainNftContainerPresenter {
         self.wallet = wallet
         self.eventCenter = eventCenter
         self.userDefaultsStorage = userDefaultsStorage
+        self.stateHolder = stateHolder
         self.localizationManager = localizationManager
 
         eventCenter.add(observer: self)
@@ -76,7 +80,7 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     }
 
     func didTapFilterButton() {
-        router.showFilters(from: view)
+        router.presentFilters(with: stateHolder.filters, from: view, moduleOutput: self)
     }
 
     func didTapCollectionButton() {
@@ -109,7 +113,11 @@ extension MainNftContainerPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension MainNftContainerPresenter: MainNftContainerModuleInput {}
+extension MainNftContainerPresenter: MainNftContainerModuleInput {
+    func didSelect(chain: ChainModel?) {
+        interactor.didSelect(chain: chain)
+    }
+}
 
 extension MainNftContainerPresenter: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
@@ -119,5 +127,14 @@ extension MainNftContainerPresenter: EventVisitorProtocol {
             self?.view?.didReceive(viewModels: nil)
         }
         interactor.fetchData()
+    }
+}
+
+extension MainNftContainerPresenter: NftFiltersModuleOutput {
+    func didFinishWithFilters(filters: [FilterSet]) {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(viewModels: nil)
+        }
+        interactor.applyFilters(filters)
     }
 }

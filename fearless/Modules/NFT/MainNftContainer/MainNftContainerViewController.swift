@@ -216,7 +216,7 @@ extension MainNftContainerViewController: EmptyStateDataSource {
     }
 
     var contentViewForEmptyState: UIView {
-        rootView
+        rootView.emptyViewContainer
     }
 
     var verticalSpacingForEmptyState: CGFloat? {

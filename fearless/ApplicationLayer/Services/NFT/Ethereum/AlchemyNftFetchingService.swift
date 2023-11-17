@@ -15,13 +15,21 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
         super.init(chainRepository: chainRepository, operationQueue: operationQueue)
     }
 
-    private func fetchCollections(for chain: ChainModel, wallet: MetaAccountModel) async throws -> [NFTCollection]? {
+    private func fetchCollections(
+        for chain: ChainModel,
+        wallet: MetaAccountModel,
+        excludeFilters: [NftCollectionFilter]
+    ) async throws -> [NFTCollection]? {
         guard let address = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
             throw AddressFactoryError.unexpectedAddress
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            let fetchCollectionsOperation = operationFactory.fetchCollections(chain: chain, address: address)
+            let fetchCollectionsOperation = operationFactory.fetchCollections(
+                chain: chain,
+                address: address,
+                excludeFilters: excludeFilters
+            )
 
             fetchCollectionsOperation.targetOperation.completionBlock = {
                 do {
@@ -36,13 +44,21 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
         }
     }
 
-    private func fetchNfts(for chain: ChainModel, wallet: MetaAccountModel) async throws -> [NFT]? {
+    private func fetchNfts(
+        for chain: ChainModel,
+        wallet: MetaAccountModel,
+        excludeFilters: [NftCollectionFilter]
+    ) async throws -> [NFT]? {
         guard let address = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
             throw AddressFactoryError.unexpectedAddress
         }
 
         return try await withCheckedThrowingContinuation { continuation in
-            let fetchNftsOperation = operationFactory.fetchNFTs(chain: chain, address: address)
+            let fetchNftsOperation = operationFactory.fetchNFTs(
+                chain: chain,
+                address: address,
+                excludeFilters: excludeFilters
+            )
 
             fetchNftsOperation.targetOperation.completionBlock = {
                 do {
@@ -76,8 +92,19 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
 }
 
 extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
-    func fetchNfts(for wallet: MetaAccountModel) async throws -> [NFT] {
-        guard let chains = try? await fetchSupportedChains() else {
+    func fetchNfts(
+        for wallet: MetaAccountModel,
+        excludeFilters: [NftCollectionFilter],
+        chain: ChainModel?
+    ) async throws -> [NFT] {
+        var requiredChains: [ChainModel]?
+        if let selectedChain = chain {
+            requiredChains = [selectedChain]
+        } else {
+            requiredChains = try? await fetchSupportedChains()
+        }
+
+        guard let chains = requiredChains else {
             return []
         }
 
@@ -88,7 +115,11 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
 
             for chain in chains {
                 group.addTask {
-                    let nfts = try? await strongSelf.fetchNfts(for: chain, wallet: wallet)
+                    let nfts = try? await strongSelf.fetchNfts(
+                        for: chain,
+                        wallet: wallet,
+                        excludeFilters: excludeFilters
+                    )
                     return nfts
                 }
             }
@@ -107,8 +138,19 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
         return nfts
     }
 
-    func fetchCollections(for wallet: MetaAccountModel) async throws -> [NFTCollection] {
-        guard let chains = try? await fetchSupportedChains() else {
+    func fetchCollections(
+        for wallet: MetaAccountModel,
+        excludeFilters: [NftCollectionFilter],
+        chain: ChainModel?
+    ) async throws -> [NFTCollection] {
+        var requiredChains: [ChainModel]?
+        if let selectedChain = chain {
+            requiredChains = [selectedChain]
+        } else {
+            requiredChains = try? await fetchSupportedChains()
+        }
+
+        guard let chains = requiredChains else {
             return []
         }
 
@@ -119,7 +161,11 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
 
             for chain in chains {
                 group.addTask {
-                    let collections = try? await strongSelf.fetchCollections(for: chain, wallet: wallet)
+                    let collections = try? await strongSelf.fetchCollections(
+                        for: chain,
+                        wallet: wallet,
+                        excludeFilters: excludeFilters
+                    )
                     return collections
                 }
             }

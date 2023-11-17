@@ -6,7 +6,20 @@ enum NFTFetchingServiceError: Error {
 }
 
 protocol NFTFetchingServiceProtocol {
-    func fetchCollections(for wallet: MetaAccountModel) async throws -> [NFTCollection]
-    func fetchNfts(for wallet: MetaAccountModel) async throws -> [NFT]
-    func fetchCollectionNfts(collectionAddress: String, chain: ChainModel) async throws -> [NFT]
+    func fetchCollections(
+        for wallet: MetaAccountModel,
+        excludeFilters: [NftCollectionFilter],
+        chain: ChainModel?
+    ) async throws -> [NFTCollection]
+
+    func fetchNfts(
+        for wallet: MetaAccountModel,
+        excludeFilters: [NftCollectionFilter],
+        chain: ChainModel?
+    ) async throws -> [NFT]
+
+    func fetchCollectionNfts(
+        collectionAddress: String,
+        chain: ChainModel
+    ) async throws -> [NFT]
 }

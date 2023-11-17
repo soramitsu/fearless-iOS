@@ -17,5 +17,18 @@ final class MainNftContainerRouter: MainNftContainerRouterInput {
         view?.controller.navigationController?.present(navigationController, animated: true)
     }
 
-    func showFilters(from _: ControllerBackedProtocol?) {}
+    func presentFilters(
+        with filters: [FilterSet],
+        from view: ControllerBackedProtocol?,
+        moduleOutput: NftFiltersModuleOutput?
+    ) {
+        guard let view = view, let filtersViewController = NftFiltersAssembly.configureModule(
+            filters: filters,
+            moduleOutput: moduleOutput
+        )?.controller else {
+            return
+        }
+
+        view.controller.present(filtersViewController, animated: true, completion: nil)
+    }
 }
