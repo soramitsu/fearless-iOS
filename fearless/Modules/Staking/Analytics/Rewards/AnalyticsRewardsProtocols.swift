@@ -29,17 +29,15 @@ protocol AnalyticsRewardsWireframeProtocol: AnyObject {
     func showRewardPayoutsForNominator(
         from view: ControllerBackedProtocol?,
         stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 
     func showRewardPayoutsForValidator(
         from view: ControllerBackedProtocol?,
         stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

@@ -95,17 +95,15 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
             wireframe.showRewardPayoutsForNominator(
                 from: view,
                 stashAddress: historyAddress,
-                chain: chainAsset.chain,
-                asset: chainAsset.asset,
-                selectedAccount: wallet
+                chainAsset: chainAsset,
+                wallet: wallet
             )
         } else {
             wireframe.showRewardPayoutsForValidator(
                 from: view,
                 stashAddress: historyAddress,
-                chain: chainAsset.chain,
-                asset: chainAsset.asset,
-                selectedAccount: wallet
+                chainAsset: chainAsset,
+                wallet: wallet
             )
         }
     }

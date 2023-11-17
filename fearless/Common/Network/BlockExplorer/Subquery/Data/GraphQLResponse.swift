@@ -9,7 +9,7 @@ struct SubqueryErrors: Error, Decodable {
     let errors: [SubqueryError]
 }
 
-enum SubqueryResponse<D: Decodable>: Decodable {
+enum GraphQLResponse<D: Decodable>: Decodable {
     case data(_ value: D)
     case errors(_ value: SubqueryErrors)
 

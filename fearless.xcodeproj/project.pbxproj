@@ -2373,6 +2373,8 @@
 		FA7A4C7E2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */; };
 		FA7A4C7F2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */; };
 		FA7A4C802A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */; };
+		FA7D46CD2AF24191005D681B /* SoraRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7D46CC2AF24191005D681B /* SoraRewardOperationFactory.swift */; };
+		FA7D46CF2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */; };
 		FA80391528DC2DA2007365E8 /* StakingPoolPalletID.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */; };
 		FA80391728DD70D7007365E8 /* AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */; };
 		FA8122E329CC374B00F43560 /* AssetVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8122E229CC374B00F43560 /* AssetVisibility.swift */; };
@@ -2851,7 +2853,7 @@
 		FAFFAE7C29AC84B10074AF1F /* KmmCallCodingPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE4D29AC84B10074AF1F /* KmmCallCodingPath.swift */; };
 		FAFFAE7D29AC84B10074AF1F /* SubqueryPageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE4F29AC84B10074AF1F /* SubqueryPageInfo.swift */; };
 		FAFFAE7E29AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5029AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift */; };
-		FAFFAE7F29AC84B10074AF1F /* SubqueryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5129AC84B10074AF1F /* SubqueryResponse.swift */; };
+		FAFFAE7F29AC84B10074AF1F /* GraphQLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5129AC84B10074AF1F /* GraphQLResponse.swift */; };
 		FAFFAE8029AC84B10074AF1F /* SubqueryTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5229AC84B10074AF1F /* SubqueryTransfer.swift */; };
 		FAFFAE8129AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5329AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift */; };
 		FAFFAE8229AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5429AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift */; };
@@ -5301,6 +5303,8 @@
 		FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaychainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
+		FA7D46CC2AF24191005D681B /* SoraRewardOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardOperationFactory.swift; sourceTree = "<group>"; };
+		FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraSubsquidPayoutValidatorForNominatorFactory.swift; sourceTree = "<group>"; };
 		FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolPalletID.swift; sourceTree = "<group>"; };
 		FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactory.swift; sourceTree = "<group>"; };
 		FA8122E229CC374B00F43560 /* AssetVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetVisibility.swift; sourceTree = "<group>"; };
@@ -5796,7 +5800,7 @@
 		FAFFAE4D29AC84B10074AF1F /* KmmCallCodingPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KmmCallCodingPath.swift; sourceTree = "<group>"; };
 		FAFFAE4F29AC84B10074AF1F /* SubqueryPageInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryPageInfo.swift; sourceTree = "<group>"; };
 		FAFFAE5029AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryDelegatorHistoryData.swift; sourceTree = "<group>"; };
-		FAFFAE5129AC84B10074AF1F /* SubqueryResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryResponse.swift; sourceTree = "<group>"; };
+		FAFFAE5129AC84B10074AF1F /* GraphQLResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphQLResponse.swift; sourceTree = "<group>"; };
 		FAFFAE5229AC84B10074AF1F /* SubqueryTransfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryTransfer.swift; sourceTree = "<group>"; };
 		FAFFAE5329AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryDelegatorHistoryElement.swift; sourceTree = "<group>"; };
 		FAFFAE5429AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryDelegatorHistoryItem.swift; sourceTree = "<group>"; };
@@ -11929,6 +11933,7 @@
 		F4DCAE4526207ECD00CCA6BF /* PayoutRewardsService */ = {
 			isa = PBXGroup;
 			children = (
+				FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */,
 				FAFFAEAA29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift */,
 				FAFFAEA929AC90E50074AF1F /* SubsquidPayoutValidatorsForNominatorFactory.swift */,
 				F4DCAE4626207EF900CCA6BF /* PayoutRewardsServiceProtocol.swift */,
@@ -12880,6 +12885,7 @@
 		FA6C175729935DC700A55254 /* Rewards */ = {
 			isa = PBXGroup;
 			children = (
+				FA7D46CC2AF24191005D681B /* SoraRewardOperationFactory.swift */,
 				FA6C175829935DC700A55254 /* SubsquidRewardOperationFactory.swift */,
 				FA6C175929935DC700A55254 /* RewardOperationFactory.swift */,
 				FA6C175A29935DC700A55254 /* SubqueryRewardOperationFactory.swift */,
@@ -14598,7 +14604,7 @@
 			children = (
 				FAFFAE4F29AC84B10074AF1F /* SubqueryPageInfo.swift */,
 				FAFFAE5029AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift */,
-				FAFFAE5129AC84B10074AF1F /* SubqueryResponse.swift */,
+				FAFFAE5129AC84B10074AF1F /* GraphQLResponse.swift */,
 				FAFFAE5229AC84B10074AF1F /* SubqueryTransfer.swift */,
 				FAFFAE5329AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift */,
 				FAFFAE5429AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift */,
@@ -15599,7 +15605,7 @@
 				8406B5AF26FBE7EF00635B61 /* SelectionIconDetailsTableViewCell.swift in Sources */,
 				FA256A23274CE7D600875A53 /* MoonbeamAgreeRemarkInfo.swift in Sources */,
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
-				FAFFAE7F29AC84B10074AF1F /* SubqueryResponse.swift in Sources */,
+				FAFFAE7F29AC84B10074AF1F /* GraphQLResponse.swift in Sources */,
 				84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */,
 				849ABE63262785F200011A2A /* ControllerMapper.swift in Sources */,
 				FAC0BBD9291D0EB000E6F106 /* SendViewController.swift in Sources */,
@@ -15672,6 +15678,7 @@
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
 				FA5137AC29AC6F2F00560EBA /* PolkaswapDisclaimerViewLayout.swift in Sources */,
 				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
+				FA7D46CF2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift in Sources */,
 				8401AE8D2641EF7B000B03E3 /* NetworkFeeFooterView.swift in Sources */,
 				841AAC2F26F73E0C00F0A25E /* LocalStorageKeyFactory.swift in Sources */,
 				FACD429F2A5BE811009975AA /* StorageMigrator.swift in Sources */,
@@ -17530,6 +17537,7 @@
 				0DAEDA34F5BCECE5BD64DF26 /* WalletTransactionHistoryWireframe.swift in Sources */,
 				FAD4291F2A86567F001D6A16 /* WalletNameAssembly.swift in Sources */,
 				D1E085712E7BC0EBF2F4F020 /* WalletTransactionHistoryPresenter.swift in Sources */,
+				FA7D46CD2AF24191005D681B /* SoraRewardOperationFactory.swift in Sources */,
 				FAD429132A86567F001D6A16 /* BackupSelectWalletInteractor.swift in Sources */,
 				4470194B729475D683584A6C /* WalletTransactionHistoryInteractor.swift in Sources */,
 				ACB3420A31CCBA85ECB3B7C3 /* WalletTransactionHistoryViewController.swift in Sources */,

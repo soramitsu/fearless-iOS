@@ -797,9 +797,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showRewardPayoutsForValidator(
                     from: view,
                     stashAddress: stashAddress,
-                    chain: chainAsset.chain,
-                    asset: chainAsset.asset,
-                    selectedAccount: selectedAccount
+                    chainAsset: chainAsset,
+                    wallet: selectedAccount
                 )
                 return
             }
@@ -809,9 +808,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showRewardPayoutsForNominator(
                     from: view,
                     stashAddress: stashAddress,
-                    chain: chainAsset.chain,
-                    asset: chainAsset.asset,
-                    selectedAccount: selectedAccount
+                    chainAsset: stashState.commonData.rewardChainAsset ?? chainAsset,
+                    wallet: selectedAccount
                 )
                 return
             }

@@ -11,20 +11,17 @@ final class StakingRewardPayoutsPresenter {
     private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
     private var eraCountdown: EraCountdown?
-    private let chain: ChainModel
-    private let asset: AssetModel
-    private let selectedAccount: MetaAccountModel
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
     private let viewModelFactory: StakingPayoutViewModelFactoryProtocol
 
     init(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         viewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) {
-        self.chain = chain
-        self.asset = asset
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.viewModelFactory = viewModelFactory
     }
 
@@ -42,7 +39,7 @@ final class StakingRewardPayoutsPresenter {
             payoutsInfo: payoutsInfo,
             priceData: priceData,
             eraCountdown: eraCountdown,
-            erasPerDay: chain.erasPerDay
+            erasPerDay: chainAsset.chain.erasPerDay
         )
         let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
         view?.reload(with: viewState)
@@ -74,9 +71,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
             payoutInfo: payoutInfo,
             activeEra: payoutsInfo.activeEra,
             historyDepth: payoutsInfo.historyDepth,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 
@@ -84,9 +80,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         guard let payouts = payoutsInfo?.payouts else { return }
         wireframe.showPayoutConfirmation(
             for: payouts,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             from: view
         )
     }
@@ -101,7 +96,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
             at: index,
             payoutsInfo: payoutsInfo,
             eraCountdown: eraCountdown,
-            erasPerDay: chain.erasPerDay
+            erasPerDay: chainAsset.chain.erasPerDay
         )
     }
 }
