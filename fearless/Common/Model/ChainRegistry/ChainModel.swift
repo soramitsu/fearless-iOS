@@ -18,6 +18,10 @@ extension ChainModel: Identifiable {
             return DefaultRelaychainChainStakingSettings()
         }
     }
+
+    var utilityFeePayment: Bool {
+        options?.contains(where: { $0 == .utilityFeePayment }) == true
+    }
 }
 
 // MARK: - Wallet connect

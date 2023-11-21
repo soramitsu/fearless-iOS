@@ -420,7 +420,7 @@ final class SendPresenter {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let spendingValue = (sendAmountDecimal ?? 0) + (fee ?? 0) + (tip ?? 0)
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
+        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.utilityFeePayment) ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: utilityBalance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
@@ -432,7 +432,7 @@ final class SendPresenter {
             minimumBalanceDecimal = .zero
         }
 
-        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
+        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.utilityFeePayment
         var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
             .orml(
                 minimumBalance: minimumBalanceDecimal,

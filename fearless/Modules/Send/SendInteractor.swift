@@ -89,7 +89,7 @@ final class SendInteractor: RuntimeConstantFetching {
             let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
             self.dependencies = dependencies
 
-            if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
+            if chainAsset.chain.utilityFeePayment, !chainAsset.isUtility,
                let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
                 subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
                 provideConstants(for: utilityAsset)
