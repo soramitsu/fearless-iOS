@@ -49,6 +49,11 @@ struct SoraSubsquidHistoryElement: Decodable {
     let module: String?
     let networkFee: String?
     let timestamp: TimeInterval?
+    let execution: SoraSubsquidHistoryElementExecution?
+}
+
+struct SoraSubsquidHistoryElementExecution: Decodable {
+    let success: Bool?
 }
 
 struct SoraSubsquidHistoryElementData: Decodable {

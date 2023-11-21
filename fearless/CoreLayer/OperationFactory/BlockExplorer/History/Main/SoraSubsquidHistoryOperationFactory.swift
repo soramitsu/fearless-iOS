@@ -98,32 +98,38 @@ class SoraSubsquidHistoryOperationFactory {
     ) -> String {
         var filterStrings: [String] = []
 
-        if !filters.contains(where: { $0.type == .other && $0.selected }) {
-            filterStrings.append("{extrinsic: { isNull: true }}")
+        if !filters.contains(where: { $0.type == .swap && $0.selected }) {
+            filterStrings.append("\"swap\"")
         }
 
         if !filters.contains(where: { $0.type == .reward && $0.selected }) {
-            filterStrings.append("{reward: { isNull: true }}")
+            filterStrings.append("\"rewarded\"")
         }
 
         if !filters.contains(where: { $0.type == .transfer && $0.selected }) {
-            filterStrings.append("{transfer: { isNull: true }}")
+            filterStrings.append("\"transfer\"")
         }
 
-        return filterStrings.joined(separator: ",")
+        guard filterStrings.isNotEmpty else {
+            return ""
+        }
+
+        let resultFilters = filterStrings.joined(separator: ",")
+        return ", method_not_in: [\(resultFilters)]"
     }
 
     private func prepareQueryForAddress(
         _ address: String,
         count: Int,
         cursor: String?,
-        filters _: [WalletTransactionHistoryFilter]
+        filters: [WalletTransactionHistoryFilter]
     ) -> String {
         let after: String = cursor.map { "\($0)" } ?? "1"
+        let filter = prepareFilter(filters: filters)
 
         return """
         query MyQuery {
-          historyElementsConnection(where: {address_eq: "\(address)", OR: {dataTo_eq: "\(address)"}}, after: "\(after)", first: \(count), orderBy: timestamp_DESC) {
+          historyElementsConnection(where: {address_eq: "\(address)", OR: {dataTo_eq: "\(address)"} \(filter)}, after: "\(after)", first: \(count), orderBy: timestamp_DESC) {
             pageInfo {
               endCursor
               hasNextPage
@@ -148,6 +154,9 @@ class SoraSubsquidHistoryOperationFactory {
                 timestamp
                 type
                 updatedAtBlock
+                execution {
+                  success
+                }
               }
             }
           }

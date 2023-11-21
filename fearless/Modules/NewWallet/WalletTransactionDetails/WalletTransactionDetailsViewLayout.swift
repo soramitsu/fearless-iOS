@@ -129,7 +129,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         slashView.isHidden = true
         senderView.isHidden = true
 
-        receiverView.isHidden = viewModel.validator?.count == 0
+        receiverView.isHidden = viewModel.validator.isNullOrEmpty
         extrinsicHashView.titleLabel.text = R.string.localizable.stakingCommonEventId(preferredLanguages: locale.rLanguages)
         receiverView.titleLabel.text = R.string.localizable.stakingCommonValidator(preferredLanguages: locale.rLanguages)
 

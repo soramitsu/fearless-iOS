@@ -8,13 +8,16 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SoraSubsquidHistoryElement,
         address: String,
-        chain: ChainModel,
+        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let assetId = item.data?.anyAssetId ?? ""
         let feePlanckString = item.networkFee ?? ""
         let feePlanck = BigUInt(string: feePlanckString) ?? .zero
         let fee = Decimal.fromSubstrateAmount(feePlanck, precision: Int16(asset.precision)) ?? .zero
+
+        let success = item.execution?.success == true
+        let status: AssetTransactionStatus = success ? .commited : .rejected
 
         let transactionFee = AssetTransactionFee(
             identifier: item.id,
@@ -27,42 +30,33 @@ extension AssetTransactionData {
         case ("staking", "rewarded"):
             return createRewardTransaction(
                 from: item,
-                address: address,
-                chain: chain,
-                asset: asset,
-                fee: transactionFee
+                fee: transactionFee,
+                status: status
             )
         case ("assets", "transfer"):
             return createTransferTransaction(
                 from: item,
                 address: address,
-                chain: chain,
-                asset: asset,
-                fee: transactionFee
+                fee: transactionFee,
+                status: status
             )
         case (.some(_), "swap"):
             return createSwapTransaction(
                 from: item,
-                address: address,
-                chain: chain,
-                asset: asset,
-                fee: transactionFee
+                fee: transactionFee,
+                status: status
             )
         case (.some(_), "transferToSidechain"):
             return createBridgeTransaction(
                 from: item,
-                address: address,
-                chain: chain,
-                asset: asset,
-                fee: transactionFee
+                fee: transactionFee,
+                status: status
             )
         default:
             return createExtrinsicTransaction(
                 from: item,
-                address: address,
-                chain: chain,
-                asset: asset,
-                fee: transactionFee
+                fee: transactionFee,
+                status: status
             )
         }
     }
@@ -70,9 +64,8 @@ extension AssetTransactionData {
     static func createTransferTransaction(
         from item: SoraSubsquidHistoryElement,
         address: String,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        fee: AssetTransactionFee
+        fee: AssetTransactionFee,
+        status: AssetTransactionStatus
     ) -> AssetTransactionData {
         let from = item.data?.from
         let to = item.data?.to
@@ -81,15 +74,16 @@ extension AssetTransactionData {
         let type = from == address ? TransactionType.outgoing :
             TransactionType.incoming
         let timestamp = item.itemTimestamp
+        let peer = from == address ? to : from
 
         return AssetTransactionData(
             transactionId: item.id,
-            status: .commited,
+            status: status,
             assetId: assetId,
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,
-            peerName: to,
+            peerName: peer,
             details: "",
             amount: AmountDecimal(string: amount) ?? AmountDecimal(value: 0),
             fees: [fee],
@@ -102,24 +96,24 @@ extension AssetTransactionData {
 
     static func createRewardTransaction(
         from item: SoraSubsquidHistoryElement,
-        address _: String,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        fee: AssetTransactionFee
+        fee: AssetTransactionFee,
+        status: AssetTransactionStatus
     ) -> AssetTransactionData {
         let type = TransactionType.reward
         let timestamp = item.itemTimestamp
         let stash = item.data?.stash
         let amount = item.data?.amount ?? ""
+        let era = item.data?.era.map { "\($0)" } ?? ""
+
         return AssetTransactionData(
             transactionId: item.id,
-            status: .commited,
+            status: status,
             assetId: "",
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,
             peerName: stash,
-            details: "",
+            details: era,
             amount: AmountDecimal(string: amount) ?? AmountDecimal(value: 0),
             fees: [fee],
             timestamp: timestamp,
@@ -131,10 +125,8 @@ extension AssetTransactionData {
 
     static func createSwapTransaction(
         from item: SoraSubsquidHistoryElement,
-        address _: String,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        fee: AssetTransactionFee
+        fee: AssetTransactionFee,
+        status _: AssetTransactionStatus
     ) -> AssetTransactionData {
         let type = TransactionType.swap
         let timestamp = item.itemTimestamp
@@ -163,10 +155,8 @@ extension AssetTransactionData {
 
     static func createBridgeTransaction(
         from item: SoraSubsquidHistoryElement,
-        address _: String,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        fee: AssetTransactionFee
+        fee: AssetTransactionFee,
+        status _: AssetTransactionStatus
     ) -> AssetTransactionData {
         let type = TransactionType.bridge
         let timestamp = item.itemTimestamp
@@ -192,10 +182,8 @@ extension AssetTransactionData {
 
     static func createExtrinsicTransaction(
         from item: SoraSubsquidHistoryElement,
-        address _: String,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        fee: AssetTransactionFee
+        fee: AssetTransactionFee,
+        status _: AssetTransactionStatus
     ) -> AssetTransactionData {
         let from = item.data?.from
         let to = item.data?.to
