@@ -1653,11 +1653,21 @@
 		C67E781E27B4D7870053346B /* PinViewConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781D27B4D7870053346B /* PinViewConfigurator.swift */; };
 		C6992F0D2807E796003BC769 /* ReplaceChainOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6992F0C2807E796003BC769 /* ReplaceChainOption.swift */; };
 		C6992F10280836FA003BC769 /* AccountConfirmFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6992F0F280836FA003BC769 /* AccountConfirmFlow.swift */; };
+		C69E89462B0C5F7D003663BA /* MainNftContainerStateHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69E89452B0C5F7D003663BA /* MainNftContainerStateHolder.swift */; };
 		C6A53DEF28A4FB2C00EFF190 /* Array + Divide.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A53DEE28A4FB2C00EFF190 /* Array + Divide.swift */; };
 		C6A53DF128A5036400EFF190 /* Array + Unique.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A53DF028A5036400EFF190 /* Array + Unique.swift */; };
 		C6A8D6BD27EF0CF40080F81C /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6BC27EF0CF40080F81C /* UIView.swift */; };
 		C6A8D6C127FC318A0080F81C /* UniqueChainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6C027FC318A0080F81C /* UniqueChainViewModel.swift */; };
 		C6CA202D2B057D61001503C2 /* NFTContentControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA202C2B057D61001503C2 /* NFTContentControl.swift */; };
+		C6CA20332B05E334001503C2 /* NftFiltersViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA20322B05E334001503C2 /* NftFiltersViewLayout.swift */; };
+		C6CA20352B05E900001503C2 /* NftFiltersViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA20342B05E900001503C2 /* NftFiltersViewController.swift */; };
+		C6CA20372B05E953001503C2 /* NftFiltersProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA20362B05E953001503C2 /* NftFiltersProtocols.swift */; };
+		C6CA20392B05EBFB001503C2 /* NftFiltersPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA20382B05EBFB001503C2 /* NftFiltersPresenter.swift */; };
+		C6CA203B2B05ED24001503C2 /* NftFiltersViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA203A2B05ED24001503C2 /* NftFiltersViewModelFactory.swift */; };
+		C6CA203D2B06C0D9001503C2 /* NftFiltersInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA203C2B06C0D9001503C2 /* NftFiltersInteractor.swift */; };
+		C6CA203F2B072871001503C2 /* NftFiltersRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA203E2B072871001503C2 /* NftFiltersRouter.swift */; };
+		C6CA20412B072955001503C2 /* NftFiltersAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA20402B072955001503C2 /* NftFiltersAssembly.swift */; };
+		C6CA20442B072B98001503C2 /* NftCollectionFilters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA20432B072B98001503C2 /* NftCollectionFilters.swift */; };
 		C6CA307D285F61B70087776D /* ParachainState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA307C285F61B70087776D /* ParachainState.swift */; };
 		C6CA307F286190630087776D /* DelegationStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA307E286190630087776D /* DelegationStateView.swift */; };
 		C6CA3081286192C50087776D /* DelegationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA3080286192C50087776D /* DelegationViewModel.swift */; };
@@ -4586,12 +4596,22 @@
 		C67E781D27B4D7870053346B /* PinViewConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinViewConfigurator.swift; sourceTree = "<group>"; };
 		C6992F0C2807E796003BC769 /* ReplaceChainOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceChainOption.swift; sourceTree = "<group>"; };
 		C6992F0F280836FA003BC769 /* AccountConfirmFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountConfirmFlow.swift; sourceTree = "<group>"; };
+		C69E89452B0C5F7D003663BA /* MainNftContainerStateHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainNftContainerStateHolder.swift; sourceTree = "<group>"; };
 		C6A53DEE28A4FB2C00EFF190 /* Array + Divide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array + Divide.swift"; sourceTree = "<group>"; };
 		C6A53DF028A5036400EFF190 /* Array + Unique.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array + Unique.swift"; sourceTree = "<group>"; };
 		C6A654294D46A966EE99764F /* AllDonePresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDonePresenter.swift; sourceTree = "<group>"; };
 		C6A8D6BC27EF0CF40080F81C /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		C6A8D6C027FC318A0080F81C /* UniqueChainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniqueChainViewModel.swift; sourceTree = "<group>"; };
 		C6CA202C2B057D61001503C2 /* NFTContentControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NFTContentControl.swift; sourceTree = "<group>"; };
+		C6CA20322B05E334001503C2 /* NftFiltersViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersViewLayout.swift; sourceTree = "<group>"; };
+		C6CA20342B05E900001503C2 /* NftFiltersViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersViewController.swift; sourceTree = "<group>"; };
+		C6CA20362B05E953001503C2 /* NftFiltersProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersProtocols.swift; sourceTree = "<group>"; };
+		C6CA20382B05EBFB001503C2 /* NftFiltersPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersPresenter.swift; sourceTree = "<group>"; };
+		C6CA203A2B05ED24001503C2 /* NftFiltersViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersViewModelFactory.swift; sourceTree = "<group>"; };
+		C6CA203C2B06C0D9001503C2 /* NftFiltersInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersInteractor.swift; sourceTree = "<group>"; };
+		C6CA203E2B072871001503C2 /* NftFiltersRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersRouter.swift; sourceTree = "<group>"; };
+		C6CA20402B072955001503C2 /* NftFiltersAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftFiltersAssembly.swift; sourceTree = "<group>"; };
+		C6CA20432B072B98001503C2 /* NftCollectionFilters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionFilters.swift; sourceTree = "<group>"; };
 		C6CA307C285F61B70087776D /* ParachainState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainState.swift; sourceTree = "<group>"; };
 		C6CA307E286190630087776D /* DelegationStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationStateView.swift; sourceTree = "<group>"; };
 		C6CA3080286192C50087776D /* DelegationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationViewModel.swift; sourceTree = "<group>"; };
@@ -7109,6 +7129,7 @@
 		52CB223D10CDDA2EF251C90F /* MainNftContainer */ = {
 			isa = PBXGroup;
 			children = (
+				C6CA20422B072B80001503C2 /* Model */,
 				FA2DF9A62A8F46A50047F440 /* ViewModel */,
 				FA2DF9A32A8F412F0047F440 /* Views */,
 				0892AD886F2BE499C075C701 /* MainNftContainerProtocols.swift */,
@@ -7118,6 +7139,7 @@
 				AFC9C09ABBCEB6E581134E84 /* MainNftContainerViewController.swift */,
 				0BCBF6D6D48704B27B2DBB79 /* MainNftContainerViewLayout.swift */,
 				B5E69C4F66805399A3DB4ED8 /* MainNftContainerAssembly.swift */,
+				C69E89452B0C5F7D003663BA /* MainNftContainerStateHolder.swift */,
 			);
 			path = MainNftContainer;
 			sourceTree = "<group>";
@@ -11310,6 +11332,37 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		C6CA20302B05E30F001503C2 /* NftFilters */ = {
+			isa = PBXGroup;
+			children = (
+				C6CA20312B05E319001503C2 /* View */,
+				C6CA20342B05E900001503C2 /* NftFiltersViewController.swift */,
+				C6CA20362B05E953001503C2 /* NftFiltersProtocols.swift */,
+				C6CA20382B05EBFB001503C2 /* NftFiltersPresenter.swift */,
+				C6CA203A2B05ED24001503C2 /* NftFiltersViewModelFactory.swift */,
+				C6CA203C2B06C0D9001503C2 /* NftFiltersInteractor.swift */,
+				C6CA203E2B072871001503C2 /* NftFiltersRouter.swift */,
+				C6CA20402B072955001503C2 /* NftFiltersAssembly.swift */,
+			);
+			path = NftFilters;
+			sourceTree = "<group>";
+		};
+		C6CA20312B05E319001503C2 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C6CA20322B05E334001503C2 /* NftFiltersViewLayout.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C6CA20422B072B80001503C2 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				C6CA20432B072B98001503C2 /* NftCollectionFilters.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
 			isa = PBXGroup;
 			children = (
@@ -13929,6 +13982,7 @@
 		FAB16A2E2A9C9AE200E71F43 /* NFT */ = {
 			isa = PBXGroup;
 			children = (
+				C6CA20302B05E30F001503C2 /* NftFilters */,
 				493D529207797CDC4F179A5C /* NftSend */,
 				5C5E8A7116A1FEA60013E7AD /* NftSendConfirm */,
 				52CB223D10CDDA2EF251C90F /* MainNftContainer */,
@@ -15504,6 +15558,7 @@
 				C661B3B627E2E7AB005F1F7D /* AccountCreateChainType.swift in Sources */,
 				AEBE174C262FF4DB00DF257C /* PayoutConfirmViewModel.swift in Sources */,
 				FA2FC80428B3807C00CC0A42 /* StakingPoolJoinConfigRouter.swift in Sources */,
+				C6CA203B2B05ED24001503C2 /* NftFiltersViewModelFactory.swift in Sources */,
 				84B71DE5260B90270003A100 /* SubstrateAlias.swift in Sources */,
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
 				AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */,
@@ -15523,6 +15578,7 @@
 				FAFFAE3D29AC84480074AF1F /* SymbolView.swift in Sources */,
 				FA62623C2AC2E35A005D3D95 /* WalletConnectConfirmationAssembly.swift in Sources */,
 				AE2C84D525EF989A00986716 /* ValidatorInfoWireframe.swift in Sources */,
+				C6CA20332B05E334001503C2 /* NftFiltersViewLayout.swift in Sources */,
 				FA37AE3A2859CCC9001DCA96 /* StakingUnbondConfirmParachainViewModelState.swift in Sources */,
 				F471897626C297AA006487AD /* AnalyticsValidatorsPage.swift in Sources */,
 				F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */,
@@ -15538,6 +15594,7 @@
 				FA2FC80628B3807C00CC0A42 /* StakingPoolJoinConfigViewController.swift in Sources */,
 				84EBC55024F660A700459D15 /* EventCenter.swift in Sources */,
 				849ABE862628154900011A2A /* SubscanRawExtrinsicData.swift in Sources */,
+				C6CA20442B072B98001503C2 /* NftCollectionFilters.swift in Sources */,
 				FA936BD8286C66BF0059B97A /* StakingRebondConfirmationParachainViewModelState.swift in Sources */,
 				FAADC1A929261F7000DA9903 /* PoolRolesConfirmPresenter.swift in Sources */,
 				C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */,
@@ -16101,6 +16158,7 @@
 				F40966F626B299FC008CD244 /* SubqueryStakeSource.swift in Sources */,
 				84FB1F652526879200E0242B /* WalletSingleProviderIdFactory.swift in Sources */,
 				8436EDDC25893FA0004D9E97 /* WalletBuyCommand.swift in Sources */,
+				C69E89462B0C5F7D003663BA /* MainNftContainerStateHolder.swift in Sources */,
 				FAA0133628DA12B6000A5230 /* StakingPoolMainProtocols.swift in Sources */,
 				849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */,
 				AEE5FAFB26414C4F002B8FDC /* StakingRebondSetupProtocols.swift in Sources */,
@@ -16162,6 +16220,7 @@
 				848EAEB82659859600676CEA /* CrowdloansViewModelFactory.swift in Sources */,
 				84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */,
 				FA256A26274CE7D600875A53 /* MoonbeamMakeSignatureData.swift in Sources */,
+				C6CA20352B05E900001503C2 /* NftFiltersViewController.swift in Sources */,
 				F406B0E626299E34004FDCCC /* ErrorStateView.swift in Sources */,
 				07B6BC7A28B78E8000621864 /* SheetAlertPresentableStyle.swift in Sources */,
 				8467FCFC24E5C3BD005D486C /* URLHandlingService.swift in Sources */,
@@ -16464,6 +16523,7 @@
 				FAFFAE7E29AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift in Sources */,
 				FAF9C2A52AAF3FCC00A61D21 /* FeatureToggleConfig.swift in Sources */,
 				FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */,
+				C6CA203D2B06C0D9001503C2 /* NftFiltersInteractor.swift in Sources */,
 				FAFFAE4029AC84850074AF1F /* AccountManagementPresentable.swift in Sources */,
 				FA15BC152823CB7B0037C023 /* ParachainCollatorOperationFactory.swift in Sources */,
 				F40966B826B297D6008CD244 /* AnalyticsContainerProtocols.swift in Sources */,
@@ -16571,6 +16631,7 @@
 				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				07F817FB2AD4173100B87358 /* WalletConnectCoordinatorRouter.swift in Sources */,
 				FAA013B128DA134B000A5230 /* PoolWithdrawUnbondedCall.swift in Sources */,
+				C6CA20392B05EBFB001503C2 /* NftFiltersPresenter.swift in Sources */,
 				FA936BF22872E35F0059B97A /* TitleSwitchViewModel.swift in Sources */,
 				FAD4292E2A865680001D6A16 /* BackupWalletImportedProtocols.swift in Sources */,
 				84BAB6102642C286007782D0 /* SelectedRebondVariant.swift in Sources */,
@@ -16737,6 +16798,7 @@
 				076D9D312939F72A002762E3 /* PolkaswapQuoteParams.swift in Sources */,
 				FA72542A2AC2E48500EC47A6 /* WalletConnectChainsResolution.swift in Sources */,
 				8436EDEF25896722004D9E97 /* PurchaseAggregator+Default.swift in Sources */,
+				C6CA20372B05E953001503C2 /* NftFiltersProtocols.swift in Sources */,
 				84963D6C26F91810003FE8E4 /* RemoteSubscriptionService.swift in Sources */,
 				C6264C342799DBFB00FCA0DB /* WalletDetailsProtocols.swift in Sources */,
 				FA46D2C7283DDD07005A112B /* ParachainStakingCandidateMetadata.swift in Sources */,
@@ -17006,6 +17068,7 @@
 				843910C9253F591D00E3C217 /* ScaleDecoderOperation.swift in Sources */,
 				FAC0BBCF291D0EB000E6F106 /* SendViewModelFactory.swift in Sources */,
 				F4C086C726D1159E00716AEC /* SubqueryEraStakersInfoSource.swift in Sources */,
+				C6CA20412B072955001503C2 /* NftFiltersAssembly.swift in Sources */,
 				FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */,
 				AEF5071E262369C00098574D /* PurchaseProviderProtocol.swift in Sources */,
 				FAA0138028DA12F0000A5230 /* StakingRedeemPoolStrategy.swift in Sources */,
@@ -17603,6 +17666,7 @@
 				FA37AE382859CCA7001DCA96 /* StakingUnbondConfirmParachainStrategy.swift in Sources */,
 				FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */,
 				41831354E275074C7BBC4C28 /* NodeSelectionViewFactory.swift in Sources */,
+				C6CA203F2B072871001503C2 /* NftFiltersRouter.swift in Sources */,
 				FAF9C2B12AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift in Sources */,
 				6C0289728544A96852CCBF20 /* AddCustomNodeProtocols.swift in Sources */,
 				9C8AAE31F22421A975A17DF4 /* AddCustomNodeWireframe.swift in Sources */,

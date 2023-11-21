@@ -15,17 +15,20 @@ final class MainNftContainerInteractor {
     private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
     private var isReady: Bool = false
+    private let stateHolder: MainNftContainerStateHolder
 
     init(
         nftFetchingService: NFTFetchingServiceProtocol,
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        stateHolder: MainNftContainerStateHolder
     ) {
         self.nftFetchingService = nftFetchingService
         self.logger = logger
         self.wallet = wallet
         self.eventCenter = eventCenter
+        self.stateHolder = stateHolder
         eventCenter.add(observer: self)
     }
 }
@@ -53,9 +56,23 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
 
         Task {
             do {
-                let nfts = try await nftFetchingService.fetchNfts(for: wallet)
+                let filterValues: [NftCollectionFilter] = stateHolder.filters.compactMap {
+                    $0.items as? [NftCollectionFilter]
+                }.reduce([], +).filter { filter in
+                    filter.selected
+                }
 
-                var ownedCollections = try await nftFetchingService.fetchCollections(for: wallet)
+                let nfts = try await nftFetchingService.fetchNfts(
+                    for: wallet,
+                    excludeFilters: filterValues,
+                    chain: stateHolder.selectedChain
+                )
+
+                var ownedCollections = try await nftFetchingService.fetchCollections(
+                    for: wallet,
+                    excludeFilters: filterValues,
+                    chain: stateHolder.selectedChain
+                )
 
                 ownedCollections = ownedCollections.map { collection in
                     var ownedCollection = collection
@@ -101,6 +118,16 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                 logger.error(error.localizedDescription)
             }
         }
+    }
+
+    func didSelect(chain: ChainModel?) {
+        stateHolder.selectedChain = chain
+        fetchData()
+    }
+
+    func applyFilters(_ filters: [FilterSet]) {
+        stateHolder.filters = filters
+        fetchData()
     }
 }
 

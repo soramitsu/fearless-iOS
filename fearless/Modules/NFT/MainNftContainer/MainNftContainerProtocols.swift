@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias MainNftContainerModuleCreationResult = (view: MainNftContainerViewInput, input: MainNftContainerModuleInput)
 
 protocol MainNftContainerViewInput: ControllerBackedProtocol {
@@ -19,6 +21,8 @@ protocol MainNftContainerInteractorInput: AnyObject {
     func initialSetup()
     func setup(with output: MainNftContainerInteractorOutput)
     func fetchData()
+    func didSelect(chain: ChainModel?)
+    func applyFilters(_ filters: [FilterSet])
 }
 
 protocol MainNftContainerInteractorOutput: AnyObject {
@@ -33,9 +37,15 @@ protocol MainNftContainerRouterInput: AnyObject {
         from view: ControllerBackedProtocol?
     )
 
-    func showFilters(from view: ControllerBackedProtocol?)
+    func presentFilters(
+        with filters: [FilterSet],
+        from view: ControllerBackedProtocol?,
+        moduleOutput: NftFiltersModuleOutput?
+    )
 }
 
-protocol MainNftContainerModuleInput: AnyObject {}
+protocol MainNftContainerModuleInput: AnyObject {
+    func didSelect(chain: ChainModel?)
+}
 
 protocol MainNftContainerModuleOutput: AnyObject {}

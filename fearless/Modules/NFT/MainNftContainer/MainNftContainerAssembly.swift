@@ -18,11 +18,21 @@ final class MainNftContainerAssembly {
             operationQueue: OperationQueue()
         )
 
+        let filters = [FilterSet(
+            title: R.string.localizable.commonShow(
+                preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+            ),
+            items: NftCollectionFilter.defaultFilters()
+        )]
+
+        let stateHolder = MainNftContainerStateHolder(filters: filters)
+
         let interactor = MainNftContainerInteractor(
             nftFetchingService: nftFetchingService,
             logger: Logger.shared,
             wallet: wallet,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            stateHolder: stateHolder
         )
         let router = MainNftContainerRouter()
 
@@ -33,7 +43,8 @@ final class MainNftContainerAssembly {
             viewModelFactory: NftListViewModelFactory(),
             wallet: wallet,
             eventCenter: EventCenter.shared,
-            userDefaultsStorage: SettingsManager.shared
+            userDefaultsStorage: SettingsManager.shared,
+            stateHolder: stateHolder
         )
 
         let view = MainNftContainerViewController(

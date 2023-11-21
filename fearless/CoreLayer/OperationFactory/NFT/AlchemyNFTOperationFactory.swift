@@ -12,12 +12,17 @@ final class AlchemyNFTOperationFactory {
 
     private func createFetchCollectionsOperation(
         address: String,
-        url: URL
+        url: URL,
+        excludeFilters: [NftCollectionFilter]
     ) -> BaseOperation<AlchemyNftCollectionsResponse> {
         let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getContractsForOwner")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [URLQueryItem(name: "owner", value: address)]
+        excludeFilters.forEach { filter in
+            let queryItem = URLQueryItem(name: "excludeFilters[]", value: filter.id)
+            urlComponents?.queryItems?.append(queryItem)
+        }
 
         guard let urlWithParameters = urlComponents?.url else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
@@ -94,15 +99,19 @@ final class AlchemyNFTOperationFactory {
 
     private func createFetchNftsOperation(
         address: String,
-        url: URL
+        url: URL,
+        excludeFilters: [NftCollectionFilter]
     ) -> BaseOperation<AlchemyOwnedNftsResponse> {
         let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTs")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [
-            URLQueryItem(name: "owner", value: address),
-            URLQueryItem(name: "excludeFilters[]", value: "spam")
+            URLQueryItem(name: "owner", value: address)
         ]
+        excludeFilters.forEach { filter in
+            let queryItem = URLQueryItem(name: "excludeFilters[]", value: filter.id)
+            urlComponents?.queryItems?.append(queryItem)
+        }
 
         guard let urlWithParameters = urlComponents?.url else {
             return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
@@ -290,7 +299,11 @@ final class AlchemyNFTOperationFactory {
 }
 
 extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
-    func fetchNFTs(chain: SSFModels.ChainModel, address: String) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
+    func fetchNFTs(
+        chain: SSFModels.ChainModel,
+        address: String,
+        excludeFilters: [NftCollectionFilter]
+    ) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
@@ -301,7 +314,8 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
 
         let fetchOperation = createFetchNftsOperation(
             address: address,
-            url: url
+            url: url,
+            excludeFilters: excludeFilters
         )
 
         let mapOperation = createMapOwnedNftsOperation(dependingOn: fetchOperation, chain: chain)
@@ -310,7 +324,11 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [fetchOperation])
     }
 
-    func fetchCollections(chain: ChainModel, address: String) -> CompoundOperationWrapper<[NFTCollection]?> {
+    func fetchCollections(
+        chain: ChainModel,
+        address: String,
+        excludeFilters: [NftCollectionFilter]
+    ) -> CompoundOperationWrapper<[NFTCollection]?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
@@ -321,7 +339,8 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
 
         let fetchOperation = createFetchCollectionsOperation(
             address: address,
-            url: url
+            url: url,
+            excludeFilters: excludeFilters
         )
 
         let mapOperation = createMapCollectionsOperation(dependingOn: fetchOperation, chain: chain)

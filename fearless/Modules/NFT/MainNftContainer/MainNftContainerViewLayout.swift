@@ -21,6 +21,12 @@ final class MainNftContainerViewLayout: UIView {
 
     let nftContentControl = NFTContentControl()
 
+    let emptyViewContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         tableView.backgroundColor = .clear
@@ -37,6 +43,7 @@ final class MainNftContainerViewLayout: UIView {
         addSubview(tableView)
         addSubview(collectionView)
         addSubview(nftContentControl)
+        addSubview(emptyViewContainer)
         setupConstraints()
     }
 
@@ -64,6 +71,10 @@ final class MainNftContainerViewLayout: UIView {
             make.leading.trailing.bottom.equalToSuperview()
         }
         collectionView.snp.makeConstraints { make in
+            make.top.equalTo(nftContentControl.snp.bottom).offset(UIConstants.defaultOffset)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+        emptyViewContainer.snp.makeConstraints { make in
             make.top.equalTo(nftContentControl.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.trailing.bottom.equalToSuperview()
         }
