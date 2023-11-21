@@ -51,7 +51,9 @@ final class AssetNetworksPresenter {
             sort: sort
         )
 
-        view?.didReceive(viewModels: viewModels)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(viewModels: viewModels)
+        }
     }
 }
 
@@ -77,7 +79,10 @@ extension AssetNetworksPresenter: AssetNetworksViewOutput {
     }
 
     func didTapSortButton() {
-        let sorts = FilterSet(title: R.string.localizable.commonFilterSortHeader(preferredLanguages: selectedLocale.rLanguages), items: AssetNetworksSort.defaultFilters())
+        let sorts = FilterSet(
+            title: R.string.localizable.commonFilterSortHeader(preferredLanguages: selectedLocale.rLanguages),
+            items: AssetNetworksSort.defaultFilters(selected: sort)
+        )
         router.showFilters(filters: [sorts], moduleOutput: self, from: view)
     }
 }

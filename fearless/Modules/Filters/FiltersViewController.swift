@@ -44,9 +44,11 @@ final class FiltersViewController: UIViewController, ViewHolder {
         case .empty:
             rootView.tableView.isHidden = true
 
-        case .loaded:
+        case let .loaded(viewModel):
             rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
+
+            rootView.bind(viewModel: viewModel)
         }
     }
 

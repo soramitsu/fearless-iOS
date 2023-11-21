@@ -269,7 +269,7 @@ extension RuntimeProvider: RuntimeProviderProtocol {
     }
 
     var runtimeSpecVersion: RuntimeSpecVersion {
-        snapshot?.runtimeSpecVersion ?? RuntimeSpecVersion.defaultVersion
+        snapshot?.runtimeSpecVersion(for: chainModel) ?? RuntimeSpecVersion.defaultVersion(for: chainModel)
     }
 
     func setup() {

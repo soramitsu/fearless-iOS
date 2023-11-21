@@ -23,7 +23,7 @@ final class AssetNetworksRouter: AssetNetworksRouterInput {
         moduleOutput: FiltersModuleOutput?,
         from view: ControllerBackedProtocol?
     ) {
-        let module = FiltersViewFactory.createView(filters: filters, moduleOutput: moduleOutput)
+        let module = FiltersViewFactory.createView(filters: filters, mode: .singleSelection, moduleOutput: moduleOutput)
 
         guard let filterView = module?.controller else {
             return

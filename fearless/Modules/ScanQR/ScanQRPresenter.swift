@@ -136,7 +136,7 @@ final class ScanQRPresenter: NSObject {
             DispatchQueue.main.async {
                 self.view?.didStartLoading()
                 let viewModel = SheetAlertPresentableViewModel(
-                    title: R.string.localizable.otpErrorMessageWrongCode(
+                    title: R.string.localizable.commonUndefinedErrorMessage(
                         preferredLanguages: self.selectedLocale.rLanguages
                     ),
                     message: nil,

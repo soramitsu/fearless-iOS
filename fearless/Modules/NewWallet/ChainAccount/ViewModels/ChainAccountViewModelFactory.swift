@@ -47,6 +47,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         return ChainAccountViewModel(
             walletName: wallet.name,
             selectedChainName: chainAsset.chain.name,
+            selectedChainIcon: chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) },
             address: address,
             assetModel: chainAssetModel,
             buyButtonVisible: buyButtonVisible,

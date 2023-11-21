@@ -272,10 +272,11 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapSelectNetwork() {
+        let selectedChainId: ChainModel.Id? = mode == .simple ? nil : chainAsset.chain.chainId
         wireframe.showSelectNetwork(
             from: view,
             wallet: wallet,
-            selectedChainId: chainAsset.chain.chainId,
+            selectedChainId: selectedChainId,
             chainModels: interactor.availableChainAssets.map(\.chain).withoutDuplicates(),
             delegate: self
         )

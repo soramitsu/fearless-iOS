@@ -53,6 +53,10 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
 
             return AssetVisibility(assetId: assetId, hidden: $0.hidden)
         }
+        var favouriteChainIds: [String] = []
+        if let entityFavouriteChainIds = entity.favouriteChainIds {
+            favouriteChainIds = (entityFavouriteChainIds as? [String]) ?? []
+        }
 
         return DataProviderModel(
             metaId: entity.metaId!,
@@ -68,10 +72,11 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
             unusedChainIds: entity.unusedChainIds as? [String],
             selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
-            chainIdForFilter: entity.chainIdForFilter,
+            networkManagmentFilter: entity.networkManagmentFilter,
             assetsVisibility: assetsVisibility ?? [],
             zeroBalanceAssetsHidden: entity.zeroBalanceAssetsHidden,
-            hasBackup: entity.hasBackup
+            hasBackup: entity.hasBackup,
+            favouriteChainIds: favouriteChainIds
         )
     }
 
@@ -92,9 +97,10 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
         entity.unusedChainIds = model.unusedChainIds as? NSArray
         entity.assetFilterOptions = assetFilterOptions
-        entity.chainIdForFilter = model.chainIdForFilter
+        entity.networkManagmentFilter = model.networkManagmentFilter
         entity.zeroBalanceAssetsHidden = model.zeroBalanceAssetsHidden
         entity.hasBackup = model.hasBackup
+        entity.favouriteChainIds = model.favouriteChainIds as? NSArray
 
         for assetVisibility in model.assetsVisibility {
             var assetVisibilityEntity = entity.assetsVisibility?.first { entity in

@@ -1,11 +1,11 @@
 import Foundation
 
 protocol FiltersViewModelFactoryProtocol {
-    func buildViewModel(from filters: [FilterSet], delegate: SwitchFilterTableCellViewModelDelegate?) -> FiltersViewModel
+    func buildViewModel(from filters: [FilterSet], delegate: SwitchFilterTableCellViewModelDelegate?, mode: FiltersMode) -> FiltersViewModel
 }
 
 class FiltersViewModelFactory: FiltersViewModelFactoryProtocol {
-    func buildViewModel(from filters: [FilterSet], delegate: SwitchFilterTableCellViewModelDelegate?) -> FiltersViewModel {
+    func buildViewModel(from filters: [FilterSet], delegate: SwitchFilterTableCellViewModelDelegate?, mode: FiltersMode) -> FiltersViewModel {
         let sections: [FilterSectionViewModel] = filters.compactMap { filterSet in
 
             let cellViewModels: [FilterCellViewModel] = filterSet.items.compactMap { baseFilterItem in
@@ -35,6 +35,6 @@ class FiltersViewModelFactory: FiltersViewModelFactoryProtocol {
             )
         }
 
-        return FiltersViewModel(sections: sections)
+        return FiltersViewModel(sections: sections, mode: mode)
     }
 }

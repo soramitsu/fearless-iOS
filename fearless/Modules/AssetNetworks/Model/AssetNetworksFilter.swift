@@ -52,9 +52,9 @@ struct AssetNetworksSort: BaseFilterItem {
         selected = isSelected
     }
 
-    static func defaultFilters() -> [AssetNetworksSort] {
-        [AssetNetworksSort(type: .fiat, selected: true),
-         AssetNetworksSort(type: .popularity, selected: false),
-         AssetNetworksSort(type: .name, selected: false)]
+    static func defaultFilters(selected: AssetNetworksSortType) -> [AssetNetworksSort] {
+        [AssetNetworksSort(type: .fiat, selected: selected == .fiat),
+         AssetNetworksSort(type: .popularity, selected: selected == .popularity),
+         AssetNetworksSort(type: .name, selected: selected == .name)]
     }
 }

@@ -14,8 +14,8 @@ final class FiltersViewLayout: UIView {
         return label
     }()
 
-    let tableView: UITableView = {
-        let tableView = UITableView()
+    let tableView: SelfSizingTableView = {
+        let tableView = SelfSizingTableView()
         tableView.backgroundColor = .clear
         return tableView
     }()
@@ -60,7 +60,6 @@ final class FiltersViewLayout: UIView {
     func setupLayout() {
         addSubview(navigationBar)
         addSubview(tableView)
-        addSubview(applyButton)
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.setRightViews([resetButton])
@@ -69,6 +68,30 @@ final class FiltersViewLayout: UIView {
             make.leading.top.trailing.equalToSuperview()
         }
 
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
+            make.width.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+        }
+    }
+
+    func bind(viewModel: FiltersViewModel) {
+        switch viewModel.mode {
+        case .multiSelection:
+            addApplyButtonIfNeeded()
+        case .singleSelection:
+            resetButton.isHidden = true
+        }
+    }
+
+    private func addApplyButtonIfNeeded() {
+        guard applyButton.superview == nil else {
+            return
+        }
+
+        addSubview(applyButton)
+
         applyButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
             make.width.equalToSuperview().inset(UIConstants.defaultOffset * 2)
@@ -76,7 +99,7 @@ final class FiltersViewLayout: UIView {
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        tableView.snp.makeConstraints { make in
+        tableView.snp.remakeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
