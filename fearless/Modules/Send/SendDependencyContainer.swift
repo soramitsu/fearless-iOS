@@ -100,13 +100,13 @@ final class SendDepencyContainer {
         switch chainAsset.chain.chainBaseType {
         case .substrate:
             let chainSyncService = SSFChainRegistry.ChainSyncService(
-                chainsUrl: ApplicationConfig.shared.chainListURL!,
+                chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
                 operationQueue: OperationQueue(),
                 dataFetchFactory: SSFNetwork.NetworkOperationFactory()
             )
 
             let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
-                url: ApplicationConfig.shared.chainsTypesURL,
+                url: ApplicationConfig.shared.chainTypesSourceUrl,
                 dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
                 operationQueue: OperationQueue()
             )

@@ -11,6 +11,7 @@ protocol ChainRegistryProtocol: AnyObject {
     func resetConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
+    func getChain(for chainId: ChainModel.Id) -> ChainModel?
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
@@ -167,9 +168,7 @@ final class ChainRegistry {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-
-        let connection = try ethereumConnectionPool.setupConnection(for: newChain)
-
+        _ = try ethereumConnectionPool.setupConnection(for: newChain)
         chains.append(newChain)
     }
 
@@ -194,18 +193,12 @@ final class ChainRegistry {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-
-        let connection = try ethereumConnectionPool.setupConnection(for: updatedChain)
-
+        _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
         chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }
 
     private func handleDeletedSubstrateChain(chainId: ChainModel.Id) throws {
-        guard let substrateConnectionPool = self.substrateConnectionPool else {
-            return
-        }
-
         runtimeProviderPool.destroyRuntimeProvider(for: chainId)
         clearRuntimeSubscription(for: chainId)
 
@@ -295,6 +288,10 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
 
         return try? ethereumConnectionPool.setupConnection(for: chain)
+    }
+
+    func getChain(for chainId: ChainModel.Id) -> ChainModel? {
+        readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {

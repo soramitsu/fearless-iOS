@@ -137,7 +137,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
 
     private func createWarning(locale: Locale) -> NSAttributedString {
         let warningLabel = R.string.localizable.commonWarningCapitalized(preferredLanguages: locale.rLanguages)
-        let warningMessage = R.string.localizable.walletConnectSignWarningMesssage(preferredLanguages: locale.rLanguages)
+        let warningMessage = R.string.localizable.walletConnectSignWarningMessage(preferredLanguages: locale.rLanguages)
         let warningFullString = [warningLabel, warningMessage].joined(separator: " ")
         let warning = NSMutableAttributedString(string: warningFullString)
 

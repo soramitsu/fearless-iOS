@@ -115,11 +115,7 @@ final class ChainAccountViewLayout: UIView {
         return button
     }()
 
-    let selectNetworkButton: SelectedNetworkButton = {
-        let button = SelectedNetworkButton()
-        button.titleLabel?.font = .p1Paragraph
-        return button
-    }()
+    let selectNetworkButton = SelectedNetworkButton()
 
     private let actionsContentStackView: UIStackView = {
         let stackView = UIStackView()
@@ -198,7 +194,7 @@ final class ChainAccountViewLayout: UIView {
 
     func bind(viewModel: ChainAccountViewModel) {
         walletNameTitle.text = viewModel.walletName
-        selectNetworkButton.setTitle(viewModel.selectedChainName, for: .normal)
+        selectNetworkButton.set(text: viewModel.selectedChainName, image: viewModel.selectedChainIcon)
         if let address = viewModel.address {
             addressCopyableLabel.isHidden = false
             addressCopyableLabel.bind(title: address)

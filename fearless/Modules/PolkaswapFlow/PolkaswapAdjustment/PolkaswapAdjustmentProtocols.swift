@@ -17,7 +17,6 @@ protocol PolkaswapAdjustmentViewInput: ControllerBackedProtocol {
     func didUpdating()
     func didReceive(variant: SwapVariant)
     func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?)
-    func setDisclaimer(visible: Bool)
     func setButtonLoadingState(isLoading: Bool)
 }
 
@@ -32,11 +31,11 @@ protocol PolkaswapAdjustmentViewOutput: AnyObject {
     func didTapLiquidityProviderFeeInfo()
     func didTapNetworkFeeInfo()
     func didTapPreviewButton()
-    func didTapReadDisclaimer()
     func selectFromAmountPercentage(_ percentage: Float)
     func updateFromAmount(_ newValue: Decimal)
     func selectToAmountPercentage(_ percentage: Float)
     func updateToAmount(_ newValue: Decimal)
+    func viewDidAppear()
 }
 
 protocol PolkaswapAdjustmentInteractorInput: AnyObject {
@@ -53,6 +52,7 @@ protocol PolkaswapAdjustmentInteractorInput: AnyObject {
         filter: PolkaswapLiquidityFilterMode,
         liquiditySourceType: LiquiditySourceType
     )
+    func fetchDisclaimerVisible()
 }
 
 protocol PolkaswapAdjustmentInteractorOutput: AnyObject {
@@ -64,7 +64,7 @@ protocol PolkaswapAdjustmentInteractorOutput: AnyObject {
     func didReceiveSwapValues(_ valuesMap: [SwapValues], params: PolkaswapQuoteParams, errors: [Error])
     func didReceiveSettings(settings: PolkaswapRemoteSettings?)
     func updateQuotes()
-    func didReceiveDisclaimer(visible: Bool)
+    func didReceiveDisclaimer(isRead: Bool)
 }
 
 protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, SheetAlertPresentable, BaseErrorPresentable {

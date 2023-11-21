@@ -177,7 +177,10 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             accessList: [:],
             transactionType: .eip1559
         )
-        let chainIdValue = EthereumQuantity(chain.chainId.hexToBytes())
+        guard let chainId = BigUInt(string: chain.chainId) else {
+            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
+        }
+        let chainIdValue = EthereumQuantity(quantity: chainId)
         let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
 
         return try await withCheckedThrowingContinuation { continuation in

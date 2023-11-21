@@ -24,14 +24,7 @@ protocol CreateContactInteractorInput: AnyObject {
 
 protocol CreateContactInteractorOutput: AnyObject {}
 
-protocol CreateContactRouterInput: PushDismissable, ErrorPresentable, SheetAlertPresentable {
-    func showSelectNetwork(
-        from view: CreateContactViewInput?,
-        wallet: MetaAccountModel,
-        selectedChainId: ChainModel.Id?,
-        delegate: SelectNetworkDelegate?
-    )
-}
+protocol CreateContactRouterInput: PushDismissable, ErrorPresentable, SheetAlertPresentable {}
 
 protocol CreateContactModuleInput: AnyObject {}
 

@@ -179,7 +179,8 @@
 "common.advanced" = "高级";
 "common.applied" = "已应用";
 "common.apply" = "应用";
-"common.approve" = "Approve";
+"common.approve" = "批准";
+"common.attention" = "注意";
 "common.available.format" = "可用：%@";
 "common.balance" = "余额";
 "common.balance.format" = "余额：%@";
@@ -199,7 +200,7 @@
 "common.confirm.title" = "确认";
 "common.confirmation.title" = "您确定吗？";
 "common.confirmed" = "已确认";
-"common.connections" = "Connections";
+"common.connections" = "连接";
 "common.continue" = "继续";
 "common.copied" = "复制到剪贴板";
 "common.copy" = "复制";
@@ -209,6 +210,7 @@
 "common.crypto.type" = "密钥对加密类型";
 "common.currency" = "货币";
 "common.details" = "细节";
+"common.disconnect" = "断开连接";
 "common.done" = "已完成";
 "common.edit" = "编辑";
 "common.error.general.title" = "错误";
@@ -217,8 +219,10 @@
 "common.error.network" = "与远程服务器通信时发生错误";
 "common.error.no.data.retrieved" = "未检索到数据。";
 "common.error.password.mismatch" = "密码不匹配";
+"common.events" = "活动";
 "common.existential.warning.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对网络上的任何操作都没有控制权或知识。只有在您完全同意并理解相关影响后才能继续。";
 "common.existential.warning.title" = "此操作将删除账户";
+"common.expiry" = "到期";
 "common.export" = "导出账户";
 "common.filter.sort.header" = "排序方式：";
 "common.important" = "重要";
@@ -233,12 +237,13 @@
 "common.keep.editing.action" = "返回操作";
 "common.learn.more" = "了解更多";
 "common.max" = "最大";
-"common.message" = "Message";
-"common.methods" = "Methods";
+"common.message" = "消息";
+"common.methods" = "方法";
 "common.module" = "模块";
 "common.name" = "名字";
 "common.network" = "网络";
 "common.network.fee" = "网络费用";
+"common.network.management" = "网络管理";
 "common.next" = "下一个";
 "common.no" = "否";
 "common.no.screenshot.message" = "请勿截屏，这可能会被第三方恶意软件收集。";
@@ -253,8 +258,8 @@
 "common.privacy.policy" = "隐私政策";
 "common.proceed" = "继续";
 "common.referral.code.title" = "推荐码";
-"common.reject" = "Reject";
-"common.rejected" = "Rejected";
+"common.reject" = "拒绝";
+"common.rejected" = "拒绝";
 "common.request" = "请求";
 "common.reset" = "重置";
 "common.resolve" = "解决";
@@ -265,14 +270,14 @@
 "common.search.start.title" = "搜索结果将会在这里显示";
 "common.secret.derivation.path" = "秘密派生路径";
 "common.select" = "选择";
-"common.select.all" = "Select all";
+"common.select.all" = "全选";
 "common.select.asset" = "选择资产";
 "common.select.network" = "选择网络";
-"common.selected.count" = "Selected: %@";
+"common.selected.count" = "已选择：%@";
 "common.set.password" = "设置密码";
 "common.share" = "分享";
 "common.show" = "显示";
-"common.sign" = "Sign";
+"common.sign" = "签署";
 "common.skip" = "跳过";
 "common.staking" = "质押";
 "common.terms.and.conditions" = "条款和条件";
@@ -291,14 +296,14 @@
 "common.use" = "使用";
 "common.wallet" = "钱包";
 "common.warning" = "警告";
-"common.warning.capitalized" = "WARNING:";
+"common.warning.capitalized" = "警告：";
 "common.watch" = "观察";
 "common.yes" = "是";
 "confirm.mnemonic.mismatch.error.message" = "请再仔细检查一遍单词的顺序。";
 "confirm.mnemonic.mismatch.error.message.2.0" = "助记词错误，请再次检查单词顺序";
 "confirm.mnemonic.mismatch.error.title" = "无效的助记词";
 "confirmation.skip.action" = "跳过流程";
-"connect.details" = "Connect details";
+"connect.details" = "连接详情";
 "connection.add.already.exists.error" = "该节点已经被添加过了，请尝试其他节点。";
 "connection.add.invalid.error" = "无法与节点建立连接。请尝试另一个节点。";
 "connection.add.unsupported.error" = "很抱歉，网络不支持。请尝试以下方法之一：%@。";
@@ -324,6 +329,7 @@
 "controller.account.issue.message" = "请注意，控制器账户功能已被弃用，因此您需要将您的存储账户设置为控制器。";
 "copy.referral.code" = "复制推荐码";
 "create.new.account" = "创建一个新账户";
+"create.new.connection" = "创建新连接";
 "create.new.pincode" = "创建一个新的PIN码";
 "crowdloan.active.section.format" = "活跃的（ %@ ）";
 "crowdloan.app.bonus.format" = "Fearless 钱包奖励 ( %@ )";
@@ -371,6 +377,7 @@
 "ecdsa.selection.title" = "ECDSA";
 "ed25519.selection.subtitle" = "ed25519（替代）";
 "ed25519.selection.title" = "爱德华兹";
+"empty.state.message" = "未找到符合您要求的内容";
 "empty.view.description" = "未找到任何网络或资产 :(";
 "empty.view.title" = "对不起！";
 "error.invalid.address" = "所选链的地址无效";
@@ -380,6 +387,7 @@
 "ethereum.crypto.type" = "以太坊密钥对加密类型";
 "ethereum.secret.derivation.path" = "以太坊密钥派生路径";
 "example" = "示例： %s";
+"existential.deposit.received.error" = "未收到存款";
 "export.ethereum.title" = "导出以太坊";
 "export.mnemonic.hint" = "使用非数字化的方式备份您的助记词，例如将助记词和派生路径（如果设置了）写在纸上。";
 "export.mnemonic.with.dp.template" = "网络： %@\
@@ -473,6 +481,8 @@
 "network.issues.empty.state.title" = "没有网络问题";
 "network.issues.hide.action.title" = "不要再显示给我看";
 "network.issues.resolve.option.title" = "解决方案";
+"network.management.popular" = "受欢迎的";
+"network.managment.favourite" = "收藏";
 "network.status.connected" = "已连接";
 "network.status.connecting" = "正在连接...";
 "network.url.address" = "URL地址";
@@ -481,6 +491,7 @@
 "nft.stub.text" = "NFT即将到来";
 "nft.stub.title" = "对不起！";
 "nft.tokenid.title" = "代币ID";
+"nfts.collection.count" = "Quantity: %d/%d";
 "nfts.stub" = "NFTs";
 "no.access.to.google" = "无法访问谷歌";
 "no.account.found" = "未找到账户";
@@ -496,7 +507,7 @@
 条款和隐私政策";
 "operation.error.message" = "请稍后再试";
 "operation.error.title" = "操作失败";
-"optional.networks" = "Optional networks";
+"optional.networks" = "可选网络";
 "options.common" = "选项";
 "parachain.crowdloans" = "平行链众贷";
 "parachain.staking.collator" = "收集人";
@@ -640,10 +651,11 @@
 "required.accounts.not.satisfied" = "无法继续：您的钱包没有必要的账户。请确保在继续之前设置了所需的账户。";
 "required.chains.not.satisfied" = "无法连接到钱包：所请求的区块链网络不受支持或不可用。";
 "required.events.not.satisfied" = "缺少事件通知：该应用程序不支持必要的事件通知";
-"required.methods.not.satisfied" = "Certain methods requested by Wallet Connect are not currently supported by the App. Although the connection can be established, certain functionalities of the dApp may not be available.";
-"required.networks" = "Required networks";
-"review.optional.permissions" = "Review optional permissions";
-"review.required.permissions" = "Review required permissions";
+"required.methods.not.satisfied" = "某些 Wallet Connect 请求的方法目前不受该应用支持。虽然连接可以建立，但是 dApp 的某些功能可能无法使用。";
+"required.networks" = "所需网络";
+"review.optional.permissions" = "审核可选权限";
+"review.permissions" = "审核权限";
+"review.required.permissions" = "审核所需权限";
 "roles.common" = "角色";
 "same.address.transfer.warning.message" = "您正在尝试向同一账户进行转账。此操作将收取费用且没有任何意义。";
 "scam.additional.stub" = "附加：";
@@ -658,7 +670,7 @@
 "scan.qr.subtitle" = "从接收方扫描代码";
 "scan.qr.title" = "二维码";
 "scan.qr.upload.button.title" = "从相册上传";
-"search.by.connection" = "Search by connection";
+"search.by.connection" = "按连接搜索";
 "search.textfield.placeholder" = "公共地址";
 "search.view.title" = "发送至";
 "select.asset.search.empty.subtitle" = "未找到任何资产 :(";
@@ -674,6 +686,8 @@
 "settings.add.wallet" = "添加钱包";
 "settings.hide.zero.balances" = "隐藏零余额";
 "share.referral.code" = "分享推荐码";
+"sign.this.message" = "签署此消息？";
+"sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
 "sora.card.status.failure.text" = "KYC已终止或以其他方式失败。";
 "sora.card.status.failure.title" = "验证失败";
 "sora.card.status.pending.title" = "验证正在进行中";
@@ -998,6 +1012,7 @@
 "username.setup.hint.2.0" = "示例：储蓄、投资、众贷、质押。此昵称将仅为您显示并本地存储在您的移动设备上。";
 "username.setup.title" = "创建一个账户";
 "username.setup.title.2.0" = "创建一个新的钱包";
+"validator.info.comission.title" = "佣金";
 "validators.list.empty.message" = "未找到验证人";
 "view.in" = "在%s中查看";
 "view.wallet" = "查看钱包";
@@ -1017,9 +1032,11 @@
 "wallet.balance.redeemable" = "可赎回";
 "wallet.balance.reserved" = "保留";
 "wallet.balance.unbonding_v1.9.0" = "解除质押";
-"wallet.connect.connection.complete" = "Сonnection from %@ with ethers has been successfully completed";
-"wallet.connect.connection.dissconnected" = "Disconnection from %@ ethers has been successfully completed";
-"wallet.connect.sign.warning.message" = "Signing this message can have dangerous side effect. Only sign message from sites you fully trust with your entire account.";
+"wallet.connect.connection.complete" = "已成功完成从%@到以太坊的连接";
+"wallet.connect.connection.dissconnected" = "已成功断开与%@以太坊的连接";
+"wallet.connect.invalid.url.message" = "我们的应用程序仅支持Wallet Connect SDK v2，不支持已弃用的SDK v1。请使用适当的版本以确保成功连接。";
+"wallet.connect.invalid.url.title" = "警告：不支持 Wallet Connect SDK v1";
+"wallet.connect.sign.warning.message" = "警告：签署此消息可能会产生危险的副作用。只有在您完全信任的网站上，才使用您的整个账户签署消息。";
 "wallet.contacts.empty.title" = "您的账户和您发送转账的联系人将会显示在这里";
 "wallet.contacts.empty.title_v1.10" = "您的账户和联系人\
 您发送给谁的转账会出现在这里";
@@ -1096,6 +1113,21 @@
 "card.hub.settings.logout.description" = "您即将退出 SORA 卡。您仍然可以使用 SORA 卡独立应用程序，但余额将不再在 SORA 钱包中可用。";
 "card.hub.settings.logout.title" = "退出 SORA 卡";
 "card.hub.settings.title" = "卡片设置";
+"card.hub.title" = "卡片详情";
+"card.hub.update.button" = "立即更新";
+"card.hub.update.description" = "您正在使用过时的应用版本，部分功能可能无法正常工作。";
+"card.hub.update.title" = "更新应用至最新版本";
+"card.issuance.screen.free.card.description" = "免费发行一张卡：\
+在您的SORA账户中持有、质押或提供至少价值%@欧元的XOR的流动性。";
+"card.issuance.screen.free.card.get.xor" = "获得%@个XOR。";
+"card.issuance.screen.paid.card.description" = "发卡一次性费用";
+"card.issuance.screen.paid.card.note" = "注：付费卡发行将在稍后阶段提供。";
+"card.issuance.screen.paid.card.pay.euro" = "支付%@欧元的发行费用";
+"card.issuance.screen.paid.card.title" = "%@欧元发行费";
+"card.issuance.screen.title" = "卡片发行";
+"card.or" = "或者";
+"card.update.button" = "更新应用程序";
+"card.update.title" = "请更新应用程序至最新版本以使用SORA卡";
 "cardhub.coming.soon" = "即将推出卡片管理功能";
 "cardhub.exchange" = "兑换";
 "cardhub.freeze" = "冻结";
@@ -1133,6 +1165,7 @@
 "enter.phone.number.phone.input.field.label" = "电话号码";
 "entry.card.info" = "卡片信息";
 "get.more.xor.dialog.buy.option" = "用卡购买XOR";
+"get.more.xor.dialog.deposit.option" = "接收 XOR";
 "get.more.xor.dialog.description" = "你可以使用 XOR 进行兑换或用欧元购买";
 "get.more.xor.dialog.swap.option" = "用加密货币兑换XOR";
 "get.prepared.alert" = "您只有%@免费尝试机会通过 KYC 流程。此后的所有其他尝试都将花费 € %@ 。下次更新应用程序后将提供付费尝试。";
@@ -1148,6 +1181,8 @@
 "get.prepared.take.selfie.description" = "在过程中将提供指导";
 "get.prepared.take.selfie.title" = "自拍";
 "get.prepared.title" = "做好准备";
+"iban.pending.description" = "您的 IBAN 正在等待签发。\
+如果等待时间超过 72 小时，请通过%@联系我们";
 "kyc.result.verification.in.progress" = "正在进行验证";
 "kyc.result.verification.in.progress.description" = "您已成功完成KYC申请。审核正在进行中，您可以很快收到决定。\n\n通常情况下，决定会在同一天做出，在某些情况下可能需要最多3天时间。";
 "log.out" = "退出登录";
@@ -1160,6 +1195,7 @@
 "payment.widget.unavailable.description" = "对于不便我们深表歉意。\n我们正在努力解决此问题。\n请稍后再试。";
 "payment.widget.unavailable.message" = "支付小部件目前不可用。";
 "payment.widget.unavailable.title" = "小部件不可用";
+"select.country.title" = "选择您所在的国家/地区";
 "status.not.started" = "获取SORA卡";
 "terms.and.conditions.confirm.description" = "继续操作即表示您已阅读、理解并接受这些政策。";
 "terms.and.conditions.sora.community.alert" = "SORA社区不会收集任何个人数据，如果您想获得SORA卡和IBAN账户，您需要直接与发卡机构完成KYC流程。";
@@ -1187,15 +1223,3 @@
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
 "verify.phone.number.title" = "验证您的电话号码";
-"error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
-"common.request" = "Request";
-"existential.deposit.received.error" = "Existential Deposit not received";
-"create.new.connection" = "Create new connection";
-"review.permissions" = "Review permissions";
-"common.events" = "Events";
-"common.disconnect" = "Disconnect";
-"common.expiry" = "Expiry";
-"sign.this.message" = "Sign this message?";
-"empty.state.message" = "Nothing found for your request";
-"wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
-"wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
