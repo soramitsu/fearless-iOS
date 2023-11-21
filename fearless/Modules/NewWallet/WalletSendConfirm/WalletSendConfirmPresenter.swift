@@ -173,7 +173,7 @@ final class WalletSendConfirmPresenter {
 
         let sendAmountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.utilityFeePayment) ?
+        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
 
         var minimumBalanceDecimal: Decimal?
@@ -186,7 +186,7 @@ final class WalletSendConfirmPresenter {
             minimumBalanceDecimal = .zero
         }
 
-        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.utilityFeePayment
+        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
         var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
             .orml(
                 minimumBalance: minimumBalanceDecimal,

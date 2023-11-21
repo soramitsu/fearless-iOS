@@ -52,7 +52,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 
     private func subscribeToAccountInfo() {
         var chainsAssets = [chainAsset]
-        if chainAsset.chain.utilityFeePayment, !chainAsset.isUtility,
+        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
            let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
             chainsAssets.append(utilityAsset)
         }
