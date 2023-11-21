@@ -82,7 +82,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
             if let extrinsicViewModel = viewModel as? ExtrinsicTransactionDetailsViewModel {
                 bindExtrinsic(viewModel: extrinsicViewModel)
             }
-        case .swap, .unused:
+        case .swap, .unused, .bridge:
             break
         }
     }

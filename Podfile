@@ -1,4 +1,4 @@
-platform :ios, '13.0'
+platform :ios, '14.1'
 
 source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'

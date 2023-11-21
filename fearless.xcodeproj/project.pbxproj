@@ -1920,6 +1920,8 @@
 		FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */; };
 		FA08B3652A31A09E00D9D126 /* BigUInt+StringInitializable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */; };
 		FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1109EA27A92D56003C2158 /* ChainAction.swift */; };
+		FA14AE892B0785670066CADF /* SoraSubsquidHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA14AE882B0785670066CADF /* SoraSubsquidHistoryResponse.swift */; };
+		FA14AE8B2B0788D20066CADF /* AssetTransactionData+SoraSubsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA14AE8A2B0788D20066CADF /* AssetTransactionData+SoraSubsquidHistory.swift */; };
 		FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */; };
 		FA15BC0D2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */; };
 		FA15BC0F2823AE4D0037C023 /* ParachainStakingCandidate.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0E2823AE4D0037C023 /* ParachainStakingCandidate.swift */; };
@@ -2792,6 +2794,7 @@
 		FAE39B072AA1D4370011A9D6 /* NftSendConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B062AA1D4370011A9D6 /* NftSendConfirmViewModel.swift */; };
 		FAE39B092AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B082AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift */; };
 		FAE39B172AA965940011A9D6 /* URL+IPFS.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE39B162AA965940011A9D6 /* URL+IPFS.swift */; };
+		FAE5858F2B0764ED00240FE1 /* SoraSubsquidHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5858E2B0764EC00240FE1 /* SoraSubsquidHistoryOperationFactory.swift */; };
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
@@ -4853,6 +4856,8 @@
 		FA08B3642A31A09E00D9D126 /* BigUInt+StringInitializable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+StringInitializable.swift"; sourceTree = "<group>"; };
 		FA0B7C9F68A6BF3D3A6D8234 /* StakingPoolInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoInteractor.swift; sourceTree = "<group>"; };
 		FA1109EA27A92D56003C2158 /* ChainAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAction.swift; sourceTree = "<group>"; };
+		FA14AE882B0785670066CADF /* SoraSubsquidHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubsquidHistoryResponse.swift; sourceTree = "<group>"; };
+		FA14AE8A2B0788D20066CADF /* AssetTransactionData+SoraSubsquidHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+SoraSubsquidHistory.swift"; sourceTree = "<group>"; };
 		FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalSubscriptionFactory.swift; sourceTree = "<group>"; };
 		FA15BC0E2823AE4D0037C023 /* ParachainStakingCandidate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingCandidate.swift; sourceTree = "<group>"; };
@@ -5732,6 +5737,7 @@
 		FAE39B062AA1D4370011A9D6 /* NftSendConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftSendConfirmViewModel.swift; sourceTree = "<group>"; };
 		FAE39B082AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftSendConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		FAE39B162AA965940011A9D6 /* URL+IPFS.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+IPFS.swift"; sourceTree = "<group>"; };
+		FAE5858E2B0764EC00240FE1 /* SoraSubsquidHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubsquidHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewState.swift; sourceTree = "<group>"; };
 		FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModelFactory.swift; sourceTree = "<group>"; };
 		FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsFlow.swift; sourceTree = "<group>"; };
@@ -9510,6 +9516,7 @@
 				8475AE38258B958300B058F3 /* ErrorContent+Wallet.swift */,
 				FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */,
 				FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */,
+				FA14AE8A2B0788D20066CADF /* AssetTransactionData+SoraSubsquidHistory.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -12742,6 +12749,7 @@
 				FA5137B729AC76EB00560EBA /* HistoryOperationFactory.swift */,
 				FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */,
 				FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */,
+				FAE5858E2B0764EC00240FE1 /* SoraSubsquidHistoryOperationFactory.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -14643,6 +14651,7 @@
 				FAFFAE6E29AC84B10074AF1F /* ParachainSubsquidHistoryResponse.swift */,
 				FAFFAE6F29AC84B10074AF1F /* SubsquidRewardResponse.swift */,
 				FAFFAE7029AC84B10074AF1F /* ParachainSubsquidRewardResponse.swift */,
+				FA14AE882B0785670066CADF /* SoraSubsquidHistoryResponse.swift */,
 			);
 			path = Subsquid;
 			sourceTree = "<group>";
@@ -16171,6 +16180,7 @@
 				84C6800E24D6ECE800006BF5 /* ExpandableActionControl.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				2AD0A19025D3D1E100312428 /* GitHubPhishingServiceFactory.swift in Sources */,
+				FA14AE892B0785670066CADF /* SoraSubsquidHistoryResponse.swift in Sources */,
 				FACD42BC2A5BE91E009975AA /* PortionRewardCalculatorEngine.swift in Sources */,
 				AEF505A92620249F0098574D /* UIColor+HEX.swift in Sources */,
 				FACD42A12A5BE811009975AA /* MultiassetV2MigrationPolicy.swift in Sources */,
@@ -16792,6 +16802,8 @@
 				FA2FC82428B380C500CC0A42 /* StakingPoolRoles.swift in Sources */,
 				84754CA42513E6DC00854599 /* PrimitiveContextWrapper.swift in Sources */,
 				FA15BC0F2823AE4D0037C023 /* ParachainStakingCandidate.swift in Sources */,
+				FA14AE8B2B0788D20066CADF /* AssetTransactionData+SoraSubsquidHistory.swift in Sources */,
+				FAE5858F2B0764ED00240FE1 /* SoraSubsquidHistoryOperationFactory.swift in Sources */,
 				84F47D4B2666EF1C00F7647A /* KaruraStatementData.swift in Sources */,
 				8443FE24255586230092893D /* ExportMnemonicConfirmProtocols.swift in Sources */,
 				FA93A2E128323CF10021330F /* CustomValidatorListRelaychainStrategy.swift in Sources */,
@@ -18255,7 +18267,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -18282,7 +18294,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -18420,7 +18432,7 @@
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 14.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
