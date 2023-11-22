@@ -173,6 +173,7 @@ extension NftListCell: SkeletonLoadable {
         chainLabel.alpha = 0.0
         collectionNameLabel.alpha = 0.0
         nftImageView.alpha = 0.0
+        nftCountLabel.alpha = 0.0
 
         setupSkeleton()
     }
@@ -189,6 +190,7 @@ extension NftListCell: SkeletonLoadable {
         chainLabel.alpha = 1.0
         collectionNameLabel.alpha = 1.0
         nftImageView.alpha = 1.0
+        nftCountLabel.alpha = 1.0
     }
 
     private func setupSkeleton() {

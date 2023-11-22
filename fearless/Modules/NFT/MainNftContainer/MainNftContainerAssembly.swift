@@ -32,7 +32,8 @@ final class MainNftContainerAssembly {
             logger: Logger.shared,
             wallet: wallet,
             eventCenter: EventCenter.shared,
-            stateHolder: stateHolder
+            stateHolder: stateHolder,
+            userDefaultsStorage: SettingsManager.shared
         )
         let router = MainNftContainerRouter()
 
@@ -43,7 +44,6 @@ final class MainNftContainerAssembly {
             viewModelFactory: NftListViewModelFactory(),
             wallet: wallet,
             eventCenter: EventCenter.shared,
-            userDefaultsStorage: SettingsManager.shared,
             stateHolder: stateHolder
         )
 

@@ -5,6 +5,8 @@ import FearlessKeys
 
 enum AlchemyNFTOperationFactoryError: Error {
     case chainUnsupported(name: String)
+    case wrongUrl
+    case incorrectInputData
 }
 
 final class AlchemyNFTOperationFactory {
@@ -181,13 +183,19 @@ final class AlchemyNFTOperationFactory {
                     chain: chain
                 )
 
+                let metadata = NFTMetadata(
+                    name: $0.metadata?.name,
+                    description: $0.metadata?.description,
+                    image: $0.metadata?.poster
+                )
+
                 return NFT(
                     chain: chain,
                     tokenId: $0.id?.tokenId,
                     title: $0.title,
                     description: $0.description,
                     smartContract: $0.contract?.address,
-                    metadata: nil,
+                    metadata: metadata,
                     mediaThumbnail: $0.metadata?.poster ?? $0.media?.first?.thumbnail,
                     media: media,
                     tokenType: $0.id?.tokenMetadata?.tokenType,
@@ -228,13 +236,19 @@ final class AlchemyNFTOperationFactory {
                     chain: chain
                 )
 
+                let metadata = NFTMetadata(
+                    name: $0.metadata?.name,
+                    description: $0.metadata?.description,
+                    image: $0.metadata?.poster
+                )
+
                 return NFT(
                     chain: chain,
                     tokenId: $0.id?.tokenId,
                     title: $0.title,
                     description: $0.description,
                     smartContract: $0.contract?.address,
-                    metadata: nil,
+                    metadata: metadata,
                     mediaThumbnail: $0.metadata?.poster ?? $0.media?.first?.thumbnail,
                     media: media,
                     tokenType: $0.id?.tokenMetadata?.tokenType,
@@ -260,7 +274,7 @@ final class AlchemyNFTOperationFactory {
         ]
 
         guard let urlWithParameters = urlComponents?.url else {
-            return BaseOperation.createWithError(SubqueryHistoryOperationFactoryError.urlMissing)
+            return BaseOperation.createWithError(AlchemyNFTOperationFactoryError.wrongUrl)
         }
 
         let requestFactory = BlockNetworkRequestFactory {
@@ -282,7 +296,7 @@ final class AlchemyNFTOperationFactory {
                 } else if let error = error {
                     return .failure(error)
                 } else {
-                    return .failure(SubqueryHistoryOperationFactoryError.incorrectInputData)
+                    return .failure(AlchemyNFTOperationFactoryError.incorrectInputData)
                 }
             } catch {
                 return .failure(error)

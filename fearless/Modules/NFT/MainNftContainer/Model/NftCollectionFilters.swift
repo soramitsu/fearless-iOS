@@ -50,3 +50,12 @@ struct NftCollectionFilter: SwitchFilterItem {
          NftCollectionFilter(type: .airdrop, selected: false)]
     }
 }
+
+extension NftCollectionFilter: Equatable {
+    static func == (lhs: Self, rhs: Self) -> Bool {
+        lhs.type == rhs.type &&
+            lhs.id == rhs.id &&
+            lhs.title == rhs.title &&
+            lhs.selected == rhs.selected
+    }
+}

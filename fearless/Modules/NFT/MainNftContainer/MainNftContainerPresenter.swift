@@ -1,6 +1,5 @@
 import Foundation
 import SoraFoundation
-import SoraKeystore
 import SSFModels
 
 enum NftAppearanceKeys: String {
@@ -16,7 +15,6 @@ final class MainNftContainerPresenter {
     private let viewModelFactory: NftListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
-    private let userDefaultsStorage: SettingsManagerProtocol
     private let stateHolder: MainNftContainerStateHolder
 
     // MARK: - Constructors
@@ -28,7 +26,6 @@ final class MainNftContainerPresenter {
         viewModelFactory: NftListViewModelFactoryProtocol,
         wallet: MetaAccountModel,
         eventCenter: EventCenterProtocol,
-        userDefaultsStorage: SettingsManagerProtocol,
         stateHolder: MainNftContainerStateHolder
     ) {
         self.interactor = interactor
@@ -36,7 +33,6 @@ final class MainNftContainerPresenter {
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
         self.eventCenter = eventCenter
-        self.userDefaultsStorage = userDefaultsStorage
         self.stateHolder = stateHolder
         self.localizationManager = localizationManager
 
@@ -46,9 +42,7 @@ final class MainNftContainerPresenter {
     // MARK: - Private methods
 
     private func setupAppearance() {
-        let showNftsLikeCollection: Bool = userDefaultsStorage.bool(
-            for: NftAppearanceKeys.showNftsLikeCollection.rawValue
-        ) ?? true
+        let showNftsLikeCollection: Bool = interactor.appearanceType
         view?.didReceive(appearance: showNftsLikeCollection ? .collection : .table)
     }
 }
@@ -84,17 +78,11 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     }
 
     func didTapCollectionButton() {
-        userDefaultsStorage.set(
-            value: true,
-            for: NftAppearanceKeys.showNftsLikeCollection.rawValue
-        )
+        interactor.appearanceType = true
     }
 
     func didTapTableButton() {
-        userDefaultsStorage.set(
-            value: false,
-            for: NftAppearanceKeys.showNftsLikeCollection.rawValue
-        )
+        interactor.appearanceType = false
     }
 }
 
@@ -115,7 +103,12 @@ extension MainNftContainerPresenter: Localizable {
 
 extension MainNftContainerPresenter: MainNftContainerModuleInput {
     func didSelect(chain: ChainModel?) {
-        interactor.didSelect(chain: chain)
+        if chain != stateHolder.selectedChain {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(viewModels: nil)
+            }
+            interactor.didSelect(chain: chain)
+        }
     }
 }
 
@@ -132,9 +125,21 @@ extension MainNftContainerPresenter: EventVisitorProtocol {
 
 extension MainNftContainerPresenter: NftFiltersModuleOutput {
     func didFinishWithFilters(filters: [FilterSet]) {
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.didReceive(viewModels: nil)
+        let selectedFiltersValues: [NftCollectionFilter] = filters.compactMap {
+            $0.items as? [NftCollectionFilter]
+        }.reduce([], +).filter { filter in
+            filter.selected
         }
-        interactor.applyFilters(filters)
+        let previousFiltersValues: [NftCollectionFilter] = stateHolder.filters.compactMap {
+            $0.items as? [NftCollectionFilter]
+        }.reduce([], +).filter { filter in
+            filter.selected
+        }
+        if selectedFiltersValues != previousFiltersValues {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(viewModels: nil)
+            }
+            interactor.applyFilters(filters)
+        }
     }
 }

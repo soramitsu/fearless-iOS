@@ -185,7 +185,7 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
     }
 
     func fetchCollectionNfts(collectionAddress: String, chain: ChainModel) async throws -> [NFT] {
-        let nfts = await withThrowingTaskGroup(of: [NFT]?.self) { [weak self] _ in
+        let nfts = await withTaskGroup(of: [NFT]?.self) { [weak self] _ in
             guard let strongSelf = self else {
                 return [NFT]()
             }

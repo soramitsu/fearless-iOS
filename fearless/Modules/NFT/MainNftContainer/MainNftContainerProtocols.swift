@@ -18,6 +18,8 @@ protocol MainNftContainerViewOutput: AnyObject {
 }
 
 protocol MainNftContainerInteractorInput: AnyObject {
+    var appearanceType: Bool { get set }
+
     func initialSetup()
     func setup(with output: MainNftContainerInteractorOutput)
     func fetchData()

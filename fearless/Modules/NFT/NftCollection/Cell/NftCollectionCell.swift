@@ -90,6 +90,7 @@ class NftCollectionCell: UICollectionViewCell {
 
     func bind(cellModel: NftListCellModel?) {
         if let cellModel = cellModel {
+            stopLoadingIfNeeded()
             cellModel.imageViewModel?.loadImage(on: imageView, targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize), animated: true, cornerRadius: 0)
             nftCountLabel.text = "\(cellModel.currentCount)/\(cellModel.availableCount)"
             chainNameLabel.text = cellModel.collection.chain.name
@@ -130,6 +131,7 @@ extension NftCollectionCell: SkeletonLoadable {
         chainNameLabel.alpha = 0.0
         collectionNameLabel.alpha = 0.0
         imageView.alpha = 0.0
+        nftCountLabel.alpha = 0.0
 
         setupSkeleton()
     }
@@ -146,6 +148,7 @@ extension NftCollectionCell: SkeletonLoadable {
         chainNameLabel.alpha = 1.0
         collectionNameLabel.alpha = 1.0
         imageView.alpha = 1.0
+        nftCountLabel.alpha = 1.0
     }
 
     private func setupSkeleton() {

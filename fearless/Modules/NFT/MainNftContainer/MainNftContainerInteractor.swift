@@ -4,6 +4,7 @@ import Web3ContractABI
 import RobinHood
 import SSFModels
 import SSFNetwork
+import SoraKeystore
 
 final class MainNftContainerInteractor {
     // MARK: - Private properties
@@ -16,19 +17,37 @@ final class MainNftContainerInteractor {
     private let eventCenter: EventCenterProtocol
     private var isReady: Bool = false
     private let stateHolder: MainNftContainerStateHolder
+    private let userDefaultsStorage: SettingsManagerProtocol
+
+    var appearanceType: Bool {
+        get {
+            let showNftsLikeCollection: Bool = userDefaultsStorage.bool(
+                for: NftAppearanceKeys.showNftsLikeCollection.rawValue
+            ) ?? true
+            return showNftsLikeCollection
+        }
+        set {
+            userDefaultsStorage.set(
+                value: newValue,
+                for: NftAppearanceKeys.showNftsLikeCollection.rawValue
+            )
+        }
+    }
 
     init(
         nftFetchingService: NFTFetchingServiceProtocol,
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
         eventCenter: EventCenterProtocol,
-        stateHolder: MainNftContainerStateHolder
+        stateHolder: MainNftContainerStateHolder,
+        userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.nftFetchingService = nftFetchingService
         self.logger = logger
         self.wallet = wallet
         self.eventCenter = eventCenter
         self.stateHolder = stateHolder
+        self.userDefaultsStorage = userDefaultsStorage
         eventCenter.add(observer: self)
     }
 }
@@ -90,7 +109,7 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                     for collection in ownedCollections {
                         if let address = collection.address {
                             group.addTask {
-                                let nfts = try? await strongSelf.nftFetchingService.fetchCollectionNfts(
+                                let nfts = try await strongSelf.nftFetchingService.fetchCollectionNfts(
                                     collectionAddress: address,
                                     chain: collection.chain
                                 )

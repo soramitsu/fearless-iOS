@@ -40,10 +40,10 @@ final class MainNftContainerViewLayout: UIView {
     }
 
     private func setupLayout() {
+        addSubview(emptyViewContainer)
         addSubview(tableView)
         addSubview(collectionView)
         addSubview(nftContentControl)
-        addSubview(emptyViewContainer)
         setupConstraints()
     }
 
