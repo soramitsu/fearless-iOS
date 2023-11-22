@@ -3,6 +3,11 @@ import SoraFoundation
 import BigInt
 import SSFModels
 
+enum ChainAccountViewMode {
+    case simple
+    case extended
+}
+
 final class ChainAccountPresenter {
     weak var view: ChainAccountViewProtocol?
     let wireframe: ChainAccountWireframeProtocol
@@ -12,6 +17,8 @@ final class ChainAccountPresenter {
     var chainAsset: ChainAsset {
         interactor.chainAsset
     }
+
+    var mode: ChainAccountViewMode
 
     var wallet: MetaAccountModel
     weak var moduleOutput: ChainAccountModuleOutput?
@@ -42,7 +49,8 @@ final class ChainAccountPresenter {
         moduleOutput: ChainAccountModuleOutput?,
         balanceInfoModule: BalanceInfoModuleInput,
         localizationManager: LocalizationManagerProtocol,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        mode: ChainAccountViewMode
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -52,13 +60,15 @@ final class ChainAccountPresenter {
         self.moduleOutput = moduleOutput
         self.balanceInfoModule = balanceInfoModule
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.mode = mode
         self.localizationManager = localizationManager
     }
 
     private func provideViewModel() {
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            mode: mode
         )
 
         DispatchQueue.main.async {
@@ -262,10 +272,11 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapSelectNetwork() {
+        let selectedChainId: ChainModel.Id? = mode == .simple ? nil : chainAsset.chain.chainId
         wireframe.showSelectNetwork(
             from: view,
             wallet: wallet,
-            selectedChainId: chainAsset.chain.chainId,
+            selectedChainId: selectedChainId,
             chainModels: interactor.availableChainAssets.map(\.chain).withoutDuplicates(),
             delegate: self
         )
@@ -334,12 +345,24 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         )
     }
 
+    func didReceive(availableChainAssets: [ChainAsset]) {
+        guard mode == .simple else {
+            return
+        }
+
+        balanceInfoModule.replace(infoType: .chainAssets(chainAssets: availableChainAssets, wallet: wallet))
+    }
+
     func didUpdate(chainAsset: ChainAsset) {
         provideViewModel()
-        balanceInfoModule.replace(infoType: .chainAsset(
-            wallet: wallet,
-            chainAsset: chainAsset
-        ))
+
+        if mode == .extended {
+            balanceInfoModule.replace(infoType: .chainAsset(
+                wallet: wallet,
+                chainAsset: chainAsset
+            ))
+        }
+
         moduleOutput?.updateTransactionHistory(for: chainAsset)
     }
 
@@ -405,6 +428,12 @@ extension ChainAccountPresenter: SelectNetworkDelegate {
             return
         }
 
-        interactor.update(chain: chain)
+        switch mode {
+        case .simple:
+            let chainAsset = ChainAsset(chain: chain, asset: self.chainAsset.asset)
+            wireframe.showDetails(from: view, chainAsset: chainAsset, wallet: wallet)
+        case .extended:
+            interactor.update(chain: chain)
+        }
     }
 }

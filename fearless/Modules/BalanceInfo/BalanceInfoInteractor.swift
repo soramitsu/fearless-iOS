@@ -75,6 +75,13 @@ private extension BalanceInfoInteractor {
                 deliverOn: .main,
                 listener: self
             )
+        case let .chainAssets(chainAssets, wallet):
+            walletBalanceSubscriptionAdapter.subscribeChainAssetsBalance(
+                chainAssets: chainAssets,
+                wallet: wallet,
+                deliverOn: .main,
+                listener: self
+            )
         }
     }
 
@@ -155,6 +162,8 @@ extension BalanceInfoInteractor: WalletBalanceSubscriptionListener {
             return .wallet(wallet: wallet)
         case let .chainAsset(wallet: wallet, chainAsset: chainAsset):
             return .chainAsset(wallet: wallet, chainAsset: chainAsset)
+        case let .chainAssets(chainAssets, wallet):
+            return .chainAssets(chainAssets: chainAssets, wallet: wallet)
         }
     }
 

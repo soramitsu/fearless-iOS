@@ -152,6 +152,10 @@ extension BalanceInfoPresenter: EventVisitorProtocol {
             let newType = BalanceInfoType.wallet(wallet: event.account)
             interactor.balanceInfoType = newType
             interactor.fetchBalanceInfo()
+        case let .chainAssets(chainAssets, wallet):
+            let newType = BalanceInfoType.chainAssets(chainAssets: chainAssets, wallet: event.account)
+            interactor.balanceInfoType = newType
+            interactor.fetchBalanceInfo()
         }
     }
 }
