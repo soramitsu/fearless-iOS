@@ -50,7 +50,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
         excludeFilters: [NftCollectionFilter]
     ) async throws -> [NFT]? {
         guard let address = wallet.fetch(for: chain.accountRequest())?.toAddress() else {
-            throw AddressFactoryError.unexpectedAddress
+            throw ConvenienceError(error: "Cannot fetch address from chain account")
         }
 
         return try await withCheckedThrowingContinuation { continuation in
