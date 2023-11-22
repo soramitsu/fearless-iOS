@@ -19,7 +19,8 @@ final class WalletMainContainerPresenter {
 
     // MARK: - State
 
-    private var selectedChain: ChainModel?
+    private var selectedChains: [ChainModel]?
+    private var selectedNetworkManagmentFilter: NetworkManagmentFilter?
     private var issues: [ChainIssue] = []
     private var onceLoaded: Bool = false
 
@@ -50,7 +51,8 @@ final class WalletMainContainerPresenter {
 
     private func provideViewModel() {
         let viewModel = viewModelFactory.buildViewModel(
-            selectedChain: selectedChain,
+            selectedFilter: selectedNetworkManagmentFilter ?? .all,
+            selectedChains: selectedChains ?? [],
             selectedMetaAccount: wallet,
             chainsIssues: issues,
             locale: selectedLocale,
@@ -102,11 +104,12 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapSelectNetwork() {
+        guard let select = selectedNetworkManagmentFilter else {
+            return
+        }
         router.showSelectNetwork(
             from: view,
             wallet: wallet,
-            selectedChainId: selectedChain?.chainId,
-            chainModels: nil,
             delegate: self
         )
     }
@@ -130,20 +133,36 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
 // MARK: - WalletMainContainerInteractorOutput
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
-    func didReceiveSelectedChain(_ chain: ChainModel?) {
-        let needsReloadAssetsList: Bool = (chain?.chainId != selectedChain?.chainId) || !onceLoaded
-        selectedChain = chain
+    func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [SSFModels.ChainModel])) {
+        let needsReloadAssetsList: Bool = (tuple.select.identifier != selectedNetworkManagmentFilter?.identifier) || !onceLoaded
+        selectedNetworkManagmentFilter = tuple.select
+
+        let chains = tuple.chains
+        var selectedChains: [ChainModel] = []
+        var filters: [ChainAssetsFetching.Filter] = []
+
+        switch tuple.select {
+        case let .chain(id):
+            guard let chain = chains.first(where: { $0.chainId == id }) else {
+                return
+            }
+            selectedChains = [chain]
+            filters.append(.chainId(chain.chainId))
+        case .all:
+            selectedChains = chains
+        case .popular:
+            selectedChains = chains.filter { $0.rank != nil }
+            filters.append(.chainIds(selectedChains.map { $0.chainId }))
+        case .favourite:
+            selectedChains = chains.filter { wallet.favouriteChainIds.contains($0.chainId) == true }
+            filters.append(.chainIds(selectedChains.map { $0.chainId }))
+        }
+        self.selectedChains = selectedChains
+
         provideViewModel()
 
         guard needsReloadAssetsList else {
             return
-        }
-
-        var filters: [ChainAssetsFetching.Filter] = []
-        if let filter: ChainAssetsFetching.Filter = chain.map({ chain in
-            ChainAssetsFetching.Filter.chainId(chain.chainId)
-        }) {
-            filters.append(filter)
         }
 
         assetListModuleInput?.updateChainAssets(using: filters, sorts: [])
@@ -256,15 +275,15 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
     }
 }
 
-extension WalletMainContainerPresenter: SelectNetworkDelegate {
-    func chainSelection(
-        view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?,
-        contextTag _: Int?
-    ) {
-        interactor.saveChainIdForFilter(chain?.chainId)
+// MARK: - NetworkManagmentModuleOutput
+
+extension WalletMainContainerPresenter: NetworkManagmentModuleOutput {
+    func did(select: NetworkManagmentFilter, contextTag _: Int?) {
+        interactor.saveNetworkManagment(select)
     }
 }
+
+// MARK: - ScanQRModuleOutput
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
     func didFinishWith(scanType: QRMatcherType) {

@@ -164,6 +164,7 @@ extension CrossChainViewController: CrossChainViewInput {
 
     func didStopLoading() {
         rootView.actionButton.set(loading: false)
+        updatePreviewButton()
     }
 }
 

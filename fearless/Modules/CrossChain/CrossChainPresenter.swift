@@ -285,11 +285,19 @@ final class CrossChainPresenter {
             chainAsset: selectedAmountChainAsset
         )
 
+        let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
+            originCHainId: selectedOriginChainModel.chainId,
+            destChainId: selectedDestChainModel?.chainId,
+            amount: sendAmount,
+            locale: selectedLocale
+        )
+
         let validators: [DataValidating] = [
             originFeeValidating,
             canPayOriginalFeeAndAmount,
             exsitentialDepositIsNotViolated,
-            destFeeValidating
+            destFeeValidating,
+            soraBridgeViolated
         ]
         DataValidationRunner(validators: validators)
             .runValidation { [weak self] in
