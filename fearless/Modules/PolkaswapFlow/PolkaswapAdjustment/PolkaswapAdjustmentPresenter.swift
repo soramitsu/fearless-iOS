@@ -114,7 +114,7 @@ final class PolkaswapAdjustmentPresenter {
         }
     }
 
-    private func provideFromAssetVewModel() {
+    private func provideFromAssetVewModel(updateAmountInput: Bool = true) {
         var balance: Decimal? = swapFromBalance
         if swapFromChainAsset == xorChainAsset, let xorBalance = xorBalance, let networkFee = networkFee {
             balance = xorBalance - networkFee
@@ -141,7 +141,9 @@ final class PolkaswapAdjustmentPresenter {
             .value(for: selectedLocale)
 
         view?.didReceiveSwapFrom(viewModel: viewModel)
-        view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+        if updateAmountInput {
+            view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+        }
 
         loadingCollector.fromReady = true
         checkLoadingState()
@@ -573,7 +575,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         swapVariant = .desiredInput
         swapFromInputResult = .absolute(newValue)
-        provideFromAssetVewModel()
+        provideFromAssetVewModel(updateAmountInput: false)
         fetchQuotes()
     }
 

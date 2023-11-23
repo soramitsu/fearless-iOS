@@ -3,8 +3,8 @@ import UIKit
 class SortTableCell: UITableViewCell {
     let filterTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorLightGray()
+        label.font = .h4Title
+        label.textColor = R.color.colorWhite()
         return label
     }()
 

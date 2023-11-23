@@ -1225,3 +1225,5 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "verify.phone.number.description" = "Nhập mã SMS đã được gửi đến\n%@";
 "verify.phone.number.send.code" = "GỬI MÃ";
 "verify.phone.number.title" = "Xác minh số điện thoại của bạn";
+"common.available.networks" = "Available networks";
+"common.my.networks" = "My networks";

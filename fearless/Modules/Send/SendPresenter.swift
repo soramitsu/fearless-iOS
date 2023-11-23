@@ -424,9 +424,12 @@ final class SendPresenter {
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: utilityBalance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
+            let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset).or(chainAsset)
+
+            let precision = chainAsset.chain.isUtilityFeePayment ? feePaymentChainAsset.asset.precision : chainAsset.asset.precision
             minimumBalanceDecimal = Decimal.fromSubstrateAmount(
                 minBalance,
-                precision: Int16(chainAsset.asset.precision)
+                precision: Int16(precision)
             )
         } else if chainAsset.chain.isEthereum {
             minimumBalanceDecimal = .zero

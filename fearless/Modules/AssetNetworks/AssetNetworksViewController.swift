@@ -68,7 +68,7 @@ extension AssetNetworksViewController: AssetNetworksViewInput {
     func set(contentInsets _: UIEdgeInsets, for _: DraggableState) {}
 
     func canDrag(from _: DraggableState) -> Bool {
-        false
+        true
     }
 
     func animate(progress _: Double, from _: DraggableState, to _: DraggableState, finalFrame _: CGRect) {}

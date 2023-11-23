@@ -129,38 +129,48 @@ class SoraSubsquidHistoryOperationFactory {
 
         return """
         query MyQuery {
-          historyElementsConnection(where: {address_eq: "\(address)", OR: {dataTo_eq: "\(address)"} \(filter)}, after: "\(after)", first: \(count), orderBy: timestamp_DESC) {
-            pageInfo {
-              endCursor
-              hasNextPage
-              hasPreviousPage
-              startCursor
-            }
-            totalCount
-            edges {
-              node {
-                address
-                blockHash
-                blockHeight
-                callNames
-                data
-                dataFrom
-                dataTo
-                id
-                method
-                module
-                name
-                networkFee
-                timestamp
-                type
-                updatedAtBlock
-                execution {
-                  success
+                  historyElementsConnection(
+                    where: {
+                      OR: [
+                        { address_eq: "\(address)"\(filter) },
+                        { dataTo_eq: "\(address)"\(filter) },
+                      ]
+                    },
+                    after: "\(after)"
+                    first: \(count),
+                    orderBy: timestamp_DESC,
+                  ) {
+                    pageInfo {
+                      endCursor
+                      hasNextPage
+                      hasPreviousPage
+                      startCursor
+                    }
+                    totalCount
+                    edges {
+                      node {
+                        address
+                        blockHash
+                        blockHeight
+                        callNames
+                        data
+                        dataFrom
+                        dataTo
+                        id
+                        method
+                        module
+                        name
+                        networkFee
+                        timestamp
+                        type
+                        updatedAtBlock
+                        execution {
+                          success
+                        }
+                      }
+                    }
+                  }
                 }
-              }
-            }
-          }
-        }
         """
     }
 

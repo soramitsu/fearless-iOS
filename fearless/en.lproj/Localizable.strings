@@ -1228,3 +1228,5 @@ In case the wait longer than 72h contact us via %@";
 "verify.phone.number.description" = "Enter SMS code that has been sent to\n%@";
 "verify.phone.number.send.code" = "SEND CODE";
 "verify.phone.number.title" = "Verify your phone number";
+"common.available.networks" = "Available networks";
+"common.my.networks" = "My networks";

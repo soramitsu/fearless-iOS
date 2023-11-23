@@ -69,10 +69,10 @@ final class FiltersViewLayout: UIView {
         }
 
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
+            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
         }
     }
 
@@ -92,18 +92,23 @@ final class FiltersViewLayout: UIView {
 
         addSubview(applyButton)
 
+        var currentFrame = frame
+        currentFrame.size.height += UIConstants.actionHeight + UIConstants.hugeOffset
+        frame = currentFrame
+        layoutIfNeeded()
+
         applyButton.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.width.equalToSuperview().inset(UIConstants.defaultOffset * 2)
             make.centerX.equalToSuperview()
             make.height.equalTo(UIConstants.actionHeight)
         }
 
         tableView.snp.remakeConstraints { make in
-            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
+            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.bottom.equalTo(applyButton.snp.top).inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.actionHeight + UIConstants.hugeOffset + UIConstants.bigOffset)
         }
     }
 }

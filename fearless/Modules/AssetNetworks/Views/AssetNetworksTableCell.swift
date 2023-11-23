@@ -1,7 +1,11 @@
 import UIKit
 
 final class AssetNetworksTableCell: UITableViewCell {
-    let networkIconImageView = UIImageView()
+    let networkIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
 
     let triangularedBackgroundView: TriangularedBlurView = {
         let view = TriangularedBlurView()

@@ -74,7 +74,7 @@ final class ChainAssetListInteractor {
                 switch result {
                 case let .success(account):
                     guard shouldNotify else { return }
-                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: updatedAccount))
                 case .failure:
                     break
                 }
@@ -188,7 +188,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
-        save(updatedAccount, shouldNotify: false)
+        save(updatedAccount, shouldNotify: true)
     }
 
     func reload(fetchPrices: Bool) {

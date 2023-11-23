@@ -195,12 +195,7 @@ final class ChainAccountViewLayout: UIView {
     func bind(viewModel: ChainAccountViewModel) {
         walletNameTitle.text = viewModel.walletName
         selectNetworkButton.set(text: viewModel.selectedChainName, image: viewModel.selectedChainIcon)
-        if let address = viewModel.address {
-            addressCopyableLabel.isHidden = false
-            addressCopyableLabel.bind(title: address)
-        } else {
-            addressCopyableLabel.isHidden = true
-        }
+
         buyButton.isHidden = !viewModel.buyButtonVisible
         polkaswapButton.isHidden = !viewModel.polkaswapButtonVisible
         crossChainButton.isHidden = !viewModel.xcmButtomVisible
@@ -209,8 +204,15 @@ final class ChainAccountViewLayout: UIView {
         switch viewModel.mode {
         case .simple:
             selectNetworkButton.set(text: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages), image: nil)
+            addressCopyableLabel.isHidden = true
         case .extended:
             selectNetworkButton.set(text: viewModel.selectedChainName, image: nil)
+            if let address = viewModel.address {
+                addressCopyableLabel.isHidden = false
+                addressCopyableLabel.bind(title: address)
+            } else {
+                addressCopyableLabel.isHidden = true
+            }
         }
     }
 }

@@ -77,7 +77,7 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
             let priceValue = (price?.price).map { Decimal(string: $0).or(.zero) }.or(.zero)
             let balanceDecimal = Decimal.fromSubstrateAmount(accountInfo?.data.sendAvailable ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0.0
 
-            let cryptoBalanceLabelText = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .listCrypto).value(for: locale).stringFromDecimal(balanceDecimal)
+            let cryptoBalanceLabelText = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .listCryptoWith(minimumFractionDigits: 0, maximumFractionDigits: 3)).value(for: locale).stringFromDecimal(balanceDecimal)
 
             let fiatBalance = balanceDecimal * priceValue
             let fiatBalanceLabelText = fiatFormatter(for: wallet.selectedCurrency, locale: locale).stringFromDecimal(fiatBalance)

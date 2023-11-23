@@ -69,6 +69,9 @@ final class AssetNetworksViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        networkSwitcher.setSegmentItems([R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages), "My Networks"])
+        networkSwitcher.setSegmentItems([
+            R.string.localizable.commonAvailableNetworks(preferredLanguages: locale.rLanguages),
+            R.string.localizable.commonMyNetworks(preferredLanguages: locale.rLanguages)
+        ])
     }
 }

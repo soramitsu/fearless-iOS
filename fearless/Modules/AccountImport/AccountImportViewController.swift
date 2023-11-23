@@ -264,6 +264,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
         rootView.advancedContainerView.isHidden = true
 
         rootView.sourceTypeView.actionControl.contentView.subtitleLabelView.text = type.titleForLocale(locale)
+        rootView.sourceTypeView.actionControl.sizeToFit()
         selectable ? rootView.sourceTypeView.enable() : rootView.sourceTypeView.disable()
         rootView.uploadView.title =
             chainType.includeSubstrate ? R.string.localizable.importSubstrateRecoveryJson(preferredLanguages: locale.rLanguages) :
