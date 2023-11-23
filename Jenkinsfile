@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/DOPS-2767/change-comments-list-for-jira-tasks') _
 
 // Job properties
 def jobParams = [
