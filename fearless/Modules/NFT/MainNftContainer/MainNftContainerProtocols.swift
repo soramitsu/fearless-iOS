@@ -18,12 +18,12 @@ protocol MainNftContainerViewOutput: AnyObject {
 }
 
 protocol MainNftContainerInteractorInput: AnyObject {
-    var appearanceType: Bool { get set }
+    var showNftsLikeCollection: Bool { get set }
 
     func initialSetup()
     func setup(with output: MainNftContainerInteractorOutput)
     func fetchData()
-    func didSelect(chain: ChainModel?)
+    func didSelect(chains: [ChainModel]?)
     func applyFilters(_ filters: [FilterSet])
 }
 
@@ -47,7 +47,7 @@ protocol MainNftContainerRouterInput: AnyObject {
 }
 
 protocol MainNftContainerModuleInput: AnyObject {
-    func didSelect(chain: ChainModel?)
+    func didSelect(chains: [ChainModel]?)
 }
 
 protocol MainNftContainerModuleOutput: AnyObject {}

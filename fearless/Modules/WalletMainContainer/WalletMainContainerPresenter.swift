@@ -166,7 +166,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         }
 
         assetListModuleInput?.updateChainAssets(using: filters, sorts: [])
-        nftModuleInput?.didSelect(chain: chain)
+        nftModuleInput?.didSelect(chains: selectedChains)
 
         onceLoaded = true
     }

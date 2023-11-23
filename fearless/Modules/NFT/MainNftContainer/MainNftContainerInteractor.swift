@@ -19,7 +19,7 @@ final class MainNftContainerInteractor {
     private let stateHolder: MainNftContainerStateHolder
     private let userDefaultsStorage: SettingsManagerProtocol
 
-    var appearanceType: Bool {
+    var showNftsLikeCollection: Bool {
         get {
             let showNftsLikeCollection: Bool = userDefaultsStorage.bool(
                 for: NftAppearanceKeys.showNftsLikeCollection.rawValue
@@ -84,13 +84,13 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                 let nfts = try await nftFetchingService.fetchNfts(
                     for: wallet,
                     excludeFilters: filterValues,
-                    chain: stateHolder.selectedChain
+                    chains: stateHolder.selectedChains
                 )
 
                 var ownedCollections = try await nftFetchingService.fetchCollections(
                     for: wallet,
                     excludeFilters: filterValues,
-                    chain: stateHolder.selectedChain
+                    chains: stateHolder.selectedChains
                 )
 
                 ownedCollections = ownedCollections.map { collection in
@@ -139,8 +139,8 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
         }
     }
 
-    func didSelect(chain: ChainModel?) {
-        stateHolder.selectedChain = chain
+    func didSelect(chains: [ChainModel]?) {
+        stateHolder.selectedChains = chains
         fetchData()
     }
 

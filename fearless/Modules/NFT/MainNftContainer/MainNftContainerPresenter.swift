@@ -42,8 +42,7 @@ final class MainNftContainerPresenter {
     // MARK: - Private methods
 
     private func setupAppearance() {
-        let showNftsLikeCollection: Bool = interactor.appearanceType
-        view?.didReceive(appearance: showNftsLikeCollection ? .collection : .table)
+        view?.didReceive(appearance: interactor.showNftsLikeCollection ? .collection : .table)
     }
 }
 
@@ -78,11 +77,11 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     }
 
     func didTapCollectionButton() {
-        interactor.appearanceType = true
+        interactor.showNftsLikeCollection = true
     }
 
     func didTapTableButton() {
-        interactor.appearanceType = false
+        interactor.showNftsLikeCollection = false
     }
 }
 
@@ -102,12 +101,12 @@ extension MainNftContainerPresenter: Localizable {
 }
 
 extension MainNftContainerPresenter: MainNftContainerModuleInput {
-    func didSelect(chain: ChainModel?) {
-        if chain != stateHolder.selectedChain {
+    func didSelect(chains: [ChainModel]?) {
+        if chains != stateHolder.selectedChains {
             DispatchQueue.main.async { [weak self] in
                 self?.view?.didReceive(viewModels: nil)
             }
-            interactor.didSelect(chain: chain)
+            interactor.didSelect(chains: chains)
         }
     }
 }

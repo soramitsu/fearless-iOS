@@ -9,13 +9,13 @@ protocol NFTFetchingServiceProtocol {
     func fetchCollections(
         for wallet: MetaAccountModel,
         excludeFilters: [NftCollectionFilter],
-        chain: ChainModel?
+        chains: [ChainModel]?
     ) async throws -> [NFTCollection]
 
     func fetchNfts(
         for wallet: MetaAccountModel,
         excludeFilters: [NftCollectionFilter],
-        chain: ChainModel?
+        chains: [ChainModel]?
     ) async throws -> [NFT]
 
     func fetchCollectionNfts(
