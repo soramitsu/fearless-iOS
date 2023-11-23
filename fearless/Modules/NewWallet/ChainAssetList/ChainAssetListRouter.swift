@@ -2,11 +2,27 @@ import Foundation
 import SSFModels
 
 final class ChainAssetListRouter: ChainAssetListRouterInput {
-    func showChainAccount(
+    func showAssetNetworks(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset
     ) {
         guard let chainAssetView = WalletChainAccountDashboardViewFactory.createNetworksView(
+            chainAsset: chainAsset
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            chainAssetView.controller,
+            animated: true
+        )
+    }
+
+    func showChainAccount(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset
+    ) {
+        guard let chainAssetView = WalletChainAccountDashboardViewFactory.createDetailsView(
             chainAsset: chainAsset
         ) else {
             return
