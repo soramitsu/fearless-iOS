@@ -14,4 +14,4 @@ def appPipline = new org.ios.AppPipeline(
     effectJiraTasks: true,
     dojo: false
     )
-appPipline.runPipeline('fearless') 
+appPipline.runPipeline('fearless')
