@@ -32,7 +32,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private var validatorOperationFactory: ValidatorOperationFactoryProtocol
     private let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
@@ -471,9 +471,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
         output?.didReceive(chainAsset: chainAsset)
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         fetchRewardCalculator()
         fetchNetworkInfo()
@@ -571,8 +569,8 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        guard chainAsset.asset.priceId == priceId else {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset: ChainAsset) {
+        guard chainAsset == chainAsset else {
             return
         }
 

@@ -79,7 +79,8 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
                         currencyId: currency.id,
                         priceId: assetId,
                         price: String(describing: price),
-                        fiatDayChange: Decimal(dayChange ?? 0.0)
+                        fiatDayChange: Decimal(dayChange ?? 0.0),
+                        coingeckoPriceId: assetId
                     )
                 }
             }.reduce([], +)

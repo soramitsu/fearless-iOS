@@ -14,7 +14,7 @@ final class PoolRolesConfirmInteractor: AccountFetching {
     private let roles: StakingPoolRoles
     private let signingWrapper: SigningWrapperProtocol
     private let callFactory: SubstrateCallFactoryProtocol
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationManager: OperationManagerProtocol
 
@@ -71,9 +71,7 @@ extension PoolRolesConfirmInteractor: PoolRolesConfirmInteractorInput {
 
         feeProxy.delegate = self
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         fetchAllAccounts()
     }
@@ -100,7 +98,7 @@ extension PoolRolesConfirmInteractor: PoolRolesConfirmInteractorInput {
 }
 
 extension PoolRolesConfirmInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
 }

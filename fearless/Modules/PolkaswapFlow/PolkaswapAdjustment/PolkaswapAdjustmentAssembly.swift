@@ -25,9 +25,7 @@ final class PolkaswapAdjustmentAssembly {
         let operationManager = OperationManagerFacade.sharedManager
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: repositoryFacade
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,

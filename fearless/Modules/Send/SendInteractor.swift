@@ -21,8 +21,8 @@ final class SendInteractor: RuntimeConstantFetching {
     let dependencyContainer: SendDepencyContainer
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
-    private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
+    private var utilityPriceProvider: AnySingleValueProvider<[PriceData]>?
 
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
@@ -71,16 +71,9 @@ final class SendInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
-        priceProvider?.removeObserver(self)
-        utilityPriceProvider?.removeObserver(self)
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        } else {
-            output?.didReceivePriceData(result: .success(nil), for: nil)
-        }
-        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
-           let priceId = utilityAsset.asset.priceId {
-            utilityPriceProvider = subscribeToPrice(for: priceId)
+        priceProvider = subscribeToPrice(for: chainAsset)
+        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
+            utilityPriceProvider = subscribeToPrice(for: utilityAsset)
         }
     }
 
@@ -275,8 +268,8 @@ extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension SendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Swift.Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        output?.didReceivePriceData(result: result, for: priceId)
+    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
+        output?.didReceivePriceData(result: result)
     }
 }
 

@@ -84,7 +84,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
     ) -> StakingUnbondConfirmInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         return StakingUnbondConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

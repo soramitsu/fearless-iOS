@@ -29,7 +29,7 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
     private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private let callFactory: SubstrateCallFactoryProtocol
 
     init(

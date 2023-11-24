@@ -28,6 +28,9 @@ enum BalanceInfoAssembly {
         let operationManager = OperationManagerFacade.sharedManager
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
