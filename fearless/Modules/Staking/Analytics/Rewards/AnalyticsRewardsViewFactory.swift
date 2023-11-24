@@ -52,7 +52,7 @@ struct AnalyticsRewardsViewFactory {
     ) -> AnalyticsRewardsInteractor {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         return AnalyticsRewardsInteractor(
             strategy: strategy,

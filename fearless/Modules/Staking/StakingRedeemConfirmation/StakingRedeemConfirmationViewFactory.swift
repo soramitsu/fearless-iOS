@@ -83,7 +83,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
     ) -> StakingRedeemConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         return StakingRedeemConfirmationInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

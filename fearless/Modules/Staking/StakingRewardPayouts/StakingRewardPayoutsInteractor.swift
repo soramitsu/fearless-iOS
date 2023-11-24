@@ -16,7 +16,7 @@ final class StakingRewardPayoutsInteractor {
     private let logger: LoggerProtocol?
     let connection: JSONRPCEngine
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var payoutOperationsWrapper: CompoundOperationWrapper<PayoutsInfo>?
 
@@ -70,9 +70,7 @@ final class StakingRewardPayoutsInteractor {
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
@@ -119,7 +117,7 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
 }
 
 extension StakingRewardPayoutsInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceive(priceResult: result)
     }
 }

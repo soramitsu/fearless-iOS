@@ -49,12 +49,7 @@ extension StakingMainInteractor {
             return
         }
 
-        guard let priceId = chainAsset.asset.priceId else {
-            presenter?.didReceive(price: nil)
-            return
-        }
-
-        priceProvider = subscribeToPrice(for: priceId)
+        priceProvider = subscribeToPrice(for: chainAsset)
     }
 
     func performAccountInfoSubscription() {

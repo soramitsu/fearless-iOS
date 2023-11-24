@@ -108,11 +108,29 @@ final class EthereumNodeFetching {
         let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
 
         guard let wssURL = node?.url else {
-            throw ConvenienceError(error: "cannot obtain eth rpc url for chain: \(chain.name)")
+            return try getHttps(for: chain)
         }
 
         let finalURL = ethereumChain.apiKeyInjectedURL(baseURL: wssURL)
 
         return try Web3(wsUrl: finalURL.absoluteString).eth
+    }
+
+    func getHttps(for chain: ChainModel) throws -> Web3.Eth {
+        guard let ethereumChain = EthereumChain(rawValue: chain.chainId) else {
+            throw EthereumNodeFetchingError.unknownChain
+        }
+
+        let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("https") }.randomElement()
+        let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("https") == true
+        let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
+
+        guard let httpsURL = node?.url else {
+            throw ConvenienceError(error: "cannot obtain eth https url for chain: \(chain.name)")
+        }
+
+        let finalURL = ethereumChain.apiKeyInjectedURL(baseURL: httpsURL)
+
+        return Web3(rpcURL: finalURL.absoluteString).eth
     }
 }

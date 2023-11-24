@@ -907,7 +907,7 @@ extension SendPresenter: SendInteractorOutput {
         }
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>, for _: AssetModel.PriceId?) {
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
             if let priceData = priceData {

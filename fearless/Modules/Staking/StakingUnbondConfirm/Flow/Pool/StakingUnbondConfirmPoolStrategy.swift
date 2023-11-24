@@ -31,7 +31,7 @@ final class StakingUnbondConfirmPoolStrategy: AccountFetching, RuntimeConstantFe
     private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
     private let callFactory: SubstrateCallFactoryProtocol
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol

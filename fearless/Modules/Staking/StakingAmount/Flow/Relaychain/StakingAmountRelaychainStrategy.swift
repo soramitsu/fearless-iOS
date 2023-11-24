@@ -33,7 +33,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     private let rewardChainAsset: ChainAsset?
 
     private weak var output: StakingAmountRelaychainStrategyOutput?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         chainAsset: ChainAsset,
@@ -98,8 +98,8 @@ extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
             }
         }
 
-        if let priceId = rewardChainAsset?.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
+        if let chainAsset = rewardChainAsset {
+            priceProvider = subscribeToPrice(for: chainAsset)
         }
     }
 
@@ -165,7 +165,7 @@ extension StakingAmountRelaychainStrategy: RelaychainStakingLocalStorageSubscrib
 }
 
 extension StakingAmountRelaychainStrategy: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         switch result {
         case let .success(priceData):
             output?.didReceive(rewardAssetPrice: priceData)

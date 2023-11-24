@@ -20,7 +20,7 @@ final class StakingPoolCreateInteractor {
     private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -141,10 +141,7 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
 
         fetchPoolMembers()
         fetchLastPoolId()
-
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
@@ -197,7 +194,7 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
 }
 
 extension StakingPoolCreateInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
 }

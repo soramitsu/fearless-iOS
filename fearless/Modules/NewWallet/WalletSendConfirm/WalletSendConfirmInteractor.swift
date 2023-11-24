@@ -23,8 +23,8 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     let dependencyContainer: SendDepencyContainer
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
-    private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
+    private var utilityPriceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -64,15 +64,10 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        } else {
-            presenter?.didReceivePriceData(result: .success(nil), for: nil)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
         if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
-           let priceId = utilityAsset.asset.priceId {
-            utilityPriceProvider = subscribeToPrice(for: priceId)
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
+            utilityPriceProvider = subscribeToPrice(for: utilityAsset)
         }
     }
 
@@ -179,8 +174,8 @@ extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension WalletSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Swift.Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        presenter?.didReceivePriceData(result: result, for: priceId)
+    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset: ChainAsset) {
+        presenter?.didReceivePriceData(result: result, for: chainAsset.asset.priceId)
     }
 }
 

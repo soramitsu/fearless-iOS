@@ -52,9 +52,7 @@ enum ChainAccountViewFactory {
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let substrateAccountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,

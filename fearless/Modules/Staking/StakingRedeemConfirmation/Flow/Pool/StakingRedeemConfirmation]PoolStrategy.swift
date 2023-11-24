@@ -31,7 +31,7 @@ final class StakingRedeemConfirmationPoolStrategy: RuntimeConstantFetching, Acco
 
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
 
     private var extrinsicService: ExtrinsicServiceProtocol?

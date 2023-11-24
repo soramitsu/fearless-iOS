@@ -292,12 +292,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     private func subscribeToPrices(for chainAssets: [ChainAsset], currencies: [Currency]?) {
-        let pricesIds = chainAssets.compactMap(\.asset.priceId)
         var uniqueQurrencies: [Currency]? = currencies
         if let currencies = currencies {
             uniqueQurrencies = Array(Set(currencies))
         }
-        pricesProvider = subscribeToPrices(for: pricesIds, currencies: uniqueQurrencies)
+        pricesProvider = subscribeToPrices(for: chainAssets, currencies: uniqueQurrencies)
     }
 
     private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {
@@ -515,9 +514,7 @@ private extension WalletBalanceSubscriptionAdapter {
         )
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),

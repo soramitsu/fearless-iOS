@@ -225,7 +225,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     }
 
     private func subscribeToPrices(for chains: [ChainModel]) {
-        let pricesIds = chains.compactMap { $0.assets.compactMap(\.priceId) }.reduce([], +)
+        let pricesIds = chains.compactMap { $0.chainAssets }.reduce([], +)
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 

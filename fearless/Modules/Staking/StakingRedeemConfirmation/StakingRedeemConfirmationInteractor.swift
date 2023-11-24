@@ -14,7 +14,7 @@ final class StakingRedeemConfirmationInteractor: RuntimeConstantFetching, Accoun
     let wallet: MetaAccountModel
     let strategy: StakingRedeemConfirmationStrategy
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -39,16 +39,14 @@ extension StakingRedeemConfirmationInteractor: StakingRedeemConfirmationInteract
     }
 
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         strategy.setup()
     }
 }
 
 extension StakingRedeemConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

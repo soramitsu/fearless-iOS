@@ -22,7 +22,7 @@ final class ControllerAccountConfirmationInteractor {
     private let selectedAccount: MetaAccountModel
     private let callFactory: SubstrateCallFactoryProtocol
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
@@ -91,9 +91,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         estimateFee()
         feeProxy.delegate = self
@@ -217,7 +215,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
 }
 
 extension ControllerAccountConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

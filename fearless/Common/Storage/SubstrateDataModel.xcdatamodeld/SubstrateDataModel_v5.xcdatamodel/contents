@@ -18,6 +18,7 @@
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="symbol" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="priceProvider" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDPriceProvider" inverseName="asset" inverseEntity="CDPriceProvider"/>
     </entity>
     <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
         <attribute name="addressPrefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -111,6 +112,12 @@
         <attribute name="version" attributeType="String"/>
         <attribute name="xstusdId" optional="YES" attributeType="String"/>
         <relationship name="availableDexIds" toMany="YES" deletionRule="Nullify" destinationEntity="CDPolkaswapDex"/>
+    </entity>
+    <entity name="CDPriceProvider" representedClassName="CDPriceProvider" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="precision" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="priceProvider" inverseEntity="CDAsset"/>
     </entity>
     <entity name="CDRuntimeMetadataItem" representedClassName="CDRuntimeMetadataItem" syncable="YES" codeGenerationType="class">
         <attribute name="identifier" optional="YES" attributeType="String"/>
