@@ -149,7 +149,7 @@ final class PolkaswapAdjustmentPresenter {
         checkLoadingState()
     }
 
-    private func provideToAssetVewModel() {
+    private func provideToAssetVewModel(updateAmountInput: Bool = true) {
         let inputAmount = swapToInputResult?
             .absoluteValue(from: swapToBalance ?? .zero)
         let balanceViewModelFactory = buildBalanceSwapToViewModelFactory(
@@ -172,7 +172,9 @@ final class PolkaswapAdjustmentPresenter {
             .value(for: selectedLocale)
 
         view?.didReceiveSwapTo(viewModel: viewModel)
-        view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+        if updateAmountInput {
+            view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+        }
 
         loadingCollector.toReady = true
         checkLoadingState()
@@ -593,7 +595,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         swapVariant = .desiredOutput
         swapToInputResult = .absolute(newValue)
-        provideFromAssetVewModel(updateAmountInput: false)
+        provideToAssetVewModel(updateAmountInput: false)
         fetchQuotes()
     }
 

@@ -14,6 +14,11 @@ struct PolkaswapAdjustmentViewLoadingCollector {
     }
 
     var isReady: Bool {
-        feeReady && fromReady && toReady && detailsReady
+        print("Fee ready: ", feeReady)
+        print("From ready: ", fromReady)
+        print("To ready: ", toReady)
+        print("Details ready: ", detailsReady)
+
+        return feeReady && fromReady && toReady && detailsReady
     }
 }
