@@ -593,7 +593,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         swapVariant = .desiredOutput
         swapToInputResult = .absolute(newValue)
-        provideToAssetVewModel()
+        provideFromAssetVewModel(updateAmountInput: false)
         fetchQuotes()
     }
 
