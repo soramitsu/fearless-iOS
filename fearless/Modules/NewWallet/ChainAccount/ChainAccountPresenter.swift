@@ -183,9 +183,9 @@ final class ChainAccountPresenter {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
            let accountInfo = balance.accountInfos[chainAsset.uniqueKey(accountId: accountId)],
            let info = accountInfo,
-           let free = Decimal.fromSubstratePerbill(value: info.data.free),
-           let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
-           let frozen = Decimal.fromSubstratePerbill(value: info.data.frozen),
+           let free = Decimal.fromSubstrateAmount(info.data.free, precision: Int16(chainAsset.asset.precision)),
+           let reserved = Decimal.fromSubstrateAmount(info.data.reserved, precision: Int16(chainAsset.asset.precision)),
+           let frozen = Decimal.fromSubstrateAmount(info.data.frozen, precision: Int16(chainAsset.asset.precision)),
            let minBalance = minimumBalance,
            let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance),
            let locks = balanceLocks {
