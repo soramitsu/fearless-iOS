@@ -100,7 +100,7 @@ enum EthereumChain: String {
 final class EthereumNodeFetching {
     func getNode(for chain: ChainModel) throws -> Web3.Eth {
         guard let ethereumChain = EthereumChain(rawValue: chain.chainId) else {
-            throw EthereumNodeFetchingError.unknownChain
+            return try getHttps(for: chain)
         }
 
         let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
@@ -117,10 +117,6 @@ final class EthereumNodeFetching {
     }
 
     func getHttps(for chain: ChainModel) throws -> Web3.Eth {
-        guard let ethereumChain = EthereumChain(rawValue: chain.chainId) else {
-            throw EthereumNodeFetchingError.unknownChain
-        }
-
         let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("https") }.randomElement()
         let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("https") == true
         let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
@@ -129,8 +125,6 @@ final class EthereumNodeFetching {
             throw ConvenienceError(error: "cannot obtain eth https url for chain: \(chain.name)")
         }
 
-        let finalURL = ethereumChain.apiKeyInjectedURL(baseURL: httpsURL)
-
-        return Web3(rpcURL: finalURL.absoluteString).eth
+        return Web3(rpcURL: httpsURL.absoluteString).eth
     }
 }

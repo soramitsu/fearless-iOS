@@ -179,12 +179,12 @@ PODS:
     - SSFRuntimeCodingService
     - SSFSigner
     - SSFUtils
-  - SSFHelpers (0.1.27):
+  - SSFHelpers (0.1.0):
     - SSFModels
     - SSFUtils
   - SSFLogger (0.1.0):
     - SwiftyBeaver
-  - SSFModels (0.1.27):
+  - SSFModels (0.1.28):
     - IrohaCrypto
   - SSFNetwork (0.1.17):
     - RobinHood
@@ -266,9 +266,9 @@ DEPENDENCIES:
   - SSFCrypto
   - SSFEraKit
   - SSFExtrinsicKit
-  - SSFHelpers (= 0.1.27)
+  - SSFHelpers (from `../soramitsu-shared-features-ios/SSFHelpers`)
   - SSFLogger
-  - SSFModels (= 0.1.27)
+  - SSFModels (= 0.1.28)
   - SSFNetwork
   - SSFRuntimeCodingService
   - SSFSigner
@@ -324,7 +324,6 @@ SPEC REPOS:
     - SSFCrypto
     - SSFEraKit
     - SSFExtrinsicKit
-    - SSFHelpers
     - SSFLogger
     - SSFModels
     - SSFNetwork
@@ -341,6 +340,8 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SSFHelpers:
+    :path: "../soramitsu-shared-features-ios/SSFHelpers"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -393,9 +394,9 @@ SPEC CHECKSUMS:
   SSFCrypto: 7ea544e61213538744ef8fd075e5e4487b7cf502
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
   SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
-  SSFHelpers: 7ff56eb3240e945ff2008951000d680575a8b46c
+  SSFHelpers: dc0ad9aea08504629e7079c79f42edccca15c36e
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
-  SSFModels: d8e0a94d8204680aba4957ba33e0a96911e890ad
+  SSFModels: 63cd794701bd9603e511c83a95c370bcdfb94fef
   SSFNetwork: 734ad619a28f5b37599c4e1fb599b899536f0d65
   SSFRuntimeCodingService: 9c527ab5b8c15c3d580d641df54eabc7e105e5cf
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
@@ -412,6 +413,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 592bc2c1227fc2aeb7015536135c7456edfaf818
+PODFILE CHECKSUM: f4fae5aab72818aadcf7f463f15518e4d9789d1a
 
 COCOAPODS: 1.11.3

@@ -169,8 +169,8 @@ final class ChainRegistry {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-        _ = try ethereumConnectionPool.setupConnection(for: newChain)
         chains.append(newChain)
+        _ = try ethereumConnectionPool.setupConnection(for: newChain)
     }
 
     private func handleUpdatedSubstrateChain(updatedChain: ChainModel) throws {
