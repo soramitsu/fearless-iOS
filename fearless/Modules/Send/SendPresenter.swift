@@ -159,7 +159,12 @@ final class SendPresenter {
         }
     }
 
-    private func provideFeeViewModel() {
+    private func provideFeeViewModel(checkBokolo: Bool = true) {
+        guard selectedChainAsset?.isBokolo != true, checkBokolo else {
+            checkXorFeePaymentPossibles()
+            return
+        }
+
         guard
             let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
             let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
@@ -716,11 +721,14 @@ final class SendPresenter {
             let xorBalance = utilityBalance,
             let xorFee = fee
         else {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(feeViewModel: nil)
+            }
             return
         }
 
         if xorBalance > xorFee {
-            provideFeeViewModel()
+            provideFeeViewModel(checkBokolo: false)
         } else {
             Task {
                 guard
@@ -934,11 +942,7 @@ extension SendPresenter: SendInteractorOutput {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 
-            if selectedChainAsset?.isBokolo == true {
-                checkXorFeePaymentPossibles()
-            } else {
-                provideFeeViewModel()
-            }
+            provideFeeViewModel()
             provideAssetVewModel()
 
             switch inputResult {
@@ -1040,12 +1044,10 @@ extension SendPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
         selectedAsset = chainAsset?.asset
         if let asset = chainAsset?.asset {
-            if let chain = selectedChain {
+            if let chain = selectedChain, let selectedChainAsset = chain.chainAssets.first(where: { $0.asset.symbol == asset.symbol }) {
                 state = .normal
-                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.symbol == asset.symbol })
-                if let selectedChainAsset = selectedChainAsset {
-                    handle(selectedChainAsset: selectedChainAsset)
-                }
+                self.selectedChainAsset = selectedChainAsset
+                handle(selectedChainAsset: selectedChainAsset)
             } else {
                 state = .normal
                 interactor.defineAvailableChains(for: asset) { [weak self] chains in
