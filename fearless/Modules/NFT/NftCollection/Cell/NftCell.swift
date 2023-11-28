@@ -6,6 +6,7 @@ class NftCell: UICollectionViewCell {
         static let imageSize: CGFloat = 152.0
         static let nameLabelMinHeight: CGFloat = 18.0
         static let descriptionLabelMinHeight: CGFloat = 15.0
+        static let buttonHeight: CGFloat = 36.0
     }
 
     let imageView = UIImageView()
@@ -81,8 +82,9 @@ class NftCell: UICollectionViewCell {
             make.top.equalTo(imageView.snp.bottom).offset(UIConstants.defaultOffset)
         }
         button.snp.makeConstraints { make in
-            make.top.equalTo(infoStackView.snp.bottom)
+            make.top.equalTo(infoStackView.snp.bottom).offset(UIConstants.minimalOffset)
             make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.height.equalTo(LayoutConstants.buttonHeight)
         }
     }
 

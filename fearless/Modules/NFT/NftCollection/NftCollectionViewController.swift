@@ -149,4 +149,8 @@ extension NftCollectionViewController: UICollectionViewDataSource, UICollectionV
             break
         }
     }
+
+    func numberOfSections(in _: UICollectionView) -> Int {
+        viewModel?.availableCellModels.isNotEmpty == true ? 2 : 1
+    }
 }

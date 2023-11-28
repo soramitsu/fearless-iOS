@@ -12,14 +12,12 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
                 imageViewModel = RemoteImageViewModel(url: url)
             }
 
-            let description = "#\(String(describing: $0.tokenId)) in Editions of \(collection.nfts?.count ?? 0)"
-
             let type: NftType = collection.nfts?.contains($0) == true ? .owned : .available
 
             return NftCellViewModel(
                 imageViewModel: imageViewModel,
                 name: $0.displayName,
-                description: description,
+                description: $0.description,
                 type: type,
                 nft: $0,
                 locale: locale
@@ -28,7 +26,6 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
 
         let ownedCellModels = buildCellModels(
             from: collection.nfts ?? [],
-            totalCount: collection.nfts?.count ?? 0,
             type: .owned,
             locale: locale
         )
@@ -37,7 +34,6 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
             from: collection.availableNfts?.filter { nft in
                 collection.nfts?.contains(nft) != true
             } ?? [],
-            totalCount: collection.nfts?.count ?? 0,
             type: .available,
             locale: locale
         )
@@ -60,7 +56,6 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
 
     private func buildCellModels(
         from nfts: [NFT],
-        totalCount: Int,
         type: NftType,
         locale: Locale
     ) -> [NftCellViewModel] {
@@ -70,12 +65,10 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
                 imageViewModel = RemoteImageViewModel(url: url)
             }
 
-            let description = "#\(String(describing: $0.tokenId)) in Editions of \(totalCount)"
-
             return NftCellViewModel(
                 imageViewModel: imageViewModel,
                 name: $0.displayName,
-                description: description,
+                description: $0.description,
                 type: type,
                 nft: $0,
                 locale: locale
