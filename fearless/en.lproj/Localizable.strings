@@ -1244,3 +1244,5 @@ In case the wait longer than 72h contact us via %@";
 "nfts.filters.title" = "Hide NFTs";
 "nfts.filters.spam" = "SPAM";
 "nfts.filters.airdrop" = "AirDrop";
+"nft.collection.my.nfts" = "My NFTs";
+"nft.collection.available.nfts" = "Available NFTs in the %s collection";

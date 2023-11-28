@@ -7,7 +7,7 @@ protocol NftCollectionViewInput: ControllerBackedProtocol {
 protocol NftCollectionViewOutput: AnyObject {
     func didLoad(view: NftCollectionViewInput)
     func didBackButtonTapped()
-    func didSelect(nft: NFT)
+    func didSelect(nft: NFT, type: NftType)
 }
 
 protocol NftCollectionInteractorInput: AnyObject {
@@ -19,7 +19,7 @@ protocol NftCollectionInteractorOutput: AnyObject {
 }
 
 protocol NftCollectionRouterInput: AnyObject, PresentDismissable {
-    func openNftDetails(nft: NFT, wallet: MetaAccountModel, address: String, from view: ControllerBackedProtocol?)
+    func openNftDetails(nft: NFT, type: NftType, wallet: MetaAccountModel, address: String, from view: ControllerBackedProtocol?)
 }
 
 protocol NftCollectionModuleInput: AnyObject {}

@@ -1242,3 +1242,5 @@ Euro cash";
 "nfts.filters.title" = "Hide NFTs";
 "nfts.filters.spam" = "SPAM";
 "nfts.filters.airdrop" = "AirDrop";
+"nft.collection.my.nfts" = "My NFTs";
+"nft.collection.available.nfts" = "Available NFTs in the %s collection";

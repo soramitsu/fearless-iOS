@@ -135,6 +135,7 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                 })
             } catch {
                 logger.error(error.localizedDescription)
+                output?.didReceive(collections: [])
             }
         }
     }
@@ -153,9 +154,6 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
 extension MainNftContainerInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         wallet = event.account
-    }
-
-    func processChainsSetupCompleted() {
         fetchData()
     }
 }

@@ -3,7 +3,7 @@ import SoraFoundation
 
 final class NftCollectionViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = NftCollectionViewLayout
-    private var cellModels: [NftCollectionCellViewModel]?
+    private var viewModel: NftCollectionViewModel?
 
     // MARK: Private properties
 
@@ -37,7 +37,12 @@ final class NftCollectionViewController: UIViewController, ViewHolder, HiddableB
 
         rootView.collectionView.dataSource = self
         rootView.collectionView.delegate = self
-        rootView.collectionView.registerClassForCell(NftCollectionCell.self)
+        rootView.collectionView.registerClassForCell(NftCell.self)
+        rootView.collectionView.register(
+            CollectionViewSectionHeader.self,
+            forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
+            withReuseIdentifier: "Collection view section header"
+        )
 
         rootView.navigationBar.backButton.addAction { [weak self] in
             self?.output.didBackButtonTapped()
@@ -52,7 +57,7 @@ final class NftCollectionViewController: UIViewController, ViewHolder, HiddableB
 extension NftCollectionViewController: NftCollectionViewInput {
     func didReceive(viewModel: NftCollectionViewModel) {
         rootView.bind(viewModel: viewModel)
-        cellModels = viewModel.cellModels
+        self.viewModel = viewModel
 
         rootView.collectionView.collectionViewLayout.invalidateLayout()
         rootView.collectionView.reloadData()
@@ -72,26 +77,76 @@ extension NftCollectionViewController: UICollectionViewDataSource, UICollectionV
         let flowayout = collectionViewLayout as? UICollectionViewFlowLayout
         let space: CGFloat = (flowayout?.minimumInteritemSpacing ?? 0.0) + (flowayout?.sectionInset.left ?? 0.0) + (flowayout?.sectionInset.right ?? 0.0)
         let size: CGFloat = (rootView.collectionView.frame.size.width - space) / 2.0
-        return CGSize(width: size, height: 233)
+        return CGSize(width: size, height: 249)
     }
 
-    func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
-        cellModels?.count ?? 0
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        if kind == UICollectionView.elementKindSectionHeader {
+            let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Collection view section header", for: indexPath) as! CollectionViewSectionHeader
+
+            switch indexPath.section {
+            case 0:
+                sectionHeader.label.text = R.string.localizable.nftCollectionMyNfts(preferredLanguages: selectedLocale.rLanguages)
+            case 1:
+                sectionHeader.label.text = R.string.localizable.nftCollectionAvailableNfts(
+                    viewModel?.collectionName ?? "",
+                    preferredLanguages: selectedLocale.rLanguages
+                )
+            default:
+                break
+            }
+            return sectionHeader
+        } else { // No footer in this case but can add option for that
+            return UICollectionReusableView()
+        }
+    }
+
+    func collectionView(_ collectionView: UICollectionView, layout _: UICollectionViewLayout, referenceSizeForHeaderInSection _: Int) -> CGSize {
+        CGSize(width: collectionView.frame.width, height: 44)
+    }
+
+    func collectionView(_: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        switch section {
+        case 0:
+            return viewModel?.ownedCellModels.count ?? 0
+        case 1:
+            return viewModel?.availableCellModels.count ?? 0
+        default:
+            return 0
+        }
     }
 
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithType(NftCollectionCell.self, forIndexPath: indexPath)
-        if let cellModel = cellModels?[indexPath.item] {
-            cell.bind(cellModel: cellModel)
+        let cell = collectionView.dequeueReusableCellWithType(NftCell.self, forIndexPath: indexPath)
+        switch indexPath.section {
+        case 0:
+            if let cellModel = viewModel?.ownedCellModels[indexPath.item] {
+                cell.bind(cellModel: cellModel)
+            }
+        case 1:
+            if let cellModel = viewModel?.availableCellModels[indexPath.item] {
+                cell.bind(cellModel: cellModel)
+            }
+        default:
+            break
         }
         return cell
     }
 
     func collectionView(_: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        guard let viewModel = cellModels?[safe: indexPath.item] else {
-            return
+        switch indexPath.section {
+        case 0:
+            guard let viewModel = viewModel?.ownedCellModels[safe: indexPath.item] else {
+                return
+            }
+            output.didSelect(nft: viewModel.nft, type: .owned)
+        case 1:
+            guard let viewModel = viewModel?.availableCellModels[safe: indexPath.item] else {
+                return
+            }
+            output.didSelect(nft: viewModel.nft, type: .available)
+        default:
+            break
         }
-
-        output.didSelect(nft: viewModel.nft)
     }
 }

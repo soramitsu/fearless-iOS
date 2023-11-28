@@ -4,13 +4,16 @@ import RobinHood
 
 final class AlchemyNftFetchingService: BaseNftFetchingService {
     private let operationFactory: AlchemyNFTOperationFactory
+    private let logger: LoggerProtocol
 
     init(
         operationFactory: AlchemyNFTOperationFactory,
         chainRepository: AnyDataProviderRepository<ChainModel>,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        logger: LoggerProtocol
     ) {
         self.operationFactory = operationFactory
+        self.logger = logger
 
         super.init(chainRepository: chainRepository, operationQueue: operationQueue)
     }
@@ -24,7 +27,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
             throw AddressFactoryError.unexpectedAddress
         }
 
-        return try await withCheckedThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { [weak self] continuation in
             let fetchCollectionsOperation = operationFactory.fetchCollections(
                 chain: chain,
                 address: address,
@@ -36,11 +39,12 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                     let collections = try fetchCollectionsOperation.targetOperation.extractNoCancellableResultData()
                     continuation.resume(with: .success(collections))
                 } catch {
-                    continuation.resume(with: .failure(error))
+                    self?.logger.error(error.localizedDescription)
+                    continuation.resume(with: .success([]))
                 }
             }
 
-            self.operationQueue.addOperations(fetchCollectionsOperation.allOperations, waitUntilFinished: true)
+            self?.operationQueue.addOperations(fetchCollectionsOperation.allOperations, waitUntilFinished: true)
         }
     }
 
@@ -53,7 +57,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
             throw ConvenienceError(error: "Cannot fetch address from chain account")
         }
 
-        return try await withCheckedThrowingContinuation { continuation in
+        return try await withCheckedThrowingContinuation { [weak self] continuation in
             let fetchNftsOperation = operationFactory.fetchNFTs(
                 chain: chain,
                 address: address,
@@ -65,16 +69,17 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                     let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
                     continuation.resume(with: .success(nfts))
                 } catch {
-                    continuation.resume(with: .failure(error))
+                    self?.logger.error(error.localizedDescription)
+                    continuation.resume(with: .success([]))
                 }
             }
 
-            self.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
+            self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
         }
     }
 
     private func fetchCollectionNfts(for chain: ChainModel, address: String) async throws -> [NFT]? {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { [weak self] continuation in
             let fetchNftsOperation = operationFactory.fetchCollectionNfts(chain: chain, address: address)
 
             fetchNftsOperation.targetOperation.completionBlock = {
@@ -82,11 +87,12 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                     let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
                     continuation.resume(with: .success(nfts))
                 } catch {
-                    continuation.resume(with: .failure(error))
+                    self?.logger.error(error.localizedDescription)
+                    continuation.resume(with: .success([]))
                 }
             }
 
-            self.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
+            self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
         }
     }
 }
@@ -98,10 +104,13 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
         chains: [ChainModel]?
     ) async throws -> [NFT] {
         var requiredChains: [ChainModel]?
+        let supportedChains = try await fetchSupportedChains()
         if let selectedChains = chains {
-            requiredChains = selectedChains
+            requiredChains = selectedChains.filter { chain in
+                supportedChains.contains(chain)
+            }
         } else {
-            requiredChains = try await fetchSupportedChains()
+            requiredChains = supportedChains
         }
 
         guard let chains = requiredChains else {
@@ -144,10 +153,13 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
         chains: [ChainModel]?
     ) async throws -> [NFTCollection] {
         var requiredChains: [ChainModel]?
+        let supportedChains = try await fetchSupportedChains()
         if let selectedChains = chains {
-            requiredChains = selectedChains
+            requiredChains = selectedChains.filter { chain in
+                supportedChains.contains(chain)
+            }
         } else {
-            requiredChains = try await fetchSupportedChains()
+            requiredChains = supportedChains
         }
 
         guard let chains = requiredChains else {

@@ -1228,3 +1228,5 @@ Mantenha, faça STAKE ou forneça liquidez de um valor mínimo de XOR equivalent
 "verify.phone.number.description" = "Introduzir o código SMS que foi enviado para\n%@";
 "verify.phone.number.send.code" = "ENVIAR CÓDIGO";
 "verify.phone.number.title" = "Verificar o seu número de telefone";
+"nft.collection.my.nfts" = "My NFTs";
+"nft.collection.available.nfts" = "Available NFTs in the %s collection";

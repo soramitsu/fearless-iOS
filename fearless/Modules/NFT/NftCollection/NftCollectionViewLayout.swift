@@ -31,6 +31,16 @@ final class NftCollectionViewLayout: UIView {
         return label
     }()
 
+    let imageView = UIImageView()
+
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()
+        label.numberOfLines = 0
+        return label
+    }()
+
     let collectionView = UICollectionView(
         frame: .zero,
         collectionViewLayout: NftCollectionViewFlowLayout()
@@ -52,6 +62,8 @@ final class NftCollectionViewLayout: UIView {
         addSubview(navigationBar)
         navigationBar.set(.present)
         navigationBar.setCenterViews([navigationTitleLabel])
+        addSubview(imageView)
+        addSubview(titleLabel)
         addSubview(collectionView)
         setupConstraints()
     }
@@ -60,13 +72,28 @@ final class NftCollectionViewLayout: UIView {
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
         }
+        imageView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.height.equalTo(imageView.snp.width)
+        }
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(imageView.snp.bottom)
+            make.leading.trailing.equalTo(imageView)
+        }
         collectionView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(navigationBar.snp.bottom)
+            make.top.equalTo(titleLabel.snp.bottom)
         }
     }
 
     func bind(viewModel: NftCollectionViewModel) {
         navigationTitleLabel.text = viewModel.collectionName
+        viewModel.collectionImage?.loadImage(on: imageView, targetSize: CGSize(
+            width: UIScreen.main.bounds.width - 16,
+            height: UIScreen.main.bounds.width - 16
+        ), animated: true, cornerRadius: 0)
+        titleLabel.text = viewModel.collectionDescription
     }
 }

@@ -45,8 +45,8 @@ extension NftCollectionPresenter: NftCollectionViewOutput {
         router.dismiss(view: view)
     }
 
-    func didSelect(nft: NFT) {
-        router.openNftDetails(nft: nft, wallet: wallet, address: address, from: view)
+    func didSelect(nft: NFT, type: NftType) {
+        router.openNftDetails(nft: nft, type: type, wallet: wallet, address: address, from: view)
     }
 }
 
@@ -54,7 +54,7 @@ extension NftCollectionPresenter: NftCollectionViewOutput {
 
 extension NftCollectionPresenter: NftCollectionInteractorOutput {
     func didReceive(collection: NFTCollection) {
-        let viewModel = viewModelFactory.buildViewModel(from: collection)
+        let viewModel = viewModelFactory.buildViewModel(from: collection, locale: selectedLocale)
         view?.didReceive(viewModel: viewModel)
     }
 }

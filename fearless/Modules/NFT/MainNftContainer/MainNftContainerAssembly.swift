@@ -15,7 +15,8 @@ final class MainNftContainerAssembly {
         let nftFetchingService = AlchemyNftFetchingService(
             operationFactory: AlchemyNFTOperationFactory(),
             chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationQueue()
+            operationQueue: OperationQueue(),
+            logger: Logger.shared
         )
 
         let filters = [FilterSet(

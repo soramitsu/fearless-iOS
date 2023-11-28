@@ -83,11 +83,6 @@ class NftCollectionCell: UICollectionViewCell {
         }
     }
 
-    func bind(cellModel: NftCollectionCellViewModel) {
-        cellModel.imageViewModel?.loadImage(on: imageView, targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize), animated: true, cornerRadius: 0)
-        chainNameLabel.text = cellModel.nft.collection?.chain.name
-    }
-
     func bind(cellModel: NftListCellModel?) {
         if let cellModel = cellModel {
             stopLoadingIfNeeded()

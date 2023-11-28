@@ -52,7 +52,6 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     func didLoad(view: MainNftContainerViewInput) {
         self.view = view
         interactor.setup(with: self)
-        interactor.fetchData()
     }
 
     func viewAppeared() {

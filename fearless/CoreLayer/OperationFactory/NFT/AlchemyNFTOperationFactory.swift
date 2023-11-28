@@ -20,7 +20,10 @@ final class AlchemyNFTOperationFactory {
         let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getContractsForOwner")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
-        urlComponents?.queryItems = [URLQueryItem(name: "owner", value: address)]
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "owner", value: address),
+            URLQueryItem(name: "withMetadata", value: "true")
+        ]
         excludeFilters.forEach { filter in
             let queryItem = URLQueryItem(name: "excludeFilters[]", value: filter.id)
             urlComponents?.queryItems?.append(queryItem)
