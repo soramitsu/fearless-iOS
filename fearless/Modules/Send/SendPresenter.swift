@@ -63,6 +63,7 @@ final class SendPresenter {
     }
 
     private var feeViewModel: BalanceViewModelProtocol?
+    private var balanceViewModelFactoryByAsset: [String: BalanceViewModelFactoryProtocol] = [:]
 
     // MARK: - Bokolo cash properties
 
@@ -103,12 +104,19 @@ final class SendPresenter {
         guard let chainAsset = chainAsset else {
             return nil
         }
+
+        if let factory = balanceViewModelFactoryByAsset[chainAsset.asset.id] {
+            return factory
+        }
+
         let assetInfo = chainAsset.asset
             .displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
             selectedMetaAccount: wallet
         )
+
+        balanceViewModelFactoryByAsset[chainAsset.asset.id] = balanceViewModelFactory
         return balanceViewModelFactory
     }
 
@@ -159,12 +167,15 @@ final class SendPresenter {
         }
     }
 
-    private func provideFeeViewModel(checkBokolo: Bool = true) {
-        guard selectedChainAsset?.isBokolo != true, checkBokolo else {
+    private func handleFeeReceived() {
+        if selectedChainAsset?.isBokolo == true {
             checkXorFeePaymentPossibles()
-            return
+        } else {
+            provideFeeViewModel()
         }
+    }
 
+    private func provideFeeViewModel(checkBokolo _: Bool = true) {
         guard
             let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
             let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
@@ -559,10 +570,8 @@ final class SendPresenter {
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(feeViewModel: viewModel)
-            self.feeViewModel = viewModel
-        }
+        view?.didReceive(feeViewModel: viewModel)
+        feeViewModel = viewModel
     }
 
     // MARK: - QR handlers
@@ -728,7 +737,7 @@ final class SendPresenter {
         }
 
         if xorBalance > xorFee {
-            provideFeeViewModel(checkBokolo: false)
+            provideFeeViewModel()
         } else {
             Task {
                 guard
@@ -748,7 +757,9 @@ final class SendPresenter {
                 let bokoloAmount = BigUInt(bokoloSwap.amount) ?? .zero
                 let bokoloFee = Decimal.fromSubstrateAmount(bokoloAmount, precision: Int16(bokoloChainAsset.asset.precision))
                 bokoloSwapValues = (bokoloSwap, bokoloFee)
-                provideBokoloFeeViewModel(for: bokoloChainAsset)
+                await MainActor.run {
+                    provideBokoloFeeViewModel(for: bokoloChainAsset)
+                }
             }
         }
     }
@@ -925,7 +936,7 @@ extension SendPresenter: SendInteractorOutput {
                 prices.append(priceData)
             }
             provideAssetVewModel()
-            provideFeeViewModel()
+            handleFeeReceived()
             provideTipViewModel()
         case let .failure(error):
             logger?.error("Did receive price error: \(error)")
@@ -942,7 +953,7 @@ extension SendPresenter: SendInteractorOutput {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 
-            provideFeeViewModel()
+            handleFeeReceived()
             provideAssetVewModel()
 
             switch inputResult {
