@@ -1044,10 +1044,8 @@ extension SendPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
         selectedAsset = chainAsset?.asset
         if let asset = chainAsset?.asset {
-            if let chain = selectedChain, let selectedChainAsset = chain.chainAssets.first(where: { $0.asset.symbol == asset.symbol }) {
-                state = .normal
-                self.selectedChainAsset = selectedChainAsset
-                handle(selectedChainAsset: selectedChainAsset)
+            if let chain = chainAsset?.chain {
+                handle(selectedChain: chain)
             } else {
                 state = .normal
                 interactor.defineAvailableChains(for: asset) { [weak self] chains in
