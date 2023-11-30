@@ -91,8 +91,8 @@ final class NftCollectionViewLayout: UIView {
     func bind(viewModel: NftCollectionViewModel) {
         navigationTitleLabel.text = viewModel.collectionName
         viewModel.collectionImage?.loadImage(on: imageView, targetSize: CGSize(
-            width: UIScreen.main.bounds.width - 16,
-            height: UIScreen.main.bounds.width - 16
+            width: UIScreen.main.bounds.width - UIConstants.defaultOffset * 2,
+            height: UIScreen.main.bounds.width - UIConstants.defaultOffset * 2
         ), animated: true, cornerRadius: 0)
         titleLabel.text = viewModel.collectionDescription
     }

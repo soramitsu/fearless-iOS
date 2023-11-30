@@ -32,7 +32,7 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
 
         let availableCellModels = buildCellModels(
             from: collection.availableNfts?.filter { nft in
-                collection.nfts?.contains(nft) != true
+                collection.nfts?.contains { $0.tokenId == nft.tokenId } != true
             } ?? [],
             type: .available,
             locale: locale

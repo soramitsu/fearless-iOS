@@ -5,7 +5,6 @@ class CollectionViewSectionHeader: UICollectionReusableView {
         let label = UILabel()
         label.textColor = .white
         label.font = .h5Title
-        label.sizeToFit()
         return label
     }()
 

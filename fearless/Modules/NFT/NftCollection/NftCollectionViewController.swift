@@ -82,7 +82,7 @@ extension NftCollectionViewController: UICollectionViewDataSource, UICollectionV
 
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
         if kind == UICollectionView.elementKindSectionHeader {
-            let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "Collection view section header", for: indexPath) as! CollectionViewSectionHeader
+            let sectionHeader = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: "NftCollectionViewSectionHeader", for: indexPath) as! CollectionViewSectionHeader
 
             switch indexPath.section {
             case 0:
