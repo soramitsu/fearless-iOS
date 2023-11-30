@@ -90,10 +90,14 @@ final class NftCollectionViewLayout: UIView {
 
     func bind(viewModel: NftCollectionViewModel) {
         navigationTitleLabel.text = viewModel.collectionName
-        viewModel.collectionImage?.loadImage(on: imageView, targetSize: CGSize(
-            width: UIScreen.main.bounds.width - UIConstants.defaultOffset * 2,
-            height: UIScreen.main.bounds.width - UIConstants.defaultOffset * 2
-        ), animated: true, cornerRadius: 0)
+        if let collectionImage = viewModel.collectionImage {
+            collectionImage.loadImage(on: imageView, targetSize: CGSize(
+                width: UIScreen.main.bounds.width - UIConstants.defaultOffset * 2,
+                height: UIScreen.main.bounds.width - UIConstants.defaultOffset * 2
+            ), animated: true, cornerRadius: 0)
+        } else {
+            imageView.setGIFImage(name: "animatedIcon")
+        }
         titleLabel.text = viewModel.collectionDescription
     }
 }

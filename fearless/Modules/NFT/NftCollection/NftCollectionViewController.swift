@@ -41,7 +41,7 @@ final class NftCollectionViewController: UIViewController, ViewHolder, HiddableB
         rootView.collectionView.register(
             CollectionViewSectionHeader.self,
             forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader,
-            withReuseIdentifier: "Collection view section header"
+            withReuseIdentifier: "NftCollectionViewSectionHeader"
         )
 
         rootView.navigationBar.backButton.addAction { [weak self] in

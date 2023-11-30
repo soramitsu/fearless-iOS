@@ -75,12 +75,16 @@ class NftListCell: UITableViewCell {
 
         if let viewModel = viewModel {
             stopLoadingIfNeeded()
-            viewModel.imageViewModel?.loadImage(
-                on: nftImageView,
-                targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize),
-                animated: true,
-                cornerRadius: 8
-            )
+            if let imageViewModel = viewModel.imageViewModel {
+                imageViewModel.loadImage(
+                    on: nftImageView,
+                    targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize),
+                    animated: true,
+                    cornerRadius: 8
+                )
+            } else {
+                nftImageView.setGIFImage(name: "animatedIcon")
+            }
 
             chainLabel.text = viewModel.chainNameLabelText
             collectionNameLabel.text = viewModel.collection.name
