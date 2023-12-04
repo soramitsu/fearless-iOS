@@ -71,7 +71,8 @@ extension StakingAmountParachainStrategy: StakingAmountStrategy {
     func provideNetworkStakingInfo() {
         let wrapper = eraInfoOperationFactory.networkStakingOperation(
             for: eraValidatorService,
-            runtimeService: runtimeService
+            runtimeService: runtimeService,
+            chain: chainAsset.chain
         )
 
         wrapper.targetOperation.completionBlock = { [weak self] in

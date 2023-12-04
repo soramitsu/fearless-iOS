@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFModels
 
 final class ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFactory {
     private func createMapOperation(
@@ -32,7 +33,8 @@ final class ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFac
 extension ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol {
     func networkStakingOperation(
         for _: EraValidatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        chain _: ChainModel
     ) -> CompoundOperationWrapper<NetworkStakingInfo> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 

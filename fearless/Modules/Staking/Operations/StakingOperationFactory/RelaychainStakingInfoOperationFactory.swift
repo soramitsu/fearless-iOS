@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFModels
 
 final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFactory {
     private func deriveTotalStake(from eraStakersInfo: EraStakersInfo) -> BigUInt {
@@ -50,16 +51,22 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
         extractActiveNominators(from: eraStakersInfo, limitedBy: maxNominators).count
     }
 
+    private func maxNominatorsByChain(chain: ChainModel) -> Int {
+        if chain.isWestend { return 64 }
+        else { return 512 }
+    }
+
     private func createMapOperation(
         dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
         maxNominatorsOperation: BaseOperation<UInt32>,
         lockUpPeriodOperation: BaseOperation<UInt32>,
         minBalanceOperation: BaseOperation<BigUInt>,
-        durationOperation: BaseOperation<StakingDuration>
+        durationOperation: BaseOperation<StakingDuration>,
+        chain: ChainModel
     ) -> BaseOperation<NetworkStakingInfo> {
         ClosureOperation<NetworkStakingInfo> {
             let eraStakersInfo = try eraValidatorsOperation.extractNoCancellableResultData()
-            let maxNominators = try Int(maxNominatorsOperation.extractNoCancellableResultData())
+            let maxNominators = (try? Int(maxNominatorsOperation.extractNoCancellableResultData())).or(self.maxNominatorsByChain(chain: chain))
             let lockUpPeriod = try lockUpPeriodOperation.extractNoCancellableResultData()
             let minBalance = try minBalanceOperation.extractNoCancellableResultData()
 
@@ -102,7 +109,8 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
 extension RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol {
     func networkStakingOperation(
         for eraValidatorService: EraValidatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        chain: ChainModel
     ) -> CompoundOperationWrapper<NetworkStakingInfo> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
@@ -136,7 +144,8 @@ extension RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFact
             maxNominatorsOperation: maxNominatorsOperation,
             lockUpPeriodOperation: lockUpPeriodOperation,
             minBalanceOperation: existentialDepositOperation,
-            durationOperation: stakingDurationWrapper.targetOperation
+            durationOperation: stakingDurationWrapper.targetOperation,
+            chain: chain
         )
 
         mapOperation.addDependency(eraValidatorsOperation)

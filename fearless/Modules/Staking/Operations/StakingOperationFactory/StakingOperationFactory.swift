@@ -1,10 +1,12 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol NetworkStakingInfoOperationFactoryProtocol {
     func networkStakingOperation(
         for eraValidatorService: EraValidatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        chain: ChainModel
     ) -> CompoundOperationWrapper<NetworkStakingInfo>
 }
 

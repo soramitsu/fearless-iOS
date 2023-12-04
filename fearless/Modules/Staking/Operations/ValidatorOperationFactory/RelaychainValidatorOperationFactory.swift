@@ -160,7 +160,7 @@ final class RelaychainValidatorOperationFactory {
 
             let allElectedValidators = try electedValidatorsOperation.extractNoCancellableResultData()
             let nominatorId = try AddressFactory.accountId(from: nominatorAddress, chain: strongSelf.chain)
-            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let maxNominators = (try? maxNominatorsOperation.extractNoCancellableResultData()).or(UInt32(strongSelf.maxNominatorsByChain(chain: strongSelf.chain)))
 
             return validatorIds.enumerated().map { _, accountId in
                 if let electedValidator = allElectedValidators.validators
@@ -266,7 +266,7 @@ final class RelaychainValidatorOperationFactory {
             let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
             let maxNominatorsRewarded =
-                try maxNominatorsOperation.extractNoCancellableResultData()
+                (try? maxNominatorsOperation.extractNoCancellableResultData()).or(UInt32(self.maxNominatorsByChain(chain: self.chain)))
 
             return try validatorIds.map { validatorId in
                 if let electedValidator = electedStakers.validators
@@ -412,7 +412,7 @@ final class RelaychainValidatorOperationFactory {
 
         return ClosureOperation<[ElectedValidatorInfo]> {
             let electedInfo = try eraValidatorsOperation.extractNoCancellableResultData()
-            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let maxNominators = (try? maxNominatorsOperation.extractNoCancellableResultData()).or(UInt32(self.maxNominatorsByChain(chain: self.chain)))
             let slashings = try slashesOperation.extractNoCancellableResultData()
             let identities = try identitiesOperation.extractNoCancellableResultData()
             let calculator = try rewardOperation.extractNoCancellableResultData()
@@ -487,6 +487,11 @@ final class RelaychainValidatorOperationFactory {
             targetOperation: operation,
             dependencies: [runtimeOperation] + nominatorsWrapper.allOperations
         )
+    }
+
+    private func maxNominatorsByChain(chain: ChainModel) -> Int {
+        if chain.isWestend { return 64 }
+        else { return 512 }
     }
 }
 

@@ -306,18 +306,19 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideNetworkStakingInfo() {
-        guard let chainId = selectedChainAsset?.chain.chainId, let eraInfoOperationFactory = eraInfoOperationFactory else {
+        guard let selectedChainAsset = selectedChainAsset, let eraInfoOperationFactory = eraInfoOperationFactory else {
             return
         }
 
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: selectedChainAsset.chain.chainId) else {
             presenter?.didReceive(networkStakingInfoError: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
         let wrapper = eraInfoOperationFactory.networkStakingOperation(
             for: sharedState.eraValidatorService,
-            runtimeService: runtimeService
+            runtimeService: runtimeService,
+            chain: selectedChainAsset.chain
         )
 
         wrapper.targetOperation.completionBlock = { [weak self] in
