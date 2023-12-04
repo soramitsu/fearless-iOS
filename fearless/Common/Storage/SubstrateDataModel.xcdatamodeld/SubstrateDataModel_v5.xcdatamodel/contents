@@ -37,6 +37,7 @@
         <attribute name="name" attributeType="String"/>
         <attribute name="options" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
+        <attribute name="rank" optional="YES" attributeType="String"/>
         <attribute name="stakingApiType" optional="YES" attributeType="String"/>
         <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
@@ -150,6 +151,7 @@
         <attribute name="symbol" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CDXcmAvailableDestination" representedClassName="CDXcmAvailableDestination" syncable="YES" codeGenerationType="class">
+        <attribute name="bridgeParachainId" optional="YES" attributeType="String"/>
         <attribute name="chainId" optional="YES" attributeType="String"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableAsset"/>
         <relationship name="config" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChainXcmConfig" inverseName="availableDestinations" inverseEntity="CDChainXcmConfig"/>

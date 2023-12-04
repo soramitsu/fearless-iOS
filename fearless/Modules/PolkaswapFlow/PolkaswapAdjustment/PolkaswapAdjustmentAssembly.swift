@@ -7,15 +7,17 @@ import SSFModels
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(
-        swapChainAsset: ChainAsset,
+        chainAsset: ChainAsset?,
         swapVariant: SwapVariant = .desiredInput,
         wallet: MetaAccountModel
     ) -> PolkaswapAdjustmentModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let connection = chainRegistry.getConnection(for: swapChainAsset.chain.chainId),
-              let accountResponse = wallet.fetch(for: swapChainAsset.chain.accountRequest()),
-              let runtimeService = chainRegistry.getRuntimeProvider(for: swapChainAsset.chain.chainId),
-              let xorChainAsset = swapChainAsset.chain.utilityChainAssets().first
+
+        guard
+            let xorChainAsset = chainRegistry.getChain(for: Chain.soraMain.genesisHash)?.utilityChainAssets().first,
+            let connection = chainRegistry.getConnection(for: xorChainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: xorChainAsset.chain.accountRequest()),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: xorChainAsset.chain.chainId)
         else {
             return nil
         }
@@ -40,7 +42,7 @@ final class PolkaswapAdjustmentAssembly {
         let operationFactory = PolkaswapOperationFactory(
             storageRequestFactory: storageOperationFactory,
             chainRegistry: chainRegistry,
-            chainId: swapChainAsset.chain.chainId
+            chainId: xorChainAsset.chain.chainId
         )
         let logger = Logger.shared
 
@@ -51,7 +53,7 @@ final class PolkaswapAdjustmentAssembly {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: swapChainAsset.chain.chainFormat,
+            chainFormat: xorChainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -92,8 +94,8 @@ final class PolkaswapAdjustmentAssembly {
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = PolkaswapAdjustmentPresenter(
             wallet: wallet,
-            soraChainAsset: xorChainAsset,
-            swapChainAsset: swapChainAsset,
+            xorChainAsset: xorChainAsset,
+            swapChainAsset: chainAsset,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             interactor: interactor,

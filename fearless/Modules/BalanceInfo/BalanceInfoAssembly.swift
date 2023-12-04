@@ -7,6 +7,7 @@ import SSFModels
 enum BalanceInfoType {
     case wallet(wallet: MetaAccountModel)
     case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
+    case chainAssets(chainAssets: [ChainAsset], wallet: MetaAccountModel)
 
     var wallet: MetaAccountModel {
         switch self {
@@ -14,24 +15,19 @@ enum BalanceInfoType {
             return wallet
         case let .chainAsset(wallet, _):
             return wallet
+        case let .chainAssets(_, wallet):
+            return wallet
         }
     }
 }
 
 enum BalanceInfoAssembly {
     static func configureModule(with type: BalanceInfoType) -> BalanceInfoModuleCreationResult? {
-        guard let wallet = SelectedWalletSettings.shared.value else { return nil }
         let localizationManager = LocalizationManager.shared
-        let eventCenter = EventCenter.shared
         let logger = Logger.shared
         let operationManager = OperationManagerFacade.sharedManager
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -42,17 +38,6 @@ enum BalanceInfoAssembly {
         )
 
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 

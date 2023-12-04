@@ -24,12 +24,20 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
     init(
         presenter: ChainAccountPresenterProtocol,
         balanceInfoViewController: UIViewController,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        mode: ChainAccountViewMode
     ) {
         self.balanceInfoViewController = balanceInfoViewController
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
+
+        switch mode {
+        case .simple:
+            preferredContentHeight = 100
+        case .extended:
+            preferredContentHeight = 310
+        }
     }
 
     @available(*, unavailable)

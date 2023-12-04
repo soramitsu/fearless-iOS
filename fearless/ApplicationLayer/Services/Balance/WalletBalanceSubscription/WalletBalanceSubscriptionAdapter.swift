@@ -43,6 +43,13 @@ protocol WalletBalanceSubscriptionAdapterProtocol {
         listener: WalletBalanceSubscriptionListener
     )
 
+    func subscribeChainAssetsBalance(
+        chainAssets: [ChainAsset],
+        wallet: MetaAccountModel,
+        deliverOn queue: DispatchQueue?,
+        listener: WalletBalanceSubscriptionListener
+    )
+
     func unsubscribe(listener: WalletBalanceSubscriptionListener)
 }
 
@@ -56,6 +63,7 @@ enum WalletBalanceListenerType {
     case wallets
     case wallet(wallet: MetaAccountModel)
     case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
+    case chainAssets(chainAssets: [ChainAsset], wallet: MetaAccountModel)
 }
 
 final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, PriceLocalStorageSubscriber {
@@ -160,6 +168,23 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             self?.listeners.append(weakListener)
         }
         if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+            notify(listener: listener, result: .success(balances))
+        }
+    }
+
+    func subscribeChainAssetsBalance(
+        chainAssets: [ChainAsset],
+        wallet: MetaAccountModel,
+        deliverOn queue: DispatchQueue?,
+        listener: WalletBalanceSubscriptionListener
+    ) {
+        deliverQueue = queue
+        let weakListener = WeakWrapper(target: listener)
+        listenersLock.exclusivelyWrite { [weak self] in
+            self?.listeners.append(weakListener)
+        }
+
+        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
             notify(listener: listener, result: .success(balances))
         }
     }
@@ -343,6 +368,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                 case let .chainAsset(wallet, chainAsset):
                     if updatedWallets.contains(wallet), updatedChainAssets.contains(chainAsset) {
                         if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+                            notify(listener: listener, result: .success(balances))
+                        }
+                    }
+
+                case let .chainAssets(chainAssets, wallet):
+                    if updatedWallets.contains(wallet), Set(chainAssets).intersection(Set(updatedChainAssets)).isNotEmpty {
+                        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
                             notify(listener: listener, result: .success(balances))
                         }
                     }

@@ -28,6 +28,7 @@ protocol ChainAssetListInteractorInput: AnyObject {
     func markUnused(chain: ChainModel)
     func saveHiddenSection(state: HiddenSectionState)
     func reload(fetchPrices: Bool)
+    func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void))
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {
@@ -47,6 +48,10 @@ protocol ChainAssetListRouterInput:
     AppUpdatePresentable,
     SheetAlertPresentable,
     PresentDismissable {
+    func showAssetNetworks(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset
+    )
     func showChainAccount(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset

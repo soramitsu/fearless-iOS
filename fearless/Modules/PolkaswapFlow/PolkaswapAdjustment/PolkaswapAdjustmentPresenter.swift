@@ -62,12 +62,14 @@ final class PolkaswapAdjustmentPresenter {
 
     private var loadingCollector = PolkaswapAdjustmentViewLoadingCollector()
 
+    private var disclaimerWasShown = false
+
     // MARK: - Constructors
 
     init(
         wallet: MetaAccountModel,
-        soraChainAsset: ChainAsset,
-        swapChainAsset: ChainAsset,
+        xorChainAsset: ChainAsset,
+        swapChainAsset: ChainAsset?,
         viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
         logger: LoggerProtocol = Logger.shared,
@@ -77,7 +79,7 @@ final class PolkaswapAdjustmentPresenter {
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wallet = wallet
-        xorChainAsset = soraChainAsset
+        self.xorChainAsset = xorChainAsset
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
@@ -112,7 +114,7 @@ final class PolkaswapAdjustmentPresenter {
         }
     }
 
-    private func provideFromAssetVewModel() {
+    private func provideFromAssetVewModel(updateAmountInput: Bool = true) {
         var balance: Decimal? = swapFromBalance
         if swapFromChainAsset == xorChainAsset, let xorBalance = xorBalance, let networkFee = networkFee {
             balance = xorBalance - networkFee
@@ -139,13 +141,15 @@ final class PolkaswapAdjustmentPresenter {
             .value(for: selectedLocale)
 
         view?.didReceiveSwapFrom(viewModel: viewModel)
-        view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+        if updateAmountInput {
+            view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+        }
 
         loadingCollector.fromReady = true
         checkLoadingState()
     }
 
-    private func provideToAssetVewModel() {
+    private func provideToAssetVewModel(updateAmountInput: Bool = true) {
         let inputAmount = swapToInputResult?
             .absoluteValue(from: swapToBalance ?? .zero)
         let balanceViewModelFactory = buildBalanceSwapToViewModelFactory(
@@ -168,7 +172,9 @@ final class PolkaswapAdjustmentPresenter {
             .value(for: selectedLocale)
 
         view?.didReceiveSwapTo(viewModel: viewModel)
-        view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+        if updateAmountInput {
+            view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+        }
 
         loadingCollector.toReady = true
         checkLoadingState()
@@ -493,6 +499,11 @@ final class PolkaswapAdjustmentPresenter {
 // MARK: - PolkaswapAdjustmentViewOutput
 
 extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
+    func viewDidAppear() {
+        interactor.fetchDisclaimerVisible()
+        disclaimerWasShown = true
+    }
+
     func didLoad(view: PolkaswapAdjustmentViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -566,7 +577,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         swapVariant = .desiredInput
         swapFromInputResult = .absolute(newValue)
-        provideFromAssetVewModel()
+        provideFromAssetVewModel(updateAmountInput: false)
         fetchQuotes()
     }
 
@@ -584,7 +595,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         swapVariant = .desiredOutput
         swapToInputResult = .absolute(newValue)
-        provideToAssetVewModel()
+        provideToAssetVewModel(updateAmountInput: false)
         fetchQuotes()
     }
 
@@ -718,10 +729,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             return
         }
         detailsViewModel = provideDetailsViewModel(with: amounts)
-    }
-
-    func didTapReadDisclaimer() {
-        router.showDisclaimer(moduleOutput: self, from: view)
     }
 }
 
@@ -868,8 +875,11 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         fetchQuotes()
     }
 
-    func didReceiveDisclaimer(visible: Bool) {
-        view?.setDisclaimer(visible: visible)
+    func didReceiveDisclaimer(isRead: Bool) {
+        guard !isRead, !disclaimerWasShown else {
+            return
+        }
+        router.showDisclaimer(moduleOutput: nil, from: view)
     }
 }
 
@@ -949,13 +959,5 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
             }
             detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
         }
-    }
-}
-
-// MARK: - PolkaswapDisclaimerModuleOutput
-
-extension PolkaswapAdjustmentPresenter: PolkaswapDisclaimerModuleOutput {
-    func disclaimerDidRead() {
-        view?.setDisclaimer(visible: false)
     }
 }

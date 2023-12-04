@@ -104,11 +104,15 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             handle(changes: viewModel.lastChanges)
             rootView.tableView.isHidden = viewModel.sections.isEmpty
             rootView.filterButton.isHidden = !viewModel.filtersEnabled
+
+            handleNextPageOnScroll(scrollView: rootView.tableView)
         case let .reloaded(viewModel):
             state = .loaded(viewModel: viewModel)
             reloadContent()
             rootView.tableView.isHidden = viewModel.sections.isEmpty
             rootView.filterButton.isHidden = !viewModel.filtersEnabled
+
+            handleNextPageOnScroll(scrollView: rootView.tableView)
         case .unsupported:
             rootView.tableView.isHidden = false
             rootView.filterButton.isHidden = false

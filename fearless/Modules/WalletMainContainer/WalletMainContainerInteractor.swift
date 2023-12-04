@@ -48,18 +48,15 @@ final class WalletMainContainerInteractor {
 
     // MARK: - Private methods
 
-    private func fetchSelectedChainName() {
-        guard let chainId = wallet.chainIdForFilter else {
+    private func fetchNetworkManagmentFilter() {
+        guard let identifier = wallet.networkManagmentFilter else {
             DispatchQueue.main.async {
-                self.output?.didReceiveSelectedChain(nil)
+                self.output?.didReceiveSelected(tuple: (select: .all, chains: []))
             }
             return
         }
 
-        let operation = chainRepository.fetchOperation(
-            by: chainId,
-            options: RepositoryFetchOptions()
-        )
+        let operation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
         operation.completionBlock = { [weak self] in
             guard let result = operation.result else {
@@ -69,13 +66,13 @@ final class WalletMainContainerInteractor {
                 return
             }
 
-            DispatchQueue.main.async {
-                switch result {
-                case let .success(chain):
-                    self?.output?.didReceiveSelectedChain(chain)
-                case let .failure(error):
-                    self?.output?.didReceiveError(error)
+            switch result {
+            case let .success(chains):
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveSelected(tuple: (select: NetworkManagmentFilter(identifier: identifier), chains))
                 }
+            case let .failure(error):
+                self?.output?.didReceiveError(error)
             }
         }
 
@@ -97,7 +94,7 @@ final class WalletMainContainerInteractor {
                 case let .success(account):
                     self?.wallet = account
                     self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                    self?.fetchSelectedChainName()
+                    self?.fetchNetworkManagmentFilter()
                 case .failure:
                     break
                 }
@@ -142,11 +139,11 @@ final class WalletMainContainerInteractor {
 // MARK: - WalletMainContainerInteractorInput
 
 extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
-    func saveChainIdForFilter(_ chainId: ChainModel.Id?) {
+    func saveNetworkManagment(_ select: NetworkManagmentFilter) {
         var updatedAccount: MetaAccountModel?
 
-        if chainId != wallet.chainIdForFilter {
-            updatedAccount = wallet.replacingChainIdForFilter(chainId)
+        if select.identifier != wallet.networkManagmentFilter {
+            updatedAccount = wallet.replacingNetworkManagmentFilter(select.identifier)
         }
 
         if let updatedAccount = updatedAccount {
@@ -158,7 +155,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
-        fetchSelectedChainName()
+        fetchNetworkManagmentFilter()
         fetchChainSettings()
     }
 
@@ -190,7 +187,7 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         self.wallet = wallet
         output?.didReceiveAccount(wallet)
 
-        fetchSelectedChainName()
+        fetchNetworkManagmentFilter()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

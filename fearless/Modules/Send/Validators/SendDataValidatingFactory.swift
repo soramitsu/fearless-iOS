@@ -160,4 +160,35 @@ class SendDataValidatingFactory: NSObject {
             }
         })
     }
+
+    func soraBridgeViolated(
+        originCHainId: ChainModel.Id,
+        destChainId: ChainModel.Id?,
+        amount: Decimal,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentSoraBridgeLowAmountError(
+                from: view,
+                locale: locale
+            )
+        }, preservesCondition: {
+            guard let destChainId = destChainId else {
+                return false
+            }
+            let originKnownChain = Chain(chainId: originCHainId)
+            let destKnownChain = Chain(chainId: destChainId)
+
+            switch (originKnownChain, destKnownChain) {
+            case (.kusama, .soraMain):
+                return amount >= 0.05
+            default:
+                return true
+            }
+        })
+    }
 }

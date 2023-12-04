@@ -77,31 +77,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         return button
     }()
 
-    let disclaimerViewContainer = UIFactory.default.createVerticalStackView()
-    let disclaimerView: DetailsTriangularedView = {
-        let view = DetailsTriangularedView()
-        view.fillColor = R.color.colorSemiBlack()!
-        view.highlightedFillColor = R.color.colorSemiBlack()!
-        view.iconImage = R.image.iconWarning()
-        view.titleLabel.font = .h6Title
-        view.titleLabel.textColor = R.color.colorOrange()
-        view.subtitleLabel?.font = .p3Paragraph
-        view.subtitleLabel?.textColor = R.color.colorWhite50()
-        view.subtitleLabel?.numberOfLines = 0
-        view.borderWidth = 1
-        view.strokeColor = R.color.colorWhite8()!
-        view.iconShouldCenterVertically = true
-        view.layout = .smallIconTitleSubtitleButton
-        view.isUserInteractionEnabled = true
-        view.contentView?.isUserInteractionEnabled = true
-        view.backgroundView?.isUserInteractionEnabled = true
-        view.actionButton?.triangularedView?.fillColor = R.color.colorOrange()!
-        view.actionButton?.triangularedView?.highlightedFillColor = R.color.colorOrange()!
-        view.actionButton?.imageWithTitleView?.titleFont = .p3Paragraph
-        view.actionButton?.contentInsets = UIEdgeInsets(top: 8, left: 22, bottom: 8, right: 22)
-        return view
-    }()
-
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -124,7 +99,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         backButton.rounded()
-        contentView.scrollBottomOffset = disclaimerViewContainer.frame.height + UIConstants.bigOffset
     }
 
     // MARK: - Public methods
@@ -223,17 +197,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
 
-        addSubview(disclaimerViewContainer)
-        disclaimerViewContainer.addArrangedSubview(disclaimerView)
-        disclaimerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-        disclaimerViewContainer.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(contentView.snp.bottom)
-            make.height.greaterThanOrEqualTo(Constants.disclaimerMinHeight)
-        }
-
         let switchInputsView = createSwitchInputsView()
         contentView.stackView.addArrangedSubview(switchInputsView)
         switchInputsView.snp.makeConstraints { make in
@@ -327,13 +290,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
         previewButton.imageWithTitleView?.title = R.string.localizable
             .commonPreview(preferredLanguages: locale.rLanguages)
-
-        disclaimerView.title = R.string.localizable
-            .polkaswapDisclaimerStub(preferredLanguages: locale.rLanguages)
-        disclaimerView.subtitle = R.string.localizable
-            .polkaswapDisclaimerReadBefore(preferredLanguages: locale.rLanguages)
-        disclaimerView.actionButton?.imageWithTitleView?.title = R.string.localizable
-            .polkaswapDisclaimerStubRead(preferredLanguages: locale.rLanguages)
     }
 
     private func setInfoImage(for label: UILabel, text: String) {

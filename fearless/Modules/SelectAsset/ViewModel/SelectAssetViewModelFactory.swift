@@ -115,7 +115,7 @@ private extension SelectAssetViewModelFactory {
         )
 
         return SelectAssetCellViewModel(
-            name: chainAsset.asset.name,
+            name: chainAsset.chain.name,
             symbol: chainAsset.asset.symbolUppercased,
             icon: chainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
             balanceString: totalAssetBalance,

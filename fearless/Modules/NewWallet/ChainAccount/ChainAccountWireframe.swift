@@ -7,6 +7,23 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         view?.controller.navigationController?.popViewController(animated: true)
     }
 
+    func showDetails(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet _: MetaAccountModel
+    ) {
+        guard let chainAssetView = WalletChainAccountDashboardViewFactory.createDetailsView(
+            chainAsset: chainAsset
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            chainAssetView.controller,
+            animated: true
+        )
+    }
+
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
@@ -204,7 +221,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapChainAsset: chainAsset, wallet: wallet) else {
+        guard let module = PolkaswapAdjustmentAssembly.configureModule(chainAsset: chainAsset, wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
