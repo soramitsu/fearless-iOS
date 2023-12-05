@@ -3,7 +3,7 @@
 // Job properties
 def jobParams = [
   booleanParam(defaultValue: false, description: 'push to the dev profile', name: 'prDeployment'),
-  string(defaultValue: '', description: 'Additional Jira tasks (comma-separated)', name: 'additionalJiraTasks'),
+  string(defaultValue: '', description: 'Additional Jira tasks (comma-separated)', name: 'additionalJiraTasks')
 ]
 
 def appPipline = new org.ios.AppPipeline(
