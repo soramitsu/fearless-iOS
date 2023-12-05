@@ -1233,3 +1233,6 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "nfts.filters.airdrop" = "AirDrop";
 "nft.collection.my.nfts" = "My NFTs";
 "nft.collection.available.nfts" = "Available NFTs in the %s collection";
+"nft.creator.title" = "Creator";
+"common.price" = "Price";
+"nft.share.address" = "My public address to receive: %s";
