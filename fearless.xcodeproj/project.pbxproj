@@ -2624,7 +2624,6 @@
 		FAABC4792845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4782845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift */; };
 		FAAC292C2ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC29282ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift */; };
 		FAAC292E2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC292A2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift */; };
-		FAAC292F2ADCF3BB00063962 /* WalletConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC292B2ADCF3BB00063962 /* WalletConnectCoordinator.swift */; };
 		FAADC19929261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19829261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift */; };
 		FAADC1A529261F7000DA9903 /* PoolRolesConfirmProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19B29261F7000DA9903 /* PoolRolesConfirmProtocols.swift */; };
 		FAADC1A629261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19D29261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift */; };
@@ -17733,7 +17732,6 @@
 				719B429B58B9A0551381F92F /* FiltersViewFactory.swift in Sources */,
 				FA4CC666281801CB00A7E85F /* StakingUnitInfoView.swift in Sources */,
 				FA6261F42AC2C7A8005D3D95 /* NFTOperationFactoryProtocol.swift in Sources */,
-				FAAC292F2ADCF3BB00063962 /* WalletConnectCoordinator.swift in Sources */,
 				7FC8C78DD68304B05B501F83 /* NodeSelectionProtocols.swift in Sources */,
 				1F6A32CBF7B43390AF412B1A /* NodeSelectionWireframe.swift in Sources */,
 				07089AFC28B783B5001566CA /* SheetAletViewController.swift in Sources */,
