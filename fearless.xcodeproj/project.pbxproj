@@ -204,7 +204,6 @@
 		07F817F72AD4051A00B87358 /* Interaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F817F62AD4051A00B87358 /* Interaction.swift */; };
 		07F817FB2AD4173100B87358 /* WalletConnectCoordinatorRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F817FA2AD4173100B87358 /* WalletConnectCoordinatorRouter.swift */; };
 		07F817FD2AD5242D00B87358 /* WalletConnectDefaultCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F817FC2AD5242D00B87358 /* WalletConnectDefaultCoordinator.swift */; };
-		07F817FF2AD5528B00B87358 /* WalletConnectProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F817FE2AD5528B00B87358 /* WalletConnectProposalCoordinator.swift */; };
 		07F818012AD55D3600B87358 /* WalletConnectSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F818002AD55D3600B87358 /* WalletConnectSessionCoordinator.swift */; };
 		07FBC9E228BE24E900ED65B4 /* MissingAccountFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E128BE24E900ED65B4 /* MissingAccountFetcher.swift */; };
 		07FBC9E628BE29C900ED65B4 /* ChainIssuesCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */; };
@@ -2624,7 +2623,6 @@
 		FAABC4772845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4762845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift */; };
 		FAABC4792845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4782845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift */; };
 		FAAC292C2ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC29282ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift */; };
-		FAAC292D2ADCF3BB00063962 /* WalletConnectSessionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC29292ADCF3BB00063962 /* WalletConnectSessionCoordinator.swift */; };
 		FAAC292E2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC292A2ADCF3BB00063962 /* WalletConnectProposalCoordinator.swift */; };
 		FAAC292F2ADCF3BB00063962 /* WalletConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAC292B2ADCF3BB00063962 /* WalletConnectCoordinator.swift */; };
 		FAADC19929261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC19829261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift */; };
@@ -16199,7 +16197,6 @@
 				AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */,
 				FA6C176429935DC800A55254 /* SubqueryRewardOperationFactory.swift in Sources */,
 				AE4A71D42607B1440017C663 /* NetworkStakingInfoViewModel.swift in Sources */,
-				FAAC292D2ADCF3BB00063962 /* WalletConnectSessionCoordinator.swift in Sources */,
 				FAADC1B82926597400DA9903 /* ScanQRInteractor.swift in Sources */,
 				8439398A2636E8840087658D /* YourValidatorListViewLayout.swift in Sources */,
 				FA93A3012834C8240021330F /* ValidatorInfoRelaychainStrategy.swift in Sources */,
@@ -17289,7 +17286,6 @@
 				E5F3DF66415E54AE04D0C9A9 /* StakingMainViewController.swift in Sources */,
 				F44CCBEE26D38D1900A9E02E /* AnalyticsMagentaButton.swift in Sources */,
 				C6992F0D2807E796003BC769 /* ReplaceChainOption.swift in Sources */,
-				07F817FF2AD5528B00B87358 /* WalletConnectProposalCoordinator.swift in Sources */,
 				FAABC4792845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift in Sources */,
 				E2F9D7BDDE961B162EF100AB /* StakingMainViewFactory.swift in Sources */,
 				CD76A6513A708051857FD480 /* StakingAmountProtocols.swift in Sources */,
