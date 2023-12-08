@@ -34,7 +34,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                 excludeFilters: excludeFilters
             )
 
-            fetchCollectionsOperation.targetOperation.completionBlock = {
+            fetchCollectionsOperation.targetOperation.completionBlock = { [weak self] in
                 do {
                     let collections = try fetchCollectionsOperation.targetOperation.extractNoCancellableResultData()
                     continuation.resume(with: .success(collections))
@@ -64,7 +64,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                 excludeFilters: excludeFilters
             )
 
-            fetchNftsOperation.targetOperation.completionBlock = {
+            fetchNftsOperation.targetOperation.completionBlock = { [weak self] in
                 do {
                     let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
                     continuation.resume(with: .success(nfts))
@@ -82,7 +82,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
         try await withCheckedThrowingContinuation { [weak self] continuation in
             let fetchNftsOperation = operationFactory.fetchCollectionNfts(chain: chain, address: address)
 
-            fetchNftsOperation.targetOperation.completionBlock = {
+            fetchNftsOperation.targetOperation.completionBlock = { [weak self] in
                 do {
                     let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
                     continuation.resume(with: .success(nfts))
