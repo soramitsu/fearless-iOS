@@ -311,18 +311,29 @@ final class CrossChainPresenter {
               let originChainFee = originNetworkFeeViewModel,
               let destChainFee = destNetworkFeeViewModel,
               let inputAmount = amountInputResult?.absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)),
-              let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
+              var substrateAmount = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
               let xcmServices = interactor.deps?.xcmServices,
               let recipientAddress = recipientAddress,
               let destChainFeeDecimal = destNetworkFee
         else {
             return
         }
+
+        if selectedOriginChainModel.chainId == Chain.soraMain.genesisHash, selectedAmountChainAsset.asset.currencyId == "0x00117b0fa73c4672e03a7d9d774e3b3f91beb893e93d9a8d0430295f44225db8" {
+            guard let decimals12SubstrateAmount = inputAmount.toSubstrateAmount(precision: 12),
+                  let decimals12Amount = Decimal.fromSubstrateAmount(decimals12SubstrateAmount, precision: 12),
+                  let decimals18SubstrateAmount = decimals12Amount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)) else {
+                return
+            }
+
+            substrateAmount = decimals18SubstrateAmount
+        }
+
         let data = CrossChainConfirmationData(
             wallet: wallet,
             originChainAsset: selectedAmountChainAsset,
             destChainModel: selectedDestChainModel,
-            amount: substrateAmout,
+            amount: substrateAmount,
             displayAmount: inputViewModel.displayAmount,
             originChainFee: originChainFee,
             destChainFee: destChainFee,
