@@ -57,6 +57,10 @@ final class AssetNetworksViewController: UIViewController, ViewHolder {
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(AssetNetworksTableCell.self)
+
+        if #available(iOS 15.0, *) {
+            rootView.tableView.sectionHeaderTopPadding = 0
+        }
     }
 }
 
@@ -86,6 +90,14 @@ extension AssetNetworksViewController: Localizable {
 }
 
 extension AssetNetworksViewController: UITableViewDelegate, UITableViewDataSource {
+    func tableView(_: UITableView, viewForHeaderInSection _: Int) -> UIView? {
+        nil
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
+        0
+    }
+
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         cellViewModels.count
     }

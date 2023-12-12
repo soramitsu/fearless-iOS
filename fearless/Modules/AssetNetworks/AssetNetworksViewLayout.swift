@@ -17,7 +17,7 @@ final class AssetNetworksViewLayout: UIView {
         let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = .clear
         view.separatorStyle = .none
-        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
+        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: (UIApplication.shared.windows.first?.safeAreaInsets.bottom).or(0) + 8, right: 0)
         view.refreshControl = UIRefreshControl()
         return view
     }()
@@ -63,7 +63,7 @@ final class AssetNetworksViewLayout: UIView {
 
         tableView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.top.equalTo(networkSwitcher.snp.bottom).offset(UIConstants.defaultOffset)
+            make.top.equalTo(networkSwitcher.snp.bottom).offset(12)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
     }

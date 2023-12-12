@@ -34,9 +34,9 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
         switch mode {
         case .simple:
-            preferredContentHeight = 100
+            preferredContentHeight = 150 - (UIApplication.shared.windows.first?.safeAreaInsets.top).or(0)
         case .extended:
-            preferredContentHeight = 310
+            preferredContentHeight = 330 - (UIApplication.shared.windows.first?.safeAreaInsets.bottom).or(0)
         }
     }
 

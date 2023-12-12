@@ -217,7 +217,7 @@ PODS:
     - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
-  - SSFXCM (0.1.25):
+  - SSFXCM (0.1.30):
     - IrohaCrypto
     - RobinHood
     - SSFChainConnection
@@ -274,7 +274,7 @@ DEPENDENCIES:
   - SSFSigner
   - SSFStorageQueryKit
   - SSFUtils (= 0.1.25)
-  - SSFXCM (= 0.1.25)
+  - SSFXCM (= 0.1.30)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
@@ -401,7 +401,7 @@ SPEC CHECKSUMS:
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
   SSFStorageQueryKit: 3063fdf0a84c9b7c1c2a2a08b862162bd0d38694
   SSFUtils: 23462bb3e6521a73d616c288a90eab409dcc573c
-  SSFXCM: 1ec10bb1d9d86d846be8f2f53b9c7eecd4a265c8
+  SSFXCM: 0f33e4be472605707514799c9ebd1060b449b050
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -412,6 +412,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 7a9be4e3f2f18199af16cea1dffccb2e28839b34
+PODFILE CHECKSUM: 1fbe10369b3b15a6646112eae6ea9271f85ab77e
 
 COCOAPODS: 1.11.3

@@ -217,7 +217,8 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             })
         }
 
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: swapToChainAsset)
+        let receiveSoldChainAsset = swapVariant == .desiredInput ? swapToChainAsset : swapFromChainAsset
+        let balanceViewModelFactory = createBalanceViewModelFactory(for: receiveSoldChainAsset)
         let receiveValue = balanceViewModelFactory.balanceFromPrice(
             minMaxValue,
             priceData: price,
