@@ -105,7 +105,7 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
     ) async throws -> [NFT] {
         var requiredChains: [ChainModel]?
         let supportedChains = try await fetchSupportedChains()
-        if let selectedChains = chains {
+        if let selectedChains = chains, selectedChains.isNotEmpty {
             requiredChains = selectedChains.filter { chain in
                 supportedChains.contains(chain)
             }
@@ -154,7 +154,7 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
     ) async throws -> [NFTCollection] {
         var requiredChains: [ChainModel]?
         let supportedChains = try await fetchSupportedChains()
-        if let selectedChains = chains {
+        if let selectedChains = chains, selectedChains.isNotEmpty {
             requiredChains = selectedChains.filter { chain in
                 supportedChains.contains(chain)
             }
