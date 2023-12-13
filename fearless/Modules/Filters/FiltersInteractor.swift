@@ -49,4 +49,23 @@ extension FiltersInteractor: FiltersInteractorInputProtocol {
         }
         completion(selectedFilters.isNotEmpty)
     }
+
+    func applySort(sortId: String) {
+        var newFilters: [FilterSet] = []
+        for filter in filters {
+            var newItems: [BaseFilterItem] = []
+            for item in filter.items {
+                if var sortItem = item as? AssetNetworksSort {
+                    sortItem.changeSelectionState(isSelected: sortItem.id == sortId)
+                    newItems.append(sortItem)
+                }
+            }
+
+            let updatedFilterSet = FilterSet(title: filter.title, items: newItems)
+            newFilters.append(updatedFilterSet)
+        }
+
+        filters = newFilters
+        presenter?.didFinishWithFilters(filters: newFilters)
+    }
 }

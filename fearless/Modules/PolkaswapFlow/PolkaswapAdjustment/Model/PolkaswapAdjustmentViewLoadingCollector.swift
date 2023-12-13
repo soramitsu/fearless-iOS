@@ -14,6 +14,6 @@ struct PolkaswapAdjustmentViewLoadingCollector {
     }
 
     var isReady: Bool {
-        feeReady && fromReady && toReady && detailsReady
+        return feeReady && fromReady && toReady && detailsReady
     }
 }

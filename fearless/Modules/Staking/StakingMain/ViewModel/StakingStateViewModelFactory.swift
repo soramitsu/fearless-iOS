@@ -101,11 +101,13 @@ final class StakingStateViewModelFactory {
             usageCase: .listCrypto
         )
 
+        let rewardPrice = commonData.rewardAssetPrice ?? commonData.price
+
         let reward: LocalizableResource<BalanceViewModelProtocol>?
         if let totalReward = state.totalReward {
             reward = rewardBalanceViewModelFactory.balanceFromPrice(
                 totalReward.amount.decimalValue,
-                priceData: commonData.price,
+                priceData: rewardPrice,
                 usageCase: .listCrypto
             )
         } else {
