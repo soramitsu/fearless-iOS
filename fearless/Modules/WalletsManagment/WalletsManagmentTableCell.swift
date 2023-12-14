@@ -82,7 +82,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         iconImageView.image = R.image.iconBirdGreen()
         walletNameLabel.text = viewModel.walletName
         dayChangeLabel.attributedText = viewModel.dayChange
-        backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: true)
+        backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: false)
 
         fiatBalanceLabel.text = viewModel.fiatBalance
 
