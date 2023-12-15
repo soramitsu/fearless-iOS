@@ -29,9 +29,10 @@ protocol MainNftContainerInteractorInput: AnyObject {
 
 protocol MainNftContainerInteractorOutput: AnyObject {
     func didReceive(collections: [NFTCollection])
+    func didReceive(alert: String)
 }
 
-protocol MainNftContainerRouterInput: AnyObject {
+protocol MainNftContainerRouterInput: AnyObject, SheetAlertPresentable {
     func showCollection(
         _ collection: NFTCollection,
         wallet: MetaAccountModel,

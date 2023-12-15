@@ -91,6 +91,12 @@ extension MainNftContainerPresenter: MainNftContainerInteractorOutput {
         let viewModels = viewModelFactory.buildViewModel(from: collections, locale: localizationManager?.selectedLocale ?? Locale.current)
         view?.didReceive(viewModels: viewModels)
     }
+
+    func didReceive(alert: String) {
+        DispatchQueue.main.async {
+            self.router.present(message: alert, title: "debug message", closeAction: nil, from: self.view, actions: [])
+        }
+    }
 }
 
 // MARK: - Localizable

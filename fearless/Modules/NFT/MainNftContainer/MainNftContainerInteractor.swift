@@ -87,11 +87,17 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                     chains: stateHolder.selectedChains
                 )
 
+                output?.didReceive(alert: "nft loading finished, count: \(nfts.count)")
+
+                print("fetched nfts: \(nfts.count)")
+
                 var ownedCollections = try await nftFetchingService.fetchCollections(
                     for: wallet,
                     excludeFilters: filterValues,
                     chains: stateHolder.selectedChains
                 )
+
+                output?.didReceive(alert: "collections loading finished, count: \(ownedCollections.count)")
 
                 ownedCollections = ownedCollections.map { collection in
                     var ownedCollection = collection
@@ -127,6 +133,7 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                             updatedCollections.append(collection)
                         }
                     }
+                    output?.didReceive(alert: "nft for collections loading finished")
                     return updatedCollections
                 }
 
