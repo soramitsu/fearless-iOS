@@ -17,6 +17,8 @@ final class SendInteractor: RuntimeConstantFetching {
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let addressChainDefiner: AddressChainDefiner
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
+    private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let operationQueue: OperationQueue
 
     let dependencyContainer: SendDepencyContainer
 
@@ -26,6 +28,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
+    private var runtimeItems: [RuntimeMetadataItem]?
 
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -35,7 +38,9 @@ final class SendInteractor: RuntimeConstantFetching {
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         dependencyContainer: SendDepencyContainer,
-        addressChainDefiner: AddressChainDefiner
+        addressChainDefiner: AddressChainDefiner,
+        runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
+        operationQueue: OperationQueue
     ) {
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -45,6 +50,8 @@ final class SendInteractor: RuntimeConstantFetching {
         self.chainAssetFetching = chainAssetFetching
         self.dependencyContainer = dependencyContainer
         self.addressChainDefiner = addressChainDefiner
+        self.runtimeItemRepository = runtimeItemRepository
+        self.operationQueue = operationQueue
     }
 
     // MARK: - Private methods
@@ -84,9 +91,32 @@ final class SendInteractor: RuntimeConstantFetching {
         }
     }
 
+    private func fetchRuntimeItems() async throws -> [RuntimeMetadataItem] {
+        if let items = runtimeItems {
+            return items
+        }
+
+        return try await withUnsafeThrowingContinuation { continuation in
+            let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+            runtimeItemsOperation.completionBlock = { [weak self] in
+                do {
+                    let items = try runtimeItemsOperation.extractNoCancellableResultData()
+                    self?.runtimeItems = items
+                    continuation.resume(returning: items)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+
+            operationQueue.addOperation(runtimeItemsOperation)
+        }
+    }
+
     private func updateDependencies(for chainAsset: ChainAsset) {
         Task {
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+            let runtimeItem = try await fetchRuntimeItems().first(where: { $0.chain == chainAsset.chain.chainId })
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
             self.dependencies = dependencies
 
             if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,

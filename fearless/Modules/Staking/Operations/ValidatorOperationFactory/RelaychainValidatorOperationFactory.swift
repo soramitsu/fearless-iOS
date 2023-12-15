@@ -524,8 +524,8 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
-        let accountIdsClosure: () throws -> [AccountId] = {
-            try eraValidatorsOperation.extractNoCancellableResultData().validators.map(\.accountId)
+        let accountIdsClosure: () throws -> [AccountAddress] = {
+            try eraValidatorsOperation.extractNoCancellableResultData().validators.compactMap { $0.accountId.toHex() }
         }
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
@@ -591,7 +591,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         }
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { nomination.targets },
+            for: { nomination.targets.compactMap { $0.toHex() } },
             engine: connection,
             runtimeService: runtimeService,
             chain: chain
@@ -671,8 +671,8 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         activeValidatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
 
-        let validatorIds: () throws -> [AccountId] = {
-            try activeValidatorsStakeInfoWrapper.targetOperation.extractNoCancellableResultData().map(\.key)
+        let validatorIds: () throws -> [AccountAddress] = {
+            try activeValidatorsStakeInfoWrapper.targetOperation.extractNoCancellableResultData().compactMap { $0.key.toHex() }
         }
 
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
@@ -741,7 +741,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         validatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
 
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { accountIds },
+            for: { accountIds.compactMap { $0.toHex() } },
             engine: connection,
             runtimeService: runtimeService,
             chain: chain
@@ -815,7 +815,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         }
 
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { accountIdList },
+            for: { accountIdList.compactMap { $0.toHex() } },
             engine: connection,
             runtimeService: runtimeService,
             chain: chain

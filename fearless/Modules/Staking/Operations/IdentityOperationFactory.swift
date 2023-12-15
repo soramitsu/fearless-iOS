@@ -6,7 +6,7 @@ import SSFModels
 
 protocol IdentityOperationFactoryProtocol {
     func createIdentityWrapper(
-        for accountIdClosure: @escaping () throws -> [AccountId],
+        for accountIdClosure: @escaping () throws -> [AccountAddress],
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         chain: ChainModel
@@ -22,7 +22,7 @@ final class IdentityOperationFactory {
 
     private func createSuperIdentityOperation(
         dependingOn coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-        accountIds: @escaping () throws -> [AccountId],
+        accountIds: @escaping () throws -> [AccountAddress],
         engine: JSONRPCEngine
     ) -> SuperIdentityWrapper {
         let path = StorageCodingPath.superIdentity
@@ -105,13 +105,13 @@ final class IdentityOperationFactory {
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
         let path = StorageCodingPath.identity
 
-        let keyParams: () throws -> [Data] = {
+        let keyParams: () throws -> [AccountAddress] = {
             let responses = try superIdentityOperation.extractNoCancellableResultData()
             return responses.map { response in
                 if let value = response.value {
-                    return value.parentAccountId
+                    return value.parentAccountId.toHex()
                 } else {
-                    return response.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght)
+                    return response.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght).toHex()
                 }
             }
         }
@@ -144,7 +144,7 @@ final class IdentityOperationFactory {
 
 extension IdentityOperationFactory: IdentityOperationFactoryProtocol {
     func createIdentityWrapper(
-        for accountIdClosure: @escaping () throws -> [AccountId],
+        for accountIdClosure: @escaping () throws -> [AccountAddress],
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         chain: ChainModel

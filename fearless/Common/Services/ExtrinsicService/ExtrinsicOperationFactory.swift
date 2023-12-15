@@ -200,7 +200,7 @@ final class ExtrinsicOperationFactory {
                 case .ethereum:
                     return MultiAddress.address20(currentAccountId)
                 case .substrate:
-                    return MultiAddress.accoundId(currentAccountId)
+                    return MultiAddress.indexedString(currentAccountId)
                 }
             }()
 

@@ -68,7 +68,7 @@ final class StakingAccountResolver {
             let controllerOperation = MapKeyEncodingOperation(
                 path: .controller,
                 storageKeyFactory: storageKeyFactory,
-                keyParams: [accountId]
+                keyParams: [accountId.toHex()]
             )
 
             let localKeyFactory = LocalStorageKeyFactory()
@@ -80,7 +80,7 @@ final class StakingAccountResolver {
             let ledgerOperation = MapKeyEncodingOperation(
                 path: .stakingLedger,
                 storageKeyFactory: storageKeyFactory,
-                keyParams: [accountId]
+                keyParams: [accountId.toHex()]
             )
 
             let ledgerLocalKey = try localKeyFactory.createFromStoragePath(
@@ -243,7 +243,7 @@ extension StakingAccountResolver {
 
         let codingFactory = runtimeService.fetchCoderFactoryOperation()
 
-        let controllerDecoding: BaseOperation<Data>? = createDecodingOperation(
+        let controllerDecoding: BaseOperation<String>? = createDecodingOperation(
             for: subscription.controller,
             path: .controller,
             updateData: updateData,
@@ -261,7 +261,7 @@ extension StakingAccountResolver {
         ledgerDecoding?.addDependency(codingFactory)
 
         let mapOperation = ClosureOperation<DecodedChanges> {
-            let controller = try controllerDecoding?.extractNoCancellableResultData()
+            let controller = (try controllerDecoding?.extractNoCancellableResultData()).map { Data(hex: $0) }
             let ledger = try ledgerDecoding?.extractNoCancellableResultData()
 
             return DecodedChanges(controller: controller, ledger: ledger)

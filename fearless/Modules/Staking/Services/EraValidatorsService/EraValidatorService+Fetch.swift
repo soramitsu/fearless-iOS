@@ -48,14 +48,14 @@ extension EraValidatorService {
     }
 
     private func createPrefsWrapper(
-        identifiersClosure: @escaping () throws -> [Data],
+        identifiersClosure: @escaping () throws -> [String],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> {
         guard let connection = chainRegistry.getConnection(for: chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        let keys: () throws -> [Data] = {
+        let keys: () throws -> [String] = {
             try identifiersClosure()
         }
 
@@ -197,9 +197,9 @@ extension EraValidatorService {
 
         exposureWrapper.allOperations.forEach { $0.addDependency(remoteValidatorIdsOperation) }
 
-        let identifiersClosure: () throws -> [Data] = {
+        let identifiersClosure: () throws -> [String] = {
             let keys = try keysClosure()
-            return keys.map { $0.getAccountIdFromKey(accountIdLenght: accountIdLenght) }
+            return keys.map { $0.getAccountIdFromKey(accountIdLenght: accountIdLenght).toHexString() }
         }
 
         let prefsWrapper = createPrefsWrapper(
@@ -282,7 +282,7 @@ extension EraValidatorService {
 
         let localDecoder = decodeLocalValidators(validators, codingFactory: codingFactory)
 
-        let identifiersClosure = { try validators.map { try Data(hexStringSSF: $0.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght) } }
+        let identifiersClosure = { try validators.map { try Data(hexStringSSF: $0.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght).toHexString() } }
 
         let prefs = createPrefsWrapper(
             identifiersClosure: identifiersClosure,

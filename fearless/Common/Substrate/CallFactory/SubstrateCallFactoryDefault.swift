@@ -625,7 +625,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         to receiver: AccountId,
         amount: BigUInt
     ) -> any RuntimeCallable {
-        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
+        let args = TransferCall(dest: .indexedString(receiver), value: amount, currencyId: nil)
         let path: SubstrateCallPath = .defaultTransfer
         return RuntimeCall(
             moduleName: path.moduleName,

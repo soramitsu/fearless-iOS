@@ -2450,6 +2450,8 @@
 		FA936BF52872E37E0059B97A /* AddressTestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA936BF42872E37D0059B97A /* AddressTestConstants.swift */; };
 		FA936BFB2872E3940059B97A /* validEthereumKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = FA936BFA2872E3940059B97A /* validEthereumKeystore.json */; };
 		FA936BFD2872E3A20059B97A /* westend-metadata-v14 in Resources */ = {isa = PBXBuildFile; fileRef = FA936BFC2872E3A20059B97A /* westend-metadata-v14 */; };
+		FA93754A2AE928BE002CA482 /* types.json in Resources */ = {isa = PBXBuildFile; fileRef = 07C3397029178D390057C4A5 /* types.json */; };
+		FA93754C2AEA683A002CA482 /* Data+HexString.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93754B2AEA683A002CA482 /* Data+HexString.swift */; };
 		FA93A2D32832325C0021330F /* CustomValidatorListFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A2D22832325C0021330F /* CustomValidatorListFlow.swift */; };
 		FA93A2D728323CB90021330F /* CustomValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A2D628323CB90021330F /* CustomValidatorListParachainViewModelState.swift */; };
 		FA93A2D928323CC40021330F /* CustomValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A2D828323CC40021330F /* CustomValidatorListParachainViewModelFactory.swift */; };
@@ -5409,6 +5411,7 @@
 		FA936BF42872E37D0059B97A /* AddressTestConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressTestConstants.swift; sourceTree = "<group>"; };
 		FA936BFA2872E3940059B97A /* validEthereumKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEthereumKeystore.json; sourceTree = "<group>"; };
 		FA936BFC2872E3A20059B97A /* westend-metadata-v14 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "westend-metadata-v14"; sourceTree = "<group>"; };
+		FA93754B2AEA683A002CA482 /* Data+HexString.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+HexString.swift"; sourceTree = "<group>"; };
 		FA93A2D22832325C0021330F /* CustomValidatorListFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListFlow.swift; sourceTree = "<group>"; };
 		FA93A2D628323CB90021330F /* CustomValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
 		FA93A2D828323CC40021330F /* CustomValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -8950,6 +8953,7 @@
 				FAD428952A834BA8001D6A16 /* UIApplication+TopViewController.swift */,
 				FAE39B162AA965940011A9D6 /* URL+IPFS.swift */,
 				07F67CA42ACFEADB0044047D /* BigUInt+EthereumQuantity.swift */,
+				FA93754B2AEA683A002CA482 /* Data+HexString.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -15019,6 +15023,7 @@
 				84FFE50D261290BC0054EA63 /* NetworkInfoView.xib in Resources */,
 				2624D8CEBB61A185A5E8B994 /* AccountExportPasswordViewController.xib in Resources */,
 				48E7D7072820F66F286A0B9D /* StakingMainViewController.xib in Resources */,
+				FA93754A2AE928BE002CA482 /* types.json in Resources */,
 				742374EE778D76ABC965E107 /* StakingAmountViewController.xib in Resources */,
 				EA8ECCD37FE5D6478018D3FC /* RecommendedValidatorListViewController.xib in Resources */,
 			);
@@ -15645,6 +15650,7 @@
 				848919D926FB5F99004DBAD5 /* CrowdloanChainTableViewCell.swift in Sources */,
 				FA2569BD274CE74100875A53 /* NetworkFeeFooterView+Protocol.swift in Sources */,
 				07DFA4492899186B0035A8AB /* ModalSheetBlurPresentationFactory.swift in Sources */,
+				FA93754C2AEA683A002CA482 /* Data+HexString.swift in Sources */,
 				84E1CD07260DCCE8001E81B5 /* SwitchAccount+AccountCreateWireframe.swift in Sources */,
 				843910B0253ED36C00E3C217 /* ChainStorageItem.swift in Sources */,
 				C661B3B627E2E7AB005F1F7D /* AccountCreateChainType.swift in Sources */,

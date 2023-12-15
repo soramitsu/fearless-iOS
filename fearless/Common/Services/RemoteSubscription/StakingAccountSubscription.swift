@@ -164,11 +164,11 @@ final class StakingAccountSubscription {
 
             let storageKeyFactory = StorageKeyFactory()
 
-            let codingOperations: [MapKeyEncodingOperation<Data>] = requests.map { request in
+            let codingOperations: [MapKeyEncodingOperation<String>] = requests.map { request in
                 MapKeyEncodingOperation(
                     path: request.0,
                     storageKeyFactory: storageKeyFactory,
-                    keyParams: [request.1]
+                    keyParams: [request.1.toHex()]
                 )
             }
 
@@ -234,11 +234,11 @@ final class StakingAccountSubscription {
 
             let storageKeyFactory = StorageKeyFactory()
 
-            let codingOperations: [MapKeyEncodingOperation<Data>] = requests.map { request in
+            let codingOperations: [MapKeyEncodingOperation<String>] = requests.map { request in
                 MapKeyEncodingOperation(
                     path: request.0,
                     storageKeyFactory: storageKeyFactory,
-                    keyParams: [request.1]
+                    keyParams: [request.1.toHex()]
                 )
             }
 
@@ -315,7 +315,7 @@ final class StakingAccountSubscription {
     }
 
     private func configureMapOperations(
-        _ operations: [MapKeyEncodingOperation<Data>],
+        _ operations: [MapKeyEncodingOperation<String>],
         coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) {
         operations.forEach { operation in

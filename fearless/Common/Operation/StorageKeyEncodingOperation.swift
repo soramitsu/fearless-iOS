@@ -123,7 +123,7 @@ class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
 
             let keys: [Data] = try keyParams.map { keyParam in
                 let encoder = factory.createEncoder()
-                try encoder.append(keyParam, ofType: keyType)
+                try encoder.append(keyParam, ofType: keyType.replacingOccurrences(of: "T::", with: ""))
 
                 let encodedParam = try encoder.encode()
 

@@ -4,6 +4,7 @@ import SSFUtils
 import SoraFoundation
 import SoraKeystore
 import SSFModels
+import RobinHood
 
 enum SendConfirmTransferCall {
     case transfer(Transfer)
@@ -128,6 +129,8 @@ enum WalletSendConfirmViewFactory {
             wallet: wallet,
             operationManager: operationManager
         )
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
         return WalletSendConfirmInteractor(
             selectedMetaAccount: selectedMetaAccount,
             chainAsset: chainAsset,
@@ -141,7 +144,9 @@ enum WalletSendConfirmViewFactory {
             operationManager: operationManager,
             signingWrapper: signingWrapper,
             dependencyContainer: dependencyContainer,
-            wallet: wallet
+            wallet: wallet,
+            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
+            operationQueue: OperationQueue()
         )
     }
 }

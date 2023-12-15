@@ -425,8 +425,12 @@ extension ParachainCollatorOperationFactory {
             try candidateIdsOperation.targetOperation.extractNoCancellableResultData()
         }
 
+        let addressesClosure: () throws -> [AccountAddress] = {
+            try candidateIdsOperation.targetOperation.extractNoCancellableResultData().compactMap { $0.toHex() }
+        }
+
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: accountIdsClosure,
+            for: addressesClosure,
             engine: connection,
             runtimeService: runtimeService,
             chain: chain
@@ -518,6 +522,10 @@ extension ParachainCollatorOperationFactory {
             try selectedCandidatesOperation.targetOperation.extractNoCancellableResultData().first?.value ?? []
         }
 
+        let addressesClosure: () throws -> [AccountAddress] = {
+            try selectedCandidatesOperation.targetOperation.extractNoCancellableResultData().first?.value?.compactMap { $0.toHex() } ?? []
+        }
+
         let roundIdOperation = rewardOperationFactory.createLastRoundOperation()
         let aprOperation = rewardOperationFactory.createAprOperation(
             for: accountIdsClosure,
@@ -525,7 +533,7 @@ extension ParachainCollatorOperationFactory {
         )
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: accountIdsClosure,
+            for: addressesClosure,
             engine: connection,
             runtimeService: runtimeService,
             chain: chain

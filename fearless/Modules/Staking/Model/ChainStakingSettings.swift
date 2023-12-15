@@ -26,3 +26,13 @@ struct SoraChainStakingSettings: ChainStakingSettings {
         .accountTo(accountId)
     }
 }
+
+struct ReefChainStakingSettings: ChainStakingSettings {
+    var rewardAssetName: String? {
+        nil
+    }
+
+    func accountIdParam(accountId: AccountId) -> MultiAddress {
+        .indexedString(accountId)
+    }
+}
