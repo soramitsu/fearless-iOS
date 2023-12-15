@@ -11,6 +11,7 @@ protocol FiltersPresenterProtocol: AnyObject {
     func didTapResetButton()
     func didTapApplyButton()
     func didTapCloseButton()
+    func didSelectSort(viewModel: SortFilterCellViewModel)
 }
 
 protocol FiltersInteractorInputProtocol: AnyObject {
@@ -18,6 +19,7 @@ protocol FiltersInteractorInputProtocol: AnyObject {
     func resetFilters()
     func applyFilters()
     func switchFilterState(id: String, selected: Bool, completion: (Bool) -> Void)
+    func applySort(sortId: String)
 }
 
 protocol FiltersInteractorOutputProtocol: AnyObject {

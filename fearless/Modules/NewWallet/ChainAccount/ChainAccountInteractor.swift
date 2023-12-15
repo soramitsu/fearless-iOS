@@ -58,12 +58,18 @@ final class ChainAccountInteractor {
             filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+
             switch result {
             case let .success(availableChainAssets):
-                self?.availableChainAssets = availableChainAssets
+                strongSelf.availableChainAssets = availableChainAssets
             default:
-                self?.availableChainAssets = []
+                strongSelf.availableChainAssets = []
             }
+
+            strongSelf.presenter?.didReceive(availableChainAssets: strongSelf.availableChainAssets)
         }
     }
 

@@ -72,8 +72,9 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
 
     // MARK: - Private functions
 
-    private func createExtrinsicBuilderClosure(for payouts: [PayoutInfo]) -> ExtrinsicBuilderIndexedClosure? {
-        let closure: ExtrinsicBuilderIndexedClosure = { [weak self] builder, _ in
+    private func createExtrinsicBuilderClosure(for payouts: [PayoutInfo]) -> ExtrinsicBuilderClosure? {
+        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
+
             try payouts.forEach { payout in
                 guard let payoutCall = try self?.callFactory.payout(
                     validatorId: payout.validator,
@@ -154,23 +155,17 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
         guard let feeClosure = createExtrinsicBuilderClosure(for: payouts) else { return nil }
 
         let feeOperation = extrinsicOperationFactory.estimateFeeOperation(
-            feeClosure,
-            numberOfExtrinsics: payoutsUnwrapped.count
+            feeClosure
         )
 
         let dependencies = feeOperation.allOperations
         let precision = Int16(chainAsset.asset.precision)
 
         let mergeOperation = ClosureOperation<Decimal> {
-            let results = try feeOperation.targetOperation.extractNoCancellableResultData()
-
-            let fees: [Decimal] = try results.map { result in
-                let dispatchInfo = try result.get()
-                return BigUInt(string: dispatchInfo.fee).map {
-                    Decimal.fromSubstrateAmount($0, precision: precision) ?? 0.0
-                } ?? 0.0
-            }
-            return (fees.first ?? 0.0) * Decimal(payoutsUnwrapped.count - 1) + (fees.last ?? 0.0)
+            let result = try feeOperation.targetOperation.extractNoCancellableResultData()
+            let feeValue = BigUInt(string: result.fee) ?? BigUInt.zero
+            let fee = Decimal.fromSubstrateAmount(feeValue, precision: precision)
+            return fee ?? .zero
         }
 
         mergeOperation.addDependency(feeOperation.targetOperation)
@@ -194,16 +189,12 @@ extension StakingPayoutConfirmationRelayachainStrategy: StakingPayoutConfirmatio
         extrinsicService.submit(
             closure,
             signer: signer,
-            runningIn: .main,
-            numberOfExtrinsics: payoutsUnwrapped.count
+            runningIn: .main
         ) { [weak self] result in
-            do {
-                let txHashes: [String] = try result.map { result in
-                    try result.get()
-                }
-
-                self?.output?.didCompletePayout(txHashes: txHashes)
-            } catch {
+            switch result {
+            case let .success(hash):
+                self?.output?.didCompletePayout(txHashes: [hash])
+            case let .failure(error):
                 self?.output?.didFailPayout(error: error)
             }
         }

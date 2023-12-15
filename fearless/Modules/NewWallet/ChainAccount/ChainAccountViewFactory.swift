@@ -15,7 +15,8 @@ enum ChainAccountViewFactory {
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        moduleOutput: ChainAccountModuleOutput
+        moduleOutput: ChainAccountModuleOutput,
+        mode: ChainAccountViewMode
     ) -> ChainAccountModule? {
         let operationManager = OperationManagerFacade.sharedManager
         let eventCenter = EventCenter.shared
@@ -106,7 +107,8 @@ enum ChainAccountViewFactory {
             moduleOutput: moduleOutput,
             balanceInfoModule: balanceInfoModule.input,
             localizationManager: LocalizationManager.shared,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            mode: mode
         )
 
         interactor.presenter = presenter
@@ -114,7 +116,8 @@ enum ChainAccountViewFactory {
         let view = ChainAccountViewController(
             presenter: presenter,
             balanceInfoViewController: balanceInfoModule.view.controller,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            mode: mode
         )
 
         presenter.view = view

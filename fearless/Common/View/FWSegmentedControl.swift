@@ -118,18 +118,14 @@ final class FWSegmentedControl: UIControl {
         clearSegments()
 
         segments.enumerated().forEach { index, segmentTitle in
+            let selected = selectedSegmentIndex == index
             let defaultLabel = createLabel(
                 with: segmentTitle,
                 at: index,
-                selected: false
+                selected: selected
             )
-            let selectedLabel = createLabel(
-                with: segmentTitle,
-                at: index,
-                selected: true
-            )
+
             backgroundView.addSubview(defaultLabel)
-            selectedContainerView.addSubview(selectedLabel)
         }
     }
 
@@ -212,6 +208,7 @@ final class FWSegmentedControl: UIControl {
         animate(to: correctOffset)
 
         selectedSegmentIndex = index
+        setupSegments()
     }
 
     private func segmentIndex(for point: CGPoint) -> Int {

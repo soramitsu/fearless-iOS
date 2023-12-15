@@ -14,8 +14,8 @@ final class FiltersViewLayout: UIView {
         return label
     }()
 
-    let tableView: UITableView = {
-        let tableView = UITableView()
+    let tableView: SelfSizingTableView = {
+        let tableView = SelfSizingTableView()
         tableView.backgroundColor = .clear
         return tableView
     }()
@@ -60,7 +60,6 @@ final class FiltersViewLayout: UIView {
     func setupLayout() {
         addSubview(navigationBar)
         addSubview(tableView)
-        addSubview(applyButton)
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.setRightViews([resetButton])
@@ -69,18 +68,47 @@ final class FiltersViewLayout: UIView {
             make.leading.top.trailing.equalToSuperview()
         }
 
-        applyButton.snp.makeConstraints { make in
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
+            make.width.equalToSuperview()
+            make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
+        }
+    }
+
+    func bind(viewModel: FiltersViewModel) {
+        switch viewModel.mode {
+        case .multiSelection:
+            addApplyButtonIfNeeded()
+        case .singleSelection:
+            resetButton.isHidden = true
+        }
+    }
+
+    private func addApplyButtonIfNeeded() {
+        guard applyButton.superview == nil else {
+            return
+        }
+
+        addSubview(applyButton)
+
+        var currentFrame = frame
+        currentFrame.size.height += UIConstants.actionHeight + UIConstants.hugeOffset
+        frame = currentFrame
+        layoutIfNeeded()
+
+        applyButton.snp.makeConstraints { make in
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.width.equalToSuperview().inset(UIConstants.defaultOffset * 2)
             make.centerX.equalToSuperview()
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        tableView.snp.makeConstraints { make in
-            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
+        tableView.snp.remakeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
             make.width.equalToSuperview()
             make.centerX.equalToSuperview()
-            make.bottom.equalTo(applyButton.snp.top).inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.actionHeight + UIConstants.hugeOffset + UIConstants.bigOffset)
         }
     }
 }

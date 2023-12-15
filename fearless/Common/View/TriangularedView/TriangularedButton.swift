@@ -83,7 +83,7 @@ class TriangularedButton: BackgroundedContentControl {
     func set(loading: Bool) {
         isLoading = loading
         imageWithTitleView?.isHidden = loading
-        set(enabled: !loading)
+        isUserInteractionEnabled = !loading
 
         if loading {
             activityIndicator.startAnimating()

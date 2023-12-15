@@ -131,7 +131,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 statusIcon: statusIcon,
                 sender: sender
             )
-        case .swap:
+        case .swap, .bridge:
             let from = transactionType == .outgoing ? accountAddress : transaction.peerName
             let to = transactionType == .incoming ? accountAddress : transaction.peerName
             let amountString = tokenFormatter.stringFromDecimal(transaction.amount.decimalValue)
