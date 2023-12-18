@@ -154,9 +154,8 @@
 "backup.wallet.seed" = "Show Raw Seed";
 "backup.wallet.title" = "Backup wallet";
 "banners.view.factory.backup.action.title" = "Backup now";
-"banners.view.factory.backup.subtitle" = "If you loose your device, you\
-will lose your funds forever";
-"banners.view.factory.backup.title" = "Backup your wallet";
+"banners.view.factory.backup.subtitle" = "Protect yourself from losing access to your funds";
+"banners.view.factory.backup.title" = "Wallet backup";
 "banners.view.factory.xor.action.title" = "Buy XOR";
 "banners.view.factory.xor.subtitle" = "Buy or sell XOR token with\
 Euro cash";
