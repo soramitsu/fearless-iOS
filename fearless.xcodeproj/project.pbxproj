@@ -2406,6 +2406,9 @@
 		FA864445276851CF00956D8E /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA864444276851CF00956D8E /* ContainerViewController.swift */; };
 		FA8644472768522000956D8E /* HistoryHeaderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644462768522000956D8E /* HistoryHeaderType.swift */; };
 		FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644502768A13300956D8E /* TwoLabelView.swift */; };
+		FA8800542B2C5D91000AE5EB /* ReefSubsquidHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8800532B2C5D91000AE5EB /* ReefSubsquidHistoryOperationFactory.swift */; };
+		FA8800562B2C610E000AE5EB /* ReefSubsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8800552B2C610E000AE5EB /* ReefSubsquidHistory.swift */; };
+		FA8800582B2C6629000AE5EB /* ReefRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8800572B2C6629000AE5EB /* ReefRewardOperationFactory.swift */; };
 		FA8ED43328FD960F00EBB712 /* YourValidatorListFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */; };
 		FA8ED43628FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */; };
 		FA8ED43828FD984500EBB712 /* YourValidatorListRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43728FD984500EBB712 /* YourValidatorListRelaychainViewModelState.swift */; };
@@ -5370,6 +5373,9 @@
 		FA864444276851CF00956D8E /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		FA8644462768522000956D8E /* HistoryHeaderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryHeaderType.swift; sourceTree = "<group>"; };
 		FA8644502768A13300956D8E /* TwoLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwoLabelView.swift; sourceTree = "<group>"; };
+		FA8800532B2C5D91000AE5EB /* ReefSubsquidHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReefSubsquidHistoryOperationFactory.swift; sourceTree = "<group>"; };
+		FA8800552B2C610E000AE5EB /* ReefSubsquidHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReefSubsquidHistory.swift; sourceTree = "<group>"; };
+		FA8800572B2C6629000AE5EB /* ReefRewardOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReefRewardOperationFactory.swift; sourceTree = "<group>"; };
 		FA8C34B051607218638BA851 /* FiltersProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersProtocols.swift; sourceTree = "<group>"; };
 		FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListFlow.swift; sourceTree = "<group>"; };
 		FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListRelaychainStrategy.swift; sourceTree = "<group>"; };
@@ -12848,6 +12854,7 @@
 				FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */,
 				FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */,
 				FAE5858E2B0764EC00240FE1 /* SoraSubsquidHistoryOperationFactory.swift */,
+				FA8800532B2C5D91000AE5EB /* ReefSubsquidHistoryOperationFactory.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -12993,6 +13000,7 @@
 				FA6C175929935DC700A55254 /* RewardOperationFactory.swift */,
 				FA6C175A29935DC700A55254 /* SubqueryRewardOperationFactory.swift */,
 				FA97E68A2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift */,
+				FA8800572B2C6629000AE5EB /* ReefRewardOperationFactory.swift */,
 			);
 			path = Rewards;
 			sourceTree = "<group>";
@@ -14795,6 +14803,7 @@
 				FAFFAE6F29AC84B10074AF1F /* SubsquidRewardResponse.swift */,
 				FAFFAE7029AC84B10074AF1F /* ParachainSubsquidRewardResponse.swift */,
 				FA14AE882B0785670066CADF /* SoraSubsquidHistoryResponse.swift */,
+				FA8800552B2C610E000AE5EB /* ReefSubsquidHistory.swift */,
 			);
 			path = Subsquid;
 			sourceTree = "<group>";
@@ -15376,6 +15385,7 @@
 				076D9D55294AC3E3002762E3 /* DexIdInfo.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
 				84DBEA47265E98C300FDF73C /* AmountInputResult.swift in Sources */,
+				FA8800582B2C6629000AE5EB /* ReefRewardOperationFactory.swift in Sources */,
 				FA9A8F192A72573C008FA99F /* AlchemyService.swift in Sources */,
 				07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */,
 				FAFFAE3C29AC84480074AF1F /* NumberedLabel.swift in Sources */,
@@ -15471,6 +15481,7 @@
 				07D05E5F28EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedStrategy.swift in Sources */,
 				F47BBD8B263189DB0087DA11 /* StakingBalanceAction.swift in Sources */,
 				0716C84F28880304004C8CB1 /* UITableViewCell.swift in Sources */,
+				FA8800542B2C5D91000AE5EB /* ReefSubsquidHistoryOperationFactory.swift in Sources */,
 				FACD42B02A5BE8A4009975AA /* NumbersAndSlashesProcessor.swift in Sources */,
 				F4F2297C260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift in Sources */,
 				FA256989274CE5DD00875A53 /* ViewController+Wrapper.swift in Sources */,
@@ -16097,6 +16108,7 @@
 				FA7254442AC2E48500EC47A6 /* WalletConnectSocketFactory.swift in Sources */,
 				FA37AE3C2859CCD8001DCA96 /* StakingUnbondConfirmParachainViewModelFactory.swift in Sources */,
 				FA38C9C32761E77A005C5577 /* AccountViewModelFactory.swift in Sources */,
+				FA8800562B2C610E000AE5EB /* ReefSubsquidHistory.swift in Sources */,
 				8494D8632524753400614D8F /* WalletCopyCommand.swift in Sources */,
 				84F51060263AE530005D15AE /* TitleValueView.swift in Sources */,
 				FACD427B2A5BE7C6009975AA /* RuntimeSnapshotReady.swift in Sources */,

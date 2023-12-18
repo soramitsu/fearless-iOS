@@ -67,8 +67,8 @@ extension RewardDestinationArg: Codable {
         case Self.controllerField:
             self = .controller
         case Self.accountField:
-            let data = try container.decode(Data.self)
-            self = .account(data)
+            let data = try container.decode(String.self)
+            self = .account(Data(hex: data))
         default:
             throw DecodingError.dataCorruptedError(
                 in: container,
@@ -92,7 +92,7 @@ extension RewardDestinationArg: Codable {
             try container.encodeNil()
         case let .account(data):
             try container.encode(Self.accountField)
-            try container.encode(data)
+            try container.encode(data.toHex())
         }
     }
 }
