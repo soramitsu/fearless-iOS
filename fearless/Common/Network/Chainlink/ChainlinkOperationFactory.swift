@@ -14,7 +14,10 @@ final class ChainlinkOperationFactoryImpl: ChainlinkOperationFactory {
     }()
 
     private lazy var connection: Web3.Eth? = {
-        chainRegistry.getEthereumConnection(for: "1")
+        guard let chainlinkProvider = chainRegistry.availableChains.first(where: { $0.options?.contains(.chainlinkProvider) == true }) else {
+            return nil
+        }
+        return chainRegistry.getEthereumConnection(for: chainlinkProvider.chainId)
     }()
 
     func priceCall(for chainAsset: ChainAsset) -> BaseOperation<PriceData>? {
