@@ -34,7 +34,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFXCM', :configurations => ['DEBUG']
       else
           pod 'SSFXCM', '0.1.25'
-          pod 'SSFExtrinsicKit'
+          pod 'SSFExtrinsicKit', '0.1.0'
           pod 'SSFCrypto'
           pod 'SSFSigner'
           pod 'SSFModels', '0.1.28'
