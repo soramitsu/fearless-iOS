@@ -14,4 +14,4 @@ def appPipline = new org.ios.AppPipeline(
     label: 'mac-fearless',
     effectJiraTasks: true
     )
-appPipline.runPipeline('fearless') 
+appPipline.runPipeline('fearless')
