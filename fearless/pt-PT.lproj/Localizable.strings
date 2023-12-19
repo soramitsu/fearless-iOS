@@ -1035,8 +1035,8 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "wallet.balance.redeemable" = "Resgatável";
 "wallet.balance.reserved" = "Reservado";
 "wallet.balance.unbonding_v1.9.0" = "Unstaking";
-"wallet.connect.connection.complete" = "Conexão de %@ com ethers foi feita com sucesso";
-"wallet.connect.connection.dissconnected" = "Desconexão de %@ ether(s) foi feita com sucesso";
+"wallet.connect.connection.complete" = "Conexão de %@ foi feita com sucesso";
+"wallet.connect.connection.dissconnected" = "Desconexão de %@ foi feita com sucesso";
 "wallet.connect.invalid.url.message" = "Nosso App tem compatibilidade apenas com a Wallet Connect SKD v2, não com a descontinuada SDK v1. Por favor, use a versão apropriada para conectar-se com sucesso.";
 "wallet.connect.invalid.url.title" = "Aviso: Wallet Connect SDK v1 não é compatível";
 "wallet.connect.sign.warning.message" = "Assinar esta mensagem pode ter efeitos colaterais perigosos. Assine apenas mensagens de sites em que você confia totalmente com toda a sua conta.";
