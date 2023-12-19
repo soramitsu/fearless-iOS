@@ -218,7 +218,7 @@
                             "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
                             "symbol": "KSM"
                         }
-                        
+
                     ],
                     "bridgeParachainId": "6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9"
                 }
@@ -6473,5 +6473,642 @@
           "options": [
               "testnet"
           ]
+      },
+      {
+        "disabled": false,
+        "chainId": "1284",
+        "rank": 10,
+        "name": "Moonbeam (EVM)",
+        "externalApi": {
+          "history": {
+            "type": "etherscan",
+            "url": "https://api.moonbeam.moonscan.com/api"
+          },
+          "explorers": [
+            {
+              "type": "etherscan",
+              "types": [
+                "tx",
+                "address"
+              ],
+              "url": "https://moonbeam.moonscan.com/{type}/{value}"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "4a4b160c-e660-4e09-9c3a-4d3050efcd06",
+            "name": "moonbeam",
+            "symbol": "glmr",
+            "precision": 18,
+            "priceId": "moonbeam",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/GLMR.svg",
+            "color": "FFFFFF",
+            "type": "normal",
+            "ethereumType": "normal"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "https://moonbeam.blastapi.io/",
+            "name": "Blast https node"
+          },
+          {
+            "url": "wss://moonbeam.blastapi.io/",
+            "name": "Blast wss node"
+          },
+          {
+            "url": "https://moonbeam-rpc.dwellir.com/",
+            "name": "Dwellir https node"
+          },
+          {
+            "url": "wss://moonbeam-rpc.dwellir.com/",
+            "name": "Dwellir wss node"
+          },
+          {
+            "url": "https://moonbeam.publicnode.com/",
+            "name": "Public https node"
+          },
+          {
+            "url": "wss://moonbeam.publicnode.com/",
+            "name": "Public wss node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Moonbeam.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "1285",
+        "rank": 11,
+        "name": "Moonriver (EVM)",
+        "externalApi": {
+          "history": {
+            "type": "etherscan",
+            "url": "https://api.moonriver.moonscan.com/api"
+          },
+          "explorers": [
+            {
+              "type": "etherscan",
+              "types": [
+                "tx",
+                "address"
+              ],
+              "url": "https://moonriver.moonscan.com/{type}/{value}"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "23c8417d-cbc1-4014-8ea6-56b94ba9ae01",
+            "name": "moonriver",
+            "symbol": "movr",
+            "precision": 18,
+            "priceId": "moonriver",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MOVR.svg",
+            "color": "FFFFFF",
+            "type": "normal",
+            "ethereumType": "normal"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "https://moonriver.blastapi.io/",
+            "name": "Blast https node"
+          },
+          {
+            "url": "wss://moonriver.blastapi.io/",
+            "name": "Blast wss node"
+          },
+          {
+            "url": "https://moonriver-rpc.dwellir.com/",
+            "name": "Dwellir https node"
+          },
+          {
+            "url": "wss://moonriver-rpc.dwellir.com/",
+            "name": "Dwellir wss node"
+          },
+          {
+            "url": "https://moonriver.publicnode.com",
+            "name": "Public https node"
+          },
+          {
+            "url": "wss://moonriver.publicnode.com",
+            "name": "Public wss node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Moonriver.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "66",
+        "rank": 12,
+        "name": "OKXCHain Mainnet",
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "e350e2a5-31b6-417e-9555-f25a223b8f1e",
+            "name": "okt chain",
+            "symbol": "okt",
+            "precision": 18,
+            "priceId": "oec-token",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OKTС.svg",
+            "color": "FFFFFF",
+            "type": "normal",
+            "ethereumType": "normal"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "https://oktc-mainnet.blastapi.io/",
+            "name": "Blast https node"
+          },
+          {
+            "url": "wss://oktc-mainnet.blastapi.io/",
+            "name": "Blast wss node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Okxchain.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum"
+        ]
+      },
+      {
+          "disabled": false,
+          "chainId": "42161",
+          "rank": 13,
+          "name": "Arbitrum One",
+          "externalApi": {
+              "history": {
+                "type": "etherscan",
+                "url": "https://api.arbiscan.io/api"
+              },
+              "explorers": [
+                {
+                  "type": "etherscan",
+                  "types": [
+                    "tx",
+                    "address"
+                  ],
+                  "url": "https://arbiscan.io/{type}/{value}"
+                }
+              ]
+            },
+          "assets": [
+            {
+                "isUtility": true,
+                "id": "37b6375a-0708-4728-bec9-bf15b8680aff",
+                "name": "ethereum",
+                "symbol": "eth",
+                "precision": 18,
+                "priceId": "ethereum",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+                "color": "FF0066",
+                "type": "normal",
+                "ethereumType": "normal"
+            },
+            {
+              "isUtility": false,
+              "id": "0x912CE59144191C1204E64559FE8253a0e49E6548",
+              "name": "arbitrum",
+              "symbol": "arb",
+              "precision": 18,
+              "priceId": "arbitrum",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ARB.svg",
+              "color": "12AAFF",
+              "type": "normal",
+              "ethereumType": "normal"
+            }
+          ],
+          "nodes": [
+            {
+              "url": "https://arbitrum-one.publicnode.com/",
+              "name": "Public http node"
+            },
+            {
+              "url": "wss://arbitrum-one.publicnode.com/",
+              "name": "Public wss node"
+            }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Arbitrum.svg",
+          "addressPrefix": 0,
+          "options": [
+            "ethereum"
+          ]
+        },
+        {
+          "disabled": false,
+          "chainId": "10",
+          "rank": 14,
+          "name": "OP Mainnet",
+          "externalApi": {
+              "history": {
+                "type": "etherscan",
+                "url": "https://optimistic.etherscan.io/api"
+              },
+              "explorers": [
+                {
+                  "type": "etherscan",
+                  "types": [
+                    "tx",
+                    "address"
+                  ],
+                  "url": "https://optimistic.etherscan.io/{type}/{value}"
+                }
+              ]
+            },
+          "assets": [
+            {
+              "isUtility": true,
+              "id": "08bb34b8-8027-4fea-948d-5243f5cbd6ba",
+              "name": "optimism",
+              "symbol": "op",
+              "precision": 18,
+              "priceId": "optimism",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OP.svg",
+              "color": "FF0420",
+              "type": "normal",
+              "ethereumType": "normal"
+            }
+          ],
+          "nodes": [
+              {
+                  "url": "https://optimism-mainnet.blastapi.io/",
+                  "name": "Blast https node"
+              },
+              {
+                  "url": "wss://optimism-mainnet.blastapi.io/",
+                  "name": "Blast wss node"
+              },
+              {
+                  "url": "https://optimism.publicnode.com/",
+                  "name": "Public http node"
+              },
+              {
+                  "url": "wss://optimism.publicnode.com/",
+                  "name": "Public wss node"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Optimism.svg",
+          "addressPrefix": 0,
+          "options": [
+            "ethereum"
+          ]
+        },
+        {
+          "disabled": false,
+          "chainId": "8217",
+          "rank": 15,
+          "name": "Klaytn Mainnet Cypress",
+          "assets": [
+            {
+              "isUtility": true,
+              "id": "dd80081e-7fc3-4a69-8218-57018d6e31c2",
+              "name": "klaytn",
+              "symbol": "klay",
+              "precision": 18,
+              "priceId": "klay-token",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/KLAY.svg",
+              "color": "DE1E41",
+              "type": "normal",
+              "ethereumType": "normal"
+            }
+          ],
+          "nodes": [
+              {
+                  "url": "https://public-en-cypress.klaytn.net/",
+                  "name": "Klaytn Foundation https node"
+              },
+              {
+                  "url": "wss://public-en-cypress.klaytn.net/ws",
+                  "name": "Klaytn Foundation wss node"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Klaytn.svg",
+          "addressPrefix": 0,
+          "options": [
+            "ethereum"
+          ]
+        },
+        {
+          "disabled": false,
+          "chainId": "43114",
+          "rank": 16,
+          "name": "Avalanche C-Chain",
+          "externalApi": {
+              "history": {
+                "type": "etherscan",
+                "url": "https://api.snowtrace.io/api"
+              },
+              "explorers": [
+                {
+                  "type": "etherscan",
+                  "types": [
+                    "tx",
+                    "address"
+                  ],
+                  "url": "https://snowtrace.io/{type}/{value}"
+                }
+              ]
+            },
+          "assets": [
+            {
+              "isUtility": true,
+              "id": "870f6877-c917-48bc-aa64-723416c94ebb",
+              "name": "avalanche",
+              "symbol": "avax",
+              "precision": 18,
+              "priceId": "avalanche-2",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/AVAX.svg",
+              "color": "E84142",
+              "type": "normal",
+              "ethereumType": "normal"
+            }
+          ],
+          "nodes": [
+              {
+                  "url": "https://avalanche-c-chain.publicnode.com/",
+                  "name": "Public https node"
+              },
+              {
+                  "url": "wss://avalanche-c-chain.publicnode.com/ext/bc/C/ws",
+                  "name": "Public wss node"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Avalanche.svg",
+          "addressPrefix": 0,
+          "options": [
+            "ethereum"
+          ]
+        },
+        {
+          "disabled": false,
+          "chainId": "7001",
+          "rank": 17,
+          "name": "ZetaChain Testnet",
+          "assets": [
+            {
+              "isUtility": true,
+              "id": "0f07791b-b091-49c1-81b7-9facba2b7db3",
+              "name": "zetachain",
+              "symbol": "zeta",
+              "precision": 18,
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ZETA.svg",
+              "color": "235643",
+              "type": "normal",
+              "ethereumType": "normal"
+            }
+          ],
+          "nodes": [
+              {
+                  "url": "https://rpc.ankr.com/zetachain_evm_athens_testnet",
+                  "name": "Ankr https node"
+              },
+              {
+                  "url": "https://zetachain-athens-evm.blockpi.network/v1/rpc/public",
+                  "name": "Blockpi https node"
+              },
+              {
+                  "url": "https://zetachain-testnet-evm.itrocket.net",
+                  "name": "Itrocket https node"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Zetachain.svg",
+          "addressPrefix": 0,
+          "options": [
+            "ethereum"
+          ]
+        },
+        {
+          "disabled": false,
+          "chainId": "195",
+          "rank": 18,
+          "name": "X1 testnet",
+          "assets": [
+            {
+              "isUtility": true,
+              "id": "0db45dec-9e88-4044-a358-3888f85e9a9e",
+              "name": "okb",
+              "symbol": "okb",
+              "precision": 18,
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OKTC.svg",
+              "color": "FFFFFF",
+              "type": "normal",
+              "ethereumType": "normal"
+            }
+          ],
+          "nodes": [
+              {
+                  "url": "https://testrpc.x1.tech/",
+                  "name": "X1 https node"
+              },
+              {
+                  "url": "https://x1testrpc.okx.com/",
+                  "name": "X1 https node"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Okxchain.svg",
+          "addressPrefix": 0,
+          "options": [
+            "ethereum"
+          ]
+        },
+        {
+          "disabled": false,
+          "chainId": "1017",
+          "rank": 19,
+          "name": "Greenfield Mainnet",
+          "assets": [
+            {
+              "isUtility": true,
+              "id": "bfa04e41-111e-4e2e-b2d8-6e3b1d73ff5e",
+              "name": "BNB",
+              "symbol": "BNB",
+              "precision": 18,
+              "priceId": "binancecoin",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BNB.svg",
+              "color": "FF0066",
+              "type": "normal",
+              "ethereumType": "normal"
+            }
+          ],
+          "nodes": [
+              {
+                  "url": "https://greenfield-chain.bnbchain.org/",
+                  "name": "Global https node"
+              },
+              {
+                  "url": "https://greenfield-chain-eu.bnbchain.org/",
+                  "name": "EU https node"
+              },
+              {
+                  "url": "https://greenfield-chain-us.bnbchain.org/",
+                  "name": "US https node"
+              },
+              {
+                  "url": "https://greenfield-chain-ap.bnbchain.org/",
+                  "name": "AP https node"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Okxchain.svg",
+          "addressPrefix": 0,
+          "options": [
+            "ethereum"
+          ]
+        },
+        {
+            "disabled": false,
+            "chainId": "1101",
+            "rank": 20,
+            "name": "Polygon zkEVM",
+            "externalApi": {
+                "history": {
+                  "type": "etherscan",
+                  "url": "https://api.zkevm.polygonscan.com/api"
+                },
+                "explorers": [
+                  {
+                    "type": "etherscan",
+                    "types": [
+                      "tx",
+                      "address"
+                    ],
+                    "url": "https://zkevm.polygonscan.com/{type}/{value}"
+                  }
+                ]
+              },
+            "assets": [
+              {
+                "isUtility": true,
+                "id": "8f85b561-18f5-4cf0-9077-305ebc84d015",
+                "name": "ethereum",
+                "symbol": "eth",
+                "precision": 18,
+                "priceId": "ethereum",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+                "color": "FF0066",
+                "type": "normal",
+                "ethereumType": "normal"
+              },
+              {
+                "isUtility": false,
+                "id": "0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035",
+                "name": "usd coin",
+                "symbol": "usdc",
+                "precision": 6,
+                "priceId": "usd-coin",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDC.svg",
+                "color": "3E73C4",
+                "type": "normal",
+                "ethereumType": "erc20"
+            },
+            {
+                "isUtility": false,
+                "id": "0xa2036f0538221a77A3937F1379699f44945018d0",
+                "name": "polygon",
+                "symbol": "matic",
+                "precision": 18,
+                "priceId": "matic-network",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
+                "color": "8247E5",
+                "type": "normal",
+                "ethereumType": "erc20"
+            }
+            ],
+            "nodes": [
+                {
+                    "url": "https://zkevm-rpc.com",
+                    "name": "Zkevm https node"
+                },
+                {
+                    "url": "https://polygon-zkevm-mainnet.public.blastapi.io",
+                    "name": "Blast https node"
+                }
+            ],
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Polygon.svg",
+            "addressPrefix": 0,
+            "options": [
+              "ethereum"
+            ]
+          
+        },
+        {
+          "disabled": false,
+        "chainId": "3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615",
+        "name": "Enjin Matrixchain",
+        "externalApi": {
+          "explorers": [{
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://enjin.subscan.io//{type}/{value}"
+          }]
+        },
+        "assets": [{
+          "id": "13c8d9cb-897b-4507-8ae7-ba2c219d270d",
+          "name": "enjin coin",
+          "symbol": "enj",
+          "precision": 18,
+          "priceId": "enjincoin",
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ENJ.svg",
+          "color": "5A27ED",
+          "isUtility": true,
+          "type": "normal"
+        }],
+        "nodes": [{
+          "url": "wss://rpc.matrix.blockchain.enjin.io",
+          "name": "Enjin Foundation node"
+        }
+    
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Enjin.svg",
+        "addressPrefix": 1110
+      },
+      {
+        "disabled": false,
+        "chainId": "a37725fd8943d2a524cb7ecc65da438f9fa644db78ba24dcd0003e2f95645e8f",
+        "parentId": "3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615",
+        "name": "Canary Matrixchain",
+        "externalApi": {
+          "explorers": [{
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://matrix.subscan.io///{type}/{value}"
+          }]
+        },
+        "assets": [{
+          "id": "85c17bd8-2565-4cf3-8e0f-14f38ff55eee",
+          "name": "enjin coin",
+          "symbol": "cenj",
+          "precision": 18,
+          "priceId": "enjincoin",
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ENJ.svg",
+          "color": "5A27ED",
+          "isUtility": true,
+          "type": "normal"
+        }],
+        "nodes": [{
+          "url": "wss://rpc.matrix.canary.enjin.io",
+          "name": "Enjin Foundation node"
+        }
+    
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Enjin.svg",
+        "addressPrefix": 9030
       }
 ]
