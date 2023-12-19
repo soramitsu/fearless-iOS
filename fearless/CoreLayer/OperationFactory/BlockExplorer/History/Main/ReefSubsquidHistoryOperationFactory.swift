@@ -151,6 +151,7 @@ final class ReefSubsquidHistoryOperationFactory {
                             }, orderBy: timestamp_DESC, limit: 20) {
                               id
                               amount
+                              feeAmount
                               type
                               timestamp
                               success

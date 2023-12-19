@@ -4,23 +4,23 @@ import IrohaCrypto
 import SSFUtils
 import SSFModels
 
-final class StakingAccountSubscription {
+class BaseStakingAccountSubscription: StakingAccountSubscription {
     struct Subscription {
         let handlers: [StorageChildSubscribing]
         let subscriptionId: UInt16
     }
 
-    private let accountId: AccountId
-    private let chainAsset: ChainAsset
+    let accountId: AccountId
+    let chainAsset: ChainAsset
     private let chainFormat: ChainFormat
-    private let chainRegistry: ChainRegistryProtocol
+    let chainRegistry: ChainRegistryProtocol
     private let provider: StreamableProvider<StashItem>
     private let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
-    private let operationQueue: OperationQueue
-    private let logger: LoggerProtocol?
+    let operationQueue: OperationQueue
+    let logger: LoggerProtocol?
     private let stakingType: StakingType
 
-    private let mutex = NSLock()
+    let mutex = NSLock()
 
     private var subscription: Subscription?
 
@@ -56,7 +56,7 @@ final class StakingAccountSubscription {
         unsubscribeRemote()
     }
 
-    private func subscribeLocal() {
+    func subscribeLocal() {
         let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
             let stashItem: StashItem? = changes.reduce(nil) { _, item in
                 switch item {
@@ -87,7 +87,7 @@ final class StakingAccountSubscription {
         )
     }
 
-    private func unsubscribeRemote() {
+    func unsubscribeRemote() {
         mutex.lock()
 
         if let subscriptionId = subscription?.subscriptionId {
@@ -99,7 +99,7 @@ final class StakingAccountSubscription {
         mutex.unlock()
     }
 
-    private func createRequest(for stashItem: StashItem) throws -> [(StorageCodingPath, Data)] {
+    func createRequest(for stashItem: StashItem) throws -> [(StorageCodingPath, Data)] {
         var requests: [(StorageCodingPath, Data)] = []
 
         let stashId = try stashItem.stash.toAccountId(using: chainFormat)
@@ -123,7 +123,7 @@ final class StakingAccountSubscription {
         return requests
     }
 
-    private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
+    func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
         var requests: [(StorageCodingPath, Data)] = []
 
         requests.append((.delegatorState, accountId))
@@ -132,7 +132,7 @@ final class StakingAccountSubscription {
         return requests
     }
 
-    private func subscribeRemote(for accountId: AccountId) {
+    func subscribeRemote(for accountId: AccountId) {
         mutex.lock()
 
         defer {
@@ -164,11 +164,11 @@ final class StakingAccountSubscription {
 
             let storageKeyFactory = StorageKeyFactory()
 
-            let codingOperations: [MapKeyEncodingOperation<String>] = requests.map { request in
+            let codingOperations: [MapKeyEncodingOperation<Data>] = requests.map { request in
                 MapKeyEncodingOperation(
                     path: request.0,
                     storageKeyFactory: storageKeyFactory,
-                    keyParams: [request.1.toHex()]
+                    keyParams: [request.1]
                 )
             }
 
@@ -202,7 +202,7 @@ final class StakingAccountSubscription {
         }
     }
 
-    private func subscribeRemote(for stashItem: StashItem) {
+    func subscribeRemote(for stashItem: StashItem) {
         mutex.lock()
 
         defer {
@@ -234,11 +234,11 @@ final class StakingAccountSubscription {
 
             let storageKeyFactory = StorageKeyFactory()
 
-            let codingOperations: [MapKeyEncodingOperation<String>] = requests.map { request in
+            let codingOperations: [MapKeyEncodingOperation<Data>] = requests.map { request in
                 MapKeyEncodingOperation(
                     path: request.0,
                     storageKeyFactory: storageKeyFactory,
-                    keyParams: [request.1.toHex()]
+                    keyParams: [request.1]
                 )
             }
 
@@ -272,7 +272,7 @@ final class StakingAccountSubscription {
         }
     }
 
-    private func subscribeToRemote(
+    func subscribeToRemote(
         with keysList: [SubscriptionStorageKeys]
     ) {
         mutex.lock()
@@ -314,8 +314,8 @@ final class StakingAccountSubscription {
         }
     }
 
-    private func configureMapOperations(
-        _ operations: [MapKeyEncodingOperation<String>],
+    func configureMapOperations<T: Encodable>(
+        _ operations: [MapKeyEncodingOperation<T>],
         coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) {
         operations.forEach { operation in
@@ -337,7 +337,7 @@ final class StakingAccountSubscription {
         }
     }
 
-    private func handleUpdate(_ update: StorageUpdate) {
+    func handleUpdate(_ update: StorageUpdate) {
         mutex.lock()
 
         defer {
@@ -354,7 +354,7 @@ final class StakingAccountSubscription {
         subscription.handlers.forEach { applyHandler($0, for: updateData) }
     }
 
-    private func applyHandler(_ handler: StorageChildSubscribing, for update: StorageUpdateData) {
+    func applyHandler(_ handler: StorageChildSubscribing, for update: StorageUpdateData) {
         if let change = update.changes.first(where: { $0.key == handler.remoteStorageKey }) {
             handler.processUpdate(change.value, blockHash: update.blockHash)
         }

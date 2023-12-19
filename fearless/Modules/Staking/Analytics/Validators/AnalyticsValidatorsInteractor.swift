@@ -51,7 +51,7 @@ final class AnalyticsValidatorsInteractor {
 
     private func fetchValidatorIdentity(accountIds: [AccountId]) {
         let operation = identityOperationFactory.createIdentityWrapper(
-            for: { accountIds.compactMap { $0.toHex() } },
+            for: { accountIds },
             engine: engine,
             runtimeService: runtimeService,
             chain: chainAsset.chain

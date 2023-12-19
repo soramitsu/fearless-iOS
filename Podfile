@@ -34,10 +34,10 @@ abstract_target 'fearlessAll' do
           pod 'SSFXCM', :configurations => ['DEBUG']
       else
           pod 'SSFXCM', '0.1.25'
-          pod 'SSFExtrinsicKit', '0.1.31'
+#          pod 'SSFExtrinsicKit', '0.1.31'
           pod 'SSFCrypto'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.27'
+#          pod 'SSFModels', '0.1.28'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService', '0.1.29'
@@ -57,10 +57,10 @@ abstract_target 'fearlessAll' do
   # Development pods
 #  pod 'MediaView', :path => '../MediaView-fork'
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
-#  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
+  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
 #  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
 #  pod 'SSFSigner', :path => '../soramitsu-shared-features-ios/SSFSigner'
-#  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
+  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
 #  pod 'SSFEraKit', :path => '../soramitsu-shared-features-ios/SSFEraKit'
 #  pod 'SSFLogger', :path => '../soramitsu-shared-features-ios/SSFLogger'
 #  pod 'SSFRuntimeCodingService', :path => '../soramitsu-shared-features-ios/SSFRuntimeCodingService'

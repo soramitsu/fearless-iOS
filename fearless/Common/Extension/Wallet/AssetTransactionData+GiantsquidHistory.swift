@@ -26,7 +26,16 @@ extension AssetTransactionData {
             TransactionType.incoming
 
         let status: AssetTransactionStatus = transfer.success == true ? .commited : .rejected
-
+        let feeAmount = Decimal.fromSubstrateAmount(
+            BigUInt(string: transfer.feeAmount ?? "") ?? 0,
+            precision: Int16(asset.precision)
+        ) ?? .zero
+        let fee = AssetTransactionFee(
+            identifier: asset.identifier,
+            assetId: asset.identifier,
+            amount: AmountDecimal(value: feeAmount),
+            context: nil
+        )
         return AssetTransactionData(
             transactionId: transfer.id,
             status: status,
@@ -37,7 +46,7 @@ extension AssetTransactionData {
             peerName: peerAddress,
             details: "",
             amount: AmountDecimal(value: amount),
-            fees: [],
+            fees: [fee],
             timestamp: timestamp,
             type: type.rawValue,
             reason: nil,

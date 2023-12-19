@@ -48,15 +48,15 @@ extension EraValidatorService {
     }
 
     private func createPrefsWrapper(
-        identifiersClosure: @escaping () throws -> [String],
+        identifiersClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> {
         guard let connection = chainRegistry.getConnection(for: chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        let keys: () throws -> [String] = {
-            try identifiersClosure()
+        guard let chainStakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
         }
 
         let requestFactory = StorageRequestFactory(
@@ -64,11 +64,12 @@ extension EraValidatorService {
             operationManager: operationManager
         )
 
-        return requestFactory.queryItems(
+        return chainStakingSettings.queryItems(
             engine: connection,
-            keyParams: keys,
+            keyParams: identifiersClosure,
             factory: { codingFactory },
-            storagePath: .validatorPrefs
+            storagePath: .validatorPrefs,
+            using: requestFactory
         )
     }
 
@@ -197,9 +198,9 @@ extension EraValidatorService {
 
         exposureWrapper.allOperations.forEach { $0.addDependency(remoteValidatorIdsOperation) }
 
-        let identifiersClosure: () throws -> [String] = {
+        let identifiersClosure: () throws -> [Data] = {
             let keys = try keysClosure()
-            return keys.map { $0.getAccountIdFromKey(accountIdLenght: accountIdLenght).toHexString() }
+            return keys.map { $0.getAccountIdFromKey(accountIdLenght: accountIdLenght) }
         }
 
         let prefsWrapper = createPrefsWrapper(
@@ -282,7 +283,7 @@ extension EraValidatorService {
 
         let localDecoder = decodeLocalValidators(validators, codingFactory: codingFactory)
 
-        let identifiersClosure = { try validators.map { try Data(hexStringSSF: $0.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght).toHexString() } }
+        let identifiersClosure = { try validators.map { try Data(hexStringSSF: $0.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght) } }
 
         let prefs = createPrefsWrapper(
             identifiersClosure: identifiersClosure,

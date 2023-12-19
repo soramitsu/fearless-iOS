@@ -312,12 +312,12 @@ extension PayoutRewardsService {
     func createIdentityFetchOperation(
         dependingOn eraValidatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
-        let accountIdClosure: () throws -> [AccountAddress] = {
+        let accountIdClosure: () throws -> [AccountId] = {
             let validatorsByEras = try eraValidatorsOperation.extractNoCancellableResultData()
 
-            let accountIds = validatorsByEras.reduce(into: Set<AccountAddress>()) { result, mapping in
+            let accountIds = validatorsByEras.reduce(into: Set<AccountId>()) { result, mapping in
                 mapping.value.forEach { validatorInfo in
-                    let address = validatorInfo.accountId.toHex()
+                    let address = validatorInfo.accountId
                     result.insert(address)
                 }
             }

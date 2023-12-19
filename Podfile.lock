@@ -170,7 +170,7 @@ PODS:
     - SSFRuntimeCodingService
     - SSFStorageQueryKit
     - SSFUtils
-  - SSFExtrinsicKit (0.1.31):
+  - SSFExtrinsicKit (0.1.0):
     - IrohaCrypto
     - RobinHood
     - SSFCrypto
@@ -184,7 +184,7 @@ PODS:
     - SSFUtils
   - SSFLogger (0.1.0):
     - SwiftyBeaver
-  - SSFModels (0.1.27):
+  - SSFModels (0.1.0):
     - IrohaCrypto
   - SSFNetwork (0.1.17):
     - RobinHood
@@ -265,10 +265,10 @@ DEPENDENCIES:
   - SSFCloudStorage
   - SSFCrypto
   - SSFEraKit
-  - SSFExtrinsicKit (= 0.1.31)
+  - SSFExtrinsicKit (from `../soramitsu-shared-features-ios/SSFExtrinsicKit`)
   - SSFHelpers (= 0.1.27)
   - SSFLogger
-  - SSFModels (= 0.1.27)
+  - SSFModels (from `../soramitsu-shared-features-ios/SSFModels`)
   - SSFNetwork
   - SSFRuntimeCodingService (= 0.1.29)
   - SSFSigner
@@ -323,10 +323,8 @@ SPEC REPOS:
     - SSFCloudStorage
     - SSFCrypto
     - SSFEraKit
-    - SSFExtrinsicKit
     - SSFHelpers
     - SSFLogger
-    - SSFModels
     - SSFNetwork
     - SSFRuntimeCodingService
     - SSFSigner
@@ -340,6 +338,10 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SSFExtrinsicKit:
+    :path: "../soramitsu-shared-features-ios/SSFExtrinsicKit"
+  SSFModels:
+    :path: "../soramitsu-shared-features-ios/SSFModels"
   SSFUtils:
     :path: "../soramitsu-shared-features-ios/SSFUtils"
   Starscream:
@@ -393,10 +395,10 @@ SPEC CHECKSUMS:
   SSFCloudStorage: c4123454b3084015ea8d88af92f51de79fce7f2c
   SSFCrypto: 7ea544e61213538744ef8fd075e5e4487b7cf502
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
-  SSFExtrinsicKit: ada245d45f9943e6efa7d65049d76fcf542f90b7
+  SSFExtrinsicKit: 6d5bb2f673c66c9b51c1e477a71c6abb3e80468f
   SSFHelpers: 7ff56eb3240e945ff2008951000d680575a8b46c
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
-  SSFModels: d8e0a94d8204680aba4957ba33e0a96911e890ad
+  SSFModels: bc12f1319ce8c3a419c7d1f602adf3f97f37ef88
   SSFNetwork: 734ad619a28f5b37599c4e1fb599b899536f0d65
   SSFRuntimeCodingService: 61b75ff14f48a96300e313c7f6861efb07840e71
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
@@ -413,6 +415,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: eb1a6aaa83239a11d60ed88d2d91673396105b00
+PODFILE CHECKSUM: 72da3abac2820ba90f9398ffd85d304bd13a185c
 
 COCOAPODS: 1.11.3

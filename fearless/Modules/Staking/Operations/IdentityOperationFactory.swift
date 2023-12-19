@@ -6,7 +6,7 @@ import SSFModels
 
 protocol IdentityOperationFactoryProtocol {
     func createIdentityWrapper(
-        for accountIdClosure: @escaping () throws -> [AccountAddress],
+        for accountIdClosure: @escaping () throws -> [AccountId],
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         chain: ChainModel
@@ -22,8 +22,9 @@ final class IdentityOperationFactory {
 
     private func createSuperIdentityOperation(
         dependingOn coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-        accountIds: @escaping () throws -> [AccountAddress],
-        engine: JSONRPCEngine
+        accountIds: @escaping () throws -> [AccountId],
+        engine: JSONRPCEngine,
+        chain: ChainModel
     ) -> SuperIdentityWrapper {
         let path = StorageCodingPath.superIdentity
 
@@ -31,11 +32,16 @@ final class IdentityOperationFactory {
             try coderFactoryOperation.extractNoCancellableResultData()
         }
 
-        let superIdentityWrapper: SuperIdentityWrapper = requestFactory.queryItems(
+        guard let chainStakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
+        }
+
+        let superIdentityWrapper: SuperIdentityWrapper = chainStakingSettings.queryItems(
             engine: engine,
             keyParams: accountIds,
             factory: factory,
-            storagePath: path
+            storagePath: path,
+            using: requestFactory
         )
 
         return superIdentityWrapper
@@ -144,7 +150,7 @@ final class IdentityOperationFactory {
 
 extension IdentityOperationFactory: IdentityOperationFactoryProtocol {
     func createIdentityWrapper(
-        for accountIdClosure: @escaping () throws -> [AccountAddress],
+        for accountIdClosure: @escaping () throws -> [AccountId],
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         chain: ChainModel
@@ -154,7 +160,8 @@ extension IdentityOperationFactory: IdentityOperationFactoryProtocol {
         let superIdentityWrapper = createSuperIdentityOperation(
             dependingOn: coderFactoryOperation,
             accountIds: accountIdClosure,
-            engine: engine
+            engine: engine,
+            chain: chain
         )
 
         superIdentityWrapper.allOperations.forEach {
