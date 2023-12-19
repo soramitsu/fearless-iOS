@@ -42,6 +42,7 @@ final class SelectedNetworkButton: UIControl {
     }
 
     func set(text: String, image: ImageViewModelProtocol?) {
+        iconImageView.image = nil
         title.text = text
         image?.loadImage(on: iconImageView, targetSize: CGSize(width: 16, height: 16), animated: true)
     }

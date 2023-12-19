@@ -138,7 +138,7 @@ PODS:
   - Sourcery/CLI-Only (1.9.2)
   - SSFChainConnection (0.1.24):
     - SSFUtils
-  - SSFChainRegistry (0.1.24):
+  - SSFChainRegistry (0.1.29):
     - RobinHood
     - SSFChainConnection
     - SSFLogger
@@ -188,7 +188,7 @@ PODS:
     - IrohaCrypto
   - SSFNetwork (0.1.17):
     - RobinHood
-  - SSFRuntimeCodingService (0.1.19):
+  - SSFRuntimeCodingService (0.1.29):
     - RobinHood
     - SSFModels
     - SSFUtils
@@ -260,8 +260,8 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - SSFChainConnection
-  - SSFChainRegistry
+  - SSFChainConnection (= 0.1.24)
+  - SSFChainRegistry (= 0.1.29)
   - SSFCloudStorage
   - SSFCrypto
   - SSFEraKit
@@ -270,10 +270,10 @@ DEPENDENCIES:
   - SSFLogger
   - SSFModels (= 0.1.27)
   - SSFNetwork
-  - SSFRuntimeCodingService
+  - SSFRuntimeCodingService (= 0.1.29)
   - SSFSigner
   - SSFStorageQueryKit
-  - SSFUtils
+  - SSFUtils (= 0.1.25)
   - SSFXCM (= 0.1.25)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
@@ -283,7 +283,7 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/Specs.git:
     - AppAuth
     - BigInt
     - Charts
@@ -388,7 +388,7 @@ SPEC CHECKSUMS:
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SSFChainConnection: 3f1452832b534410c5e94f80f6407ed09bbe88fd
-  SSFChainRegistry: 3351679f2ab8436a62e0a281dff70e7bcae797a7
+  SSFChainRegistry: 540c5724802b7df503e1712994736c23e1cbac4f
   SSFCloudStorage: c4123454b3084015ea8d88af92f51de79fce7f2c
   SSFCrypto: 7ea544e61213538744ef8fd075e5e4487b7cf502
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
@@ -397,7 +397,7 @@ SPEC CHECKSUMS:
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
   SSFModels: d8e0a94d8204680aba4957ba33e0a96911e890ad
   SSFNetwork: 734ad619a28f5b37599c4e1fb599b899536f0d65
-  SSFRuntimeCodingService: 9c527ab5b8c15c3d580d641df54eabc7e105e5cf
+  SSFRuntimeCodingService: 61b75ff14f48a96300e313c7f6861efb07840e71
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
   SSFStorageQueryKit: 3063fdf0a84c9b7c1c2a2a08b862162bd0d38694
   SSFUtils: 23462bb3e6521a73d616c288a90eab409dcc573c
@@ -412,6 +412,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: b4b97f0fefe46ba62a44abdd69a90496a5180824
+PODFILE CHECKSUM: 7a9be4e3f2f18199af16cea1dffccb2e28839b34
 
 COCOAPODS: 1.11.3

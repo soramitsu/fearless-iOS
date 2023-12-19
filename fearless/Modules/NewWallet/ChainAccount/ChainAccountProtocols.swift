@@ -41,6 +41,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceive(accountInfo: AccountInfo?, for chainAsset: ChainAsset, accountId: AccountId)
     func didReceiveWallet(wallet: MetaAccountModel)
+    func didReceive(availableChainAssets: [ChainAsset])
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
@@ -49,6 +50,12 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     AuthorizationPresentable,
     ApplicationStatusPresentable {
     func close(view: ControllerBackedProtocol?)
+
+    func showDetails(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
 
     func presentSendFlow(
         from view: ControllerBackedProtocol?,

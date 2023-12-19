@@ -7,7 +7,7 @@ import SSFUtils
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
     static let crowdloanIndex: Int = 1
-    static let stakingIndex: Int = 2
+    static let stakingIndex: Int = 3
 
     static func createView() -> MainTabBarViewProtocol? {
         guard

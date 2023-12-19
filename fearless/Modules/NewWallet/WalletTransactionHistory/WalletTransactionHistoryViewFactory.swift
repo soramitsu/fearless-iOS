@@ -67,7 +67,7 @@ enum WalletTransactionHistoryViewFactory {
         if chain.externalApi?.history?.type != .giantsquid {
             filters.insert(WalletTransactionHistoryFilter(type: .other, selected: true), at: 1)
         }
-        if chain.hasStakingRewardHistory {
+        if chain.hasStakingRewardHistory || chain.isSora {
             filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
         }
         if chain.hasPolkaswap {
