@@ -192,7 +192,10 @@ extension NftCollectionCell: SkeletonLoadable {
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
                 position: CGPoint(x: UIConstants.defaultOffset, y: LayoutConstants.imageSize / 2 + UIConstants.defaultOffset),
-                size: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize)
+                size: CGSize(
+                    width: LayoutConstants.imageSize - UIConstants.defaultOffset * 2,
+                    height: LayoutConstants.imageSize - UIConstants.defaultOffset * 2
+                )
             ),
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,

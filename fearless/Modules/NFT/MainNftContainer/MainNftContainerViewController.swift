@@ -3,6 +3,10 @@ import SoraFoundation
 import SoraUI
 
 final class MainNftContainerViewController: UIViewController, ViewHolder {
+    enum LayoutConstants {
+        static var tabBarHeight: CGFloat = 83.0
+    }
+
     typealias RootViewType = MainNftContainerViewLayout
 
     // MARK: Private properties
@@ -47,9 +51,10 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
         if let refreshControl = rootView.tableView.refreshControl {
             refreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
         }
-        if let collectionRefreshControl = rootView.collectionView.refreshControl {
-            collectionRefreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
-        }
+
+        let collectionRefreshControl = UIRefreshControl()
+        collectionRefreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
+        rootView.collectionView.refreshControl = collectionRefreshControl
 
         rootView.nftContentControl.filterButton.addTarget(
             self,
@@ -207,20 +212,19 @@ extension MainNftContainerViewController: EmptyStateViewOwnerProtocol {
 extension MainNftContainerViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         let emptyView = EmptyView()
-        emptyView.image = R.image.iconWarningGray()
+        emptyView.image = R.image.iconWarning()
         emptyView.title = R.string.localizable
-            .importEmptyDerivationConfirm(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.iconMode = .smallFilled
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable
+            .nftListEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .bigFilledShadow
         emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
+        emptyView.verticalOffset = -LayoutConstants.tabBarHeight
         return emptyView
     }
 
     var contentViewForEmptyState: UIView {
         rootView.emptyViewContainer
-    }
-
-    var verticalSpacingForEmptyState: CGFloat? {
-        26.0
     }
 }
 

@@ -26,6 +26,12 @@ final class EmptyView: UIView {
         }
     }
 
+    var verticalOffset: CGFloat = 0 {
+        didSet {
+            handleLayoutConfigurationChanges()
+        }
+    }
+
     var image: UIImage? {
         get {
             imageView.image
@@ -144,13 +150,13 @@ final class EmptyView: UIView {
         case .center:
             imageBackgroundView.snp.remakeConstraints { make in
                 make.centerX.equalToSuperview()
-                make.centerY.equalToSuperview()
+                make.centerY.equalToSuperview().offset(verticalOffset)
                 make.size.equalTo(iconMode.iconSize)
             }
         case .top:
             imageBackgroundView.snp.remakeConstraints { make in
                 make.centerX.equalToSuperview()
-                make.top.equalToSuperview().offset(UIConstants.bigOffset)
+                make.top.equalToSuperview().offset(UIConstants.bigOffset + verticalOffset)
                 make.size.equalTo(iconMode.iconSize)
             }
         case .bottom:
