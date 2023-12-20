@@ -1123,3 +1123,4 @@
 "nft.creator.title" = "Creator";
 "common.price" = "Price";
 "nft.share.address" = "My public address to receive: %s";
+"nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";
