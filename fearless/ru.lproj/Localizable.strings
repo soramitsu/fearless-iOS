@@ -1228,3 +1228,4 @@ Euro cash";
 "verify.phone.number.title" = "Проверьте свой номер телефона";
 "common.available.networks" = "Available networks";
 "common.my.networks" = "My networks";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the Kusama network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";

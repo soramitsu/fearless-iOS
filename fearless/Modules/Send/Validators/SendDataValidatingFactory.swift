@@ -191,4 +191,40 @@ class SendDataValidatingFactory: NSObject {
             }
         })
     }
+
+    func soraBridgeAmountLessFeeViolated(
+        originCHainId: ChainModel.Id,
+        destChainId: ChainModel.Id?,
+        amount: Decimal,
+        fee: Decimal?,
+        locale: Locale
+    ) -> DataValidating {
+        WarningConditionViolation { [weak self] delegate in
+            guard let view = self?.view else {
+                return
+            }
+            let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
+            let message = R.string.localizable.soraBridgeLowAmountAlert(preferredLanguages: locale.rLanguages)
+            self?.basePresentable.presentWarning(
+                for: title,
+                message: message,
+                action: { delegate.didCompleteWarningHandling() },
+                view: view,
+                locale: locale
+            )
+        } preservesCondition: {
+            guard let destChainId = destChainId, let fee = fee else {
+                return false
+            }
+            let originKnownChain = Chain(chainId: originCHainId)
+            let destKnownChain = Chain(chainId: destChainId)
+
+            switch (originKnownChain, destKnownChain) {
+            case (.soraMain, .kusama):
+                return amount > fee
+            default:
+                return true
+            }
+        }
+    }
 }
