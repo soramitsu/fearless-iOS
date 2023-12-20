@@ -201,6 +201,10 @@ extension SendViewController: SendViewInput {
     func didStopLoading() {
         rootView.actionButton.set(loading: false)
     }
+
+    func setHistoryButton(isVisible: Bool) {
+        rootView.historyButton.isHidden = !isVisible
+    }
 }
 
 extension SendViewController: HiddableBarWhenPushed {}
