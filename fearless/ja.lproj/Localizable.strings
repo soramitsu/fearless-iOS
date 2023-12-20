@@ -1104,3 +1104,4 @@
 "сurrencies.stub.text" = "通貨";
 "common.available.networks" = "Available networks";
 "common.my.networks" = "My networks";
+"transaction.details.view.reefscan" = "View in Reefscan";

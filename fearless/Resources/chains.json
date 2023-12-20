@@ -303,7 +303,15 @@
                   "history": {
                       "type": "reef",
                       "url": "https://squid.subsquid.io/reef-explorer/graphql"
-                  }
+                  },
+                  "explorers": [{
+                      "type": "reef",
+                      "types": [
+                          "extrinsic",
+                          "account"
+                      ],
+                      "url": "https://reefscan.com/{type}/{value}"
+                  }]
               },
               "nodes": [{
                   "url": "wss://rpc.reefscan.com/ws",

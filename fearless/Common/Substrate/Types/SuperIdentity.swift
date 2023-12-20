@@ -23,7 +23,6 @@ struct SuperIdentity: Codable {
             parentAccountId = Data(hex: parentAccountIdString)
         }
         data = try container.decode(ChainData.self)
-        print("success")
     }
 
     func encode(to encoder: Encoder) throws {
