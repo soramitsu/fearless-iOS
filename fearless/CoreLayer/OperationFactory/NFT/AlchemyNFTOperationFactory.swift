@@ -94,7 +94,8 @@ final class AlchemyNFTOperationFactory {
                     tokenType: $0.tokenType,
                     desc: $0.openSea?.description,
                     opensea: $0.openSea,
-                    chain: chain
+                    chain: chain,
+                    totalSupply: $0.totalSupply
                 )
             }
         }
@@ -183,7 +184,8 @@ final class AlchemyNFTOperationFactory {
                     tokenType: $0.contractMetadata?.tokenType,
                     desc: $0.contractMetadata?.openSea?.description,
                     opensea: $0.contractMetadata?.openSea,
-                    chain: chain
+                    chain: chain,
+                    totalSupply: $0.contractMetadata?.totalSupply
                 )
 
                 let metadata = NFTMetadata(
@@ -236,7 +238,8 @@ final class AlchemyNFTOperationFactory {
                     tokenType: $0.contractMetadata?.tokenType,
                     desc: $0.contractMetadata?.openSea?.description,
                     opensea: $0.contractMetadata?.openSea,
-                    chain: chain
+                    chain: chain,
+                    totalSupply: $0.contractMetadata?.totalSupply
                 )
 
                 let metadata = NFTMetadata(

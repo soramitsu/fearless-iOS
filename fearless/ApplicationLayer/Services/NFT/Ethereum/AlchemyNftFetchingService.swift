@@ -80,7 +80,12 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
 
     private func fetchCollectionNfts(for chain: ChainModel, address: String) async throws -> [NFT]? {
         try await withCheckedThrowingContinuation { [weak self] continuation in
-            let fetchNftsOperation = operationFactory.fetchCollectionNfts(chain: chain, address: address)
+            guard let strongSelf = self else {
+                continuation.resume(with: .success([]))
+                return
+            }
+
+            let fetchNftsOperation = strongSelf.operationFactory.fetchCollectionNfts(chain: chain, address: address)
 
             fetchNftsOperation.targetOperation.completionBlock = { [weak self] in
                 do {

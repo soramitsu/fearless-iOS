@@ -129,7 +129,7 @@ struct NFTCollection: Codable, Equatable, Hashable {
     let desc: String?
     let opensea: AlchemyNftOpenseaInfo?
     let chain: ChainModel
-
+    var totalSupply: String?
     var nfts: [NFT]?
     var availableNfts: [NFT]?
 
