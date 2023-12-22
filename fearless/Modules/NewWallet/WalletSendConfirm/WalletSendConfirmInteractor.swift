@@ -26,7 +26,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
-    private var runtimeItems: [RuntimeMetadataItem]?
+    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -82,10 +82,12 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         }
     }
 
-    private func fetchRuntimeItems() async throws -> [RuntimeMetadataItem] {
-        if let items = runtimeItems {
-            return items
+    private func fetchCurrentRuntimeItem() async throws -> RuntimeMetadataItem? {
+        if let item = runtimeItemByChainId[chainAsset.chain.chainId] {
+            return item
         }
+
+        let currentChainId = chainAsset.chain.chainId
 
         return try await withUnsafeThrowingContinuation { continuation in
             let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
@@ -93,14 +95,24 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             runtimeItemsOperation.completionBlock = { [weak self] in
                 do {
                     let items = try runtimeItemsOperation.extractNoCancellableResultData()
-                    self?.runtimeItems = items
-                    continuation.resume(returning: items)
+                    self?.cache(runtimeItems: items)
+
+                    let currentRuntimeItem = items.first(where: { $0.chain == currentChainId })
+                    continuation.resume(returning: currentRuntimeItem)
                 } catch {
                     continuation.resume(throwing: error)
                 }
             }
 
             operationQueue.addOperation(runtimeItemsOperation)
+        }
+    }
+
+    private func cache(runtimeItems: [RuntimeMetadataItem]) {
+        runtimeItemByChainId = runtimeItems.reduce([ChainModel.Id: RuntimeMetadataItem]()) { partialResult, currentItem in
+            var result = partialResult
+            result[currentItem.chain] = currentItem
+            return result
         }
     }
 
@@ -117,7 +129,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func estimateFee() {
         Task {
             do {
-                let runtimeItem = try await fetchRuntimeItems().first(where: { $0.chain == chainAsset.chain.chainId })
+                let runtimeItem = try await fetchCurrentRuntimeItem()
                 let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem).transferService
                 let fee: BigUInt
                 switch call {
@@ -140,7 +152,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func submitExtrinsic() {
         Task {
             do {
-                let runtimeItem = try await fetchRuntimeItems().first(where: { $0.chain == chainAsset.chain.chainId })
+                let runtimeItem = try await fetchCurrentRuntimeItem()
                 let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem).transferService
 
                 let txHash: String
@@ -173,7 +185,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal) {
         if chainAsset.chain.isEquilibrium {
             Task {
-                let runtimeItem = try await fetchRuntimeItems().first(where: { $0.chain == chainAsset.chain.chainId })
+                let runtimeItem = try await fetchCurrentRuntimeItem()
                 let service = try await dependencyContainer
                     .prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
                     .equilibruimTotalBalanceService
@@ -188,7 +200,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
 
     func provideConstants() {
         Task {
-            let runtimeItem = try await fetchRuntimeItems().first(where: { $0.chain == chainAsset.chain.chainId })
+            let runtimeItem = try await fetchCurrentRuntimeItem()
             let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
 
             dependencies.existentialDepositService.fetchExistentialDeposit(

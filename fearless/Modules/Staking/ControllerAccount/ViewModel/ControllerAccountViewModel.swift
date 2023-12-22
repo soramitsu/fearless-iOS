@@ -11,6 +11,6 @@ struct ControllerAccountViewModel {
 
 extension ControllerAccountViewModel {
     var canChooseOtherController: Bool {
-        !(chainAsset.chain.isWestend || chainAsset.chain.isPolkadotOrKusama)
+        (chainAsset.chain.isTernoa || chainAsset.chain.isSora || chainAsset.chain.isReef)
     }
 }

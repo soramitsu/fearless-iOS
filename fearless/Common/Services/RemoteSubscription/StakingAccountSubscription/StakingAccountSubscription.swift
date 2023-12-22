@@ -1,3 +1,5 @@
 import Foundation
 
-protocol StakingAccountSubscription: AnyObject {}
+protocol StakingAccountSubscription: AnyObject {
+    func resolveKeysAndSubscribe()
+}

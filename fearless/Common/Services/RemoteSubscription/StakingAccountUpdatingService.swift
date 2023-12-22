@@ -73,6 +73,9 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
             logger: logger,
             stakingType: stakingType
         )
+
+        accountResolver?.resolveKeysAndSubscribe()
+        accountSubscription?.resolveKeysAndSubscribe()
     }
 
     func clearSubscription() {

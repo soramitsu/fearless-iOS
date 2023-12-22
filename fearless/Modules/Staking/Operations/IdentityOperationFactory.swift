@@ -109,15 +109,19 @@ final class IdentityOperationFactory {
         engine: JSONRPCEngine,
         chain: ChainModel
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
+        guard let stakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
+        }
+
         let path = StorageCodingPath.identity
 
-        let keyParams: () throws -> [AccountAddress] = {
+        let keyParams: () throws -> [Data] = {
             let responses = try superIdentityOperation.extractNoCancellableResultData()
             return responses.map { response in
                 if let value = response.value {
-                    return value.parentAccountId.toHex()
+                    return value.parentAccountId
                 } else {
-                    return response.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght).toHex()
+                    return response.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght)
                 }
             }
         }
@@ -126,12 +130,7 @@ final class IdentityOperationFactory {
             try runtimeOperation.extractNoCancellableResultData()
         }
 
-        let identityWrapper: IdentityWrapper = requestFactory.queryItems(
-            engine: engine,
-            keyParams: keyParams,
-            factory: factory,
-            storagePath: path
-        )
+        let identityWrapper: IdentityWrapper = stakingSettings.queryItems(engine: engine, keyParams: keyParams, factory: factory, storagePath: path, using: requestFactory)
 
         let mergeOperation = createIdentityMergeOperation(
             dependingOn: superIdentityOperation,

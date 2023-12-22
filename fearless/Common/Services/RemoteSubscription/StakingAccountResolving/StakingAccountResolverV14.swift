@@ -77,7 +77,10 @@ final class StakingAccountResolverV14: BaseStakingAccountResolver {
         }
     }
 
-    override func createDecodingWrapper(from updateData: StorageUpdateData, subscription: BaseStakingAccountResolver.Subscription) -> CompoundOperationWrapper<BaseStakingAccountResolver.DecodedChanges> {
+    override func createDecodingWrapper(
+        from updateData: StorageUpdateData,
+        subscription: BaseStakingAccountResolver.Subscription
+    ) -> CompoundOperationWrapper<BaseStakingAccountResolver.DecodedChanges> {
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }

@@ -12,7 +12,7 @@ protocol ChainsTypesSyncServiceProtocol {
 }
 
 final class ChainsTypesSyncService {
-    static let fetchLocalData = true
+    static let fetchLocalData = false
 
     private let url: URL?
     private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
@@ -142,11 +142,11 @@ final class ChainsTypesSyncService {
     }
 
     private func handleCompletion(versioningMap: [String: Data]) {
-//        mutex.lock()
-//
-//        defer {
-//            mutex.unlock()
-//        }
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
 
         isSyncing = false
         retryAttempt = 0

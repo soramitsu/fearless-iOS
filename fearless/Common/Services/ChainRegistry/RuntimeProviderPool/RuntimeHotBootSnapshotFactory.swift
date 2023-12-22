@@ -26,7 +26,7 @@ final class RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol
     }
 
     func createRuntimeSnapshotWrapper(
-        usedRuntimePaths _: [String: [String]],
+        usedRuntimePaths: [String: [String]],
         chainTypes: Data
     ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> { [weak self] in
@@ -37,12 +37,11 @@ final class RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol
 
             // TODO: think about it
             let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
-            let defaultTypesJSON = try JSONDecoder().decode(JSON.self, from: chainTypes)
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-                try JSONEncoder().encode(defaultTypesJSON),
+                try JSONEncoder().encode(json),
                 versioningData: chainTypes,
                 runtimeMetadata: runtimeMetadata,
-                usedRuntimePaths: [:]
+                usedRuntimePaths: usedRuntimePaths
             )
 
             return RuntimeSnapshot(

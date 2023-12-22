@@ -28,7 +28,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
-    private var runtimeItems: [RuntimeMetadataItem]?
+    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
 
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -91,10 +91,12 @@ final class SendInteractor: RuntimeConstantFetching {
         }
     }
 
-    private func fetchRuntimeItems() async throws -> [RuntimeMetadataItem] {
-        if let items = runtimeItems {
-            return items
+    private func fetchCurrentRuntimeItem(currentChainAsset: ChainAsset) async throws -> RuntimeMetadataItem? {
+        if let item = runtimeItemByChainId[currentChainAsset.chain.chainId] {
+            return item
         }
+
+        let currentChainId = currentChainAsset.chain.chainId
 
         return try await withUnsafeThrowingContinuation { continuation in
             let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
@@ -102,8 +104,10 @@ final class SendInteractor: RuntimeConstantFetching {
             runtimeItemsOperation.completionBlock = { [weak self] in
                 do {
                     let items = try runtimeItemsOperation.extractNoCancellableResultData()
-                    self?.runtimeItems = items
-                    continuation.resume(returning: items)
+                    self?.cache(runtimeItems: items)
+
+                    let currentRuntimeItem = items.first(where: { $0.chain == currentChainId })
+                    continuation.resume(returning: currentRuntimeItem)
                 } catch {
                     continuation.resume(throwing: error)
                 }
@@ -113,9 +117,17 @@ final class SendInteractor: RuntimeConstantFetching {
         }
     }
 
+    private func cache(runtimeItems: [RuntimeMetadataItem]) {
+        runtimeItemByChainId = runtimeItems.reduce([ChainModel.Id: RuntimeMetadataItem]()) { partialResult, currentItem in
+            var result = partialResult
+            result[currentItem.chain] = currentItem
+            return result
+        }
+    }
+
     private func updateDependencies(for chainAsset: ChainAsset) {
         Task {
-            let runtimeItem = try await fetchRuntimeItems().first(where: { $0.chain == chainAsset.chain.chainId })
+            let runtimeItem = try await fetchCurrentRuntimeItem(currentChainAsset: chainAsset)
             let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
             self.dependencies = dependencies
 

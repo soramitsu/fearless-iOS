@@ -96,49 +96,6 @@ final class ReefSubsquidHistoryOperationFactory {
     ) -> String {
         var filterStrings: [String] = []
 
-//        if filters.contains(where: { $0.type == .other && $0.selected }) {
-//            filterStrings.append(
-//                """
-//                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
-//                            accountId
-//                            amount
-//                            blockNumber
-//                            era
-//                            extrinsicHash
-//                            id
-//                            timestamp
-//                          }
-//                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
-//                            accountId
-//                            amount
-//                            blockNumber
-//                            extrinsicHash
-//                            id
-//                            success
-//                            timestamp
-//                            type
-//                          }
-//                """
-//            )
-//        }
-//
-//        if filters.contains(where: { $0.type == .reward && $0.selected }) {
-//            filterStrings.append(
-//                """
-//                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
-//                accountId
-//                amount
-//                blockNumber
-//                era
-//                extrinsicHash
-//                id
-//                timestamp
-//                validator
-//                }
-//                """
-//            )
-//        }
-
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
                 """

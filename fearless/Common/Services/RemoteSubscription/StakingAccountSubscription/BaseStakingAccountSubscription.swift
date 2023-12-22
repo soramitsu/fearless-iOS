@@ -12,16 +12,14 @@ class BaseStakingAccountSubscription: StakingAccountSubscription {
 
     let accountId: AccountId
     let chainAsset: ChainAsset
-    private let chainFormat: ChainFormat
     let chainRegistry: ChainRegistryProtocol
-    private let provider: StreamableProvider<StashItem>
-    private let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
     let operationQueue: OperationQueue
     let logger: LoggerProtocol?
-    private let stakingType: StakingType
-
     let mutex = NSLock()
-
+    private let stakingType: StakingType
+    private let chainFormat: ChainFormat
+    private let provider: StreamableProvider<StashItem>
+    private let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
     private var subscription: Subscription?
 
     init(
@@ -44,7 +42,9 @@ class BaseStakingAccountSubscription: StakingAccountSubscription {
         self.operationQueue = operationQueue
         self.logger = logger
         self.stakingType = stakingType
+    }
 
+    func resolveKeysAndSubscribe() {
         if stakingType.isRelaychain {
             subscribeLocal()
         } else {
