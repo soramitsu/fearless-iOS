@@ -30,6 +30,7 @@ final class WalletDetailsInteractor {
         self.eventCenter = eventCenter
         self.repository = repository
         self.availableExportOptionsProvider = availableExportOptionsProvider
+        self.eventCenter.add(observer: self)
     }
 }
 
@@ -143,6 +144,17 @@ private extension WalletDetailsInteractor {
             presenter.didReceive(chains: chains)
         case .failure, .none:
             return
+        }
+    }
+}
+
+extension WalletDetailsInteractor: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        if case .normal = flow {
+            flow = .normal(wallet: event.account)
+            DispatchQueue.main.async {
+                self.presenter.didReceive(updatedFlow: .normal(wallet: event.account))
+            }
         }
     }
 }
