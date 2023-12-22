@@ -130,6 +130,7 @@ extension NftCollectionViewController: UICollectionViewDataSource, UICollectionV
         default:
             break
         }
+        cell.delegate = self
         return cell
     }
 
@@ -152,5 +153,11 @@ extension NftCollectionViewController: UICollectionViewDataSource, UICollectionV
 
     func numberOfSections(in _: UICollectionView) -> Int {
         viewModel?.availableCellModels.isNotEmpty == true ? 2 : 1
+    }
+}
+
+extension NftCollectionViewController: NftCellDelegate {
+    func handle(cellModel: NftCellViewModel) {
+        output.didTapActionButton(nft: cellModel.nft, type: cellModel.type)
     }
 }

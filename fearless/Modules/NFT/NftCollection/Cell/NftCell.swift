@@ -1,6 +1,10 @@
 import UIKit
 import SoraUI
 
+protocol NftCellDelegate: AnyObject {
+    func handle(cellModel: NftCellViewModel)
+}
+
 class NftCell: UICollectionViewCell {
     private enum LayoutConstants {
         static let imageSize: CGFloat = 152.0
@@ -32,11 +36,12 @@ class NftCell: UICollectionViewCell {
     let button: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
-        button.isUserInteractionEnabled = false
         return button
     }()
 
     private var skeletonView: SkrullableView?
+    private var cellModel: NftCellViewModel?
+    var delegate: NftCellDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -89,6 +94,7 @@ class NftCell: UICollectionViewCell {
     }
 
     func bind(cellModel: NftCellViewModel) {
+        self.cellModel = cellModel
         if let imageViewModel = cellModel.imageViewModel {
             imageViewModel.loadImage(on: imageView, targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize), animated: true, cornerRadius: 0)
         } else {
@@ -103,6 +109,14 @@ class NftCell: UICollectionViewCell {
         case .available:
             button.imageWithTitleView?.title = R.string.localizable.commonShare(preferredLanguages: cellModel.locale.rLanguages)
             button.imageWithTitleView?.iconImage = R.image.iconShare()
+        }
+        button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
+    }
+
+    @objc
+    func didTapButton() {
+        if let cellModel = self.cellModel {
+            delegate?.handle(cellModel: cellModel)
         }
     }
 }

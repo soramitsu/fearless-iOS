@@ -75,6 +75,15 @@ final class NftSendViewLayout: UIView {
         view.isHidden = true
         return view
     }()
+    
+    let mediaView: UniversalMediaView = {
+        let mediaView = UniversalMediaView(frame: .zero)
+        mediaView.allowLooping = true
+        mediaView.shouldHidePlayButton = true
+        mediaView.shouldAutoPlayAfterPresentation = true
+        mediaView.backgroundColor = .clear
+        return mediaView
+    }()
 
     var locale = Locale.current {
         didSet {

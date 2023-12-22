@@ -209,7 +209,11 @@ final class NftDetailsViewLayout: UIView {
         tokenTypeView.valueLabel.text = viewModel.tokenType
         priceView.valueLabel.text = viewModel.priceString
 
-        mediaView.bind(mediaURL: viewModel.nft.media?.first?.normalizedURL, animating: true)
+        if let imageUrl = viewModel.nft.thumbnailURL {
+            mediaView.bind(mediaURL: imageUrl, animating: true)
+        } else {
+            mediaView.setGIFImage(name: "animatedIcon")
+        }
 
         switch viewModel.nftType {
         case .owned:

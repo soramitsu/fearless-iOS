@@ -8,6 +8,7 @@ protocol NftCollectionViewOutput: AnyObject {
     func didLoad(view: NftCollectionViewInput)
     func didBackButtonTapped()
     func didSelect(nft: NFT, type: NftType)
+    func didTapActionButton(nft: NFT, type: NftType)
 }
 
 protocol NftCollectionInteractorInput: AnyObject {
@@ -18,8 +19,9 @@ protocol NftCollectionInteractorOutput: AnyObject {
     func didReceive(collection: NFTCollection)
 }
 
-protocol NftCollectionRouterInput: AnyObject, PresentDismissable {
+protocol NftCollectionRouterInput: AnyObject, PresentDismissable, SharingPresentable {
     func openNftDetails(nft: NFT, type: NftType, wallet: MetaAccountModel, address: String, from view: ControllerBackedProtocol?)
+    func openSend(nft: NFT, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)
 }
 
 protocol NftCollectionModuleInput: AnyObject {}
