@@ -1,6 +1,8 @@
 import UIKit
 
 final class FiltersViewLayout: UIView {
+    private let screenTitle: String?
+
     lazy var navigationBar: BaseNavigationBar = {
         let navBar = BaseNavigationBar()
         navBar.set(.present)
@@ -39,12 +41,17 @@ final class FiltersViewLayout: UIView {
 
     func applyLocalization() {
         resetButton.setTitle(R.string.localizable.commonReset(preferredLanguages: locale.rLanguages), for: .normal)
-        navigationTitleLabel.text = R.string.localizable.walletFiltersTitle(preferredLanguages: locale.rLanguages)
+        if screenTitle == nil {
+            navigationTitleLabel.text = R.string.localizable.walletFiltersTitle(preferredLanguages: locale.rLanguages)
+        } else {
+            navigationTitleLabel.text = screenTitle
+        }
         applyButton.imageWithTitleView?.title = R.string.localizable.commonApply(preferredLanguages: locale.rLanguages)
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(screenTitle: String?) {
+        self.screenTitle = screenTitle
+        super.init(frame: .zero)
 
         backgroundColor = R.color.colorBlack19()
 
