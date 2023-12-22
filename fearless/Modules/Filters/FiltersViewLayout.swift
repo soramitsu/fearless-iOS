@@ -89,6 +89,7 @@ final class FiltersViewLayout: UIView {
             addApplyButtonIfNeeded()
         case .singleSelection:
             resetButton.isHidden = true
+            navigationBar.setRightViews([navigationBar.backButton])
         }
     }
 
