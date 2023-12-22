@@ -43,7 +43,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     ) throws -> WalletConnectProposalViewModel {
         let dApp = createDAppViewModel(from: proposal)
 
-        let requiredNetwroks = try createNetworksViewModel(
+        let requiredNetworks = try createNetworksViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
             title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
@@ -73,7 +73,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
 
         let infoCells = [
             WalletConnectProposalCellModel.dAppInfo(dApp),
-            WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetwroks),
+            WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks),
             WalletConnectProposalCellModel(requiredExpandableViewModel: requiredExpandable),
             WalletConnectProposalCellModel(optionalNetworksCaseViewModel: optionalNetworks),
             WalletConnectProposalCellModel(optionalNetworkExpadableViewModel: optionalExpandable)

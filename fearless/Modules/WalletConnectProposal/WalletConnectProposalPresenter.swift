@@ -59,7 +59,7 @@ final class WalletConnectProposalPresenter {
         switch status {
         case let .proposal(proposal):
             provideProposalSessionViewModel(proposal: proposal)
-            setOptionalChainsIfNeeded()
+            setOptionalChains()
         case let .active(session):
             provideActiveSessionViewModel(session: session)
         }
@@ -244,10 +244,8 @@ final class WalletConnectProposalPresenter {
         }
     }
 
-    private func setOptionalChainsIfNeeded() {
+    private func setOptionalChains() {
         guard let proposal = status.proposal else { return }
-        let requiredNamespaces = proposal.requiredNamespaces.map { $0.value }.map { $0.chains }.compactMap { $0 }.reduce([], +)
-        guard requiredNamespaces.isEmpty else { return }
         let optionalNamespaces = proposal.optionalNamespaces.or([:]).map { $0.value }.map { $0.chains }.compactMap { $0 }.reduce([], +)
         let optionalChains = walletConnectModelFactory.resolveChains(for: Set(optionalNamespaces), chains: chains)
         optionalChainsIds = optionalChains.map { $0.chainId }
