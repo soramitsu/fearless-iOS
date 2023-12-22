@@ -1226,6 +1226,8 @@ Euro cash";
 "verify.phone.number.description" = "Введите SMS-код, который был отправлен\n%@";
 "verify.phone.number.send.code" = "ОТПРАВИТЬ КОД";
 "verify.phone.number.title" = "Проверьте свой номер телефона";
+"common.available.networks" = "Available networks";
+"common.my.networks" = "My networks";
 "error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
 "common.request" = "Request";
 "existential.deposit.received.error" = "Existential Deposit not received";

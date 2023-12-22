@@ -138,7 +138,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
                 data,
                 locale: locale
             )
-        case .unused:
+        case .unused, .bridge:
             return nil
         }
     }

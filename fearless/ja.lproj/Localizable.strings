@@ -1102,6 +1102,8 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
+"common.available.networks" = "Available networks";
+"common.my.networks" = "My networks";
 "error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
 "common.request" = "Request";
 "existential.deposit.received.error" = "Existential Deposit not received";

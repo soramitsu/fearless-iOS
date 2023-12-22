@@ -205,6 +205,17 @@
                             "symbol": "KSM"
                         }
                     ]
+                },
+                {
+                    "chainId": "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5",
+                    "assets": [
+                        {
+                            "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
+                            "symbol": "KSM"
+                        }
+                        
+                    ],
+                    "bridgeParachainId": "6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9"
                 }
             ]
         },
@@ -303,7 +314,7 @@
                     "extrinsic",
                     "account"
                 ],
-                "url": "https://statemine.subscan.io/{type}/{value}"
+                "url": "https://assethub-kusama.subscan.io/{type}/{value}"
             }]
         },
         "assets": [{
@@ -442,7 +453,7 @@
                     "extrinsic",
                     "account"
                 ],
-                "url": "https://statemint.subscan.io/{type}/{value}"
+                "url": "https://assethub-polkadot.subscan.io/{type}/{value}"
             }]
         },
         "assets": [{
@@ -558,7 +569,8 @@
             "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ACA.svg",
             "color": "FFFFFF",
             "isUtility": true,
-            "type": "normal"
+            "type": "normal",
+            "existentialDeposit": "100000000000"
         },
             {
                 "id": "cfe26eae-f566-4b8d-a44c-bd4380c27bc5",
@@ -570,18 +582,20 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/AUSD.svg",
                 "color": "E40C5B",
                 "type": "ormlAsset",
-                "isNative": true
+                "isNative": true,
+                "existentialDeposit": "100000000000"
             },
             {
                 "id": "70a69d25-a4ba-4c6b-a15d-09f3c2814ddf",
-                "name": "taiga dot",
+                "name": "tapio dot",
                 "symbol": "tdot",
                 "precision": 10,
                 "currencyId": "0",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/TDOT.svg",
                 "color": "FF0066",
                 "type": "stableAssetPoolToken",
-                "isNative": true
+                "isNative": true,
+                "existentialDeposit": "100000000"
             },
             {
                 "id": "fe07f6c5-2b90-4e1a-81e3-8ed85f5a80b9",
@@ -592,7 +606,8 @@
                 "priceId": "parallel-finance",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/PARA.svg",
                 "color": "4C19E7",
-                "type": "foreignAsset"
+                "type": "foreignAsset",
+                "existentialDeposit": "100000000000"
             },
             {
                 "id": "b6c22f93-be25-426b-b921-18bf19c49667",
@@ -603,7 +618,8 @@
                 "priceId": "moonbeam",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/GLMR.svg",
                 "color": "FFFFFF",
-                "type": "foreignAsset"
+                "type": "foreignAsset",
+                "existentialDeposit": "100000000000000000"
             },
             {
                 "id": "471bfcd1-9680-4ba9-a25d-3e9f777ee2c9",
@@ -614,7 +630,8 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LDOT.svg",
                 "color": "FF0066",
                 "type": "ormlAsset",
-                "isNative": true
+                "isNative": true,
+                "existentialDeposit": "500000000"
             },
             {
                 "id": "ffb814ea-c92c-4a1e-8e24-437c93ecd8ff",
@@ -635,7 +652,8 @@
                 "priceId": "polkadot",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DOT.svg",
                 "color": "FF0066",
-                "type": "ormlAsset"
+                "type": "ormlAsset",
+                "existentialDeposit": "100000000"
             },
             {
                 "id": "a7b48fb1-5741-487a-98fd-c45f958dd4fd",
@@ -647,7 +665,8 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LCDOT.svg",
                 "color": "FF0066",
                 "type": "liquidCrowdloan",
-                "isNative": true
+                "isNative": true,
+                "existentialDeposit": "0"
             },
             {
                 "id": "402c606d-691f-4889-a48d-a459a0e37c56",
@@ -2561,7 +2580,7 @@
             }
         ],
         "xcm": {
-            "xcmVersion": "v1",
+            "xcmVersion": "v3",
             "availableAssets": [
                 {
                     "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
@@ -2641,8 +2660,8 @@
                 "name": "Parallel node"
             },
             {
-                "url": "wss://parallel.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-                "name": "OnFinality node"
+                "url": "wss://parallel-rpc.dwellir.com",
+                "name": "Dwellir node"
             }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/parallelfinance.svg",
@@ -4213,7 +4232,10 @@
             }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/equilibrium.svg",
-        "addressPrefix": 68
+        "addressPrefix": 68,
+        "options": [
+            "utilityFeePayment"
+        ]
     },
     {
         "disabled": false,
@@ -4467,6 +4489,12 @@
         "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
         "paraId": "2124",
         "name": "Amplitude",
+        "externalApi": {
+            "history": {
+                "type": "giantsquid",
+                "url": "https://squid.subsquid.io/gs-main-amplitude/graphql"
+            }
+        },
         "assets": [{
             "id": "b2e6c029-ae73-46f9-9660-51d7034ddc53",
             "name": "amplitude",
@@ -4676,7 +4704,31 @@
             "history": {
                 "type": "sora",
                 "url": "https://api.subquery.network/sq/sora-xor/sora-staging"
+            },
+            "staking": {
+                "type": "sora",
+                "url": "https://squid.subsquid.io/sora-stage/v/v4/graphql"
             }
+        },
+        "xcm": {
+            "xcmVersion": "v3",
+            "availableAssets": [
+                {
+                    "id": "4d6baa42-c8ba-4c47-9992-2af0d55123b1",
+                    "symbol": "ROC"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e",
+                    "assets": [
+                        {
+                            "id": "4d6baa42-c8ba-4c47-9992-2af0d55123b1",
+                            "symbol": "ROC"
+                        }
+                    ]
+                }
+            ]
         },
         "assets": [{
             "id": "b5a44630-920e-43ee-809f-61890d0888b0",
@@ -4818,27 +4870,47 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDC.svg",
                 "color": "3E73C4",
                 "type": "soraAsset"
+            },
+            {
+                "id": "db07f99c-0c76-483a-891f-86fbd028fdc5",
+                "name": "bokolo cash",
+                "symbol": "BCSI",
+                "currencyId": "0x00eacaea6599a04358fda986388ef0bb0c17a553ec819d5de2900c0af0862502",
+                "precision": 18,
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BCSD.svg",
+                "color": "FFFFFF",
+                "type": "soraAsset"
+              },
+            {
+                "id": "4d6baa42-c8ba-4c47-9992-2af0d55123b1",
+                "name": "rococo",
+                "symbol": "roc",
+                "precision": 18,
+                "currencyId": "0x00dc9b4341fde46c9ac80b623d0d43afd9ac205baabdc087cadaa06f92b309c7",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/KSM.svg",
+                "color": "FFFFFF",
+                "type": "soraAsset"
             }
         ],
         "nodes": [{
                 "url": "wss://ws.framenode-1.s1.stg1.sora2.soramitsu.co.jp",
-                "name": "Sora Test Node #1"
+                "name": "Sora Stage Node #1"
             },
             {
                 "url": "wss://ws.framenode-2.s1.stg1.sora2.soramitsu.co.jp",
-                "name": "Sora Test Node #2"
+                "name": "Sora Stage Node #2"
             },
             {
                 "url": "wss://ws.framenode-3.s2.stg1.sora2.soramitsu.co.jp",
-                "name": "Sora Test Node #3"
+                "name": "Sora Stage Node #3"
             },
             {
                 "url": "wss://ws.framenode-4.s2.stg1.sora2.soramitsu.co.jp",
-                "name": "Sora Test Node #4"
+                "name": "Sora Stage Node #4"
             },
             {
                 "url": "wss://ws.framenode-5.s3.stg1.sora2.soramitsu.co.jp",
-                "name": "Sora Test Node #5"
+                "name": "Sora Stage Node #5"
             },
             {
                 "url": "wss://ws.framenode-1.r0.dev.sora2.soramitsu.co.jp",
@@ -4868,10 +4940,10 @@
         "externalApi": {
             "history": {
                 "type": "sora",
-                "url": "https://api.subquery.network/sq/sora-xor/sora-prod-sub4"
+                "url": "https://squid.subsquid.io/sora/v/v4/graphql"
             },
             "staking": {
-                "type": "sora",
+                "type" : "sora",
                 "url": "https://squid.subsquid.io/sora/v/v4/graphql"
             },
             "explorers": [{
@@ -5077,8 +5149,49 @@
                 "color":"FFFFFF",
                 "type": "soraAsset",
                 "isNative": true
+            },
+            {
+                "id": "a13169a1-32fa-4b44-aecb-c404c5f3cdbc",
+                "name": "bokolo cash",
+                "symbol": "BCSI",
+                "currencyId": "0x00eacaea6599a04358fda986388ef0bb0c17a553ec819d5de2900c0af0862502",
+                "precision": 18,
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BCSD.svg",
+                "color": "FFFFFF",
+                "type": "soraAsset"
+            },
+            {
+                "id": "5416b261-a759-4ba6-bc83-ea79a83c5101",
+                "name": "kusama",
+                "symbol": "ksm",
+                "currencyId": "0x00117b0fa73c4672e03a7d9d774e3b3f91beb893e93d9a8d0430295f44225db8",
+                "precision": 18,
+                "priceId": "kusama",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/KSM.svg",
+                "color": "FFFFFF",
+                "type": "soraAsset"
             }
         ],
+        "xcm": {
+            "xcmVersion": "v3",
+            "availableAssets": [
+                {
+                    "id": "5416b261-a759-4ba6-bc83-ea79a83c5101",
+                    "symbol": "KSM"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+                    "assets": [
+                        {
+                            "id": "5416b261-a759-4ba6-bc83-ea79a83c5101",
+                            "symbol": "KSM"
+                        }
+                    ]
+                }
+            ]
+        },
         "nodes": [{
                 "url": "wss://ws.mof.sora.org",
                 "name": "SORA Parliament Ministry of Finance Node"
@@ -5099,7 +5212,8 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/SORA.svg",
         "addressPrefix": 69,
         "options": [
-            "polkaswap"
+            "polkaswap",
+            "utilityFeePayment"
         ]
     },
     {
@@ -5365,10 +5479,6 @@
             "type": "normal"
         }],
         "nodes": [{
-                "url": "wss://k-ui.kapex.network",
-                "name": "Totem node"
-            },
-            {
                 "url": "wss://kapex-rpc.dwellir.com",
                 "name": "Dwellir node"
             }
@@ -5382,33 +5492,45 @@
         "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
         "paraId": "2094",
         "name": "Pendulum",
-        "assets": [{
-            "id": "ebf2822f-2dd4-4f59-aeb3-ae7defa53932",
-            "name": "pendulum",
-            "symbol": "pen",
-            "precision": 12,
-            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/PEN.svg",
-            "color": "8D809E",
-            "isUtility": true,
-            "type": "normal"
+        "externalApi": {
+            "history": {
+                "type": "giantsquid",
+                "url": "https://squid.subsquid.io/gs-main-pendulum/graphql"
+            }
         },
+        "assets": [
             {
-                        "id": "bc55b3f0-2b34-4561-aeb6-bd4ca9c88b7e",
-                        "type": "ormlAsset",
-                        "name": "tether usd",
-                        "symbol": "usdt",
-                        "precision": 6,
-                        "currencyId": "1",
-                        "priceId": "tether",
-                        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDT.svg",
-                        "color": "26A17B"
-                      }],
+                "id": "ebf2822f-2dd4-4f59-aeb3-ae7defa53932",
+                "name": "pendulum",
+                "symbol": "pen",
+                "precision": 12,
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/PEN.svg",
+                "color": "8D809E",
+                "isUtility": true,
+                "type": "normal"
+            },
+            {
+                "id": "bc55b3f0-2b34-4561-aeb6-bd4ca9c88b7e",
+                "type": "xcm",
+                "name": "tether usd",
+                "symbol": "usdt",
+                "precision": 6,
+                "currencyId": "1",
+                "priceId": "tether",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDT.svg",
+                "color": "26A17B",
+                "existentialDeposit": "10000"
+            }
+        ],
         "nodes": [{
             "url": "wss://rpc-pendulum.prd.pendulumchain.tech",
             "name": "PendulumChain node"
         }],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Pendulum.svg",
-        "addressPrefix": 56
+        "addressPrefix": 56,
+        "options": [
+            "utilityFeePayment"
+        ]
     },
     {
         "disabled": false,
@@ -5617,30 +5739,6 @@
                 "priceId": "matic-network",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
                 "color": "8247E5",
-                "type": "normal",
-                "ethereumType": "erc20"
-            },
-            {
-                "isUtility": false,
-                "id": "0xc7d9c108d4e1dd1484d3e2568d7f74bfd763d356",
-                "name": "sora synthetic usd",
-                "symbol": "xstusd",
-                "precision": 18,
-                "priceId": "sora-synthetic-usd",
-                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XSTUSD.svg",
-                "color": "8247E5",
-                "type": "normal",
-                "ethereumType": "erc20"
-            },
-            {
-                "isUtility": false,
-                "id": "0xe88f8313e61A97cEc1871EE37fBbe2a8bf3ed1E4",
-                "name": "sora validator token",
-                "symbol": "val",
-                "precision": 18,
-                "priceId": "sora-validator-token",
-                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/VAL.svg",
-                "color": "F3B966",
                 "type": "normal",
                 "ethereumType": "erc20"
             }
@@ -5884,6 +5982,7 @@
             "symbol": "xvs",
             "precision": 18,
             "priceId": "venus",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XVS.svg",
             "color": "048EC8",
             "type": "normal",
             "ethereumType": "bep20"
@@ -5948,7 +6047,7 @@
           },
           {
             "isUtility": false,
-            "id": "0x05a137f9f66b974a0fbaff4ea2e69b8186d6b03a",
+            "id": "0xEC5dCb5Dbf4B114C9d0F65BcCAb49EC54F6A0867",
             "name": "DAI",
             "symbol": "DAI",
             "precision": 18,
@@ -5956,7 +6055,7 @@
             "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
             "color": "FF0066",
             "type": "normal",
-            "ethereumType": "erc20"
+            "ethereumType": "bep20"
           }
         ],
         "nodes": [
@@ -6041,9 +6140,19 @@
           "chainId": "137",
           "name": "Polygon",
           "externalApi": {
+              "explorers": [
+                  {
+                      "type": "etherscan",
+                      "types": [
+                          "tx",
+                          "address"
+                      ],
+                      "url": "https://polygonscan.com/{type}/{value}"
+                  }
+              ],
               "history": {
                   "type": "etherscan",
-                      "url": "https://api.polygonscan.com/api"
+                  "url": "https://api.polygonscan.com/api"
               }
           },
           "assets": [
@@ -6190,9 +6299,19 @@
           "chainId": "80001",
           "name": "Polygon mumbai testnet",
           "externalApi": {
+              "explorers": [
+                  {
+                      "type": "etherscan",
+                      "types": [
+                          "tx",
+                          "address"
+                      ],
+                      "url": "https://mumbai.polygonscan.com/{type}/{value}"
+                  }
+              ],
               "history": {
                   "type": "etherscan",
-                      "url": "https://api-testnet.polygonscan.com/api"
+                  "url": "https://api-testnet.polygonscan.com/api"
               }
           },
           "assets": [
@@ -6225,6 +6344,114 @@
               "testnet",
               "ethereum",
               "nft"
+          ]
+      },
+      {
+          "disabled": false,
+          "chainId": "6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e",
+          "name": "Rococo",
+          "externalApi": {
+              "staking": {
+                  "type": "subquery",
+                  "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-westend"
+              },
+              "history": {
+                  "type": "subquery",
+                  "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-westend"
+              },
+              "crowdloans": {
+                  "type": "github",
+                  "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/westend.json"
+              },
+              "explorers": [{
+                  "type": "subscan",
+                  "types": [
+                      "extrinsic",
+                      "account"
+                  ],
+                  "url": "https://westend.subscan.io/{type}/{value}"
+              }]
+          },
+          "xcm": {
+              "xcmVersion": "v3",
+              "availableAssets": [
+                  {
+                      "id": "4d6baa42-c8ba-4c47-9992-2af0d55123b2",
+                      "symbol": "ROC"
+                  }
+              ],
+              "availableDestinations": [
+                  {
+                      "chainId": "3266816be9fa51b32cfea58d3e33ca77246bc9618595a4300e44c8856a8d8a17",
+                      "assets": [
+                          {
+                              "id": "4d6baa42-c8ba-4c47-9992-2af0d55123b2",
+                              "symbol": "ROC"
+                          }
+                      ],
+                      "bridgeParachainId" : "8685a8d3e57fa8024b91b8ead6cc97acf953889c6fb0a355602826a1e2db198f"
+                  }
+              ]
+          },
+          "assets": [
+              {
+                  "id": "4d6baa42-c8ba-4c47-9992-2af0d55123b2",
+                  "name": "rococo",
+                  "symbol": "roc",
+                  "precision": 12,
+                  "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ROC.svg",
+                  "color": "FFFFFF",
+                  "type": "normal",
+                  "isUtility": true
+              }],
+          "nodes": [
+              {
+                "url": "wss://rococo-rpc.polkadot.io",
+                "name": "Parity node"
+              }
+          ],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Rococo.svg",
+          "addressPrefix": 42,
+          "options": [
+              "testnet"
+          ]
+      },
+      {
+          "disabled": false,
+          "chainId": "8685a8d3e57fa8024b91b8ead6cc97acf953889c6fb0a355602826a1e2db198f",
+          "parentId": "6408de7737c59c238890533af25896a2c20608d8b380bb01029acb392781063e",
+          "paraId": "2011",
+          "name": "SORA Rococo parachain",
+          "assets": [{
+              "id": "b5a44630-920e-43ee-809f-61890d0888b0123",
+              "name": "sora",
+              "symbol": "rxor",
+              "currencyId": "0x0200000000000000000000000000000000000000000000000000000000000000",
+              "precision": 18,
+              "priceId": "sora",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
+              "color": "EE2233",
+              "isUtility": true,
+              "type": "soraAsset"
+          },
+              {
+                  "id": "4d6baa42-c8ba-4c47-9992-2af0d55123b2123",
+                  "name": "rococo",
+                  "symbol": "roc",
+                  "precision": 18,
+                  "currencyId": "0x00dc9b4341fde46c9ac80b623d0d43afd9ac205baabdc087cadaa06f92b309c7",
+                  "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/WND.svg",
+                  "color": "FFFFFF",
+                  "type": "soraAsset"
+              }],
+          "nodes": [{
+              "url": "wss://ws.parachain-collator-1.c1.stg1.sora2.soramitsu.co.jp",
+              "name": "Soramitsu node"
+          }],
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/SORA.svg",
+          "addressPrefix": 420,
+          "options": [
+              "testnet"
           ]
       }
 ]
