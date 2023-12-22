@@ -43,14 +43,12 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     ) throws -> WalletConnectProposalViewModel {
         let dApp = createDAppViewModel(from: proposal)
 
-        guard let requiredNetwroks = try createNetworksViewModel(
+        let requiredNetworks = try createNetworksViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
             title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
             isRequired: true
-        ) else {
-            throw AutoNamespacesError.requiredChainsNotSatisfied
-        }
+        )
 
         let optionalNetworks = try? createNetworksViewModel(
             from: proposal.optionalNamespaces,
@@ -59,13 +57,11 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             isRequired: false
         )
 
-        guard let requiredExpandable = try createProposalPermissionsViewModel(
+        let requiredExpandable = try createProposalPermissionsViewModel(
             from: proposal.requiredNamespaces,
             chains: chains,
             cellTitle: R.string.localizable.reviewRequiredPermissions(preferredLanguages: locale.rLanguages)
-        ) else {
-            throw AutoNamespacesError.requiredChainsNotSatisfied
-        }
+        )
 
         let optionalExpandable = try? createProposalPermissionsViewModel(
             from: proposal.optionalNamespaces,
@@ -77,8 +73,8 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
 
         let infoCells = [
             WalletConnectProposalCellModel.dAppInfo(dApp),
-            WalletConnectProposalCellModel.requiredNetworks(requiredNetwroks),
-            WalletConnectProposalCellModel.requiredExpandable(requiredExpandable),
+            WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks),
+            WalletConnectProposalCellModel(requiredExpandableViewModel: requiredExpandable),
             WalletConnectProposalCellModel(optionalNetworksCaseViewModel: optionalNetworks),
             WalletConnectProposalCellModel(optionalNetworkExpadableViewModel: optionalExpandable)
         ].compactMap { $0 }
