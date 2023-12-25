@@ -151,9 +151,8 @@ private extension WalletDetailsInteractor {
 extension WalletDetailsInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         if case .normal = flow {
-            flow = .normal(wallet: event.account)
             DispatchQueue.main.async {
-                self.presenter.didReceive(updatedFlow: .normal(wallet: event.account))
+                self.flow = .normal(wallet: event.account)
             }
         }
     }
