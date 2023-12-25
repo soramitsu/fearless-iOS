@@ -12,7 +12,7 @@ def appPipeline = new org.ios.AppPipeline(
   appPushNoti: true,
   jobParams: jobParams,
   label: 'mac-fearless',
-  sonar: true,
+  sonar: false,
   sonarProjectName: 'fearless-ios',
   sonarProjectKey: 'fearless:fearless-ios',
   dojoProductType: 'fearless',
