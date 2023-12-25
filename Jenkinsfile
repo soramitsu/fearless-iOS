@@ -1,4 +1,4 @@
-@Library('jenkins-library@duty/add-FL_OKLINK_API_KEY') _
+@Library('jenkins-library') _
 
 // Job properties
 def jobParams = [
