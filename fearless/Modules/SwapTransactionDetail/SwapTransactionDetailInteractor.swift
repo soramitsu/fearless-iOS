@@ -5,7 +5,7 @@ final class SwapTransactionDetailInteractor {
     // MARK: - Private properties
 
     private weak var output: SwapTransactionDetailInteractorOutput?
-    private var pricesProvider: AnySingleValueProvider<PriceData>?
+    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let chainAsset: ChainAsset
@@ -24,10 +24,7 @@ final class SwapTransactionDetailInteractor {
     // MARK: - Private methods
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
-        guard let priceId = chainAsset.asset.priceId else {
-            return
-        }
-        pricesProvider = subscribeToPrice(for: priceId)
+        pricesProvider = subscribeToPrice(for: chainAsset)
     }
 }
 
@@ -52,7 +49,7 @@ extension SwapTransactionDetailInteractor: SwapTransactionDetailInteractorInput 
 extension SwapTransactionDetailInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
     func handlePrice(
         result: Result<PriceData?, Error>,
-        priceId _: AssetModel.PriceId
+        chainAsset _: ChainAsset
     ) {
         switch result {
         case let .success(priceData):

@@ -16,7 +16,7 @@ final class StakingPoolCreateConfirmInteractor {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let createData: StakingPoolCreateData
     private let signingWrapper: SigningWrapperProtocol
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
 
     init(
@@ -116,11 +116,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
         self.output = output
 
         feeProxy.delegate = self
-
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
-
+        priceProvider = subscribeToPrice(for: chainAsset)
         subscribeToPoolMembers()
     }
 
@@ -156,7 +152,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
 }
 
 extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
 }

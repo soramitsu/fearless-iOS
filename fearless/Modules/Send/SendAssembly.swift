@@ -26,9 +26,7 @@ final class SendAssembly {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: repositoryFacade
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
         let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
             CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
         let scamRepository: CoreDataRepository<ScamInfo, CDScamInfo> =

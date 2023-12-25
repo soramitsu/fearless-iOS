@@ -100,9 +100,7 @@ struct CrowdloanContributionSetupViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let jsonLocalSubscriptionFactory = JsonDataProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared

@@ -22,9 +22,7 @@ final class ChainAssetListAssembly {
             operationQueue: OperationQueue()
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
             mapper: AnyCoreDataMapper(AssetModelMapper())

@@ -127,6 +127,11 @@
 		07B6BC7F28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */; };
 		07B6BC8128BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */; };
 		07B6BC8428BC723500621864 /* NetworkIssuesNotificationTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */; };
+		07BF3D842B39CA350046ABF4 /* PriceDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D832B39CA350046ABF4 /* PriceDataSource.swift */; };
+		07BF3D872B39CA800046ABF4 /* ChainlinkOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D862B39CA800046ABF4 /* ChainlinkOperationFactory.swift */; };
+		07BF3D892B39CAB60046ABF4 /* ManualOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D882B39CAB60046ABF4 /* ManualOperation.swift */; };
+		07BF3D8B2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D8A2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift */; };
+		07BF3D8D2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D8C2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift */; };
 		07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */; };
 		07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
@@ -3087,6 +3092,11 @@
 		07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationViewModelFactory.swift; sourceTree = "<group>"; };
 		07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationCellViewModel.swift; sourceTree = "<group>"; };
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
+		07BF3D832B39CA350046ABF4 /* PriceDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceDataSource.swift; sourceTree = "<group>"; };
+		07BF3D862B39CA800046ABF4 /* ChainlinkOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainlinkOperationFactory.swift; sourceTree = "<group>"; };
+		07BF3D882B39CAB60046ABF4 /* ManualOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManualOperation.swift; sourceTree = "<group>"; };
+		07BF3D8A2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OklinkHistoryOperationFactory.swift; sourceTree = "<group>"; };
+		07BF3D8C2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+OklinkHistory.swift"; sourceTree = "<group>"; };
 		07BFF8A52AD6635F005A5C58 /* WalletConnectConfirmationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletConnectConfirmationCoordinator.swift; path = "/Users/soramitsu/Documents/soramitsu/fearless-iOS/fearless/Modules/Coordinators/WalletConnectConfirmationCoordinator.swift"; sourceTree = "<absolute>"; };
 		07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AutoNamespacesError+Extension.swift"; sourceTree = "<group>"; };
 		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
@@ -6371,6 +6381,14 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		07BF3D852B39CA800046ABF4 /* Chainlink */ = {
+			isa = PBXGroup;
+			children = (
+				07BF3D862B39CA800046ABF4 /* ChainlinkOperationFactory.swift */,
+			);
+			path = Chainlink;
+			sourceTree = "<group>";
+		};
 		07C96DD92AC16EC000CB39F5 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
@@ -8392,6 +8410,7 @@
 		8463A70825E30000003B8160 /* Sources */ = {
 			isa = PBXGroup;
 			children = (
+				07BF3D832B39CA350046ABF4 /* PriceDataSource.swift */,
 				FA4B92B72844D2360003BCEF /* CoingeckoPricesSource.swift */,
 				84EE6826264AD37B0026E6D3 /* Rewards */,
 				8463A71E25E39E07003B8160 /* StorageProviderSource.swift */,
@@ -9543,6 +9562,7 @@
 		8490150124AB6BEA008F705E /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				07BF3D852B39CA800046ABF4 /* Chainlink */,
 				FACD42822A5BE7F4009975AA /* Operations */,
 				FAFFAE4129AC84B10074AF1F /* BlockExplorer */,
 				FAC0BBB0291D074400E6F106 /* RuntimeCall */,
@@ -9597,6 +9617,7 @@
 		8490152C24ABD0EA008F705E /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
+				07BF3D8C2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift */,
 				FA6C175029935DAD00A55254 /* AssetTransactionData+GiantsquidHistory.swift */,
 				FA6C175129935DAD00A55254 /* AssetTransactionData+SubqueryHistory.swift */,
 				FA6C175229935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift */,
@@ -12863,6 +12884,7 @@
 		FA5137B329AC76EB00560EBA /* Main */ = {
 			isa = PBXGroup;
 			children = (
+				07BF3D8A2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift */,
 				FA5137B429AC76EB00560EBA /* SubqueryHistoryOperationFactory.swift */,
 				FA5137B529AC76EB00560EBA /* GiantsquidHistoryOperationFactory.swift */,
 				FA5137B629AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift */,
@@ -14243,6 +14265,7 @@
 		FACD42822A5BE7F4009975AA /* Operations */ = {
 			isa = PBXGroup;
 			children = (
+				07BF3D882B39CAB60046ABF4 /* ManualOperation.swift */,
 				FACD42832A5BE7F4009975AA /* AwaitOperation.swift */,
 			);
 			path = Operations;
@@ -15285,7 +15308,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args moonPaySecretKey=$MOONPAY_PRODUCTION_SECRET,moonPayTestSecretKey=$MOONPAY_TEST_SECRET,subscanAPIKey=$SUBSCAN_API_KEY,soraCardAPIKey=$SORA_CARD_API_KEY,soraCardDomain=$SORA_CARD_DOMAIN,soraCardKycEndpoint=$SORA_CARD_KYC_ENDPOINT_URL,soraCardKycUsername=$SORA_CARD_KYC_USERNAME,soraCardKycPassword=$SORA_CARD_KYC_PASSWORD,paywingsRepositoryUrl=$PAY_WINGS_REPOSITORY_URL,paywingsUsername=$PAY_WINGS_USERNAME,paywingsPassword=$PAY_WINGS_PASSWORD,x1EndpointUrlRelease=$X1_ENDPOINT_URL_RELEASE,x1WidgetIdRelease=$X1_WIDGET_ID_RELEASE,x1EndpointUrlDebug=$X1_ENDPOINT_URL_DEBUG,x1WidgetIdDebug=$X1_WIDGET_ID_DEBUG,ethereumApiKey=$FL_BLAST_API_ETHEREUM_KEY,bscApiKey=$FL_BLAST_API_BSC_KEY,sepoliaApiKey=$FL_BLAST_API_SEPOLIA_KEY,goerliApiKey=$FL_BLAST_API_GOERLI_KEY,polygonApiKey=$FL_BLAST_API_POLYGON_KEY,walletConnectProjectId=$FL_WALLET_CONNECT_PROJECT_ID,webClientIdRelease=$WEB_CLIENT_ID_RELEASE,fearlessGoogleUrlSchemeRelease=$FEARLESS_GOOGLE_URL_SCHEME_RELEASE,webClientIdDebug=$WEB_CLIENT_ID_DEBUG,fearlessGoogleUrlSchemeDebug=$FEARLESS_GOOGLE_URL_SCHEME_DEBUG,etherscanApiKey=$FL_IOS_ETHERSCAN_API_KEY,bscscanApiKey=$FL_IOS_BSCSCAN_API_KEY,polygonscanApiKey=$FL_IOS_POLYGONSCAN_API_KEY,alchemyApiKey=$FL_ALCHEMY_API_ETHEREUM_KEY\n\n#add params to the xcconfig files\nvariableNames=(\"FEARLESS_GOOGLE_TOKEN\" \"FEARLESS_GOOGLE_URL_SCHEME\")\n\n# Iterate over the array\nfor variableName in \"${variableNames[@]}\"; do\n    for file in \"$PROJECT_DIR\"/fearless/Configs/*.xcconfig; do\n        if ! grep -q \"^$variableName = ${!variableName}$\" \"$file\"; then\n            echo \"$variableName = ${!variableName}\" >> \"$file\"\n        fi\n    done\ndone\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $FEARLESS_GOOGLE_URL_SCHEME\" \"$PROJECT_DIR\"/fearless/Info.plist\n\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $FEARLESS_GOOGLE_TOKEN\" \"$PROJECT_DIR\"/fearless/Info.plist\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args moonPaySecretKey=$MOONPAY_PRODUCTION_SECRET,moonPayTestSecretKey=$MOONPAY_TEST_SECRET,subscanAPIKey=$SUBSCAN_API_KEY,soraCardAPIKey=$SORA_CARD_API_KEY,soraCardDomain=$SORA_CARD_DOMAIN,soraCardKycEndpoint=$SORA_CARD_KYC_ENDPOINT_URL,soraCardKycUsername=$SORA_CARD_KYC_USERNAME,soraCardKycPassword=$SORA_CARD_KYC_PASSWORD,paywingsRepositoryUrl=$PAY_WINGS_REPOSITORY_URL,paywingsUsername=$PAY_WINGS_USERNAME,paywingsPassword=$PAY_WINGS_PASSWORD,x1EndpointUrlRelease=$X1_ENDPOINT_URL_RELEASE,x1WidgetIdRelease=$X1_WIDGET_ID_RELEASE,x1EndpointUrlDebug=$X1_ENDPOINT_URL_DEBUG,x1WidgetIdDebug=$X1_WIDGET_ID_DEBUG,ethereumApiKey=$FL_BLAST_API_ETHEREUM_KEY,bscApiKey=$FL_BLAST_API_BSC_KEY,sepoliaApiKey=$FL_BLAST_API_SEPOLIA_KEY,goerliApiKey=$FL_BLAST_API_GOERLI_KEY,polygonApiKey=$FL_BLAST_API_POLYGON_KEY,walletConnectProjectId=$FL_WALLET_CONNECT_PROJECT_ID,webClientIdRelease=$WEB_CLIENT_ID_RELEASE,fearlessGoogleUrlSchemeRelease=$FEARLESS_GOOGLE_URL_SCHEME_RELEASE,webClientIdDebug=$WEB_CLIENT_ID_DEBUG,fearlessGoogleUrlSchemeDebug=$FEARLESS_GOOGLE_URL_SCHEME_DEBUG,etherscanApiKey=$FL_IOS_ETHERSCAN_API_KEY,bscscanApiKey=$FL_IOS_BSCSCAN_API_KEY,polygonscanApiKey=$FL_IOS_POLYGONSCAN_API_KEY,alchemyApiKey=$FL_ALCHEMY_API_ETHEREUM_KEY,oklinkApiKey=$FL_OKLINK_API_KEY\n\n#add params to the xcconfig files\nvariableNames=(\"FEARLESS_GOOGLE_TOKEN\" \"FEARLESS_GOOGLE_URL_SCHEME\")\n\n# Iterate over the array\nfor variableName in \"${variableNames[@]}\"; do\n    for file in \"$PROJECT_DIR\"/fearless/Configs/*.xcconfig; do\n        if ! grep -q \"^$variableName = ${!variableName}$\" \"$file\"; then\n            echo \"$variableName = ${!variableName}\" >> \"$file\"\n        fi\n    done\ndone\n\n/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $FEARLESS_GOOGLE_URL_SCHEME\" \"$PROJECT_DIR\"/fearless/Info.plist\n\n/usr/libexec/PlistBuddy -c \"Set :GIDClientID $FEARLESS_GOOGLE_TOKEN\" \"$PROJECT_DIR\"/fearless/Info.plist\n";
 		};
 		F472A8D6261758DE003C58BC /* SwiftFormat */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -16428,6 +16451,7 @@
 				8428769324AE046300D91AD8 /* AboutWireframe.swift in Sources */,
 				FA6261F22AC2A535005D3D95 /* MIME+PathExtensions.swift in Sources */,
 				84ACEBFF261E6C7C00AAE665 /* WalletHistoryFilterViewLayout.swift in Sources */,
+				07BF3D8D2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift in Sources */,
 				FA86442527671E0E00956D8E /* WalletTransactionHistoryViewModelFactory.swift in Sources */,
 				84754CA22513DB8800854599 /* EmptyAccountIcon.swift in Sources */,
 				FAFFAEA629AC851A0074AF1F /* Bool + Inverted.swift in Sources */,
@@ -16562,6 +16586,7 @@
 				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
 				FAD646C4284DD2DA007CCB92 /* StakingBalanceRelaychainViewModelState.swift in Sources */,
 				0702B355297948C8003519F5 /* SwapTransactionViewModel.swift in Sources */,
+				07BF3D892B39CAB60046ABF4 /* ManualOperation.swift in Sources */,
 				FAA0131028DA1277000A5230 /* StakingBondMoreViewLayout.swift in Sources */,
 				FAD429102A86567F001D6A16 /* BannersInteractor.swift in Sources */,
 				C67E781E27B4D7870053346B /* PinViewConfigurator.swift in Sources */,
@@ -17002,6 +17027,7 @@
 				848EAEB02659310A00676CEA /* CrowdloanStatus.swift in Sources */,
 				841185E7263F3B6D00E8A8B6 /* HintView.swift in Sources */,
 				8494D87C252537E500614D8F /* SubscanError.swift in Sources */,
+				07BF3D842B39CA350046ABF4 /* PriceDataSource.swift in Sources */,
 				DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */,
 				07DFA452289A5C870035A8AB /* WalletsManagmentCellViewModel.swift in Sources */,
 				FAF5E9CD27E46D3E005A3448 /* GithubJSONDecoder.swift in Sources */,
@@ -17806,6 +17832,7 @@
 				FACD42BD2A5BE91E009975AA /* PortionRewardCalculatorService.swift in Sources */,
 				3761C36C5BAFFB1518CD93A0 /* FiltersProtocols.swift in Sources */,
 				FA286B0C2A3043DB008BD527 /* CrossChainConfirmationRouter.swift in Sources */,
+				07BF3D872B39CA800046ABF4 /* ChainlinkOperationFactory.swift in Sources */,
 				FAE39AF82A9E63C20011A9D6 /* NftDetailViewModelFactory.swift in Sources */,
 				93B7B64D9259FCCEDE6672FB /* FiltersWireframe.swift in Sources */,
 				D3E91C1BA3CBB8F391AC4530 /* FiltersPresenter.swift in Sources */,
@@ -17927,6 +17954,7 @@
 				38BFEDD4B9F31EF2532962BD /* NetworkIssuesNotificationAssembly.swift in Sources */,
 				A4FE32D50E4B7CB5B53E0067 /* StakingPoolInfoProtocols.swift in Sources */,
 				C8C32CC78C058E9F277AB625 /* StakingPoolInfoRouter.swift in Sources */,
+				07BF3D8B2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift in Sources */,
 				DE1CFE599177A7A296EAF463 /* StakingPoolInfoPresenter.swift in Sources */,
 				B15D513381B7626AB90018F0 /* StakingPoolInfoInteractor.swift in Sources */,
 				89C8A9B990B08016A70ED336 /* StakingPoolInfoViewController.swift in Sources */,

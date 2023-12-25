@@ -22,7 +22,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ormlBalanceProvider: AnyDataProvider<DecodedOrmlAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var crowdloanProvider: AnyDataProvider<DecodedCrowdloanFunds>?
     private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
 
@@ -123,11 +123,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func subscribeToPrice() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        } else {
-            presenter.didReceivePriceData(result: .success(nil))
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
     }
 
     func setup() {
@@ -191,7 +187,7 @@ extension CrowdloanContributionInteractor: AccountInfoSubscriptionAdapterHandler
 }
 
 extension CrowdloanContributionInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

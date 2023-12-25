@@ -94,7 +94,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             logger: logger
         )
 
-        let priceLocalSubcriptionFactory = PriceProviderFactory(storageFacade: storageFacade)
+        let priceLocalSubcriptionFactory = PriceProviderFactory.shared
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -405,7 +405,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         chainAsset: ChainAsset,
         strategy: SelectValidatorsConfirmStrategy
     ) -> SelectValidatorsConfirmInteractorBase? {
-        let priceLocalSubcriptionFactory = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
+        let priceLocalSubcriptionFactory = PriceProviderFactory.shared
 
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             return nil
