@@ -3,19 +3,20 @@
 // Job properties
 def jobParams = [
   booleanParam(defaultValue: false, description: 'push to the dev profile', name: 'prDeployment'),
+  booleanParam(defaultValue: false, description: 'run sonarqube scan', name: 'sonar'),
 ]
 
-def appPipline = new org.ios.AppPipeline(
-    steps: this,
-    appTests: false,
-    appPushNoti: true,
-    jobParams: jobParams,
-    label: 'mac-fearless',
-    sonar: true,
-    sonarProjectName: 'fearless-ios',
-    sonarProjectKey: 'fearless:fearless-ios',
-    dojoProductType: 'fearless',
-    effectJiraTasks: true
+def appPipeline = new org.ios.AppPipeline(
+  steps: this,
+  appTests: false,
+  appPushNoti: true,
+  jobParams: jobParams,
+  label: 'mac-fearless',
+  sonar: true,
+  sonarProjectName: 'fearless-ios',
+  sonarProjectKey: 'fearless:fearless-ios',
+  dojoProductType: 'fearless',
+  effectJiraTasks: true
 )
 
-appPipline.runPipeline('fearless')
+appPipeline.runPipeline('fearless')
