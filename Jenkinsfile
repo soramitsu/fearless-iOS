@@ -3,8 +3,8 @@
 // Job properties
 def jobParams = [
   booleanParam(defaultValue: false, description: 'push to the dev profile', name: 'prDeployment'),
-  string(defaultValue: '', description: 'Additional Jira tasks (comma-separated)', name: 'additionalJiraTasks')
-  booleanParam(defaultValue: false, description: 'run sonarqube scan', name: 'sonar'),
+  string(defaultValue: '', description: 'Additional Jira tasks (comma-separated)', name: 'additionalJiraTasks'),
+  booleanParam(defaultValue: false, description: 'run sonarqube scan', name: 'sonar')
 ]
 
 def appPipeline = new org.ios.AppPipeline(
