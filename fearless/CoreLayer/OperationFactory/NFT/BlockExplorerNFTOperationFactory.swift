@@ -10,6 +10,7 @@ enum BlockExplorerApiKey {
     case etherscan
     case polygonscan
     case bscscan
+    case oklink
 
     init?(chainId: String) {
         switch chainId {
@@ -19,6 +20,8 @@ enum BlockExplorerApiKey {
             self = .polygonscan
         case "56", "97":
             self = .bscscan
+        case "195":
+            self = .oklink
         default:
             return nil
         }
@@ -43,6 +46,12 @@ enum BlockExplorerApiKey {
                 return BlockExplorerApiKeysDebug.bscscanApiKey
             #else
                 return BlockExplorerApiKeys.bscscanApiKey
+            #endif
+        case .oklink:
+            #if DEBUG
+                return BlockExplorerApiKeysDebug.oklinkApiKey
+            #else
+                return BlockExplorerApiKeys.oklinkApiKey
             #endif
         }
     }

@@ -22,6 +22,8 @@ final class HistoryOperationFactoriesAssembly {
             return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
         case .etherscan:
             return EtherscanHistoryOperationFactory()
+        case .oklink:
+            return OklinkHistoryOperationFactory()
         case .none:
             return nil
         }

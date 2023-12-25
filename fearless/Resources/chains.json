@@ -52,7 +52,7 @@
         "type": "normal",
         "priceProvider": {
             "type": "chainlink",
-            "id": "0x1C07AFb8E2B827c5A4739C6d59Ae3A5035f28734",
+            "id": "0xa6bc5baf2000424e90434ba7104ee399dee80dec",
             "precision": 8
         }
     }],
@@ -4708,7 +4708,7 @@
         "externalApi": {
             "history": {
                 "type": "sora",
-                "url": "https://api.subquery.network/sq/sora-xor/sora-staging"
+                "url": "https://squid.subsquid.io/sora-stage/v/v4/graphql"
             },
             "staking": {
                 "type": "sora",
@@ -5628,7 +5628,7 @@
                 "ethereumType": "normal",
                 "priceProvider": {
                     "type": "chainlink",
-                    "id": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419",
+                    "id": "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
                     "precision": 8
                 }
             },
@@ -5878,7 +5878,7 @@
             "ethereumType": "normal",
             "priceProvider": {
                 "type": "chainlink",
-                "id": "0x14e613AC84a31f709eadbdF89C6CC390fDc9540A",
+                "id": "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A",
                 "precision": 8
             }
           },
@@ -6184,7 +6184,7 @@
                   "ethereumType": "normal",
                   "priceProvider": {
                       "type": "chainlink",
-                      "id": "0x7bAC85A8a13A4BcD8abb3eB7d6b4d632c5a57676",
+                      "id": "0x52099d4523531f678dfc568a7b1e5038aadce1d6",
                       "precision": 8
                   }
               },
@@ -6687,7 +6687,7 @@
               "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ARB.svg",
               "color": "12AAFF",
               "type": "normal",
-              "ethereumType": "normal"
+              "ethereumType": "erc20"
             }
           ],
           "nodes": [
@@ -6703,7 +6703,8 @@
           "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Arbitrum.svg",
           "addressPrefix": 0,
           "options": [
-            "ethereum"
+            "ethereum",
+            "chainlinkProvider"
           ]
         },
         {
@@ -6729,8 +6730,20 @@
             },
           "assets": [
             {
-              "isUtility": true,
-              "id": "08bb34b8-8027-4fea-948d-5243f5cbd6ba",
+                "isUtility": true,
+                "id": "08bb34b8-8027-4fea-948d-5243f5cbd6ba",
+                "name": "ethereum",
+                "symbol": "eth",
+                "precision": 18,
+                "priceId": "ethereum",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+                "color": "FF0066",
+                "type": "normal",
+                "ethereumType": "normal"
+            },
+            {
+              "isUtility": false,
+              "id": "0x4200000000000000000000000000000000000042",
               "name": "optimism",
               "symbol": "op",
               "precision": 18,
@@ -6738,7 +6751,7 @@
               "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OP.svg",
               "color": "FF0420",
               "type": "normal",
-              "ethereumType": "normal"
+              "ethereumType": "erc20"
             }
           ],
           "nodes": [
@@ -6894,6 +6907,22 @@
           "chainId": "195",
           "rank": 18,
           "name": "X1 testnet",
+          "externalApi": {
+              "history": {
+                "type": "oklink",
+                "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=X1_TEST"
+              },
+              "explorers": [
+                {
+                  "type": "oklink",
+                  "types": [
+                    "tx",
+                    "address"
+                  ],
+                  "url": "https://snowtrace.io/{type}/{value}"
+                }
+              ]
+            },
           "assets": [
             {
               "isUtility": true,
@@ -6974,7 +7003,7 @@
             "externalApi": {
                 "history": {
                   "type": "etherscan",
-                  "url": "https://api.zkevm.polygonscan.com/api"
+                  "url": "https://api-zkevm.polygonscan.com/api"
                 },
                 "explorers": [
                   {
@@ -7043,7 +7072,77 @@
           
         },
         {
-          "disabled": false,
+            "disabled": false,
+            "chainId": "324",
+            "rank": 21,
+            "name": "zkSync Mainnet",
+            "assets": [
+              {
+                "isUtility": true,
+                "id": "a5698bf1-26fc-41d2-a353-e46f100233c0",
+                "name": "ETH",
+                "symbol": "ETH",
+                "precision": 18,
+                "priceId": "ethereum",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+                "color": "FF0066",
+                "type": "normal",
+                "ethereumType": "normal"
+              }
+            ],
+            "nodes": [
+                {
+                    "url": "https://1rpc.io/zksync2-era/",
+                    "name": "1rpc https node"
+                },
+                {
+                  "url": "https://zksync.meowrpc.com/",
+                  "name": "Meowrpc https node"
+              }
+            ],
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/zksync.svg",
+            "addressPrefix": 0,
+            "options": [
+              "ethereum"
+            ]
+        },
+        {
+            "disabled": false,
+            "chainId": "248",
+            "rank": 22,
+            "name": "Oasys Mainnet",
+            "assets": [
+              {
+                "isUtility": true,
+                "id": "11d2ece1-ecae-4596-aae4-ee9db83a5e2a",
+                "name": "oasys",
+                "symbol": "oas",
+                "precision": 18,
+                "priceId": "oasys",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OAS.svg",
+                "color": "",
+                "type": "normal",
+                "ethereumType": "normal"
+              }
+            ],
+            "nodes": [
+                {
+                    "url": "https://oasys.blockpi.network/v1/rpc/public/",
+                    "name": "Blockpi https node"
+                },
+                {
+                  "url": "https://rpc.mainnet.oasys.games/",
+                  "name": "Oasys https node"
+              }
+            ],
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/oasys.svg",
+            "addressPrefix": 0,
+            "options": [
+              "ethereum"
+            ]
+          },
+        {
+        "disabled": false,
         "chainId": "3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615",
         "name": "Enjin Matrixchain",
         "externalApi": {
