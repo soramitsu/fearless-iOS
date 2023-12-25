@@ -30,6 +30,7 @@ protocol AssetNetworksRouterInput: AnyObject {
     )
 
     func showFilters(
+        title: String?,
         filters: [FilterSet],
         moduleOutput: FiltersModuleOutput?,
         from view: ControllerBackedProtocol?

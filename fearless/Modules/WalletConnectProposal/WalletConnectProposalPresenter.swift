@@ -246,8 +246,8 @@ final class WalletConnectProposalPresenter {
 
     private func setOptionalChains() {
         guard let proposal = status.proposal else { return }
-        let optionalNamespaces = proposal.optionalNamespaces.or([:]).map { $0.value }.map { $0.chains }.compactMap { $0 }.reduce([], +)
-        let optionalChains = walletConnectModelFactory.resolveChains(for: Set(optionalNamespaces), chains: chains)
+        let optionalBlockchains = proposal.optionalNamespaces.or([:]).map { $0.value }.map { $0.chains }.compactMap { $0 }.reduce([], +)
+        let optionalChains = walletConnectModelFactory.resolveChains(for: Set(optionalBlockchains), chains: chains)
         optionalChainsIds = optionalChains.map { $0.chainId }
     }
 }

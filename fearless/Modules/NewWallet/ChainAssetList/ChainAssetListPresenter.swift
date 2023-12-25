@@ -128,7 +128,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             interactor.getAvailableChainAssets(chainAsset: viewModel.chainAsset) { [weak self] availableChainAssets in
                 guard let strongSelf = self else { return }
                 DispatchQueue.main.async {
-                    if availableChainAssets.count > 1 {
+                    if availableChainAssets.count > 1, strongSelf.displayType != .chain {
                         strongSelf.router.showAssetNetworks(
                             from: strongSelf.view,
                             chainAsset: viewModel.chainAsset
