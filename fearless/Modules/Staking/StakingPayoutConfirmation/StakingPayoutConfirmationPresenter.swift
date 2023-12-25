@@ -7,7 +7,7 @@ final class StakingPayoutConfirmationPresenter {
     weak var view: StakingPayoutConfirmationViewProtocol?
     var wireframe: StakingPayoutConfirmationWireframeProtocol!
     var interactor: StakingPayoutConfirmationInteractorInputProtocol!
-  
+
     private var pricesData: [PriceData] = []
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmationViewModelFactoryProtocol

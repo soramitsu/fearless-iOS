@@ -9,6 +9,7 @@ protocol MainTabBarViewProtocol: ControllerBackedProtocol {
 
 protocol MainTabBarPresenterProtocol: AnyObject {
     func didLoad(view: MainTabBarViewProtocol)
+    func presentPolkaswap()
 }
 
 protocol MainTabBarInteractorInputProtocol: AnyObject {
@@ -24,6 +25,7 @@ protocol MainTabBarWireframeProtocol: SheetAlertPresentable, AuthorizationAccess
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
     func presentAccountImport(on view: MainTabBarViewProtocol?)
     func replaceStaking(on view: MainTabBarViewProtocol?, type: AssetSelectionStakingType, moduleOutput: StakingMainModuleOutput?)
+    func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel)
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {

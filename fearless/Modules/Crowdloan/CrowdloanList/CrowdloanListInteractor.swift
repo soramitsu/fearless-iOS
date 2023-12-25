@@ -239,11 +239,7 @@ extension CrowdloanListInteractor {
         presenter.didReceiveSelectedChain(result: .success(chain))
 
         subscribeToAccountInfo(for: chain)
-
-        provideCrowdloans(for: chain)
-
         subscribeToDisplayInfo(for: chain)
-
         provideConstants(for: chain)
     }
 

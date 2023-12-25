@@ -29,6 +29,7 @@ final class FiltersViewController: UIViewController, ViewHolder {
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(SwitchFilterTableCell.self)
+        rootView.tableView.registerClassForCell(SortTableCell.self)
         rootView.tableView.separatorStyle = .none
 
         rootView.resetButton.addTarget(self, action: #selector(resetButtonClicked), for: .touchUpInside)
@@ -43,9 +44,11 @@ final class FiltersViewController: UIViewController, ViewHolder {
         case .empty:
             rootView.tableView.isHidden = true
 
-        case .loaded:
+        case let .loaded(viewModel):
             rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
+
+            rootView.bind(viewModel: viewModel)
         }
     }
 
@@ -108,6 +111,12 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
             return cell
         }
 
+        if let sortCellViewModel = cellModel as? SortFilterCellViewModel,
+           let cell = tableView.dequeueReusableCellWithType(SortTableCell.self) {
+            cell.bind(to: sortCellViewModel)
+            return cell
+        }
+
         return UITableViewCell()
     }
 
@@ -117,6 +126,18 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
         }
 
         return viewModel.sections.count
+    }
+
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard case let .loaded(viewModel) = state else {
+            return
+        }
+        let sectionViewModel = viewModel.sections[indexPath.section]
+        let cellModel = sectionViewModel.items[indexPath.row]
+
+        if let sortCellViewModel = cellModel as? SortFilterCellViewModel {
+            presenter.didSelectSort(viewModel: sortCellViewModel)
+        }
     }
 }
 

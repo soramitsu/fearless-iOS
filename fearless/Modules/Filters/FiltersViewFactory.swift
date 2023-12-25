@@ -1,8 +1,14 @@
 import Foundation
+import SoraUI
 import SoraFoundation
 
-struct FiltersViewFactory {
-    static func createView(filters: [FilterSet], moduleOutput: FiltersModuleOutput?) -> FiltersViewProtocol? {
+enum FiltersMode {
+    case singleSelection
+    case multiSelection
+}
+
+enum FiltersViewFactory {
+    static func createView(filters: [FilterSet], mode: FiltersMode = .multiSelection, moduleOutput: FiltersModuleOutput?) -> FiltersViewProtocol? {
         let interactor = FiltersInteractor(filters: filters)
         let wireframe = FiltersWireframe()
 
@@ -12,10 +18,16 @@ struct FiltersViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             moduleOutput: moduleOutput,
+            mode: mode,
             localizationManager: LocalizationManager.shared
         )
 
         let view = FiltersViewController(presenter: presenter)
+
+        view.modalPresentationStyle = .custom
+
+        let transitionFactory = ModalSheetBlurPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearlessBlur, shouldDissmissWhenTapOnBlurArea: true)
+        view.modalTransitioningFactory = transitionFactory
 
         presenter.view = view
         interactor.presenter = presenter

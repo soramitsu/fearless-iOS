@@ -1,5 +1,6 @@
 import Foundation
 import os
+import SSFXCM
 
 protocol ApplicationConfigProtocol {
     var termsURL: URL { get }
@@ -30,8 +31,8 @@ protocol ApplicationConfigProtocol {
 
     // MARK: - GitHub
 
-    var chainListURL: URL? { get }
-    var chainsTypesURL: URL? { get }
+    var chainsSourceUrl: URL { get }
+    var chainTypesSourceUrl: URL { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
     var polkaswapSettingsURL: URL? { get }
@@ -41,7 +42,7 @@ final class ApplicationConfig {
     static let shared = ApplicationConfig()
 }
 
-extension ApplicationConfig: ApplicationConfigProtocol {
+extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     var termsURL: URL {
         URL(string: "https://fearlesswallet.io/terms")!
     }
@@ -159,16 +160,26 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     // MARK: - GitHub
 
-    var chainListURL: URL? {
+    var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v4/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v5/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v4/chains.json")
+            GitHubUrl.url(suffix: "chains/v5/chains.json")
         #endif
     }
 
-    var chainsTypesURL: URL? {
+    var chainTypesSourceUrl: URL {
         GitHubUrl.url(suffix: "chains/all_chains_types.json")
+    }
+
+    // MARK: - xcm
+
+    var destinationFeeSourceUrl: URL {
+        GitHubUrl.url(suffix: "xcm/v2/xcm_fees.json")
+    }
+
+    var tokenLocationsSourceUrl: URL {
+        GitHubUrl.url(suffix: "xcm/v2/xcm_token_locations.json")
     }
 
     var appVersionURL: URL? {
@@ -216,9 +227,10 @@ private enum GitHubUrl {
         case v4
         case developFree = "develop-free"
         case xcmLocationDevelop = "updated-xcm-locations"
+        case rococo = "feature/rococo"
     }
 
-    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL? {
-        URL(string: url.rawValue)?.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
+    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL {
+        URL(string: url.rawValue)!.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
     }
 }

@@ -7,12 +7,12 @@ import SSFUtils
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
     static let crowdloanIndex: Int = 1
-    static let stakingIndex: Int = 2
+    static let stakingIndex: Int = 3
 
     static func createView() -> MainTabBarViewProtocol? {
         guard
             let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable,
-            let selectedMetaAccount = SelectedWalletSettings.shared.value,
+            let wallet = SelectedWalletSettings.shared.value,
             let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
             .findService()
         else {
@@ -24,7 +24,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let walletConnect = WalletConnectServiceImpl.shared
         let serviceCoordinator = ServiceCoordinator.createDefault(
-            with: selectedMetaAccount,
+            with: wallet,
             walletConnect: walletConnect
         )
 
@@ -59,36 +59,38 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             localizationManager: localizationManager
         )
 
+        let viewControllers = createViewControllers(stakingModuleOutput: presenter, walletConnect: walletConnect, wallet: wallet)
         let view = MainTabBarViewController(
+            viewControllers: viewControllers,
             presenter: presenter,
             localizationManager: localizationManager
         )
-        view.viewControllers = createViewControllers(stakingModuleOutput: presenter, walletConnect: walletConnect)
 
         return view
     }
 
     static func createViewControllers(
         stakingModuleOutput: StakingMainModuleOutput?,
-        walletConnect: WalletConnectService
-    ) -> [UIViewController]? {
-        var viewControllers: [UIViewController] = []
-        if let walletController = createWalletController(walletConnect: walletConnect) {
-            viewControllers.append(walletController)
-        }
+        walletConnect: WalletConnectService,
+        wallet: MetaAccountModel
+    ) -> [UIViewController] {
+        var viewControllers: [UIViewController?] = []
+        let walletController = createWalletController(walletConnect: walletConnect)
+        viewControllers.append(walletController)
 
-        if let crowdloanController = createCrowdloanController() {
-            viewControllers.append(crowdloanController)
-        }
+        let crowdloanController = createCrowdloanController()
+        viewControllers.append(crowdloanController)
+
+        let polkaswapControoller = createPolkaswapController(wallet: wallet)
+        viewControllers.append(polkaswapControoller)
 
         let stakingController = createStakingController(moduleOutput: stakingModuleOutput)
         viewControllers.append(stakingController)
 
-        if let settingsController = createProfileController() {
-            viewControllers.append(settingsController)
-        }
+        let settingsController = createProfileController()
+        viewControllers.append(settingsController)
 
-        return viewControllers
+        return viewControllers.compactMap { $0 }
     }
 
     static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
@@ -232,6 +234,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         )
 
         return navigationController
+    }
+
+    static func createPolkaswapController(wallet _: MetaAccountModel) -> UIViewController? {
+        let fakeSwapViewController = UIViewController()
+        fakeSwapViewController.tabBarItem.isEnabled = false
+        return fakeSwapViewController
     }
 
     static func createTabBarItem(

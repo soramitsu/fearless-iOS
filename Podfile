@@ -1,4 +1,4 @@
-platform :ios, '13.0'
+platform :ios, '14.1'
 
 source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
@@ -33,21 +33,21 @@ abstract_target 'fearlessAll' do
       if %r{^true$}i.match ENV['F_DEV']
           pod 'SSFXCM', :configurations => ['DEBUG']
       else
-          pod 'SSFXCM', '0.1.13'
-          pod 'SSFExtrinsicKit'
-          pod 'SSFCrypto', '0.1.17'
+          pod 'SSFXCM', '0.1.25'
+          pod 'SSFExtrinsicKit', '0.1.0'
+          pod 'SSFCrypto'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.23'
+          pod 'SSFModels', '0.1.27'
           pod 'SSFEraKit'
           pod 'SSFLogger'
-          pod 'SSFRuntimeCodingService'
+          pod 'SSFRuntimeCodingService', '0.1.29'
           pod 'SSFStorageQueryKit'
-          pod 'SSFChainConnection', '0.1.4'
-          pod 'SSFNetwork', '0.1.17'
-          pod 'SSFUtils', '0.1.21'
-          pod 'SSFChainRegistry', '0.1.4'
-          pod 'SSFHelpers', '0.1.7'
-          pod 'SSFCloudStorage', '0.1.23'
+          pod 'SSFChainConnection', '0.1.24'
+          pod 'SSFNetwork'
+          pod 'SSFUtils', '0.1.25'
+          pod 'SSFChainRegistry', '0.1.29'
+          pod 'SSFHelpers', '0.1.27'
+          pod 'SSFCloudStorage'
           pod 'FearlessKeys'
       end
   end

@@ -61,7 +61,7 @@ final class WalletConnectConfirmationPresenter {
         }
         router.presentError(
             for: "",
-            message: error.localizedDescription,
+            message: "\(error)",
             view: view,
             locale: selectedLocale
         )

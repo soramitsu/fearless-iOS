@@ -8,6 +8,7 @@ final class WalletChainAccountDashboardPresenter {
 
     weak var transactionHistoryModuleInput: WalletTransactionHistoryModuleInput?
     weak var chainAccountModuleInput: ChainAccountModuleInput?
+    weak var assetNetworksModuleInput: AssetNetworksModuleInput?
 
     init(
         interactor: WalletChainAccountDashboardInteractorInputProtocol,

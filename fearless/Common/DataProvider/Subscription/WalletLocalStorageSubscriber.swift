@@ -98,7 +98,8 @@ extension WalletLocalStorageSubscriber {
             .vsToken,
             .stable,
             .assetId,
-            .token2:
+            .token2,
+            .xcm:
             handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
         case .equilibrium:
             handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)

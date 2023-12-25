@@ -178,6 +178,7 @@
 "common.applied" = "適用されました";
 "common.apply" = "適用する";
 "common.approve" = "Approve";
+"common.attention" = "Attention";
 "common.available.format" = "利用可能： %@";
 "common.balance" = "残高";
 "common.balance.format" = "残高: %@";
@@ -207,6 +208,7 @@
 "common.crypto.type" = "キー・ペアの暗号方式";
 "common.currency" = "通貨";
 "common.details" = "詳細";
+"common.disconnect" = "切断";
 "common.done" = "完了";
 "common.edit" = "編集";
 "common.error.general.title" = "エラー";
@@ -215,8 +217,10 @@
 "common.error.network" = "リモートサーバーとの通信中にエラーが発生しました";
 "common.error.no.data.retrieved" = "データが取得されていません";
 "common.error.password.mismatch" = "パスワードが一致しません";
+"common.events" = "Events";
 "common.existential.warning.message" = "この取引により、アカウント存続預金を下回るため、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。継続を選択した場合、ネットワークによって設定された存続預金額を下回る資金を失うことになります。詳細な情報については、ネットワークの公式ドキュメント(例：Polkadot Wiki)を参照してください。フィアレス・ウォレットは完全な非管理的なアプリであり、ネットワークでのあなたの行動については一切判らないし制御もできません。あなたが、その意味を理解して完全に同意した場合のみ、続行してください";
 "common.existential.warning.title" = "操作によりアカウントが削除されます";
+"common.expiry" = "Expiry";
 "common.export" = "アカウントをエクスポート";
 "common.filter.sort.header" = "並び替え：";
 "common.important" = "重要";
@@ -237,6 +241,7 @@
 "common.name" = "名前";
 "common.network" = "ネットワーク";
 "common.network.fee" = "ネットワーク手数料";
+"common.network.management" = "Network management";
 "common.next" = "次へ";
 "common.no" = "いいえ";
 "common.no.screenshot.message" = "スクリーンショットを撮らないでください。サードパーティのマルウェアによって収集される可能性があります";
@@ -322,6 +327,7 @@
 "controller.account.issue.message" = "コントローラー・アカウント機能は廃止されたため、スタッシュ・アカウントをコントローラーとして設定する必要があります";
 "copy.referral.code" = "紹介コードをコピー";
 "create.new.account" = "新しいアカウントの作成";
+"create.new.connection" = "Create new connection";
 "create.new.pincode" = "新しいPINコードを作成";
 "crowdloan.active.section.format" = "アクティブ（ %@ ）";
 "crowdloan.app.bonus.format" = "フィアレス・ウォレットのボーナス ( %@ )";
@@ -369,6 +375,7 @@
 "ecdsa.selection.title" = "ECDSA";
 "ed25519.selection.subtitle" = "ed25519（代替）";
 "ed25519.selection.title" = "Edwards";
+"empty.state.message" = "Nothing found for your request";
 "empty.view.description" = "ネットワークまたはアセットが見つかりませんでした";
 "empty.view.title" = "失礼しました";
 "error.invalid.address" = "選択したチェーンのアドレスが無効です";
@@ -378,6 +385,7 @@
 "ethereum.crypto.type" = "イーサリアム(Ethereum)キー・ペアの暗号方式";
 "ethereum.secret.derivation.path" = "イーサリアム(Ethereum)の秘密の派生経路";
 "example" = "例： %s";
+"existential.deposit.received.error" = "Existential Deposit not received";
 "export.ethereum.title" = "イーサリアム(Ethereum)のエクスポート";
 "export.mnemonic.hint" = "ニーモニック・ワードのシーケンスと派生パス(設定されている場合)を紙に書き留めるなど、デジタル以外の方法でバックアップします";
 "export.mnemonic.with.dp.template" = "ネットワーク： %@\
@@ -472,6 +480,8 @@
 "network.issues.empty.state.title" = "ネットワークに問題はありません";
 "network.issues.hide.action.title" = "二度と見せない";
 "network.issues.resolve.option.title" = "解決オプション";
+"network.management.popular" = "Popular";
+"network.managment.favourite" = "Favourite";
 "network.status.connected" = "接続済み";
 "network.status.connecting" = "接続しています...";
 "network.url.address" = "URLアドレス";
@@ -480,6 +490,7 @@
 "nft.stub.text" = "NFTがもうすぐ登場します";
 "nft.stub.title" = "失礼しました";
 "nft.tokenid.title" = "トークンID";
+"nfts.collection.count" = "Quantity: %d/%d";
 "nfts.stub" = "NFT";
 "no.access.to.google" = "Googleにアクセスできません";
 "no.account.found" = "アカウントが見つかりません";
@@ -641,6 +652,7 @@
 "required.methods.not.satisfied" = "Certain methods requested by Wallet Connect are not currently supported by the App. Although the connection can be established, certain functionalities of the dApp may not be available.";
 "required.networks" = "Required networks";
 "review.optional.permissions" = "Review optional permissions";
+"review.permissions" = "Review permissions";
 "review.required.permissions" = "Review required permissions";
 "roles.common" = "役割";
 "same.address.transfer.warning.message" = "同じ口座に送信しようとしています。操作には手数料が掛かるので、無駄になりませんか";
@@ -672,6 +684,8 @@
 "settings.add.wallet" = "ウォレットを追加";
 "settings.hide.zero.balances" = "残高ゼロを隠す";
 "share.referral.code" = "紹介コードを共有";
+"sign.this.message" = "Sign this message?";
+"sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
 "sora.card.status.failure.text" = "本人確認(KYC)処理が終了したか、そうでなければ失敗しました";
 "sora.card.status.failure.title" = "検証失敗";
 "sora.card.status.pending.title" = "検証中";
@@ -995,6 +1009,7 @@
 "username.setup.hint.2.0" = "例：貯蓄、投資、クラウドローン、ステーキング。このニックネームはあなたにのみ表示され、あなたのデバイスの中に保存されます";
 "username.setup.title" = "アカウントを作成する";
 "username.setup.title.2.0" = "新しいウォレットを作成";
+"validator.info.comission.title" = "Comission";
 "validators.list.empty.message" = "バリデーターが見つかりません";
 "view.in" = "%sで見る";
 "view.wallet" = "ウォレットを見る";
@@ -1014,8 +1029,10 @@
 "wallet.balance.redeemable" = "償還可能";
 "wallet.balance.reserved" = "予約済み";
 "wallet.balance.unbonding_v1.9.0" = "ステーキング解除";
-"wallet.connect.connection.complete" = "Сonnection from %@ with ethers has been successfully completed";
-"wallet.connect.connection.dissconnected" = "Disconnection from %@ ethers has been successfully completed";
+"wallet.connect.connection.complete" = "Сonnection from %@ has been successfully completed";
+"wallet.connect.connection.dissconnected" = "Disconnection from %@ has been successfully completed";
+"wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
+"wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
 "wallet.connect.sign.warning.message" = "Signing this message can have dangerous side effect. Only sign message from sites you fully trust with your entire account.";
 "wallet.contacts.empty.title" = "送信先のアカウントと連絡先がここに表示されます";
 "wallet.contacts.empty.title_v1.10" = "送信先のアカウントと連絡先がここに表示されます";
@@ -1085,15 +1102,5 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
-"error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
-"common.request" = "Request";
-"existential.deposit.received.error" = "Existential Deposit not received";
-"create.new.connection" = "Create new connection";
-"review.permissions" = "Review permissions";
-"common.events" = "Events";
-"common.disconnect" = "Disconnect";
-"common.expiry" = "Expiry";
-"sign.this.message" = "Sign this message?";
-"empty.state.message" = "Nothing found for your request";
-"wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
-"wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
+"common.available.networks" = "Available networks";
+"common.my.networks" = "My networks";
