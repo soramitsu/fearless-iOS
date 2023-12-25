@@ -1,4 +1,4 @@
-@Library('jenkins-library@fix/DOPS-2767/bugs-jira-workflow') _
+@Library('jenkins-library') _
 
 // Job properties
 def jobParams = [
