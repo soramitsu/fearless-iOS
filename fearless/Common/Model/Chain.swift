@@ -13,6 +13,8 @@ enum Chain: String, Codable, CaseIterable {
     case soraTest = "SORA Test"
     case ternoa = "Ternoa Mainnet"
     case equilibrium = "Equilibrium"
+    case reef = "Reef Mainnet"
+    case scuba = "Reef Scuba Testnet"
 
     init?(rawValue: String) {
         switch rawValue {
@@ -26,6 +28,8 @@ enum Chain: String, Codable, CaseIterable {
         case Self.soraMain.rawValue: self = .soraMain
         case Self.ternoa.rawValue: self = .ternoa
         case Self.equilibrium.rawValue: self = .equilibrium
+        case Self.reef.rawValue: self = .reef
+        case Self.scuba.rawValue: self = .scuba
 
         #if F_DEV
             case "Polkatrain": self = .polkadot
@@ -47,6 +51,8 @@ enum Chain: String, Codable, CaseIterable {
         case Self.soraMain.genesisHash: self = .soraMain
         case Self.ternoa.genesisHash: self = .ternoa
         case Self.equilibrium.genesisHash: self = .equilibrium
+        case Self.reef.genesisHash: self = .reef
+        case Self.scuba.genesisHash: self = .scuba
         default: return nil
         }
     }
@@ -64,12 +70,14 @@ enum Chain: String, Codable, CaseIterable {
         case .soraTest: return "3266816be9fa51b32cfea58d3e33ca77246bc9618595a4300e44c8856a8d8a17"
         case .ternoa: return "6859c81ca95ef624c9dfe4dc6e3381c33e5d6509e35e147092bfbc780f777c4e"
         case .equilibrium: return "89d3ec46d2fb43ef5a9713833373d5ea666b092fa8fd68fbc34596036571b907"
+        case .reef: return "7834781d38e4798d548e34ec947d19deea29df148a7bf32484b7b24dacf8d4b7"
+        case .scuba: return "b414a8602b2251fa538d38a9322391500bd0324bc7ac6048845d57c37dd83fe6"
         }
     }
 
     var erasPerDay: Int {
         switch self {
-        case .polkadot, .ternoa, .equilibrium: return 1
+        case .polkadot, .ternoa, .equilibrium, .reef, .scuba: return 1
         case .kusama, .westend, .rococo, .moonbeam, .soraMain, .soraTest: return 4
         case .moonriver, .moonbaseAlpha: return 12
         }

@@ -162,14 +162,14 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v5/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v5/chains_dev.json", branch: .reef)
         #else
             GitHubUrl.url(suffix: "chains/v5/chains.json")
         #endif
     }
 
     var chainTypesSourceUrl: URL {
-        GitHubUrl.url(suffix: "chains/all_chains_types.json")
+        GitHubUrl.url(suffix: "chains/all_chains_types.json", branch: .reef)
     }
 
     // MARK: - xcm
@@ -228,6 +228,7 @@ private enum GitHubUrl {
         case developFree = "develop-free"
         case xcmLocationDevelop = "updated-xcm-locations"
         case rococo = "feature/rococo"
+        case reef
     }
 
     static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL {

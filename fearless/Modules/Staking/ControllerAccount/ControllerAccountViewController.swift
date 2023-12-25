@@ -92,11 +92,11 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
 
         let actionImage = viewModel.canChooseOtherController ? R.image.iconSmallArrowDown() : R.image.iconMore()
         rootView.controllerAccountView.actionImage = actionImage
+
+        rootView.bind(viewModel: viewModel)
     }
 
-    func didReceive(chainName: String) {
-        rootView.bind(chainName: chainName)
-    }
+    func didReceive(chainName _: String) {}
 
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>) {
         rootView.feeView.bind(viewModel: feeViewModel.value(for: selectedLocale))

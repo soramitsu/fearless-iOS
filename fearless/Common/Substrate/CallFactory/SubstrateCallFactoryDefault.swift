@@ -134,6 +134,10 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
                     path: .assetsTransfer
                 )
             }
+            if chainAsset.chain.isReef {
+                return reefTransfer(to: receiver, amount: amount)
+            }
+
             return defaultTransfer(to: receiver, amount: amount)
         case .ormlChain:
             return ormlChainTransfer(
@@ -614,6 +618,19 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         let dest: MultiAddress = isEthereumBased ? .accountTo(receiver) : .accoundId(receiver)
         let args = TransferCall(dest: dest, value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .assetsTransfer
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: args
+        )
+    }
+
+    func reefTransfer(
+        to receiver: AccountId,
+        amount: BigUInt
+    ) -> any RuntimeCallable {
+        let args = TransferCall(dest: .indexedString(receiver), value: amount, currencyId: nil)
+        let path: SubstrateCallPath = .defaultTransfer
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,

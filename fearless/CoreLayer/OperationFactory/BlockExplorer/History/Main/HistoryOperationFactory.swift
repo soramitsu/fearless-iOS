@@ -22,6 +22,8 @@ final class HistoryOperationFactoriesAssembly {
             return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
         case .etherscan:
             return EtherscanHistoryOperationFactory()
+        case .reef:
+            return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
         case .none:
             return nil
         }

@@ -63,6 +63,16 @@ extension UIAlertController {
             alertController.addAction(viewEtherscan)
         }
 
+        if let url = chain.reefscanAddressURL(address) {
+            let etherscanTitle = R.string.localizable
+                .transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
+            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
+                urlClosure(url)
+            }
+
+            alertController.addAction(viewEtherscan)
+        }
+
         if let exportClosure = exportClosure {
             let exportTitle = R.string.localizable.commonExport(preferredLanguages: locale.rLanguages)
             let showExportFlow = UIAlertAction(title: exportTitle, style: .default) { _ in
