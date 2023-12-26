@@ -36,7 +36,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
             return nil
         }
 
-        let hash = transaction.reason ?? ""
+        let hash = transaction.transactionId
         var status: String
         var statusIcon: UIImage?
         switch transaction.status {
