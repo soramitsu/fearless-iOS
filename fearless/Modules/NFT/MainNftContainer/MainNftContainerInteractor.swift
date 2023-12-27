@@ -87,23 +87,6 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                     chains: stateHolder.selectedChains
                 )
 
-                let nftsBySmartContract: [String: [NFT]] = nfts.reduce([String: [NFT]]()) { partialResult, nft in
-                    var map = partialResult
-
-                    guard let smartContract = nft.smartContract else {
-                        return map
-                    }
-
-                    if var nfts = partialResult[smartContract] {
-                        nfts.append(nft)
-                        map[smartContract] = nfts
-                    } else {
-                        map[smartContract] = [nft]
-                    }
-
-                    return map
-                }
-
                 let ownedCollections = try await nftFetchingService.fetchCollections(
                     for: wallet,
                     excludeFilters: filterValues,

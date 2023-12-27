@@ -89,7 +89,7 @@ class NftCollectionCell: UICollectionViewCell {
             if let imageViewModel = cellModel.imageViewModel {
                 imageViewModel.loadImage(on: imageView, targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize), animated: true, cornerRadius: 0)
             } else {
-                imageView.setGIFImage(name: "animatedIcon")
+                imageView.image = R.image.nftStub()
             }
             nftCountLabel.text = "\(cellModel.currentCount)/\(cellModel.availableCount)"
             chainNameLabel.text = cellModel.collection.chain.name

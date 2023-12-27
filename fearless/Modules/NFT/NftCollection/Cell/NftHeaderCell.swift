@@ -52,6 +52,8 @@ class NftHeaderCell: UICollectionViewCell {
     func bind(cellModel: NftHeaderCellViewModel) {
         if let imageViewModel = cellModel.imageViewModel {
             imageViewModel.loadImage(on: imageView, targetSize: CGSize(width: LayoutConstants.imageSize, height: LayoutConstants.imageSize), animated: true, cornerRadius: 0)
-        } else {}
+        } else {
+            imageView.image = R.image.nftStub()
+        }
     }
 }

@@ -83,7 +83,7 @@ class NftListCell: UITableViewCell {
                     cornerRadius: 8
                 )
             } else {
-                nftImageView.setGIFImage(name: "animatedIcon")
+                nftImageView.image = R.image.nftStub()
             }
 
             chainLabel.text = viewModel.chainNameLabelText
