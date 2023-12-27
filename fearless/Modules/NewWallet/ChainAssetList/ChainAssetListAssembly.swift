@@ -41,6 +41,13 @@ final class ChainAssetListAssembly {
             chainRegistry: chainRegistry,
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
         )
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -50,7 +57,8 @@ final class ChainAssetListAssembly {
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer,
-            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching
+            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            chainAssetFetching: chainAssetFetching
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

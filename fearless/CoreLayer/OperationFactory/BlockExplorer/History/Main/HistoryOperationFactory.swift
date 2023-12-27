@@ -17,7 +17,7 @@ final class HistoryOperationFactoriesAssembly {
         case .giantsquid:
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         case .sora:
-            return SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
+            return SoraSubsquidHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage), chainRegistry: ChainRegistryFacade.sharedRegistry)
         case .alchemy:
             return AlchemyHistoryOperationFactory(txStorage: txStorage, alchemyService: AlchemyService())
         case .etherscan:

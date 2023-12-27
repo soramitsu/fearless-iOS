@@ -7,6 +7,23 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         view?.controller.navigationController?.popViewController(animated: true)
     }
 
+    func showDetails(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet _: MetaAccountModel
+    ) {
+        guard let chainAssetView = WalletChainAccountDashboardViewFactory.createDetailsView(
+            chainAsset: chainAsset
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            chainAssetView.controller,
+            animated: true
+        )
+    }
+
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,

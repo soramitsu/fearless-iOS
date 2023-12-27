@@ -41,7 +41,11 @@ extension NftFiltersPresenter: NftFiltersPresenterProtocol {
 
 extension NftFiltersPresenter: NftFiltersInteractorOutputProtocol {
     func didReceive(filters: [FilterSet]) {
-        let viewModel = viewModelFactory.buildViewModel(from: filters, delegate: self)
+        let viewModel = viewModelFactory.buildViewModel(
+            from: filters,
+            delegate: self,
+            mode: .multiSelection
+        )
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
 

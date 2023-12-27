@@ -37,7 +37,13 @@ extension SwapTransactionDetailInteractor: SwapTransactionDetailInteractorInput 
     func setup(with output: SwapTransactionDetailInteractorOutput) {
         self.output = output
 
-        subscribeToPrice(for: chainAsset)
+        if chainAsset.asset.isUtility {
+            subscribeToPrice(for: chainAsset)
+        } else {
+            if let utilityChainAsset = chainAsset.chain.utilityChainAssets().first {
+                subscribeToPrice(for: utilityChainAsset)
+            }
+        }
     }
 }
 

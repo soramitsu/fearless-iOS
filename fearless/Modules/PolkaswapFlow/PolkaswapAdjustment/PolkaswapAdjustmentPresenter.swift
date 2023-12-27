@@ -114,7 +114,7 @@ final class PolkaswapAdjustmentPresenter {
         }
     }
 
-    private func provideFromAssetVewModel() {
+    private func provideFromAssetVewModel(updateAmountInput: Bool = true) {
         var balance: Decimal? = swapFromBalance
         if swapFromChainAsset == xorChainAsset, let xorBalance = xorBalance, let networkFee = networkFee {
             balance = xorBalance - networkFee
@@ -141,13 +141,15 @@ final class PolkaswapAdjustmentPresenter {
             .value(for: selectedLocale)
 
         view?.didReceiveSwapFrom(viewModel: viewModel)
-        view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+        if updateAmountInput {
+            view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+        }
 
         loadingCollector.fromReady = true
         checkLoadingState()
     }
 
-    private func provideToAssetVewModel() {
+    private func provideToAssetVewModel(updateAmountInput: Bool = true) {
         let inputAmount = swapToInputResult?
             .absoluteValue(from: swapToBalance ?? .zero)
         let balanceViewModelFactory = buildBalanceSwapToViewModelFactory(
@@ -170,7 +172,9 @@ final class PolkaswapAdjustmentPresenter {
             .value(for: selectedLocale)
 
         view?.didReceiveSwapTo(viewModel: viewModel)
-        view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+        if updateAmountInput {
+            view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+        }
 
         loadingCollector.toReady = true
         checkLoadingState()
@@ -573,7 +577,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         swapVariant = .desiredInput
         swapFromInputResult = .absolute(newValue)
-        provideFromAssetVewModel()
+        provideFromAssetVewModel(updateAmountInput: false)
         fetchQuotes()
     }
 
@@ -591,7 +595,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         swapVariant = .desiredOutput
         swapToInputResult = .absolute(newValue)
-        provideToAssetVewModel()
+        provideToAssetVewModel(updateAmountInput: false)
         fetchQuotes()
     }
 

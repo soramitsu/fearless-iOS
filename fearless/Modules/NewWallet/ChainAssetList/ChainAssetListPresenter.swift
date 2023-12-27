@@ -125,10 +125,22 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
         if viewModel.chainAsset.chain.isSupported {
-            router.showChainAccount(
-                from: view,
-                chainAsset: viewModel.chainAsset
-            )
+            interactor.getAvailableChainAssets(chainAsset: viewModel.chainAsset) { [weak self] availableChainAssets in
+                guard let strongSelf = self else { return }
+                DispatchQueue.main.async {
+                    if availableChainAssets.count > 1 {
+                        strongSelf.router.showAssetNetworks(
+                            from: strongSelf.view,
+                            chainAsset: viewModel.chainAsset
+                        )
+                    } else {
+                        strongSelf.router.showChainAccount(
+                            from: strongSelf.view,
+                            chainAsset: viewModel.chainAsset
+                        )
+                    }
+                }
+            }
         } else {
             router.presentWarningAlert(
                 from: view,

@@ -1,7 +1,7 @@
 import Foundation
 
 class NftFiltersViewModelFactory: FiltersViewModelFactoryProtocol {
-    func buildViewModel(from filters: [FilterSet], delegate: SwitchFilterTableCellViewModelDelegate?) -> FiltersViewModel {
+    func buildViewModel(from filters: [FilterSet], delegate: SwitchFilterTableCellViewModelDelegate?, mode: FiltersMode) -> FiltersViewModel {
         let sections: [FilterSectionViewModel] = filters.compactMap { filterSet in
 
             let cellViewModels: [SwitchFilterTableCellViewModel] = filterSet.items.compactMap { baseFilterItem in
@@ -23,6 +23,6 @@ class NftFiltersViewModelFactory: FiltersViewModelFactoryProtocol {
             )
         }
 
-        return FiltersViewModel(sections: sections)
+        return FiltersViewModel(sections: sections, mode: mode)
     }
 }

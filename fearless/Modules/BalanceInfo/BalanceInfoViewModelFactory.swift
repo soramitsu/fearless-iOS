@@ -53,6 +53,21 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
                 infoButtonEnabled: infoButtonEnabled,
                 locale: locale
             )
+        case let .chainAssets(chainAssets, wallet):
+            let symbol = chainAssets.first?.asset.symbol.uppercased() ?? ""
+            guard let info = balances[wallet.metaId] else {
+                return zeroBalanceViewModel(
+                    balanceString: "0 " + symbol,
+                    infoButtonEnabled: false
+                )
+            }
+            balanceInfoViewModel = buildChainAssetsBalance(
+                with: info,
+                metaAccount: wallet,
+                chainAssets: chainAssets,
+                infoButtonEnabled: infoButtonEnabled,
+                locale: locale
+            )
         }
 
         return balanceInfoViewModel
@@ -116,6 +131,61 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             ),
             let balanceString = assetFormatter.stringFromDecimal(balance)
         else {
+            return zeroBalanceViewModel(
+                balanceString: "0 " + chainAsset.asset.symbol.uppercased(),
+                infoButtonEnabled: infoButtonEnabled
+            )
+        }
+
+        return BalanceInfoViewModel(
+            dayChangeAttributedString: dayChangeAttributedString,
+            balanceString: balanceString,
+            infoButtonEnabled: infoButtonEnabled
+        )
+    }
+
+    private func buildChainAssetsBalance(
+        with balanceInfo: WalletBalanceInfo,
+        metaAccount: MetaAccountModel,
+        chainAssets: [ChainAsset],
+        infoButtonEnabled: Bool,
+        locale: Locale
+    ) -> BalanceInfoViewModel {
+        guard let chainAsset = chainAssets.first else {
+            return zeroBalanceViewModel(balanceString: "0", infoButtonEnabled: infoButtonEnabled)
+        }
+        let displayInfo = chainAsset.asset.displayInfo
+        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto).value(for: locale)
+
+        let dayChangeAttributedString = getDayChangeAttributedString(
+            currency: balanceInfo.currency,
+            dayChange: balanceInfo.dayChangePercent,
+            dayChangeValue: balanceInfo.dayChangeValue,
+            locale: locale
+        )
+
+        let balances: [Decimal] = chainAssets.compactMap { chainAsset -> Decimal? in
+            let accountRequest = chainAsset.chain.accountRequest()
+            guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
+                return 0
+            }
+
+            let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+            guard
+                let accountInfo = balanceInfo.accountInfos[chainAssetKey] ?? nil,
+                let balance = Decimal.fromSubstrateAmount(
+                    accountInfo.data.sendAvailable,
+                    precision: chainAsset.asset.displayInfo.assetPrecision
+                ) else {
+                return 0
+            }
+
+            return balance
+        }
+
+        let balance: Decimal = balances.reduce(0, +)
+
+        guard let balanceString = assetFormatter.stringFromDecimal(balance) else {
             return zeroBalanceViewModel(
                 balanceString: "0 " + chainAsset.asset.symbol.uppercased(),
                 infoButtonEnabled: infoButtonEnabled

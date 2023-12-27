@@ -4,7 +4,7 @@ final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
         static let walletIconSize: CGFloat = 40.0
         static let accessoryButtonSize: CGFloat = 32.0
-        static let issuesButtonSize = CGSize(width: 130, height: 24)
+        static let issuesButtonSize = CGSize(width: 140, height: 24)
     }
 
     var locale: Locale = .current {
@@ -260,7 +260,7 @@ final class WalletMainContainerViewLayout: UIView {
         addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
         pageViewControllerContainer.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(32)
+            make.top.equalTo(contentView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
         }
