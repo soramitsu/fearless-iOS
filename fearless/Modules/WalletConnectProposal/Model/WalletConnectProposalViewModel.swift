@@ -28,6 +28,20 @@ enum WalletConnectProposalCellModel {
     case optionalExpandable(ExpandableViewModel)
     case wallet(WalletViewModel)
 
+    init?(requiredNetworksViewModel: DetailsViewModel?) {
+        guard let viewModel = requiredNetworksViewModel else {
+            return nil
+        }
+        self = .requiredNetworks(viewModel)
+    }
+
+    init?(requiredExpandableViewModel: ExpandableViewModel?) {
+        guard let viewModel = requiredExpandableViewModel else {
+            return nil
+        }
+        self = .requiredExpandable(viewModel)
+    }
+
     init?(optionalNetworksCaseViewModel: DetailsViewModel?) {
         guard let viewModel = optionalNetworksCaseViewModel else {
             return nil
