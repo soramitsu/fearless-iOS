@@ -104,21 +104,22 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                     return map
                 }
 
-                let ownedCollections: [NFTCollection] = nftsBySmartContract.compactMap { _, value in
-                    guard let nft = value.first else {
-                        return nil
-                    }
+                let ownedCollections = try await nftFetchingService.fetchCollections(
+                    for: wallet,
+                    excludeFilters: filterValues,
+                    chains: stateHolder.selectedChains
+                )
 
-                    var collection = nft.collection
-                    collection?.nfts = value
-                    collection?.totalSupply = nft.collection?.totalSupply
-
-                    return collection
-                }
+                let collections = ownedCollections.map { collection in
+                    var ownedCollection = collection
+                    ownedCollection.nfts = nfts.filter { $0.smartContract == collection.address }
+                    return ownedCollection
+                }.filter { $0.nfts?.isEmpty == false }
 
                 await MainActor.run(body: {
-                    output?.didReceive(collections: ownedCollections)
+                    output?.didReceive(collections: collections)
                 })
+
             } catch {
                 logger.error(error.localizedDescription)
                 output?.didReceive(collections: [])

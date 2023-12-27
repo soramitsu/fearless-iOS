@@ -101,12 +101,20 @@ extension NftCollectionPresenter: NftCollectionViewOutput {
         interactor.setup(with: self)
     }
 
+    func viewAppeared() {
+        interactor.initialSetup()
+    }
+
     func didBackButtonTapped() {
         router.dismiss(view: view)
     }
 
     func didSelect(nft: NFT, type: NftType) {
         router.openNftDetails(nft: nft, type: type, wallet: wallet, address: address, from: view)
+    }
+
+    func loadNext() {
+        interactor.loadNext()
     }
 }
 

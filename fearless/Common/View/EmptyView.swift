@@ -106,6 +106,7 @@ final class EmptyView: UIView {
 
     private let descriptionLabel: UILabel = {
         let label = UILabel()
+        label.numberOfLines = 0
         label.textAlignment = .center
         label.font = .p0Paragraph
         label.textColor = R.color.colorStrokeGray()!

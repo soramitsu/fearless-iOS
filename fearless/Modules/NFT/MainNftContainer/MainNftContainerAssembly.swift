@@ -20,9 +20,7 @@ final class MainNftContainerAssembly {
         )
 
         let filters = [FilterSet(
-            title: R.string.localizable.commonShow(
-                preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
-            ),
+            title: String(),
             items: NftCollectionFilter.defaultFilters()
         )]
 

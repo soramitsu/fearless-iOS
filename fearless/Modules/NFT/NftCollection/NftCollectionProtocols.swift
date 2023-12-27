@@ -6,13 +6,17 @@ protocol NftCollectionViewInput: ControllerBackedProtocol {
 
 protocol NftCollectionViewOutput: AnyObject {
     func didLoad(view: NftCollectionViewInput)
+    func viewAppeared()
     func didBackButtonTapped()
     func didSelect(nft: NFT, type: NftType)
     func didTapActionButton(nft: NFT, type: NftType)
+    func loadNext()
 }
 
 protocol NftCollectionInteractorInput: AnyObject {
+    func initialSetup()
     func setup(with output: NftCollectionInteractorOutput)
+    func loadNext()
 }
 
 protocol NftCollectionInteractorOutput: AnyObject {

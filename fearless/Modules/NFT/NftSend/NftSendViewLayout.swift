@@ -85,6 +85,12 @@ final class NftSendViewLayout: UIView {
         return mediaView
     }()
 
+    private let bottomContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -111,8 +117,9 @@ final class NftSendViewLayout: UIView {
         addSubview(searchView)
         addSubview(scamWarningView)
         addSubview(feeView)
-        addSubview(optionsStackView)
-        addSubview(actionButton)
+        addSubview(bottomContainer)
+        bottomContainer.addSubview(optionsStackView)
+        bottomContainer.addSubview(actionButton)
 
         optionsStackView.addArrangedSubview(scanButton)
         optionsStackView.addArrangedSubview(historyButton)
@@ -142,17 +149,23 @@ final class NftSendViewLayout: UIView {
             make.top.equalTo(feeView.snp.bottom)
         }
 
-        actionButton.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.actionHeight)
+        bottomContainer.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint =
                 make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
         }
 
+        actionButton.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
         optionsStackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
             make.height.equalTo(LayoutConstants.stackActionHeight)
+            make.top.equalToSuperview()
         }
     }
 

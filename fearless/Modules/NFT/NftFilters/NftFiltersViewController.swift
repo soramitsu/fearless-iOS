@@ -71,12 +71,14 @@ extension NftFiltersViewController: UITableViewDataSource, UITableViewDelegate {
         return view
     }
 
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        guard case .loaded = state else {
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard case let .loaded(viewModel) = state else {
             return 0
         }
 
-        return 40
+        let vmSection = viewModel.sections[section]
+
+        return vmSection.title.isEmpty ? 0 : 40
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {

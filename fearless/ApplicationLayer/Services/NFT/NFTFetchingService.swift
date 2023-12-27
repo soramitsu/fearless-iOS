@@ -20,6 +20,7 @@ protocol NFTFetchingServiceProtocol {
 
     func fetchCollectionNfts(
         collectionAddress: String,
-        chain: ChainModel
+        chain: ChainModel,
+        offset: Int
     ) async throws -> [NFT]
 }
