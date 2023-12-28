@@ -210,6 +210,8 @@ final class SendPresenter {
 
         DispatchQueue.main.async {
             self.view?.didReceive(amountInputViewModel: inputViewModel)
+            let isVisible = chainAsset.chain.externalApi?.history != nil
+            self.view?.setHistoryButton(isVisible: isVisible)
         }
     }
 

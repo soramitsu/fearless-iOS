@@ -865,7 +865,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let selectedSourceType = selectedSourceType,
             let selectedCryptoType = selectedCryptoType,
             let usernameViewModel = usernameViewModel,
-            let input = input
+            let input = input?.trimmingCharacters(in: .whitespacesAndNewlines)
         else {
             return
         }

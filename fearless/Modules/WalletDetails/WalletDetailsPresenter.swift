@@ -204,11 +204,11 @@ private extension WalletDetailsPresenter {
                 switch $0.type {
                 case .subscan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .polkascan(url: url)
+                        return .subscan(url: url)
                     }
                 case .polkascan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .subscan(url: url)
+                        return .polkascan(url: url)
                     }
                 case .etherscan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {

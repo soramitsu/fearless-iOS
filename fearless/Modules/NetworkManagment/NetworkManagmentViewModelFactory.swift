@@ -69,7 +69,7 @@ final class NetworkManagmentViewModelFactoryImpl: NetworkManagmentViewModelFacto
             case .allItem:
                 return NetworkManagmentCellViewModel(
                     icon: BundleImageViewModel(image: R.image.iconNetwotkManagmentAll()),
-                    name: R.string.localizable.stakingAnalyticsPeriodAll(preferredLanguages: locale.rLanguages).uppercased(),
+                    name: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages),
                     isSelected: initialFilter.isAllFilter,
                     isFavourite: nil,
                     networkSelectType: .all
