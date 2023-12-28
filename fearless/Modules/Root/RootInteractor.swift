@@ -67,6 +67,7 @@ extension RootInteractor: RootInteractorInputProtocol {
             case let .success(maybeMetaAccount):
                 if let metaAccount = maybeMetaAccount {
                     self.chainRegistry.performHotBoot()
+                    self.chainRegistry.subscribeToChians()
                     self.logger?.debug("Selected account: \(metaAccount.metaId)")
                 } else {
                     self.chainRegistry.performColdBoot()

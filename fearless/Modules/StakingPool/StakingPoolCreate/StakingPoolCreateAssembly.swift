@@ -46,7 +46,7 @@ final class StakingPoolCreateAssembly {
             selectedMetaAccount: wallet
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager

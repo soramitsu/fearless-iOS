@@ -46,7 +46,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFNetwork'
           pod 'SSFChainRegistry', '0.1.29'
           pod 'SSFUtils', '0.1.31'
-          pod 'SSFHelpers', '0.1.27'
+          pod 'SSFHelpers', '0.1.28'
           pod 'SSFCloudStorage'
           pod 'FearlessKeys'
       end
@@ -73,7 +73,7 @@ abstract_target 'fearlessAll' do
 #  pod 'web3swift-bnsports', :path => '../web3swift-bnsports'
 #  pod 'SSFCloudStorage', :path => '../soramitsu-shared-features-ios/SSFCloudStorage'
 #  pod 'SSFKeyPair', :path => '../soramitsu-shared-features-ios/SSFKeyPair'
-#pod 'RobinHood', :path => '../robinhood-ios'
+#  pod 'RobinHood', :path => '../robinhood-ios'
 
   target 'fearlessTests' do
     inherit! :search_paths

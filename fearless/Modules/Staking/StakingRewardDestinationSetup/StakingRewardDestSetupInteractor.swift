@@ -24,12 +24,11 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private let rewardChainAsset: ChainAsset?
 
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var payeeProvider: AnyDataProvider<DecodedPayee>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
-    private var rewardPriceProvider: AnySingleValueProvider<PriceData>?
 
     private var stashItem: StashItem?
     private var rewardDestination: RewardDestination<AccountAddress>?
@@ -140,14 +139,7 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
         if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
-
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
-
-        if let priceId = rewardChainAsset?.asset.priceId {
-            rewardPriceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 })
 
         provideRewardCalculator()
 

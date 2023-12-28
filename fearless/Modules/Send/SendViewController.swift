@@ -97,7 +97,7 @@ final class SendViewController: UIViewController, ViewHolder {
     }
 
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true)
+        let isEnabled = (amountInputViewModel?.isValid == true) && rootView.searchView.textField.text?.isNotEmpty == true
         rootView.actionButton.set(enabled: isEnabled)
     }
 
@@ -200,6 +200,11 @@ extension SendViewController: SendViewInput {
 
     func didStopLoading() {
         rootView.actionButton.set(loading: false)
+        updateActionButton()
+    }
+
+    func setHistoryButton(isVisible: Bool) {
+        rootView.historyButton.isHidden = !isVisible
     }
 }
 

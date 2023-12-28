@@ -1029,8 +1029,8 @@
 "wallet.balance.redeemable" = "償還可能";
 "wallet.balance.reserved" = "予約済み";
 "wallet.balance.unbonding_v1.9.0" = "ステーキング解除";
-"wallet.connect.connection.complete" = "Сonnection from %@ with ethers has been successfully completed";
-"wallet.connect.connection.dissconnected" = "Disconnection from %@ ethers has been successfully completed";
+"wallet.connect.connection.complete" = "Сonnection from %@ has been successfully completed";
+"wallet.connect.connection.dissconnected" = "Disconnection from %@ has been successfully completed";
 "wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
 "wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
 "wallet.connect.sign.warning.message" = "Signing this message can have dangerous side effect. Only sign message from sites you fully trust with your entire account.";
@@ -1104,4 +1104,5 @@
 "сurrencies.stub.text" = "通貨";
 "common.available.networks" = "Available networks";
 "common.my.networks" = "My networks";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the Kusama network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
 "transaction.details.view.reefscan" = "View in Reefscan";

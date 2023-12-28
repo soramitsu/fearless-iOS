@@ -30,7 +30,8 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         switch transfer.chainAsset.asset.ethereumType {
         case .normal:
             let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
-            let call = EthereumCall(to: address)
+            let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+            let call = EthereumCall(from: senderAddress, to: address)
 
             let gasPrice = try await queryGasPrice()
             let gasLimit = try await queryGasLimit(call: call)
@@ -224,6 +225,8 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
         let gasPrice = try await queryGasPrice()
         let gasLimit = try await queryGasLimit(call: call)
+        let supportsEip1559 = await checkChainSupportEip1559()
+        let transactionType: EthereumTransaction.TransactionType = supportsEip1559 ? .eip1559 : .legacy
         let tx = EthereumTransaction(
             nonce: nonce,
             gasPrice: gasPrice,
@@ -234,7 +237,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             to: receiverAddress,
             value: quantity,
             accessList: [:],
-            transactionType: .eip1559
+            transactionType: transactionType
         )
 
         let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)

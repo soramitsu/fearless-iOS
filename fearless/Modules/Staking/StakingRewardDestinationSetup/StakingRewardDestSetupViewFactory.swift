@@ -96,7 +96,7 @@ struct StakingRewardDestSetupViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,

@@ -1034,8 +1034,8 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "wallet.balance.redeemable" = "Có thể đổi trả";
 "wallet.balance.reserved" = "Dự trữ";
 "wallet.balance.unbonding_v1.9.0" = "Unstaking";
-"wallet.connect.connection.complete" = "Kết nối từ %@ với ether đã hoàn tất thành công";
-"wallet.connect.connection.dissconnected" = "Việc ngắt kết nối khỏi %@ ether đã hoàn tất thành công";
+"wallet.connect.connection.complete" = "Kết nối từ %@ đã hoàn tất thành công";
+"wallet.connect.connection.dissconnected" = "Việc ngắt kết nối khỏi %@ đã hoàn tất thành công";
 "wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
 "wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
 "wallet.connect.sign.warning.message" = "Việc ký vào tin nhắn này có thể có tác dụng phụ nguy hiểm. Chỉ ký tin nhắn từ các trang web mà bạn hoàn toàn tin tưởng bằng toàn bộ tài khoản của mình.";
@@ -1227,4 +1227,5 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "verify.phone.number.title" = "Xác minh số điện thoại của bạn";
 "common.available.networks" = "Available networks";
 "common.my.networks" = "My networks";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the Kusama network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
 "transaction.details.view.reefscan" = "View in Reefscan";

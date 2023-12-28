@@ -69,7 +69,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         strategy: StakingPayoutConfirmationStrategy
     ) -> StakingPayoutConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         return StakingPayoutConfirmationInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

@@ -101,12 +101,11 @@ extension SelectAssetInteractor: PriceLocalStorageSubscriber, PriceLocalSubscrip
 
 private extension SelectAssetInteractor {
     func subscribeToPrice(for chainAssets: [ChainAsset]) {
-        let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        guard pricesIds.isNotEmpty else {
+        guard chainAssets.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = subscribeToPrices(for: pricesIds)
+        pricesProvider = subscribeToPrices(for: chainAssets)
     }
 
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {

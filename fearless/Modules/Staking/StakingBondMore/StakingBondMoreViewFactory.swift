@@ -64,7 +64,7 @@ struct StakingBondMoreViewFactory {
         strategy: StakingBondMoreStrategy
     ) -> StakingBondMoreInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let interactor = StakingBondMoreInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

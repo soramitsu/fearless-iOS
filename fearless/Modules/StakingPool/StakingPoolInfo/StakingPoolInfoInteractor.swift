@@ -14,7 +14,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private let validatorOperationFactory: ValidatorOperationFactoryProtocol
     private let poolId: String
     private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private let eraValidatorService: EraValidatorServiceProtocol
 
@@ -184,9 +184,7 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
             self?.output?.didReceive(palletIdResult: result)
         }
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         fetchPoolInfo(poolId: poolId)
 
@@ -224,7 +222,7 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
 }
 
 extension StakingPoolInfoInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
 }
