@@ -34,19 +34,19 @@ abstract_target 'fearlessAll' do
           pod 'SSFXCM', :configurations => ['DEBUG']
       else
           pod 'SSFXCM', '0.1.25'
-          pod 'SSFExtrinsicKit', '0.1.0'
+          pod 'SSFExtrinsicKit', '0.1.31'
           pod 'SSFCrypto'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.27'
+          pod 'SSFModels', '0.1.31'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService', '0.1.29'
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection', '0.1.24'
           pod 'SSFNetwork'
-          pod 'SSFUtils', '0.1.25'
           pod 'SSFChainRegistry', '0.1.29'
-          pod 'SSFHelpers', '0.1.27'
+          pod 'SSFUtils', '0.1.31'
+          pod 'SSFHelpers', '0.1.31'
           pod 'SSFCloudStorage'
           pod 'FearlessKeys'
       end
@@ -73,7 +73,7 @@ abstract_target 'fearlessAll' do
 #  pod 'web3swift-bnsports', :path => '../web3swift-bnsports'
 #  pod 'SSFCloudStorage', :path => '../soramitsu-shared-features-ios/SSFCloudStorage'
 #  pod 'SSFKeyPair', :path => '../soramitsu-shared-features-ios/SSFKeyPair'
-#pod 'RobinHood', :path => '../robinhood-ios'
+#  pod 'RobinHood', :path => '../robinhood-ios'
 
   target 'fearlessTests' do
     inherit! :search_paths

@@ -14,7 +14,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     let wallet: MetaAccountModel
     let strategy: StakingRebondConfirmationStrategy
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -32,10 +32,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
 extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteractorInputProtocol {
     func setup() {
         strategy.setup()
-
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
     }
 
     func submit(builderClosure: ExtrinsicBuilderClosure?) {
@@ -54,7 +51,7 @@ extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteract
 }
 
 extension StakingRebondConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

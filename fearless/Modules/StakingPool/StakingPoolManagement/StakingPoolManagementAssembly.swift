@@ -80,7 +80,7 @@ final class StakingPoolManagementAssembly {
             logger: logger
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
             operationManager: operationManager,

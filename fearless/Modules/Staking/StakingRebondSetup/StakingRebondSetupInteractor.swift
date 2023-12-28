@@ -18,7 +18,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let connection: JSONRPCEngine
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -75,9 +75,7 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
@@ -101,7 +99,7 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
 }
 
 extension StakingRebondSetupInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

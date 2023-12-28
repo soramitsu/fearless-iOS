@@ -5,27 +5,24 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     weak var presenter: ValidatorInfoInteractorOutputProtocol!
 
     internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let strategy: ValidatorInfoStrategy
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         strategy: ValidatorInfoStrategy
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.strategy = strategy
     }
 
     func setup() {
         strategy.setup()
-
-        if let priceId = asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
     }
 
     func reload() {
@@ -35,7 +32,7 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
 }
 
 extension ValidatorInfoInteractorBase: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

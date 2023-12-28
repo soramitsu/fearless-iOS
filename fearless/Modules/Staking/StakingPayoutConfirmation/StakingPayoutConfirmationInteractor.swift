@@ -30,16 +30,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     }
 
     private func subscribeForPrices() {
-        var priceIds: [String] = []
-        if let utilityPriceId = chainAsset.chain.utilityChainAssets().first?.asset.priceId {
-            priceIds.append(utilityPriceId)
-        }
-
-        if let priceId = chainAsset.asset.priceId, !priceIds.contains(priceId) {
-            priceIds.append(priceId)
-        }
-
-        priceProvider = subscribeToPrices(for: priceIds)
+        priceProvider = subscribeToPrices(for: [chainAsset.chain.utilityChainAssets().first, chainAsset].compactMap { $0 })
     }
 }
 

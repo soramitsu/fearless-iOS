@@ -25,7 +25,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     let keystore: KeystoreProtocol
 
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
     private let callFactory: SubstrateCallFactoryProtocol
@@ -88,9 +88,7 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         feeProxy.delegate = self
     }
@@ -138,7 +136,7 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
 }
 
 extension StakingRewardDestConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

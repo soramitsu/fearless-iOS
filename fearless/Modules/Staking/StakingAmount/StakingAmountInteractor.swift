@@ -20,7 +20,7 @@ final class StakingAmountInteractor {
     private let strategy: StakingAmountStrategy?
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -68,9 +68,7 @@ final class StakingAmountInteractor {
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching,
     AccountFetching {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
@@ -104,7 +102,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
 }
 
 extension StakingAmountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         switch result {
         case let .success(priceData):
             presenter?.didReceive(price: priceData)

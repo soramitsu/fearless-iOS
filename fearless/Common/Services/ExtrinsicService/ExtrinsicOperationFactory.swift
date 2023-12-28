@@ -195,15 +195,10 @@ final class ExtrinsicOperationFactory {
             let era = try eraWrapper.targetOperation.extractNoCancellableResultData().extrinsicEra
             let eraBlockHash = try eraBlockOperation.extractNoCancellableResultData()
 
-            let account: MultiAddress = {
-                switch currentChainFormat {
-                case .ethereum:
-                    return MultiAddress.address20(currentAccountId)
-                case .substrate:
-                    return MultiAddress.accoundId(currentAccountId)
-                }
-            }()
-
+            let account: MultiAddress = codingFactory.metadata.multiAddressParameter(
+                accountId: currentAccountId,
+                chainFormat: currentChainFormat.asSfCrypto()
+            )
             let extrinsics: [Data] = try (0 ..< numberOfExtrinsics).map { index in
                 var builder: ExtrinsicBuilderProtocol =
                     try ExtrinsicBuilder(

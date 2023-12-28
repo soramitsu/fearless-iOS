@@ -54,8 +54,14 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStor
                     [[NMapKeyParam(value: chainAsset.currencyId)], [NMapKeyParam(value: accountId)]]
                 })
             case .none:
-                request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
-                    accountId
+                if chainAsset.chain.chainId == Chain.reef.genesisHash || chainAsset.chain.chainId == Chain.scuba.genesisHash {
+                    request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
+                        accountId.toHexString()
+                    }
+                } else {
+                    request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
+                        accountId
+                    }
                 }
             default:
                 request = NMapSubscriptionRequest(storagePath: storagePath, localKey: localKey, keyParamClosure: {

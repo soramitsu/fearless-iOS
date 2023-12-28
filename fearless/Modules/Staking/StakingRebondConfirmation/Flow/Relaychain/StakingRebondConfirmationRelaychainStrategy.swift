@@ -31,7 +31,7 @@ final class StakingRebondConfirmationRelaychainStrategy: AccountFetching {
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var extrinsicService: ExtrinsicServiceProtocol?
     private var signingWrapper: SigningWrapperProtocol?
     private let callFactory: SubstrateCallFactoryProtocol

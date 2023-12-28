@@ -5,30 +5,28 @@ final class CustomValidatorListInteractor {
     weak var presenter: CustomValidatorListInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let asset: AssetModel
+    let chainAsset: ChainAsset
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        asset: AssetModel
+        chainAsset: ChainAsset
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.asset = asset
+        self.chainAsset = chainAsset
     }
 }
 
 extension CustomValidatorListInteractor: CustomValidatorListInteractorInputProtocol {
     func setup() {
-        if let priceId = asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
     }
 }
 
 extension CustomValidatorListInteractor: PriceLocalStorageSubscriber,
     PriceLocalSubscriptionHandler, AnyProviderAutoCleaning {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

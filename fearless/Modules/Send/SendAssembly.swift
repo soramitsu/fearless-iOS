@@ -26,9 +26,7 @@ final class SendAssembly {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: repositoryFacade
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
         let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
             CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
         let scamRepository: CoreDataRepository<ScamInfo, CDScamInfo> =
@@ -54,6 +52,8 @@ final class SendAssembly {
             chainModelRepository: AnyDataProviderRepository(chainRepository),
             wallet: wallet
         )
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
         let interactor = SendInteractor(
             feeProxy: ExtrinsicFeeProxy(),
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
@@ -65,7 +65,9 @@ final class SendAssembly {
             scamServiceOperationFactory: scamServiceOperationFactory,
             chainAssetFetching: chainAssetFetching,
             dependencyContainer: dependencyContainer,
-            addressChainDefiner: addressChainDefiner
+            addressChainDefiner: addressChainDefiner,
+            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
+            operationQueue: OperationQueue()
         )
         let router = SendRouter()
 

@@ -39,7 +39,7 @@ extension AssetNetworksInteractor: AssetNetworksInteractorInput {
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"]), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
             switch result {
@@ -59,13 +59,7 @@ extension AssetNetworksInteractor: AssetNetworksInteractorInput {
             handler: self,
             deliveryOn: .main
         )
-
-        let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        guard pricesIds.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = subscribeToPrices(for: pricesIds)
+        pricesProvider = subscribeToPrices(for: chainAssets)
     }
 }
 

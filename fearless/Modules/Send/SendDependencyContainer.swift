@@ -32,7 +32,8 @@ final class SendDepencyContainer {
     }
 
     func prepareDepencies(
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        runtimeItem: RuntimeMetadataItem?
     ) async throws -> SendDependencies {
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             throw ChainAccountFetchingError.accountNotExists
@@ -56,7 +57,7 @@ final class SendDepencyContainer {
 
         let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
-        let transferService = try await createTransferService(for: chainAsset)
+        let transferService = try await createTransferService(for: chainAsset, runtimeItem: runtimeItem)
         let polkaswapService = createPolkaswapService(chainAsset: chainAsset, chainRegistry: chainRegistry)
         let accountInfoFetching = createAccountInfoFetching(for: chainAsset)
         let dependencies = SendDependencies(
@@ -92,7 +93,7 @@ final class SendDepencyContainer {
         return substrateAccountInfoFetching
     }
 
-    private func createTransferService(for chainAsset: ChainAsset) async throws -> TransferServiceProtocol {
+    private func createTransferService(for chainAsset: ChainAsset, runtimeItem: RuntimeMetadataItem?) async throws -> TransferServiceProtocol {
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             throw ChainAccountFetchingError.accountNotExists
         }
@@ -125,7 +126,7 @@ final class SendDepencyContainer {
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,
                 usedRuntimePaths: [:],
-                runtimeItem: nil
+                runtimeItem: runtimeItem
             )
             let operationManager = OperationManagerFacade.sharedManager
 
