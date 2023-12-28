@@ -6,6 +6,7 @@ import Web3
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
+    var availableChains: [ChainModel] { get }
     var chainsTypesMap: [String: Data] { get }
 
     func resetConnection(for chainId: ChainModel.Id)
@@ -45,6 +46,14 @@ final class ChainRegistry {
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
     private lazy var readLock = ReaderWriterLock()
+
+    private var substrateConnectionPool: ConnectionPool? {
+        connectionPools.first(where: { $0 is ConnectionPool }) as? ConnectionPool
+    }
+
+    private var ethereumConnectionPool: EthereumConnectionPool? {
+        connectionPools.first(where: { $0 is EthereumConnectionPool }) as? EthereumConnectionPool
+    }
 
     init(
         snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol,
@@ -141,14 +150,6 @@ final class ChainRegistry {
         chainsTypesSyncService.syncUp()
     }
 
-    private var substrateConnectionPool: ConnectionPool? {
-        connectionPools.first(where: { $0 is ConnectionPool }) as? ConnectionPool
-    }
-
-    private var ethereumConnectionPool: EthereumConnectionPool? {
-        connectionPools.first(where: { $0 is EthereumConnectionPool }) as? EthereumConnectionPool
-    }
-
     private func handleNewSubstrateChain(newChain: ChainModel) throws {
         guard let substrateConnectionPool = self.substrateConnectionPool else {
             return
@@ -168,8 +169,8 @@ final class ChainRegistry {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-        _ = try ethereumConnectionPool.setupConnection(for: newChain)
         chains.append(newChain)
+        _ = try ethereumConnectionPool.setupConnection(for: newChain)
     }
 
     private func handleUpdatedSubstrateChain(updatedChain: ChainModel) throws {
@@ -237,6 +238,12 @@ extension ChainRegistry: ChainRegistryProtocol {
         readLock.concurrentlyRead { Set(runtimeVersionSubscriptions.keys + chains.filter { $0.isEthereum }.map { $0.chainId }) }
     }
 
+    var availableChains: [ChainModel] {
+        readLock.concurrentlyRead {
+            chains
+        }
+    }
+
     func performColdBoot() {
         subscribeToChians()
         syncUpServices()
@@ -280,14 +287,16 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
-        guard
-            let ethereumConnectionPool = self.ethereumConnectionPool,
-            let chain = chains.first(where: { $0.chainId == chainId })
-        else {
-            return nil
-        }
+        readLock.concurrentlyRead {
+            guard
+                let ethereumConnectionPool = self.ethereumConnectionPool,
+                let chain = chains.first(where: { $0.chainId == chainId })
+            else {
+                return nil
+            }
 
-        return try? ethereumConnectionPool.setupConnection(for: chain)
+            return try? ethereumConnectionPool.setupConnection(for: chain)
+        }
     }
 
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {

@@ -59,13 +59,7 @@ extension AssetNetworksInteractor: AssetNetworksInteractorInput {
             handler: self,
             deliveryOn: .main
         )
-
-        let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        guard pricesIds.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = subscribeToPrices(for: pricesIds)
+        pricesProvider = subscribeToPrices(for: chainAssets)
     }
 }
 

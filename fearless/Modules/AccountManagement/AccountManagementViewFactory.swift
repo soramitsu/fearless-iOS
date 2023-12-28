@@ -50,9 +50,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let getBalanceProvider = GetBalanceProvider(
             balanceForModel: .managedMetaAccounts,

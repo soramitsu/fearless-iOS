@@ -36,9 +36,7 @@ final class SelectAssetAssembly {
             selectedMetaAccount: wallet
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         let interactor = SelectAssetInteractor(
             chainAssetFetching: chainAssetFetching,

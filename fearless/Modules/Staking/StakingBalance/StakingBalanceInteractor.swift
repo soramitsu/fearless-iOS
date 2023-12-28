@@ -10,7 +10,7 @@ final class StakingBalanceInteractor: AccountFetching {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let strategy: StakingBalanceStrategy
 
-    var priceProvider: AnySingleValueProvider<PriceData>?
+    var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         chainAsset: ChainAsset,
@@ -25,9 +25,7 @@ final class StakingBalanceInteractor: AccountFetching {
 
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         strategy.setup()
     }
@@ -38,7 +36,7 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
 }
 
 extension StakingBalanceInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter?.didReceive(priceResult: result)
     }
 }

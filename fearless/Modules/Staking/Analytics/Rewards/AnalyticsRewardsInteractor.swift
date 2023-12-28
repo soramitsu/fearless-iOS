@@ -9,7 +9,7 @@ final class AnalyticsRewardsInteractor {
     let strategy: AnalyticsRewardsStrategy
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         strategy: AnalyticsRewardsStrategy,
@@ -30,16 +30,14 @@ extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
     }
 
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         strategy.setup()
     }
 }
 
 extension AnalyticsRewardsInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

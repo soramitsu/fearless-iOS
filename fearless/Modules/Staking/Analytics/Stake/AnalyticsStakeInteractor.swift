@@ -12,7 +12,7 @@ final class AnalyticsStakeInteractor {
     private let chainAsset: ChainAsset
     private let selectedAccountAddress: AccountAddress
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(
@@ -32,9 +32,7 @@ final class AnalyticsStakeInteractor {
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         stashItemProvider = subscribeStashItemProvider(for: selectedAccountAddress)
     }
@@ -59,7 +57,7 @@ extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
 }
 
 extension AnalyticsStakeInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

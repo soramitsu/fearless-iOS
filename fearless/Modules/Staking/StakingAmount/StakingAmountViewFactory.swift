@@ -207,7 +207,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 callFactory: callFactory
             )
 
-            let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+            let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
             let strategy = StakingAmountRelaychainStrategy(
                 chainAsset: chainAsset,
@@ -337,7 +337,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
         let facade = UserDataStorageFacade.shared
         let mapper = MetaAccountMapper()
 

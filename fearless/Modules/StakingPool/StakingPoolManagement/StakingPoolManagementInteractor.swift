@@ -22,7 +22,7 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
     private let existentialDepositService: ExistentialDepositServiceProtocol
     private let validatorOperationFactory: ValidatorOperationFactoryProtocol
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
 
@@ -186,9 +186,7 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
         }
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
@@ -262,8 +260,8 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
 }
 
 extension StakingPoolManagementInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        guard chainAsset.asset.priceId == priceId else {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset: ChainAsset) {
+        guard chainAsset == chainAsset else {
             return
         }
 

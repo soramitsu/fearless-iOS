@@ -37,7 +37,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFExtrinsicKit', '0.1.0'
           pod 'SSFCrypto'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.27'
+          pod 'SSFModels', '0.1.28'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService', '0.1.29'
@@ -46,7 +46,7 @@ abstract_target 'fearlessAll' do
           pod 'SSFNetwork'
           pod 'SSFUtils', '0.1.25'
           pod 'SSFChainRegistry', '0.1.29'
-          pod 'SSFHelpers', '0.1.27'
+          pod 'SSFHelpers', '0.1.28'
           pod 'SSFCloudStorage'
           pod 'FearlessKeys'
       end

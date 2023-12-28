@@ -78,7 +78,7 @@ struct StakingRebondConfirmationViewFactory {
         container: StakingRebondConfirmationDependencyContainer
     ) -> StakingRebondConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         return StakingRebondConfirmationInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

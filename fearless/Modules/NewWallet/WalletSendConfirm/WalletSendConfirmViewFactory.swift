@@ -110,9 +110,7 @@ enum WalletSendConfirmViewFactory {
         let operationManager = OperationManagerFacade.sharedManager
 
         let feeProxy = ExtrinsicFeeProxy()
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
