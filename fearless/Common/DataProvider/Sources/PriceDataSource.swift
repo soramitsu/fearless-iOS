@@ -40,8 +40,8 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         let coingeckoOperation = createCoingeckoOperation()
         let chainlinkOperations = createChainlinkOperations()
 
-        let targetOperation: BaseOperation<[PriceData]?> = ClosureOperation {
-            let coingeckoPrices = try coingeckoOperation.extractNoCancellableResultData()
+        let targetOperation: BaseOperation<[PriceData]?> = ClosureOperation { [weak self] in
+            var coingeckoPrices = try coingeckoOperation.extractNoCancellableResultData()
             let chainlinkPrices = chainlinkOperations.compactMap {
                 try? $0.extractNoCancellableResultData()
             }
@@ -49,6 +49,26 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             let replacedFiatDayChange: [PriceData] = chainlinkPrices.compactMap { chainlinkPrice in
                 let coingeckoPrice = coingeckoPrices.first(where: { $0.coingeckoPriceId == chainlinkPrice.coingeckoPriceId })
                 return chainlinkPrice.replaceFiatDayChange(fiatDayChange: coingeckoPrice?.fiatDayChange)
+            }
+
+            if chainlinkPrices.count != chainlinkOperations.count {
+                let chainlinkPriceChainAsset = self?.chainAssets.filter { $0.asset.priceProvider?.type == .chainlink }
+                let failedPriceId = chainlinkPriceChainAsset?.compactMap { $0.asset.coingeckoPriceId }.diff(from: chainlinkPrices.map { $0.coingeckoPriceId })
+                coingeckoPrices = coingeckoPrices.map { price in
+                    if failedPriceId?.contains(price.coingeckoPriceId) == true {
+                        guard let failedChainlinkCHainAsset = chainlinkPriceChainAsset?.first(where: { $0.asset.coingeckoPriceId == price.coingeckoPriceId }) else {
+                            return price
+                        }
+                        return PriceData(
+                            currencyId: price.currencyId,
+                            priceId: failedChainlinkCHainAsset.asset.priceProvider?.id ?? price.priceId,
+                            price: price.price,
+                            fiatDayChange: price.fiatDayChange,
+                            coingeckoPriceId: price.coingeckoPriceId
+                        )
+                    }
+                    return price
+                }
             }
 
             return coingeckoPrices + replacedFiatDayChange

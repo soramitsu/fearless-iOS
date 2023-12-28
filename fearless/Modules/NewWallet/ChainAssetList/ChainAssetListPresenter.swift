@@ -208,6 +208,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 guard let self = self else { return }
                 self.chainAssets = chainAssets
             }
+            provideViewModel()
         case let .failure(error):
             Logger.shared.customError(error)
         }

@@ -13,9 +13,9 @@ final class OklinkHistoryOperationFactory {
         chainAsset: ChainAsset
     ) -> BaseOperation<OklinkHistoryResponse> {
         var urlComponents = URLComponents(string: url.absoluteString)
-        let queryItems = [
-            URLQueryItem(name: "address", value: address),
-        ]
+        var queryItems = urlComponents?.queryItems
+        queryItems?.append(URLQueryItem(name: "address", value: address))
+        queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol.lowercased()))
 
         urlComponents?.queryItems = queryItems
 
