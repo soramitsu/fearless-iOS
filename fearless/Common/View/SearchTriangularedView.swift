@@ -168,7 +168,6 @@ final class SearchTriangularedView: UIView {
             pasteButton.snp.makeConstraints { make in
                 make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
                 make.centerY.equalToSuperview()
-                make.width.equalTo(LayoutConstants.pasteButtonSize)
             }
         }
     }
