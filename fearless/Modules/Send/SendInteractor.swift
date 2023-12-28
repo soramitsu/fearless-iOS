@@ -17,6 +17,8 @@ final class SendInteractor: RuntimeConstantFetching {
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let addressChainDefiner: AddressChainDefiner
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
+    private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let operationQueue: OperationQueue
 
     let dependencyContainer: SendDepencyContainer
 
@@ -26,6 +28,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
+    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
 
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -35,7 +38,9 @@ final class SendInteractor: RuntimeConstantFetching {
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         dependencyContainer: SendDepencyContainer,
-        addressChainDefiner: AddressChainDefiner
+        addressChainDefiner: AddressChainDefiner,
+        runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
+        operationQueue: OperationQueue
     ) {
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -45,6 +50,8 @@ final class SendInteractor: RuntimeConstantFetching {
         self.chainAssetFetching = chainAssetFetching
         self.dependencyContainer = dependencyContainer
         self.addressChainDefiner = addressChainDefiner
+        self.runtimeItemRepository = runtimeItemRepository
+        self.operationQueue = operationQueue
     }
 
     // MARK: - Private methods
@@ -77,9 +84,44 @@ final class SendInteractor: RuntimeConstantFetching {
         }
     }
 
+    private func fetchCurrentRuntimeItem(currentChainAsset: ChainAsset) async throws -> RuntimeMetadataItem? {
+        if let item = runtimeItemByChainId[currentChainAsset.chain.chainId] {
+            return item
+        }
+
+        let currentChainId = currentChainAsset.chain.chainId
+
+        return try await withUnsafeThrowingContinuation { continuation in
+            let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+            runtimeItemsOperation.completionBlock = { [weak self] in
+                do {
+                    let items = try runtimeItemsOperation.extractNoCancellableResultData()
+                    self?.cache(runtimeItems: items)
+
+                    let currentRuntimeItem = items.first(where: { $0.chain == currentChainId })
+                    continuation.resume(returning: currentRuntimeItem)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+
+            operationQueue.addOperation(runtimeItemsOperation)
+        }
+    }
+
+    private func cache(runtimeItems: [RuntimeMetadataItem]) {
+        runtimeItemByChainId = runtimeItems.reduce([ChainModel.Id: RuntimeMetadataItem]()) { partialResult, currentItem in
+            var result = partialResult
+            result[currentItem.chain] = currentItem
+            return result
+        }
+    }
+
     private func updateDependencies(for chainAsset: ChainAsset) {
         Task {
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+            let runtimeItem = try await fetchCurrentRuntimeItem(currentChainAsset: chainAsset)
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
             self.dependencies = dependencies
 
             if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,

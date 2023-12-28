@@ -51,7 +51,7 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
         let address = try accountId.toAddress(using: chainFormat)
         let stashItemProvider = substrateDataProviderFactory.createStashItemProvider(for: address)
 
-        accountResolver = StakingAccountResolver(
+        accountResolver = StakingAccountResolverAssembly.createResolver(
             accountId: accountId,
             chainAsset: chainAsset,
             chainFormat: chainFormat,
@@ -62,7 +62,7 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
             logger: logger
         )
 
-        accountSubscription = StakingAccountSubscription(
+        accountSubscription = StakingAccountSubscriptionAssembly.createSubscription(
             accountId: accountId,
             chainAsset: chainAsset,
             chainFormat: chainFormat,
@@ -73,6 +73,9 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
             logger: logger,
             stakingType: stakingType
         )
+
+        accountResolver?.resolveKeysAndSubscribe()
+        accountSubscription?.resolveKeysAndSubscribe()
     }
 
     func clearSubscription() {

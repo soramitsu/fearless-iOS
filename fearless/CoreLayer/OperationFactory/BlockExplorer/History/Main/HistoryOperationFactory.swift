@@ -24,6 +24,10 @@ final class HistoryOperationFactoriesAssembly {
             return EtherscanHistoryOperationFactory()
         case .oklink:
             return OklinkHistoryOperationFactory()
+        case .reef:
+            return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
+        case .zeta:
+            return ZetaHistoryOperationFactory()
         case .none:
             return nil
         }

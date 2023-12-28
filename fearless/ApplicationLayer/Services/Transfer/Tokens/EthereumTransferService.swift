@@ -272,6 +272,8 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
         let gasPrice = try await queryGasPrice()
         let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: .zero), transfer: transferCall)
+        let supportsEip1559 = await checkChainSupportEip1559()
+        let transactionType: EthereumTransaction.TransactionType = supportsEip1559 ? .eip1559 : .legacy
 
         guard let transferData = transferCall.encodeABI() else {
             throw TransferServiceError.transferFailed(reason: "Cannot create ERC20 transfer transaction")
@@ -288,7 +290,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             value: EthereumQuantity(quantity: BigUInt.zero),
             data: transferData,
             accessList: [:],
-            transactionType: .eip1559
+            transactionType: transactionType
         )
 
         let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)

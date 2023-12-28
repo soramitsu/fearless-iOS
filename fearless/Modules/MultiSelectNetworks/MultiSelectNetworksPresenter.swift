@@ -54,7 +54,11 @@ final class MultiSelectNetworksPresenter {
         var selectedChains = viewModel?.cells.filter { $0.isSelected }.map { $0.chainId } ?? self.selectedChains
         if viewModel != nil {
             selectedChains = viewModel?.cells.filter { $0.isSelected }.map { $0.chainId }
-            if let indexPath = indexPath, let toggledViewModel = viewModel?.cells[safe: indexPath.row]?.toggle() {
+            var filtredCells = viewModel?.cells
+            if let searchText = searchText, searchText.isNotEmpty {
+                filtredCells = filtredCells?.filter { $0.chainName.lowercased().contains(searchText.lowercased()) }
+            }
+            if let indexPath = indexPath, let toggledViewModel = filtredCells?[safe: indexPath.row]?.toggle() {
                 if toggledViewModel.isSelected {
                     selectedChains?.append(toggledViewModel.chainId)
                 } else {
@@ -74,7 +78,7 @@ final class MultiSelectNetworksPresenter {
         if searchText != nil, searchText?.isNotEmpty == true {
             let cells = self.viewModel?.cells ?? []
             let searchCells = viewModel.cells
-            let newCells = Array(Set(cells + searchCells))
+            let newCells = (searchCells + cells).uniq(predicate: { $0.chainId })
             let viewModel = self.viewModel?.replace(cells: newCells)
             self.viewModel = viewModel
         } else {
@@ -110,7 +114,7 @@ extension MultiSelectNetworksPresenter: MultiSelectNetworksViewOutput {
             router.dismiss(view: view)
             return
         }
-        let selectedChains = viewModel?.cells.filter { $0.isSelected }.map { $0.chainId }
+        let selectedChains = viewModel?.cells.filter { $0.isSelected }.map { $0.chainId }.uniq(predicate: { $0 })
         moduleOutput?.selectedChain(ids: selectedChains)
         router.dismiss(view: view)
     }

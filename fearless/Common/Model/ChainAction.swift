@@ -9,6 +9,7 @@ enum ChainAction {
     case switchNode
     case export
     case replace
+    case reefscan(url: URL)
 
     var icon: UIImage? {
         switch self {
@@ -18,7 +19,7 @@ enum ChainAction {
             return R.image.iconRetry()
         case .copyAddress:
             return R.image.iconCopy()
-        case .polkascan, .subscan, .etherscan:
+        case .polkascan, .subscan, .etherscan, .reefscan:
             return R.image.iconOpenWeb()
         case .replace:
             return R.image.iconReplace()
@@ -43,6 +44,8 @@ enum ChainAction {
             return R.string.localizable.replaceAccount(preferredLanguages: locale.rLanguages)
         case .etherscan:
             return R.string.localizable.transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
+        case .reefscan:
+            return R.string.localizable.transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
         }
     }
 }

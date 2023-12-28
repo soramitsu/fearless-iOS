@@ -3,11 +3,34 @@ import SSFUtils
 import BigInt
 
 struct StakingLedger: Decodable, Equatable {
+    enum CodingKeys: String, CodingKey {
+        case stash
+        case total
+        case active
+        case unlocking
+        case claimedRewards
+    }
+
     let stash: Data
     @StringCodable var total: BigUInt
     @StringCodable var active: BigUInt
     let unlocking: [UnlockChunk]
     let claimedRewards: [StringScaleMapper<UInt32>]
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        do {
+            stash = try container.decode(Data.self, forKey: .stash)
+        } catch {
+            let stashString = try container.decode(String.self, forKey: .stash)
+            stash = Data(hex: stashString)
+        }
+        total = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .total).value
+        active = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .active).value
+        unlocking = try container.decode([UnlockChunk].self, forKey: .unlocking)
+        claimedRewards = try container.decode([StringScaleMapper<UInt32>].self, forKey: .claimedRewards)
+    }
 }
 
 struct UnlockChunk: Decodable, Equatable {

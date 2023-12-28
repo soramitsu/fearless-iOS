@@ -55,8 +55,8 @@ extension EraValidatorService {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        let keys: () throws -> [Data] = {
-            try identifiersClosure()
+        guard let chainStakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
         }
 
         let requestFactory = StorageRequestFactory(
@@ -64,11 +64,12 @@ extension EraValidatorService {
             operationManager: operationManager
         )
 
-        return requestFactory.queryItems(
+        return chainStakingSettings.queryItems(
             engine: connection,
-            keyParams: keys,
+            keyParams: identifiersClosure,
             factory: { codingFactory },
-            storagePath: .validatorPrefs
+            storagePath: .validatorPrefs,
+            using: requestFactory
         )
     }
 

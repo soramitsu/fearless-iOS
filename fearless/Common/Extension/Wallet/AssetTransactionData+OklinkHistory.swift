@@ -16,7 +16,7 @@ extension AssetTransactionData {
 
         let timestamp: Int64 = {
             let timestamp = Int64(item.transactionTime) ?? 0
-            return timestamp
+            return timestamp / 1000
         }()
 
         let utilityAsset = chain.utilityChainAssets().first?.asset ?? asset
