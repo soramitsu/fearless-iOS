@@ -132,6 +132,8 @@
 		07BF3D892B39CAB60046ABF4 /* ManualOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D882B39CAB60046ABF4 /* ManualOperation.swift */; };
 		07BF3D8B2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D8A2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift */; };
 		07BF3D8D2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D8C2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift */; };
+		07BF3D8F2B3C0DC70046ABF4 /* ZetaHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D8E2B3C0DC70046ABF4 /* ZetaHistoryOperationFactory.swift */; };
+		07BF3D912B3C28CE0046ABF4 /* AssetTransactionData+Zeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3D902B3C28CE0046ABF4 /* AssetTransactionData+Zeta.swift */; };
 		07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */; };
 		07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
@@ -3097,6 +3099,8 @@
 		07BF3D882B39CAB60046ABF4 /* ManualOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManualOperation.swift; sourceTree = "<group>"; };
 		07BF3D8A2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OklinkHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		07BF3D8C2B39CB8A0046ABF4 /* AssetTransactionData+OklinkHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+OklinkHistory.swift"; sourceTree = "<group>"; };
+		07BF3D8E2B3C0DC70046ABF4 /* ZetaHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZetaHistoryOperationFactory.swift; sourceTree = "<group>"; };
+		07BF3D902B3C28CE0046ABF4 /* AssetTransactionData+Zeta.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+Zeta.swift"; sourceTree = "<group>"; };
 		07BFF8A52AD6635F005A5C58 /* WalletConnectConfirmationCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = WalletConnectConfirmationCoordinator.swift; path = "/Users/soramitsu/Documents/soramitsu/fearless-iOS/fearless/Modules/Coordinators/WalletConnectConfirmationCoordinator.swift"; sourceTree = "<absolute>"; };
 		07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AutoNamespacesError+Extension.swift"; sourceTree = "<group>"; };
 		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
@@ -9627,6 +9631,7 @@
 				84FAB0682542EBDE00319F74 /* SearchData+Contacts.swift */,
 				8475AE38258B958300B058F3 /* ErrorContent+Wallet.swift */,
 				FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */,
+				07BF3D902B3C28CE0046ABF4 /* AssetTransactionData+Zeta.swift */,
 				FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */,
 				FA14AE8A2B0788D20066CADF /* AssetTransactionData+SoraSubsquidHistory.swift */,
 			);
@@ -12885,6 +12890,7 @@
 			isa = PBXGroup;
 			children = (
 				07BF3D8A2B39CB060046ABF4 /* OklinkHistoryOperationFactory.swift */,
+				07BF3D8E2B3C0DC70046ABF4 /* ZetaHistoryOperationFactory.swift */,
 				FA5137B429AC76EB00560EBA /* SubqueryHistoryOperationFactory.swift */,
 				FA5137B529AC76EB00560EBA /* GiantsquidHistoryOperationFactory.swift */,
 				FA5137B629AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift */,
@@ -17223,6 +17229,7 @@
 				84CA68CF26BD6872003B9453 /* RuntimeSyncService.swift in Sources */,
 				84EA0B2A25E579DF00AFB0DC /* AssetBalanceViewModel.swift in Sources */,
 				FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */,
+				07BF3D8F2B3C0DC70046ABF4 /* ZetaHistoryOperationFactory.swift in Sources */,
 				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Status.swift in Sources */,
 				84CEAAF326D6ED870021B881 /* KeystoreTag.swift in Sources */,
 				074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */,
@@ -17834,6 +17841,7 @@
 				FA286B0C2A3043DB008BD527 /* CrossChainConfirmationRouter.swift in Sources */,
 				07BF3D872B39CA800046ABF4 /* ChainlinkOperationFactory.swift in Sources */,
 				FAE39AF82A9E63C20011A9D6 /* NftDetailViewModelFactory.swift in Sources */,
+				07BF3D912B3C28CE0046ABF4 /* AssetTransactionData+Zeta.swift in Sources */,
 				93B7B64D9259FCCEDE6672FB /* FiltersWireframe.swift in Sources */,
 				D3E91C1BA3CBB8F391AC4530 /* FiltersPresenter.swift in Sources */,
 				C4F8BEB6DFA03A374135BD6B /* FiltersInteractor.swift in Sources */,

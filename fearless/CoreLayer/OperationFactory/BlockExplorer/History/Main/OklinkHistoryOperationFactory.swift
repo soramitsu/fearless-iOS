@@ -15,6 +15,7 @@ final class OklinkHistoryOperationFactory {
         var urlComponents = URLComponents(string: url.absoluteString)
         var queryItems = urlComponents?.queryItems
         queryItems?.append(URLQueryItem(name: "address", value: address))
+        queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol.lowercased()))
 
         urlComponents?.queryItems = queryItems
 
