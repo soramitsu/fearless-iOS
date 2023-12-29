@@ -22,14 +22,12 @@ extension UIImageView {
 extension UIImage {
     class func makeGIFFromCollection(name: String, repeatCount: Int = 0) -> GIF? {
         guard let path = Bundle.main.path(forResource: name, ofType: "gif") else {
-            print("Cannot find a path from the file \"\(name)\"")
             return nil
         }
 
         let url = URL(fileURLWithPath: path)
         let data = try? Data(contentsOf: url)
         guard let d = data else {
-            print("Cannot turn image named \"\(name)\" into data")
             return nil
         }
 
@@ -38,7 +36,6 @@ extension UIImage {
 
     class func makeGIFFromData(data: Data, repeatCount: Int = 0) -> GIF? {
         guard let source = CGImageSourceCreateWithData(data as CFData, nil) else {
-            print("Source for the image does not exist")
             return nil
         }
 

@@ -12,12 +12,20 @@ enum AlchemyNFTOperationFactoryError: Error {
 final class AlchemyNFTOperationFactory {
     // MARK: Collections for owner
 
+    private var alchemyApiKey: String {
+        #if DEBUG
+            return ThirdPartyServicesApiKeysDebug.alchemyApiKey
+        #else
+            return ThirdPartyServicesApiKeys.alchemyApiKey
+        #endif
+    }
+
     private func createFetchCollectionsOperation(
         address: String,
         url: URL,
         excludeFilters: [NftCollectionFilter]
     ) -> BaseOperation<AlchemyNftCollectionsResponse> {
-        let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
+        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getContractsForOwner")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [
@@ -108,7 +116,7 @@ final class AlchemyNFTOperationFactory {
         url: URL,
         excludeFilters: [NftCollectionFilter]
     ) -> BaseOperation<AlchemyOwnedNftsResponse> {
-        let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
+        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTs")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [
@@ -272,7 +280,7 @@ final class AlchemyNFTOperationFactory {
         url: URL,
         offset: Int
     ) -> BaseOperation<AlchemyNftsResponse> {
-        let authorizedUrl = url.appendingPathComponent(ThirdPartyServicesApiKeysDebug.alchemyApiKey)
+        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTsForCollection")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [

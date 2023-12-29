@@ -42,6 +42,21 @@ final class NFTContentControl: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func apply(state: State) {
+        switch state {
+        case .collection:
+            collectionButton.alpha = 1
+            collectionButton.isUserInteractionEnabled = false
+            tableButton.alpha = 0.3
+            tableButton.isUserInteractionEnabled = true
+        case .table:
+            collectionButton.alpha = 0.3
+            collectionButton.isUserInteractionEnabled = true
+            tableButton.alpha = 1
+            tableButton.isUserInteractionEnabled = false
+        }
+    }
+
     private func setupSubviews() {
         addSubview(collectionButton)
         addSubview(tableButton)
@@ -73,21 +88,6 @@ final class NFTContentControl: UIView {
         filterButton.snp.makeConstraints { make in
             make.top.bottom.trailing.equalToSuperview()
             make.size.equalTo(LayoutConstants.buttonSize)
-        }
-    }
-
-    func apply(state: State) {
-        switch state {
-        case .collection:
-            collectionButton.alpha = 1
-            collectionButton.isUserInteractionEnabled = false
-            tableButton.alpha = 0.3
-            tableButton.isUserInteractionEnabled = true
-        case .table:
-            collectionButton.alpha = 0.3
-            collectionButton.isUserInteractionEnabled = true
-            tableButton.alpha = 1
-            tableButton.isUserInteractionEnabled = false
         }
     }
 }

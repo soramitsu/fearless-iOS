@@ -16,8 +16,8 @@ final class NftListViewModelFactory: NftListViewModelFactoryProtocol {
                 imageViewModel = RemoteImageViewModel(url: nftUrl)
             }
 
-            let currentCount = (collection.nfts?.count).or(1)
-            let availableCount = collection.totalSupply.map { Int($0).or(1) }.or(1)
+            let currentCount = collection.nfts?.count
+            let availableCount = collection.totalSupply.map { Int($0) } ?? nil
 
             return NftListCellModel(
                 imageViewModel: imageViewModel,

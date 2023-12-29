@@ -44,7 +44,7 @@ final class WalletConnectServiceImpl: WalletConnectService {
             let projectId = WalletConnect.projectId
         #endif
         Networking.configure(
-            groupIdentifier: "group.com.walletconnect.sdk",
+            groupIdentifier: "",
             projectId: projectId,
             socketFactory: WalletConnectSocketFactory()
         )

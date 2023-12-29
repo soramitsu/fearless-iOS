@@ -88,11 +88,17 @@ class NftListCell: UITableViewCell {
 
             chainLabel.text = viewModel.chainNameLabelText
             collectionNameLabel.text = viewModel.collection.name
-            nftCountLabel.text = R.string.localizable.nftsCollectionCount(
-                viewModel.currentCount,
-                viewModel.availableCount,
-                preferredLanguages: viewModel.locale.rLanguages
-            )
+            if let currentCount = viewModel.currentCount,
+               let availableCount = viewModel.availableCount {
+                nftCountLabel.text = R.string.localizable.nftsCollectionCount(
+                    currentCount,
+                    availableCount,
+                    preferredLanguages: viewModel.locale.rLanguages
+                )
+                nftCountLabel.isHidden = false
+            } else {
+                nftCountLabel.isHidden = true
+            }
         } else {
             startLoadingIfNeeded()
         }

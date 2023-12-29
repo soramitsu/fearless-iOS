@@ -41,7 +41,7 @@ class NftCell: UICollectionViewCell {
 
     private var skeletonView: SkrullableView?
     private var cellModel: NftCellViewModel?
-    var delegate: NftCellDelegate?
+    weak var delegate: NftCellDelegate?
 
     override init(frame: CGRect) {
         super.init(frame: frame)

@@ -74,7 +74,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                 }
             }
 
-            self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
+            self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: false)
         }
     }
 
@@ -105,7 +105,7 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
                 }
             }
 
-            self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: true)
+            self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: false)
         }
     }
 }

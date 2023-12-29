@@ -91,7 +91,14 @@ class NftCollectionCell: UICollectionViewCell {
             } else {
                 imageView.image = R.image.nftStub()
             }
-            nftCountLabel.text = "\(cellModel.currentCount)/\(cellModel.availableCount)"
+            if let currentCount = cellModel.currentCount,
+               let availableCount = cellModel.availableCount {
+                nftCountLabel.text = "\(currentCount)/\(availableCount)"
+                nftCountLabel.isHidden = false
+            } else {
+                nftCountLabel.isHidden = true
+            }
+
             chainNameLabel.text = cellModel.collection.chain.name
             collectionNameLabel.text = cellModel.collection.name
         } else {

@@ -7,13 +7,6 @@ final class NftFiltersViewLayout: UIView {
         return navBar
     }()
 
-    let navigationTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .h3Title
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
-
     let closeButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconCloseWhiteTransparent(), for: .normal)
@@ -35,7 +28,7 @@ final class NftFiltersViewLayout: UIView {
     }
 
     func applyLocalization() {
-        navigationTitleLabel.text = R.string.localizable.nftsFiltersTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.titleLabel.text = R.string.localizable.nftsFiltersTitle(preferredLanguages: locale.rLanguages)
     }
 
     override init(frame: CGRect) {
@@ -56,7 +49,6 @@ final class NftFiltersViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(tableView)
 
-        navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.setRightViews([closeButton])
 
         navigationBar.snp.makeConstraints { make in
