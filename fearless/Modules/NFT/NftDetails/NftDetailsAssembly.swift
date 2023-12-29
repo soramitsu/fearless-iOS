@@ -2,7 +2,12 @@ import UIKit
 import SoraFoundation
 
 final class NftDetailsAssembly {
-    static func configureModule(nft: NFT, wallet: MetaAccountModel, address: String) -> NftDetailsModuleCreationResult? {
+    static func configureModule(
+        nft: NFT,
+        wallet: MetaAccountModel,
+        address: String,
+        type: NftType
+    ) -> NftDetailsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let interactor = NftDetailsInteractor(nft: nft)
@@ -15,7 +20,8 @@ final class NftDetailsAssembly {
             address: address,
             viewModelFactory: NftDetailViewModelFactory(),
             nft: nft,
-            wallet: wallet
+            wallet: wallet,
+            type: type
         )
 
         let view = NftDetailsViewController(

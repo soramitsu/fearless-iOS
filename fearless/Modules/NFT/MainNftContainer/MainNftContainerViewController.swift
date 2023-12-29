@@ -3,6 +3,10 @@ import SoraFoundation
 import SoraUI
 
 final class MainNftContainerViewController: UIViewController, ViewHolder {
+    enum LayoutConstants {
+        static var tabBarHeight: CGFloat = 83.0
+    }
+
     typealias RootViewType = MainNftContainerViewLayout
 
     // MARK: Private properties
@@ -40,9 +44,35 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(NftListCell.self)
 
+        rootView.collectionView.dataSource = self
+        rootView.collectionView.delegate = self
+        rootView.collectionView.registerClassForCell(NftCollectionCell.self)
+
         if let refreshControl = rootView.tableView.refreshControl {
             refreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
         }
+
+        let collectionRefreshControl = UIRefreshControl()
+        collectionRefreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
+        rootView.collectionView.refreshControl = collectionRefreshControl
+
+        rootView.nftContentControl.filterButton.addTarget(
+            self,
+            action: #selector(filterButtonClicked),
+            for: .touchUpInside
+        )
+
+        rootView.nftContentControl.collectionButton.addTarget(
+            self,
+            action: #selector(collectionButtonClicked),
+            for: .touchUpInside
+        )
+
+        rootView.nftContentControl.tableButton.addTarget(
+            self,
+            action: #selector(tableButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -55,8 +85,24 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
     @objc private func actionRefresh() {
         viewModels = nil
         rootView.tableView.reloadData()
+        rootView.collectionView.reloadData()
         output.didPullToRefresh()
         rootView.tableView.refreshControl?.endRefreshing()
+        rootView.collectionView.refreshControl?.endRefreshing()
+    }
+
+    @objc private func filterButtonClicked() {
+        output.didTapFilterButton()
+    }
+
+    @objc private func collectionButtonClicked() {
+        output.didTapCollectionButton()
+        rootView.bind(appearance: .collection)
+    }
+
+    @objc private func tableButtonClicked() {
+        output.didTapTableButton()
+        rootView.bind(appearance: .table)
     }
 }
 
@@ -66,8 +112,13 @@ extension MainNftContainerViewController: MainNftContainerViewInput {
     func didReceive(viewModels: [NftListCellModel]?) {
         self.viewModels = viewModels
         rootView.tableView.reloadData()
+        rootView.collectionView.reloadData()
 
         reloadEmptyState(animated: true)
+    }
+
+    func didReceive(appearance: NftCollectionAppearance) {
+        rootView.bind(appearance: appearance)
     }
 }
 
@@ -108,6 +159,47 @@ extension MainNftContainerViewController: UITableViewDelegate, UITableViewDataSo
     }
 }
 
+extension MainNftContainerViewController: UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    func collectionView(_: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt _: IndexPath) -> CGSize {
+        let flowayout = collectionViewLayout as? UICollectionViewFlowLayout
+        let space: CGFloat = (flowayout?.minimumInteritemSpacing ?? 0.0) + (flowayout?.sectionInset.left ?? 0.0) + (flowayout?.sectionInset.right ?? 0.0)
+        let size: CGFloat = (rootView.collectionView.frame.size.width - space) / 2.0
+        return CGSize(width: size, height: 233)
+    }
+
+    func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
+        if let viewModels = viewModels {
+            return viewModels.count
+        }
+
+        return 10
+    }
+
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCellWithType(NftCollectionCell.self, forIndexPath: indexPath)
+        if let cellModel = viewModels?[safe: indexPath.item] {
+            cell.bind(cellModel: cellModel)
+        }
+        return cell
+    }
+
+    func collectionView(_: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let viewModel = viewModels?[safe: indexPath.item] else {
+            return
+        }
+
+        output.didSelect(collection: viewModel.collection)
+    }
+
+    func collectionView(_: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+        guard let nftCell = cell as? NftCollectionCell else {
+            return
+        }
+        let viewModel = viewModels?[safe: indexPath.row]
+        nftCell.bind(cellModel: viewModel)
+    }
+}
+
 // MARK: - EmptyStateViewOwnerProtocol
 
 extension MainNftContainerViewController: EmptyStateViewOwnerProtocol {
@@ -120,20 +212,19 @@ extension MainNftContainerViewController: EmptyStateViewOwnerProtocol {
 extension MainNftContainerViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         let emptyView = EmptyView()
-        emptyView.image = R.image.iconWarningGray()
+        emptyView.image = R.image.iconWarning()
         emptyView.title = R.string.localizable
-            .importEmptyDerivationConfirm(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.iconMode = .smallFilled
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable
+            .nftListEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .bigFilledShadow
         emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
+        emptyView.verticalOffset = -LayoutConstants.tabBarHeight
         return emptyView
     }
 
     var contentViewForEmptyState: UIView {
-        rootView
-    }
-
-    var verticalSpacingForEmptyState: CGFloat? {
-        26.0
+        rootView.emptyViewContainer
     }
 }
 

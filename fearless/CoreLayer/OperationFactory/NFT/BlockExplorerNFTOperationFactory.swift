@@ -140,11 +140,19 @@ final class BlockExplorerNFTOperationFactory {
 }
 
 extension BlockExplorerNFTOperationFactory: NFTOperationFactoryProtocol {
-    func fetchNFTs(chain _: ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
+    func fetchNFTs(
+        chain _: SSFModels.ChainModel,
+        address _: String,
+        excludeFilters _: [NftCollectionFilter]
+    ) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
         CompoundOperationWrapper.createWithResult([])
     }
 
-    func fetchCollections(chain _: ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFTCollection]?> {
+    func fetchCollections(
+        chain _: SSFModels.ChainModel,
+        address _: String,
+        excludeFilters _: [NftCollectionFilter]
+    ) -> RobinHood.CompoundOperationWrapper<[NFTCollection]?> {
         CompoundOperationWrapper.createWithResult([])
     }
 
