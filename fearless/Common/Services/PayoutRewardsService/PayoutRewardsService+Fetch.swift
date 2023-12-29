@@ -317,7 +317,8 @@ extension PayoutRewardsService {
 
             let accountIds = validatorsByEras.reduce(into: Set<AccountId>()) { result, mapping in
                 mapping.value.forEach { validatorInfo in
-                    result.insert(validatorInfo.accountId)
+                    let address = validatorInfo.accountId
+                    result.insert(address)
                 }
             }
 

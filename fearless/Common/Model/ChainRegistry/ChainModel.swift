@@ -12,6 +12,8 @@ extension ChainModel: Identifiable {
     var stakingSettings: ChainStakingSettings? {
         let oldChainModel = Chain(rawValue: name)
         switch oldChainModel {
+        case .reef, .scuba:
+            return ReefChainStakingSettings()
         case .soraMain:
             return SoraChainStakingSettings()
         default:

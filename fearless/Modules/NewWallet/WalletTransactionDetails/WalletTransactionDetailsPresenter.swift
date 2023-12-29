@@ -119,6 +119,14 @@ extension WalletTransactionDetailsPresenter: WalletTransactionDetailsPresenterPr
                 from: view
             )
         }
+
+        if let viewModel = viewModel {
+            wireframe.presentCopy(
+                with: viewModel.extrinsicHash,
+                locale: selectedLocale,
+                from: view
+            )
+        }
     }
 }
 

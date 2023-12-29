@@ -19,11 +19,12 @@ final class AssetNetworksRouter: AssetNetworksRouterInput {
     }
 
     func showFilters(
+        title: String?,
         filters: [FilterSet],
         moduleOutput: FiltersModuleOutput?,
         from view: ControllerBackedProtocol?
     ) {
-        let module = FiltersViewFactory.createView(filters: filters, mode: .singleSelection, moduleOutput: moduleOutput)
+        let module = FiltersViewFactory.createView(title: title, filters: filters, mode: .singleSelection, moduleOutput: moduleOutput)
 
         guard let filterView = module?.controller else {
             return

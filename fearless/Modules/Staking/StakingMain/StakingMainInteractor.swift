@@ -56,8 +56,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     private var chainSubscriptionId: UUID?
     private var accountSubscriptionId: UUID?
 
-    var rewardAssetPriceProvider: AnySingleValueProvider<PriceData>?
-    var priceProvider: AnySingleValueProvider<PriceData>?
+    var rewardAssetPriceProvider: AnySingleValueProvider<[PriceData]>?
+    var priceProvider: AnySingleValueProvider<[PriceData]>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var validatorProvider: AnyDataProvider<DecodedValidator>?
@@ -396,12 +396,12 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     private func subsribeRewardAssetPrice() {
-        guard let priceId = rewardChainAsset?.asset.priceId else {
+        guard let chainAsset = rewardChainAsset else {
             presenter?.didReceive(rewardAssetPrice: nil)
             return
         }
 
-        rewardAssetPriceProvider = subscribeToPrice(for: priceId)
+        rewardAssetPriceProvider = subscribeToPrice(for: chainAsset)
     }
 
 //    Parachain

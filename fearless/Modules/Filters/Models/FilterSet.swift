@@ -1,6 +1,6 @@
 import Foundation
 
 struct FilterSet {
-    let title: String
+    let title: String?
     var items: [BaseFilterItem]
 }

@@ -22,6 +22,13 @@ protocol BaseErrorPresentable {
         from view: ControllerBackedProtocol,
         locale: Locale
     )
+    func presentWarning(
+        for title: String,
+        message: String,
+        action: @escaping () -> Void,
+        view: ControllerBackedProtocol,
+        locale: Locale?
+    )
 }
 
 extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {

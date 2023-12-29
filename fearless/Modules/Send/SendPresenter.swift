@@ -210,6 +210,8 @@ final class SendPresenter {
 
         DispatchQueue.main.async {
             self.view?.didReceive(amountInputViewModel: inputViewModel)
+            let isVisible = chainAsset.chain.externalApi?.history != nil
+            self.view?.setHistoryButton(isVisible: isVisible)
         }
     }
 
@@ -929,7 +931,7 @@ extension SendPresenter: SendInteractorOutput {
         }
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>, for _: AssetModel.PriceId?) {
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
             if let priceData = priceData {

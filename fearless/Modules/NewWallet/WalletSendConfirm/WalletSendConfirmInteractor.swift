@@ -21,10 +21,12 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let wallet: MetaAccountModel
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
     let dependencyContainer: SendDepencyContainer
-
+    private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let operationQueue: OperationQueue
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
-    private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
+    private var utilityPriceProvider: AnySingleValueProvider<[PriceData]>?
+    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -36,7 +38,9 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         signingWrapper: SigningWrapperProtocol,
         dependencyContainer: SendDepencyContainer,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
+        operationQueue: OperationQueue
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainAsset = chainAsset
@@ -48,6 +52,8 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.signingWrapper = signingWrapper
         self.dependencyContainer = dependencyContainer
         self.wallet = wallet
+        self.runtimeItemRepository = runtimeItemRepository
+        self.operationQueue = operationQueue
     }
 
     private func subscribeToAccountInfo() {
@@ -64,15 +70,44 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        } else {
-            presenter?.didReceivePriceData(result: .success(nil), for: nil)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
         if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
-           let priceId = utilityAsset.asset.priceId {
-            utilityPriceProvider = subscribeToPrice(for: priceId)
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
+            utilityPriceProvider = subscribeToPrice(for: utilityAsset)
+        }
+    }
+
+    private func fetchCurrentRuntimeItem() async throws -> RuntimeMetadataItem? {
+        if let item = runtimeItemByChainId[chainAsset.chain.chainId] {
+            return item
+        }
+
+        let currentChainId = chainAsset.chain.chainId
+
+        return try await withUnsafeThrowingContinuation { continuation in
+            let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+            runtimeItemsOperation.completionBlock = { [weak self] in
+                do {
+                    let items = try runtimeItemsOperation.extractNoCancellableResultData()
+                    self?.cache(runtimeItems: items)
+
+                    let currentRuntimeItem = items.first(where: { $0.chain == currentChainId })
+                    continuation.resume(returning: currentRuntimeItem)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+
+            operationQueue.addOperation(runtimeItemsOperation)
+        }
+    }
+
+    private func cache(runtimeItems: [RuntimeMetadataItem]) {
+        runtimeItemByChainId = runtimeItems.reduce([ChainModel.Id: RuntimeMetadataItem]()) { partialResult, currentItem in
+            var result = partialResult
+            result[currentItem.chain] = currentItem
+            return result
         }
     }
 
@@ -89,7 +124,8 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func estimateFee() {
         Task {
             do {
-                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
+                let runtimeItem = try await fetchCurrentRuntimeItem()
+                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem).transferService
                 let fee: BigUInt
                 switch call {
                 case let .transfer(transfer):
@@ -111,7 +147,8 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func submitExtrinsic() {
         Task {
             do {
-                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset).transferService
+                let runtimeItem = try await fetchCurrentRuntimeItem()
+                let transferService = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem).transferService
 
                 let txHash: String
                 switch call {
@@ -143,8 +180,9 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal) {
         if chainAsset.chain.isEquilibrium {
             Task {
+                let runtimeItem = try await fetchCurrentRuntimeItem()
                 let service = try await dependencyContainer
-                    .prepareDepencies(chainAsset: chainAsset)
+                    .prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
                     .equilibruimTotalBalanceService
                 equilibriumTotalBalanceService = service
 
@@ -157,7 +195,8 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
 
     func provideConstants() {
         Task {
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+            let runtimeItem = try await fetchCurrentRuntimeItem()
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
 
             dependencies.existentialDepositService.fetchExistentialDeposit(
                 chainAsset: chainAsset
@@ -179,8 +218,8 @@ extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension WalletSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Swift.Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        presenter?.didReceivePriceData(result: result, for: priceId)
+    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset: ChainAsset) {
+        presenter?.didReceivePriceData(result: result, for: chainAsset.asset.priceId)
     }
 }
 

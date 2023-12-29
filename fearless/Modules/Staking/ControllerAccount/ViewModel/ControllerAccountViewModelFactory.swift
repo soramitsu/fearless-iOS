@@ -61,7 +61,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             stashViewModel: stashViewModel,
             controllerViewModel: controllerViewModel,
             currentAccountIsController: currentAccountIsController,
-            actionButtonIsEnabled: true
+            actionButtonIsEnabled: !currentAccountIsController
         )
     }
 }

@@ -17,7 +17,7 @@ final class AnalyticsRewardsRelaychainStrategy {
     private let wallet: MetaAccountModel
     private weak var output: AnalyticsRewardsRelaychainStrategyOutput?
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(

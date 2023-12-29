@@ -12,7 +12,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let chainAsset: ChainAsset
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let strategy: StakingUnbondSetupStrategy
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         chainAsset: ChainAsset,
@@ -29,9 +29,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
 
 extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         strategy.setup()
     }
@@ -42,7 +40,7 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
 }
 
 extension StakingUnbondSetupInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

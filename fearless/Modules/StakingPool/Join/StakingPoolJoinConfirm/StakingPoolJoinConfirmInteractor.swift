@@ -18,7 +18,7 @@ final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let validatorOperationFactory: ValidatorOperationFactoryProtocol
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -78,9 +78,7 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
         self.output = output
         feeProxy.delegate = self
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = subscribeToPrice(for: chainAsset)
 
         fetchCompoundConstant(
             for: .nominationPoolsPalletId,
@@ -135,7 +133,7 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
 }
 
 extension StakingPoolJoinConfirmInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
 }

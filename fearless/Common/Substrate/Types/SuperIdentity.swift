@@ -16,7 +16,12 @@ struct SuperIdentity: Codable {
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
 
-        parentAccountId = try container.decode(Data.self)
+        do {
+            parentAccountId = try container.decode(Data.self)
+        } catch {
+            let parentAccountIdString = try container.decode(String.self)
+            parentAccountId = Data(hex: parentAccountIdString)
+        }
         data = try container.decode(ChainData.self)
     }
 

@@ -305,6 +305,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         )
 
         let imageString = NSAttributedString(attachment: imageAttachment)
+        attributedString.append(NSAttributedString(string: " "))
         attributedString.append(imageString)
 
         label.attributedText = attributedString

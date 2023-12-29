@@ -3,15 +3,14 @@ import RobinHood
 import SSFModels
 
 protocol PriceProviderFactoryProtocol {
-    func getPriceProvider(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData>
-    func getPricesProvider(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]>
-    func getPricesProvider(for pricesIds: [AssetModel.PriceId], currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
+    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
 }
 
 class PriceProviderFactory {
     static let shared = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
 
     private var providers: [AssetModel.PriceId: WeakWrapper] = [:]
+    private var remoteFetchTimer: Timer?
 
     private let storageFacade: StorageFacadeProtocol
     private lazy var executionQueue: OperationQueue = {
@@ -20,85 +19,44 @@ class PriceProviderFactory {
         return queue
     }()
 
-    init(storageFacade: StorageFacadeProtocol) {
+    private init(storageFacade: StorageFacadeProtocol) {
         self.storageFacade = storageFacade
     }
 
     private func clearIfNeeded() {
         providers = providers.filter { $0.value.target != nil }
     }
-
-    static func localIdentifier(for priceId: AssetModel.PriceId) -> String {
-        "coingecko_price_\(priceId)"
-    }
 }
 
 extension PriceProviderFactory: PriceProviderFactoryProtocol {
-    func getPriceProvider(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData> {
-        clearIfNeeded()
+    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[SSFModels.PriceData]> {
+        let identifier = currencies?.compactMap { $0.id }.joined(separator: ".") ?? PriceDataSource.defaultIdentifier
 
-        let identifier = Self.localIdentifier(for: priceId)
-
-        if let provider = providers[identifier]?.target as? SingleValueProvider<PriceData> {
+        if let provider = providers[identifier]?.target as? SingleValueProvider<[PriceData]> {
+            if remoteFetchTimer == nil {
+                DispatchQueue.main.async {
+                    self.remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false, block: { [weak self] timer in
+                        timer.invalidate()
+                        self?.remoteFetchTimer = nil
+                    })
+                }
+                provider.refresh()
+            }
             return AnySingleValueProvider(provider)
         }
 
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
-            storageFacade.createRepository()
-
-        let currencies = currency != nil ? [currency].compactMap { $0 } : nil
-        let source = CoingeckoPriceSource(priceId: priceId, currencies: currencies)
-
-        let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = storageFacade.createRepository()
+        let source = PriceDataSource(currencies: currencies)
+        let trigger: DataProviderEventTrigger = [.onInitialization, .onFetchPage]
         let provider = SingleValueProvider(
-            targetIdentifier: identifier,
+            targetIdentifier: source.identifier,
             source: AnySingleValueProviderSource(source),
             repository: AnyDataProviderRepository(repository),
-            updateTrigger: trigger
+            updateTrigger: trigger,
+            executionQueue: executionQueue
         )
 
         providers[identifier] = WeakWrapper(target: provider)
-
-        return AnySingleValueProvider(provider)
-    }
-
-    func getPricesProvider(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]> {
-        let identifier = pricesIds.sorted().joined(separator: ",")
-
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
-            storageFacade.createRepository()
-
-        let currencies = currency != nil ? [currency].compactMap { $0 } : nil
-        let source = CoingeckoPricesSource(pricesIds: pricesIds, currencies: currencies)
-
-        let trigger: DataProviderEventTrigger = [.onAddObserver]
-        let provider = SingleValueProvider(
-            targetIdentifier: identifier,
-            source: AnySingleValueProviderSource(source),
-            repository: AnyDataProviderRepository(repository),
-            updateTrigger: trigger,
-            executionQueue: executionQueue
-        )
-
-        return AnySingleValueProvider(provider)
-    }
-
-    func getPricesProvider(for pricesIds: [AssetModel.PriceId], currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]> {
-        let identifier = pricesIds.sorted().joined(separator: ",")
-
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
-            storageFacade.createRepository()
-
-        let source = CoingeckoPricesSource(pricesIds: pricesIds, currencies: currencies)
-
-        let trigger: DataProviderEventTrigger = [.onAddObserver]
-        let provider = SingleValueProvider(
-            targetIdentifier: identifier,
-            source: AnySingleValueProviderSource(source),
-            repository: AnyDataProviderRepository(repository),
-            updateTrigger: trigger,
-            executionQueue: executionQueue
-        )
 
         return AnySingleValueProvider(provider)
     }

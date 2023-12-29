@@ -204,20 +204,24 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
     ) -> (BalanceViewModelProtocol, Decimal) {
         var minMaxValue: Decimal
         var price: PriceData?
+        let chainAsset: ChainAsset
+
         switch swapVariant {
         case .desiredInput:
             minMaxValue = value * Decimal(1 - Double(slippadgeTolerance) / 100.0)
             price = prices?.first(where: { price in
                 price.priceId == swapToChainAsset.asset.priceId
             })
+            chainAsset = swapToChainAsset
         case .desiredOutput:
             minMaxValue = value * Decimal(1 + Double(slippadgeTolerance) / 100.0)
             price = prices?.first(where: { price in
                 price.priceId == swapFromChainAsset.asset.priceId
             })
+            chainAsset = swapFromChainAsset
         }
 
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: swapToChainAsset)
+        let balanceViewModelFactory = createBalanceViewModelFactory(for: chainAsset)
         let receiveValue = balanceViewModelFactory.balanceFromPrice(
             minMaxValue,
             priceData: price,

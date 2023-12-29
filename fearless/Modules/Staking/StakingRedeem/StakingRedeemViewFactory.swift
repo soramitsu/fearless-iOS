@@ -82,7 +82,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     ) -> StakingRedeemInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
 
         return StakingRedeemInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
