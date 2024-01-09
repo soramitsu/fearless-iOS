@@ -9,6 +9,12 @@ import SSFModels
 
 // swiftlint:disable type_body_length file_length
 class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
+    private let runtimeService: RuntimeProviderProtocol
+
+    init(runtimeService: RuntimeProviderProtocol) {
+        self.runtimeService = runtimeService
+    }
+
     // MARK: - Public methods
 
     func bond(
@@ -17,6 +23,10 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         rewardDestination: RewardDestination<String>,
         chainAsset: ChainAsset
     ) throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
 
         let controllerIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
@@ -30,19 +40,34 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             let accountId = try AddressFactory.accountId(from: address, chain: chainAsset.chain)
             destArg = .account(accountId)
         }
-
-        let args = BondCall(
-            controller: controllerIdParam,
-            value: amount,
-            payee: destArg
-        )
-
         let path: SubstrateCallPath = .bond
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+
+        let callHasControllerArgument = try metadata.modules.first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == path.callName.lowercased() })?.arguments.first(where: { $0.name.lowercased() == "controller" }) != nil
+
+        if callHasControllerArgument {
+            let args = BondCall(
+                controller: controllerIdParam,
+                value: amount,
+                payee: destArg
+            )
+
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName,
+                args: args
+            )
+        } else {
+            let args = BondCallV2(
+                value: amount,
+                payee: destArg
+            )
+
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName,
+                args: args
+            )
+        }
     }
 
     func bondExtra(amount: BigUInt) -> any RuntimeCallable {
@@ -225,6 +250,34 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     }
 
     func setController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            return try defaultSetController(controller, chainAsset: chainAsset)
+        }
+
+        let callHasArguments = try metadata.modules.first(where: { $0.name.lowercased() == SubstrateCallPath.setController.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == SubstrateCallPath.setController.callName.lowercased() })?.arguments.isNotEmpty == true
+
+        let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
+        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+
+        let path: SubstrateCallPath = .setController
+
+        if callHasArguments {
+            let args = SetControllerCall(controller: accountIdParam)
+
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName,
+                args: args
+            )
+        } else {
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+    }
+
+    private func defaultSetController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
         let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
 
@@ -418,17 +471,41 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         nominator: MultiAddress,
         bouncer: MultiAddress
     ) -> any RuntimeCallable {
-        let args = CreatePoolCall(
+        let argsV1 = CreatePoolCall(
             amount: amount,
             root: root,
             nominator: nominator,
             stateToggler: bouncer
         )
 
-        return RuntimeCall(
-            callCodingPath: .createNominationPool,
-            args: args
+        let argsV2 = CreatePoolCallV2(
+            amount: amount,
+            root: root,
+            nominator: nominator,
+            bouncer: bouncer
         )
+
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            return RuntimeCall(
+                callCodingPath: .createNominationPool,
+                args: argsV1
+            )
+        }
+        let path: CallCodingPath = .createNominationPool
+
+        let isUpdatedArguments = (try? metadata.modules.first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == path.callName.lowercased() })?.arguments.first(where: { $0.name.lowercased() == "bouncer" })) != nil
+
+        if isUpdatedArguments {
+            return RuntimeCall(
+                callCodingPath: path,
+                args: argsV2
+            )
+        } else {
+            return RuntimeCall(
+                callCodingPath: path,
+                args: argsV1
+            )
+        }
     }
 
     func setPoolMetadata(
@@ -642,8 +719,21 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         to receiver: AccountId,
         amount: BigUInt
     ) -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
+            let path: SubstrateCallPath = .defaultTransfer
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName,
+                args: args
+            )
+        }
+
+        let transferAllowDeathAvailable = try? metadata.modules.first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.callName.lowercased() }) != nil
+
+        let path: SubstrateCallPath = transferAllowDeathAvailable == true ? .transferAllowDeath : .defaultTransfer
+
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
-        let path: SubstrateCallPath = .defaultTransfer
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,
