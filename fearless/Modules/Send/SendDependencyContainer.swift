@@ -95,14 +95,17 @@ final class SendDepencyContainer {
 
     private func createTransferService(for chainAsset: ChainAsset, runtimeItem: RuntimeMetadataItem?) async throws -> TransferServiceProtocol {
         guard
-            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),
-            let nativeRuntimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest())
         else {
             throw ChainAccountFetchingError.accountNotExists
         }
 
         switch chainAsset.chain.chainBaseType {
         case .substrate:
+            guard let nativeRuntimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+                throw ChainRegistryError.runtimeMetadaUnavailable
+            }
+
             let chainSyncService = SSFChainRegistry.ChainSyncService(
                 chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
                 operationQueue: OperationQueue(),

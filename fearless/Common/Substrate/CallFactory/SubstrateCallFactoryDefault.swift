@@ -250,27 +250,24 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             return try defaultSetController(controller, chainAsset: chainAsset)
         }
 
-        let callHasArguments = try metadata.modules.first(where: { $0.name.lowercased() == SubstrateCallPath.setController.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == SubstrateCallPath.setController.callName.lowercased() })?.arguments.isNotEmpty == true
+        let callHasArguments = try metadata.modules
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.setController.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.setController.callName.lowercased() })?
+            .arguments.isNotEmpty == true
 
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
         let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
 
         let path: SubstrateCallPath = .setController
 
-        if callHasArguments {
-            let args = SetControllerCall(controller: accountIdParam)
+        let args: SetControllerCall? = callHasArguments ? SetControllerCall(controller: accountIdParam) : nil
 
-            return RuntimeCall(
-                moduleName: path.moduleName,
-                callName: path.callName,
-                args: args
-            )
-        } else {
-            return RuntimeCall(
-                moduleName: path.moduleName,
-                callName: path.callName
-            )
-        }
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: args
+        )
     }
 
     private func defaultSetController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
@@ -480,7 +477,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             .arguments
             .first(where: { $0.name.lowercased() == "bouncer" }) != nil
 
-        var stateTogglerValue: StateTogglerValue = isUpdatedArguments.or(true) ? .bouncer(value: bouncer) : .stateToggler(value: bouncer)
+        let stateTogglerValue: StateTogglerValue = isUpdatedArguments.or(true) ? .bouncer(value: bouncer) : .stateToggler(value: bouncer)
 
         let args = CreatePoolCall(
             amount: amount,
