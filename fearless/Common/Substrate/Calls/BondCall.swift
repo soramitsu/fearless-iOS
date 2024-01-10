@@ -9,20 +9,26 @@ struct BondCall: Codable {
         case payee
     }
 
-    var controller: MultiAddress
+    var controller: MultiAddress?
     @StringCodable var value: BigUInt
     var payee: RewardDestinationArg
 
-    init(controller: MultiAddress, value: BigUInt, payee: RewardDestinationArg) {
+    init(controller: MultiAddress?, value: BigUInt, payee: RewardDestinationArg) {
         self.controller = controller
         self.value = value
         self.payee = payee
     }
-}
 
-struct BondCallV2: Codable {
-    @StringCodable var value: BigUInt
-    var payee: RewardDestinationArg
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        if let controller = controller {
+            try container.encode(controller, forKey: .controller)
+        }
+
+        try container.encode(value, forKey: .value)
+        try container.encode(payee, forKey: .payee)
+    }
 }
 
 enum RewardDestinationArg: Equatable {

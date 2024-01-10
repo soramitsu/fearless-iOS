@@ -3,9 +3,11 @@ import SSFUtils
 import IrohaCrypto
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
-/* This version of call factory is based on runtime version v9370 */
-/* If there are some change in new runtime version please create new factory with specified version and override changed call */
+enum SubstrateCallFactoryError: Error {
+    case metadataUnavailable
+}
 
 // swiftlint:disable type_body_length file_length
 class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
@@ -24,7 +26,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         chainAsset: ChainAsset
     ) throws -> any RuntimeCallable {
         guard let metadata = runtimeService.snapshot?.metadata else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
+            throw SubstrateCallFactoryError.metadataUnavailable
         }
 
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
@@ -42,32 +44,26 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         }
         let path: SubstrateCallPath = .bond
 
-        let callHasControllerArgument = try metadata.modules.first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == path.callName.lowercased() })?.arguments.first(where: { $0.name.lowercased() == "controller" }) != nil
+        let callHasControllerArgument = try metadata.modules
+            .first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == path.callName.lowercased() })?
+            .arguments
+            .first(where: { $0.name.lowercased() == "controller" }) != nil
 
-        if callHasControllerArgument {
-            let args = BondCall(
-                controller: controllerIdParam,
-                value: amount,
-                payee: destArg
-            )
+        let maybeControllerIdParam: MultiAddress? = callHasControllerArgument ? controllerIdParam : nil
 
-            return RuntimeCall(
-                moduleName: path.moduleName,
-                callName: path.callName,
-                args: args
-            )
-        } else {
-            let args = BondCallV2(
-                value: amount,
-                payee: destArg
-            )
+        let args = BondCall(
+            controller: maybeControllerIdParam,
+            value: amount,
+            payee: destArg
+        )
 
-            return RuntimeCall(
-                moduleName: path.moduleName,
-                callName: path.callName,
-                args: args
-            )
-        }
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: args
+        )
     }
 
     func bondExtra(amount: BigUInt) -> any RuntimeCallable {
@@ -470,42 +466,33 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         root: MultiAddress,
         nominator: MultiAddress,
         bouncer: MultiAddress
-    ) -> any RuntimeCallable {
-        let argsV1 = CreatePoolCall(
-            amount: amount,
-            root: root,
-            nominator: nominator,
-            stateToggler: bouncer
-        )
-
-        let argsV2 = CreatePoolCallV2(
-            amount: amount,
-            root: root,
-            nominator: nominator,
-            bouncer: bouncer
-        )
-
+    ) throws -> any RuntimeCallable {
         guard let metadata = runtimeService.snapshot?.metadata else {
-            return RuntimeCall(
-                callCodingPath: .createNominationPool,
-                args: argsV1
-            )
+            throw SubstrateCallFactoryError.metadataUnavailable
         }
+
         let path: CallCodingPath = .createNominationPool
 
-        let isUpdatedArguments = (try? metadata.modules.first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == path.callName.lowercased() })?.arguments.first(where: { $0.name.lowercased() == "bouncer" })) != nil
+        let isUpdatedArguments = try? metadata.modules
+            .first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == path.callName.lowercased() })?
+            .arguments
+            .first(where: { $0.name.lowercased() == "bouncer" }) != nil
 
-        if isUpdatedArguments {
-            return RuntimeCall(
-                callCodingPath: path,
-                args: argsV2
-            )
-        } else {
-            return RuntimeCall(
-                callCodingPath: path,
-                args: argsV1
-            )
-        }
+        var stateTogglerValue: StateTogglerValue = isUpdatedArguments.or(true) ? .bouncer(value: bouncer) : .stateToggler(value: bouncer)
+
+        let args = CreatePoolCall(
+            amount: amount,
+            root: root,
+            nominator: nominator,
+            stateToggler: stateTogglerValue
+        )
+
+        return RuntimeCall(
+            callCodingPath: path,
+            args: args
+        )
     }
 
     func setPoolMetadata(
@@ -729,7 +716,10 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             )
         }
 
-        let transferAllowDeathAvailable = try? metadata.modules.first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.moduleName.lowercased() })?.calls(using: metadata.schemaResolver)?.first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.callName.lowercased() }) != nil
+        let transferAllowDeathAvailable = try? metadata.modules
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.callName.lowercased() }) != nil
 
         let path: SubstrateCallPath = transferAllowDeathAvailable == true ? .transferAllowDeath : .defaultTransfer
 
