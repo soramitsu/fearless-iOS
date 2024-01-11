@@ -458,7 +458,7 @@ private extension ChainAssetListViewModelFactory {
         var balance: Decimal
         if let accountInfo = accountInfo {
             balance = Decimal.fromSubstrateAmount(
-                accountInfo.data.total,
+                accountInfo.data.sendAvailable,
                 precision: assetInfo.assetPrecision
             ) ?? 0
         } else {
