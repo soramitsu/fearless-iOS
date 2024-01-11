@@ -38,7 +38,7 @@ final class PoolRolesConfirmAssembly {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let signingWrapper = SigningWrapper(
             keystore: Keychain(),
             metaId: wallet.metaId,
@@ -63,7 +63,7 @@ final class PoolRolesConfirmAssembly {
             poolId: poolId,
             roles: roles,
             signingWrapper: signingWrapper,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: OperationManagerFacade.sharedManager,

@@ -44,7 +44,7 @@ final class StakingPoolJoinConfirmAssembly {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let signingWrapper = SigningWrapper(
             keystore: Keychain(),
             metaId: wallet.metaId,
@@ -106,7 +106,7 @@ final class StakingPoolJoinConfirmAssembly {
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         let interactor = StakingPoolJoinConfirmInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             extrinsicService: extrinsicService,

@@ -64,12 +64,12 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     ) -> StakingUnbondSetupInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingUnbondSetupInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }

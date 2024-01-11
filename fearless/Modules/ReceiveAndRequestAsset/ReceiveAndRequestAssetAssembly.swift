@@ -11,7 +11,7 @@ final class ReceiveAndRequestAssetAssembly {
         let localizationManager = LocalizationManager.shared
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -19,7 +19,7 @@ final class ReceiveAndRequestAssetAssembly {
         )
 
         let interactor = ReceiveAndRequestAssetInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             chainAsset: chainAsset
         )
