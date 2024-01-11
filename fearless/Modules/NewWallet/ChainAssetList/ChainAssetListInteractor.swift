@@ -74,7 +74,7 @@ final class ChainAssetListInteractor {
         saveOperation.completionBlock = { [weak self, shouldNotify] in
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
-                case let .success(account):
+                case .success:
                     guard shouldNotify else { return }
                     self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: updatedAccount))
                 case .failure:
@@ -226,7 +226,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             shouldUseCache: true,
             filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
-        ) { [weak self] result in
+        ) { result in
             switch result {
             case let .success(availableChainAssets):
                 completion(availableChainAssets)
