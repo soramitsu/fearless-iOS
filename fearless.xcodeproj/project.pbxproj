@@ -4597,6 +4597,12 @@
 		C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainRelaychainStrategy.swift; sourceTree = "<group>"; };
 		C61166682B3BFA9000F483C4 /* NftHeaderCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftHeaderCell.swift; sourceTree = "<group>"; };
 		C611666B2B3C03B800F483C4 /* NftHeaderCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftHeaderCellViewModel.swift; sourceTree = "<group>"; };
+		C611666D2B4FCA4700F483C4 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "pt-PT"; path = "pt-PT.lproj/OnbordingMain.xib"; sourceTree = "<group>"; };
+		C611666E2B4FCA4700F483C4 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = "pt-PT"; path = "pt-PT.lproj/PinSetupViewController.xib"; sourceTree = "<group>"; };
+		C611666F2B4FCA4700F483C4 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = "pt-PT"; path = "pt-PT.lproj/LaunchScreen.storyboard"; sourceTree = "<group>"; };
+		C61166702B4FCA4700F483C4 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		C61166712B4FCA4700F483C4 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		C61166722B4FCA4700F483C4 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-PT"; path = "pt-PT.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		C615668029309D3900391BF3 /* QRService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
 		C61566842930A07900391BF3 /* QRCreationOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRCreationOperation.swift; sourceTree = "<group>"; };
 		C62522E202A1C5EE60D25122 /* NftSendPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NftSendPresenter.swift; sourceTree = "<group>"; };
@@ -15087,6 +15093,7 @@
 				ja,
 				"zh-Hans",
 				vi,
+				"pt-PT",
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
@@ -18371,6 +18378,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				8490145B24A94328008F705E /* en */,
+				C611666F2B4FCA4700F483C4 /* pt-PT */,
 			);
 			name = LaunchScreen.storyboard;
 			sourceTree = "<group>";
@@ -18379,6 +18387,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				8490140724A92F6D008F705E /* en */,
+				C611666D2B4FCA4700F483C4 /* pt-PT */,
 			);
 			name = OnbordingMain.xib;
 			sourceTree = "<group>";
@@ -18391,6 +18400,7 @@
 				FAF9C2972AAED41500A61D21 /* ja */,
 				FAF9C29B2AAED44400A61D21 /* zh-Hans */,
 				C65C7F6D2ADD117D0069D877 /* vi */,
+				C61166712B4FCA4700F483C4 /* pt-PT */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -18399,6 +18409,7 @@
 			isa = PBXVariantGroup;
 			children = (
 				849014AA24AA87E3008F705E /* en */,
+				C611666E2B4FCA4700F483C4 /* pt-PT */,
 			);
 			name = PinSetupViewController.xib;
 			sourceTree = "<group>";
@@ -18411,6 +18422,7 @@
 				FAF9C2992AAED42300A61D21 /* ja */,
 				FAF9C29A2AAED43E00A61D21 /* zh-Hans */,
 				C65C7F6C2ADD117D0069D877 /* vi */,
+				C61166702B4FCA4700F483C4 /* pt-PT */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -18423,6 +18435,7 @@
 				FAF9C2982AAED41C00A61D21 /* ja */,
 				FAF9C29C2AAED44900A61D21 /* zh-Hans */,
 				C65C7F6E2ADD117E0069D877 /* vi */,
+				C61166722B4FCA4700F483C4 /* pt-PT */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
