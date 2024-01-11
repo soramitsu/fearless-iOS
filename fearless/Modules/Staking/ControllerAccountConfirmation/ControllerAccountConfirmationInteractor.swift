@@ -9,7 +9,7 @@ final class ControllerAccountConfirmationInteractor {
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let runtimeService: RuntimeCodingServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let signingWrapper: SigningWrapperProtocol
@@ -30,7 +30,7 @@ final class ControllerAccountConfirmationInteractor {
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         runtimeService: RuntimeCodingServiceProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         signingWrapper: SigningWrapperProtocol,
@@ -46,7 +46,7 @@ final class ControllerAccountConfirmationInteractor {
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.runtimeService = runtimeService
         self.extrinsicService = extrinsicService
         self.signingWrapper = signingWrapper
@@ -91,7 +91,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         estimateFee()
         feeProxy.delegate = self
@@ -214,7 +214,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
     }
 }
 
-extension ControllerAccountConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension ControllerAccountConfirmationInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }

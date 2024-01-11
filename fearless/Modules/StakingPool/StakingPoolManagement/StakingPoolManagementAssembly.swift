@@ -80,7 +80,7 @@ final class StakingPoolManagementAssembly {
             logger: logger
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
             operationManager: operationManager,
@@ -146,7 +146,7 @@ final class StakingPoolManagementAssembly {
         )
 
         let interactor = StakingPoolManagementInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
             chainAsset: chainAsset,
             wallet: wallet,

@@ -109,10 +109,10 @@ struct StakingBondMoreConfirmViewFactory {
     ) -> StakingBondMoreConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingBondMoreConfirmationInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: strategy

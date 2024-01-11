@@ -6,7 +6,7 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolManagementInteractorOutput?
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private var stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private var chainAsset: ChainAsset
     private var wallet: MetaAccountModel
@@ -27,7 +27,7 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -43,7 +43,7 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
         existentialDepositService: ExistentialDepositServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.chainAsset = chainAsset
         self.wallet = wallet
@@ -186,7 +186,7 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
         }
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
@@ -259,7 +259,7 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
     }
 }
 
-extension StakingPoolManagementInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension StakingPoolManagementInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset: ChainAsset) {
         guard chainAsset == chainAsset else {
             return

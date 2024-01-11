@@ -10,7 +10,7 @@ import Web3PromiseKit
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     weak var presenter: WalletSendConfirmInteractorOutputProtocol?
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let selectedMetaAccount: MetaAccountModel
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
@@ -34,7 +34,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         call: SendConfirmTransferCall,
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationManager: OperationManagerProtocol,
         signingWrapper: SigningWrapperProtocol,
         dependencyContainer: SendDepencyContainer,
@@ -46,7 +46,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.chainAsset = chainAsset
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.call = call
         self.operationManager = operationManager
         self.signingWrapper = signingWrapper
@@ -70,10 +70,10 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice() {
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         if chainAsset.chain.isSora, !chainAsset.isUtility,
            let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            utilityPriceProvider = subscribeToPrice(for: utilityAsset)
+            utilityPriceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         }
     }
 
@@ -217,7 +217,7 @@ extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension WalletSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension WalletSendConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset: ChainAsset) {
         presenter?.didReceivePriceData(result: result, for: chainAsset.asset.priceId)
     }

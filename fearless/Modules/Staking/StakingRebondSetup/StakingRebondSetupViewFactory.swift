@@ -94,7 +94,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -117,7 +117,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         return StakingRebondSetupInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount

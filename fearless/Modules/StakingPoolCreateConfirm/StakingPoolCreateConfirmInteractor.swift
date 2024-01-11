@@ -4,7 +4,7 @@ import SSFModels
 
 // swiftlint:disable opening_brace multiple_closures_with_trailing_closure
 final class StakingPoolCreateConfirmInteractor {
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     // MARK: - Private properties
 
@@ -21,7 +21,7 @@ final class StakingPoolCreateConfirmInteractor {
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         createData: StakingPoolCreateData,
@@ -30,7 +30,7 @@ final class StakingPoolCreateConfirmInteractor {
     ) {
         chainAsset = createData.chainAsset
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
         self.createData = createData
@@ -116,7 +116,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
         self.output = output
 
         feeProxy.delegate = self
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         subscribeToPoolMembers()
     }
 
@@ -151,7 +151,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
     }
 }
 
-extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
+extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
