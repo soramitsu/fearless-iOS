@@ -112,7 +112,7 @@ struct CrowdloanContributionSetupViewFactory {
             chainId: chainAsset.chain.chainId
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,

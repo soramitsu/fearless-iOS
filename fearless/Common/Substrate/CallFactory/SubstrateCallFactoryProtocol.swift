@@ -81,7 +81,7 @@ protocol SubstrateCallFactoryProtocol {
         root: MultiAddress,
         nominator: MultiAddress,
         bouncer: MultiAddress
-    ) -> any RuntimeCallable
+    ) throws -> any RuntimeCallable
     func setPoolMetadata(
         poolId: String,
         metadata: Data
