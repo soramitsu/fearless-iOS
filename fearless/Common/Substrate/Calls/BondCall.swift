@@ -41,6 +41,7 @@ enum RewardDestinationArg: Equatable {
     case stash
     case controller
     case account(_ accountId: Data)
+    case address(_ address: String)
 }
 
 extension RewardDestinationArg: Codable {
@@ -56,8 +57,13 @@ extension RewardDestinationArg: Codable {
         case Self.controllerField:
             self = .controller
         case Self.accountField:
-            let data = try container.decode(String.self)
-            self = .account(Data(hex: data))
+            do {
+                let data = try container.decode(String.self)
+                self = .account(Data(hex: data))
+            } catch {
+                let data = try container.decode(Data.self)
+                self = .account(data)
+            }
         default:
             throw DecodingError.dataCorruptedError(
                 in: container,
@@ -81,7 +87,10 @@ extension RewardDestinationArg: Codable {
             try container.encodeNil()
         case let .account(data):
             try container.encode(Self.accountField)
-            try container.encode(data.toHex())
+            try container.encode(data)
+        case let .address(address):
+            try container.encode(Self.accountField)
+            try container.encode(address)
         }
     }
 }
