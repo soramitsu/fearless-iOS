@@ -223,7 +223,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"])],
             sortDescriptors: []
         ) { result in
             switch result {

@@ -4,7 +4,6 @@ import SoraKeystore
 import BigInt
 import SSFModels
 
-// swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
         wallet: MetaAccountModel,
@@ -61,30 +60,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        let kusamaChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .kusama }).slice
-        let polkadotChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .polkadot }).slice
-        let ethereumChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .ethereum }).slice
-
-        let kusamaAssetChainAssetsArray = createAssetChainAssets(
-            from: kusamaChainAssets,
+        let assetChainAssetsArray = createAssetChainAssets(
+            from: chainAssets,
             accountInfos: accountInfos,
             pricesData: prices.pricesData,
             wallet: wallet
         )
-        let polkadotAssetChainAssetsArray = createAssetChainAssets(
-            from: polkadotChainAssets,
-            accountInfos: accountInfos,
-            pricesData: prices.pricesData,
-            wallet: wallet
-        )
-        let ethereumAssetChainAssetsArray = createAssetChainAssets(
-            from: ethereumChainAssets,
-            accountInfos: accountInfos,
-            pricesData: prices.pricesData,
-            wallet: wallet
-        )
-
-        let assetChainAssetsArray = kusamaAssetChainAssetsArray + polkadotAssetChainAssetsArray + ethereumAssetChainAssetsArray
 
         let sortedAssetChainAssets = sortAssetList(
             wallet: wallet,

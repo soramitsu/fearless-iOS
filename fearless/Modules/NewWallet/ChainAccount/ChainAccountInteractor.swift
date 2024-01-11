@@ -55,7 +55,7 @@ final class ChainAccountInteractor {
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"])],
             sortDescriptors: []
         ) { [weak self] result in
             guard let strongSelf = self else {
