@@ -31,10 +31,11 @@ final class NftCollectionViewLayout: UIView {
         return label
     }()
 
-    let collectionView = UICollectionView(
-        frame: .zero,
-        collectionViewLayout: NftCollectionViewFlowLayout()
-    )
+    let collectionView: UICollectionView = {
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: NftCollectionViewFlowLayout())
+        collectionView.isScrollEnabled = true
+        return collectionView
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)

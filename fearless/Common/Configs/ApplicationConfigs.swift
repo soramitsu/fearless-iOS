@@ -169,7 +169,7 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     }
 
     var chainTypesSourceUrl: URL {
-        GitHubUrl.url(suffix: "chains/all_chains_types.json", branch: .reef)
+        GitHubUrl.url(suffix: "chains/all_chains_types.json")
     }
 
     // MARK: - xcm
@@ -229,7 +229,6 @@ private enum GitHubUrl {
         case xcmLocationDevelop = "updated-xcm-locations"
         case rococo = "feature/rococo"
         case newEvms = "new-evms"
-        case reef
     }
 
     static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .master) -> URL {

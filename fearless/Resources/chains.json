@@ -6972,17 +6972,7 @@
             "history": {
               "type": "zeta",
               "url": "https://zetachain-athens-3.blockscout.com/api/v2/addresses/"
-            },
-            "explorers": [
-              {
-                "type": "etherscan",
-                "types": [
-                  "tx",
-                  "address"
-                ],
-                "url": "https://zkevm.polygonscan.com/{type}/{value}"
-              }
-            ]
+            }
           },
         "nodes": [
             {

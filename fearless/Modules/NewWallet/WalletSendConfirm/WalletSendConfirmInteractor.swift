@@ -24,9 +24,9 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
     private let operationQueue: OperationQueue
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var utilityPriceProvider: AnySingleValueProvider<[PriceData]>?
+    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
 
     init(
         selectedMetaAccount: MetaAccountModel,
