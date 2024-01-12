@@ -5,22 +5,43 @@ import SSFModels
 final class NftSendConfirmInteractor {
     // MARK: - Private properties
 
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private weak var output: NftSendConfirmInteractorOutput?
     private let transferService: NftTransferService
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let wallet: MetaAccountModel
     private let chain: ChainModel
 
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
+
     init(
         transferService: NftTransferService,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         wallet: MetaAccountModel,
         chain: ChainModel
     ) {
         self.transferService = transferService
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.wallet = wallet
         self.chain = chain
+    }
+
+    private func subscribeToPrice(for chainAsset: ChainAsset) {
+        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
+            priceProvider = subscribeToPrice(for: utilityAsset)
+        } else {
+            priceProvider = subscribeToPrice(for: chainAsset)
+        }
+    }
+
+    private func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+        guard let chainAsset = chainAsset else { return nil }
+        if let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+            return utilityAsset
+        }
+        return chainAsset
     }
 }
 
@@ -33,6 +54,7 @@ extension NftSendConfirmInteractor: NftSendConfirmInteractorInput {
         if let chainAsset = chain.utilityChainAssets().first,
            let accountId = wallet.fetch(for: chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
+            subscribeToPrice(for: chainAsset)
         }
     }
 
@@ -101,5 +123,11 @@ extension NftSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
         chainAsset: ChainAsset
     ) {
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
+    }
+}
+
+extension NftSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
+        output?.didReceivePriceData(result: result)
     }
 }

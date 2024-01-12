@@ -18,17 +18,7 @@ final class NftSendRouter: NftSendRouterInput {
         wallet _: MetaAccountModel,
         chain _: ChainModel,
         moduleOutput _: ContactsModuleOutput
-    ) {
-//        guard let module = ContactsAssembly.configureModule(
-//            wallet: wallet,
-//            chainAsset: chainAsset,
-//            moduleOutput: moduleOutput
-//        ) else {
-//            return
-//        }
-//        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
-//        view?.controller.present(navigationController, animated: true)
-    }
+    ) {}
 
     func presentConfirm(
         nft: NFT,
