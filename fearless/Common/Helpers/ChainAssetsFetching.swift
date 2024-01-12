@@ -226,7 +226,6 @@ private extension ChainAssetsFetching {
         case let .search(name):
             return chainAssets.filter {
                 $0.asset.symbol.lowercased().contains(name.lowercased())
-                    || $0.chain.name.lowercased().contains(name.lowercased())
             }
         case let .ecosystem(ecosystem):
             return chainAssets.filter {

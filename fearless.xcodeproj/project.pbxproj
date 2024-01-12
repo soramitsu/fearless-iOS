@@ -2136,8 +2136,6 @@
 		FA30D4F428BF67DF00548C1E /* StakingPoolInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA30D4F328BF67DF00548C1E /* StakingPoolInfoViewModel.swift */; };
 		FA30D4F628BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA30D4F528BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift */; };
 		FA335AAC29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */; };
-		FA335AB129C81B060003DBDD /* SubstrateCallFactoryV9390.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */; };
-		FA335AB429C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */; };
 		FA3430EE285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */; };
 		FA3430F0285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430EF285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift */; };
 		FA3430F2285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430F1285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift */; };
@@ -2401,7 +2399,6 @@
 		FA74359B29C073650085A47E /* ChainSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359A29C073650085A47E /* ChainSettings.swift */; };
 		FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359C29C0736F0085A47E /* StorageWrapper.swift */; };
 		FA74359F29C073790085A47E /* ChainSettingsMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359E29C073790085A47E /* ChainSettingsMapper.swift */; };
-		FA7A4C7A2A1F936E0051FB4D /* SubstrateCallFactoryV9420.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C792A1F936D0051FB4D /* SubstrateCallFactoryV9420.swift */; };
 		FA7A4C7E2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */; };
 		FA7A4C7F2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */; };
 		FA7A4C802A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */; };
@@ -2425,7 +2422,6 @@
 		FA86443C2767BED800956D8E /* BaseDataProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86443B2767BED800956D8E /* BaseDataProviderFactory.swift */; };
 		FA86443E2768439900956D8E /* ContainerProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86443D2768439900956D8E /* ContainerProtocols.swift */; };
 		FA864440276843E100956D8E /* ViewModelObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86443F276843E100956D8E /* ViewModelObserver.swift */; };
-		FA86444227684E1400956D8E /* HistoryBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86444127684E1400956D8E /* HistoryBackgroundView.swift */; };
 		FA864445276851CF00956D8E /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA864444276851CF00956D8E /* ContainerViewController.swift */; };
 		FA8644472768522000956D8E /* HistoryHeaderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644462768522000956D8E /* HistoryHeaderType.swift */; };
 		FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644502768A13300956D8E /* TwoLabelView.swift */; };
@@ -2744,7 +2740,6 @@
 		FACD42A32A5BE811009975AA /* SelectedLanguageMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42942A5BE811009975AA /* SelectedLanguageMigrator.swift */; };
 		FACD42A42A5BE811009975AA /* KeystoreMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42952A5BE811009975AA /* KeystoreMigrator.swift */; };
 		FACD42A52A5BE811009975AA /* Migrating.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42962A5BE811009975AA /* Migrating.swift */; };
-		FACD42A72A5BE821009975AA /* SubstrateCallFactoryV9430.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42A62A5BE821009975AA /* SubstrateCallFactoryV9430.swift */; };
 		FACD42AA2A5BE82A009975AA /* ContentAlignment.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42A82A5BE82A009975AA /* ContentAlignment.swift */; };
 		FACD42AB2A5BE82A009975AA /* ErrorPresentableInputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42A92A5BE82A009975AA /* ErrorPresentableInputField.swift */; };
 		FACD42B02A5BE8A4009975AA /* NumbersAndSlashesProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42AF2A5BE8A4009975AA /* NumbersAndSlashesProcessor.swift */; };
@@ -3099,6 +3094,9 @@
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		07A4F5242B5004E60007C54A /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
+		07A4F5252B5004E60007C54A /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		07A4F5262B5004E60007C54A /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-PT"; path = "pt-PT.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		07AC51122AD8040C000970B8 /* XorlessTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XorlessTransfer.swift; sourceTree = "<group>"; };
 		07B018D028C7135400E05510 /* ScamInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfo.swift; sourceTree = "<group>"; };
 		07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamServiceOperationFactory.swift; sourceTree = "<group>"; };
@@ -5137,8 +5135,6 @@
 		FA30D4F328BF67DF00548C1E /* StakingPoolInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoViewModel.swift; sourceTree = "<group>"; };
 		FA30D4F528BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryProtocol.swift; sourceTree = "<group>"; };
-		FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9390.swift; sourceTree = "<group>"; };
-		FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryAssembly.swift; sourceTree = "<group>"; };
 		FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainStrategy.swift; sourceTree = "<group>"; };
 		FA3430EF285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA3430F1285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -5398,7 +5394,6 @@
 		FA74359A29C073650085A47E /* ChainSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettings.swift; sourceTree = "<group>"; };
 		FA74359C29C0736F0085A47E /* StorageWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageWrapper.swift; sourceTree = "<group>"; };
 		FA74359E29C073790085A47E /* ChainSettingsMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettingsMapper.swift; sourceTree = "<group>"; };
-		FA7A4C792A1F936D0051FB4D /* SubstrateCallFactoryV9420.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9420.swift; sourceTree = "<group>"; };
 		FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaychainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
@@ -5422,7 +5417,6 @@
 		FA86443B2767BED800956D8E /* BaseDataProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProviderFactory.swift; sourceTree = "<group>"; };
 		FA86443D2768439900956D8E /* ContainerProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerProtocols.swift; sourceTree = "<group>"; };
 		FA86443F276843E100956D8E /* ViewModelObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelObserver.swift; sourceTree = "<group>"; };
-		FA86444127684E1400956D8E /* HistoryBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryBackgroundView.swift; sourceTree = "<group>"; };
 		FA864444276851CF00956D8E /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		FA8644462768522000956D8E /* HistoryHeaderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryHeaderType.swift; sourceTree = "<group>"; };
 		FA8644502768A13300956D8E /* TwoLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwoLabelView.swift; sourceTree = "<group>"; };
@@ -5755,7 +5749,6 @@
 		FACD42942A5BE811009975AA /* SelectedLanguageMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectedLanguageMigrator.swift; sourceTree = "<group>"; };
 		FACD42952A5BE811009975AA /* KeystoreMigrator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeystoreMigrator.swift; sourceTree = "<group>"; };
 		FACD42962A5BE811009975AA /* Migrating.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Migrating.swift; sourceTree = "<group>"; };
-		FACD42A62A5BE821009975AA /* SubstrateCallFactoryV9430.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9430.swift; sourceTree = "<group>"; };
 		FACD42A82A5BE82A009975AA /* ContentAlignment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentAlignment.swift; sourceTree = "<group>"; };
 		FACD42A92A5BE82A009975AA /* ErrorPresentableInputField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorPresentableInputField.swift; sourceTree = "<group>"; };
 		FACD42AF2A5BE8A4009975AA /* NumbersAndSlashesProcessor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumbersAndSlashesProcessor.swift; sourceTree = "<group>"; };
@@ -12656,30 +12649,10 @@
 		FA335AAA29C81AC90003DBDD /* CallFactory */ = {
 			isa = PBXGroup;
 			children = (
-				FA335AB229C8294D0003DBDD /* SubstrateCallFactoryAssembly */,
-				FA335AAD29C81AEA0003DBDD /* Updates */,
 				849DEC5825ED756F00C64C19 /* SubstrateCallFactoryDefault.swift */,
 				FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */,
 			);
 			path = CallFactory;
-			sourceTree = "<group>";
-		};
-		FA335AAD29C81AEA0003DBDD /* Updates */ = {
-			isa = PBXGroup;
-			children = (
-				FACD42A62A5BE821009975AA /* SubstrateCallFactoryV9430.swift */,
-				FA7A4C792A1F936D0051FB4D /* SubstrateCallFactoryV9420.swift */,
-				FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */,
-			);
-			path = Updates;
-			sourceTree = "<group>";
-		};
-		FA335AB229C8294D0003DBDD /* SubstrateCallFactoryAssembly */ = {
-			isa = PBXGroup;
-			children = (
-				FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */,
-			);
-			path = SubstrateCallFactoryAssembly;
 			sourceTree = "<group>";
 		};
 		FA3430EB285064C7002B5975 /* Flow */ = {
@@ -13329,7 +13302,6 @@
 			isa = PBXGroup;
 			children = (
 				FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */,
-				FA86444127684E1400956D8E /* HistoryBackgroundView.swift */,
 				FA5DD0E2278EFE2500967047 /* WalletTransactionHistoryTableSectionHeader.swift */,
 			);
 			path = Views;
@@ -15087,6 +15059,7 @@
 				ja,
 				"zh-Hans",
 				vi,
+				"pt-PT",
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
@@ -15520,7 +15493,6 @@
 				AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */,
 				076D9D43294051B3002762E3 /* ExpandableSubtitleCell.swift in Sources */,
 				F40966B726B297D6008CD244 /* AnalyticsContainerViewController.swift in Sources */,
-				FA7A4C7A2A1F936E0051FB4D /* SubstrateCallFactoryV9420.swift in Sources */,
 				FA2FC81928B3807D00CC0A42 /* StakingPoolStartViewController.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				FAA0134528DA12CD000A5230 /* StakingUnbondSetupPoolViewModelFactory.swift in Sources */,
@@ -15541,7 +15513,6 @@
 				8409C27425227DC60049B5C8 /* WalletSingleActionAccessoryFactory.swift in Sources */,
 				F477CD26262EAD30004DF739 /* StakingPayoutViewModelFactory.swift in Sources */,
 				FA7336E12A0E3B880096A291 /* JSONResponseDecoder.swift in Sources */,
-				FA86444227684E1400956D8E /* HistoryBackgroundView.swift in Sources */,
 				84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */,
 				844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */,
 				8493D0E126FF4F5000A28008 /* ScaleCoder+Extension.swift in Sources */,
@@ -16369,7 +16340,6 @@
 				C6264C3A279AC7DC00FCA0DB /* WalletDetailsViewFactory.swift in Sources */,
 				FA6262612AC2E35A005D3D95 /* RawDataAssembly.swift in Sources */,
 				07F2B76128AB806400280C38 /* SnapshotHotBootBuilder.swift in Sources */,
-				FACD42A72A5BE821009975AA /* SubstrateCallFactoryV9430.swift in Sources */,
 				F471897B26C29A78006487AD /* AnalyticsValidatorsPageSelector.swift in Sources */,
 				F40966C226B297D6008CD244 /* AnalyticsPeriod.swift in Sources */,
 				FAF5E9CE27E46D3E005A3448 /* URLConstants.swift in Sources */,
@@ -16715,7 +16685,6 @@
 				F40966C326B297D6008CD244 /* AnalyticsContainerViewLayout.swift in Sources */,
 				84E1CD02260DCC62001E81B5 /* SwitchAccount+OnboardingMainWireframe.swift in Sources */,
 				FAFFAE8D29AC84B10074AF1F /* SubqueryDelegationAction.swift in Sources */,
-				FA335AB129C81B060003DBDD /* SubstrateCallFactoryV9390.swift in Sources */,
 				FACD42982A5BE811009975AA /* SubstrateStorageVersion.swift in Sources */,
 				84D1111326B932C40016D962 /* ChainNodeModel.swift in Sources */,
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,
@@ -18085,7 +18054,6 @@
 				9E2D97A489E8F84A8A0916A8 /* CreateContactProtocols.swift in Sources */,
 				D3C2414CAC720D2D08F0CC4F /* CreateContactRouter.swift in Sources */,
 				FA7254222AC2E48500EC47A6 /* WalletConnectSigner.swift in Sources */,
-				FA335AB429C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift in Sources */,
 				4641B3CABB5FE1DCFBEDA379 /* CreateContactPresenter.swift in Sources */,
 				152AC909C26E809ACCA55B35 /* CreateContactInteractor.swift in Sources */,
 				FA6262392AC2E35A005D3D95 /* WalletConnectConfirmationPresenter.swift in Sources */,
@@ -18391,6 +18359,7 @@
 				FAF9C2972AAED41500A61D21 /* ja */,
 				FAF9C29B2AAED44400A61D21 /* zh-Hans */,
 				C65C7F6D2ADD117D0069D877 /* vi */,
+				07A4F5252B5004E60007C54A /* pt-PT */,
 			);
 			name = Localizable.strings;
 			sourceTree = "<group>";
@@ -18411,6 +18380,7 @@
 				FAF9C2992AAED42300A61D21 /* ja */,
 				FAF9C29A2AAED43E00A61D21 /* zh-Hans */,
 				C65C7F6C2ADD117D0069D877 /* vi */,
+				07A4F5242B5004E60007C54A /* pt-PT */,
 			);
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
@@ -18423,6 +18393,7 @@
 				FAF9C2982AAED41C00A61D21 /* ja */,
 				FAF9C29C2AAED44900A61D21 /* zh-Hans */,
 				C65C7F6E2ADD117E0069D877 /* vi */,
+				07A4F5262B5004E60007C54A /* pt-PT */,
 			);
 			name = Localizable.stringsdict;
 			sourceTree = "<group>";
@@ -18881,8 +18852,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = exactVersion;
+				version = 1.9.9;
 			};
 		};
 		FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {

@@ -6,7 +6,7 @@ final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolJoinConfirmInteractorOutput?
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let callFactory: SubstrateCallFactoryProtocol
@@ -21,7 +21,7 @@ final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -34,7 +34,7 @@ final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         callFactory: SubstrateCallFactoryProtocol
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.extrinsicService = extrinsicService
@@ -78,7 +78,7 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
         self.output = output
         feeProxy.delegate = self
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchCompoundConstant(
             for: .nominationPoolsPalletId,
@@ -132,7 +132,7 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
     }
 }
 
-extension StakingPoolJoinConfirmInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
+extension StakingPoolJoinConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }

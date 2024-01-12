@@ -109,10 +109,10 @@ struct StakingBondMoreConfirmViewFactory {
     ) -> StakingBondMoreConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingBondMoreConfirmationInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: strategy
@@ -185,7 +185,7 @@ struct StakingBondMoreConfirmViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case let .relaychain(amount):

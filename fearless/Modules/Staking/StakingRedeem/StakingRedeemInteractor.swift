@@ -9,7 +9,7 @@ import SSFModels
 final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRedeemInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let strategy: StakingRedeemStrategy
@@ -17,12 +17,12 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         strategy: StakingRedeemStrategy
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.strategy = strategy
@@ -39,13 +39,13 @@ extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
     }
 
     func setup() {
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
     }
 }
 
-extension StakingRedeemInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension StakingRedeemInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }

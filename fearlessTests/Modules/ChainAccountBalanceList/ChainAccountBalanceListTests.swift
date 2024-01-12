@@ -148,7 +148,7 @@
 //                                                 assetRepository: assetRepository,
 //                                                 accountInfoSubscriptionAdapter: adapter,
 //                                                 operationQueue: operationQueue,
-//                                                 priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+//                                                 priceLocalSubscriber: priceLocalSubscriber,
 //                                                 eventCenter: EventCenter.shared)
 //    }
 //}

@@ -113,13 +113,11 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
 
         fromPerToPriceView.valueTop.text = viewModel.adjustmentDetailsViewModel.fromPerToValue
         toPerFromPriceView.valueTop.text = viewModel.adjustmentDetailsViewModel.toPerFromValue
-        minMaxReceivedView
-            .bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.minMaxReceiveVieModel)
+        minMaxReceivedView.titleLabel.text = viewModel.minMaxTitle
+        minMaxReceivedView.bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.minMaxReceiveVieModel)
         swapRouteView.valueTop.text = viewModel.adjustmentDetailsViewModel.route
-        liquidityProviderFeeView
-            .bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.liqudityProviderFeeVieModel)
-        networkFeeView
-            .bindBalance(viewModel: viewModel.networkFee)
+        liquidityProviderFeeView.bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.liqudityProviderFeeVieModel)
+        networkFeeView.bindBalance(viewModel: viewModel.networkFee)
     }
 
     // MARK: - Private methods
@@ -127,8 +125,6 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
     private func applyLocalization() {
         titleLabel.text = R.string.localizable
             .commonPreview(preferredLanguages: locale.rLanguages)
-        minMaxReceivedView.titleLabel.text = R.string.localizable
-            .polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         swapRouteView.titleLabel.text = R.string.localizable
             .polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
         liquidityProviderFeeView.titleLabel.text = R.string.localizable

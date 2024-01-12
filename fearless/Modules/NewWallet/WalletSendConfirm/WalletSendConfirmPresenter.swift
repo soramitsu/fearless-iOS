@@ -1,4 +1,5 @@
 import Foundation
+import Web3
 import BigInt
 import SoraFoundation
 import IrohaCrypto
@@ -289,6 +290,11 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             wireframe.complete(on: view, title: hash, chainAsset: chainAsset)
         case let .failure(error):
             guard let view = view else {
+                return
+            }
+
+            if let rpcError = error as? RPCResponse<EthereumData>.Error, rpcError.code == -32000 {
+                wireframe.presentAmountTooHigh(from: view, locale: selectedLocale)
                 return
             }
 

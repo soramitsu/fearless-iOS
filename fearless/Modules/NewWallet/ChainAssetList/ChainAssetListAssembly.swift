@@ -22,7 +22,7 @@ final class ChainAssetListAssembly {
             operationQueue: OperationQueue()
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
             mapper: AnyCoreDataMapper(AssetModelMapper())
@@ -48,7 +48,7 @@ final class ChainAssetListAssembly {
         )
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,

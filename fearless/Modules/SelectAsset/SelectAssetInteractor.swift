@@ -12,7 +12,7 @@ final class SelectAssetInteractor {
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let assetRepository: AnyDataProviderRepository<AssetModel>
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private var chainAssets: [ChainAsset]?
@@ -24,14 +24,14 @@ final class SelectAssetInteractor {
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         assetRepository: AnyDataProviderRepository<AssetModel>,
         chainAssets: [ChainAsset]?,
         operationQueue: OperationQueue
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.assetRepository = assetRepository
         self.chainAssets = chainAssets
         self.operationQueue = operationQueue
@@ -84,7 +84,7 @@ extension SelectAssetInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension SelectAssetInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension SelectAssetInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):
@@ -105,7 +105,7 @@ private extension SelectAssetInteractor {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = subscribeToPrices(for: chainAssets)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {

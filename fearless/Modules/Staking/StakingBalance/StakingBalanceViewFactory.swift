@@ -67,11 +67,11 @@ struct StakingBalanceViewFactory {
     ) -> StakingBalanceInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingBalanceInteractor(
             chainAsset: chainAsset,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }

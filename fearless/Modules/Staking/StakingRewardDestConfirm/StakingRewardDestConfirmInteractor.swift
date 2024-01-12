@@ -8,7 +8,7 @@ import SSFModels
 final class StakingRewardDestConfirmInteractor: AccountFetching {
     weak var presenter: StakingRewardDestConfirmInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
@@ -31,7 +31,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     private let callFactory: SubstrateCallFactoryProtocol
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -47,7 +47,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         callFactory: SubstrateCallFactoryProtocol
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.extrinsicService = extrinsicService
@@ -88,7 +88,7 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         feeProxy.delegate = self
     }
@@ -135,7 +135,7 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
     }
 }
 
-extension StakingRewardDestConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension StakingRewardDestConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }

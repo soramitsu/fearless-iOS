@@ -30,12 +30,6 @@ enum ChainAccountViewFactory {
         )
 
         let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
-        let accountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .background
         let chainAssetFetching = ChainAssetsFetching(
@@ -50,17 +44,6 @@ enum ChainAccountViewFactory {
         )
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-        let logger = Logger.shared
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
-
-        let substrateAccountInfoFetching = AccountInfoFetching(
-            accountInfoRepository: accountInfoRepository,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
