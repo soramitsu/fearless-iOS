@@ -290,8 +290,8 @@ extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, Relayc
 }
 
 extension StakingMainInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        if let chainAsset = stakingSettings.value, chainAsset.asset.priceId == priceId {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset: ChainAsset) {
+        if let chainAsset = stakingSettings.value, chainAsset.asset.priceId == chainAsset.asset.priceId {
             switch result {
             case let .success(priceData):
                 guard let priceData = priceData else { return }
@@ -301,7 +301,7 @@ extension StakingMainInteractor: PriceLocalSubscriptionHandler {
             }
         }
 
-        if let chainAsset = rewardChainAsset, chainAsset.asset.priceId == priceId {
+        if let chainAsset = rewardChainAsset, chainAsset.asset.priceId == chainAsset.asset.priceId {
             switch result {
             case let .success(priceData):
                 guard let priceData = priceData else { return }
