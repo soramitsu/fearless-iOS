@@ -5,10 +5,10 @@ import SSFModels
 final class NftSendConfirmInteractor {
     // MARK: - Private properties
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private weak var output: NftSendConfirmInteractorOutput?
     private let transferService: NftTransferService
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let wallet: MetaAccountModel
     private let chain: ChainModel
 
@@ -17,22 +17,22 @@ final class NftSendConfirmInteractor {
     init(
         transferService: NftTransferService,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         wallet: MetaAccountModel,
         chain: ChainModel
     ) {
         self.transferService = transferService
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.wallet = wallet
         self.chain = chain
     }
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
         if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            priceProvider = subscribeToPrice(for: utilityAsset)
+            priceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         } else {
-            priceProvider = subscribeToPrice(for: chainAsset)
+            priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         }
     }
 
@@ -126,7 +126,7 @@ extension NftSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension NftSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension NftSendConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }

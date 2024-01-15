@@ -6,13 +6,13 @@ import SSFModels
 final class NftSendInteractor {
     // MARK: - Private properties
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private weak var output: NftSendInteractorOutput?
     private let transferService: NftTransferService
     private let operationManager: OperationManagerProtocol
     private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
     private let addressChainDefiner: AddressChainDefiner
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chain: ChainModel
     private let wallet: MetaAccountModel
 
@@ -24,7 +24,7 @@ final class NftSendInteractor {
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         addressChainDefiner: AddressChainDefiner,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chain: ChainModel,
         wallet: MetaAccountModel
     ) {
@@ -33,7 +33,7 @@ final class NftSendInteractor {
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.addressChainDefiner = addressChainDefiner
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chain = chain
         self.wallet = wallet
     }
@@ -57,9 +57,9 @@ extension NftSendInteractor: NftSendInteractorInput {
            let accountId = wallet.fetch(for: chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
             if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-                priceProvider = subscribeToPrice(for: utilityAsset)
+                priceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
             } else {
-                priceProvider = subscribeToPrice(for: chainAsset)
+                priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
             }
         }
     }
@@ -139,7 +139,7 @@ extension NftSendInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension NftSendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension NftSendInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
