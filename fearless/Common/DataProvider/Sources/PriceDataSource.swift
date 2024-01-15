@@ -51,7 +51,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
                 return chainlinkPrice.replaceFiatDayChange(fiatDayChange: coingeckoPrice?.fiatDayChange)
             }
 
-            if chainlinkPrices.count != chainlinkOperations.count {
+            if chainlinkPrices.count != chainlinkOperations.count || chainlinkOperations.isEmpty {
                 let chainlinkPriceChainAsset = self?.chainAssets.filter { $0.asset.priceProvider?.type == .chainlink }
                 let failedPriceId = chainlinkPriceChainAsset?.compactMap { $0.asset.coingeckoPriceId }.diff(from: chainlinkPrices.map { $0.coingeckoPriceId })
                 coingeckoPrices = coingeckoPrices.map { price in
@@ -98,6 +98,9 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
     }
 
     private func createChainlinkOperations() -> [BaseOperation<PriceData>] {
+        guard currencies?.count == 1, currencies?.first?.id == Currency.defaultCurrency().id else {
+            return []
+        }
         let chainlinkPriceChainAsset = chainAssets
             .filter { $0.asset.priceProvider?.type == .chainlink }
 
@@ -113,6 +116,6 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
 
 extension PriceDataSource: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        currencies = [event.account.selectedCurrency]
+        currencies = (currencies.or([]) + [event.account.selectedCurrency]).uniq(predicate: { $0.id })
     }
 }

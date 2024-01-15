@@ -12,6 +12,7 @@ protocol PriceLocalStorageSubscriber where Self: AnyObject {
 struct PriceLocalStorageSubscriberListener {
     let listener: WeakWrapper
     let chainAssets: [ChainAsset]
+    let currencies: [Currency]
 }
 
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
@@ -46,15 +47,20 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
-        appendLisnenerIfNeeded(listener, chainAssets: [chainAsset])
-        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: currencies)
+        appendLisnenerIfNeeded(listener, chainAssets: [chainAsset], currencies: currencies)
+        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +)
+        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
 
             self?.listeners.forEach { wrapper in
                 guard
                     let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler,
-                    let finalValue = changes.reduceToLastChange()?.first(where: { price in wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true })
+                    let finalValue = changes.reduceToLastChange()?
+                    .first(where: { price in
+                        wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true
+                            && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
+                    })
                 else {
                     return
                 }
@@ -99,14 +105,19 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
-        appendLisnenerIfNeeded(listener, chainAssets: chainAssets)
-        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: currencies)
+        appendLisnenerIfNeeded(listener, chainAssets: chainAssets, currencies: currencies)
+        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +)
+        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
             self?.listeners.forEach { wrapper in
                 guard
                     let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler,
-                    let finalValue = changes.reduceToLastChange()?.filter({ price in wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true })
+                    let finalValue = changes.reduceToLastChange()?
+                    .filter({ price in
+                        wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true
+                            && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
+                    })
                 else {
                     return
                 }
@@ -149,16 +160,22 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listeners = listeners.filter { $0.listener.target != nil }
     }
 
-    private func appendLisnenerIfNeeded(_ listener: PriceLocalSubscriptionHandler, chainAssets: [ChainAsset]) {
+    private func appendLisnenerIfNeeded(
+        _ listener: PriceLocalSubscriptionHandler,
+        chainAssets: [ChainAsset],
+        currencies: [Currency]?
+    ) {
         let existListener = listeners.first { wrapper in
             wrapper.listener.target === listener
         }
-        guard existListener == nil else {
+        guard existListener == nil || existListener?.currencies != currencies, let wallet = SelectedWalletSettings.shared.value else {
             return
         }
+        listeners.removeAll(where: { $0.listener.target === existListener?.listener.target })
         let listener = PriceLocalStorageSubscriberListener(
             listener: WeakWrapper(target: listener),
-            chainAssets: chainAssets
+            chainAssets: chainAssets,
+            currencies: currencies ?? [wallet.selectedCurrency]
         )
         listeners.append(listener)
     }

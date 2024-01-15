@@ -317,7 +317,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.didReceiveWallet(wallet: event.account)
 
         if wallet.selectedCurrency != event.account.selectedCurrency {
-            pricesProvider?.refresh()
+            guard let chainAssets = chainAssets else {
+                return
+            }
+            subscribeToPrice(for: chainAssets)
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
