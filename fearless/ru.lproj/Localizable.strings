@@ -1238,3 +1238,4 @@ Euro cash";
 "verify.phone.number.description" = "Введите SMS-код, который был отправлен\n%@";
 "verify.phone.number.send.code" = "ОТПРАВИТЬ КОД";
 "verify.phone.number.title" = "Проверьте свой номер телефона";
+"send.all.title" = "Send all tokens and reap the account";

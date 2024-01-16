@@ -1115,3 +1115,4 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
+"send.all.title" = "Send all tokens and reap the account";

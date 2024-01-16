@@ -88,7 +88,9 @@ class SendDataValidatingFactory: NSObject {
         parameters: ExistentialDepositValidationParameters,
         locale: Locale,
         chainAsset: ChainAsset,
-        canProceedIfViolated: Bool = true
+        canProceedIfViolated: Bool = true,
+        sendAllEnabled: Bool = false,
+        warningHandler: (() -> Void)? = nil
     ) -> DataValidating {
         WarningConditionViolation(onWarning: { [weak self] delegate in
             guard let view = self?.view else {
@@ -104,18 +106,20 @@ class SendDataValidatingFactory: NSObject {
                     locale: locale
                 )
             }
-
             self?.basePresentable.presentExistentialDepositWarning(
                 existentianDepositValue: existentianDepositValue,
                 from: view,
                 action: {
                     delegate.didCompleteWarningHandling()
+                    warningHandler?()
                 },
                 locale: locale
             )
-
         }, preservesCondition: {
             guard !chainAsset.chain.isEthereum else {
+                return true
+            }
+            if sendAllEnabled, canProceedIfViolated {
                 return true
             }
             switch parameters {
