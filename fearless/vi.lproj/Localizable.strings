@@ -1,5 +1,3 @@
-"\"common.price\" = \"Price\";" = "Giá";
-"\"staking.pool.create.missing.pool.name\" = \"Cannot create pool\";" = "Không thể tạo pool";
 "NSCameraUsageDescription" = "Máy ảnh được sử dụng để chụp mã QR";
 "NSFaceIDUsageDescription" = "Fearless sử dụng Face ID để hạn chế người dùng trái phép truy cập vào ứng dụng. Face ID được sử dụng để xác thực truy cập ứng dụng";
 "NSPhotoLibraryAddUsageDescription" = "Lưu yêu cầu chuyển dưới dạng mã QR";
@@ -258,6 +256,7 @@ tiền Euro";
 "common.paste" = "Dán";
 "common.payout" = "Thanh toán";
 "common.preview" = "Xem trước";
+"common.price" = "Giá";
 "common.privacy.policy" = "Chính sách bảo mật";
 "common.proceed" = "Tiến hành";
 "common.referral.code.title" = "Mã giới thiệu";
@@ -500,6 +499,9 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "nft.stub.title" = "Sumimasen!";
 "nft.tokenid.title" = "Token ID";
 "nfts.collection.count" = "Số lượng: %d / %d";
+"nfts.filters.airdrop" = "AirDrop";
+"nfts.filters.spam" = "SPAM";
+"nfts.filters.title" = "Hide NFTs";
 "nfts.stub" = "NFT";
 "no.access.to.google" = "Không có quyền truy cập vào Google";
 "no.account.found" = "Không tìm thấy tài khoản";
@@ -601,7 +603,7 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "pool.claimable.title" = "Có thể yêu cầu";
 "pool.common" = "pool";
 "pool.join.no.validators.message" = "Nhóm chưa chọn bất kỳ validator nào. Nếu bạn tham gia, bạn sẽ không nhận được bất kỳ phần thưởng nào cho đến khi người xác thực được chọn";
-"pool.root.unbond.too.high.text" = "Bạn là chủ sở hữu của nhóm và cổ phần của bạn ít nhất phải là %@ . Nếu bạn muốn phá hủy nhóm của mình và trục xuất các thành viên của nhóm, vui lòng sử dụng Polkadot.js.plus";
+"pool.root.unbond.too.high.text" = "Bạn là chủ sở hữu của nhóm và cổ phần của bạn ít nhất phải là %s. Nếu bạn muốn phá hủy nhóm của mình và trục xuất các thành viên của nhóm, vui lòng sử dụng Polkadot.js.plus";
 "pool.root.unbond.too.high.title" = "Bạn không thể thực hiện một unstake hoàn toàn";
 "pool.staking.bouncer" = "Bouncer";
 "pool.staking.choosepool.button.title" = "Chọn";
@@ -813,6 +815,7 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "staking.pool.create.management.account" = "Tài khoản quản lý pool";
 "staking.pool.create.missing.name.description" = "Tên nhóm bị thiếu";
 "staking.pool.create.missing.name.title" = "Không thể tạo pool";
+"staking.pool.create.missing.pool.name" = "Không thể tạo pool";
 "staking.pool.create.nominator" = "Nominator";
 "staking.pool.create.poolId" = "Pool Id";
 "staking.pool.create.root" = "Nguồn gốc";
@@ -885,7 +888,7 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "staking.select.validators.recommended.desc" = "Thuật toán Fearless đã chọn một danh sách các validator được đề xuất dựa trên các tiêu chí:";
 "staking.select.validators.recommended.title" = "Stake với các validator do thuật toán đề xuất";
 "staking.selected.collator" = "Collator dã chọn";
-"staking.selected.validators.count_v1.9.1" = "đã chọn %li (tối đa %li)";
+"staking.selected.validators.count_v1.9.1" = "đã chọn %d (tối đa %d)";
 "staking.selected.validators.title" = "Validator đã chọn";
 "staking.set.separate.account.controller" = "Thiết lập 1 tài khoản Controller riêng để tăng cường bảo mật quản lý staking.";
 "staking.set.validators.message" = "Validators không được chọn";

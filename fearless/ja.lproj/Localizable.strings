@@ -1,5 +1,3 @@
-"\"common.price\" = \"Price\";" = "価格";
-"\"staking.pool.create.missing.pool.name\" = \"Cannot create pool\";" = "プールを作成できません";
 "NSCameraUsageDescription" = "QRコードを撮るためにカメラを使用する";
 "NSFaceIDUsageDescription" = "フィアレスは顔認証を使用して、権限のないユーザーがアプリにアクセスすることを制限します。顔認証は、アプリ内での認証に使用されます";
 "NSPhotoLibraryAddUsageDescription" = "QRコードで取引申請を保存する";
@@ -256,6 +254,7 @@
 "common.paste" = "ペースト";
 "common.payout" = "配当性向";
 "common.preview" = "プレビュー";
+"common.price" = "価格";
 "common.privacy.policy" = "個人情報保護方針";
 "common.proceed" = "続行";
 "common.referral.code.title" = "紹介コード";
@@ -499,6 +498,9 @@
 "nft.stub.title" = "失礼しました";
 "nft.tokenid.title" = "トークンID";
 "nfts.collection.count" = "数量： %d/%d";
+"nfts.filters.airdrop" = "AirDrop";
+"nfts.filters.spam" = "SPAM";
+"nfts.filters.title" = "Hide NFTs";
 "nfts.stub" = "NFT";
 "no.access.to.google" = "Googleにアクセスできません";
 "no.account.found" = "アカウントが見つかりません";
@@ -599,7 +601,7 @@
 "pool.claimable.title" = "請求可能";
 "pool.common" = "プール";
 "pool.join.no.validators.message" = "このプールでは、まだバリデーターが選ばれていません。参加しても、バリデーターが選ばれるまでは報酬を得ることはできません";
-"pool.root.unbond.too.high.text" = "あなたはプールの所有者であり、少なくとも%@ステークする必要があります。プールを破棄してメンバーを追い出したい場合は、Polkadot.js.plus を使用してください";
+"pool.root.unbond.too.high.text" = "あなたはプールの所有者であり、少なくとも%sステークする必要があります。プールを破棄してメンバーを追い出したい場合は、Polkadot.js.plus を使用してください";
 "pool.root.unbond.too.high.title" = "ステークを完全に解除することはできません";
 "pool.staking.bouncer" = "バウンサー";
 "pool.staking.choosepool.button.title" = "選択";
@@ -809,6 +811,7 @@
 "staking.pool.create.management.account" = "プール管理アカウント";
 "staking.pool.create.missing.name.description" = "プール名がありません";
 "staking.pool.create.missing.name.title" = "プールを作成できません";
+"staking.pool.create.missing.pool.name" = "プールを作成できません";
 "staking.pool.create.nominator" = "ノミネーター";
 "staking.pool.create.poolId" = "プールID";
 "staking.pool.create.root" = "ルート";
