@@ -1,5 +1,3 @@
-"\"common.price\" = \"Price\";" = "价格";
-"\"staking.pool.create.missing.pool.name\" = \"Cannot create pool\";" = "无法创建池";
 "NSCameraUsageDescription" = "相机用于捕捉二维码";
 "NSFaceIDUsageDescription" = "Fearless使用Face ID来限制未经授权的用户访问该应用程序。Face ID用于在应用程序内进行授权。";
 "NSPhotoLibraryAddUsageDescription" = "将转账请求保存为二维码";
@@ -258,6 +256,7 @@
 "common.paste" = "粘贴";
 "common.payout" = "支付";
 "common.preview" = "预览";
+"common.price" = "价格";
 "common.privacy.policy" = "隐私政策";
 "common.proceed" = "继续";
 "common.referral.code.title" = "推荐码";
@@ -500,6 +499,9 @@
 "nft.stub.title" = "对不起！";
 "nft.tokenid.title" = "代币ID";
 "nfts.collection.count" = "数量：%d/%d";
+"nfts.filters.airdrop" = "AirDrop";
+"nfts.filters.spam" = "SPAM";
+"nfts.filters.title" = "Hide NFTs";
 "nfts.stub" = "NFTs";
 "no.access.to.google" = "无法访问谷歌";
 "no.account.found" = "未找到账户";
@@ -601,7 +603,7 @@
 "pool.claimable.title" = "可领取";
 "pool.common" = "池";
 "pool.join.no.validators.message" = "该池尚未选择任何验证者。如果您加入，直到选定验证者之前将无法获得任何奖励。";
-"pool.root.unbond.too.high.text" = "你是一个池的所有者，你的质押至少应为%@。如果你想销毁你的池并踢出其成员，请使用Polkadot.js.plus。";
+"pool.root.unbond.too.high.text" = "你是一个池的所有者，你的质押至少应为%s。如果你想销毁你的池并踢出其成员，请使用Polkadot.js.plus。";
 "pool.root.unbond.too.high.title" = "您无法完全取消质押";
 "pool.staking.bouncer" = "保镖";
 "pool.staking.choosepool.button.title" = "选择";
@@ -812,6 +814,7 @@
 "staking.pool.create.management.account" = "池管理账户";
 "staking.pool.create.missing.name.description" = "池名称缺失";
 "staking.pool.create.missing.name.title" = "无法创建池";
+"staking.pool.create.missing.pool.name" = "无法创建池";
 "staking.pool.create.nominator" = "提名人";
 "staking.pool.create.poolId" = "池 Id";
 "staking.pool.create.root" = "Root";
