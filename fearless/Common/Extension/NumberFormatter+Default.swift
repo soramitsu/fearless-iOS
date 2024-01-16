@@ -84,7 +84,10 @@ public extension NumberFormatter {
         let formatter = NumberFormatter()
         formatter.locale = locale
         formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
+        formatter.maximumFractionDigits = 8
+        formatter.usesSignificantDigits = true
+        formatter.minimumSignificantDigits = 4
+        formatter.maximumSignificantDigits = 4
         return formatter
     }
 
