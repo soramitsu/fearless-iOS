@@ -53,7 +53,6 @@ final class UsernameSetupViewController: UIViewController, ViewHolder {
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        rootView.usernameTextField.animatedInputField.textField.becomeFirstResponder()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -141,6 +140,10 @@ extension UsernameSetupViewController: UsernameSetupViewProtocol {
         rootView.usernameTextFieldContainer.isHidden = !viewModel.selectable
         rootView.hintLabelContainer.isHidden = !viewModel.selectable
         updateActionButton()
+
+        if viewModel.selectable {
+            rootView.usernameTextField.animatedInputField.textField.becomeFirstResponder()
+        }
     }
 
     func bindUniqueChain(viewModel: UniqueChainViewModel) {
