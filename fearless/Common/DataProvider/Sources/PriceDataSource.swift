@@ -54,7 +54,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             if chainlinkPrices.count != chainlinkOperations.count || chainlinkOperations.isEmpty {
                 let chainlinkPriceChainAsset = self?.chainAssets.filter { $0.asset.priceProvider?.type == .chainlink }
                 let failedPriceId = chainlinkPriceChainAsset?.compactMap { $0.asset.coingeckoPriceId }.diff(from: chainlinkPrices.map { $0.coingeckoPriceId })
-                coingeckoPrices = coingeckoPrices.map { price in
+                let replacedPrices = coingeckoPrices.compactMap { price in
                     if failedPriceId?.contains(price.coingeckoPriceId) == true {
                         guard let failedChainlinkCHainAsset = chainlinkPriceChainAsset?.first(where: { $0.asset.coingeckoPriceId == price.coingeckoPriceId }) else {
                             return price
@@ -67,8 +67,9 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
                             coingeckoPriceId: price.coingeckoPriceId
                         )
                     }
-                    return price
+                    return nil
                 }
+                coingeckoPrices = coingeckoPrices + replacedPrices
             }
 
             return coingeckoPrices + replacedFiatDayChange

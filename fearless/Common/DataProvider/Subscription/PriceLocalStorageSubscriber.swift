@@ -48,7 +48,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: [chainAsset], currencies: currencies)
-        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +)
+        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
         let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
@@ -106,7 +106,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: chainAssets, currencies: currencies)
-        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +)
+        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
         let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in

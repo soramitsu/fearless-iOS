@@ -193,7 +193,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         save(updatedAccount, shouldNotify: true)
     }
 
-    func reload(fetchPrices: Bool) {
+    func reload() {
         guard let chainAssets = chainAssets else {
             return
         }
@@ -205,6 +205,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             self?.subscribeToAccountInfo(for: chainAssets)
         }
 
+        subscribeToPrice(for: chainAssets)
         guard remoteFetchTimer == nil else {
             return
         }
@@ -215,9 +216,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         })
 
         ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
-        if fetchPrices {
-            pricesProvider?.refresh()
-        }
     }
 
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
@@ -355,7 +353,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        reload(fetchPrices: false)
+        reload()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

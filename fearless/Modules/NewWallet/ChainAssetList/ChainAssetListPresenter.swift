@@ -179,7 +179,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didPullToRefresh() {
-        interactor.reload(fetchPrices: prices.updated)
+        interactor.reload()
     }
 }
 
