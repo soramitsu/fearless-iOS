@@ -181,12 +181,12 @@ final class WalletTransactionDetailsViewLayout: UIView {
         rewardView.isHidden = true
         receiverView.isHidden = true
         eraView.isHidden = true
-        feeView.isHidden = true
         senderView.isHidden = viewModel.sender == nil
 
         moduleView.valueLabel.text = viewModel.module
         callView.valueLabel.text = viewModel.call
         senderView.subtitleLabel?.text = viewModel.sender
+        feeView.valueLabel.text = viewModel.fee
 
         if let sender = viewModel.sender {
             if let icon = try? UniversalIconGenerator().generateFromAddress(sender) {
