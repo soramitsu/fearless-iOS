@@ -32,7 +32,10 @@ extension TextCopyPresentable {
             view?.controller.present(controller, animated: true)
         }
 
+        let cancel = UIAlertAction(title: R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages), style: .cancel)
+
         alertController.addAction(copy)
+        alertController.addAction(cancel)
 
         view?.controller.present(alertController, animated: true)
     }
