@@ -77,7 +77,7 @@ extension KeyboardViewAdoptable where Self: UIViewController {
         updateWhileKeyboardFrameChanging(frame)
     }
 
-    func addEndEditingTapGesture() {
+    func addEndEditingTapGesture(for view: UIView) {
         let tapGestureRecognizer = UITapGestureRecognizer()
         tapGestureRecognizer.addTarget(self, action: #selector(endEditingBackgroundTapped))
         tapGestureRecognizer.cancelsTouchesInView = false

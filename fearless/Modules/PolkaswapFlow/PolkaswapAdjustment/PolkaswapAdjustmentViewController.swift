@@ -45,7 +45,7 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         output.didLoad(view: self)
         setupActions()
         configure()
-        addEndEditingTapGesture()
+        addEndEditingTapGesture(for: rootView.contentView)
     }
 
     override func viewWillAppear(_ animated: Bool) {
