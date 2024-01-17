@@ -14,7 +14,7 @@ enum ConstantCodingPath: CaseIterable {
         case .slashDeferDuration:
             return (moduleName: "Staking", constantName: "SlashDeferDuration")
         case .maxNominatorRewardedPerValidator:
-            return (moduleName: "Staking", constantName: "maxExposurePageSize")
+            return (moduleName: "Staking", constantName: "MaxNominatorRewardedPerValidator")
         case .lockUpPeriod:
             return (moduleName: "Staking", constantName: "BondingDuration")
         case .eraLength:
@@ -61,6 +61,8 @@ enum ConstantCodingPath: CaseIterable {
             return (moduleName: "Staking", constantName: "HistoryDepth")
         case .leaseOffset:
             return (moduleName: "Slots", constantName: "LeaseOffset")
+        case .maxExposurePageSize:
+            return (moduleName: "Staking", constantName: "maxExposurePageSize")
         }
     }
 
@@ -89,4 +91,5 @@ enum ConstantCodingPath: CaseIterable {
     case nominationPoolsPalletId
     case historyDepth
     case leaseOffset
+    case maxExposurePageSize
 }
