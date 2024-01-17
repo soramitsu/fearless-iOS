@@ -6,7 +6,6 @@ final class NftCollectionInteractor {
     private weak var output: NftCollectionInteractorOutput?
     private var collection: NFTCollection
     private var isReady: Bool = false
-    private var page: Int = 0
 
     private let nftFetchingService: NFTFetchingServiceProtocol
 
@@ -27,7 +26,7 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
         isReady = true
 
         if !wasReady {
-            fetchData()
+            fetchData(lastId: nil)
         }
     }
 
@@ -37,7 +36,7 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
         output.didReceive(collection: collection)
     }
 
-    func fetchData(page: Int = 0) {
+    func fetchData(lastId: String?) {
         guard isReady else {
             return
         }
@@ -50,8 +49,10 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
                     let nfts = try await nftFetchingService.fetchCollectionNfts(
                         collectionAddress: address,
                         chain: collection.chain,
-                        offset: page * 100
+                        lastId: lastId
                     )
+                    let ids = nfts.map { $0.tokenId }
+                    print(ids)
                     let availableNfts = nfts.filter { collection.nfts?.contains($0) != true }
                     if let _ = collection.availableNfts {
                         collection.availableNfts?.append(contentsOf: availableNfts)
@@ -59,7 +60,6 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
                         collection.availableNfts = availableNfts
                     }
 
-                    self.page += 1
                     self.isReady = true
                     await MainActor.run(body: {
                         output?.didReceive(collection: collection)
@@ -67,9 +67,5 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
                 }
             }
         }
-    }
-
-    func loadNext() {
-        fetchData(page: page)
     }
 }

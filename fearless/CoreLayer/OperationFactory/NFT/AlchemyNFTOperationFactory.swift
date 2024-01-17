@@ -278,7 +278,7 @@ final class AlchemyNFTOperationFactory {
     private func createFetchNftsForCollectionOperation(
         address: String,
         url: URL,
-        offset: Int
+        lastId: String?
     ) -> BaseOperation<AlchemyNftsResponse> {
         let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTsForCollection")
@@ -286,7 +286,7 @@ final class AlchemyNFTOperationFactory {
         urlComponents?.queryItems = [
             URLQueryItem(name: "contractAddress", value: address),
             URLQueryItem(name: "withMetadata", value: "true"),
-            URLQueryItem(name: "startToken", value: String(offset)),
+            URLQueryItem(name: "startToken", value: lastId),
             URLQueryItem(name: "limit", value: "100"),
         ]
 
@@ -380,7 +380,7 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [fetchOperation])
     }
 
-    func fetchCollectionNfts(chain: ChainModel, address: String, offset: Int) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
+    func fetchCollectionNfts(chain: ChainModel, address: String, lastId: String?) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
@@ -392,7 +392,7 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         let fetchOperation = createFetchNftsForCollectionOperation(
             address: address,
             url: url,
-            offset: offset
+            lastId: lastId
         )
 
         let mapOperation = createMapNftsOperation(dependingOn: fetchOperation, chain: chain)
