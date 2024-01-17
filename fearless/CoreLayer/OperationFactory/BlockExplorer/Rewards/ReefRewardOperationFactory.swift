@@ -28,7 +28,7 @@ final class ReefRewardOperationFactory {
     }
 
     private func prepareHistoryRequestForAddress(
-        _: String,
+        _ address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> String {
@@ -54,7 +54,8 @@ final class ReefRewardOperationFactory {
         }()
 
         return """
-                stakings(limit: 20, where: {signer: {id_eq: "5GWAqVGhnLWRz7WUykD8rCRaXff3UKWcBZ9k5VnLBBsKfo5C"}}, orderBy: timestamp_DESC) {
+        query MyQuery {
+                stakings(limit: 20, where: {signer: {id_eq: "\(address)"}}, orderBy: timestamp_DESC) {
                     type
                     amount
                     timestamp
@@ -66,6 +67,7 @@ final class ReefRewardOperationFactory {
                       data
                     }
                   }
+        }
         """
     }
 }
@@ -126,7 +128,7 @@ extension ReefRewardOperationFactory: RewardOperationFactoryProtocol {
 
         let resultFactory = AnyNetworkResultFactory<RewardOrSlashResponse> { data in
             let response = try JSONDecoder().decode(
-                GraphQLResponse<GiantsquidResponseData>.self,
+                GraphQLResponse<ReefResponseData>.self,
                 from: data
             )
 

@@ -279,7 +279,7 @@ extension ReefSubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters
             )
         } else {
-            let result = ReefResponseData(transfers: [])
+            let result = ReefResponseData(transfers: [], stakings: [])
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 

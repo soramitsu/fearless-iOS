@@ -15,14 +15,18 @@ struct ReefResponse: Decodable {
 
 struct ReefResponseData: Decodable {
     let transfers: [GiantsquidTransfer]?
+    let stakings: [GiantsquidReward]?
 
     var history: [WalletRemoteHistoryItemProtocol] {
-        transfers ?? []
+        let unwrappedTransfers = transfers ?? []
+        let unwrappedRewards = stakings ?? []
+
+        return unwrappedTransfers + unwrappedRewards
     }
 }
 
 extension ReefResponseData: RewardOrSlashResponse {
     var data: [RewardOrSlashData] {
-        []
+        stakings ?? []
     }
 }
