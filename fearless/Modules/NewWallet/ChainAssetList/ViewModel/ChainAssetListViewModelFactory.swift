@@ -585,8 +585,8 @@ private extension ChainAssetListViewModelFactory {
                 assetVisibility.assetId == chainAsset.uniqueKey(accountId: accountId)
             })?.hidden
 
-            if let manuallyHidden = manuallyHidden {
-                return manuallyHidden
+            if let manuallyHidden = manuallyHidden, manuallyHidden == true {
+                return true
             }
         }
 
