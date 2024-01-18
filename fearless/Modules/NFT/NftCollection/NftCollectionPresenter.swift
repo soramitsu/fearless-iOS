@@ -116,7 +116,7 @@ extension NftCollectionPresenter: NftCollectionViewOutput {
     }
 
     func loadNext() {
-        interactor.fetchData(lastId: collection?.availableNfts?.last?.tokenId)
+        interactor.fetchData()
     }
 }
 

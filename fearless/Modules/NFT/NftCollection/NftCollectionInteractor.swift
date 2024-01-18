@@ -6,6 +6,7 @@ final class NftCollectionInteractor {
     private weak var output: NftCollectionInteractorOutput?
     private var collection: NFTCollection
     private var isReady: Bool = false
+    private var nextTokenId: String?
 
     private let nftFetchingService: NFTFetchingServiceProtocol
 
@@ -26,7 +27,7 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
         isReady = true
 
         if !wasReady {
-            fetchData(lastId: nil)
+            fetchData()
         }
     }
 
@@ -36,7 +37,7 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
         output.didReceive(collection: collection)
     }
 
-    func fetchData(lastId: String?) {
+    func fetchData() {
         guard isReady else {
             return
         }
@@ -46,14 +47,14 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
         Task {
             do {
                 if let address = collection.address {
-                    let nfts = try await nftFetchingService.fetchCollectionNfts(
+                    let nftBatch = try await nftFetchingService.fetchCollectionNfts(
                         collectionAddress: address,
                         chain: collection.chain,
-                        lastId: lastId
+                        nextId: nextTokenId
                     )
-                    let ids = nfts.map { $0.tokenId }
-                    print(ids)
-                    let availableNfts = nfts.filter { collection.nfts?.contains($0) != true }
+                    nextTokenId = nftBatch.nextTokenId
+                    let ids = nftBatch.nfts?.compactMap { $0.tokenId }
+                    let availableNfts = nftBatch.nfts?.filter { collection.nfts?.contains($0) != true } ?? []
                     if let _ = collection.availableNfts {
                         collection.availableNfts?.append(contentsOf: availableNfts)
                     } else {
