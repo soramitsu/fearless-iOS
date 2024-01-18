@@ -13,13 +13,22 @@ struct ReefResponse: Decodable {
     let data: GiantsquidResponseData
 }
 
+struct ReefResponseStakingEdge: Decodable {
+    let node: GiantsquidReward
+}
+
+struct ReefResponseStakingConnection: Decodable {
+    let edges: [ReefResponseStakingEdge]
+    let totalCount: Int
+}
+
 struct ReefResponseData: Decodable {
     let transfers: [GiantsquidTransfer]?
-    let stakings: [GiantsquidReward]?
+    let stakingsConnection: ReefResponseStakingConnection?
 
     var history: [WalletRemoteHistoryItemProtocol] {
         let unwrappedTransfers = transfers ?? []
-        let unwrappedRewards = stakings ?? []
+        let unwrappedRewards = stakingsConnection?.edges.map { $0.node } ?? []
 
         return unwrappedTransfers + unwrappedRewards
     }
@@ -27,6 +36,6 @@ struct ReefResponseData: Decodable {
 
 extension ReefResponseData: RewardOrSlashResponse {
     var data: [RewardOrSlashData] {
-        stakings ?? []
+        stakingsConnection?.edges.map { $0.node } ?? []
     }
 }
