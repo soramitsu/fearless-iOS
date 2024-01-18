@@ -104,12 +104,19 @@ extension RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFact
         for eraValidatorService: EraValidatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<NetworkStakingInfo> {
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
+                path: maxNominatorsConstantCodingPath
             )
 
         let lockUpPeriodOperation: BaseOperation<UInt32> =

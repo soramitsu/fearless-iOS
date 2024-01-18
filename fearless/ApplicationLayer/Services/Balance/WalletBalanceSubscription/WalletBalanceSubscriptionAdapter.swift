@@ -96,6 +96,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     private let accountInfosLock = ReaderWriterLock()
     private let listenersLock = ReaderWriterLock()
+    private let chainAssetsLock = ReaderWriterLock()
 
     // MARK: - Constructor
 
@@ -473,7 +474,8 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
 
                 return dic
             }
-            self.chainAssets = chainsAssetsMap
+
+            chainAssetsLock.exclusivelyWrite { self.chainAssets = chainsAssetsMap }
             defineExpectedAccountInfosCount(wallets: metaAccounts, chainAssets: cas)
             subscribeToAccountInfo(for: metaAccounts, cas)
         }
