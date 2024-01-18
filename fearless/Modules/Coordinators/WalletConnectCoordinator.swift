@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 import WalletConnectSign
 import UIKit
 
@@ -10,9 +11,14 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         WalletConnectCoordinatorRouterImpl()
     }()
 
+    private lazy var applicationHandler: ApplicationHandler = {
+        ApplicationHandler()
+    }()
+
     override init() {
         super.init()
         walletConnect.set(listener: self)
+        applicationHandler.delegate = self
     }
 
     // MARK: - private methods
@@ -22,6 +28,21 @@ final class WalletConnectCoordinator: DefaultCoordinator {
             return
         }
         nextCoordinator.start()
+    }
+
+    private func startIfPossible(with coordinator: DefaultCoordinator) {
+        let applicationState = UIApplication.shared.applicationState
+        switch applicationState {
+        case .active:
+            addDependency(coordinator)
+            if childCoordinators.count == 1 {
+                coordinator.start()
+            }
+        case .background, .inactive:
+            addDependency(coordinator)
+        @unknown default:
+            preconditionFailure()
+        }
     }
 }
 
@@ -36,10 +57,7 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
                 self?.presentNextIfPossible()
             }
         }
-        addDependency(coordinator)
-        if childCoordinators.count == 1 {
-            coordinator.start()
-        }
+        startIfPossible(with: coordinator)
     }
 
     func session(proposal: Session.Proposal) {
@@ -50,9 +68,14 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
                 self?.presentNextIfPossible()
             }
         }
-        addDependency(coordinator)
-        if childCoordinators.count == 1 {
-            coordinator.start()
-        }
+        startIfPossible(with: coordinator)
+    }
+}
+
+// MARK: - ApplicationHandlerDelegate
+
+extension WalletConnectCoordinator: ApplicationHandlerDelegate {
+    func didReceiveDidBecomeActive(notification _: Notification) {
+        presentNextIfPossible()
     }
 }
