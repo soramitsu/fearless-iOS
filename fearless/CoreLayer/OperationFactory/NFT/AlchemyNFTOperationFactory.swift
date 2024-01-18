@@ -225,7 +225,7 @@ final class AlchemyNFTOperationFactory {
     ) -> BaseOperation<NFTBatch?> {
         ClosureOperation {
             let remoteTransactions = try remoteOperation.extractNoCancellableResultData().nfts
-            let nextTokenId = try remoteOperation.extractNoCancellableResultData().nextToken
+            let nextTokenId = try remoteOperation.extractNoCancellableResultData().nextTokenId
             let loadedNfts = remoteTransactions?.compactMap {
                 let media = $0.media?.compactMap {
                     NFTMedia(
