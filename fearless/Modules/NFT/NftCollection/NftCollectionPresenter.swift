@@ -14,6 +14,8 @@ final class NftCollectionPresenter {
     private let address: String
     private let wallet: MetaAccountModel
 
+    private var collection: NFTCollection?
+
     // MARK: - Constructors
 
     init(
@@ -114,7 +116,7 @@ extension NftCollectionPresenter: NftCollectionViewOutput {
     }
 
     func loadNext() {
-        interactor.loadNext()
+        interactor.fetchData()
     }
 }
 
@@ -122,6 +124,7 @@ extension NftCollectionPresenter: NftCollectionViewOutput {
 
 extension NftCollectionPresenter: NftCollectionInteractorOutput {
     func didReceive(collection: NFTCollection) {
+        self.collection = collection
         let viewModel = viewModelFactory.buildViewModel(from: collection, locale: selectedLocale)
         view?.didReceive(viewModel: viewModel)
     }
