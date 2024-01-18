@@ -19,6 +19,7 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func setInputAccessoryView(visible: Bool)
     func setHistoryButton(isVisible: Bool)
     func enableSendAll()
+    func switchEnableSendAllVisibility(isVisible: Bool)
 }
 
 protocol SendViewOutput: AnyObject {

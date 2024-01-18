@@ -491,6 +491,7 @@ final class SendPresenter {
                 warningHandler: { [weak self] in
                     self?.sendAllEnabled = true
                     self?.view?.enableSendAll()
+                    self?.selectAmountPercentage(1)
                 }
             )
         ]).runValidation { [weak self] in
@@ -934,8 +935,10 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
+            view?.switchEnableSendAllVisibility(isVisible: true)
             logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
+            view?.switchEnableSendAllVisibility(isVisible: false)
             logger?.error("Did receive minimum balance error: \(error)")
         }
     }

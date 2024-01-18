@@ -93,6 +93,7 @@ final class SendViewLayout: UIView {
     let sendAllContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
+        view.isHidden = true
         return view
     }()
 
@@ -168,6 +169,10 @@ final class SendViewLayout: UIView {
     func bind(viewModel: RecipientViewModel) {
         searchView.textField.text = viewModel.address
         searchView.updateState(icon: viewModel.icon, clearButtonIsHidden: !viewModel.canEditing)
+    }
+
+    func switchEnableSendAllVisibility(isVisible: Bool) {
+        sendAllContainerView.isHidden = !isVisible
     }
 }
 
