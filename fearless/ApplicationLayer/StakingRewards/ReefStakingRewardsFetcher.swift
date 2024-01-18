@@ -14,10 +14,10 @@ final class ReefStakingRewardsFetcher {
         self.chain = chain
     }
 
-    func queryString(address _: String, offset: Int) -> String {
+    func queryString(address: String, offset: Int) -> String {
         """
         query MyQuery {
-                stakingsConnection(orderBy: timestamp_DESC, where: {signer: {id_eq: "5EWMdWYnYXRsYwvxfbXdusAy7C7LvGiMqRz6QwGmLrWcSHGh"}}, first: \(Self.pageSize), after: "\(offset)") {
+                stakingsConnection(orderBy: timestamp_DESC, where: {signer: {id_eq: "\(address)"}}, first: \(Self.pageSize), after: "\(offset)") {
                     edges {
                       node {
                         id
