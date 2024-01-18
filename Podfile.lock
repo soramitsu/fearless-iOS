@@ -246,7 +246,6 @@ DEPENDENCIES:
   - CommonWallet/Core
   - Cuckoo
   - FearlessKeys
-  - FearlessKeys (~> 0.1.2)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -413,6 +412,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 0e7089e5cb0cfcb922b7ff7f9b8f0f2b3da6567a
+PODFILE CHECKSUM: 6425c739992c9a78821ba466857b8e84f7a8cb4e
 
 COCOAPODS: 1.11.3
