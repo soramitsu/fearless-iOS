@@ -24,7 +24,7 @@ final class WalletConnectCoordinator: DefaultCoordinator {
     // MARK: - private methods
 
     private func presentNextIfPossible() {
-        guard childCoordinators.isNotEmpty, let nextCoordinator = childCoordinators.first else {
+        guard childCoordinators.isNotEmpty, let nextCoordinator = childCoordinators.first, !router.isBusy else {
             return
         }
         nextCoordinator.start()
@@ -34,12 +34,14 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         let applicationState = UIApplication.shared.applicationState
         switch applicationState {
         case .active:
-            addDependency(coordinator)
-            if childCoordinators.count == 1 {
-                coordinator.start()
+            addChildCoordinator(coordinator)
+            guard !router.isBusy else {
+                return
             }
+            coordinator.start()
+
         case .background, .inactive:
-            addDependency(coordinator)
+            addChildCoordinator(coordinator)
         @unknown default:
             preconditionFailure()
         }
@@ -52,7 +54,7 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func sign(request: Request, session: Session?) {
         let coordinator = WalletConnectSessionCoordinator(router: router, request: request, session: session)
         coordinator.finishFlow = { [weak self, weak coordinator] in
-            self?.removeDependency(coordinator)
+            self?.removeChildCoordinator(coordinator)
             self?.router.dismiss { [weak self] in
                 self?.presentNextIfPossible()
             }
@@ -63,7 +65,7 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func session(proposal: Session.Proposal) {
         let coordinator = WalletConnectProposalCoordinator(router: router, proposal: proposal)
         coordinator.finishFlow = { [weak self, weak coordinator] in
-            self?.removeDependency(coordinator)
+            self?.removeChildCoordinator(coordinator)
             self?.router.dismiss { [weak self] in
                 self?.presentNextIfPossible()
             }
