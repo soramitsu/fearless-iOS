@@ -169,3 +169,8 @@ struct NFTCollection: Codable, Equatable, Hashable {
         return nfts?.first?.thumbnailURL
     }
 }
+
+struct NFTBatch: Equatable, Hashable {
+    let nfts: [NFT]?
+    let nextTokenId: String?
+}

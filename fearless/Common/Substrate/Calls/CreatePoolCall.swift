@@ -36,7 +36,7 @@ struct CreatePoolCall: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
 
-        try container.encode(amount, forKey: .amount)
+        try container.encode(StringCodable(wrappedValue: amount), forKey: .amount)
         try container.encode(root, forKey: .root)
         try container.encode(nominator, forKey: .nominator)
 

@@ -44,10 +44,10 @@ final class WalletConnectSessionCoordinator: DefaultCoordinator, CoordinatorFini
     private func presentConfirmation(inputData: WalletConnectConfirmationInputData) {
         let coordinator = WalletConnectConfirmationCoordinator(router: router, inputData: inputData)
         coordinator.finishFlow = { [weak self, weak coordinator] in
-            self?.removeDependency(coordinator)
+            self?.removeChildCoordinator(coordinator)
             self?.finishFlow?()
         }
-        addDependency(coordinator)
+        addChildCoordinator(coordinator)
         coordinator.start()
     }
 }
