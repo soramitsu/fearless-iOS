@@ -149,10 +149,17 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
+                path: maxNominatorsConstantCodingPath
             )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -261,11 +268,18 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
-            path: .maxNominatorRewardedPerValidator
+            path: maxNominatorsConstantCodingPath
         )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -340,9 +354,16 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
-            path: .maxNominatorRewardedPerValidator
+            path: maxNominatorsConstantCodingPath
         )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -525,10 +546,17 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 path: .slashDeferDuration
             )
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
+                path: maxNominatorsConstantCodingPath
             )
 
         slashDeferOperation.addDependency(runtimeOperation)

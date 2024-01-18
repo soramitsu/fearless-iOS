@@ -249,8 +249,15 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         fetchConstant(
-            for: .maxNominatorRewardedPerValidator,
+            for: maxNominatorsConstantCodingPath,
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] result in
