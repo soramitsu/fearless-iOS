@@ -170,6 +170,12 @@ final class SendViewLayout: UIView {
         searchView.textField.text = viewModel.address
         searchView.updateState(icon: viewModel.icon, clearButtonIsHidden: !viewModel.canEditing)
     }
+
+    func switchEnableSendAllVisibility(isVisible: Bool) {
+//        Temporary always hide until complete changes
+//        sendAllContainerView.isHidden = !isVisible
+        sendAllContainerView.isHidden = true
+    }
 }
 
 private extension SendViewLayout {
