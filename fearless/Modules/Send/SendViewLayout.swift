@@ -172,7 +172,9 @@ final class SendViewLayout: UIView {
     }
 
     func switchEnableSendAllVisibility(isVisible: Bool) {
-        sendAllContainerView.isHidden = !isVisible
+//        Temporary always hide until complete changes
+//        sendAllContainerView.isHidden = !isVisible
+        sendAllContainerView.isHidden = true
     }
 }
 
