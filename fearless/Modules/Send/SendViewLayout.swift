@@ -93,6 +93,7 @@ final class SendViewLayout: UIView {
     let sendAllContainerView: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
+        view.isHidden = true
         return view
     }()
 

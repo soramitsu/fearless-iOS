@@ -32,7 +32,11 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         return label
     }()
 
-    let imageView = UIImageView()
+    let imageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
 
     let actionButton: TriangularedButton = {
         let button = UIFactory.default.createMainActionButton()
@@ -101,20 +105,21 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         addSubview(titleLabel)
         titleLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(UIConstants.hugeOffset)
+            make.top.equalToSuperview().offset(16)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalTo(imageView.snp.leading).inset(16)
         }
 
         addSubview(subtitleLabel)
         subtitleLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalTo(titleLabel.snp.trailing).offset(UIConstants.hugeOffset)
+            make.trailing.equalTo(imageView.snp.leading).inset(16)
         }
 
         addSubview(actionButton)
         actionButton.snp.makeConstraints { make in
-            make.top.greaterThanOrEqualTo(subtitleLabel.snp.bottom).offset(UIConstants.offset12)
+            make.top.greaterThanOrEqualTo(subtitleLabel.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.height.equalTo(32)
