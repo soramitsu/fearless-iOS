@@ -1255,3 +1255,4 @@ In case the wait longer than 72h contact us via %@";
 "nft.share.address" = "My public address to receive: %s";
 "nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";
 "send.all.title" = "Send all tokens and reap the account";
+"common.existential.warning.max.amount" = "Set max amount";

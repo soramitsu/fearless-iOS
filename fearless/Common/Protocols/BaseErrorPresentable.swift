@@ -71,7 +71,8 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
     func presentExistentialDepositWarning(
         existentianDepositValue: String,
         from view: ControllerBackedProtocol,
-        action: @escaping () -> Void,
+        proceedAction: @escaping () -> Void,
+        setMaxAction: @escaping () -> Void,
         locale: Locale?
     ) {
         let title = R.string.localizable
@@ -79,13 +80,34 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let message = R.string.localizable
             .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
 
-        presentWarning(
-            for: title,
+        let proceedAction = SheetAlertPresentableAction(title: title, style: .pinkBackgroundWhiteText) {
+            proceedAction()
+        }
+        let setMaxTitle = "Set max amount"
+        let sendMaxAction = SheetAlertPresentableAction(title: setMaxTitle, style: .grayBackgroundWhiteText) {
+            setMaxAction()
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: title,
             message: message,
-            action: action,
-            view: view,
-            locale: locale
+            actions: [proceedAction, sendMaxAction],
+            closeAction: "Cancel",
+            icon: R.image.iconWarningBig()
         )
+
+        present(
+            viewModel: viewModel,
+            from: view
+        )
+
+//        presentWarning(
+//            for: title,
+//            message: message,
+//            action: action,
+//            view: view,
+//            locale: locale
+//        )
     }
 
     func presentExistentialDepositError(
