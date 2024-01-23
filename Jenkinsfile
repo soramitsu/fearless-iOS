@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/DOPS-2962/upload-fearless-ios-to-nexus') _
 
 // Job properties
 def jobParams = [
