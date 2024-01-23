@@ -137,6 +137,8 @@ enum StorageCodingPath: Equatable, CaseIterable {
             return (moduleName: "Assets", itemName: "Account")
         case .assetsAssetDetail:
             return (moduleName: "Assets", itemName: "Asset")
+        case .vestingSchedule:
+            return (moduleName: "Vesting", itemName: "VestingSchedules")
         }
     }
 
@@ -203,4 +205,5 @@ enum StorageCodingPath: Equatable, CaseIterable {
     case eqOraclePricePoint
     case assetsAccount
     case assetsAssetDetail
+    case vestingSchedule
 }
