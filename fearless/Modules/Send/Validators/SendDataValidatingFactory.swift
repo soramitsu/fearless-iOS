@@ -178,6 +178,7 @@ class SendDataValidatingFactory: NSObject {
 
             self?.basePresentable.presentSoraBridgeLowAmountError(
                 from: view,
+                originChainId: originCHainId,
                 locale: locale
             )
         }, preservesCondition: {
@@ -190,6 +191,8 @@ class SendDataValidatingFactory: NSObject {
             switch (originKnownChain, destKnownChain) {
             case (.kusama, .soraMain):
                 return amount >= 0.05
+            case (.polkadot, .soraMain):
+                return amount >= 1
             default:
                 return true
             }
@@ -208,7 +211,8 @@ class SendDataValidatingFactory: NSObject {
                 return
             }
             let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
-            let message = R.string.localizable.soraBridgeAmountLessFee(preferredLanguages: locale.rLanguages)
+            let originKnownChain = Chain(chainId: originCHainId)?.rawValue ?? ""
+            let message = R.string.localizable.soraBridgeAmountLessFee(originKnownChain, preferredLanguages: locale.rLanguages)
             self?.basePresentable.presentWarning(
                 for: title,
                 message: message,
@@ -225,6 +229,8 @@ class SendDataValidatingFactory: NSObject {
 
             switch (originKnownChain, destKnownChain) {
             case (.soraMain, .kusama):
+                return amount > fee
+            case (.soraMain, .polkadot):
                 return amount > fee
             default:
                 return true

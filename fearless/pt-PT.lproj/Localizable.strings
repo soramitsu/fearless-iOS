@@ -1246,3 +1246,4 @@ Mantenha, faça STAKE ou forneça liquidez de um valor mínimo de XOR equivalent
 "verify.phone.number.send.code" = "ENVIAR CÓDIGO";
 "verify.phone.number.title" = "Verificar o seu número de telefone";
 "send.all.title" = "Send all tokens and reap the account";
+"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1 DOT for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
