@@ -631,8 +631,9 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         validatorsStakingInfoWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
         let chainFormat = chain.chainFormat
-
+        let precision = asset.precision
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
+            let eraStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()
             let slashes = try slashesWrapper.targetOperation.extractNoCancellableResultData()
             let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
@@ -641,12 +642,14 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
             return try nomination.targets.enumerated().map { index, accountId in
                 let address = try AddressFactory.address(for: accountId, chainFormat: chainFormat)
-
+                let comission = eraStakers.validators.first(where: { $0.accountId == accountId })?.prefs.commission ?? .zero
+                let comissionDecimal = Decimal.fromSubstratePerbill(value: comission) ?? .zero
                 return SelectedValidatorInfo(
                     address: address,
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
                     myNomination: statuses[index],
+                    commission: comissionDecimal,
                     hasSlashes: slashes[accountId] == true
                 )
             }
