@@ -171,7 +171,7 @@ final class SendViewLayout: UIView {
         searchView.updateState(icon: viewModel.icon, clearButtonIsHidden: !viewModel.canEditing)
     }
 
-    func switchEnableSendAllVisibility(isVisible: Bool) {
+    func switchEnableSendAllVisibility(isVisible _: Bool) {
 //        Temporary always hide until complete changes
 //        sendAllContainerView.isHidden = !isVisible
         sendAllContainerView.isHidden = true

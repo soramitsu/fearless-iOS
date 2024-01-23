@@ -22,6 +22,12 @@ protocol CrowdloanOperationFactoryProtocol {
         runtimeService: RuntimeCodingServiceProtocol,
         paraIds: [ParaId]
     ) -> CompoundOperationWrapper<[ParachainLeaseInfo]>
+
+    func fetchVestingScheduleOperation(
+        connection: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        accountId: AccountId
+    ) -> CompoundOperationWrapper<VestingSchedule?>
 }
 
 final class CrowdloanOperationFactory {
@@ -209,6 +215,37 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
 
         return CompoundOperationWrapper(
             targetOperation: mapOperation,
+            dependencies: [coderFactoryOperation] + queryWrapper.allOperations
+        )
+    }
+
+    func fetchVestingScheduleOperation(
+        connection: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        accountId: AccountId
+    ) -> CompoundOperationWrapper<VestingSchedule?> {
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let storageKeyParam: () throws -> [Data] = { [accountId] }
+
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<VestingSchedule>]> = requestOperationFactory.queryItems(
+            engine: connection,
+            keys: storageKeyParam,
+            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
+            storagePath: .vestingSchedule
+        )
+
+        queryWrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        let mappingOperation = ClosureOperation<VestingSchedule?> {
+            let result = try queryWrapper.targetOperation.extractNoCancellableResultData()
+            return result.first?.value
+        }
+
+        mappingOperation.addDependency(queryWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mappingOperation,
             dependencies: [coderFactoryOperation] + queryWrapper.allOperations
         )
     }
