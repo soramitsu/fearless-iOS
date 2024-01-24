@@ -69,5 +69,5 @@ struct AlchemyOwnedNftsResponse: Decodable {
 
 struct AlchemyNftsResponse: Decodable {
     let nfts: [AlchemyNftInfo]?
-    let nextToken: String
+    let nextToken: String?
 }
