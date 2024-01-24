@@ -125,14 +125,7 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
         }
     }
 
-    func didTapCopyOwner() {
-        router.presentStatus(
-            with: CommonCopiedEvent(locale: selectedLocale),
-            animated: true
-        )
-    }
-
-    func didTapCopyTokenId() {
+    func didTapCopy() {
         router.presentStatus(
             with: CommonCopiedEvent(locale: selectedLocale),
             animated: true

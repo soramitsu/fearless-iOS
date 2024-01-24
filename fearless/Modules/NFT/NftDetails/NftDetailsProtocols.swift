@@ -9,8 +9,7 @@ protocol NftDetailsViewOutput: AnyObject {
     func didBackButtonTapped()
     func didTapSendButton()
     func didTapShareButton()
-    func didTapCopyOwner()
-    func didTapCopyTokenId()
+    func didTapCopy()
 }
 
 protocol NftDetailsInteractorInput: AnyObject {
