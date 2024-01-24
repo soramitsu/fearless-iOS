@@ -288,7 +288,7 @@ final class CrossChainPresenter {
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
             originCHainId: selectedOriginChainModel.chainId,
             destChainId: selectedDestChainModel?.chainId,
-            amount: sendAmount,
+            amount: inputAmountDecimal,
             locale: selectedLocale
         )
 
