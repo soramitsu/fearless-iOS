@@ -88,6 +88,7 @@ final class WalletMainContainerAssembly {
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
+            nftModuleInput: nftModule.input,
             wallet: wallet,
             viewModelFactory: WalletMainContainerViewModelFactory(),
             interactor: interactor,

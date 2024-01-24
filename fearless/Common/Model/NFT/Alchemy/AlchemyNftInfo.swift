@@ -63,6 +63,10 @@ struct AlchemyNftInfo: Decodable {
     }
 }
 
-struct AlchemyNftsResponse: Decodable {
+struct AlchemyOwnedNftsResponse: Decodable {
     let ownedNfts: [AlchemyNftInfo]?
+}
+
+struct AlchemyNftsResponse: Decodable {
+    let nfts: [AlchemyNftInfo]?
 }

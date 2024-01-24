@@ -2,5 +2,8 @@ import Foundation
 
 struct NftCollectionViewModel {
     let collectionName: String?
-    let cellModels: [NftCollectionCellViewModel]
+    let collectionImage: ImageViewModelProtocol?
+    let collectionDescription: String?
+    let ownedCellModels: [NftCellViewModel]
+    let availableCellModels: [NftCellViewModel]
 }

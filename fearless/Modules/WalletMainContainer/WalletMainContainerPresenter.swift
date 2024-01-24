@@ -8,6 +8,7 @@ final class WalletMainContainerPresenter {
 
     private weak var balanceInfoModuleInput: BalanceInfoModuleInput?
     private weak var assetListModuleInput: ChainAssetListModuleInput?
+    private weak var nftModuleInput: MainNftContainerModuleInput?
     private weak var view: WalletMainContainerViewInput?
     private let router: WalletMainContainerRouterInput
     private let interactor: WalletMainContainerInteractorInput
@@ -28,6 +29,7 @@ final class WalletMainContainerPresenter {
     init(
         balanceInfoModuleInput: BalanceInfoModuleInput?,
         assetListModuleInput: ChainAssetListModuleInput?,
+        nftModuleInput: MainNftContainerModuleInput?,
         wallet: MetaAccountModel,
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
@@ -36,6 +38,7 @@ final class WalletMainContainerPresenter {
     ) {
         self.balanceInfoModuleInput = balanceInfoModuleInput
         self.assetListModuleInput = assetListModuleInput
+        self.nftModuleInput = nftModuleInput
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
@@ -163,6 +166,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         }
 
         assetListModuleInput?.updateChainAssets(using: filters, sorts: [])
+        nftModuleInput?.didSelect(chains: selectedChains)
 
         onceLoaded = true
     }

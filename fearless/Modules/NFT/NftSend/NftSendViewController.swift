@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 final class NftSendViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = NftSendViewLayout
@@ -51,6 +52,16 @@ final class NftSendViewController: UIViewController, ViewHolder, HiddableBarWhen
         }
 
         rootView.searchView.textField.delegate = self
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupKeyboardHandler()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -124,4 +135,14 @@ extension NftSendViewController: UITextFieldDelegate {
     func textFieldDidEndEditing(_: UITextField) {
         rootView.searchView.set(highlighted: false, animated: false)
     }
+}
+
+extension NftSendViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
+    }
+
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }

@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFNetwork
+import SoraKeystore
 
 final class MainNftContainerAssembly {
     static func configureModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {
@@ -14,14 +15,24 @@ final class MainNftContainerAssembly {
         let nftFetchingService = AlchemyNftFetchingService(
             operationFactory: AlchemyNFTOperationFactory(),
             chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationQueue()
+            operationQueue: OperationQueue(),
+            logger: Logger.shared
         )
+
+        let filters = [FilterSet(
+            title: String(),
+            items: NftCollectionFilter.defaultFilters()
+        )]
+
+        let stateHolder = MainNftContainerStateHolder(filters: filters)
 
         let interactor = MainNftContainerInteractor(
             nftFetchingService: nftFetchingService,
             logger: Logger.shared,
             wallet: wallet,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            stateHolder: stateHolder,
+            userDefaultsStorage: SettingsManager.shared
         )
         let router = MainNftContainerRouter()
 
@@ -31,7 +42,8 @@ final class MainNftContainerAssembly {
             localizationManager: localizationManager,
             viewModelFactory: NftListViewModelFactory(),
             wallet: wallet,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            stateHolder: stateHolder
         )
 
         let view = MainNftContainerViewController(
