@@ -54,7 +54,7 @@ final class NftDetailsViewController: UIViewController, ViewHolder, HiddableBarW
             self?.output.didTapCopy()
         }
 
-        rootView.ownerView.onCopy = { [weak self] in
+        rootView.creatorView.onCopy = { [weak self] in
             self?.output.didTapCopy()
         }
     }
