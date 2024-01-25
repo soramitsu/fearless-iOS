@@ -1,5 +1,4 @@
 @Library('jenkins-library') _
-
 // Job properties
 def jobParams = [
   booleanParam(defaultValue: false, description: 'push to the dev profile', name: 'prDeployment'),
