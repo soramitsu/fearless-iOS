@@ -174,7 +174,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         switch originKnownChain {
         case .kusama:
             message = R.string.localizable.soraBridgeLowAmountAlert(preferredLanguages: locale.rLanguages)
-        case .polkadot:
+        case .polkadot, .soraMain:
             message = R.string.localizable.soraBridgeLowAmauntPolkadotAlert(preferredLanguages: locale.rLanguages)
         default:
             message = nil

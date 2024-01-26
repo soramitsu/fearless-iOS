@@ -191,8 +191,8 @@ class SendDataValidatingFactory: NSObject {
             switch (originKnownChain, destKnownChain) {
             case (.kusama, .soraMain):
                 return amount >= 0.05
-            case (.polkadot, .soraMain):
-                return amount >= 1
+            case (.polkadot, .soraMain), (.soraMain, .polkadot):
+                return amount >= 1.1
             default:
                 return true
             }
