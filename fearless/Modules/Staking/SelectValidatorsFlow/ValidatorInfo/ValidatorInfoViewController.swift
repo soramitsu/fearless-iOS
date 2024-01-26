@@ -91,6 +91,11 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
                 ),
                 value: exposure.estimatedReward
             )
+
+            rootView.addTitleValueView(
+                for: R.string.localizable.validatorInfoComissionTitle(preferredLanguages: selectedLocale.rLanguages),
+                value: exposure.comission
+            )
         }
 
         if case let .electedParachain(exposure) = viewModel.staking.status {
