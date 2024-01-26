@@ -5,9 +5,11 @@ final class ClaimCrowdloanRewardsViewController: UIViewController, ViewHolder {
     typealias RootViewType = ClaimCrowdloanRewardsViewLayout
 
     // MARK: Private properties
+
     private let output: ClaimCrowdloanRewardsViewOutput
 
     // MARK: - Constructor
+
     init(
         output: ClaimCrowdloanRewardsViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class ClaimCrowdloanRewardsViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = ClaimCrowdloanRewardsViewLayout()
     }
@@ -30,15 +33,47 @@ final class ClaimCrowdloanRewardsViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        setupActions()
     }
-    
+
     // MARK: - Private methods
+
+    private func setupActions() {
+        rootView.navigationBar.backButton.addAction { [weak self] in
+            self?.output.backButtonClicked()
+        }
+        rootView.networkFeeFooterView.actionButton.addAction { [weak self] in
+            self?.output.confirmButtonClicked()
+        }
+    }
 }
 
 // MARK: - ClaimCrowdloanRewardsViewInput
-extension ClaimCrowdloanRewardsViewController: ClaimCrowdloanRewardsViewInput {}
+
+extension ClaimCrowdloanRewardsViewController: ClaimCrowdloanRewardsViewInput {
+    func didReceiveViewModel(_ viewModel: ClaimCrowdloanRewardsViewModel) {
+        rootView.claimableRewardsView.bindBalance(viewModel: viewModel.claimableRewardsViewModel)
+        rootView.totalRewardsView.bindBalance(viewModel: viewModel.totalRewardsViewModel)
+        rootView.lockedRewardsView.bindBalance(viewModel: viewModel.lockedRewardsViewModel)
+    }
+
+    func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?) {
+        rootView.feeView.bindBalance(viewModel: feeViewModel)
+    }
+
+    func didReceiveStakeAmountViewModel(_ stakeAmountViewModel: LocalizableResource<StakeAmountViewModel>) {
+        rootView.stakeAmountView.bind(viewModel: stakeAmountViewModel.value(for: selectedLocale))
+    }
+
+    func didReceiveHintViewModel(_ hintViewModel: TitleIconViewModel?) {
+        rootView.bind(hintViewModel: hintViewModel)
+    }
+}
 
 // MARK: - Localizable
+
 extension ClaimCrowdloanRewardsViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

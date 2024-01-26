@@ -3,6 +3,7 @@ import RobinHood
 import SSFUtils
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 protocol CrowdloanOperationFactoryProtocol {
     func fetchCrowdloansOperation(
@@ -24,19 +25,24 @@ protocol CrowdloanOperationFactoryProtocol {
     ) -> CompoundOperationWrapper<[ParachainLeaseInfo]>
 
     func fetchVestingScheduleOperation(
-        connection: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) -> CompoundOperationWrapper<VestingSchedule?>
 }
 
 final class CrowdloanOperationFactory {
-    let operationManager: OperationManagerProtocol
-    let requestOperationFactory: StorageRequestFactoryProtocol
+    private let operationManager: OperationManagerProtocol
+    private let requestOperationFactory: StorageRequestFactoryProtocol
+    private let chainRegistry: ChainRegistryProtocol
 
-    init(requestOperationFactory: StorageRequestFactoryProtocol, operationManager: OperationManagerProtocol) {
+    init(
+        requestOperationFactory: StorageRequestFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        chainRegistry: ChainRegistryProtocol
+    ) {
         self.requestOperationFactory = requestOperationFactory
         self.operationManager = operationManager
+        self.chainRegistry = chainRegistry
     }
 }
 
@@ -220,17 +226,24 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
     }
 
     func fetchVestingScheduleOperation(
-        connection: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) -> CompoundOperationWrapper<VestingSchedule?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let storageKeyParam: () throws -> [Data] = { [accountId] }
 
-        let queryWrapper: CompoundOperationWrapper<[StorageResponse<VestingSchedule>]> = requestOperationFactory.queryItems(
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<[VestingSchedule]>]> = requestOperationFactory.queryItems(
             engine: connection,
-            keys: storageKeyParam,
+            keyParams: storageKeyParam,
             factory: { try coderFactoryOperation.extractNoCancellableResultData() },
             storagePath: .vestingSchedule
         )
@@ -239,7 +252,7 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
 
         let mappingOperation = ClosureOperation<VestingSchedule?> {
             let result = try queryWrapper.targetOperation.extractNoCancellableResultData()
-            return result.first?.value
+            return result.first?.value?.first
         }
 
         mappingOperation.addDependency(queryWrapper.targetOperation)

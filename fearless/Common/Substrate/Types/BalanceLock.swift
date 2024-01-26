@@ -22,6 +22,12 @@ struct BalanceLock: Codable, Equatable {
     }
 }
 
+extension BalanceLock: LockProtocol {
+    var lockType: String? {
+        displayId
+    }
+}
+
 enum LockReason: String, Codable {
     case fee = "Fee"
     case misc = "Misc"

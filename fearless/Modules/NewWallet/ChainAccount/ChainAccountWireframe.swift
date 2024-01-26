@@ -246,6 +246,18 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         )
         view?.controller.present(balanceLocksController, animated: true)
     }
+
+    func showClaimCrowdloanRewardsFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let module = ClaimCrowdloanRewardsAssembly.configureModule(wallet: wallet, chainAsset: chainAsset) else {
+            return
+        }
+
+        view?.controller.navigationController?.present(module.view.controller, animated: true)
+    }
 }
 
 private extension ChainAccountWireframe {

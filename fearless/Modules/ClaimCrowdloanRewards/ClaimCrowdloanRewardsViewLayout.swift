@@ -1,10 +1,9 @@
 import UIKit
 
 final class ClaimCrowdloanRewardsViewLayout: UIView {
-
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
-        bar.set(.push)
+        bar.set(.present)
         bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
         bar.backgroundColor = R.color.colorBlack19()
@@ -18,7 +17,7 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
-    
+
     let totalRewardsView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
@@ -35,6 +34,19 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
     }()
 
     let claimableRewardsView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
+
+    let lockedRewardsView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
@@ -73,8 +85,10 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
 
         return view
     }()
-    
+
     let infoStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
+    let hintView = IconDetailsView()
 
     var locale = Locale.current {
         didSet {
@@ -83,19 +97,38 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
             }
         }
     }
-    
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupLayout()
+
+        backgroundColor = R.color.colorBlack19()
+        contentView.backgroundColor = R.color.colorBlack19()
+        navigationBar.backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        navigationBar.backButton.rounded()
+    }
+
+    func bind(hintViewModel: TitleIconViewModel?) {
+        hintView.iconWidth = UIConstants.iconSize
+        hintView.detailsLabel.text = hintViewModel?.title
+        hintView.imageView.image = hintViewModel?.icon
+    }
+
     private func setupLayout() {
         addSubview(contentView)
         addSubview(navigationBar)
+        addSubview(networkFeeFooterView)
+        addSubview(hintView)
 
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
@@ -103,24 +136,32 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalToSuperview()
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
         contentView.stackView.addArrangedSubview(infoBackground)
-
+        infoBackground.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        }
         infoBackground.addSubview(infoStackView)
         infoStackView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.accessoryItemsSpacing)
-            make.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
         infoStackView.addArrangedSubview(totalRewardsView)
+        infoStackView.addArrangedSubview(lockedRewardsView)
         infoStackView.addArrangedSubview(claimableRewardsView)
         infoStackView.addArrangedSubview(feeView)
 
         totalRewardsView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        lockedRewardsView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
@@ -134,15 +175,28 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
+
+        hintView.snp.makeConstraints { make in
+            make.top.equalTo(contentView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+        }
+
+        networkFeeFooterView.snp.makeConstraints { make in
+            make.leading.bottom.trailing.equalToSuperview()
+            make.top.equalTo(hintView.snp.bottom).offset(16)
+        }
     }
 
     private func applyLocalization() {
         totalRewardsView.titleLabel.text = R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)
-        claimableRewardsView.titleLabel.text = R.string.localizable.stakingPendingRewards(preferredLanguages: locale.rLanguages)
+        lockedRewardsView.titleLabel.text = R.string.localizable.walletBalanceLocked(preferredLanguages: locale.rLanguages)
+        claimableRewardsView.titleLabel.text = R.string.localizable.poolClaimableTitle(preferredLanguages: locale.rLanguages)
+
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(
             preferredLanguages: locale.rLanguages
         )
-    
+        networkFeeFooterView.locale = locale
+
         navigationBar.setTitle(R.string.localizable.poolStakingManagementClaimTitle(preferredLanguages: locale.rLanguages))
         setNeedsLayout()
     }

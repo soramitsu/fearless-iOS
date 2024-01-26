@@ -134,6 +134,11 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
+    func showClaimCrowdloanRewardsFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol ChainAccountModuleInput: AnyObject {}

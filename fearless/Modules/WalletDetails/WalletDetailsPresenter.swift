@@ -116,6 +116,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             else { return }
             let action = items[selectedIndex]
             switch action {
+            case .claimCrowdloanRewards:
+                break
             case .export:
                 self.wireframe.showExport(
                     flow: .single(chain: chainAccount.chain, address: address, wallet: self.flow.wallet),

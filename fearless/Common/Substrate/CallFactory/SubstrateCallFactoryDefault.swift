@@ -762,4 +762,22 @@ extension SubstrateCallFactoryDefault {
 
         return setPayee(for: arg)
     }
+
+    func vestingClaim() throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            throw SubstrateCallFactoryError.metadataUnavailable
+        }
+        let claimPath: SubstrateCallPath = .vestingClaim
+        let vestPath: SubstrateCallPath = .vestingVest
+        let claimExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == claimPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == claimPath.callName.lowercased() }) != nil
+
+        let path: SubstrateCallPath = claimExists ? claimPath : vestPath
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName
+        )
+    }
 }
