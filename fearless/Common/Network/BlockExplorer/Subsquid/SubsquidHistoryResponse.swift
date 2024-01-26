@@ -20,11 +20,13 @@ struct SubsquidHistoryElement: Decodable, RewardOrSlashData {
         case reward
         case extrinsic
         case transfer
+        case extrinsicHash
     }
 
     let identifier: String
     let timestamp: String
     let address: String
+    let extrinsicHash: String?
     let reward: SubsquidRewardOrSlash?
     let extrinsic: SubsquidExtrinsic?
     let transfer: SubsquidTransfer?
