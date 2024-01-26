@@ -675,7 +675,11 @@ extension SubstrateCallFactoryDefault {
 
                 let accountId = try AddressFactory.accountId(from: accountAddress, chain: chainAsset.chain)
 
-                return .account(accountId)
+                guard let chainStakingSettings = chainAsset.chain.stakingSettings else {
+                    return .account(accountId)
+                }
+
+                return chainStakingSettings.rewardDestinationArg(accountId: accountId)
             }
         }()
 
