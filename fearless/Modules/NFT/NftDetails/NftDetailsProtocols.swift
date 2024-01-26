@@ -7,9 +7,9 @@ protocol NftDetailsViewInput: ControllerBackedProtocol {
 protocol NftDetailsViewOutput: AnyObject {
     func didLoad(view: NftDetailsViewInput)
     func didBackButtonTapped()
-    func didActionButtonTapped()
-    func didTapCopyOwner()
-    func didTapCopyTokenId()
+    func didTapSendButton()
+    func didTapShareButton()
+    func didTapCopy()
 }
 
 protocol NftDetailsInteractorInput: AnyObject {
