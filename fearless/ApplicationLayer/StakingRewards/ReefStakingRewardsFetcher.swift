@@ -45,7 +45,7 @@ final class ReefStakingRewardsFetcher {
 
         let request = try StakingRewardsRequest(
             baseURL: blockExplorer.url,
-            query: queryString(address: address, offset: rewards.count + 1)
+            query: queryString(address: address, offset: max(1, rewards.count))
         )
         let worker = NetworkWorker()
         let response: GraphQLResponse<ReefResponseData> = try await worker.performRequest(with: request)
@@ -56,7 +56,7 @@ final class ReefStakingRewardsFetcher {
             let isLastPage = (data.stakingsConnection?.totalCount).or(rewards.count) <= updatedRewards.count
 
             return ReefStakingPageReponse(
-                result: updatedRewards,
+                result: data.data,
                 isLastPage: isLastPage
             )
         case let .errors(error):
