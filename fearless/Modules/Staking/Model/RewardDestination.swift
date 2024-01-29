@@ -18,6 +18,8 @@ extension RewardDestination: Equatable where A == AccountAddress {
         case let .account(accountId):
             let address = try accountId.toAddress(using: chainFormat)
             self = .payout(account: address)
+        case let .address(address):
+            self = .payout(account: address)
         }
     }
 
@@ -32,6 +34,8 @@ extension RewardDestination: Equatable where A == AccountAddress {
             self = .payout(account: stashItem.controller)
         case let .account(accountId):
             let address = try accountId.toAddress(using: ChainFormat.substrate(42))
+            self = .payout(account: address)
+        case let .address(address):
             self = .payout(account: address)
         }
     }
