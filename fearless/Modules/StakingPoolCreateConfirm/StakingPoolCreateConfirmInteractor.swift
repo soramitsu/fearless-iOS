@@ -53,14 +53,14 @@ final class StakingPoolCreateConfirmInteractor {
             return nil
         }
 
-        let createPool = callFactory.createPool(
+        let createPool = try? callFactory.createPool(
             amount: substrateAmountValue,
             root: .accoundId(rootAccount),
             nominator: .accoundId(nominationAccount),
             bouncer: .accoundId(bouncerAccount)
         )
 
-        return createPool.callName
+        return createPool?.callName
     }
 
     private var feeBuilderClosure: ExtrinsicBuilderClosure? {
@@ -79,20 +79,24 @@ final class StakingPoolCreateConfirmInteractor {
             return nil
         }
 
-        let createPool = callFactory.createPool(
-            amount: substrateAmountValue,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(nominationAccount),
-            bouncer: .accoundId(bouncerAccount)
-        )
+        return { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        let setMetadataCall = callFactory.setPoolMetadata(
-            poolId: "\(createData.poolId)",
-            metadata: metadata
-        )
+            let createPool = try strongSelf.callFactory.createPool(
+                amount: substrateAmountValue,
+                root: .accoundId(rootAccount),
+                nominator: .accoundId(nominationAccount),
+                bouncer: .accoundId(bouncerAccount)
+            )
 
-        return { builder in
-            try builder.adding(call: createPool).adding(call: setMetadataCall)
+            let setMetadataCall = strongSelf.callFactory.setPoolMetadata(
+                poolId: "\(strongSelf.createData.poolId)",
+                metadata: metadata
+            )
+
+            return try builder.adding(call: createPool).adding(call: setMetadataCall)
         }
     }
 

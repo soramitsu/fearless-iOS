@@ -158,7 +158,7 @@ struct StakingRewardDestSetupViewFactory {
             validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRewardDestSetupInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),

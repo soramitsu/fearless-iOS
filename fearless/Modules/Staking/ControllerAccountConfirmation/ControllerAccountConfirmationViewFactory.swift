@@ -114,7 +114,7 @@ struct ControllerAccountConfirmationViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return ControllerAccountConfirmationInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(

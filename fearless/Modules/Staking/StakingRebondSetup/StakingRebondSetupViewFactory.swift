@@ -114,7 +114,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRebondSetupInteractor(
             priceLocalSubscriber: priceLocalSubscriber,

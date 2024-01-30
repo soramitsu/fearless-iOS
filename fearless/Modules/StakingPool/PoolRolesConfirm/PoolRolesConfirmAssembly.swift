@@ -55,7 +55,7 @@ final class PoolRolesConfirmAssembly {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         let interactor = PoolRolesConfirmInteractor(
             extrinsicService: extrinsicService,

@@ -131,7 +131,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
         let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case .relaychain:
