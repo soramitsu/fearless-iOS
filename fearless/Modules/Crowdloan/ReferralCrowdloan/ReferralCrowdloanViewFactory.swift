@@ -55,7 +55,10 @@ struct ReferralCrowdloanViewFactory {
         existingService: CrowdloanBonusServiceProtocol?,
         state: CrowdloanSharedState
     ) -> ReferralCrowdloanViewProtocol? {
-        guard let paraId = ParaId(displayInfo.paraid) else {
+        guard let paraId = ParaId(displayInfo.paraid),
+              let chainId = state.settings.value?.chainId,
+              let runtimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: chainId)
+        else {
             return nil
         }
 
@@ -66,7 +69,7 @@ struct ReferralCrowdloanViewFactory {
                 return BifrostBonusService(
                     paraId: paraId,
                     operationManager: OperationManagerFacade.sharedManager,
-                    callFactory: SubstrateCallFactoryAssembly.createCallFactory(for: .v9370)
+                    callFactory: SubstrateCallFactoryDefault(runtimeService: runtimeService)
                 )
             }
         }()

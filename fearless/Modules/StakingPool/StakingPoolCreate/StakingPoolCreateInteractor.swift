@@ -60,14 +60,14 @@ final class StakingPoolCreateInteractor {
             return nil
         }
 
-        let createPool = callFactory.createPool(
+        let createPool = try? callFactory.createPool(
             amount: amount,
             root: .accoundId(rootAccount),
             nominator: .accoundId(rootAccount),
             bouncer: .accoundId(rootAccount)
         )
 
-        return createPool.callName
+        return createPool?.callName
     }
 
     private var builderClosure: ExtrinsicBuilderClosure? {
@@ -82,15 +82,19 @@ final class StakingPoolCreateInteractor {
             return nil
         }
 
-        let joinPool = callFactory.createPool(
-            amount: amount,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(rootAccount),
-            bouncer: .accoundId(rootAccount)
-        )
+        return { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        return { builder in
-            try builder.adding(call: joinPool)
+            let joinPool = try strongSelf.callFactory.createPool(
+                amount: amount,
+                root: .accoundId(rootAccount),
+                nominator: .accoundId(rootAccount),
+                bouncer: .accoundId(rootAccount)
+            )
+
+            return try builder.adding(call: joinPool)
         }
     }
 
@@ -167,20 +171,24 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
             return
         }
 
-        let joinPool = callFactory.createPool(
-            amount: amount,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(rootAccount),
-            bouncer: .accoundId(rootAccount)
-        )
+        let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        let setMetadataCall = callFactory.setPoolMetadata(
-            poolId: "\(poolId)",
-            metadata: metadata
-        )
+            let joinPool = try strongSelf.callFactory.createPool(
+                amount: amount,
+                root: .accoundId(rootAccount),
+                nominator: .accoundId(rootAccount),
+                bouncer: .accoundId(rootAccount)
+            )
 
-        let builderClosure: ExtrinsicBuilderClosure = { builder in
-            try builder.adding(call: joinPool).adding(call: setMetadataCall)
+            let setMetadataCall = strongSelf.callFactory.setPoolMetadata(
+                poolId: "\(poolId)",
+                metadata: metadata
+            )
+
+            return try builder.adding(call: joinPool).adding(call: setMetadataCall)
         }
 
         let reuseIdentifier = poolName + String(amount)

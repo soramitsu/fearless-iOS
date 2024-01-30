@@ -65,7 +65,7 @@ final class StakingPoolJoinConfigAssembly {
             chainId: chainAsset.chain.chainId
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         let interactor = StakingPoolJoinConfigInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,

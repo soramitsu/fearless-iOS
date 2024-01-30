@@ -114,7 +114,7 @@ struct StakingRewardDestConfirmViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRewardDestConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
