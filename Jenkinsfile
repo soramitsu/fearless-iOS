@@ -1,4 +1,4 @@
-@Library('jenkins-library@fix/DOPS-2767/bug-for-fisrt-pr-build-skipping-changelog') _
+@Library('jenkins-library') _
 
 // Job properties
 def jobParams = [
