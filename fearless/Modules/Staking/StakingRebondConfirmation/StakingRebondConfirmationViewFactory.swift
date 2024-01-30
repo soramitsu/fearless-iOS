@@ -152,7 +152,7 @@ struct StakingRebondConfirmationViewFactory {
             accountResponse: accountResponse
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case let .relaychain(variant):
