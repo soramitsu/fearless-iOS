@@ -1,0 +1,151 @@
+import UIKit
+
+final class BalanceLocksDetailViewLayout: UIView {
+    let navigationBar: BaseNavigationBar = {
+        let bar = BaseNavigationBar()
+        bar.set(.present)
+        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
+        bar.backgroundColor = R.color.colorBlack19()
+        return bar
+    }()
+
+    let contentView: ScrollableContainerView = {
+        let view = ScrollableContainerView()
+        view.stackView.isLayoutMarginsRelativeArrangement = true
+        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.spacing = UIConstants.bigOffset
+        return view
+    }()
+
+    let stakingBackgroundView: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite16()!
+        view.highlightedStrokeColor = R.color.colorWhite16()!
+        view.strokeWidth = 0.5
+        view.shadowOpacity = 0.0
+
+        return view
+    }()
+
+    let poolsBackgroundView: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite16()!
+        view.highlightedStrokeColor = R.color.colorWhite16()!
+        view.strokeWidth = 0.5
+        view.shadowOpacity = 0.0
+
+        return view
+    }()
+
+    let stakingTitleRowView: RowView<UILabel> = {
+        let label = makeSectionTitleLabel()
+        return RowView(contentView: label)
+    }()
+
+    let poolsTitleRowView: RowView<UILabel> = {
+        let label = makeSectionTitleLabel()
+        return RowView(contentView: label)
+    }()
+
+    let stakingStackView = UIFactory.default.createVerticalStackView()
+    let stakingStakedRowView = makeRowView()
+    let stakingUnstakingRowView = makeRowView()
+    let stakingRedeemableRowView = makeRowView()
+    let poolsStackView = UIFactory.default.createVerticalStackView()
+    let poolsStakedRowView = makeRowView()
+    let poolsUnstakingRowView = makeRowView()
+    let poolsRedeemableRowView = makeRowView()
+    let poolsClaimableRowView = makeRowView()
+    
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+
+        drawSubviews()
+        setupConstraints()
+        applyLocalization()
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func drawSubviews() {
+        addSubview(navigationBar)
+        addSubview(contentView)
+
+        contentView.addArrangedSubview(stakingBackgroundView)
+        stakingBackgroundView.addSubview(stakingStackView)
+        stakingStackView.addArrangedSubview(stakingStakedRowView)
+        stakingStackView.addArrangedSubview(stakingUnstakingRowView)
+        stakingStackView.addArrangedSubview(stakingRedeemableRowView)
+        contentView.addArrangedSubview(poolsBackgroundView)
+        poolsBackgroundView.addSubview(poolsStackView)
+        poolsStackView.addArrangedSubview(poolsStakedRowView)
+        poolsStackView.addArrangedSubview(poolsUnstakingRowView)
+        poolsStackView.addArrangedSubview(poolsRedeemableRowView)
+        poolsStackView.addArrangedSubview(poolsClaimableRowView)
+        
+    }
+
+    private func setupConstraints() {
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+        contentView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
+        }
+        
+        stakingStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        poolsStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
+    private func applyLocalization() {
+        stakingStakedRowView.titleLabel.text = R.string.localizable.stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
+        stakingUnstakingRowView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
+        stakingRedeemableRowView.titleLabel.text = R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
+        poolsStakedRowView.titleLabel.text = R.string.localizable.stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
+        poolsUnstakingRowView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
+        poolsRedeemableRowView.titleLabel.text = R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
+        poolsClaimableRowView.titleLabel.text = R.string.localizable.poolClaimableTitle(preferredLanguages: locale.rLanguages)
+    }
+
+    private static func makeSectionTitleLabel() -> UILabel {
+        let label = UILabel()
+        label.font = .h5Title
+        label.textColor = R.color.colorWhite()
+        return label
+    }
+
+    private static func makeRowView() -> TitleMultiValueView {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
+        return view
+    }
+}
