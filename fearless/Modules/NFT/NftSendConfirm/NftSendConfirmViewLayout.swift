@@ -124,6 +124,7 @@ final class NftSendConfirmViewLayout: UIView {
 
     private func configure() {
         senderView.valueTop.lineBreakMode = .byTruncatingMiddle
+        senderView.valueBottom.textAlignment = .right
         senderView.valueTop.textAlignment = .right
         receiverView.valueTop.lineBreakMode = .byTruncatingMiddle
         receiverView.valueTop.textAlignment = .right
