@@ -7,7 +7,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!
 
     internal let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     internal let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
     let paraId: ParaId
     let selectedMetaAccount: MetaAccountModel
@@ -37,7 +37,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         extrinsicService: ExtrinsicServiceProtocol,
         crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         existentialDepositService: ExistentialDepositServiceProtocol,
@@ -51,7 +51,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         self.extrinsicService = extrinsicService
         self.crowdloanLocalSubscriptionFactory = crowdloanLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
         self.existentialDepositService = existentialDepositService
         self.operationManager = operationManager
@@ -123,7 +123,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func subscribeToPrice() {
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 
     func setup() {
@@ -186,7 +186,7 @@ extension CrowdloanContributionInteractor: AccountInfoSubscriptionAdapterHandler
     }
 }
 
-extension CrowdloanContributionInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension CrowdloanContributionInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }

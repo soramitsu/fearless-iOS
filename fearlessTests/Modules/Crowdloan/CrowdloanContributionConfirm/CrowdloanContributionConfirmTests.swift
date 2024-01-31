@@ -241,7 +241,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
 //            extrinsicService: extrinsicService,
 //            crowdloanLocalSubscriptionFactory: crowdloanSubscriptionFactory,
 //            walletLocalSubscriptionFactory: walletSubscriptionFactory,
-//            priceLocalSubscriptionFactory: priceProviderFactory,
+//            priceLocalSubscriber: priceProviderFactory,
 //            jsonLocalSubscriptionFactory: jsonProviderFactory,
 //            signingWrapper: signingWrapper,
 //            bonusService: nil,

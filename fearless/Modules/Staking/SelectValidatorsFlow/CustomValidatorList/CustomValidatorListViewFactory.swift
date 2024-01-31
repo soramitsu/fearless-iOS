@@ -11,7 +11,7 @@ enum CustomValidatorListViewFactory {
         flow: CustomValidatorListFlow
     ) -> CustomValidatorListViewProtocol? {
         let wireframe = CustomValidatorListWireframe()
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         guard let container = createContainer(
             flow: flow,
@@ -22,7 +22,7 @@ enum CustomValidatorListViewFactory {
         }
 
         let interactor = CustomValidatorListInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset
         )
 

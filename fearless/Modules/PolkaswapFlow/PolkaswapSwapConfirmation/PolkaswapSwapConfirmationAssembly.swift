@@ -34,7 +34,7 @@ final class PolkaswapSwapConfirmationAssembly {
             operationManager: operationManager
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         let interactor = PolkaswapSwapConfirmationInteractor(
             params: params,

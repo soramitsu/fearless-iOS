@@ -4,28 +4,27 @@ import SSFModels
 final class CustomValidatorListInteractor {
     weak var presenter: CustomValidatorListInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let chainAsset: ChainAsset
 
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
     }
 }
 
 extension CustomValidatorListInteractor: CustomValidatorListInteractorInputProtocol {
     func setup() {
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }
 
-extension CustomValidatorListInteractor: PriceLocalStorageSubscriber,
-    PriceLocalSubscriptionHandler, AnyProviderAutoCleaning {
+extension CustomValidatorListInteractor: PriceLocalSubscriptionHandler, AnyProviderAutoCleaning {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }

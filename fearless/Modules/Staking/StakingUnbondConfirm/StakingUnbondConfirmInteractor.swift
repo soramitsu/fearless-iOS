@@ -9,19 +9,19 @@ import IrohaCrypto
 final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingUnbondConfirmInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let strategy: StakingUnbondConfirmStrategy
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         strategy: StakingUnbondConfirmStrategy
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.strategy = strategy
@@ -41,13 +41,13 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
     }
 
     func setup() {
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
     }
 }
 
-extension StakingUnbondConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension StakingUnbondConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }

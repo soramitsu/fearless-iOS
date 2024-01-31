@@ -10,13 +10,18 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
     let fiatBalanceString: String?
     let isSelected: Bool
 
+    let balanceDecimal: Decimal?
+    let fiatBalanceDecimal: Decimal?
+
     init(
         name: String,
         symbol: String,
         icon: ImageViewModelProtocol?,
         balanceString: String?,
         fiatBalanceString: String?,
-        isSelected: Bool
+        isSelected: Bool,
+        balanceDecimal: Decimal?,
+        fiatBalanceDecimal: Decimal?
     ) {
         self.name = name
         self.symbol = symbol
@@ -24,6 +29,8 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
         self.balanceString = balanceString
         self.fiatBalanceString = fiatBalanceString
         self.isSelected = isSelected
+        self.balanceDecimal = balanceDecimal
+        self.fiatBalanceDecimal = fiatBalanceDecimal
     }
 }
 
@@ -84,7 +91,19 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
             )
         }
 
-        return selectAssetCellModels
+        let sortedList = selectAssetCellModels.sorted { viewModel1, viewModel2 in
+            (
+                viewModel1.fiatBalanceDecimal.or(.zero),
+                viewModel1.balanceDecimal.or(.zero),
+                viewModel2.symbol
+            ) > (
+                viewModel2.fiatBalanceDecimal.or(.zero),
+                viewModel2.balanceDecimal.or(.zero),
+                viewModel1.symbol
+            )
+        }
+
+        return sortedList
     }
 }
 
@@ -118,9 +137,11 @@ private extension SelectAssetViewModelFactory {
             name: chainAsset.chain.name,
             symbol: chainAsset.asset.symbolUppercased,
             icon: chainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
-            balanceString: totalAssetBalance,
-            fiatBalanceString: totalFiatBalance,
-            isSelected: chainAsset.asset.id == selectedAssetId
+            balanceString: totalAssetBalance.0,
+            fiatBalanceString: totalFiatBalance?.0,
+            isSelected: chainAsset.asset.id == selectedAssetId,
+            balanceDecimal: totalAssetBalance.1,
+            fiatBalanceDecimal: totalFiatBalance?.1
         )
     }
 
@@ -129,7 +150,7 @@ private extension SelectAssetViewModelFactory {
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         wallet: MetaAccountModel
-    ) -> String? {
+    ) -> (String?, Decimal) {
         var totalAssetBalance: Decimal = .zero
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
@@ -138,7 +159,7 @@ private extension SelectAssetViewModelFactory {
 
         let minDigits = totalAssetBalance > 0 ? 3 : 0
         let maxDigits = totalAssetBalance > 0 ? 8 : 0
-        return totalAssetBalance.toString(locale: locale, minimumDigits: minDigits, maximumDigits: maxDigits)
+        return (totalAssetBalance.toString(locale: locale, minimumDigits: minDigits, maximumDigits: maxDigits), totalAssetBalance)
     }
 
     func getBalance(
@@ -166,7 +187,7 @@ private extension SelectAssetViewModelFactory {
         locale: Locale,
         currency: Currency,
         wallet: MetaAccountModel
-    ) -> String? {
+    ) -> (String?, Decimal)? {
         var totalFiatBalance: Decimal = .zero
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
@@ -180,7 +201,7 @@ private extension SelectAssetViewModelFactory {
         guard totalFiatBalance != .zero else { return nil }
 
         let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
-        return balanceTokenFormatterValue.stringFromDecimal(totalFiatBalance)
+        return (balanceTokenFormatterValue.stringFromDecimal(totalFiatBalance), totalFiatBalance)
     }
 
     func tokenFormatter(

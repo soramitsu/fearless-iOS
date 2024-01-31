@@ -49,7 +49,7 @@ extension StakingMainInteractor {
             return
         }
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 
     func performAccountInfoSubscription() {
@@ -289,7 +289,7 @@ extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, Relayc
     }
 }
 
-extension StakingMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension StakingMainInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
         if let chainAsset = stakingSettings.value, chainAsset.asset.priceId == priceId {
             switch result {
