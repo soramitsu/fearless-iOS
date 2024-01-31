@@ -269,6 +269,5 @@ final class NftSendConfirmViewLayout: UIView {
 
     func bind(senderViewModel: AccountViewModel?) {
         senderView.valueTop.text = senderViewModel?.name
-        senderView.valueBottom.text = senderViewModel?.title
     }
 }

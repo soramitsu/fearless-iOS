@@ -1,5 +1,3 @@
-"\"common.price\" = \"Price\";" = "Giá";
-"\"staking.pool.create.missing.pool.name\" = \"Cannot create pool\";" = "Không thể tạo pool";
 "NSCameraUsageDescription" = "Máy ảnh được sử dụng để chụp mã QR";
 "NSFaceIDUsageDescription" = "Fearless sử dụng Face ID để hạn chế người dùng trái phép truy cập vào ứng dụng. Face ID được sử dụng để xác thực truy cập ứng dụng";
 "NSPhotoLibraryAddUsageDescription" = "Lưu yêu cầu chuyển dưới dạng mã QR";
@@ -222,6 +220,7 @@ tiền Euro";
 "common.error.no.data.retrieved" = "Không có dữ liệu nào được truy xuất.";
 "common.error.password.mismatch" = "Mật khẩu không khớp";
 "common.events" = "Sự kiện";
+"common.existential.warning.max.amount" = "Số tiền tối đa";
 "common.existential.warning.message" = "Giao dịch này sẽ dẫn đến việc tài khoản sẽ xuống thâp hơn Khoản tiền gửi tối thiểu để duy trì tài khoản, điều này sẽ khiến tài khoản bị thu hồi (tài khoản sẽ bị xóa khỏi trạng thái của blockchain để bảo toàn không gian). Nếu bạn chọn tiếp tục, bạn sẽ mất bất kỳ khoản tiền nào thấp hơn số tiền ký quỹ hiện có do mạng đặt ra. Để biết thông tin chi tiết, vui lòng tham khảo tài liệu mạng chính thức (ví dụ: Polkadot Wiki). Fearless Wallet là một ứng dụng hoàn toàn không bị quản lý và không có quyền kiểm soát hoặc không biết về bất kỳ hành động nào của bạn trên chính mạng đó. CHỈ TIẾP TỤC NẾU BẠN HOÀN TOÀN ĐỒNG Ý VÀ HIỂU Ý.";
 "common.existential.warning.title" = "Thao tác này sẽ xóa tài khoản";
 "common.expiry" = "Hết hạn";
@@ -258,6 +257,7 @@ tiền Euro";
 "common.paste" = "Dán";
 "common.payout" = "Thanh toán";
 "common.preview" = "Xem trước";
+"common.price" = "Giá";
 "common.privacy.policy" = "Chính sách bảo mật";
 "common.proceed" = "Tiến hành";
 "common.referral.code.title" = "Mã giới thiệu";
@@ -500,6 +500,9 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "nft.stub.title" = "Sumimasen!";
 "nft.tokenid.title" = "Token ID";
 "nfts.collection.count" = "Số lượng: %d / %d";
+"nfts.filters.airdrop" = "AirDrop";
+"nfts.filters.spam" = "SPAM";
+"nfts.filters.title" = "Ẩn NFT";
 "nfts.stub" = "NFT";
 "no.access.to.google" = "Không có quyền truy cập vào Google";
 "no.account.found" = "Không tìm thấy tài khoản";
@@ -601,7 +604,7 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "pool.claimable.title" = "Có thể yêu cầu";
 "pool.common" = "pool";
 "pool.join.no.validators.message" = "Nhóm chưa chọn bất kỳ validator nào. Nếu bạn tham gia, bạn sẽ không nhận được bất kỳ phần thưởng nào cho đến khi người xác thực được chọn";
-"pool.root.unbond.too.high.text" = "Bạn là chủ sở hữu của nhóm và cổ phần của bạn ít nhất phải là %@ . Nếu bạn muốn phá hủy nhóm của mình và trục xuất các thành viên của nhóm, vui lòng sử dụng Polkadot.js.plus";
+"pool.root.unbond.too.high.text" = "Bạn là chủ sở hữu của nhóm và cổ phần của bạn ít nhất phải là %s. Nếu bạn muốn phá hủy nhóm của mình và trục xuất các thành viên của nhóm, vui lòng sử dụng Polkadot.js.plus";
 "pool.root.unbond.too.high.title" = "Bạn không thể thực hiện một unstake hoàn toàn";
 "pool.staking.bouncer" = "Bouncer";
 "pool.staking.choosepool.button.title" = "Chọn";
@@ -695,7 +698,8 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "settings.hide.zero.balances" = "Ẩn số dư bằng không";
 "share.referral.code" = "Chia sẻ mã giới thiệu";
 "sign.this.message" = "Ký tin nhắn này?";
-"sora.bridge.amount.less.fee" = "Số tiền bạn đang cố chuyển không đủ để trả phí giao dịch trên mạng Kusama. Mặc dù giao dịch không được xử lý nhưng bạn vẫn sẽ bị tính phí trên mạng Sora.";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %@ network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.low.amaunt.polkadot.alert" = "Hiện tại, có một phút. số tiền 1,1 DOT để bắc cầu để đảm bảo sự ổn định và bảo mật. Chúng tôi đánh giá cao sự hiểu biết của bạn.";
 "sora.bridge.low.amount.alert" = "Hiện tại, có một phút. số tiền 0,05 KSM để bắc cầu nhằm đảm bảo tính ổn định và bảo mật của Mạng SORA. Chúng tôi đánh giá cao sự hiểu biết của bạn.";
 "sora.card.status.failure.text" = "KYC đã bị hủy hoặc không thành công.";
 "sora.card.status.failure.title" = "Xác minh không thành công";
@@ -813,6 +817,7 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "staking.pool.create.management.account" = "Tài khoản quản lý pool";
 "staking.pool.create.missing.name.description" = "Tên nhóm bị thiếu";
 "staking.pool.create.missing.name.title" = "Không thể tạo pool";
+"staking.pool.create.missing.pool.name" = "Không thể tạo pool";
 "staking.pool.create.nominator" = "Nominator";
 "staking.pool.create.poolId" = "Pool Id";
 "staking.pool.create.root" = "Nguồn gốc";
@@ -885,7 +890,7 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "staking.select.validators.recommended.desc" = "Thuật toán Fearless đã chọn một danh sách các validator được đề xuất dựa trên các tiêu chí:";
 "staking.select.validators.recommended.title" = "Stake với các validator do thuật toán đề xuất";
 "staking.selected.collator" = "Collator dã chọn";
-"staking.selected.validators.count_v1.9.1" = "đã chọn %li (tối đa %li)";
+"staking.selected.validators.count_v1.9.1" = "đã chọn %d (tối đa %d)";
 "staking.selected.validators.title" = "Validator đã chọn";
 "staking.set.separate.account.controller" = "Thiết lập 1 tài khoản Controller riêng để tăng cường bảo mật quản lý staking.";
 "staking.set.validators.message" = "Validators không được chọn";
@@ -1196,6 +1201,8 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "get.prepared.title" = "Chuẩn bị sẵn sàng";
 "iban.pending.description" = "Việc cấp IBAN của bạn đang chờ xử lý.\
  Trong trường hợp chờ đợi lâu hơn 72h, hãy liên hệ với chúng tôi qua %@";
+"iban.suspended.description" = "IBAN của bạn đã bị đình chỉ.\
+ Để tìm hiểu thêm, hãy liên hệ %@";
 "kyc.result.verification.in.progress" = "Đang xác minh";
 "kyc.result.verification.in.progress.description" = "Bạn đã hoàn thành thành công đơn đăng ký KYC của mình. Việc xem xét đang chờ xử lý và bạn có thể mong đợi một quyết định trong thời gian ngắn.\n\nThông thường quyết định được đưa ra cùng ngày và trong một số trường hợp có thể mất đến 3 ngày.";
 "log.out" = "Đăng xuất";

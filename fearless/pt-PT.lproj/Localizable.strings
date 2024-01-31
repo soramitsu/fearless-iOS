@@ -1,5 +1,5 @@
-"\"common.price\" = \"Price\";" = "Price";
-"\"staking.pool.create.missing.pool.name\" = \"Cannot create pool\";" = "Não é possível criar a pool";
+"common.price" = "Price";
+"staking.pool.create.missing.pool.name" = "Não é possível criar a pool";
 "NSCameraUsageDescription" = "A câmara é usada para capturar o código QR";
 "NSFaceIDUsageDescription" = "Identificação facial usada para autorização na aplicação";
 "NSPhotoLibraryAddUsageDescription" = "Guardar pedido de transferência como um código QR";
@@ -387,7 +387,7 @@
 "error.unsupported.asset" = "Você está tentando fazer uma transferência do ativo que atualmente não é compatível com o aplicativo. Escolha outro ativo ou solicite outro código QR.";
 "ethereum.crypto.type" = "Criptografia de par de chaves do tipo Ethereum";
 "ethereum.secret.derivation.path" = "Caminho de derivação secreto da Ethereum";
-"example" = "Exemplo: %@";
+"example" = "Exemplo: %s";
 "existential.deposit.received.error" = "Depósito existencial não recebido";
 "export.ethereum.title" = "Exportar para Ethereum";
 "export.mnemonic.hint" = "Use meios não digitais para fazer backup, como escrever a sequência de palavras mnemónicas e o caminho de derivação (se definido) em papel.";
@@ -499,6 +499,9 @@ Este é o hash da sua transação:";
 "nft.stub.title" = "Sumimasen!";
 "nft.tokenid.title" = "ID do token";
 "nfts.collection.count" = "Quantity: %d/%d";
+"nfts.filters.airdrop" = "AirDrop";
+"nfts.filters.spam" = "SPAM";
+"nfts.filters.title" = "Hide NFTs";
 "nfts.stub" = "NFTs";
 "no.access.to.google" = "Sem acesso ao Google";
 "no.account.found" = "Nenhuma conta encontrada";
