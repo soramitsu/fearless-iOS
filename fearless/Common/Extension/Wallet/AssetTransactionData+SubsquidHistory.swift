@@ -97,7 +97,7 @@ extension AssetTransactionData {
             TransactionType.incoming
 
         return AssetTransactionData(
-            transactionId: item.identifier,
+            transactionId: item.extrinsicHash ?? item.identifier,
             status: status,
             assetId: asset.identifier,
             peerId: peerId,

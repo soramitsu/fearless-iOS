@@ -8,7 +8,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     weak var presenter: SelectValidatorsConfirmInteractorOutputProtocol!
 
     let chainAsset: ChainAsset
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let strategy: SelectValidatorsConfirmStrategy
     let balanceAccountId: AccountId
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
@@ -17,13 +17,13 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
 
     init(
         balanceAccountId: AccountId,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         strategy: SelectValidatorsConfirmStrategy,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.strategy = strategy
         self.balanceAccountId = balanceAccountId
@@ -35,7 +35,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     func setup() {
         accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: balanceAccountId, handler: self)
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
         strategy.subscribeToBalance()
@@ -50,7 +50,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     }
 }
 
-extension SelectValidatorsConfirmInteractorBase: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension SelectValidatorsConfirmInteractorBase: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePrice(result: result)
     }
