@@ -111,4 +111,5 @@ protocol SubstrateCallFactoryProtocol {
         stashItem: StashItem,
         chainAsset: ChainAsset
     ) throws -> any RuntimeCallable
+    func vestingClaim() throws -> any RuntimeCallable
 }

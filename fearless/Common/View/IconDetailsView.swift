@@ -55,6 +55,12 @@ class IconDetailsView: UIView {
         }
     }
 
+    var stackViewAlignment: UIStackView.Alignment = .center {
+        didSet {
+            stackView.alignment = stackViewAlignment
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 

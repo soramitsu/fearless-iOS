@@ -80,7 +80,8 @@ struct CrowdloanListViewFactory {
 
         let crowdloanOperationFactory = CrowdloanOperationFactory(
             requestOperationFactory: storageRequestFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            chainRegistry: chainRegistry
         )
 
         return CrowdloanListInteractor(
