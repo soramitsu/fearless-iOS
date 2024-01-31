@@ -119,7 +119,7 @@ struct CrowdloanContributionConfirmViewFactory {
             chainId: chainAsset.chain.chainId
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,
@@ -130,7 +130,7 @@ struct CrowdloanContributionConfirmViewFactory {
             extrinsicService: extrinsicService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            priceLocalSubscriptionFactory: PriceProviderFactory.shared,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
             signingWrapper: signingWrapper,
             bonusService: bonusService,

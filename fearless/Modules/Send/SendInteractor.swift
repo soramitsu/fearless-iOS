@@ -9,7 +9,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private weak var output: SendInteractorOutput?
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
@@ -33,7 +33,7 @@ final class SendInteractor: RuntimeConstantFetching {
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationManager: OperationManagerProtocol,
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
@@ -44,7 +44,7 @@ final class SendInteractor: RuntimeConstantFetching {
     ) {
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.operationManager = operationManager
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.chainAssetFetching = chainAssetFetching
@@ -78,9 +78,9 @@ final class SendInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            utilityPriceProvider = subscribeToPrice(for: utilityAsset)
+            utilityPriceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         }
     }
 
@@ -309,7 +309,7 @@ extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension SendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension SendInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }

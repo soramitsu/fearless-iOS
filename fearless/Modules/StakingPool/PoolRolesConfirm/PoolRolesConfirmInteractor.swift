@@ -5,7 +5,7 @@ import SSFModels
 final class PoolRolesConfirmInteractor: AccountFetching {
     // MARK: - Private properties
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private weak var output: PoolRolesConfirmInteractorOutput?
     private let chainAsset: ChainAsset
     private let extrinsicService: ExtrinsicServiceProtocol
@@ -24,7 +24,7 @@ final class PoolRolesConfirmInteractor: AccountFetching {
         poolId: String,
         roles: StakingPoolRoles,
         signingWrapper: SigningWrapperProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
@@ -35,7 +35,7 @@ final class PoolRolesConfirmInteractor: AccountFetching {
         self.poolId = poolId
         self.roles = roles
         self.chainAsset = chainAsset
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
         self.operationManager = operationManager
@@ -71,7 +71,7 @@ extension PoolRolesConfirmInteractor: PoolRolesConfirmInteractorInput {
 
         feeProxy.delegate = self
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchAllAccounts()
     }
@@ -97,7 +97,7 @@ extension PoolRolesConfirmInteractor: PoolRolesConfirmInteractorInput {
     }
 }
 
-extension PoolRolesConfirmInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
+extension PoolRolesConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }

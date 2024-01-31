@@ -9,20 +9,26 @@ struct BondCall: Codable {
         case payee
     }
 
-    var controller: MultiAddress
+    var controller: MultiAddress?
     @StringCodable var value: BigUInt
     var payee: RewardDestinationArg
 
-    init(controller: MultiAddress, value: BigUInt, payee: RewardDestinationArg) {
+    init(controller: MultiAddress?, value: BigUInt, payee: RewardDestinationArg) {
         self.controller = controller
         self.value = value
         self.payee = payee
     }
-}
 
-struct BondCallV2: Codable {
-    @StringCodable var value: BigUInt
-    var payee: RewardDestinationArg
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+
+        if let controller = controller {
+            try container.encode(controller, forKey: .controller)
+        }
+
+        try container.encode(value, forKey: .value)
+        try container.encode(payee, forKey: .payee)
+    }
 }
 
 enum RewardDestinationArg: Equatable {
@@ -35,6 +41,7 @@ enum RewardDestinationArg: Equatable {
     case stash
     case controller
     case account(_ accountId: Data)
+    case address(_ address: String)
 }
 
 extension RewardDestinationArg: Codable {
@@ -50,8 +57,13 @@ extension RewardDestinationArg: Codable {
         case Self.controllerField:
             self = .controller
         case Self.accountField:
-            let data = try container.decode(String.self)
-            self = .account(Data(hex: data))
+            do {
+                let data = try container.decode(String.self)
+                self = .account(Data(hex: data))
+            } catch {
+                let data = try container.decode(Data.self)
+                self = .account(data)
+            }
         default:
             throw DecodingError.dataCorruptedError(
                 in: container,
@@ -75,7 +87,10 @@ extension RewardDestinationArg: Codable {
             try container.encodeNil()
         case let .account(data):
             try container.encode(Self.accountField)
-            try container.encode(data.toHex())
+            try container.encode(data)
+        case let .address(address):
+            try container.encode(Self.accountField)
+            try container.encode(address)
         }
     }
 }

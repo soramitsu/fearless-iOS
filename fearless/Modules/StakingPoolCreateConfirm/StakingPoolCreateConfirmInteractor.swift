@@ -4,7 +4,7 @@ import SSFModels
 
 // swiftlint:disable opening_brace multiple_closures_with_trailing_closure
 final class StakingPoolCreateConfirmInteractor {
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     // MARK: - Private properties
 
@@ -21,7 +21,7 @@ final class StakingPoolCreateConfirmInteractor {
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         createData: StakingPoolCreateData,
@@ -30,7 +30,7 @@ final class StakingPoolCreateConfirmInteractor {
     ) {
         chainAsset = createData.chainAsset
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
         self.createData = createData
@@ -53,14 +53,14 @@ final class StakingPoolCreateConfirmInteractor {
             return nil
         }
 
-        let createPool = callFactory.createPool(
+        let createPool = try? callFactory.createPool(
             amount: substrateAmountValue,
             root: .accoundId(rootAccount),
             nominator: .accoundId(nominationAccount),
             bouncer: .accoundId(bouncerAccount)
         )
 
-        return createPool.callName
+        return createPool?.callName
     }
 
     private var feeBuilderClosure: ExtrinsicBuilderClosure? {
@@ -79,20 +79,24 @@ final class StakingPoolCreateConfirmInteractor {
             return nil
         }
 
-        let createPool = callFactory.createPool(
-            amount: substrateAmountValue,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(nominationAccount),
-            bouncer: .accoundId(bouncerAccount)
-        )
+        return { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        let setMetadataCall = callFactory.setPoolMetadata(
-            poolId: "\(createData.poolId)",
-            metadata: metadata
-        )
+            let createPool = try strongSelf.callFactory.createPool(
+                amount: substrateAmountValue,
+                root: .accoundId(rootAccount),
+                nominator: .accoundId(nominationAccount),
+                bouncer: .accoundId(bouncerAccount)
+            )
 
-        return { builder in
-            try builder.adding(call: createPool).adding(call: setMetadataCall)
+            let setMetadataCall = strongSelf.callFactory.setPoolMetadata(
+                poolId: "\(strongSelf.createData.poolId)",
+                metadata: metadata
+            )
+
+            return try builder.adding(call: createPool).adding(call: setMetadataCall)
         }
     }
 
@@ -116,7 +120,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
         self.output = output
 
         feeProxy.delegate = self
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         subscribeToPoolMembers()
     }
 
@@ -151,7 +155,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
     }
 }
 
-extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
+extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
