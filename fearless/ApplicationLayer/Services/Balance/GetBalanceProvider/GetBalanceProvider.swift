@@ -32,7 +32,7 @@ enum GetBalanceModelType {
 final class GetBalanceProvider: GetBalanceProviderProtocol {
     // MARK: - Deps
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let operationQueue: OperationQueue
     private let chainModelRepository: AnyDataProviderRepository<ChainModel>
     private lazy var balanceBuilder: BalanceBuilderProtocol = BalanceBuilder()
@@ -60,12 +60,12 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     init(
         balanceForModel: GetBalanceModelType,
         chainModelRepository: AnyDataProviderRepository<ChainModel>,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationQueue: OperationQueue
     ) {
         self.balanceForModel = balanceForModel
         self.chainModelRepository = chainModelRepository
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.operationQueue = operationQueue
     }
 
@@ -226,7 +226,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
 
     private func subscribeToPrices(for chains: [ChainModel]) {
         let chainAssets = chains.compactMap { $0.chainAssets }.reduce([], +)
-        pricesProvider = subscribeToPrices(for: chainAssets)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func subscribeToAccountInfo(chains: [ChainModel]) {
@@ -285,7 +285,7 @@ extension GetBalanceProvider: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension GetBalanceProvider: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension GetBalanceProvider: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):

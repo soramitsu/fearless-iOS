@@ -27,7 +27,7 @@ final class SelectValidatorsConfirmPoolInitiatedStrategy: StakingDurationFetchin
     private let durationOperationFactory: StakingDurationOperationFactoryProtocol
     private let signer: SigningWrapperProtocol
     private let operationManager: OperationManagerProtocol
-    private let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let output: SelectValidatorsConfirmPoolInitiatedStrategyOutput?
@@ -44,7 +44,7 @@ final class SelectValidatorsConfirmPoolInitiatedStrategy: StakingDurationFetchin
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         balanceAccountId: AccountId,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         durationOperationFactory: StakingDurationOperationFactoryProtocol,
@@ -58,7 +58,7 @@ final class SelectValidatorsConfirmPoolInitiatedStrategy: StakingDurationFetchin
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.balanceAccountId = balanceAccountId
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
         self.durationOperationFactory = durationOperationFactory

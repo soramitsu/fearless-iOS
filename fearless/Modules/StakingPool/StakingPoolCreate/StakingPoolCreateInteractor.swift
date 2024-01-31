@@ -5,7 +5,6 @@ import SSFModels
 
 final class StakingPoolCreateInteractor {
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
     // MARK: - Private properties
 
@@ -18,13 +17,14 @@ final class StakingPoolCreateInteractor {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let operationManager: OperationManagerProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -35,7 +35,7 @@ final class StakingPoolCreateInteractor {
         callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.extrinsicService = extrinsicService
@@ -145,7 +145,7 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
 
         fetchPoolMembers()
         fetchLastPoolId()
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
@@ -201,7 +201,7 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
     }
 }
 
-extension StakingPoolCreateInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
+extension StakingPoolCreateInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }

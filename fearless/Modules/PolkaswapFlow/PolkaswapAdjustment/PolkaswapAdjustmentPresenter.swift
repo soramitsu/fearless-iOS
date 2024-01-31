@@ -261,7 +261,8 @@ final class PolkaswapAdjustmentPresenter {
             fromAsset: swapFromChainAsset?.asset,
             toAsset: swapToChainAsset?.asset,
             params: params,
-            quote: quotes
+            quote: quotes,
+            swapVariant: swapVariant
         ) else {
             return
         }

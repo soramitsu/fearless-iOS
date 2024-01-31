@@ -2422,7 +2422,6 @@
 		FA86443C2767BED800956D8E /* BaseDataProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86443B2767BED800956D8E /* BaseDataProviderFactory.swift */; };
 		FA86443E2768439900956D8E /* ContainerProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86443D2768439900956D8E /* ContainerProtocols.swift */; };
 		FA864440276843E100956D8E /* ViewModelObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86443F276843E100956D8E /* ViewModelObserver.swift */; };
-		FA86444227684E1400956D8E /* HistoryBackgroundView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86444127684E1400956D8E /* HistoryBackgroundView.swift */; };
 		FA864445276851CF00956D8E /* ContainerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA864444276851CF00956D8E /* ContainerViewController.swift */; };
 		FA8644472768522000956D8E /* HistoryHeaderType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644462768522000956D8E /* HistoryHeaderType.swift */; };
 		FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8644502768A13300956D8E /* TwoLabelView.swift */; };
@@ -5418,7 +5417,6 @@
 		FA86443B2767BED800956D8E /* BaseDataProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseDataProviderFactory.swift; sourceTree = "<group>"; };
 		FA86443D2768439900956D8E /* ContainerProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerProtocols.swift; sourceTree = "<group>"; };
 		FA86443F276843E100956D8E /* ViewModelObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewModelObserver.swift; sourceTree = "<group>"; };
-		FA86444127684E1400956D8E /* HistoryBackgroundView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryBackgroundView.swift; sourceTree = "<group>"; };
 		FA864444276851CF00956D8E /* ContainerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContainerViewController.swift; sourceTree = "<group>"; };
 		FA8644462768522000956D8E /* HistoryHeaderType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryHeaderType.swift; sourceTree = "<group>"; };
 		FA8644502768A13300956D8E /* TwoLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TwoLabelView.swift; sourceTree = "<group>"; };
@@ -13304,7 +13302,6 @@
 			isa = PBXGroup;
 			children = (
 				FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */,
-				FA86444127684E1400956D8E /* HistoryBackgroundView.swift */,
 				FA5DD0E2278EFE2500967047 /* WalletTransactionHistoryTableSectionHeader.swift */,
 			);
 			path = Views;
@@ -15516,7 +15513,6 @@
 				8409C27425227DC60049B5C8 /* WalletSingleActionAccessoryFactory.swift in Sources */,
 				F477CD26262EAD30004DF739 /* StakingPayoutViewModelFactory.swift in Sources */,
 				FA7336E12A0E3B880096A291 /* JSONResponseDecoder.swift in Sources */,
-				FA86444227684E1400956D8E /* HistoryBackgroundView.swift in Sources */,
 				84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */,
 				844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */,
 				8493D0E126FF4F5000A28008 /* ScaleCoder+Extension.swift in Sources */,
@@ -18856,8 +18852,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = exactVersion;
+				version = 1.9.9;
 			};
 		};
 		FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {

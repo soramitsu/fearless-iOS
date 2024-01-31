@@ -1,7 +1,7 @@
 import Foundation
 import SSFModels
 
-protocol PriceLocalSubscriptionHandler {
+protocol PriceLocalSubscriptionHandler: AnyObject {
     func handlePrice(
         result: Result<PriceData?, Error>,
         chainAsset: ChainAsset

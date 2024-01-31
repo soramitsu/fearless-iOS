@@ -4,25 +4,25 @@ import SSFModels
 class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     weak var presenter: ValidatorInfoInteractorOutputProtocol!
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chainAsset: ChainAsset
     private let strategy: ValidatorInfoStrategy
 
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         strategy: ValidatorInfoStrategy
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.strategy = strategy
     }
 
     func setup() {
         strategy.setup()
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 
     func reload() {
@@ -31,7 +31,7 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
     }
 }
 
-extension ValidatorInfoInteractorBase: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension ValidatorInfoInteractorBase: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
