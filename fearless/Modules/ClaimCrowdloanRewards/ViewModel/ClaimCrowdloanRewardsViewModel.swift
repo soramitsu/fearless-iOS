@@ -1,7 +1,6 @@
 import Foundation
 
 struct ClaimCrowdloanRewardsViewModel {
-    let totalRewardsViewModel: BalanceViewModelProtocol?
-    let claimableRewardsViewModel: BalanceViewModelProtocol?
+    let transferableBalanceViewModel: BalanceViewModelProtocol?
     let lockedRewardsViewModel: BalanceViewModelProtocol?
 }

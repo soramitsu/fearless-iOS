@@ -11,6 +11,7 @@ final class ClaimCrowdloanRewardsPresenter {
     private let interactor: ClaimCrowdloanRewardsInteractorInput
     private let logger: LoggerProtocol?
     private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let viewModelFactory: ClaimCrowdloanRewardViewModelFactoryProtocol
 
@@ -21,6 +22,7 @@ final class ClaimCrowdloanRewardsPresenter {
     private var priceData: PriceData?
     private var fee: RuntimeDispatchInfo?
     private var currentBlock: UInt32?
+    private var accountInfo: AccountInfo?
 
     // MARK: - Constructors
 
@@ -31,7 +33,8 @@ final class ClaimCrowdloanRewardsPresenter {
         logger: LoggerProtocol?,
         chainAsset: ChainAsset,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        viewModelFactory: ClaimCrowdloanRewardViewModelFactoryProtocol
+        viewModelFactory: ClaimCrowdloanRewardViewModelFactoryProtocol,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.router = router
@@ -39,45 +42,35 @@ final class ClaimCrowdloanRewardsPresenter {
         self.chainAsset = chainAsset
         self.balanceViewModelFactory = balanceViewModelFactory
         self.viewModelFactory = viewModelFactory
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
 
-    private func provideVestingViewModel(vesting: VestingVesting) {
-        let locks = balanceLocks.or([]) + tokenLocks.or([])
-
-        let viewModel = viewModelFactory.buildViewModel(
-            vesting: vesting,
-            balanceLocks: locks,
-            locale: selectedLocale,
-            priceData: priceData,
-            currentBlock: currentBlock
+    private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactory {
+        BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet
         )
-        view?.didReceiveViewModel(viewModel)
     }
 
-    private func provideVestingScheduleViewModel(vestingSchedule: VestingSchedule) {
+    private func provideVestingViewModel() {
         let locks = balanceLocks.or([]) + tokenLocks.or([])
 
-        let viewModel = viewModelFactory.buildViewModel(
-            vestingSchedule: vestingSchedule,
+        let viewModel = viewModelFactory.buildVestingViewModel(
             balanceLocks: locks,
-            locale: selectedLocale,
-            priceData: priceData,
-            currentBlock: currentBlock
+            priceData: priceData
         )
-        view?.didReceiveViewModel(viewModel)
+        view?.didReceiveVestingViewModel(viewModel.value(for: selectedLocale))
     }
 
-    private func provideViewModel() {
-        if let vesting = vesting {
-            provideVestingViewModel(vesting: vesting)
-        }
-
-        if let vestingSchedule = vestingSchedule {
-            provideVestingScheduleViewModel(vestingSchedule: vestingSchedule)
-        }
+    private func provideBalanceViewModel() {
+        let viewModel = viewModelFactory.buildBalanceViewModel(
+            accountInfo: accountInfo,
+            priceData: priceData
+        )
+        view?.didReceiveBalanceViewModel(viewModel.value(for: selectedLocale))
     }
 
     private func provideFeeViewModel() {
@@ -85,8 +78,10 @@ final class ClaimCrowdloanRewardsPresenter {
             view?.didReceiveFeeViewModel(nil)
             return
         }
+        let feeChainAsset = getFeePaymentChainAsset()
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: feeChainAsset)
         let feeDecimal = BigUInt(string: fee.fee).map {
-            Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision)) ?? .zero
+            Decimal.fromSubstrateAmount($0, precision: Int16(feeChainAsset.asset.precision)) ?? .zero
         } ?? .zero
 
         let feeViewModel = balanceViewModelFactory.balanceFromPrice(feeDecimal, priceData: priceData, usageCase: .detailsCrypto)
@@ -101,6 +96,14 @@ final class ClaimCrowdloanRewardsPresenter {
     private func provideHintViewModel() {
         let viewModel = viewModelFactory.buildHintViewModel()
         view?.didReceiveHintViewModel(viewModel.value(for: selectedLocale))
+    }
+
+    private func getFeePaymentChainAsset() -> ChainAsset {
+        if let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+            return utilityAsset
+        }
+
+        return chainAsset
     }
 }
 
@@ -131,7 +134,7 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsViewOutput {
 extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsInteractorOutput {
     func didReceiveTokenLocks(_ balanceLocks: [LockProtocol]?) {
         tokenLocks = balanceLocks
-        provideViewModel()
+        provideVestingViewModel()
     }
 
     func didReceiveTokenLocksError(_ error: Error) {
@@ -140,20 +143,11 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsInteractorOutput 
 
     func didReceiveBalanceLocks(_ balanceLocks: [LockProtocol]?) {
         self.balanceLocks = balanceLocks
-        provideViewModel()
+        provideVestingViewModel()
     }
 
     func didReceiveBalanceLocksError(_ error: Error) {
         logger?.error("Balance locks error: \(error.localizedDescription)")
-    }
-
-    func didReceiveVestingSchedule(_ vestingSchedule: VestingSchedule?) {
-        self.vestingSchedule = vestingSchedule
-        provideViewModel()
-    }
-
-    func didReceiveVestingScheduleError(_ error: Error) {
-        logger?.error("Vesting schedule error: \(error.localizedDescription)")
     }
 
     func didReceiveFee(_ fee: RuntimeDispatchInfo) {
@@ -183,36 +177,27 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsInteractorOutput 
 
     func didReceivePrice(_ price: PriceData?) {
         priceData = price
-        provideViewModel()
+        provideVestingViewModel()
+        provideBalanceViewModel()
+        provideFeeViewModel()
     }
 
     func didReceivePriceError(_ error: Error) {
         logger?.error("Vesting claim price error: \(error.localizedDescription)")
     }
 
-    func didReceiveCurrenBlock(_ currentBlock: UInt32?) {
-        self.currentBlock = currentBlock
-        provideViewModel()
-    }
-
-    func didReceiveCurrentBlockError(_ error: Error) {
-        logger?.error("Vesting claim current block error: \(error.localizedDescription)")
-    }
-
-    func didReceiveVestingVesting(_ vesting: VestingVesting?) {
-        self.vesting = vesting
-        provideViewModel()
-    }
-
-    func didReceiveVestingVestingError(_ error: Error) {
-        logger?.error("Vesting vesting error: \(error.localizedDescription)")
+    func didReceiveAccountInfo(accountInfo: AccountInfo?) {
+        self.accountInfo = accountInfo
+        provideBalanceViewModel()
     }
 }
 
 // MARK: - Localizable
 
 extension ClaimCrowdloanRewardsPresenter: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        provideVestingViewModel()
+    }
 }
 
 extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsModuleInput {}

@@ -303,7 +303,12 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
-        let items: [ChainAction] = [.export, .switchNode, .replace, .claimCrowdloanRewards]
+        var items: [ChainAction] = [.export, .switchNode, .replace]
+
+        if interactor.checkIsClaimAvailable() {
+            items.append(.claimCrowdloanRewards)
+        }
+
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self else { return }
             let action = items[selectedIndex]

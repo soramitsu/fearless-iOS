@@ -28,6 +28,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     func getAvailableExportOptions(for address: String)
     func update(chain: ChainModel)
     func updateData()
+    func checkIsClaimAvailable() -> Bool
 
     var chainAsset: ChainAsset { get }
     var availableChainAssets: [ChainAsset] { get }

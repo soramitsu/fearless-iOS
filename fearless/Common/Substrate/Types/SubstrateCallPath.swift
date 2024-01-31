@@ -74,9 +74,11 @@ enum SubstrateCallPath: CaseIterable {
         case .transferAllowDeath:
             return (moduleName: "Balances", callName: "transfer_allow_death")
         case .vestingClaim:
-            return (moduleName: "Vesting", callName: "Claim")
+            return (moduleName: "Vesting", callName: "claim")
         case .vestingVest:
-            return (moduleName: "Vesting", callName: "Vest")
+            return (moduleName: "Vesting", callName: "vest")
+        case .vestedRewardsClaimRewards:
+            return (moduleName: "VestedRewards", callName: "claim_rewards")
         }
     }
 
@@ -113,4 +115,5 @@ enum SubstrateCallPath: CaseIterable {
     case transferAllowDeath
     case vestingClaim
     case vestingVest
+    case vestedRewardsClaimRewards
 }

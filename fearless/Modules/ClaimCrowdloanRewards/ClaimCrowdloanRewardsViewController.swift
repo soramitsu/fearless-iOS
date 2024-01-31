@@ -51,10 +51,12 @@ final class ClaimCrowdloanRewardsViewController: UIViewController, ViewHolder {
 // MARK: - ClaimCrowdloanRewardsViewInput
 
 extension ClaimCrowdloanRewardsViewController: ClaimCrowdloanRewardsViewInput {
-    func didReceiveViewModel(_ viewModel: ClaimCrowdloanRewardsViewModel) {
-        rootView.claimableRewardsView.bindBalance(viewModel: viewModel.claimableRewardsViewModel)
-        rootView.totalRewardsView.bindBalance(viewModel: viewModel.totalRewardsViewModel)
-        rootView.lockedRewardsView.bindBalance(viewModel: viewModel.lockedRewardsViewModel)
+    func didReceiveVestingViewModel(_ viewModel: BalanceViewModelProtocol?) {
+        rootView.lockedRewardsView.bindBalance(viewModel: viewModel)
+    }
+
+    func didReceiveBalanceViewModel(_ viewModel: BalanceViewModelProtocol?) {
+        rootView.transerableBalanceView.bindBalance(viewModel: viewModel)
     }
 
     func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?) {
@@ -65,7 +67,7 @@ extension ClaimCrowdloanRewardsViewController: ClaimCrowdloanRewardsViewInput {
         rootView.stakeAmountView.bind(viewModel: stakeAmountViewModel.value(for: selectedLocale))
     }
 
-    func didReceiveHintViewModel(_ hintViewModel: TitleIconViewModel?) {
+    func didReceiveHintViewModel(_ hintViewModel: DetailsTriangularedAttributedViewModel?) {
         rootView.bind(hintViewModel: hintViewModel)
     }
 }

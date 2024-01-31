@@ -25,6 +25,7 @@ final class ChainAccountInteractor {
     private let dependencyContainer = BalanceInfoDepencyContainer()
     private var currentDependencies: BalanceInfoDependencies?
     private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private let chainRegistry: ChainRegistryProtocol
 
     private var remoteFetchTimer: Timer?
 
@@ -38,7 +39,8 @@ final class ChainAccountInteractor {
         chainAssetFetching: ChainAssetFetchingProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
-        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
@@ -50,6 +52,7 @@ final class ChainAccountInteractor {
         self.storageRequestFactory = storageRequestFactory
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
+        self.chainRegistry = chainRegistry
     }
 
     private func getAvailableChainAssets() {
@@ -232,6 +235,16 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             self?.remoteFetchTimer = nil
         })
         ethRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId, completionBlock: { _, _ in })
+    }
+
+    func checkIsClaimAvailable() -> Bool {
+        guard
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        else {
+            return false
+        }
+        let substrateCallFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
+        return (try? substrateCallFactory.vestingClaim()) != nil
     }
 }
 
