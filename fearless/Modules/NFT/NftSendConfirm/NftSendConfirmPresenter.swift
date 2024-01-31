@@ -19,6 +19,7 @@ final class NftSendConfirmPresenter {
     private let logger: LoggerProtocol?
     private let nftViewModelFactory: NftSendConfirmViewModelFactoryProtocol
     private var balance: Decimal?
+    private var priceData: PriceData?
 
     // MARK: - Constructors
 
@@ -93,7 +94,7 @@ final class NftSendConfirmPresenter {
             let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
         let viewModel = fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: nil, usageCase: .detailsCrypto) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
 
         view?.didReceive(feeViewModel: viewModel)
@@ -203,6 +204,18 @@ extension NftSendConfirmPresenter: NftSendConfirmInteractorOutput {
             } ?? 0.0
         case let .failure(error):
             logger?.error("Did receive account info error: \(error)")
+        }
+    }
+
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            if let priceData = priceData {
+                self.priceData = priceData
+                provideFeeViewModel()
+            }
+        case let .failure(error):
+            logger?.error("Did receive price error: \(error)")
         }
     }
 }
