@@ -125,9 +125,8 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     )
     func presentLockedInfo(
         from view: ControllerBackedProtocol?,
-        balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo,
-        currency: Currency
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
     func presentCrossChainFlow(
         from view: ControllerBackedProtocol?,

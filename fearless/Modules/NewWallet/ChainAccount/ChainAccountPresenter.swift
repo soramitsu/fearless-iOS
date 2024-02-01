@@ -286,18 +286,11 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapLockedInfoButton() {
-        guard let balance = balance else {
-            return
-        }
-
-        if let balanceContext = createBalanceContext() {
-            wireframe.presentLockedInfo(
-                from: view,
-                balanceContext: balanceContext,
-                info: chainAsset.asset.displayInfo,
-                currency: balance.currency
-            )
-        }
+        wireframe.presentLockedInfo(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
     }
 }
 
