@@ -4,6 +4,12 @@ final class BalanceLocksDetailInteractor {
     // MARK: - Private properties
 
     private weak var output: BalanceLocksDetailInteractorOutput?
+    private let storageRequestPerformer: StorageRequestPerformer
+    
+    init(storageRequestPerformer: StorageRequestPerformer) {
+        self.storageRequestPerformer = storageRequestPerformer
+        
+    }
 }
 
 // MARK: - BalanceLocksDetailInteractorInput

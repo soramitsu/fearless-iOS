@@ -61,7 +61,12 @@ final class BalanceLocksDetailViewLayout: UIView {
     let poolsUnstakingRowView = makeRowView()
     let poolsRedeemableRowView = makeRowView()
     let poolsClaimableRowView = makeRowView()
-    
+
+    let liquidityPoolsView = makeSectionView()
+    let crowdloansView = makeSectionView()
+    let governanceView = makeSectionView()
+    let totalView = makeSectionView()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -71,6 +76,7 @@ final class BalanceLocksDetailViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        backgroundColor = R.color.colorBlack19()
         drawSubviews()
         setupConstraints()
         applyLocalization()
@@ -87,16 +93,21 @@ final class BalanceLocksDetailViewLayout: UIView {
 
         contentView.addArrangedSubview(stakingBackgroundView)
         stakingBackgroundView.addSubview(stakingStackView)
+        stakingStackView.addArrangedSubview(stakingTitleRowView)
         stakingStackView.addArrangedSubview(stakingStakedRowView)
         stakingStackView.addArrangedSubview(stakingUnstakingRowView)
         stakingStackView.addArrangedSubview(stakingRedeemableRowView)
         contentView.addArrangedSubview(poolsBackgroundView)
         poolsBackgroundView.addSubview(poolsStackView)
+        poolsStackView.addArrangedSubview(poolsTitleRowView)
         poolsStackView.addArrangedSubview(poolsStakedRowView)
         poolsStackView.addArrangedSubview(poolsUnstakingRowView)
         poolsStackView.addArrangedSubview(poolsRedeemableRowView)
         poolsStackView.addArrangedSubview(poolsClaimableRowView)
-        
+        contentView.addArrangedSubview(liquidityPoolsView)
+        contentView.addArrangedSubview(crowdloansView)
+        contentView.addArrangedSubview(governanceView)
+        contentView.addArrangedSubview(totalView)
     }
 
     private func setupConstraints() {
@@ -107,17 +118,80 @@ final class BalanceLocksDetailViewLayout: UIView {
             make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
-        
+
         stakingStackView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        
+
         poolsStackView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
+        }
+
+        stakingBackgroundView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+
+        poolsBackgroundView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+
+        stakingTitleRowView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(43)
+        }
+
+        stakingTitleRowView.contentView!.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+
+        poolsTitleRowView.contentView!.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+
+        poolsTitleRowView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(43)
+        }
+
+        [
+            stakingStakedRowView,
+            stakingUnstakingRowView,
+            stakingRedeemableRowView,
+            poolsStakedRowView,
+            poolsUnstakingRowView,
+            poolsRedeemableRowView,
+            poolsClaimableRowView
+        ].forEach { view in
+            setupDefaultRowConstraints(for: view)
+        }
+
+        [
+            liquidityPoolsView,
+            crowdloansView,
+            governanceView,
+            totalView
+        ].forEach { view in
+            setupDefaultSectionConstraints(for: view)
+        }
+    }
+
+    private func setupDefaultRowConstraints(for view: UIView) {
+        view.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+    }
+
+    private func setupDefaultSectionConstraints(for view: UIView) {
+        view.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(56)
         }
     }
 
     private func applyLocalization() {
+        navigationBar.titleLabel.text = R.string.localizable.assetdetailsBalanceLocked(preferredLanguages: locale.rLanguages)
         stakingStakedRowView.titleLabel.text = R.string.localizable.stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
         stakingUnstakingRowView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
         stakingRedeemableRowView.titleLabel.text = R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
@@ -125,6 +199,12 @@ final class BalanceLocksDetailViewLayout: UIView {
         poolsUnstakingRowView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
         poolsRedeemableRowView.titleLabel.text = R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
         poolsClaimableRowView.titleLabel.text = R.string.localizable.poolClaimableTitle(preferredLanguages: locale.rLanguages)
+        liquidityPoolsView.titleLabel.text = "Liquidity Pools" // TODO: Localization
+        crowdloansView.titleLabel.text = R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: locale.rLanguages)
+        governanceView.titleLabel.text = "Governance" // TODO: Localization
+        totalView.titleLabel.text = R.string.localizable.commonTotal(preferredLanguages: locale.rLanguages)
+        poolsTitleRowView.rowContentView.text = "Nomination Pools" // TODO: Localization
+        stakingTitleRowView.rowContentView.text = R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages)
     }
 
     private static func makeSectionTitleLabel() -> UILabel {
@@ -136,14 +216,29 @@ final class BalanceLocksDetailViewLayout: UIView {
 
     private static func makeRowView() -> TitleMultiValueView {
         let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
+        view.titleLabel.font = .p1Paragraph
+        view.titleLabel.textColor = R.color.colorWhite()
+        view.valueTop.font = .p1Paragraph
         view.valueTop.textColor = R.color.colorWhite()
-        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.font = .p2Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
         view.borderView.isHidden = true
         view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
+        return view
+    }
+
+    private static func makeSectionView() -> TriangularedTitleMultiValueView {
+        let view = TriangularedTitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorWhite()
+        view.valueTop.font = .p1Paragraph
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p2Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.equalsLabelsWidth = true
+        view.borderView.isHidden = true
         view.valueTop.lineBreakMode = .byTruncatingTail
         view.valueBottom.lineBreakMode = .byTruncatingMiddle
         return view
