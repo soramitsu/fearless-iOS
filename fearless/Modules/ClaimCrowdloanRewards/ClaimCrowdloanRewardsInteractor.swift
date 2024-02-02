@@ -134,6 +134,7 @@ extension ClaimCrowdloanRewardsInteractor: ClaimCrowdloanRewardsInteractorInput 
         priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         fetchBalanceLocks()
         fetchTokenLocks()
+        fetchAccountInfo()
     }
 
     func estimateFee() {

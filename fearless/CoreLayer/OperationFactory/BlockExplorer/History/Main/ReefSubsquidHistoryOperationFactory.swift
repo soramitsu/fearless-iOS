@@ -4,6 +4,7 @@ import CommonWallet
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SoraFoundation
 
 final class ReefSubsquidHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
@@ -17,11 +18,17 @@ final class ReefSubsquidHistoryOperationFactory {
     private func createOperation(
         address: String,
         url: URL,
-        filters: [WalletTransactionHistoryFilter]
+        filters: [WalletTransactionHistoryFilter],
+        count: Int,
+        transfersCursor: String?,
+        stakingsCursor: String?
     ) -> BaseOperation<ReefResponseData> {
         let queryString = prepareQueryForAddress(
             address,
-            filters: filters
+            filters: filters,
+            count: count,
+            transfersCursor: transfersCursor,
+            stakingsCursor: stakingsCursor
         )
 
         let requestFactory = BlockNetworkRequestFactory {
@@ -92,36 +99,59 @@ final class ReefSubsquidHistoryOperationFactory {
 
     private func prepareFilter(
         filters: [WalletTransactionHistoryFilter],
-        address: String
+        address: String,
+        count: Int,
+        transfersCursor: String?,
+        stakingsCursor: String?
     ) -> String {
         var filterStrings: [String] = []
+        let transfersAfter = transfersCursor.map { "\"\($0)\"" } ?? "\"1\""
+        let stakingsAfter = stakingsCursor.map { "\"\($0)\"" } ?? "\"1\""
 
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
                 """
-                          transfers(where: {
-                              AND:[{type_eq:Native},
-                              {OR: [
-                                { from: {id_eq: "\(address)"} },
-                                { to: {id_eq: "\(address)"} },
-                              ]}]
-                            }, orderBy: timestamp_DESC, limit: 20) {
+                transfersConnection(after: \(transfersAfter),
+                 first: \(count), where: {AND: [{type_eq: Native}, {OR: [{from: {id_eq: "\(address)"}}, {to: {id_eq: "\(address)"}}]}]}, orderBy: timestamp_DESC) {
+                    edges {
+                          node {
+                            amount
+                            timestamp
+                            success
+                            to {
                               id
-                              amount
-                              feeAmount
-                              type
-                              timestamp
-                              success
-                              denom
-                              from {
-                                id
-                              }
-                              to {
-                                id
-                              }
                             }
+                            from {
+                              id
+                            }
+                signedData
+                          }
+                        }
+                        pageInfo {
+                endCursor
+                          hasNextPage
+                        }
+                  }
                 """
             )
+        }
+
+        if filters.contains(where: { $0.type == .reward && $0.selected }) {
+            filterStrings.append("""
+                        stakingsConnection(after: \(stakingsAfter),
+                 first: \(count), orderBy: timestamp_DESC, where: {AND: {signer: {id_eq: "\(address)"}, amount_gt: "0", type_eq: Reward}}) {
+                                edges {
+                                                                  node {
+                                                                    amount
+                                                                    timestamp
+                                                                  }
+                                                                }
+                                                                pageInfo {
+            endCursor
+                                                                  hasNextPage
+                                                                }
+                            }
+            """)
         }
 
         return filterStrings.joined(separator: "\n")
@@ -129,9 +159,18 @@ final class ReefSubsquidHistoryOperationFactory {
 
     private func prepareQueryForAddress(
         _ address: String,
-        filters: [WalletTransactionHistoryFilter]
+        filters: [WalletTransactionHistoryFilter],
+        count: Int,
+        transfersCursor: String?,
+        stakingsCursor: String?
     ) -> String {
-        let filterString = prepareFilter(filters: filters, address: address)
+        let filterString = prepareFilter(
+            filters: filters,
+            address: address,
+            count: count,
+            transfersCursor: transfersCursor,
+            stakingsCursor: stakingsCursor
+        )
         return """
         query MyQuery {
           \(filterString)
@@ -199,7 +238,9 @@ final class ReefSubsquidHistoryOperationFactory {
                     localItems: localTransactions
                 )
             } else {
-                let transactions: [AssetTransactionData] = remoteTransactions.map { item in
+                let transactions: [AssetTransactionData] = remoteTransactions.sorted(by: { item1, item2 in
+                    item1.itemTimestamp > item2.itemTimestamp
+                }).map { item in
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
@@ -217,15 +258,26 @@ final class ReefSubsquidHistoryOperationFactory {
 
     private func createHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-        remoteOperation: BaseOperation<WalletRemoteHistoryData>
+        remoteOperation: BaseOperation<ReefResponseData>
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
-            let newHistoryContext = try remoteOperation.extractNoCancellableResultData().context
+            let response = try remoteOperation.extractNoCancellableResultData()
+
+            var context: [String: String] = [:]
+            if let transfersCursor = response.transfersConnection?.pageInfo?.endCursor {
+                context["transfersCursor"] = transfersCursor
+            }
+
+            if let stakingsCursor = response.stakingsConnection?.pageInfo?.endCursor {
+                context["stakingsCursor"] = stakingsCursor
+            }
+
+            let hasNextPage = (response.transfersConnection?.pageInfo?.hasNextPage).or(false) || (response.stakingsConnection?.pageInfo?.hasNextPage).or(false)
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
-                context: !newHistoryContext.isComplete ? newHistoryContext.toContext() : nil
+                context: hasNextPage ? context : nil
             )
         }
     }
@@ -276,10 +328,13 @@ extension ReefSubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
             remoteHistoryOperation = createOperation(
                 address: address,
                 url: baseUrl,
-                filters: filters
+                filters: filters,
+                count: 20,
+                transfersCursor: pagination.context?["transfersCursor"],
+                stakingsCursor: pagination.context?["stakingsCursor"]
             )
         } else {
-            let result = ReefResponseData(transfers: [], stakingsConnection: nil)
+            let result = ReefResponseData(transfersConnection: nil, stakingsConnection: nil)
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
@@ -321,8 +376,9 @@ extension ReefSubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
             clearOperation.addDependency(mergeOperation)
         }
 
-        let mapOperation = createSubqueryHistoryMapOperation(
-            dependingOn: mergeOperation
+        let mapOperation = createHistoryMapOperation(
+            dependingOn: mergeOperation,
+            remoteOperation: remoteHistoryOperation
         )
 
         dependencies.forEach { mapOperation.addDependency($0) }
