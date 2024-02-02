@@ -118,6 +118,7 @@ final class ReefSubsquidHistoryOperationFactory {
                             amount
                             timestamp
                             success
+                    extrinsicHash
                             to {
                               id
                             }
@@ -142,6 +143,7 @@ final class ReefSubsquidHistoryOperationFactory {
                  first: \(count), orderBy: timestamp_DESC, where: {AND: {signer: {id_eq: "\(address)"}, amount_gt: "0", type_eq: Reward}}) {
                                 edges {
                                                                   node {
+            id
                                                                     amount
                                                                     timestamp
                                                                   }
