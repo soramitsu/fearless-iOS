@@ -8,6 +8,7 @@ enum StorageRequestParametersType<K: Encodable> {
     case nMap(params: () throws -> [[any NMapKeyParamProtocol]])
     case encodable(params: () throws -> [K])
     case keys(params: () throws -> [Data])
+    case childKeyParam(storageKeyParam: () throws -> Data, childKeyParam: () throws -> Data)
 }
 
 protocol StorageRequest {

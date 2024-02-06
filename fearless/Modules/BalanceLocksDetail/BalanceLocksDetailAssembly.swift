@@ -27,10 +27,23 @@ final class BalanceLocksDetailAssembly {
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory
         )
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager,
+            chainRegistry: chainRegistry
+        )
+        let crowdloanService = CrowdloanServiceDefault(
+            crowdloanOperationFactory: crowdloanOperationFactory,
+            runtimeService: runtimeService,
+            connection: connection,
+            chainAsset: chainAsset,
+            operationManager: operationManager
+        )
         let interactor = BalanceLocksDetailInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
-            storageRequestPerformer: storageRequestPerformer
+            storageRequestPerformer: storageRequestPerformer,
+            crowdloanService: crowdloanService
         )
         let router = BalanceLocksDetailRouter()
 

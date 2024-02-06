@@ -36,6 +36,12 @@ final class BaseStorageRequestOperationBuilderFactory<T: Decodable>: StorageRequ
                 connection: connection,
                 storageRequestFactory: storageRequestFactory
             )
+        case .childKeyParam:
+            return KeysStorageRequestOperationBuilder<T>(
+                runtimeService: runtimeService,
+                connection: connection,
+                storageRequestFactory: storageRequestFactory
+            )
         }
     }
 }
