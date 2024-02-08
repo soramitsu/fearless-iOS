@@ -43,14 +43,16 @@ final class BalanceLocksDetailAssembly {
             wallet: wallet,
             chainAsset: chainAsset,
             storageRequestPerformer: storageRequestPerformer,
-            crowdloanService: crowdloanService
+            crowdloanService: crowdloanService,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared
         )
         let router = BalanceLocksDetailRouter()
 
         let presenter = BalanceLocksDetailPresenter(
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            logger: Logger.shared
         )
 
         let view = BalanceLocksDetailViewController(

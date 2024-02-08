@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SoraFoundation
 
 final class BalanceLocksDetailPresenter {
@@ -8,11 +9,14 @@ final class BalanceLocksDetailPresenter {
     private let router: BalanceLocksDetailRouterInput
     private let interactor: BalanceLocksDetailInteractorInput
     private let logger: LoggerProtocol?
-    
+
     private var stakingLedger: StakingLedger?
     private var stakingPoolMember: StakingPoolMember?
     private var balanceLocks: BalanceLocks?
     private var contributions: CrowdloanContributionDict?
+    private var vestingSchedule: VestingSchedule?
+    private var vesting: VestingVesting?
+    private var priceData: PriceData?
 
     // MARK: - Constructors
 
@@ -29,6 +33,16 @@ final class BalanceLocksDetailPresenter {
     }
 
     // MARK: - Private methods
+
+    private func provideStakingViewModel() {}
+
+    private func providePoolsViewModel() {}
+
+    private func provideLiquidityPoolsViewModel() {}
+
+    private func provideCrowdloanViewModel() {}
+
+    private func provideGovernanceViewModel() {}
 }
 
 // MARK: - BalanceLocksDetailViewOutput
@@ -43,35 +57,59 @@ extension BalanceLocksDetailPresenter: BalanceLocksDetailViewOutput {
 // MARK: - BalanceLocksDetailInteractorOutput
 
 extension BalanceLocksDetailPresenter: BalanceLocksDetailInteractorOutput {
+    func didReceivePrice(_ price: SSFModels.PriceData?) {
+        priceData = price
+    }
+
+    func didReceivePriceError(_ error: Error) {
+        logger?.error(error.localizedDescription)
+    }
+
     func didReceiveStakingLedger(_ stakingLedger: StakingLedger?) {
         self.stakingLedger = stakingLedger
     }
-    
+
     func didReceiveStakingPoolMember(_ stakingPoolMember: StakingPoolMember?) {
         self.stakingPoolMember = stakingPoolMember
     }
-    
+
     func didReceiveBalanceLocks(_ balanceLocks: BalanceLocks?) {
         self.balanceLocks = balanceLocks
     }
-    
+
     func didReceiveCrowdloanContributions(_ contributions: CrowdloanContributionDict?) {
         self.contributions = contributions
     }
-    
+
+    func didReceiveVestingVesting(_ vesting: VestingVesting?) {
+        self.vesting = vesting
+    }
+
+    func didReceiveVestingSchedule(_ vestingSchedule: VestingSchedule?) {
+        self.vestingSchedule = vestingSchedule
+    }
+
     func didReceiveStakingLedgerError(_ error: Error) {
         logger?.error(error.localizedDescription)
     }
-    
+
     func didReceiveStakingPoolError(_ error: Error) {
         logger?.error(error.localizedDescription)
     }
-    
+
     func didReceiveBalanceLocksError(_ error: Error) {
         logger?.error(error.localizedDescription)
     }
-    
+
     func didReceiveCrowdloanContributionsError(_ error: Error) {
+        logger?.error(error.localizedDescription)
+    }
+
+    func didReceiveVestingScheduleError(_ error: Error) {
+        logger?.error(error.localizedDescription)
+    }
+
+    func didReceiveVestingVestingError(_ error: Error) {
         logger?.error(error.localizedDescription)
     }
 }

@@ -1,8 +1,9 @@
 import Foundation
+import SoraFoundation
 
 struct BalanceLocksDetailPoolViewModel {
-    let stakedViewModel: TitleMultiValueViewModel?
-    let unstakingViewModel: TitleMultiValueViewModel?
-    let redeemableViewModel: TitleMultiValueViewModel?
-    let claimableViewModel: TitleMultiValueViewModel?
+    let stakedViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    let unstakingViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    let redeemableViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    let claimableViewModel: LocalizableResource<BalanceViewModelProtocol>?
 }
