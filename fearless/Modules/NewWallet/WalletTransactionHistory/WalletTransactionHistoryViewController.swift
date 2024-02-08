@@ -106,6 +106,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             rootView.tableView.isHidden = viewModel.sections.isEmpty
             rootView.filterButton.isHidden = viewModel.filtering != .multiple
             rootView.typeSwitcherContainer.isHidden = viewModel.filtering != .single
+            rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
         case let .reloaded(viewModel):
@@ -114,6 +115,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             rootView.tableView.isHidden = viewModel.sections.isEmpty
             rootView.filterButton.isHidden = viewModel.filtering != .multiple
             rootView.typeSwitcherContainer.isHidden = viewModel.filtering != .single
+            rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
         case .unsupported:

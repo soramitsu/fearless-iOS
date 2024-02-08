@@ -86,7 +86,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
         }
     }
 
-    private let separatorView: UIView = {
+    let separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = R.color.colorWhite8()
         return view

@@ -105,13 +105,13 @@ final class ReefSubsquidHistoryOperationFactory {
         stakingsCursor: String?
     ) -> String {
         var filterStrings: [String] = []
-        let transfersAfter = transfersCursor.map { "\"\($0)\"" } ?? "\"1\""
-        let stakingsAfter = stakingsCursor.map { "\"\($0)\"" } ?? "\"1\""
+        let transfersAfter = transfersCursor.map { "after: \"\($0)\"" } ?? ""
+        let stakingsAfter = stakingsCursor.map { "after: \"\($0)\"" } ?? ""
 
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
                 """
-                transfersConnection(after: \(transfersAfter),
+                transfersConnection(\(transfersAfter),
                  first: \(count), where: {AND: [{type_eq: Native}, {OR: [{from: {id_eq: "\(address)"}}, {to: {id_eq: "\(address)"}}]}]}, orderBy: timestamp_DESC) {
                     edges {
                           node {
@@ -139,7 +139,7 @@ final class ReefSubsquidHistoryOperationFactory {
 
         if filters.contains(where: { $0.type == .reward && $0.selected }) {
             filterStrings.append("""
-                        stakingsConnection(after: \(stakingsAfter),
+                        stakingsConnection(\(stakingsAfter),
                  first: \(count), orderBy: timestamp_DESC, where: {AND: {signer: {id_eq: "\(address)"}, amount_gt: "0", type_eq: Reward}}) {
                                 edges {
                                                                   node {

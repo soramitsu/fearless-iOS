@@ -165,7 +165,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
         let address: String
@@ -238,7 +238,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
 
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
@@ -292,7 +292,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
@@ -350,7 +350,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             $0.asset.currencyId == data.assetId
         }
         if let receiveAsset = receiveAsset {
-            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
             let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: receiveAsset.asset.displayInfo, usageCase: usageCase)
             receiveAmountString = amountFormatter.value(for: locale).stringFromDecimal(amountValue) ?? ""
         }
@@ -361,7 +361,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
         })
         var sendAmount = sendAmountDecimal.decimalValue.toString(locale: locale, maximumDigits: 3).or("")
         if let sendAsset = sendAsset {
-            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 3)
+            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
             let sendAmountFormatter = balanceFormatterFactory.createTokenFormatter(for: sendAsset.asset.displayInfo, usageCase: usageCase)
             sendAmount = sendAmountFormatter
                 .value(for: locale)
