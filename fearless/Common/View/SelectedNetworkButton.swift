@@ -4,7 +4,7 @@ import SoraUI
 
 final class SelectedNetworkButton: UIControl {
     private enum Constants {
-        static let insets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
+        static let insets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 8)
         static let imageVerticalPosition: CGFloat = 3
         static let imageWidth: CGFloat = 12
         static let imageHeight: CGFloat = 6
@@ -16,13 +16,6 @@ final class SelectedNetworkButton: UIControl {
         let label = UILabel()
         label.font = .p1Paragraph
         return label
-    }()
-
-    private let dropTraingleImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.dropTriangle()
-        imageView.contentMode = .scaleAspectFit
-        return imageView
     }()
 
     override init(frame: CGRect) {
@@ -57,9 +50,8 @@ final class SelectedNetworkButton: UIControl {
         addSubview(container)
         container.addArrangedSubview(iconImageView)
         container.addArrangedSubview(title)
-        container.addArrangedSubview(dropTraingleImageView)
 
-        [container, iconImageView, title, dropTraingleImageView].forEach {
+        [container, iconImageView, title].forEach {
             $0.isUserInteractionEnabled = false
         }
 
@@ -69,10 +61,6 @@ final class SelectedNetworkButton: UIControl {
 
         iconImageView.snp.makeConstraints { make in
             make.size.equalTo(16)
-        }
-
-        dropTraingleImageView.snp.makeConstraints { make in
-            make.size.equalTo(10)
         }
     }
 }
