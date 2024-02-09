@@ -160,6 +160,7 @@ final class ChainAccountViewLayout: UIView {
         super.init(frame: frame)
         setupLayout()
         applyLocalization()
+        selectNetworkButton.applySelectableStyle(false)
     }
 
     @available(*, unavailable)

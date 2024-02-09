@@ -18,6 +18,13 @@ final class SelectedNetworkButton: UIControl {
         return label
     }()
 
+    private let dropTraingleImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.dropTriangle()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setup()
@@ -43,6 +50,10 @@ final class SelectedNetworkButton: UIControl {
         }
     }
 
+    func applySelectableStyle(_ selectable: Bool) {
+        dropTraingleImageView.isHidden = !selectable
+    }
+
     private func setup() {
         backgroundColor = R.color.colorWhite8()
         let container = UIFactory.default.createHorizontalStackView(spacing: 4)
@@ -50,8 +61,9 @@ final class SelectedNetworkButton: UIControl {
         addSubview(container)
         container.addArrangedSubview(iconImageView)
         container.addArrangedSubview(title)
+        container.addArrangedSubview(dropTraingleImageView)
 
-        [container, iconImageView, title].forEach {
+        [container, iconImageView, title, dropTraingleImageView].forEach {
             $0.isUserInteractionEnabled = false
         }
 
@@ -61,6 +73,10 @@ final class SelectedNetworkButton: UIControl {
 
         iconImageView.snp.makeConstraints { make in
             make.size.equalTo(16)
+        }
+
+        dropTraingleImageView.snp.makeConstraints { make in
+            make.size.equalTo(10)
         }
     }
 }
