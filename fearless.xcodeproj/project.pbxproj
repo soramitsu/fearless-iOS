@@ -2261,6 +2261,7 @@
 		FA5137B929AC76EB00560EBA /* GiantsquidHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5137B529AC76EB00560EBA /* GiantsquidHistoryOperationFactory.swift */; };
 		FA5137BA29AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5137B629AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift */; };
 		FA5137BB29AC76EB00560EBA /* HistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA5137B729AC76EB00560EBA /* HistoryOperationFactory.swift */; };
+		FA566BF32B75E5E500FD20B1 /* StakingCurrentEraRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA566BF22B75E5E500FD20B1 /* StakingCurrentEraRequest.swift */; };
 		FA584C782AB2BCD500F6F020 /* UniversalMediaView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA584C772AB2BCD500F6F020 /* UniversalMediaView.swift */; };
 		FA584C7A2AB2BFE300F6F020 /* MediaType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA584C792AB2BFE300F6F020 /* MediaType.swift */; };
 		FA584C7C2AB3071E00F6F020 /* AlchemyNFTOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA584C7B2AB3071E00F6F020 /* AlchemyNFTOperationFactory.swift */; };
@@ -5308,6 +5309,7 @@
 		FA5137B529AC76EB00560EBA /* GiantsquidHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GiantsquidHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA5137B629AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubsquidHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA5137B729AC76EB00560EBA /* HistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HistoryOperationFactory.swift; sourceTree = "<group>"; };
+		FA566BF22B75E5E500FD20B1 /* StakingCurrentEraRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCurrentEraRequest.swift; sourceTree = "<group>"; };
 		FA584C772AB2BCD500F6F020 /* UniversalMediaView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalMediaView.swift; sourceTree = "<group>"; };
 		FA584C792AB2BFE300F6F020 /* MediaType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaType.swift; sourceTree = "<group>"; };
 		FA584C7B2AB3071E00F6F020 /* AlchemyNFTOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyNFTOperationFactory.swift; sourceTree = "<group>"; };
@@ -13385,6 +13387,7 @@
 			isa = PBXGroup;
 			children = (
 				FA6DD1C02B6B658F007EF1F8 /* StakingLedgerRequest.swift */,
+				FA566BF22B75E5E500FD20B1 /* StakingCurrentEraRequest.swift */,
 			);
 			path = StakingPallet;
 			sourceTree = "<group>";
@@ -17396,6 +17399,7 @@
 				FAFFAE8829AC84B10074AF1F /* SubqueryExtrinsic.swift in Sources */,
 				849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */,
 				8472C5B2265CF9C500E2481B /* StakingRewardDestConfirmInteractor.swift in Sources */,
+				FA566BF32B75E5E500FD20B1 /* StakingCurrentEraRequest.swift in Sources */,
 				FACD42B42A5BE8E1009975AA /* CheckPincodeWireframe.swift in Sources */,
 				846CA77A27099B1E0011124C /* StakingAnalyticsLocalSubscriptionFactory.swift in Sources */,
 				FA62626E2AC2E35A005D3D95 /* WalletConnectProposalWalletsTableCell.swift in Sources */,

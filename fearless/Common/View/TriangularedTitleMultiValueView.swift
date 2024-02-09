@@ -26,14 +26,15 @@ class TriangularedTitleMultiValueView: TitleMultiValueView {
 
         backgroundView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(8)
+            make.leading.equalToSuperview().inset(16)
             make.top.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
         backgroundView.addSubview(valueLabelsStack)
         valueLabelsStack.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(8)
-            make.top.bottom.equalToSuperview()
+            make.trailing.equalToSuperview().inset(16)
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview().inset(8)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 

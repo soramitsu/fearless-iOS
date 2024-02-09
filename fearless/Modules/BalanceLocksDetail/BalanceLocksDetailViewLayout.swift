@@ -108,6 +108,9 @@ final class BalanceLocksDetailViewLayout: UIView {
         contentView.addArrangedSubview(crowdloansView)
         contentView.addArrangedSubview(governanceView)
         contentView.addArrangedSubview(totalView)
+
+        poolsClaimableRowView.isHidden = true
+        liquidityPoolsView.isHidden = true
     }
 
     private func setupConstraints() {
@@ -120,11 +123,13 @@ final class BalanceLocksDetailViewLayout: UIView {
         }
 
         stakingStackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.leading.trailing.top.equalToSuperview()
+            make.bottom.equalToSuperview().inset(8)
         }
 
         poolsStackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.leading.trailing.top.equalToSuperview()
+            make.bottom.equalToSuperview().inset(8)
         }
 
         stakingBackgroundView.snp.makeConstraints { make in

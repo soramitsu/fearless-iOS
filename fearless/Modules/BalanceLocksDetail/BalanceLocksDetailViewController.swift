@@ -47,19 +47,19 @@ final class BalanceLocksDetailViewController: UIViewController, ViewHolder {
 // MARK: - BalanceLocksDetailViewInput
 
 extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
-    func didReceiveGovernanceLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+    @MainActor func didReceiveGovernanceLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async {
         governanceViewModel = viewModel
 
         rootView.governanceView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
     }
 
-    func didReceiveCrowdloanLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+    @MainActor func didReceiveCrowdloanLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async {
         crowdloanViewModel = viewModel
 
         rootView.crowdloansView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
     }
 
-    func didReceiveStakingLocksViewModel(_ viewModel: BalanceLocksDetailStakingViewModel?) {
+    @MainActor func didReceiveStakingLocksViewModel(_ viewModel: BalanceLocksDetailStakingViewModel?) async {
         stakingViewModel = viewModel
 
         rootView.stakingStakedRowView.bindBalance(viewModel: viewModel?.stakedViewModel?.value(for: selectedLocale))
@@ -67,7 +67,7 @@ extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
         rootView.stakingRedeemableRowView.bindBalance(viewModel: viewModel?.redeemableViewModel?.value(for: selectedLocale))
     }
 
-    func didReceivePoolLocksViewModel(_ viewModel: BalanceLocksDetailPoolViewModel?) {
+    @MainActor func didReceivePoolLocksViewModel(_ viewModel: BalanceLocksDetailPoolViewModel?) async {
         poolViewModel = viewModel
 
         rootView.poolsStakedRowView.bindBalance(viewModel: viewModel?.stakedViewModel?.value(for: selectedLocale))
@@ -76,7 +76,7 @@ extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
         rootView.poolsClaimableRowView.bindBalance(viewModel: viewModel?.claimableViewModel?.value(for: selectedLocale))
     }
 
-    func didReceiveLiquidityPoolLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+    @MainActor func didReceiveLiquidityPoolLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async {
         liquidityPoolsViewModel = viewModel
 
         rootView.liquidityPoolsView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
@@ -87,10 +87,12 @@ extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
 
 extension BalanceLocksDetailViewController: Localizable {
     func applyLocalization() {
-        didReceiveGovernanceLocksViewModel(governanceViewModel)
-        didReceiveCrowdloanLocksViewModel(crowdloanViewModel)
-        didReceiveStakingLocksViewModel(stakingViewModel)
-        didReceivePoolLocksViewModel(poolViewModel)
-        didReceiveLiquidityPoolLocksViewModel(liquidityPoolsViewModel)
+        Task {
+            await didReceiveGovernanceLocksViewModel(governanceViewModel)
+            await didReceiveCrowdloanLocksViewModel(crowdloanViewModel)
+            await didReceiveStakingLocksViewModel(stakingViewModel)
+            await didReceivePoolLocksViewModel(poolViewModel)
+            await didReceiveLiquidityPoolLocksViewModel(liquidityPoolsViewModel)
+        }
     }
 }

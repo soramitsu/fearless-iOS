@@ -100,13 +100,9 @@ final class BalanceLocksDetailInteractor {
 
             do {
                 let vesting: [VestingVesting]? = try await storageRequestPerformer.performRequest(request)
-                await MainActor.run(body: {
-                    output?.didReceiveVestingVesting(vesting?.first)
-                })
+                output?.didReceiveVestingVesting(vesting?.first)
             } catch {
-                await MainActor.run(body: {
-                    output?.didReceiveVestingVestingError(error)
-                })
+                output?.didReceiveVestingVestingError(error)
             }
         }
 
@@ -115,18 +111,25 @@ final class BalanceLocksDetailInteractor {
 
             do {
                 let vestingSchedule: [VestingSchedule]? = try await storageRequestPerformer.performRequest(request)
-                await MainActor.run(body: {
-                    output?.didReceiveVestingSchedule(vestingSchedule?.first)
-                })
+                output?.didReceiveVestingSchedule(vestingSchedule?.first)
             } catch {
-                await MainActor.run(body: {
-                    output?.didReceiveVestingScheduleError(error)
-                })
+                output?.didReceiveVestingScheduleError(error)
             }
         }
     }
 
-    private func fetchCurrentEra() {}
+    private func fetchCurrentEra() {
+        Task {
+            let request = StakingCurrentEraRequest()
+
+            do {
+                let currentEra: StringScaleMapper<UInt32>? = try await storageRequestPerformer.performRequest(request)
+                output?.didReceiveCurrentEra(currentEra?.value)
+            } catch {
+                output?.didReceiveCurrentEraError(error)
+            }
+        }
+    }
 }
 
 // MARK: - BalanceLocksDetailInteractorInput
@@ -140,6 +143,7 @@ extension BalanceLocksDetailInteractor: BalanceLocksDetailInteractorInput {
         fetchBalanceLocks()
         fetchCrowdloansInfo()
         fetchVestings()
+        fetchCurrentEra()
         priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }

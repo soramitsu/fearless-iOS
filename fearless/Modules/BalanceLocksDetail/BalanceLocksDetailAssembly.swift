@@ -48,11 +48,22 @@ final class BalanceLocksDetailAssembly {
         )
         let router = BalanceLocksDetailRouter()
 
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet
+        )
+        let viewModelFactory = BalanceLockDetailViewModelFactoryDefault(
+            balanceViewModelFactory: balanceViewModelFactory,
+            chainAsset: chainAsset
+        )
+
         let presenter = BalanceLocksDetailPresenter(
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            logger: Logger.shared
+            logger: Logger.shared,
+            viewModelFactory: viewModelFactory,
+            chainAsset: chainAsset
         )
 
         let view = BalanceLocksDetailViewController(
