@@ -204,7 +204,8 @@ class SendDataValidatingFactory: NSObject {
                 return
             }
             let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
-            let message = R.string.localizable.soraBridgeAmountLessFee(preferredLanguages: locale.rLanguages)
+            let originKnownChain = Chain(chainId: originCHainId)?.rawValue ?? ""
+            let message = R.string.localizable.soraBridgeAmountLessFee(originKnownChain, preferredLanguages: locale.rLanguages)
             self?.basePresentable.presentWarning(
                 for: title,
                 message: message,

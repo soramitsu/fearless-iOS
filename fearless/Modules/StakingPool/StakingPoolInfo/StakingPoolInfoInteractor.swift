@@ -6,7 +6,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolInfoInteractorOutput?
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let operationManager: OperationManagerProtocol
@@ -19,7 +19,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private let eraValidatorService: EraValidatorServiceProtocol
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -29,7 +29,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         eraValidatorService: EraValidatorServiceProtocol
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.operationManager = operationManager
         self.runtimeService = runtimeService
@@ -184,7 +184,7 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
             self?.output?.didReceive(palletIdResult: result)
         }
 
-        priceProvider = subscribeToPrice(for: chainAsset)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchPoolInfo(poolId: poolId)
 
@@ -221,7 +221,7 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
     }
 }
 
-extension StakingPoolInfoInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
+extension StakingPoolInfoInteractor: PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }

@@ -1,4 +1,3 @@
-"\"staking.pool.create.missing.pool.name\" = \"Cannot create pool\";" = "无法创建池";
 "NSCameraUsageDescription" = "相机用于捕捉二维码";
 "NSFaceIDUsageDescription" = "Fearless使用Face ID来限制未经授权的用户访问该应用程序。Face ID用于在应用程序内进行授权。";
 "NSPhotoLibraryAddUsageDescription" = "将转账请求保存为二维码";
@@ -156,8 +155,8 @@
 "backup.wallet.seed" = "显示原始种子";
 "backup.wallet.title" = "备份钱包";
 "banners.view.factory.backup.action.title" = "立即备份";
-"banners.view.factory.backup.subtitle" = "如果你丢失了设备，你将永远失去你的资金";
-"banners.view.factory.backup.title" = "备份你的钱包";
+"banners.view.factory.backup.subtitle" = "保护自己避免失去对资金的访问权限。";
+"banners.view.factory.backup.title" = "钱包备份";
 "banners.view.factory.xor.action.title" = "购买XOR";
 "banners.view.factory.xor.subtitle" = "使用欧元现金购买或出售XOR代币";
 "banners.view.factory.xor.title" = "购买XOR代币";
@@ -182,6 +181,7 @@
 "common.approve" = "批准";
 "common.attention" = "注意";
 "common.available.format" = "可用：%@";
+"common.available.networks" = "可用网络";
 "common.balance" = "余额";
 "common.balance.format" = "余额：%@";
 "common.bonus" = "奖金";
@@ -220,6 +220,7 @@
 "common.error.no.data.retrieved" = "未检索到数据。";
 "common.error.password.mismatch" = "密码不匹配";
 "common.events" = "活动";
+"common.existential.warning.max.amount" = "设置最大金额";
 "common.existential.warning.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对网络上的任何操作都没有控制权或知识。只有在您完全同意并理解相关影响后才能继续。";
 "common.existential.warning.title" = "此操作将删除账户";
 "common.expiry" = "到期";
@@ -240,6 +241,7 @@
 "common.message" = "消息";
 "common.methods" = "方法";
 "common.module" = "模块";
+"common.my.networks" = "我的网络";
 "common.name" = "名字";
 "common.network" = "网络";
 "common.network.fee" = "网络费用";
@@ -255,6 +257,7 @@
 "common.paste" = "粘贴";
 "common.payout" = "支付";
 "common.preview" = "预览";
+"common.price" = "价格";
 "common.privacy.policy" = "隐私政策";
 "common.proceed" = "继续";
 "common.referral.code.title" = "推荐码";
@@ -486,12 +489,20 @@
 "network.status.connected" = "已连接";
 "network.status.connecting" = "正在连接...";
 "network.url.address" = "URL地址";
+"nft.collection.available.nfts" = "%s 集合中可用的 NFT";
+"nft.collection.my.nfts" = "我的 NFT";
 "nft.collection.title" = "收藏品";
+"nft.creator.title" = "创作者";
+"nft.list.empty.message" = "目前还没有任何NFT。购买或铸造NFT以在此处查看。";
 "nft.owner.title" = "拥有";
+"nft.share.address" = "我要接收的公共地址：%s";
 "nft.stub.text" = "NFT即将到来";
 "nft.stub.title" = "对不起！";
 "nft.tokenid.title" = "代币ID";
-"nfts.collection.count" = "Quantity: %d/%d";
+"nfts.collection.count" = "数量：%d/%d";
+"nfts.filters.airdrop" = "空投";
+"nfts.filters.spam" = "垃圾邮件";
+"nfts.filters.title" = "隐藏NFTs";
 "nfts.stub" = "NFTs";
 "no.access.to.google" = "无法访问谷歌";
 "no.account.found" = "未找到账户";
@@ -593,7 +604,7 @@
 "pool.claimable.title" = "可领取";
 "pool.common" = "池";
 "pool.join.no.validators.message" = "该池尚未选择任何验证者。如果您加入，直到选定验证者之前将无法获得任何奖励。";
-"pool.root.unbond.too.high.text" = "你是一个池的所有者，你的质押至少应为%@。如果你想销毁你的池并踢出其成员，请使用Polkadot.js.plus。";
+"pool.root.unbond.too.high.text" = "你是一个池的所有者，你的质押至少应为%s。如果你想销毁你的池并踢出其成员，请使用Polkadot.js.plus。";
 "pool.root.unbond.too.high.title" = "您无法完全取消质押";
 "pool.staking.bouncer" = "保镖";
 "pool.staking.choosepool.button.title" = "选择";
@@ -687,7 +698,9 @@
 "settings.hide.zero.balances" = "隐藏零余额";
 "share.referral.code" = "分享推荐码";
 "sign.this.message" = "签署此消息？";
-"sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
+"sora.bridge.amount.less.fee" = "您尝试转账的金额不足以支付%@网络上的交易费用。尽管交易无法完成，您仍将在Sora网络上被收取费用。";
+"sora.bridge.low.amaunt.polkadot.alert" = "目前，为了确保 SORA 网络的稳定性和安全性，跨链需要最少 1 个 DOT。感谢您的理解。";
+"sora.bridge.low.amount.alert" = "目前，为了确保SORA网络的稳定性和安全性，跨链桥转账的最低金额为0.05 KSM。感谢您的理解。";
 "sora.card.status.failure.text" = "KYC已终止或以其他方式失败。";
 "sora.card.status.failure.title" = "验证失败";
 "sora.card.status.pending.title" = "验证正在进行中";
@@ -803,6 +816,7 @@
 "staking.pool.create.management.account" = "池管理账户";
 "staking.pool.create.missing.name.description" = "池名称缺失";
 "staking.pool.create.missing.name.title" = "无法创建池";
+"staking.pool.create.missing.pool.name" = "无法创建池";
 "staking.pool.create.nominator" = "提名人";
 "staking.pool.create.poolId" = "池 Id";
 "staking.pool.create.root" = "Root";
@@ -811,17 +825,17 @@
 "staking.pool.info.title" = "池信息";
 "staking.pool.management.select.validators.subtitle" = "要继续，您应该\n选择验证人";
 "staking.pool.management.select.validators.title" = "选择池验证人";
-"staking.pool.rewards.delay.text" = "随时质押。您将在%@之后开始赚取利息";
+"staking.pool.rewards.delay.text" = "随时质押。您将在%s之后开始赚取利息";
 "staking.pool.select.validators.manual" = "手动选择";
 "staking.pool.select.validators.suggested" = "选择建议的";
 "staking.pool.sort.pool.members" = "成员人数";
 "staking.pool.stake.info.title" = "质押池信息";
-"staking.pool.start.apr.text" = "每年赚取%@";
+"staking.pool.start.apr.text" = "每年赚取%s";
 "staking.pool.start.create.button.title" = "创建池";
-"staking.pool.start.earn.reward.title" = "质押您的\n %@即可获得奖励";
+"staking.pool.start.earn.reward.title" = "质押您的\n %s即可获得奖励";
 "staking.pool.start.join.button.title" = "加入池";
-"staking.pool.start.reward.freq.text" = "奖励每%@支付一次";
-"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%@。";
+"staking.pool.start.reward.freq.text" = "奖励每%s支付一次";
+"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%s。";
 "staking.rebond" = "返回质押";
 "staking.rebond.all" = "重新绑定所有";
 "staking.rebond.custom.amount" = "重新绑定自定义金额";
@@ -998,6 +1012,7 @@
 "transaction.details.hash.title" = "外部哈希";
 "transaction.details.view.etherscan" = "在Etherscan上查看";
 "transaction.details.view.polkascan" = "在Polkascan中查看";
+"transaction.details.view.reefscan" = "在Reefscan中查看";
 "transaction.details.view.subscan" = "在Subscan中查看";
 "transaction.list.header" = "所有交易";
 "transaction.status.completed" = "已完成";
@@ -1032,8 +1047,8 @@
 "wallet.balance.redeemable" = "可赎回";
 "wallet.balance.reserved" = "保留";
 "wallet.balance.unbonding_v1.9.0" = "解除质押";
-"wallet.connect.connection.complete" = "已成功完成从%@到以太坊的连接";
-"wallet.connect.connection.dissconnected" = "已成功断开与%@以太坊的连接";
+"wallet.connect.connection.complete" = "来自%@的连接已成功完成";
+"wallet.connect.connection.dissconnected" = "成功完成与%@的断开连接。";
 "wallet.connect.invalid.url.message" = "我们的应用程序仅支持Wallet Connect SDK v2，不支持已弃用的SDK v1。请使用适当的版本以确保成功连接。";
 "wallet.connect.invalid.url.title" = "警告：不支持 Wallet Connect SDK v1";
 "wallet.connect.sign.warning.message" = "警告：签署此消息可能会产生危险的副作用。只有在您完全信任的网站上，才使用您的整个账户签署消息。";
@@ -1183,6 +1198,8 @@
 "get.prepared.title" = "做好准备";
 "iban.pending.description" = "您的 IBAN 正在等待签发。\
 如果等待时间超过 72 小时，请通过%@联系我们";
+"iban.suspended.description" = "您的IBAN已被暂停使用。\
+如需了解更多信息，请联系%@。";
 "kyc.result.verification.in.progress" = "正在进行验证";
 "kyc.result.verification.in.progress.description" = "您已成功完成KYC申请。审核正在进行中，您可以很快收到决定。\n\n通常情况下，决定会在同一天做出，在某些情况下可能需要最多3天时间。";
 "log.out" = "退出登录";
@@ -1223,29 +1240,3 @@
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
 "verify.phone.number.title" = "验证您的电话号码";
-"common.available.networks" = "Available networks";
-"common.my.networks" = "My networks";
-"transaction.details.view.reefscan" = "View in Reefscan";
-"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the Kusama network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
-"error.unsupported.asset" = "You're trying to make a transfer of the asset which isn't currently supported on the App. Please choose another asset or request another QR code.";
-"common.request" = "Request";
-"existential.deposit.received.error" = "Existential Deposit not received";
-"create.new.connection" = "Create new connection";
-"review.permissions" = "Review permissions";
-"common.events" = "Events";
-"common.disconnect" = "Disconnect";
-"common.expiry" = "Expiry";
-"sign.this.message" = "Sign this message?";
-"empty.state.message" = "Nothing found for your request";
-"wallet.connect.invalid.url.title" = "Warning: Wallet Connect SDK v1 Not Supported";
-"wallet.connect.invalid.url.message" = "Our App only supports Wallet Connect SDK v2 and does not support the deprecated SDK v1. Please use the appropriate version for a successful connection.";
-"nfts.collection.count" = "Quantity: %d/%d";
-"nfts.filters.title" = "Hide NFTs";
-"nfts.filters.spam" = "SPAM";
-"nfts.filters.airdrop" = "AirDrop";
-"nft.collection.my.nfts" = "My NFTs";
-"nft.collection.available.nfts" = "Available NFTs in the %s collection";
-"nft.creator.title" = "Creator";
-"common.price" = "Price";
-"nft.share.address" = "My public address to receive: %s";
-"nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";

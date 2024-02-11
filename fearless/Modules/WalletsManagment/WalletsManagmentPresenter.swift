@@ -51,7 +51,9 @@ final class WalletsManagmentPresenter {
             locale: selectedLocale
         )
 
-        view?.didReceiveViewModels(viewModels)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveViewModels(viewModels)
+        }
     }
 
     private func showImport() {

@@ -12,6 +12,7 @@ protocol ChainStakingSettings {
     var rewardAssetName: String? { get }
     var type: ChainStakingSettingsType { get }
 
+    func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg
     func accountIdParam(accountId: AccountId) -> MultiAddress
 
     func queryItems<T>(
@@ -45,6 +46,10 @@ struct DefaultRelaychainChainStakingSettings: ChainStakingSettings {
     var type: ChainStakingSettingsType {
         .default
     }
+
+    func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg {
+        .account(accountId)
+    }
 }
 
 struct SoraChainStakingSettings: ChainStakingSettings {
@@ -68,6 +73,10 @@ struct SoraChainStakingSettings: ChainStakingSettings {
 
     var type: ChainStakingSettingsType {
         .sora
+    }
+
+    func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg {
+        .account(accountId)
     }
 }
 
@@ -93,5 +102,9 @@ struct ReefChainStakingSettings: ChainStakingSettings {
 
     var type: ChainStakingSettingsType {
         .reef
+    }
+
+    func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg {
+        .address(accountId.toHexString())
     }
 }
