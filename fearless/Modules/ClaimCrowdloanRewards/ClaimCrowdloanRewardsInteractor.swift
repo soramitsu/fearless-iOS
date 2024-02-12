@@ -120,7 +120,9 @@ final class ClaimCrowdloanRewardsInteractor {
         }
 
         accountInfoFetcher.fetch(for: chainAsset, accountId: accountId) { [weak self] _, accountInfo in
-            self?.output?.didReceiveAccountInfo(accountInfo: accountInfo)
+            DispatchQueue.main.async {
+                self?.output?.didReceiveAccountInfo(accountInfo: accountInfo)
+            }
         }
     }
 }
