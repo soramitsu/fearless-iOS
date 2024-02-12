@@ -61,9 +61,7 @@ final class CustomValidatorListRelaychainViewModelFactory {
             let foundByAddress = $0.address.lowercased().contains(searchText.lowercased())
 
             return foundByName || foundByAddress
-        }.sorted(by: { validator1, validator2 in
-            (validator1.myNomination != nil).intValue > (validator2.myNomination != nil).intValue
-        }).map { validator in
+        }.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
             let apy: NSAttributedString? = validator.stakeInfo.map { info in
@@ -100,7 +98,9 @@ final class CustomValidatorListRelaychainViewModelFactory {
                 shouldShowError: validator.hasSlashes,
                 isSelected: selectedValidatorList.contains(validator)
             )
-        }
+        }.sorted(by: { viewModel1, viewModel2 in
+            viewModel1.isSelected.intValue > viewModel2.isSelected.intValue
+        })
     }
 }
 
