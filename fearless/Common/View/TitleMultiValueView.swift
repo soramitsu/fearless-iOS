@@ -17,7 +17,11 @@ class TitleMultiValueView: UIView {
         return label
     }()
 
-    let valueLabelsStack = UIFactory.default.createVerticalStackView()
+    let valueLabelsStack: UIStackView = {
+        let stackView = UIFactory.default.createVerticalStackView()
+        stackView.alignment = .trailing
+        return stackView
+    }()
 
     let valueBottom: UILabel = {
         let label = UILabel()
@@ -36,12 +40,7 @@ class TitleMultiValueView: UIView {
         return view
     }()
 
-    let activityIndicator: UIActivityIndicatorView = {
-        let view = UIActivityIndicatorView()
-        view.hidesWhenStopped = true
-        view.style = .white
-        return view
-    }()
+    private var skeletonView: SkrullableView?
 
     var equalsLabelsWidth: Bool = false {
         didSet {
@@ -69,12 +68,12 @@ class TitleMultiValueView: UIView {
     }
 
     func bind(viewModel: TitleMultiValueViewModel?) {
-        if viewModel != nil {
-            activityIndicator.stopAnimating()
-        } else {
-            activityIndicator.startAnimating()
+        guard viewModel != nil else {
+            startLoadingIfNeeded()
+            return
         }
 
+        stopLoadingIfNeeded()
         valueTop.text = viewModel?.title
         valueBottom.text = viewModel?.subtitle
 
@@ -83,11 +82,12 @@ class TitleMultiValueView: UIView {
     }
 
     func bindBalance(viewModel: BalanceViewModelProtocol?) {
-        if viewModel != nil {
-            activityIndicator.stopAnimating()
-        } else {
-            activityIndicator.startAnimating()
+        guard viewModel != nil else {
+            startLoadingIfNeeded()
+            return
         }
+
+        stopLoadingIfNeeded()
 
         valueTop.text = viewModel?.amount
         valueBottom.text = viewModel?.price
@@ -116,11 +116,95 @@ class TitleMultiValueView: UIView {
 
         valueLabelsStack.addArrangedSubview(valueTop)
         valueLabelsStack.addArrangedSubview(valueBottom)
+    }
 
-        addSubview(activityIndicator)
-        activityIndicator.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview()
+    func startLoadingIfNeeded() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        valueTop.alpha = 0.0
+        valueBottom.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoadingIfNeeded() {
+        valueTop.alpha = 1.0
+        valueBottom.alpha = 1.0
+
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+    }
+
+    private func setupSkeleton() {
+        let spaceSize = frame.size
+
+        guard spaceSize.height > 0 else {
+            return
+        }
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        addSubview(skeletonView)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let bigRowSize = CGSize(width: 72.0, height: 12.0)
+        let smallRowSize = CGSize(width: 57.0, height: 6.0)
+
+        return [
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: CGRectGetMaxX(valueTop.frame), y: CGRectGetMinY(valueTop.frame)),
+                size: bigRowSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: CGRectGetMaxX(valueBottom.frame), y: CGRectGetMinY(valueBottom.frame)),
+                size: bigRowSize
+            )
+        ]
+    }
+}
+
+extension TitleMultiValueView: SkeletonLoadable {
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
+
+    func didAppearSkeleton() {
+        skeletonView?.stopSkrulling()
+        skeletonView?.startSkrulling()
+    }
+
+    func didUpdateSkeletonLayout() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
         }
     }
 }

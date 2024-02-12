@@ -87,6 +87,12 @@ final class BalanceLocksDetailViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        navigationBar.backButton.rounded()
+    }
+
     private func drawSubviews() {
         addSubview(navigationBar)
         addSubview(contentView)
@@ -204,12 +210,13 @@ final class BalanceLocksDetailViewLayout: UIView {
         poolsUnstakingRowView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
         poolsRedeemableRowView.titleLabel.text = R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages)
         poolsClaimableRowView.titleLabel.text = R.string.localizable.poolClaimableTitle(preferredLanguages: locale.rLanguages)
-        liquidityPoolsView.titleLabel.text = "Liquidity Pools" // TODO: Localization
+        liquidityPoolsView.titleLabel.text = R.string.localizable.balanceLocksLiquidityPoolsRowTitle(preferredLanguages: locale.rLanguages)
         crowdloansView.titleLabel.text = R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: locale.rLanguages)
-        governanceView.titleLabel.text = "Governance" // TODO: Localization
+        governanceView.titleLabel.text = R.string.localizable.balanceLocksGovernanceRowTitle(preferredLanguages: locale.rLanguages)
         totalView.titleLabel.text = R.string.localizable.commonTotal(preferredLanguages: locale.rLanguages)
-        poolsTitleRowView.rowContentView.text = "Nomination Pools" // TODO: Localization
+        poolsTitleRowView.rowContentView.text = R.string.localizable.balanceLocksNominationPoolsRowTitle(preferredLanguages: locale.rLanguages)
         stakingTitleRowView.rowContentView.text = R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages)
+        navigationBar.titleLabel.text = R.string.localizable.balanceLocksScreenTitle(preferredLanguages: locale.rLanguages)
     }
 
     private static func makeSectionTitleLabel() -> UILabel {

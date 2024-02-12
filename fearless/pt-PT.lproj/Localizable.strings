@@ -1246,3 +1246,7 @@ Mantenha, faça STAKE ou forneça liquidez de um valor mínimo de XOR equivalent
 "verify.phone.number.send.code" = "ENVIAR CÓDIGO";
 "verify.phone.number.title" = "Verificar o seu número de telefone";
 "send.all.title" = "Send all tokens and reap the account";
+"balance.locks.screen.title" = "Locked details";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";

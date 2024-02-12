@@ -1239,3 +1239,7 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "verify.phone.number.send.code" = "GỬI MÃ";
 "verify.phone.number.title" = "Xác minh số điện thoại của bạn";
 "send.all.title" = "Send all tokens and reap the account";
+"balance.locks.screen.title" = "Locked details";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";

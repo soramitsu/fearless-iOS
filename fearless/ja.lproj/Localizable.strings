@@ -1116,3 +1116,7 @@
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
 "send.all.title" = "Send all tokens and reap the account";
+"balance.locks.screen.title" = "Locked details";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";

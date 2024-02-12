@@ -189,7 +189,7 @@ final class ChainAccountViewLayout: UIView {
 
         transferableBalanceView.bindBalance(viewModel: balanceViewModel?.transferrableValue.value(for: locale))
         balanceLocksView.bindBalance(viewModel: balanceViewModel?.lockedValue.value(for: locale))
-        infoButton.isHidden = !(balanceViewModel?.hasLockedTokens == true)
+//        infoButton.isHidden = !(balanceViewModel?.hasLockedTokens == true)
     }
 
     func bind(viewModel: ChainAccountViewModel) {

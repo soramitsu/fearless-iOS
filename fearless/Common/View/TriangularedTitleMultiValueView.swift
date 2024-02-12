@@ -40,11 +40,5 @@ class TriangularedTitleMultiValueView: TitleMultiValueView {
 
         valueLabelsStack.addArrangedSubview(valueTop)
         valueLabelsStack.addArrangedSubview(valueBottom)
-
-        backgroundView.addSubview(activityIndicator)
-        activityIndicator.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().inset(8)
-        }
     }
 }

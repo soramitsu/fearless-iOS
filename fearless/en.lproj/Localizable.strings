@@ -1241,3 +1241,7 @@ In case the wait longer than 72h contact us via %@";
 "verify.phone.number.send.code" = "SEND CODE";
 "verify.phone.number.title" = "Verify your phone number";
 "send.all.title" = "Send all tokens and reap the account";
+"balance.locks.screen.title" = "Locked details";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
