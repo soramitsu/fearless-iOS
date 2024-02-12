@@ -174,13 +174,13 @@ class TitleMultiValueView: UIView {
         return [
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
-                position: CGPoint(x: CGRectGetMaxX(valueTop.frame), y: CGRectGetMinY(valueTop.frame)),
+                position: CGPoint(x: CGRectGetMaxX(valueLabelsStack.frame) - bigRowSize.width, y: CGRectGetMidY(valueTop.frame)),
                 size: bigRowSize
             ),
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
-                position: CGPoint(x: CGRectGetMaxX(valueBottom.frame), y: CGRectGetMinY(valueBottom.frame)),
-                size: bigRowSize
+                position: CGPoint(x: CGRectGetMaxX(valueLabelsStack.frame) - bigRowSize.width, y: CGRectGetMidY(valueBottom.frame)),
+                size: smallRowSize
             )
         ]
     }
