@@ -113,7 +113,6 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsViewOutput {
     func didLoad(view: ClaimCrowdloanRewardsViewInput) {
         self.view = view
         interactor.setup(with: self)
-
         interactor.estimateFee()
 
         provideStakeAmountViewModel()
@@ -159,15 +158,11 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsInteractorOutput 
         logger?.error("Vesting claim fee error: \(error.localizedDescription)")
     }
 
-    func didReceiveTxHash(_ txHash: String) {
-        guard let view else { return }
-        router.presentDone(
-            chainAsset: chainAsset,
-            title: R.string.localizable.transactionSuccessful(preferredLanguages: selectedLocale.rLanguages),
-            description: nil,
-            extrinsicHash: txHash,
-            from: view,
-            closure: nil
+    func didReceiveTxHash(_: String) {
+        router.complete(
+            on: view,
+            title: "hash",
+            chainAsset: chainAsset
         )
     }
 

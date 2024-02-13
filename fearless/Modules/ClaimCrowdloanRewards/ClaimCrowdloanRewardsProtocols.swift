@@ -37,7 +37,13 @@ protocol ClaimCrowdloanRewardsInteractorOutput: AnyObject {
     func didReceiveAccountInfo(accountInfo: AccountInfo?)
 }
 
-protocol ClaimCrowdloanRewardsRouterInput: AnyObject, AllDonePresentable, SheetAlertPresentable, ErrorPresentable, AnyDismissable {}
+protocol ClaimCrowdloanRewardsRouterInput: AnyObject, SheetAlertPresentable, ErrorPresentable, AnyDismissable {
+    func complete(
+        on view: ControllerBackedProtocol?,
+        title: String,
+        chainAsset: ChainAsset
+    )
+}
 
 protocol ClaimCrowdloanRewardsModuleInput: AnyObject {}
 
