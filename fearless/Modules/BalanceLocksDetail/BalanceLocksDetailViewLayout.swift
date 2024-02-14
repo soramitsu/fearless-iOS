@@ -4,6 +4,7 @@ final class BalanceLocksDetailViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.present)
+        bar.backButtonAlignment = .right
         bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
         bar.backgroundColor = R.color.colorBlack19()
@@ -216,7 +217,7 @@ final class BalanceLocksDetailViewLayout: UIView {
         totalView.titleLabel.text = R.string.localizable.commonTotal(preferredLanguages: locale.rLanguages)
         poolsTitleRowView.rowContentView.text = R.string.localizable.balanceLocksNominationPoolsRowTitle(preferredLanguages: locale.rLanguages)
         stakingTitleRowView.rowContentView.text = R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages)
-        navigationBar.titleLabel.text = R.string.localizable.balanceLocksScreenTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(R.string.localizable.balanceLocksScreenTitle(preferredLanguages: locale.rLanguages))
     }
 
     private static func makeSectionTitleLabel() -> UILabel {

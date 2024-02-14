@@ -13,6 +13,7 @@ final class BalanceLocksDetailViewController: UIViewController, ViewHolder {
     private var liquidityPoolsViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var governanceViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var crowdloanViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var totalViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
     // MARK: - Constructor
 
@@ -39,9 +40,16 @@ final class BalanceLocksDetailViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        setupActions()
     }
 
     // MARK: - Private methods
+
+    private func setupActions() {
+        rootView.navigationBar.backButton.addAction { [weak self] in
+            self?.output.didTapCloseButton()
+        }
+    }
 }
 
 // MARK: - BalanceLocksDetailViewInput
@@ -80,6 +88,12 @@ extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
         liquidityPoolsViewModel = viewModel
 
         rootView.liquidityPoolsView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
+    }
+
+    @MainActor func didReceiveTotalLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async {
+        totalViewModel = viewModel
+
+        rootView.totalView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
     }
 }
 

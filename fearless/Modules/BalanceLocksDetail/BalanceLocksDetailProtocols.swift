@@ -9,10 +9,12 @@ protocol BalanceLocksDetailViewInput: ControllerBackedProtocol {
     func didReceiveLiquidityPoolLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveGovernanceLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveCrowdloanLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
+    func didReceiveTotalLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
 }
 
 protocol BalanceLocksDetailViewOutput: AnyObject {
     func didLoad(view: BalanceLocksDetailViewInput)
+    func didTapCloseButton()
 }
 
 protocol BalanceLocksDetailInteractorInput: AnyObject {
@@ -39,7 +41,7 @@ protocol BalanceLocksDetailInteractorOutput: AnyObject {
     func didReceiveCurrentEraError(_ error: Error)
 }
 
-protocol BalanceLocksDetailRouterInput: AnyObject {}
+protocol BalanceLocksDetailRouterInput: AnyObject, AnyDismissable {}
 
 protocol BalanceLocksDetailModuleInput: AnyObject {}
 

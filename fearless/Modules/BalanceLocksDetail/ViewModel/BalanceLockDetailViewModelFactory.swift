@@ -5,22 +5,22 @@ import BigInt
 
 protocol BalanceLockDetailViewModelFactory {
     func buildStakingLocksViewModel(
-        stakingLedger: StakingLedger,
+        stakingLedger: StakingLedger?,
         priceData: PriceData?,
-        activeEra: EraIndex
-    ) -> BalanceLocksDetailStakingViewModel
+        activeEra: EraIndex?
+    ) -> BalanceLocksDetailStakingViewModel?
     func buildPoolLocksViewModel(
-        stakingPoolMember: StakingPoolMember,
+        stakingPoolMember: StakingPoolMember?,
         priceData: PriceData?,
-        activeEra: EraIndex
-    ) -> BalanceLocksDetailPoolViewModel
+        activeEra: EraIndex?
+    ) -> BalanceLocksDetailPoolViewModel?
     func buildLiquidityPoolLocksViewModel() -> TitleMultiValueViewModel?
     func buildGovernanceLocksViewModel(
-        balanceLocks: BalanceLocks,
+        balanceLocks: BalanceLocks?,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol>?
     func buildCrowdloanLocksViewModel(
-        crowdloanConbibutions: CrowdloanContributionDict,
+        crowdloanConbibutions: CrowdloanContributionDict?,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol>?
     func buildVestingLocksViewModel(
@@ -28,9 +28,48 @@ protocol BalanceLockDetailViewModelFactory {
         vestingSchedule: VestingSchedule?,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol>?
+    func buildTotalLocksViewModel(
+        stakingLedger: StakingLedger?,
+        stakingPoolMember: StakingPoolMember?,
+        balanceLocks: BalanceLocks?,
+        crowdloanConbibutions: CrowdloanContributionDict?,
+        vesting: VestingVesting?,
+        vestingSchedule: VestingSchedule?,
+        activeEra: EraIndex?,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>?
 }
 
 final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModelFactory {
+    func buildTotalLocksViewModel(
+        stakingLedger: StakingLedger?,
+        stakingPoolMember: StakingPoolMember?,
+        balanceLocks: BalanceLocks?,
+        crowdloanConbibutions: CrowdloanContributionDict?,
+        vesting: VestingVesting?,
+        vestingSchedule: VestingSchedule?,
+        activeEra: EraIndex?,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        let locked = [
+            calculateStakingStakedLock(stakingLedger: stakingLedger),
+            calculateStakingUnstakingLock(stakingLedger: stakingLedger, activeEra: activeEra),
+            calculateStakingRedeemableLock(stakingLedger: stakingLedger, activeEra: activeEra),
+            calculatePoolStakedLocked(stakingPoolMember: stakingPoolMember),
+            calculatePoolUnstakingLocked(stakingPoolMember: stakingPoolMember, activeEra: activeEra),
+            calculatePoolRedeemableLocked(stakingPoolMember: stakingPoolMember, activeEra: activeEra),
+            calculateGovernanceLocked(balanceLocks: balanceLocks),
+            calculateCrowdloanLocked(crowdloanConbibutions: crowdloanConbibutions),
+            calculateVestingLocked(vesting: vesting, vestingSchedule: vestingSchedule)
+        ].reduce(0,+)
+
+        return balanceViewModelFactory.balanceFromPrice(
+            locked,
+            priceData: priceData,
+            usageCase: .detailsCrypto
+        )
+    }
+
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let chainAsset: ChainAsset
 
@@ -40,38 +79,25 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
     }
 
     func buildStakingLocksViewModel(
-        stakingLedger: StakingLedger,
+        stakingLedger: StakingLedger?,
         priceData: PriceData?,
-        activeEra: EraIndex
-    ) -> BalanceLocksDetailStakingViewModel {
-        let precision = Int16(chainAsset.asset.precision)
-
-        let stakedDecimal = Decimal.fromSubstrateAmount(
-            stakingLedger.active,
-            precision: precision
-        ).or(.zero)
+        activeEra: EraIndex?
+    ) -> BalanceLocksDetailStakingViewModel? {
+        let stakedDecimal = calculateStakingStakedLock(stakingLedger: stakingLedger)
         let stakedViewModel = balanceViewModelFactory.balanceFromPrice(
             stakedDecimal,
             priceData: priceData,
             usageCase: .detailsCrypto
         )
 
-        let unstakingValue = stakingLedger
-            .unbondings(inEra: activeEra).map { $0.value }.reduce(0, +)
-        let unstakingDecimal = Decimal.fromSubstrateAmount(
-            unstakingValue,
-            precision: precision
-        ).or(.zero)
+        let unstakingDecimal = calculateStakingUnstakingLock(stakingLedger: stakingLedger, activeEra: activeEra)
         let unstakingViewModel = balanceViewModelFactory.balanceFromPrice(
             unstakingDecimal,
             priceData: priceData,
             usageCase: .detailsCrypto
         )
 
-        let redeemableDecimal = Decimal.fromSubstrateAmount(
-            stakingLedger.redeemable(inEra: activeEra),
-            precision: precision
-        ).or(.zero)
+        let redeemableDecimal = calculateStakingRedeemableLock(stakingLedger: stakingLedger, activeEra: activeEra)
         let redeemableViewModel = balanceViewModelFactory.balanceFromPrice(
             redeemableDecimal,
             priceData: priceData,
@@ -86,33 +112,21 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
     }
 
     func buildPoolLocksViewModel(
-        stakingPoolMember: StakingPoolMember,
+        stakingPoolMember: StakingPoolMember?,
         priceData: PriceData?,
-        activeEra: EraIndex
-    ) -> BalanceLocksDetailPoolViewModel {
-        let precision = Int16(chainAsset.asset.precision)
-        let bondedDecimal = Decimal.fromSubstrateAmount(
-            stakingPoolMember.points,
-            precision: precision
-        ).or(.zero)
+        activeEra: EraIndex?
+    ) -> BalanceLocksDetailPoolViewModel? {
+        let bondedDecimal = calculatePoolStakedLocked(stakingPoolMember: stakingPoolMember)
         let stakedViewModel = balanceViewModelFactory.balanceFromPrice(bondedDecimal, priceData: priceData, usageCase: .detailsCrypto)
 
-        let unstakingValue = stakingPoolMember
-            .unbondings(inEra: activeEra).map { $0.value }.reduce(0, +)
-        let unstakingDecimal = Decimal.fromSubstrateAmount(
-            unstakingValue,
-            precision: precision
-        ).or(.zero)
+        let unstakingDecimal = calculatePoolUnstakingLocked(stakingPoolMember: stakingPoolMember, activeEra: activeEra)
         let unstakingViewModel = balanceViewModelFactory.balanceFromPrice(
             unstakingDecimal,
             priceData: priceData,
             usageCase: .detailsCrypto
         )
 
-        let redeemableDecimal = Decimal.fromSubstrateAmount(
-            stakingPoolMember.redeemable(inEra: activeEra),
-            precision: precision
-        ).or(.zero)
+        let redeemableDecimal = calculatePoolRedeemableLocked(stakingPoolMember: stakingPoolMember, activeEra: activeEra)
         let redeemableViewModel = balanceViewModelFactory.balanceFromPrice(
             redeemableDecimal,
             priceData: priceData,
@@ -131,9 +145,8 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
         nil
     }
 
-    func buildGovernanceLocksViewModel(balanceLocks: BalanceLocks, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol>? {
-        let govLocked = balanceLocks.first(where: { $0.displayId == "pyconvot" })?.amount
-        let govLockedDecimal = Decimal.fromSubstrateAmount(govLocked.or(.zero), precision: Int16(chainAsset.asset.precision)).or(.zero)
+    func buildGovernanceLocksViewModel(balanceLocks: BalanceLocks?, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol>? {
+        let govLockedDecimal = calculateGovernanceLocked(balanceLocks: balanceLocks)
 
         return balanceViewModelFactory.balanceFromPrice(
             govLockedDecimal,
@@ -143,11 +156,10 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
     }
 
     func buildCrowdloanLocksViewModel(
-        crowdloanConbibutions: CrowdloanContributionDict,
+        crowdloanConbibutions: CrowdloanContributionDict?,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol>? {
-        let totalLocked = crowdloanConbibutions.map { $0.value }.map { $0.balance }.reduce(0, +)
-        let totalLockedDecimal = Decimal.fromSubstrateAmount(totalLocked, precision: Int16(chainAsset.asset.precision)).or(.zero)
+        let totalLockedDecimal = calculateCrowdloanLocked(crowdloanConbibutions: crowdloanConbibutions)
 
         return balanceViewModelFactory.balanceFromPrice(
             totalLockedDecimal,
@@ -161,6 +173,129 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
         vestingSchedule: VestingSchedule?,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        let locked = calculateVestingLocked(vesting: vesting, vestingSchedule: vestingSchedule)
+
+        let totalRewardsViewModel = balanceViewModelFactory.balanceFromPrice(
+            locked,
+            priceData: priceData,
+            usageCase: .detailsCrypto
+        )
+
+        return totalRewardsViewModel
+    }
+
+    // MARK: Private functions
+
+    private func calculateStakingStakedLock(
+        stakingLedger: StakingLedger?
+    ) -> Decimal {
+        let precision = Int16(chainAsset.asset.precision)
+        let active = stakingLedger?.active
+        return Decimal.fromSubstrateAmount(
+            active.or(.zero),
+            precision: precision
+        ).or(.zero)
+    }
+
+    private func calculateStakingUnstakingLock(
+        stakingLedger: StakingLedger?,
+        activeEra: EraIndex?
+    ) -> Decimal {
+        guard let activeEra else {
+            return .zero
+        }
+
+        let precision = Int16(chainAsset.asset.precision)
+        let unstakingValue = stakingLedger?
+            .unbondings(inEra: activeEra)
+            .map { $0.value }
+            .reduce(0, +)
+
+        return Decimal.fromSubstrateAmount(
+            unstakingValue.or(.zero),
+            precision: precision
+        ).or(.zero)
+    }
+
+    private func calculateStakingRedeemableLock(
+        stakingLedger: StakingLedger?,
+        activeEra: EraIndex?
+    ) -> Decimal {
+        guard let activeEra else {
+            return .zero
+        }
+
+        let precision = Int16(chainAsset.asset.precision)
+        let redeemable = stakingLedger?.redeemable(inEra: activeEra)
+
+        return Decimal.fromSubstrateAmount(
+            redeemable.or(.zero),
+            precision: precision
+        ).or(.zero)
+    }
+
+    func calculatePoolStakedLocked(
+        stakingPoolMember: StakingPoolMember?
+    ) -> Decimal {
+        let precision = Int16(chainAsset.asset.precision)
+        let points = stakingPoolMember?.points
+
+        return Decimal.fromSubstrateAmount(
+            points.or(.zero),
+            precision: precision
+        ).or(.zero)
+    }
+
+    func calculatePoolUnstakingLocked(
+        stakingPoolMember: StakingPoolMember?,
+        activeEra: EraIndex?
+    ) -> Decimal {
+        guard let activeEra else {
+            return .zero
+        }
+
+        let precision = Int16(chainAsset.asset.precision)
+        let unstakingValue = stakingPoolMember?
+            .unbondings(inEra: activeEra)
+            .map { $0.value }
+            .reduce(0, +)
+
+        return Decimal.fromSubstrateAmount(
+            unstakingValue.or(.zero),
+            precision: precision
+        ).or(.zero)
+    }
+
+    func calculatePoolRedeemableLocked(
+        stakingPoolMember: StakingPoolMember?,
+        activeEra: EraIndex?
+    ) -> Decimal {
+        guard let activeEra else {
+            return .zero
+        }
+
+        let precision = Int16(chainAsset.asset.precision)
+        let redeemable = stakingPoolMember?.redeemable(inEra: activeEra)
+        return Decimal.fromSubstrateAmount(
+            redeemable.or(.zero),
+            precision: precision
+        ).or(.zero)
+    }
+
+    private func calculateGovernanceLocked(balanceLocks: BalanceLocks?) -> Decimal {
+        let govLocked = balanceLocks?.first(where: { $0.displayId == "pyconvot" })?.amount
+        return Decimal.fromSubstrateAmount(govLocked.or(.zero), precision: Int16(chainAsset.asset.precision)).or(.zero)
+    }
+
+    private func calculateCrowdloanLocked(crowdloanConbibutions: CrowdloanContributionDict?) -> Decimal {
+        let totalLocked = crowdloanConbibutions?.map { $0.value }.map { $0.balance }.reduce(0, +)
+        return Decimal.fromSubstrateAmount(totalLocked.or(.zero), precision: Int16(chainAsset.asset.precision)).or(.zero)
+    }
+
+    private func calculateVestingLocked(
+        vesting: VestingVesting?,
+        vestingSchedule: VestingSchedule?
+    ) -> Decimal {
         let vestingLocked = vesting.map { vesting in
             let lockedValue = Decimal.fromSubstrateAmount(vesting.locked ?? .zero, precision: Int16(chainAsset.asset.precision)) ?? .zero
 
@@ -174,12 +309,6 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
             return periodsDecimal * perPeriodDecimal
         } ?? .zero
 
-        let totalRewardsViewModel = balanceViewModelFactory.balanceFromPrice(
-            vestingScheduleLocked + vestingLocked,
-            priceData: priceData,
-            usageCase: .detailsCrypto
-        )
-
-        return totalRewardsViewModel
+        return vestingScheduleLocked + vestingLocked
     }
 }
