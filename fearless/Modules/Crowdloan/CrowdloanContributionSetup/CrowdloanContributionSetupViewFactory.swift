@@ -100,9 +100,7 @@ struct CrowdloanContributionSetupViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let jsonLocalSubscriptionFactory = JsonDataProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
@@ -114,7 +112,7 @@ struct CrowdloanContributionSetupViewFactory {
             chainId: chainAsset.chain.chainId
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
@@ -128,7 +126,7 @@ struct CrowdloanContributionSetupViewFactory {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
             operationManager: operationManager,
             existentialDepositService: existentialDepositService,

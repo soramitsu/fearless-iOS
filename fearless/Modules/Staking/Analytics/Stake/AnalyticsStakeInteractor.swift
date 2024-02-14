@@ -6,24 +6,24 @@ final class AnalyticsStakeInteractor {
     weak var presenter: AnalyticsStakeInteractorOutputProtocol!
 
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private let operationManager: OperationManagerProtocol
     private let chainAsset: ChainAsset
     private let selectedAccountAddress: AccountAddress
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationManager: OperationManagerProtocol,
         selectedAccountAddress: AccountAddress,
         chainAsset: ChainAsset
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.operationManager = operationManager
         self.selectedAccountAddress = selectedAccountAddress
         self.chainAsset = chainAsset
@@ -32,9 +32,7 @@ final class AnalyticsStakeInteractor {
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         stashItemProvider = subscribeStashItemProvider(for: selectedAccountAddress)
     }
@@ -58,8 +56,8 @@ extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     }
 }
 
-extension AnalyticsStakeInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension AnalyticsStakeInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

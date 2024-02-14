@@ -4,6 +4,7 @@ import CommonWallet
 import IrohaCrypto
 import SoraFoundation
 import SSFModels
+import SSFUtils
 
 struct GiantsquidDestination: Decodable {
     let id: String
@@ -15,7 +16,7 @@ struct GiantsquidTransferResponse: Decodable {
 }
 
 struct GiantsquidTransfer: Decodable {
-    let id: String
+    let id: String?
     let amount: String
     let to: GiantsquidDestination?
     let from: GiantsquidDestination?
@@ -24,6 +25,8 @@ struct GiantsquidTransfer: Decodable {
     let timestamp: String
     let blockNumber: UInt32?
     let type: String?
+    let feeAmount: String?
+    let signedData: GiantsquidSignedData?
 
     var timestampInSeconds: Int64 {
         let locale = LocalizationManager.shared.selectedLocale
@@ -33,9 +36,19 @@ struct GiantsquidTransfer: Decodable {
     }
 }
 
+struct GiantsquidSignedData: Decodable {
+    let fee: GiantsquidSignedDataFee?
+}
+
+struct GiantsquidSignedDataFee: Decodable {
+    let `class`: String?
+    let weight: UInt32?
+    @OptionStringCodable var partialFee: BigUInt?
+}
+
 extension GiantsquidTransfer: WalletRemoteHistoryItemProtocol {
     var identifier: String {
-        id
+        id.or(extrinsicHash.or(timestamp + amount))
     }
 
     var itemBlockNumber: UInt64 { 0 }

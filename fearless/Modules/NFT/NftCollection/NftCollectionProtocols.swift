@@ -6,20 +6,26 @@ protocol NftCollectionViewInput: ControllerBackedProtocol {
 
 protocol NftCollectionViewOutput: AnyObject {
     func didLoad(view: NftCollectionViewInput)
+    func viewAppeared()
     func didBackButtonTapped()
-    func didSelect(nft: NFT)
+    func didSelect(nft: NFT, type: NftType)
+    func didTapActionButton(nft: NFT, type: NftType)
+    func loadNext()
 }
 
 protocol NftCollectionInteractorInput: AnyObject {
+    func initialSetup()
     func setup(with output: NftCollectionInteractorOutput)
+    func fetchData()
 }
 
 protocol NftCollectionInteractorOutput: AnyObject {
     func didReceive(collection: NFTCollection)
 }
 
-protocol NftCollectionRouterInput: AnyObject, PresentDismissable {
-    func openNftDetails(nft: NFT, wallet: MetaAccountModel, address: String, from view: ControllerBackedProtocol?)
+protocol NftCollectionRouterInput: AnyObject, PresentDismissable, SharingPresentable {
+    func openNftDetails(nft: NFT, type: NftType, wallet: MetaAccountModel, address: String, from view: ControllerBackedProtocol?)
+    func openSend(nft: NFT, wallet: MetaAccountModel, from view: ControllerBackedProtocol?)
 }
 
 protocol NftCollectionModuleInput: AnyObject {}

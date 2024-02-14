@@ -34,11 +34,11 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let interactor = StakingRewardDetailsInteractor(
-            asset: chainAsset.asset,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
+            chainAsset: chainAsset,
+            priceLocalSubscriber: priceLocalSubscriber
         )
         let wireframe = StakingRewardDetailsWireframe()
 

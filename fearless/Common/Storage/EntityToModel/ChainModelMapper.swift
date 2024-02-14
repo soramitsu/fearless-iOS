@@ -42,13 +42,20 @@ final class ChainModelMapper {
             SSFModels.PurchaseProvider(rawValue: $0)
         }
 
+        var priceProvider: PriceProvider?
+        if let typeRawValue = entity.priceProvider?.type,
+           let type = PriceProviderType(rawValue: typeRawValue),
+           let id = entity.priceProvider?.id {
+            let precision = entity.priceProvider?.precision ?? ""
+            priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
+        }
+
         return AssetModel(
             id: id,
             name: name,
             symbol: symbol,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
-            priceId: entity.priceId,
             price: entity.price as Decimal?,
             fiatDayChange: entity.fiatDayChange as Decimal?,
             currencyId: entity.currencyId,
@@ -59,7 +66,9 @@ final class ChainModelMapper {
             staking: staking,
             purchaseProviders: purchaseProviders,
             type: createChainAssetModelType(from: entity.type),
-            ethereumType: createEthereumAssetType(from: entity.ethereumType)
+            ethereumType: createEthereumAssetType(from: entity.ethereumType),
+            priceProvider: priceProvider,
+            coingeckoPriceId: entity.priceId
         )
     }
 
@@ -89,7 +98,7 @@ final class ChainModelMapper {
             assetEntity.id = $0.id
             assetEntity.icon = $0.icon
             assetEntity.precision = Int16(bitPattern: $0.precision)
-            assetEntity.priceId = $0.priceId
+            assetEntity.priceId = $0.coingeckoPriceId
             assetEntity.price = $0.price as NSDecimalNumber?
             assetEntity.fiatDayChange = $0.fiatDayChange as NSDecimalNumber?
             assetEntity.symbol = $0.symbol
@@ -102,6 +111,14 @@ final class ChainModelMapper {
             assetEntity.isNative = $0.isNative
             assetEntity.staking = $0.staking?.rawValue
             assetEntity.ethereumType = $0.ethereumType?.rawValue
+
+            let priceProviderContext = CDPriceProvider(context: context)
+            priceProviderContext.type = $0.priceProvider?.type.rawValue
+            priceProviderContext.id = $0.priceProvider?.id
+            if let precision = $0.priceProvider?.precision {
+                priceProviderContext.precision = "\(precision)"
+            }
+            assetEntity.priceProvider = priceProviderContext
 
             let purchaseProviders: [String]? = $0.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders

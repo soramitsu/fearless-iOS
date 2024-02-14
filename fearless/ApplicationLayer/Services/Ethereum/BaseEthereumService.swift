@@ -98,4 +98,14 @@ class BaseEthereumService {
             }
         }
     }
+
+    func checkChainSupportEip1559() async -> Bool {
+        do {
+            _ = try await queryMaxPriorityFeePerGas()
+            return true
+        } catch {
+            print("error: ", error)
+            return false
+        }
+    }
 }

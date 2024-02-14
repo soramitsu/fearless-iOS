@@ -61,6 +61,17 @@ extension ExtrinsicOptionsPresentable {
             alertController.addAction(viewEtherscan)
         }
 
+        if let url = chain.reefscanTransactionURL(extrinsicHash) {
+            let etherscanTitle = R.string.localizable
+                .transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
+            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
+                let webController = WebViewFactory.createWebViewController(for: url, style: .automatic)
+                view?.controller.present(webController, animated: true, completion: nil)
+            }
+
+            alertController.addAction(viewEtherscan)
+        }
+
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale.rLanguages)
         let cancel = UIAlertAction(title: cancelTitle, style: .cancel, handler: nil)

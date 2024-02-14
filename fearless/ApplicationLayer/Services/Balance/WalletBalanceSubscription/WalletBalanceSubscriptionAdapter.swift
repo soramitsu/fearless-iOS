@@ -66,11 +66,11 @@ enum WalletBalanceListenerType {
     case chainAssets(chainAssets: [ChainAsset], wallet: MetaAccountModel)
 }
 
-final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, PriceLocalStorageSubscriber {
+final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol {
     // MARK: - PriceLocalStorageSubscriber
 
     static let shared = createWalletBalanceAdapter()
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     // MARK: - Private properties
 
@@ -96,18 +96,19 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     private let accountInfosLock = ReaderWriterLock()
     private let listenersLock = ReaderWriterLock()
+    private let chainAssetsLock = ReaderWriterLock()
 
     // MARK: - Constructor
 
     private init(
         metaAccountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAssetFetcher: ChainAssetFetchingProtocol,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
         logger: Logger
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.metaAccountRepository = metaAccountRepository
         self.chainAssetFetcher = chainAssetFetcher
         self.operationQueue = operationQueue
@@ -317,12 +318,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     private func subscribeToPrices(for chainAssets: [ChainAsset], currencies: [Currency]?) {
-        let pricesIds = chainAssets.compactMap(\.asset.priceId)
         var uniqueQurrencies: [Currency]? = currencies
         if let currencies = currencies {
             uniqueQurrencies = Array(Set(currencies))
         }
-        pricesProvider = subscribeToPrices(for: pricesIds, currencies: uniqueQurrencies)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, currencies: uniqueQurrencies, listener: self)
     }
 
     private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {
@@ -474,7 +474,8 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
 
                 return dic
             }
-            self.chainAssets = chainsAssetsMap
+
+            chainAssetsLock.exclusivelyWrite { self.chainAssets = chainsAssetsMap }
             defineExpectedAccountInfosCount(wallets: metaAccounts, chainAssets: cas)
             subscribeToAccountInfo(for: metaAccounts, cas)
         }
@@ -514,16 +515,6 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
 
 extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
-        let unwrappedListeners = listenersLock.concurrentlyRead {
-            listeners.compactMap {
-                if let target = $0.target as? WalletBalanceSubscriptionListener {
-                    return target
-                }
-
-                return nil
-            }
-        }
-
         switch result {
         case let .success(prices):
             Task {
@@ -532,6 +523,15 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
                 buildAndNotifyIfNeeded(with: metaAccounts, updatedChainAssets: cas)
             }
         case let .failure(error):
+            let unwrappedListeners = listenersLock.concurrentlyRead {
+                listeners.compactMap {
+                    if let target = $0.target as? WalletBalanceSubscriptionListener {
+                        return target
+                    }
+
+                    return nil
+                }
+            }
             unwrappedListeners.forEach { listener in
                 notify(listener: listener, result: .failure(error))
             }
@@ -547,9 +547,7 @@ private extension WalletBalanceSubscriptionAdapter {
         )
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -559,7 +557,7 @@ private extension WalletBalanceSubscriptionAdapter {
 
         return WalletBalanceSubscriptionAdapter(
             metaAccountRepository: AnyDataProviderRepository(accountRepository),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAssetFetcher: chainAssetFetching,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,

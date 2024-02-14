@@ -8,22 +8,22 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     weak var presenter: SelectValidatorsConfirmInteractorOutputProtocol!
 
     let chainAsset: ChainAsset
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let strategy: SelectValidatorsConfirmStrategy
     let balanceAccountId: AccountId
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         balanceAccountId: AccountId,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         strategy: SelectValidatorsConfirmStrategy,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.strategy = strategy
         self.balanceAccountId = balanceAccountId
@@ -35,9 +35,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     func setup() {
         accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: balanceAccountId, handler: self)
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
         strategy.subscribeToBalance()
@@ -52,8 +50,8 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     }
 }
 
-extension SelectValidatorsConfirmInteractorBase: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension SelectValidatorsConfirmInteractorBase: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePrice(result: result)
     }
 }

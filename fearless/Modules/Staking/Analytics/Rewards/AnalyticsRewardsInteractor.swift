@@ -5,20 +5,20 @@ import SSFModels
 final class AnalyticsRewardsInteractor {
     weak var presenter: AnalyticsRewardsInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let strategy: AnalyticsRewardsStrategy
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         strategy: AnalyticsRewardsStrategy,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
         self.strategy = strategy
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
     }
@@ -30,16 +30,14 @@ extension AnalyticsRewardsInteractor: AnalyticsRewardsInteractorInputProtocol {
     }
 
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
     }
 }
 
-extension AnalyticsRewardsInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension AnalyticsRewardsInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

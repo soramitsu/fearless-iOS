@@ -29,6 +29,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case hasStaking(Bool)
         case hasCrowdloans(Bool)
         case assetName(String)
+        case assetNames([String])
         case search(String)
         case ecosystem(ChainEcosystem)
         case chainIds([ChainModel.Id])
@@ -225,7 +226,6 @@ private extension ChainAssetsFetching {
         case let .search(name):
             return chainAssets.filter {
                 $0.asset.symbol.lowercased().contains(name.lowercased())
-                    || $0.chain.name.lowercased().contains(name.lowercased())
             }
         case let .ecosystem(ecosystem):
             return chainAssets.filter {
@@ -235,6 +235,8 @@ private extension ChainAssetsFetching {
             return chainAssets.filter { ids.contains($0.chain.chainId) }
         case .supportNfts:
             return chainAssets.filter { $0.chain.isEthereum }
+        case let .assetNames(names):
+            return chainAssets.filter { names.map { $0.lowercased() }.contains($0.asset.symbol.lowercased()) }
         }
     }
 

@@ -49,11 +49,11 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        guard let chainAssets = self.chainAssets else {
-            return
-        }
-
         lock.concurrentlyRead {
+            guard let chainAssets = self.chainAssets else {
+                return
+            }
+
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
             let chainsWithMissingAccounts = self.chainsWithMissingAccounts
@@ -128,7 +128,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             interactor.getAvailableChainAssets(chainAsset: viewModel.chainAsset) { [weak self] availableChainAssets in
                 guard let strongSelf = self else { return }
                 DispatchQueue.main.async {
-                    if availableChainAssets.count > 1 {
+                    if availableChainAssets.count > 1, strongSelf.displayType != .chain {
                         strongSelf.router.showAssetNetworks(
                             from: strongSelf.view,
                             chainAsset: viewModel.chainAsset
@@ -179,7 +179,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didPullToRefresh() {
-        interactor.reload(fetchPrices: prices.updated)
+        interactor.reload()
     }
 }
 
@@ -208,6 +208,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 guard let self = self else { return }
                 self.chainAssets = chainAssets
             }
+            provideViewModel()
         case let .failure(error):
             Logger.shared.customError(error)
         }

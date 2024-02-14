@@ -23,7 +23,8 @@ final class IdentityOperationFactory {
     private func createSuperIdentityOperation(
         dependingOn coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         accountIds: @escaping () throws -> [AccountId],
-        engine: JSONRPCEngine
+        engine: JSONRPCEngine,
+        chain: ChainModel
     ) -> SuperIdentityWrapper {
         let path = StorageCodingPath.superIdentity
 
@@ -31,11 +32,16 @@ final class IdentityOperationFactory {
             try coderFactoryOperation.extractNoCancellableResultData()
         }
 
-        let superIdentityWrapper: SuperIdentityWrapper = requestFactory.queryItems(
+        guard let chainStakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
+        }
+
+        let superIdentityWrapper: SuperIdentityWrapper = chainStakingSettings.queryItems(
             engine: engine,
             keyParams: accountIds,
             factory: factory,
-            storagePath: path
+            storagePath: path,
+            using: requestFactory
         )
 
         return superIdentityWrapper
@@ -103,6 +109,10 @@ final class IdentityOperationFactory {
         engine: JSONRPCEngine,
         chain: ChainModel
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
+        guard let stakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
+        }
+
         let path = StorageCodingPath.identity
 
         let keyParams: () throws -> [Data] = {
@@ -120,12 +130,7 @@ final class IdentityOperationFactory {
             try runtimeOperation.extractNoCancellableResultData()
         }
 
-        let identityWrapper: IdentityWrapper = requestFactory.queryItems(
-            engine: engine,
-            keyParams: keyParams,
-            factory: factory,
-            storagePath: path
-        )
+        let identityWrapper: IdentityWrapper = stakingSettings.queryItems(engine: engine, keyParams: keyParams, factory: factory, storagePath: path, using: requestFactory)
 
         let mergeOperation = createIdentityMergeOperation(
             dependingOn: superIdentityOperation,
@@ -154,7 +159,8 @@ extension IdentityOperationFactory: IdentityOperationFactoryProtocol {
         let superIdentityWrapper = createSuperIdentityOperation(
             dependingOn: coderFactoryOperation,
             accountIds: accountIdClosure,
-            engine: engine
+            engine: engine,
+            chain: chain
         )
 
         superIdentityWrapper.allOperations.forEach {

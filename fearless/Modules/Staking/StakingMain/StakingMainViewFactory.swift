@@ -203,7 +203,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
-            priceLocalSubscriptionFactory: PriceProviderFactory.shared,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             stakingServiceFactory: serviceFactory,
             accountProviderFactory: accountProviderFactory,
             eventCenter: EventCenter.shared,

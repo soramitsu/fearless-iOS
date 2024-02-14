@@ -4,9 +4,11 @@ final class FiltersInteractor {
     weak var presenter: FiltersInteractorOutputProtocol?
 
     private var filters: [FilterSet]
+    private let mode: FiltersMode
 
-    init(filters: [FilterSet]) {
+    init(filters: [FilterSet], mode: FiltersMode) {
         self.filters = filters
+        self.mode = mode
     }
 }
 

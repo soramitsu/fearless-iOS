@@ -90,6 +90,27 @@ final class SendViewLayout: UIView {
 
     let searchView = SearchTriangularedView(withPasteButton: true)
 
+    let sendAllContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isHidden = true
+        return view
+    }()
+
+    let sendAllLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = R.color.colorWhite()
+        label.font = .p1Paragraph
+        label.numberOfLines = 0
+        return label
+    }()
+
+    let sendAllSwitch: UISwitch = {
+        let switchView = UISwitch()
+        switchView.onTintColor = R.color.colorPink()
+        return switchView
+    }()
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -148,6 +169,12 @@ final class SendViewLayout: UIView {
     func bind(viewModel: RecipientViewModel) {
         searchView.textField.text = viewModel.address
         searchView.updateState(icon: viewModel.icon, clearButtonIsHidden: !viewModel.canEditing)
+    }
+
+    func switchEnableSendAllVisibility(isVisible _: Bool) {
+//        Temporary always hide until complete changes
+//        sendAllContainerView.isHidden = !isVisible
+        sendAllContainerView.isHidden = true
     }
 }
 
@@ -224,6 +251,25 @@ private extension SendViewLayout {
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
             make.height.equalTo(LayoutConstants.stackActionHeight)
+        }
+
+        sendAllContainerView.addSubview(sendAllLabel)
+        sendAllLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.top.bottom.equalToSuperview().offset(4)
+        }
+
+        sendAllContainerView.addSubview(sendAllSwitch)
+        sendAllSwitch.snp.makeConstraints { make in
+            make.leading.greaterThanOrEqualTo(sendAllLabel.snp.trailing).offset(4)
+            make.trailing.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
+
+        bottomContainer.addSubview(sendAllContainerView)
+        sendAllContainerView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(optionsStackView.snp.top).offset(-UIConstants.bigOffset)
             make.top.equalToSuperview()
         }
     }
@@ -261,5 +307,7 @@ private extension SendViewLayout {
             .sendFundTitle(preferredLanguages: locale.rLanguages)
 
         selectNetworkView.title = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
+
+        sendAllLabel.text = R.string.localizable.sendAllTitle(preferredLanguages: locale.rLanguages)
     }
 }

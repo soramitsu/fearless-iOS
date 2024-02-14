@@ -9,7 +9,7 @@ final class ControllerAccountConfirmationInteractor {
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let runtimeService: RuntimeCodingServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let signingWrapper: SigningWrapperProtocol
@@ -22,7 +22,7 @@ final class ControllerAccountConfirmationInteractor {
     private let selectedAccount: MetaAccountModel
     private let callFactory: SubstrateCallFactoryProtocol
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
@@ -30,7 +30,7 @@ final class ControllerAccountConfirmationInteractor {
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         runtimeService: RuntimeCodingServiceProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         signingWrapper: SigningWrapperProtocol,
@@ -46,7 +46,7 @@ final class ControllerAccountConfirmationInteractor {
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.runtimeService = runtimeService
         self.extrinsicService = extrinsicService
         self.signingWrapper = signingWrapper
@@ -91,9 +91,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         estimateFee()
         feeProxy.delegate = self
@@ -216,8 +214,8 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
     }
 }
 
-extension ControllerAccountConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension ControllerAccountConfirmationInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

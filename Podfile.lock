@@ -10,9 +10,9 @@ PODS:
     - Charts/Core (= 4.1.0)
   - Charts/Core (4.1.0):
     - SwiftAlgorithms (~> 1.0)
-  - CocoaLumberjack (3.8.1):
-    - CocoaLumberjack/Core (= 3.8.1)
-  - CocoaLumberjack/Core (3.8.1)
+  - CocoaLumberjack (3.8.2):
+    - CocoaLumberjack/Core (= 3.8.2)
+  - CocoaLumberjack/Core (3.8.2)
   - CommonWallet/Core (1.16.0):
     - RobinHood (~> 2.6.1)
     - SoraFoundation/DateProcessing (~> 1.0.0)
@@ -20,10 +20,10 @@ PODS:
     - SoraFoundation/NotificationHandlers (~> 1.0.0)
     - SoraFoundation/NumberProcessing (~> 1.0.0)
     - SoraUI (~> 1.10.0)
-  - Cuckoo (1.10.3):
-    - Cuckoo/Swift (= 1.10.3)
-  - Cuckoo/Swift (1.10.3)
-  - FearlessKeys (0.1.1)
+  - Cuckoo (1.10.4):
+    - Cuckoo/Swift (= 1.10.4)
+  - Cuckoo/Swift (1.10.4)
+  - FearlessKeys (0.1.3)
   - FireMock (3.1)
   - GoogleAPIClientForREST/Core (1.2.1):
     - GTMSessionFetcher (>= 1.1.7)
@@ -37,10 +37,10 @@ PODS:
   - GTMAppAuth (2.0.0):
     - AppAuth/Core (~> 1.6)
     - GTMSessionFetcher/Core (< 4.0, >= 1.5)
-  - GTMSessionFetcher (3.1.1):
-    - GTMSessionFetcher/Full (= 3.1.1)
-  - GTMSessionFetcher/Core (3.1.1)
-  - GTMSessionFetcher/Full (3.1.1):
+  - GTMSessionFetcher (3.2.0):
+    - GTMSessionFetcher/Full (= 3.2.0)
+  - GTMSessionFetcher/Core (3.2.0)
+  - GTMSessionFetcher/Full (3.2.0):
     - GTMSessionFetcher/Core
   - IrohaCrypto (0.10.0):
     - IrohaCrypto/BIP39 (= 0.10.0)
@@ -71,7 +71,7 @@ PODS:
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - keccak.c (0.1.3)
-  - Kingfisher (7.9.1)
+  - Kingfisher (7.10.2)
   - MediaView (0.2.0)
   - MPQRCoreSDK (2.0.7)
   - R.swift (6.1.0):
@@ -170,7 +170,7 @@ PODS:
     - SSFRuntimeCodingService
     - SSFStorageQueryKit
     - SSFUtils
-  - SSFExtrinsicKit (0.1.0):
+  - SSFExtrinsicKit (0.1.31):
     - IrohaCrypto
     - RobinHood
     - SSFCrypto
@@ -179,12 +179,12 @@ PODS:
     - SSFRuntimeCodingService
     - SSFSigner
     - SSFUtils
-  - SSFHelpers (0.1.27):
+  - SSFHelpers (0.1.31):
     - SSFModels
     - SSFUtils
   - SSFLogger (0.1.0):
     - SwiftyBeaver
-  - SSFModels (0.1.27):
+  - SSFModels (0.1.32):
     - IrohaCrypto
   - SSFNetwork (0.1.17):
     - RobinHood
@@ -204,7 +204,7 @@ PODS:
     - SSFCrypto
     - SSFRuntimeCodingService
     - SSFUtils
-  - SSFUtils (0.1.25):
+  - SSFUtils (0.1.31):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -235,8 +235,8 @@ PODS:
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.53.0)
-  - SwiftyBeaver (1.9.5)
+  - SwiftLint (0.54.0)
+  - SwiftyBeaver (2.0.0)
   - TweetNacl (1.0.2)
   - XNetworking (0.0.37)
   - xxHash-Swift (1.0.13)
@@ -245,7 +245,7 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessKeys
+  - FearlessKeys (= 0.1.3)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -265,15 +265,15 @@ DEPENDENCIES:
   - SSFCloudStorage
   - SSFCrypto
   - SSFEraKit
-  - SSFExtrinsicKit
-  - SSFHelpers (= 0.1.27)
+  - SSFExtrinsicKit (= 0.1.31)
+  - SSFHelpers (= 0.1.31)
   - SSFLogger
-  - SSFModels (= 0.1.27)
+  - SSFModels (= 0.1.32)
   - SSFNetwork
   - SSFRuntimeCodingService (= 0.1.29)
   - SSFSigner
   - SSFStorageQueryKit
-  - SSFUtils (= 0.1.25)
+  - SSFUtils (= 0.1.31)
   - SSFXCM (= 0.1.25)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
@@ -362,18 +362,18 @@ SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
-  CocoaLumberjack: 5c7e64cdb877770859bddec4d3d5a0d7c9299df9
+  CocoaLumberjack: f8d89a516e7710fdb2e9b8f1560b16ec6040eef0
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
-  Cuckoo: 930598bd4ae95860c658b3eea30903d946ebef36
-  FearlessKeys: 5248fbd49df75338e61901c89880ae4e9f99c054
+  Cuckoo: 20b8aed94022e0e43e90f7c9e4fb0c86f0926a01
+  FearlessKeys: c86874e021dbc11c035f68a83f35569cd21d2e6c
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   GoogleAPIClientForREST: a8b95a252014ce2e618df6b75dc72eca2c00b4af
   GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
-  GTMSessionFetcher: e8647203b65cee28c5f73d0f473d096653945e72
+  GTMSessionFetcher: 41b9ef0b4c08a6db4b7eb51a21ae5183ec99a2c8
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
-  Kingfisher: 1d14e9f59cbe19389f591c929000332bf70efd32
+  Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
   MPQRCoreSDK: ea95312df244a90b5041cc8bafe089d07cac2bd2
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
@@ -392,26 +392,26 @@ SPEC CHECKSUMS:
   SSFCloudStorage: c4123454b3084015ea8d88af92f51de79fce7f2c
   SSFCrypto: 7ea544e61213538744ef8fd075e5e4487b7cf502
   SSFEraKit: a6f2a8bdefcdfa3ad8ff8f48b242000ea50744cd
-  SSFExtrinsicKit: f5ab32700622894d2e7a5fca254a3f659d3a6a9f
-  SSFHelpers: 7ff56eb3240e945ff2008951000d680575a8b46c
+  SSFExtrinsicKit: ada245d45f9943e6efa7d65049d76fcf542f90b7
+  SSFHelpers: e3fd81339805fac6e9b2930fdf01698ffb7e5a06
   SSFLogger: e6c887014ab0e0c0a67bc742d71ecb83a46be143
-  SSFModels: d8e0a94d8204680aba4957ba33e0a96911e890ad
+  SSFModels: 8d6d7daa95b5491a43483c99dae953011bb65b2e
   SSFNetwork: 734ad619a28f5b37599c4e1fb599b899536f0d65
   SSFRuntimeCodingService: 61b75ff14f48a96300e313c7f6861efb07840e71
   SSFSigner: 2ff97e574d16a5e0d87afc6f50177c5ad14c38bf
   SSFStorageQueryKit: 3063fdf0a84c9b7c1c2a2a08b862162bd0d38694
-  SSFUtils: 23462bb3e6521a73d616c288a90eab409dcc573c
+  SSFUtils: 1b0bbf20c0d3577bd17f56e4f8d7107925f49c76
   SSFXCM: 1ec10bb1d9d86d846be8f2f53b9c7eecd4a265c8
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 5ce4d6a8ff83f1b5fd5ad5dbf30965d35af65e44
-  SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
+  SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
+  SwiftyBeaver: 014b0c12065026b731bac80305294f27d63e27f6
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 7a9be4e3f2f18199af16cea1dffccb2e28839b34
+PODFILE CHECKSUM: f154a02f062b2d5cbccad0492163642c80279aee
 
 COCOAPODS: 1.11.3

@@ -23,8 +23,6 @@ protocol CrossChainInteractorOutput: AnyObject {
 }
 
 final class CrossChainInteractor {
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-
     // MARK: - Private properties
 
     private weak var output: CrossChainInteractorOutput?
@@ -39,6 +37,7 @@ final class CrossChainInteractor {
     private let wallet: MetaAccountModel
     private let addressChainDefiner: AddressChainDefiner
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private var runtimeItems: [RuntimeMetadataItem] = []
 
@@ -47,7 +46,7 @@ final class CrossChainInteractor {
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         depsContainer: CrossChainDepsContainer,
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
         operationQueue: OperationQueue,
@@ -58,7 +57,7 @@ final class CrossChainInteractor {
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.depsContainer = depsContainer
         self.runtimeItemRepository = runtimeItemRepository
         self.operationQueue = operationQueue
@@ -105,12 +104,11 @@ final class CrossChainInteractor {
     }
 
     private func fetchPrices(for chainAssets: [ChainAsset]) {
-        let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        guard pricesIds.isNotEmpty else {
+        guard chainAssets.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = subscribeToPrices(for: pricesIds)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {
@@ -263,7 +261,7 @@ extension CrossChainInteractor: AccountInfoSubscriptionAdapterHandler {
 
 // MARK: - PriceLocalStorageSubscriber
 
-extension CrossChainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension CrossChainInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         output?.didReceivePricesData(result: result)
     }

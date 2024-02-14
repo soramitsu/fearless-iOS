@@ -6,7 +6,7 @@ final class AssetNetworksInteractor {
 
     private weak var output: AssetNetworksInteractorOutput?
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter
 
     private let chainAsset: ChainAsset
@@ -17,12 +17,12 @@ final class AssetNetworksInteractor {
     init(
         chainAsset: ChainAsset,
         chainAssetFetching: ChainAssetFetchingProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter
     ) {
         self.chainAsset = chainAsset
         self.chainAssetFetching = chainAssetFetching
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
     }
 }
@@ -39,7 +39,7 @@ extension AssetNetworksInteractor: AssetNetworksInteractorInput {
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"])],
             sortDescriptors: []
         ) { [weak self] result in
             switch result {
@@ -59,13 +59,7 @@ extension AssetNetworksInteractor: AssetNetworksInteractorInput {
             handler: self,
             deliveryOn: .main
         )
-
-        let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        guard pricesIds.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = subscribeToPrices(for: pricesIds)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 }
 
@@ -79,7 +73,7 @@ extension AssetNetworksInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension AssetNetworksInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension AssetNetworksInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         output?.didReceivePricesData(result: result)
     }

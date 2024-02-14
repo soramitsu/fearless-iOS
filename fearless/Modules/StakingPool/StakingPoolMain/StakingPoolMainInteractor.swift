@@ -8,7 +8,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolMainInteractorOutput?
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let selectedWalletSettings: SelectedWalletSettings
     private var stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
@@ -32,7 +32,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private var validatorOperationFactory: ValidatorOperationFactoryProtocol
     private let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
@@ -49,7 +49,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         settings: StakingAssetSettings,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
         rewardCalculationService: RewardCalculatorServiceProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         operationManager: OperationManagerProtocol,
@@ -73,7 +73,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         self.settings = settings
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.rewardCalculationService = rewardCalculationService
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.operationManager = operationManager
@@ -471,9 +471,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
         output?.didReceive(chainAsset: chainAsset)
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchRewardCalculator()
         fetchNetworkInfo()
@@ -570,9 +568,9 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        guard chainAsset.asset.priceId == priceId else {
+extension StakingPoolMainInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset: ChainAsset) {
+        guard chainAsset == chainAsset else {
             return
         }
 

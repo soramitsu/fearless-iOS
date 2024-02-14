@@ -10,4 +10,7 @@ struct NftDetailViewModel {
     let imageViewModel: ImageViewModelProtocol?
     let nft: NFT
     let tokenType: String?
+    let nftType: NftType
+    let creator: String?
+    let priceString: String?
 }

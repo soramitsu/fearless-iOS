@@ -10,15 +10,21 @@ enum BlockExplorerApiKey {
     case etherscan
     case polygonscan
     case bscscan
+    case oklink
+    case opMainnet
 
     init?(chainId: String) {
         switch chainId {
-        case "1":
+        case "1", "5":
             self = .etherscan
         case "137":
             self = .polygonscan
         case "56", "97":
             self = .bscscan
+        case "195":
+            self = .oklink
+        case "10":
+            self = .opMainnet
         default:
             return nil
         }
@@ -43,6 +49,18 @@ enum BlockExplorerApiKey {
                 return BlockExplorerApiKeysDebug.bscscanApiKey
             #else
                 return BlockExplorerApiKeys.bscscanApiKey
+            #endif
+        case .oklink:
+            #if DEBUG
+                return BlockExplorerApiKeysDebug.oklinkApiKey
+            #else
+                return BlockExplorerApiKeys.oklinkApiKey
+            #endif
+        case .opMainnet:
+            #if DEBUG
+                return BlockExplorerApiKeysDebug.opMainnetApiKey
+            #else
+                return BlockExplorerApiKeys.opMainnetApiKey
             #endif
         }
     }
@@ -131,11 +149,19 @@ final class BlockExplorerNFTOperationFactory {
 }
 
 extension BlockExplorerNFTOperationFactory: NFTOperationFactoryProtocol {
-    func fetchNFTs(chain _: ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
+    func fetchNFTs(
+        chain _: SSFModels.ChainModel,
+        address _: String,
+        excludeFilters _: [NftCollectionFilter]
+    ) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
         CompoundOperationWrapper.createWithResult([])
     }
 
-    func fetchCollections(chain _: ChainModel, address _: String) -> RobinHood.CompoundOperationWrapper<[NFTCollection]?> {
+    func fetchCollections(
+        chain _: SSFModels.ChainModel,
+        address _: String,
+        excludeFilters _: [NftCollectionFilter]
+    ) -> RobinHood.CompoundOperationWrapper<[NFTCollection]?> {
         CompoundOperationWrapper.createWithResult([])
     }
 

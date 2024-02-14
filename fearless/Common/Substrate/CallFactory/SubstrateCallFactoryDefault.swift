@@ -3,12 +3,21 @@ import SSFUtils
 import IrohaCrypto
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
-/* This version of call factory is based on runtime version v9370 */
-/* If there are some change in new runtime version please create new factory with specified version and override changed call */
+enum SubstrateCallFactoryError: Error {
+    case metadataUnavailable
+    case callNotFound
+}
 
 // swiftlint:disable type_body_length file_length
 class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
+    private let runtimeService: RuntimeProviderProtocol
+
+    init(runtimeService: RuntimeProviderProtocol) {
+        self.runtimeService = runtimeService
+    }
+
     // MARK: - Public methods
 
     func bond(
@@ -17,6 +26,10 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         rewardDestination: RewardDestination<String>,
         chainAsset: ChainAsset
     ) throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            throw SubstrateCallFactoryError.metadataUnavailable
+        }
+
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
 
         let controllerIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
@@ -30,14 +43,23 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             let accountId = try AddressFactory.accountId(from: address, chain: chainAsset.chain)
             destArg = .account(accountId)
         }
+        let path: SubstrateCallPath = .bond
+
+        let callHasControllerArgument = try metadata.modules
+            .first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == path.callName.lowercased() })?
+            .arguments
+            .first(where: { $0.name.lowercased() == "controller" }) != nil
+
+        let maybeControllerIdParam: MultiAddress? = callHasControllerArgument ? controllerIdParam : nil
 
         let args = BondCall(
-            controller: controllerIdParam,
+            controller: maybeControllerIdParam,
             value: amount,
             payee: destArg
         )
 
-        let path: SubstrateCallPath = .bond
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,
@@ -134,6 +156,10 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
                     path: .assetsTransfer
                 )
             }
+            if chainAsset.chain.isReef {
+                return reefTransfer(to: receiver, amount: amount)
+            }
+
             return defaultTransfer(to: receiver, amount: amount)
         case .ormlChain:
             return ormlChainTransfer(
@@ -221,6 +247,31 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     }
 
     func setController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            return try defaultSetController(controller, chainAsset: chainAsset)
+        }
+
+        let callHasArguments = try metadata.modules
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.setController.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.setController.callName.lowercased() })?
+            .arguments.isNotEmpty == true
+
+        let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
+        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+
+        let path: SubstrateCallPath = .setController
+
+        let args: SetControllerCall? = callHasArguments ? SetControllerCall(controller: accountIdParam) : nil
+
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: args
+        )
+    }
+
+    private func defaultSetController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
         let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
 
@@ -413,16 +464,31 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         root: MultiAddress,
         nominator: MultiAddress,
         bouncer: MultiAddress
-    ) -> any RuntimeCallable {
+    ) throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            throw SubstrateCallFactoryError.metadataUnavailable
+        }
+
+        let path: CallCodingPath = .createNominationPool
+
+        let isUpdatedArguments = try? metadata.modules
+            .first(where: { $0.name.lowercased() == path.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == path.callName.lowercased() })?
+            .arguments
+            .first(where: { $0.name.lowercased() == "bouncer" }) != nil
+
+        let stateTogglerValue: StateTogglerValue = isUpdatedArguments.or(true) ? .bouncer(value: bouncer) : .stateToggler(value: bouncer)
+
         let args = CreatePoolCall(
             amount: amount,
             root: root,
             nominator: nominator,
-            stateToggler: bouncer
+            stateToggler: stateTogglerValue
         )
 
         return RuntimeCall(
-            callCodingPath: .createNominationPool,
+            callCodingPath: path,
             args: args
         )
     }
@@ -621,12 +687,41 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         )
     }
 
+    func reefTransfer(
+        to receiver: AccountId,
+        amount: BigUInt
+    ) -> any RuntimeCallable {
+        let args = TransferCall(dest: .indexedString(receiver), value: amount, currencyId: nil)
+        let path: SubstrateCallPath = .defaultTransfer
+        return RuntimeCall(
+            moduleName: path.moduleName,
+            callName: path.callName,
+            args: args
+        )
+    }
+
     func defaultTransfer(
         to receiver: AccountId,
         amount: BigUInt
     ) -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
+            let path: SubstrateCallPath = .defaultTransfer
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName,
+                args: args
+            )
+        }
+
+        let transferAllowDeathAvailable = try? metadata.modules
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == SubstrateCallPath.transferAllowDeath.callName.lowercased() }) != nil
+
+        let path: SubstrateCallPath = transferAllowDeathAvailable == true ? .transferAllowDeath : .defaultTransfer
+
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
-        let path: SubstrateCallPath = .defaultTransfer
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,
@@ -658,10 +753,64 @@ extension SubstrateCallFactoryDefault {
 
                 let accountId = try AddressFactory.accountId(from: accountAddress, chain: chainAsset.chain)
 
-                return .account(accountId)
+                guard let chainStakingSettings = chainAsset.chain.stakingSettings else {
+                    return .account(accountId)
+                }
+
+                return chainStakingSettings.rewardDestinationArg(accountId: accountId)
             }
         }()
 
         return setPayee(for: arg)
+    }
+
+    func vestingClaim() throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            throw SubstrateCallFactoryError.metadataUnavailable
+        }
+        let vestingClaimPath: SubstrateCallPath = .vestingClaim
+        let vestingVestPath: SubstrateCallPath = .vestingVest
+        let vestedRewardsClaimRewardsPath: SubstrateCallPath = .vestedRewardsClaimRewards
+
+        let vestingClaimCallExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestingClaimPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestingClaimPath.callName.lowercased() }) != nil
+
+        let vestingVestCallExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestingVestPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestingVestPath.callName.lowercased() }) != nil
+
+        let vestedRewardsClaimRewardsExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestedRewardsClaimRewardsPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestedRewardsClaimRewardsPath.callName.lowercased() }) != nil
+
+        if vestingVestCallExists {
+            let path: SubstrateCallPath = vestingVestPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        if vestingClaimCallExists {
+            let path: SubstrateCallPath = vestingClaimPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        if vestedRewardsClaimRewardsExists {
+            let path: SubstrateCallPath = vestedRewardsClaimRewardsPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        throw SubstrateCallFactoryError.callNotFound
     }
 }

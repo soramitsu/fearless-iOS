@@ -64,10 +64,10 @@ struct StakingBondMoreViewFactory {
         strategy: StakingBondMoreStrategy
     ) -> StakingBondMoreInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let interactor = StakingBondMoreInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
 
@@ -136,7 +136,7 @@ struct StakingBondMoreViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case .relaychain:

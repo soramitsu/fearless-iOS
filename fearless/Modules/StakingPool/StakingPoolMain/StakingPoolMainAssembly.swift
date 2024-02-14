@@ -45,7 +45,7 @@ final class StakingPoolMainAssembly {
             selectedMetaAccount: wallet
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -202,7 +202,7 @@ final class StakingPoolMainAssembly {
             settings: stakingSettings,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
             rewardCalculationService: rewardCalculatorService,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             operationManager: OperationManagerFacade.sharedManager,

@@ -7,9 +7,7 @@ final class AssetNetworksAssembly {
     static func configureModule(chainAsset: ChainAsset, wallet: MetaAccountModel) -> AssetNetworksModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
@@ -24,7 +22,7 @@ final class AssetNetworksAssembly {
         let interactor = AssetNetworksInteractor(
             chainAsset: chainAsset,
             chainAssetFetching: chainAssetFetching,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
         )
         let router = AssetNetworksRouter()

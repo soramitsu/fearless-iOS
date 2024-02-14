@@ -25,6 +25,7 @@ protocol NftSendConfirmInteractorOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didTransfer(result: Result<String, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
+    func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
 protocol NftSendConfirmRouterInput: AnyObject, PushDismissable, ErrorPresentable, BaseErrorPresentable, ModalAlertPresenting, SheetAlertPresentable {

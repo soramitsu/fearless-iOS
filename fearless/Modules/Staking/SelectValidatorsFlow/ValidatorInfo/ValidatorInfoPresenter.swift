@@ -60,27 +60,16 @@ final class ValidatorInfoPresenter {
     }
 
     private func updateView() {
-        do {
-            let priceData = try priceDataResult?.get()
+        let priceData = try? priceDataResult?.get()
 
-            if let viewModel = viewModelFactory.buildViewModel(
-                viewModelState: viewModelState,
-                priceData: priceData,
-                locale: selectedLocale
-            ) {
-                view?.didRecieve(state: .validatorInfo(viewModel))
-            } else {
-                view?.didRecieve(state: .empty)
-            }
-
-        } catch {
-            logger?.error("Did receive error: \(error)")
-
-            let error = R.string.localizable.commonErrorNoDataRetrieved(
-                preferredLanguages: selectedLocale.rLanguages
-            )
-
-            view?.didRecieve(state: .error(error))
+        if let viewModel = viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData,
+            locale: selectedLocale
+        ) {
+            view?.didRecieve(state: .validatorInfo(viewModel))
+        } else {
+            view?.didRecieve(state: .empty)
         }
     }
 }

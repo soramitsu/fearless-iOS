@@ -96,15 +96,19 @@ final class RelaychainValidatorOperationFactory {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
 
+        guard let chainStakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let slashingSpansWrapper: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
-            storageRequestFactory.queryItems(
-                engine: connection,
-                keyParams: { validatorIds },
-                factory: { try runtimeOperation.extractNoCancellableResultData() },
-                storagePath: .slashingSpans
-            )
+        let slashingSpansWrapper: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> = chainStakingSettings.queryItems(
+            engine: connection,
+            keyParams: { validatorIds },
+            factory: { try runtimeOperation.extractNoCancellableResultData() },
+            storagePath: .slashingSpans,
+            using: storageRequestFactory
+        )
 
         slashingSpansWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
@@ -145,10 +149,17 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
+                path: maxNominatorsConstantCodingPath
             )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -206,13 +217,17 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let fetchOperation: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> =
-            storageRequestFactory.queryItems(
-                engine: connection,
-                keyParams: { accountIdList },
-                factory: { try runtimeFetchOperation.extractNoCancellableResultData() },
-                storagePath: .validatorPrefs
-            )
+        guard let chainStakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
+        }
+
+        let fetchOperation: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> = chainStakingSettings.queryItems(
+            engine: connection,
+            keyParams: { accountIdList },
+            factory: { try runtimeFetchOperation.extractNoCancellableResultData() },
+            storagePath: .validatorPrefs,
+            using: storageRequestFactory
+        )
 
         fetchOperation.allOperations.forEach { $0.addDependency(runtimeFetchOperation) }
 
@@ -253,11 +268,18 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
-            path: .maxNominatorRewardedPerValidator
+            path: maxNominatorsConstantCodingPath
         )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -332,9 +354,16 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
-            path: .maxNominatorRewardedPerValidator
+            path: maxNominatorsConstantCodingPath
         )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -465,13 +494,17 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let nominatorsWrapper: CompoundOperationWrapper<[StorageResponse<Nomination>]> =
-            storageRequestFactory.queryItems(
-                engine: connection,
-                keyParams: { [accountId] },
-                factory: { try runtimeOperation.extractNoCancellableResultData() },
-                storagePath: .nominators
-            )
+        guard let chainStakingSettings = chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(ConvenienceError(error: "No staking settings found for \(chain.name) chain"))
+        }
+
+        let nominatorsWrapper: CompoundOperationWrapper<[StorageResponse<Nomination>]> = chainStakingSettings.queryItems(
+            engine: connection,
+            keyParams: { [accountId] },
+            factory: { try runtimeOperation.extractNoCancellableResultData() },
+            storagePath: .nominators,
+            using: storageRequestFactory
+        )
 
         nominatorsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
@@ -513,10 +546,17 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 path: .slashDeferDuration
             )
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: .maxNominatorRewardedPerValidator
+                path: maxNominatorsConstantCodingPath
             )
 
         slashDeferOperation.addDependency(runtimeOperation)
@@ -525,7 +565,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
         let accountIdsClosure: () throws -> [AccountId] = {
-            try eraValidatorsOperation.extractNoCancellableResultData().validators.map(\.accountId)
+            try eraValidatorsOperation.extractNoCancellableResultData().validators.compactMap { $0.accountId }
         }
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
@@ -619,8 +659,9 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         validatorsStakingInfoWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
         let chainFormat = chain.chainFormat
-
+        let precision = asset.precision
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
+            let eraStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()
             let slashes = try slashesWrapper.targetOperation.extractNoCancellableResultData()
             let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
@@ -629,12 +670,14 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
             return try nomination.targets.enumerated().map { index, accountId in
                 let address = try AddressFactory.address(for: accountId, chainFormat: chainFormat)
-
+                let comission = eraStakers.validators.first(where: { $0.accountId == accountId })?.prefs.commission ?? .zero
+                let comissionDecimal = Decimal.fromSubstratePerbill(value: comission) ?? .zero
                 return SelectedValidatorInfo(
                     address: address,
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
                     myNomination: statuses[index],
+                    commission: comissionDecimal,
                     hasSlashes: slashes[accountId] == true
                 )
             }
@@ -672,7 +715,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         activeValidatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
 
         let validatorIds: () throws -> [AccountId] = {
-            try activeValidatorsStakeInfoWrapper.targetOperation.extractNoCancellableResultData().map(\.key)
+            try activeValidatorsStakeInfoWrapper.targetOperation.extractNoCancellableResultData().compactMap { $0.key }
         }
 
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(

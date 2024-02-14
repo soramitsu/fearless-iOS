@@ -30,11 +30,19 @@ final class PolkaswapSwapConfirmationViewModelFactory: PolkaswapSwapConfirmation
 
         let amountsText = buildAmountsText(for: params, locale: locale)
 
+        let mixMaxTitle: String
+        switch params.swapVariant {
+        case .desiredInput:
+            mixMaxTitle = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
+        case .desiredOutput:
+            mixMaxTitle = R.string.localizable.polkaswapMaxReceived(preferredLanguages: locale.rLanguages)
+        }
         let viewModel = PolkaswapSwapConfirmationViewModel(
             amountsText: amountsText,
             doubleImageViewViewModel: doubleImageViewViewModel,
             adjustmentDetailsViewModel: params.detailsViewModel,
-            networkFee: params.networkFee
+            networkFee: params.networkFee,
+            minMaxTitle: mixMaxTitle
         )
         return viewModel
     }

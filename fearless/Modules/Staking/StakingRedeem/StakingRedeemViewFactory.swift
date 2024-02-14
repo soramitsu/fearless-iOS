@@ -82,10 +82,10 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     ) -> StakingRedeemInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingRedeemInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: container.strategy
@@ -164,7 +164,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             selectedMetaAccount: wallet
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case .relaychain:

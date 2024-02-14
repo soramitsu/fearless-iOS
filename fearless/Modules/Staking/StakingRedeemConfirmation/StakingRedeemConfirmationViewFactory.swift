@@ -83,10 +83,10 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
     ) -> StakingRedeemConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingRedeemConfirmationInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: container.strategy
@@ -167,7 +167,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             selectedMetaAccount: wallet
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case .relaychain:

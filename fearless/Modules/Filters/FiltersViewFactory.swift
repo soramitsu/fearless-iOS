@@ -8,8 +8,13 @@ enum FiltersMode {
 }
 
 enum FiltersViewFactory {
-    static func createView(filters: [FilterSet], mode: FiltersMode = .multiSelection, moduleOutput: FiltersModuleOutput?) -> FiltersViewProtocol? {
-        let interactor = FiltersInteractor(filters: filters)
+    static func createView(
+        title: String? = nil,
+        filters: [FilterSet],
+        mode: FiltersMode = .multiSelection,
+        moduleOutput: FiltersModuleOutput?
+    ) -> FiltersViewProtocol? {
+        let interactor = FiltersInteractor(filters: filters, mode: mode)
         let wireframe = FiltersWireframe()
 
         let viewModelFactory: FiltersViewModelFactoryProtocol = FiltersViewModelFactory()
@@ -22,7 +27,7 @@ enum FiltersViewFactory {
             localizationManager: LocalizationManager.shared
         )
 
-        let view = FiltersViewController(presenter: presenter)
+        let view = FiltersViewController(screenTitle: title, presenter: presenter)
 
         view.modalPresentationStyle = .custom
 

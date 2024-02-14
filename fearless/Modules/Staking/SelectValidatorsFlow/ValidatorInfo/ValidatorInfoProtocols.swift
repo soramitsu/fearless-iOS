@@ -22,6 +22,7 @@ protocol ValidatorInfoProtocol {
     var ownStake: Decimal { get }
     var hasSlashes: Bool { get }
     var blocked: Bool { get }
+    var commission: Decimal { get }
 }
 
 // MARK: - View

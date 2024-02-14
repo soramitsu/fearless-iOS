@@ -24,12 +24,12 @@ final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationF
     private let durationOperationFactory: StakingDurationOperationFactoryProtocol
     private let signer: SigningWrapperProtocol
     private let operationManager: OperationManagerProtocol
-    private let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let output: SelectValidatorsConfirmRelaychainInitiatedStrategyOutput?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var minBondProvider: AnyDataProvider<DecodedBigUInt>?
     private var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
@@ -38,7 +38,7 @@ final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationF
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         balanceAccountId: AccountId,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         durationOperationFactory: StakingDurationOperationFactoryProtocol,
@@ -50,7 +50,7 @@ final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationF
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.balanceAccountId = balanceAccountId
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
         self.durationOperationFactory = durationOperationFactory

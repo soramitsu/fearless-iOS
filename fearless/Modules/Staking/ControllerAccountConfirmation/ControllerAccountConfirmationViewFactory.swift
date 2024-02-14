@@ -82,7 +82,7 @@ struct ControllerAccountConfirmationViewFactory {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -114,7 +114,7 @@ struct ControllerAccountConfirmationViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return ControllerAccountConfirmationInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
@@ -122,7 +122,7 @@ struct ControllerAccountConfirmationViewFactory {
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             runtimeService: runtimeService,
             extrinsicService: extrinsicService,
             signingWrapper: signingWrapper,

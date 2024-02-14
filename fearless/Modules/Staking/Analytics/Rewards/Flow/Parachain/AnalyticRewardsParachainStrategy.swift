@@ -15,7 +15,7 @@ final class AnalyticsRewardsParachainStrategy {
     private weak var output: AnalyticsRewardsParachainStrategyOutput?
     private let rewardOperationFactory: RewardOperationFactoryProtocol
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         operationManager: OperationManagerProtocol,

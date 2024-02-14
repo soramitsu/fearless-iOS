@@ -49,7 +49,12 @@
             "moonpay",
             "ramp"
         ],
-        "type": "normal"
+        "type": "normal",
+        "priceProvider": {
+            "type": "chainlink",
+            "id": "0xa6bc5baf2000424e90434ba7104ee399dee80dec",
+            "precision": 8
+        }
     }],
     "xcm": {
         "xcmVersion": "v3",
@@ -421,17 +426,25 @@
             ]
         },
         "nodes": [{
-                "url": "wss://statemine-rpc.polkadot.io",
-                "name": "Parity node"
-            },
-            {
-                "url": "wss://statemine-rpc.dwellir.com",
-                "name": "Dwellir node"
-            },
-            {
-                "url": "wss://statemine.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-                "name": "OnFinality node"
-            }
+      "url": "wss://kusama-asset-hub-rpc.polkadot.io",
+      "name": "Parity node"
+    },
+    {
+      "url": "wss://statemine-rpc.dwellir.com",
+      "name": "Dwellir node"
+    },
+    {
+      "url": "wss://statemine.public.curie.radiumblock.co/ws",
+      "name": "RadiumBlock node"
+    },
+    {
+      "url": "wss://rpc-asset-hub-kusama.luckyfriday.io",
+      "name": "LuckyFriday node"
+    },
+    {
+      "url": "wss://ksm-rpc.stakeworld.io/assethub",
+      "name": "Stakeworld node"
+    }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Assethub.svg",
         "addressPrefix": 2
@@ -525,17 +538,29 @@
             ]
         },
         "nodes": [{
-                "url": "wss://statemint-rpc.polkadot.io",
-                "name": "Parity node"
-            },
-            {
-                "url": "wss://statemint-rpc.dwellir.com",
-                "name": "Dwellir node"
-            },
-            {
-                "url": "wss://statemint.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-                "name": "OnFinality node"
-            }
+      "url": "wss://polkadot-asset-hub-rpc.polkadot.io",
+      "name": "Parity node"
+    },
+    {
+      "url": "wss://statemint-rpc.dwellir.com",
+      "name": "Dwellir node"
+    },
+    {
+      "url": "wss://statemint.public.curie.radiumblock.co/ws",
+      "name": "RadiumBlock node"
+    },
+    {
+      "url": "wss://rpc-asset-hub-polkadot.luckyfriday.io",
+      "name": "LuckyFriday node"
+    },
+    {
+      "url": "wss://dot-rpc.stakeworld.io/assethub",
+      "name": "Stakeworld node"
+    },
+    {
+      "url": "wss://statemint.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+      "name": "OnFinality node"
+    }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Assethub.svg",
         "addressPrefix": 0
@@ -769,20 +794,24 @@
         },
         "nodes": [
             {
+                "url": "wss://acala-rpc.dwellir.com",
+                "name": "Dwellir node"
+            },
+            {
+                "url": "wss://rpc-acala.luckyfriday.io",
+                "name": "LuckyFriday node"
+            },
+            {
+                "url": "wss://acala-polkadot.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+                "name": "OnFinality node"
+            },
+            {
                 "url": "wss://acala-rpc-0.aca-api.network",
                 "name": "Acala Foundation node 0"
             },
             {
                 "url": "wss://acala-rpc-3.aca-api.network/ws",
                 "name": "Acala Foundation node 3"
-            },
-            {
-                "url": "wss://acala-rpc.dwellir.com",
-                "name": "Dwellir node"
-            },
-            {
-                "url": "wss://acala-polkadot.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-                "name": "OnFinality node"
             }
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/acala.svg",
@@ -3066,7 +3095,7 @@
     },
     {
         "disabled": false,
-        "chainId": "9b8cefc0eb5c568b527998bdd76c184e2b76ae561be76e4667072230217ea243",
+        "chainId": "9de765698374eb576968c8a764168893fb277e65ad3ddafcfe2c49593fc6d663",
         "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
         "paraId": "2024",
         "name": "Genshiro",
@@ -5620,7 +5649,12 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
                 "color": "FF0066",
                 "type": "normal",
-                "ethereumType": "normal"
+                "ethereumType": "normal",
+                "priceProvider": {
+                    "type": "chainlink",
+                    "id": "0x639fe6ab55c921f74e7fac1ee960c0b6293ba612",
+                    "precision": 8
+                }
             },
             {
                 "isUtility": false,
@@ -5741,7 +5775,55 @@
                 "color": "8247E5",
                 "type": "normal",
                 "ethereumType": "erc20"
-            }
+            },
+            {
+                "isUtility": false,
+                "id": "0x40FD72257597aA14C7231A7B1aaa29Fce868F677",
+                "name": "sora",
+                "symbol": "xor",
+                "precision": 18,
+                "priceId": "sora",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
+                "color": "EE2233",
+                "type": "normal",
+                "ethereumType": "erc20"
+              },
+              {
+                "isUtility": false,
+                "id": "0xe88f8313e61A97cEc1871EE37fBbe2a8bf3ed1E4",
+                "name": "sora validator",
+                "symbol": "val",
+                "precision": 18,
+                "priceId": "sora-validator-token",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/VAL.svg",
+                "color": "F3B966",
+                "type": "normal",
+                "ethereumType": "erc20"
+              },
+              {
+                "isUtility": false,
+                "id": "0x519C1001D550C0a1DaE7d1fC220f7d14c2A521BB",
+                "name": "polkaswap",
+                "symbol": "pswap",
+                "precision": 18,
+                "priceId": "polkaswap",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/PSWAP.svg",
+                "color": "FF0066",
+                "type": "normal",
+                "ethereumType": "erc20"
+              },
+              {
+                "isUtility": false,
+                "id": "0x2e7B0d4F9B2EaF782eD3D160e3a0a4b1a7930aDA",
+                "name": "ceres",
+                "symbol": "ceres",
+                "precision": 18,
+                "priceId": "ceres",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/CERES.svg",
+                "color": "243579",
+                "type": "normal",
+                "ethereumType": "erc20"
+              }
         ],
         "nodes": [
             {
@@ -5757,7 +5839,8 @@
         "addressPrefix": 0,
         "options": [
             "ethereum",
-            "nft"
+            "nft",
+            "utilityFeePayment"
         ]
     },
     {
@@ -5830,7 +5913,8 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/ETH.svg",
         "addressPrefix": 0,
         "options": [
-            "ethereum"
+            "ethereum",
+            "utilityFeePayment"
         ]
     },
     {
@@ -5865,7 +5949,12 @@
             "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BNB.svg",
             "color": "FF0066",
             "type": "normal",
-            "ethereumType": "normal"
+            "ethereumType": "normal",
+            "priceProvider": {
+                "type": "chainlink",
+                "id": "0x6970460aabF80C5BE983C6b74e5D06dEDCA95D4A",
+                "precision": 8
+            }
           },
           {
             "isUtility": false,
@@ -6009,7 +6098,8 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/bnbchain.svg",
         "addressPrefix": 0,
         "options": [
-          "ethereum"
+          "ethereum",
+          "utilityFeePayment"
         ]
       },
       {
@@ -6071,7 +6161,8 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/bnbchain.svg",
         "addressPrefix": 0,
         "options": [
-          "ethereum"
+          "ethereum",
+          "utilityFeePayment"
         ]
       },
       {
@@ -6132,7 +6223,8 @@
           "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
           "addressPrefix": 0,
           "options": [
-              "ethereum"
+              "ethereum",
+              "utilityFeePayment"
           ]
       },
       {
@@ -6166,7 +6258,12 @@
                   "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
                   "color": "8247E5",
                   "type": "normal",
-                  "ethereumType": "normal"
+                  "ethereumType": "normal",
+                  "priceProvider": {
+                      "type": "chainlink",
+                      "id": "0x52099d4523531f678dfc568a7b1e5038aadce1d6",
+                      "precision": 8
+                  }
               },
               {
                 "isUtility": false,
@@ -6291,7 +6388,8 @@
           "addressPrefix": 0,
           "options": [
               "ethereum",
-              "nft"
+              "nft",
+              "utilityFeePayment"
           ]
       },
       {
@@ -6343,7 +6441,8 @@
           "options": [
               "testnet",
               "ethereum",
-              "nft"
+              "nft",
+              "utilityFeePayment"
           ]
       },
       {
@@ -6453,5 +6552,490 @@
           "options": [
               "testnet"
           ]
+      },
+      {
+        "disabled": false,
+        "chainId": "3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615",
+        "name": "Enjin Matrixchain",
+        "externalApi": {
+          "explorers": [{
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://enjin.subscan.io//{type}/{value}"
+          }]
+        },
+        "assets": [{
+          "id": "13c8d9cb-897b-4507-8ae7-ba2c219d270d",
+          "name": "enjin coin",
+          "symbol": "enj",
+          "precision": 18,
+          "priceId": "enjincoin",
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ENJ.svg",
+          "color": "5A27ED",
+          "isUtility": true,
+          "type": "normal"
+        }],
+        "nodes": [{
+          "url": "wss://rpc.matrix.blockchain.enjin.io",
+          "name": "Enjin Foundation node"
+        }
+    
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Enjin.svg",
+        "addressPrefix": 1110
+      },
+      {
+        "disabled": false,
+        "chainId": "a37725fd8943d2a524cb7ecc65da438f9fa644db78ba24dcd0003e2f95645e8f",
+        "parentId": "3af4ff48ec76d2efc8476730f423ac07e25ad48f5f4c9dc39c778b164d808615",
+        "name": "Canary Matrixchain",
+        "externalApi": {
+          "explorers": [{
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://matrix.subscan.io///{type}/{value}"
+          }]
+        },
+        "assets": [{
+          "id": "85c17bd8-2565-4cf3-8e0f-14f38ff55eee",
+          "name": "enjin coin",
+          "symbol": "cenj",
+          "precision": 18,
+          "priceId": "enjincoin",
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ENJ.svg",
+          "color": "5A27ED",
+          "isUtility": true,
+          "type": "normal"
+        }],
+        "nodes": [{
+          "url": "wss://rpc.matrix.canary.enjin.io",
+          "name": "Enjin Foundation node"
+        }
+    
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Enjin.svg",
+        "addressPrefix": 9030
+      },
+      {
+        "disabled": false,
+        "chainId": "42161",
+        "rank": 13,
+        "name": "Arbitrum One",
+        "externalApi": {
+            "history": {
+              "type": "etherscan",
+              "url": "https://api.arbiscan.io/api"
+            },
+            "explorers": [
+              {
+                "type": "etherscan",
+                "types": [
+                  "tx",
+                  "address"
+                ],
+                "url": "https://arbiscan.io/{type}/{value}"
+              }
+            ]
+          },
+        "assets": [
+          {
+              "isUtility": true,
+              "id": "37b6375a-0708-4728-bec9-bf15b8680aff",
+              "name": "ethereum",
+              "symbol": "eth",
+              "precision": 18,
+              "priceId": "ethereum",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+              "color": "FF0066",
+              "type": "normal",
+              "ethereumType": "normal"
+          },
+          {
+            "isUtility": false,
+            "id": "0x912CE59144191C1204E64559FE8253a0e49E6548",
+            "name": "arbitrum",
+            "symbol": "arb",
+            "precision": 18,
+            "priceId": "arbitrum",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ARB.svg",
+            "color": "12AAFF",
+            "type": "normal",
+            "ethereumType": "erc20"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "https://arbitrum-one.publicnode.com/",
+            "name": "Public http node"
+          },
+          {
+            "url": "wss://arbitrum-one.publicnode.com/",
+            "name": "Public wss node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Arbitrum.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "chainlinkProvider",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "10",
+        "rank": 14,
+        "name": "OP Mainnet",
+        "externalApi": {
+            "history": {
+              "type": "etherscan",
+              "url": "https://api-optimistic.etherscan.io/api"
+            },
+            "explorers": [
+              {
+                "type": "etherscan",
+                "types": [
+                  "tx",
+                  "address"
+                ],
+                "url": "https://optimistic.etherscan.io/{type}/{value}"
+              }
+            ]
+          },
+        "assets": [
+          {
+              "isUtility": true,
+              "id": "08bb34b8-8027-4fea-948d-5243f5cbd6ba",
+              "name": "ethereum",
+              "symbol": "eth",
+              "precision": 18,
+              "priceId": "ethereum",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+              "color": "FF0066",
+              "type": "normal",
+              "ethereumType": "normal"
+          },
+          {
+            "isUtility": false,
+            "id": "0x4200000000000000000000000000000000000042",
+            "name": "optimism",
+            "symbol": "op",
+            "precision": 18,
+            "priceId": "optimism",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OP.svg",
+            "color": "FF0420",
+            "type": "normal",
+            "ethereumType": "erc20"
+          }
+        ],
+        "nodes": [
+            {
+                "url": "https://optimism-mainnet.blastapi.io/",
+                "name": "Blast https node"
+            },
+            {
+                "url": "wss://optimism-mainnet.blastapi.io/",
+                "name": "Blast wss node"
+            },
+            {
+                "url": "https://optimism.publicnode.com/",
+                "name": "Public http node"
+            },
+            {
+                "url": "wss://optimism.publicnode.com/",
+                "name": "Public wss node"
+            }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Optimism.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "43114",
+        "rank": 16,
+        "name": "Avalanche C-Chain",
+        "externalApi": {
+            "history": {
+              "type": "etherscan",
+              "url": "https://api.snowtrace.io/api"
+            },
+            "explorers": [
+              {
+                "type": "etherscan",
+                "types": [
+                  "tx",
+                  "address"
+                ],
+                "url": "https://snowtrace.io/{type}/{value}"
+              }
+            ]
+          },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "870f6877-c917-48bc-aa64-723416c94ebb",
+            "name": "avalanche",
+            "symbol": "avax",
+            "precision": 18,
+            "priceId": "avalanche-2",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/AVAX.svg",
+            "color": "E84142",
+            "type": "normal",
+            "ethereumType": "normal"
+          }
+        ],
+        "nodes": [
+            {
+                "url": "https://avalanche-c-chain.publicnode.com/",
+                "name": "Public https node"
+            },
+            {
+                "url": "wss://avalanche-c-chain.publicnode.com/ext/bc/C/ws",
+                "name": "Public wss node"
+            }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Avalanche.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "195",
+        "rank": 18,
+        "name": "X1 testnet",
+        "externalApi": {
+            "history": {
+              "type": "oklink",
+              "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=X1_TEST"
+            },
+            "explorers": [
+              {
+                "type": "oklink",
+                "types": [
+                  "tx",
+                  "address"
+                ],
+                "url": "https://www.oklink.com/x1-test/{type}/{value}"
+              }
+            ]
+          },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "0db45dec-9e88-4044-a358-3888f85e9a9e",
+            "name": "okb",
+            "symbol": "okb",
+            "precision": 18,
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OKTC.svg",
+            "color": "FFFFFF",
+            "type": "normal",
+            "ethereumType": "normal"
+          }
+        ],
+        "nodes": [
+            {
+                "url": "https://testrpc.x1.tech/",
+                "name": "X1 https node"
+            },
+            {
+                "url": "https://x1testrpc.okx.com/",
+                "name": "X1 https node"
+            }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Okxchain.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "1101",
+        "rank": 20,
+        "name": "Polygon zkEVM",
+        "externalApi": {
+            "history": {
+              "type": "etherscan",
+              "url": "https://api-zkevm.polygonscan.com/api"
+            },
+            "explorers": [
+              {
+                "type": "etherscan",
+                "types": [
+                  "tx",
+                  "address"
+                ],
+                "url": "https://zkevm.polygonscan.com/{type}/{value}"
+              }
+            ]
+          },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "8f85b561-18f5-4cf0-9077-305ebc84d015",
+            "name": "ethereum",
+            "symbol": "eth",
+            "precision": 18,
+            "priceId": "ethereum",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+            "color": "FF0066",
+            "type": "normal",
+            "ethereumType": "normal"
+          },
+          {
+            "isUtility": false,
+            "id": "0xA8CE8aee21bC2A48a5EF670afCc9274C7bbbC035",
+            "name": "usd coin",
+            "symbol": "usdc",
+            "precision": 6,
+            "priceId": "usd-coin",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDC.svg",
+            "color": "3E73C4",
+            "type": "normal",
+            "ethereumType": "erc20"
+        },
+        {
+            "isUtility": false,
+            "id": "0xa2036f0538221a77A3937F1379699f44945018d0",
+            "name": "polygon",
+            "symbol": "matic",
+            "precision": 18,
+            "priceId": "matic-network",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
+            "color": "8247E5",
+            "type": "normal",
+            "ethereumType": "erc20"
+        }
+        ],
+        "nodes": [
+            {
+                "url": "https://zkevm-rpc.com",
+                "name": "Zkevm https node"
+            },
+            {
+                "url": "https://polygon-zkevm-mainnet.public.blastapi.io",
+                "name": "Blast https node"
+            }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Polygon.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "7001",
+        "rank": 17,
+        "name": "ZetaChain Testnet",
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "0f07791b-b091-49c1-81b7-9facba2b7db3",
+            "name": "zetachain",
+            "symbol": "zeta",
+            "precision": 18,
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ZETA.svg",
+            "color": "235643",
+            "type": "normal",
+            "ethereumType": "normal"
+          },
+          {
+              "isUtility": false,
+              "id": "0x48f80608B672DC30DC7e3dbBd0343c5F02C738Eb",
+              "name": "MATIC-mumbai_testnet",
+              "symbol": "matic",
+              "precision": 18,
+              "priceId": "tMATIC",
+              "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MATIC.svg",
+              "color": "8247E5",
+              "type": "normal",
+              "ethereumType": "erc20"
+          }
+        ],
+        "externalApi": {
+            "history": {
+              "type": "zeta",
+              "url": "https://zetachain-athens-3.blockscout.com/api/v2/addresses/"
+            }
+          },
+        "nodes": [
+            {
+                "url": "https://rpc.ankr.com/zetachain_evm_athens_testnet",
+                "name": "Ankr https node"
+            },
+            {
+                "url": "https://zetachain-athens-evm.blockpi.network/v1/rpc/public",
+                "name": "Blockpi https node"
+            },
+            {
+                "url": "https://zetachain-testnet-evm.itrocket.net",
+                "name": "Itrocket https node"
+            }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Zetachain.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "7834781d38e4798d548e34ec947d19deea29df148a7bf32484b7b24dacf8d4b7",
+        "name": "Reef Mainnet",
+        "assets": [{
+            "id": "55697eb0-ca77-47e3-a436-b05460ab1ead",
+            "name": "reef",
+            "symbol": "reef",
+            "precision": 18,
+            "priceId": "reef",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/REEF.svg",
+            "color": "C547CB",
+            "isUtility": true,
+            "type": "normal",
+            "staking": "relaychain"
+        }],
+        "externalApi": {
+            "history": {
+                "type": "reef",
+                "url": "https://squid.subsquid.io/reef-explorer/graphql"
+            },
+            "staking": {
+                "type": "reef",
+                "url": "https://squid.subsquid.io/reef-explorer/graphql"
+            },
+            "explorers": [{
+                "type": "reef",
+                "types": [
+                    "extrinsic",
+                    "account"
+                ],
+                "url": "https://reefscan.com/{type}/{value}"
+            }]
+        },
+        "nodes": [{
+            "url": "wss://rpc.reefscan.com/ws",
+            "name": "Reef Community node"
+        }
+    
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/white/reefchain.svg",
+        "addressPrefix": 42
       }
 ]

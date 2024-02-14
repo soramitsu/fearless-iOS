@@ -88,7 +88,9 @@ class SendDataValidatingFactory: NSObject {
         parameters: ExistentialDepositValidationParameters,
         locale: Locale,
         chainAsset: ChainAsset,
-        canProceedIfViolated: Bool = true
+        canProceedIfViolated: Bool = true,
+        sendAllEnabled: Bool = false,
+        warningHandler: (() -> Void)? = nil
     ) -> DataValidating {
         WarningConditionViolation(onWarning: { [weak self] delegate in
             guard let view = self?.view else {
@@ -104,18 +106,20 @@ class SendDataValidatingFactory: NSObject {
                     locale: locale
                 )
             }
-
             self?.basePresentable.presentExistentialDepositWarning(
                 existentianDepositValue: existentianDepositValue,
                 from: view,
                 action: {
                     delegate.didCompleteWarningHandling()
+                    warningHandler?()
                 },
                 locale: locale
             )
-
         }, preservesCondition: {
             guard !chainAsset.chain.isEthereum else {
+                return true
+            }
+            if sendAllEnabled, canProceedIfViolated {
                 return true
             }
             switch parameters {
@@ -174,6 +178,7 @@ class SendDataValidatingFactory: NSObject {
 
             self?.basePresentable.presentSoraBridgeLowAmountError(
                 from: view,
+                originChainId: originCHainId,
                 locale: locale
             )
         }, preservesCondition: {
@@ -186,9 +191,50 @@ class SendDataValidatingFactory: NSObject {
             switch (originKnownChain, destKnownChain) {
             case (.kusama, .soraMain):
                 return amount >= 0.05
+            case (.polkadot, .soraMain), (.soraMain, .polkadot):
+                return amount >= 1.1
             default:
                 return true
             }
         })
+    }
+
+    func soraBridgeAmountLessFeeViolated(
+        originCHainId: ChainModel.Id,
+        destChainId: ChainModel.Id?,
+        amount: Decimal,
+        fee: Decimal?,
+        locale: Locale
+    ) -> DataValidating {
+        WarningConditionViolation { [weak self] delegate in
+            guard let view = self?.view else {
+                return
+            }
+            let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
+            let originKnownChain = Chain(chainId: originCHainId)?.rawValue ?? ""
+            let message = R.string.localizable.soraBridgeAmountLessFee(originKnownChain, preferredLanguages: locale.rLanguages)
+            self?.basePresentable.presentWarning(
+                for: title,
+                message: message,
+                action: { delegate.didCompleteWarningHandling() },
+                view: view,
+                locale: locale
+            )
+        } preservesCondition: {
+            guard let destChainId = destChainId, let fee = fee else {
+                return false
+            }
+            let originKnownChain = Chain(chainId: originCHainId)
+            let destKnownChain = Chain(chainId: destChainId)
+
+            switch (originKnownChain, destKnownChain) {
+            case (.soraMain, .kusama):
+                return amount > fee
+            case (.soraMain, .polkadot):
+                return amount > fee
+            default:
+                return true
+            }
+        }
     }
 }

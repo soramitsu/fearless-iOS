@@ -35,6 +35,14 @@ final class NftDetailsViewLayout: UIView {
     let sendButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
+        button.imageWithTitleView?.iconImage = R.image.iconSend()
+        return button
+    }()
+
+    let shareButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyEnabledStyle()
+        button.imageWithTitleView?.iconImage = R.image.iconShare()
         return button
     }()
 
@@ -62,11 +70,21 @@ final class NftDetailsViewLayout: UIView {
         createTitleCopyableValueView()
     }()
 
+    lazy var creatorView: TitleCopyableValueView = {
+        let view = createTitleCopyableValueView()
+        view.valueLabel.lineBreakMode = .byTruncatingMiddle
+        return view
+    }()
+
     lazy var networkView: TitleValueView = {
         createTitleValueView()
     }()
 
     lazy var tokenTypeView: TitleValueView = {
+        createTitleValueView()
+    }()
+
+    lazy var priceView: TitleValueView = {
         createTitleValueView()
     }()
 
@@ -111,12 +129,15 @@ final class NftDetailsViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(mediaView)
         contentView.stackView.addArrangedSubview(sendButton)
+        contentView.stackView.addArrangedSubview(shareButton)
         contentView.stackView.addArrangedSubview(desciptionLabel)
         contentView.stackView.addArrangedSubview(collectionView)
         contentView.stackView.addArrangedSubview(ownerView)
         contentView.stackView.addArrangedSubview(tokenIdView)
+        contentView.stackView.addArrangedSubview(creatorView)
         contentView.stackView.addArrangedSubview(networkView)
         contentView.stackView.addArrangedSubview(tokenTypeView)
+        contentView.stackView.addArrangedSubview(priceView)
 
         navigationBar.setCenterViews([navigationTitleLabel])
         setupConstraints()
@@ -142,6 +163,11 @@ final class NftDetailsViewLayout: UIView {
             make.height.equalTo(UIConstants.actionHeight)
         }
 
+        shareButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
         desciptionLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
@@ -155,37 +181,61 @@ final class NftDetailsViewLayout: UIView {
         tokenIdView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
         }
+        creatorView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.cellHeight)
+        }
         networkView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
         }
         tokenTypeView.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.cellHeight)
         }
+        priceView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.cellHeight)
+        }
     }
 
     private func applyLocalization() {
-        sendButton.imageWithTitleView?.title = R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages)
         collectionView.titleLabel.text = R.string.localizable.nftCollectionTitle(preferredLanguages: locale.rLanguages)
         ownerView.titleLabel.text = R.string.localizable.nftOwnerTitle(preferredLanguages: locale.rLanguages)
+        creatorView.titleLabel.text = R.string.localizable.nftCreatorTitle(preferredLanguages: locale.rLanguages)
         networkView.titleLabel.text = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
         tokenIdView.titleLabel.text = R.string.localizable.nftTokenidTitle(preferredLanguages: locale.rLanguages)
         tokenTypeView.titleLabel.text = R.string.localizable.stakingAnalyticsDetailsType(preferredLanguages: locale.rLanguages)
+        priceView.titleLabel.text = R.string.localizable.commonPrice(preferredLanguages: locale.rLanguages)
+        sendButton.imageWithTitleView?.title = R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages)
+        shareButton.imageWithTitleView?.title = R.string.localizable.commonShare(preferredLanguages: locale.rLanguages)
     }
 
     func bind(viewModel: NftDetailViewModel) {
         collectionView.isHidden = viewModel.collectionName == nil
         ownerView.isHidden = viewModel.owner == nil
+        creatorView.isHidden = viewModel.creator == nil
         tokenIdView.isHidden = viewModel.tokenId == nil
         networkView.isHidden = viewModel.chain == nil
+        priceView.isHidden = viewModel.priceString == nil
 
         navigationTitleLabel.text = viewModel.nftName
         collectionView.valueLabel.text = viewModel.collectionName
         ownerView.valueLabel.text = viewModel.owner
+        creatorView.valueLabel.text = viewModel.creator
         tokenIdView.valueLabel.text = viewModel.tokenId
         networkView.valueLabel.text = viewModel.chain
         desciptionLabel.text = viewModel.nftDescription
         tokenTypeView.valueLabel.text = viewModel.tokenType
+        priceView.valueLabel.text = viewModel.priceString
 
-        mediaView.bind(mediaURL: viewModel.nft.media?.first?.normalizedURL, animating: true)
+        if let imageUrl = viewModel.nft.thumbnailURL {
+            mediaView.bind(mediaURL: imageUrl, animating: true)
+        } else {
+            mediaView.setGIFImage(name: "animatedIcon")
+        }
+
+        switch viewModel.nftType {
+        case .owned:
+            sendButton.isHidden = false
+        case .available:
+            sendButton.isHidden = true
+        }
     }
 }

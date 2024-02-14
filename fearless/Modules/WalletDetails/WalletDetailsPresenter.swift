@@ -116,6 +116,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             else { return }
             let action = items[selectedIndex]
             switch action {
+            case .claimCrowdloanRewards:
+                break
             case .export:
                 self.wireframe.showExport(
                     flow: .single(chain: chainAccount.chain, address: address, wallet: self.flow.wallet),
@@ -137,6 +139,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
             case let .polkascan(url):
                 self.wireframe.present(from: view, url: url)
             case let .etherscan(url):
+                self.wireframe.present(from: view, url: url)
+            case let .reefscan(url):
                 self.wireframe.present(from: view, url: url)
             case .replace:
                 let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
@@ -204,15 +208,19 @@ private extension WalletDetailsPresenter {
                 switch $0.type {
                 case .subscan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .polkascan(url: url)
+                        return .subscan(url: url)
                     }
                 case .polkascan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
-                        return .subscan(url: url)
+                        return .polkascan(url: url)
                     }
                 case .etherscan:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
                         return .etherscan(url: url)
+                    }
+                case .reef:
+                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                        return .polkascan(url: url)
                     }
                 case .unknown:
                     return nil

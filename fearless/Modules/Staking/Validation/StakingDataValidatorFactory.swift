@@ -60,6 +60,12 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
         maximumPoolsCount: UInt32?,
         locale: Locale
     ) -> DataValidating
+
+    func isNotAlreadyController(
+        stashItem: StashItem?,
+        chosenAccount: ChainAccountResponse?,
+        locale: Locale
+    ) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -403,6 +409,26 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             return existingPoolsCount < maximumPoolsCount
+        })
+    }
+
+    func isNotAlreadyController(
+        stashItem: StashItem?,
+        chosenAccount: ChainAccountResponse?,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentControllerIsAlreadyUsed(from: view, locale: locale)
+        }, preservesCondition: {
+            guard let stashItem, let chosenAccount else {
+                return true
+            }
+
+            return stashItem.controller != chosenAccount.toAddress()
         })
     }
 }

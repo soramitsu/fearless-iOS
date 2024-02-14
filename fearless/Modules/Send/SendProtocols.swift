@@ -17,6 +17,9 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: RecipientViewModel)
     func didBlockUserInteractive(isUserInteractiveAmount: Bool)
     func setInputAccessoryView(visible: Bool)
+    func setHistoryButton(isVisible: Bool)
+    func enableSendAll()
+    func switchEnableSendAllVisibility(isVisible: Bool)
 }
 
 protocol SendViewOutput: AnyObject {
@@ -31,6 +34,7 @@ protocol SendViewOutput: AnyObject {
     func searchTextDidChanged(_ text: String)
     func selectAmountPercentage(_ percentage: Float)
     func updateAmount(_ newValue: Decimal)
+    func didSwitchSendAll(_ enabled: Bool)
 }
 
 protocol SendInteractorInput: AnyObject {
@@ -56,7 +60,7 @@ protocol SendInteractorInput: AnyObject {
 protocol SendInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?)
+    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveTip(result: Result<BigUInt, Error>)
     func didReceive(scamInfo: ScamInfo?)

@@ -7,7 +7,6 @@ import SSFModels
 final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRebondSetupInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
@@ -18,7 +17,8 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let connection: JSONRPCEngine
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -28,7 +28,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     private let callFactory: SubstrateCallFactoryProtocol
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
@@ -41,7 +41,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         callFactory: SubstrateCallFactoryProtocol
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         runtimeService = runtimeCodingService
@@ -75,9 +75,7 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
@@ -100,8 +98,8 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
     }
 }
 
-extension StakingRebondSetupInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingRebondSetupInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

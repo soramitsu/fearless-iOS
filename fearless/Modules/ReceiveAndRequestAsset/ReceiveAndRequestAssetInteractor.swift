@@ -11,18 +11,18 @@ final class ReceiveAndRequestAssetInteractor {
 
     private weak var output: ReceiveAndRequestAssetInteractorOutput?
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let chainAsset: ChainAsset
 
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         chainAsset: ChainAsset
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.chainAsset = chainAsset
     }
@@ -38,12 +38,11 @@ final class ReceiveAndRequestAssetInteractor {
     }
 
     private func subscribeToPrices(for chainAssets: [ChainAsset]) {
-        let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
-        guard pricesIds.isNotEmpty else {
+        guard chainAssets.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = subscribeToPrices(for: pricesIds)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 }
 
@@ -75,7 +74,7 @@ extension ReceiveAndRequestAssetInteractor: AccountInfoSubscriptionAdapterHandle
 
 // MARK: - PriceLocalStorageSubscriber
 
-extension ReceiveAndRequestAssetInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension ReceiveAndRequestAssetInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         output?.didReceivePricesData(result: result)
     }

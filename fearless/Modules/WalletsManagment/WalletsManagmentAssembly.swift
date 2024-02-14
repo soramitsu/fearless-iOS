@@ -23,9 +23,7 @@ final class WalletsManagmentAssembly {
             sortDescriptors: []
         )
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
-        )
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]

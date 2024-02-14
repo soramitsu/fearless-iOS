@@ -150,7 +150,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
             for: chainAsset.chain
@@ -207,7 +207,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 callFactory: callFactory
             )
 
-            let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+            let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
             let strategy = StakingAmountRelaychainStrategy(
                 chainAsset: chainAsset,
@@ -220,7 +220,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 eraValidatorService: eraValidatorService,
                 existentialDepositService: existentialDepositService,
                 rewardChainAsset: rewardChainAsset,
-                priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
+                priceLocalSubscriber: priceLocalSubscriber
             )
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
@@ -283,13 +283,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         strategy: StakingAmountStrategy?
     ) -> StakingAmountInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            return nil
-        }
-
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let chainAsset = ChainAsset(chain: chain, asset: asset)
 
@@ -337,7 +330,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let facade = UserDataStorageFacade.shared
         let mapper = MetaAccountMapper()
 
@@ -348,7 +341,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         return StakingAmountInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount

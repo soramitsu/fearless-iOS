@@ -29,13 +29,20 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             PurchaseProvider(rawValue: $0)
         }
 
+        var priceProvider: PriceProvider?
+        if let typeRawValue = entity.priceProvider?.type,
+           let type = PriceProviderType(rawValue: typeRawValue),
+           let id = entity.priceProvider?.id {
+            let precision = entity.priceProvider?.precision ?? ""
+            priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
+        }
+
         return AssetModel(
             id: id,
             name: name,
             symbol: symbol,
             precision: UInt16(entity.precision),
             icon: entity.icon,
-            priceId: entity.priceId,
             price: entity.price as Decimal?,
             fiatDayChange: entity.fiatDayChange as Decimal?,
             currencyId: entity.currencyId,
@@ -46,19 +53,21 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             staking: staking,
             purchaseProviders: purchaseProviders,
             type: createChainAssetModelType(from: entity.type),
-            ethereumType: createEthereumAssetType(from: entity.ethereumType)
+            ethereumType: createEthereumAssetType(from: entity.ethereumType),
+            priceProvider: priceProvider,
+            coingeckoPriceId: entity.priceId
         )
     }
 
     func populate(
         entity: CDAsset,
         from model: AssetModel,
-        using _: NSManagedObjectContext
+        using context: NSManagedObjectContext
     ) throws {
         entity.id = model.id
         entity.precision = Int16(model.precision)
         entity.icon = model.icon
-        entity.priceId = model.priceId
+        entity.priceId = model.coingeckoPriceId
         entity.price = model.price as NSDecimalNumber?
         entity.fiatDayChange = model.fiatDayChange as NSDecimalNumber?
         entity.symbol = model.symbol
@@ -67,6 +76,14 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.ethereumType = model.ethereumType?.rawValue
         entity.type = model.type?.rawValue
         entity.ethereumType = model.ethereumType?.rawValue
+
+        let priceProviderContext = CDPriceProvider(context: context)
+        priceProviderContext.type = model.priceProvider?.type.rawValue
+        priceProviderContext.id = model.priceProvider?.id
+        if let precision = model.priceProvider?.precision {
+            priceProviderContext.precision = "\(precision)"
+        }
+        entity.priceProvider = priceProviderContext
     }
 
     private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {

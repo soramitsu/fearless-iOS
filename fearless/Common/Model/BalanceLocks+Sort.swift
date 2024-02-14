@@ -3,6 +3,12 @@ import Foundation
 typealias BalanceLocks = [BalanceLock]
 
 extension BalanceLocks {
+    func vesting() -> BalanceLock? {
+        first(where: { lock in
+            lock.displayId == LockType.vesting.rawValue
+        })
+    }
+
     func mainLocks() -> BalanceLocks {
         LockType.locksOrder.compactMap { lockType in
             self.first(where: { lock in

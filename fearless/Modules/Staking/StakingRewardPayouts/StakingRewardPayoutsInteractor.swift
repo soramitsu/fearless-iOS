@@ -6,7 +6,7 @@ import SSFModels
 final class StakingRewardPayoutsInteractor {
     weak var presenter: StakingRewardPayoutsInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let payoutService: PayoutRewardsServiceProtocol
     private let chainAsset: ChainAsset
@@ -16,7 +16,7 @@ final class StakingRewardPayoutsInteractor {
     private let logger: LoggerProtocol?
     let connection: JSONRPCEngine
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var payoutOperationsWrapper: CompoundOperationWrapper<PayoutsInfo>?
 
@@ -27,7 +27,7 @@ final class StakingRewardPayoutsInteractor {
     }
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         payoutService: PayoutRewardsServiceProtocol,
         chainAsset: ChainAsset,
@@ -37,7 +37,7 @@ final class StakingRewardPayoutsInteractor {
         logger: LoggerProtocol? = nil,
         connection: JSONRPCEngine
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.payoutService = payoutService
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
@@ -70,9 +70,7 @@ final class StakingRewardPayoutsInteractor {
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
@@ -118,8 +116,8 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
     }
 }
 
-extension StakingRewardPayoutsInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingRewardPayoutsInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceive(priceResult: result)
     }
 }

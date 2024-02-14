@@ -32,7 +32,8 @@ final class SendDepencyContainer {
     }
 
     func prepareDepencies(
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        runtimeItem: RuntimeMetadataItem?
     ) async throws -> SendDependencies {
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             throw ChainAccountFetchingError.accountNotExists
@@ -56,7 +57,7 @@ final class SendDepencyContainer {
 
         let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
-        let transferService = try await createTransferService(for: chainAsset)
+        let transferService = try await createTransferService(for: chainAsset, runtimeItem: runtimeItem)
         let polkaswapService = createPolkaswapService(chainAsset: chainAsset, chainRegistry: chainRegistry)
         let accountInfoFetching = createAccountInfoFetching(for: chainAsset)
         let dependencies = SendDependencies(
@@ -92,13 +93,19 @@ final class SendDepencyContainer {
         return substrateAccountInfoFetching
     }
 
-    private func createTransferService(for chainAsset: ChainAsset) async throws -> TransferServiceProtocol {
-        guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+    private func createTransferService(for chainAsset: ChainAsset, runtimeItem: RuntimeMetadataItem?) async throws -> TransferServiceProtocol {
+        guard
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest())
+        else {
             throw ChainAccountFetchingError.accountNotExists
         }
 
         switch chainAsset.chain.chainBaseType {
         case .substrate:
+            guard let nativeRuntimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+                throw ChainRegistryError.runtimeMetadaUnavailable
+            }
+
             let chainSyncService = SSFChainRegistry.ChainSyncService(
                 chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
                 operationQueue: OperationQueue(),
@@ -125,8 +132,9 @@ final class SendDepencyContainer {
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,
                 usedRuntimePaths: [:],
-                runtimeItem: nil
+                runtimeItem: runtimeItem
             )
+
             let operationManager = OperationManagerFacade.sharedManager
 
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
@@ -143,7 +151,8 @@ final class SendDepencyContainer {
                 secretKeyData: secretKey,
                 cryptoType: SFCryptoType(utilsType: accountResponse.cryptoType.utilsType, isEthereum: chainAsset.chain.isEthereumBased)
             )
-            let callFactory = SubstrateCallFactoryAssembly.createCallFactory(forSSF: runtimeService.runtimeSpecVersion)
+
+            let callFactory = SubstrateCallFactoryDefault(runtimeService: nativeRuntimeService)
             return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
         case .ethereum:
             let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)

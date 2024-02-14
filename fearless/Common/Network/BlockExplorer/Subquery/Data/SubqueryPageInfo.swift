@@ -3,6 +3,7 @@ import Foundation
 struct SubqueryPageInfo: Decodable {
     let startCursor: String?
     let endCursor: String?
+    let hasNextPage: Bool?
 
     func toContext() -> [String: String]? {
         if startCursor == nil, endCursor == nil {

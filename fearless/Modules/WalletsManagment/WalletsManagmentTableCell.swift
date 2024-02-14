@@ -78,11 +78,16 @@ final class WalletsManagmentTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        backgroundTriangularedView.setGradientBorder(highlighted: false, animated: false)
+    }
+
     func bind(to viewModel: WalletsManagmentCellViewModel) {
         iconImageView.image = R.image.iconBirdGreen()
         walletNameLabel.text = viewModel.walletName
         dayChangeLabel.attributedText = viewModel.dayChange
-        backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: true)
+        backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: false)
 
         fiatBalanceLabel.text = viewModel.fiatBalance
 

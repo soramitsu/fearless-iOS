@@ -69,10 +69,10 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         strategy: StakingPayoutConfirmationStrategy
     ) -> StakingPayoutConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingPayoutConfirmationInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             wallet: wallet,
             chainAsset: chainAsset,
             strategy: strategy
@@ -154,7 +154,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case let .relaychain(payouts):

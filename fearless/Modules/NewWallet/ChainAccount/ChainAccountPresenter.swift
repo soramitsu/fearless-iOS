@@ -3,11 +3,6 @@ import SoraFoundation
 import BigInt
 import SSFModels
 
-enum ChainAccountViewMode {
-    case simple
-    case extended
-}
-
 final class ChainAccountPresenter {
     weak var view: ChainAccountViewProtocol?
     let wireframe: ChainAccountWireframeProtocol
@@ -308,7 +303,12 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
-        let items: [ChainAction] = [.export, .switchNode, .replace]
+        var items: [ChainAction] = [.export, .switchNode, .replace]
+
+        if interactor.checkIsClaimAvailable() {
+            items.append(.claimCrowdloanRewards)
+        }
+
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self else { return }
             let action = items[selectedIndex]
@@ -332,6 +332,8 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                 )
             case .replace:
                 self.startReplaceAccountFlow()
+            case .claimCrowdloanRewards:
+                self.wireframe.showClaimCrowdloanRewardsFlow(from: self.view, chainAsset: self.chainAsset, wallet: self.wallet)
             default:
                 break
             }

@@ -27,8 +27,32 @@ extension AssetTransactionData {
 
         let status: AssetTransactionStatus = transfer.success == true ? .commited : .rejected
 
+        var fees: [AssetTransactionFee] = []
+
+        if let feeAmountString = transfer.feeAmount, let feeSubstrateAmount = BigUInt(string: feeAmountString), let feeDecimalAmount = Decimal.fromSubstrateAmount(feeSubstrateAmount, precision: Int16(asset.precision)) {
+            let fee = AssetTransactionFee(
+                identifier: asset.identifier,
+                assetId: asset.identifier,
+                amount: AmountDecimal(value: feeDecimalAmount),
+                context: nil
+            )
+
+            fees.append(fee)
+        }
+
+        if let signedData = transfer.signedData, let fee = signedData.fee, let partialFee = fee.partialFee, let partialFeeDecimal = Decimal.fromSubstrateAmount(partialFee, precision: Int16(asset.precision)) {
+            let fee = AssetTransactionFee(
+                identifier: asset.identifier,
+                assetId: asset.identifier,
+                amount: AmountDecimal(value: partialFeeDecimal),
+                context: nil
+            )
+
+            fees.append(fee)
+        }
+
         return AssetTransactionData(
-            transactionId: transfer.id,
+            transactionId: transfer.identifier,
             status: status,
             assetId: "",
             peerId: "",
@@ -37,7 +61,7 @@ extension AssetTransactionData {
             peerName: peerAddress,
             details: "",
             amount: AmountDecimal(value: amount),
-            fees: [],
+            fees: fees,
             timestamp: timestamp,
             type: type.rawValue,
             reason: nil,
@@ -67,7 +91,7 @@ extension AssetTransactionData {
         let peerId = accountId?.toHex() ?? address
 
         return AssetTransactionData(
-            transactionId: reward.id,
+            transactionId: reward.identifier,
             status: .commited,
             assetId: "",
             peerId: peerId,

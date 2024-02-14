@@ -90,13 +90,16 @@ final class ValidatorInfoPoolViewModelFactory {
         let estimatedRewardDecimal = validatorInfo.stakeInfo?.stakeReturn ?? 0.0
         let estimatedReward = NumberFormatter.percentAPY.localizableResource()
             .value(for: locale).stringFromDecimal(estimatedRewardDecimal) ?? ""
+        let comission = NumberFormatter.percentPlain.localizableResource()
+            .value(for: locale).stringFromDecimal(validatorInfo.commission) ?? ""
 
         return ValidatorInfoViewModel.Exposure(
             nominators: nominators,
             myNomination: myNomination,
             totalStake: totalStake,
             estimatedReward: estimatedReward,
-            oversubscribed: validatorInfo.stakeInfo?.oversubscribed == true
+            oversubscribed: validatorInfo.stakeInfo?.oversubscribed == true,
+            comission: comission
         )
     }
 

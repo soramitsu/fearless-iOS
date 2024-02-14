@@ -62,6 +62,8 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
+	<key>NSCameraUsageDescription</key>
+	<string>This App needs Camera Permission to scan QR code</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app require the access to Microphone to pass KYC</string>
 	<key>UIAppFonts</key>

@@ -26,7 +26,7 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
-  pod 'FearlessKeys'
+  pod 'FearlessKeys', '0.1.3'
   pod 'MPQRCoreSDK', :configurations => ['Release']
   
   def pods_with_configurations
@@ -34,21 +34,20 @@ abstract_target 'fearlessAll' do
           pod 'SSFXCM', :configurations => ['DEBUG']
       else
           pod 'SSFXCM', '0.1.25'
-          pod 'SSFExtrinsicKit'
+          pod 'SSFExtrinsicKit', '0.1.31'
           pod 'SSFCrypto'
           pod 'SSFSigner'
-          pod 'SSFModels', '0.1.27'
+          pod 'SSFModels', '0.1.32'
           pod 'SSFEraKit'
           pod 'SSFLogger'
           pod 'SSFRuntimeCodingService', '0.1.29'
           pod 'SSFStorageQueryKit'
           pod 'SSFChainConnection', '0.1.24'
           pod 'SSFNetwork'
-          pod 'SSFUtils', '0.1.25'
           pod 'SSFChainRegistry', '0.1.29'
-          pod 'SSFHelpers', '0.1.27'
+          pod 'SSFUtils', '0.1.31'
+          pod 'SSFHelpers', '0.1.31'
           pod 'SSFCloudStorage'
-          pod 'FearlessKeys'
       end
   end
 
@@ -73,7 +72,7 @@ abstract_target 'fearlessAll' do
 #  pod 'web3swift-bnsports', :path => '../web3swift-bnsports'
 #  pod 'SSFCloudStorage', :path => '../soramitsu-shared-features-ios/SSFCloudStorage'
 #  pod 'SSFKeyPair', :path => '../soramitsu-shared-features-ios/SSFKeyPair'
-#pod 'RobinHood', :path => '../robinhood-ios'
+#  pod 'RobinHood', :path => '../robinhood-ios'
 
   target 'fearlessTests' do
     inherit! :search_paths

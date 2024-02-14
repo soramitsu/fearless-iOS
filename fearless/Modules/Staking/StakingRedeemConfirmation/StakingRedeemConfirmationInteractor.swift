@@ -9,20 +9,20 @@ import SSFModels
 final class StakingRedeemConfirmationInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRedeemConfirmationInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let strategy: StakingRedeemConfirmationStrategy
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         strategy: StakingRedeemConfirmationStrategy
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.strategy = strategy
@@ -39,16 +39,14 @@ extension StakingRedeemConfirmationInteractor: StakingRedeemConfirmationInteract
     }
 
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
     }
 }
 
-extension StakingRedeemConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingRedeemConfirmationInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

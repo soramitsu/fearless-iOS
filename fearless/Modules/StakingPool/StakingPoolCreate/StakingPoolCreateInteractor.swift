@@ -5,7 +5,6 @@ import SSFModels
 
 final class StakingPoolCreateInteractor {
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
     // MARK: - Private properties
 
@@ -18,13 +17,14 @@ final class StakingPoolCreateInteractor {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let operationManager: OperationManagerProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -35,7 +35,7 @@ final class StakingPoolCreateInteractor {
         callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.extrinsicService = extrinsicService
@@ -60,14 +60,14 @@ final class StakingPoolCreateInteractor {
             return nil
         }
 
-        let createPool = callFactory.createPool(
+        let createPool = try? callFactory.createPool(
             amount: amount,
             root: .accoundId(rootAccount),
             nominator: .accoundId(rootAccount),
             bouncer: .accoundId(rootAccount)
         )
 
-        return createPool.callName
+        return createPool?.callName
     }
 
     private var builderClosure: ExtrinsicBuilderClosure? {
@@ -82,15 +82,19 @@ final class StakingPoolCreateInteractor {
             return nil
         }
 
-        let joinPool = callFactory.createPool(
-            amount: amount,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(rootAccount),
-            bouncer: .accoundId(rootAccount)
-        )
+        return { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        return { builder in
-            try builder.adding(call: joinPool)
+            let joinPool = try strongSelf.callFactory.createPool(
+                amount: amount,
+                root: .accoundId(rootAccount),
+                nominator: .accoundId(rootAccount),
+                bouncer: .accoundId(rootAccount)
+            )
+
+            return try builder.adding(call: joinPool)
         }
     }
 
@@ -141,10 +145,7 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
 
         fetchPoolMembers()
         fetchLastPoolId()
-
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
@@ -170,20 +171,24 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
             return
         }
 
-        let joinPool = callFactory.createPool(
-            amount: amount,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(rootAccount),
-            bouncer: .accoundId(rootAccount)
-        )
+        let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        let setMetadataCall = callFactory.setPoolMetadata(
-            poolId: "\(poolId)",
-            metadata: metadata
-        )
+            let joinPool = try strongSelf.callFactory.createPool(
+                amount: amount,
+                root: .accoundId(rootAccount),
+                nominator: .accoundId(rootAccount),
+                bouncer: .accoundId(rootAccount)
+            )
 
-        let builderClosure: ExtrinsicBuilderClosure = { builder in
-            try builder.adding(call: joinPool).adding(call: setMetadataCall)
+            let setMetadataCall = strongSelf.callFactory.setPoolMetadata(
+                poolId: "\(poolId)",
+                metadata: metadata
+            )
+
+            return try builder.adding(call: joinPool).adding(call: setMetadataCall)
         }
 
         let reuseIdentifier = poolName + String(amount)
@@ -196,8 +201,8 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
     }
 }
 
-extension StakingPoolCreateInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingPoolCreateInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
 }

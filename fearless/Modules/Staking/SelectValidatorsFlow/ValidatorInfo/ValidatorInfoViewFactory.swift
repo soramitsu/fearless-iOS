@@ -236,11 +236,11 @@ extension ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
             return nil
         }
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let interactor = ValidatorInfoInteractorBase(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            asset: chainAsset.asset,
+            priceLocalSubscriber: priceLocalSubscriber,
+            chainAsset: chainAsset,
             strategy: container.strategy
         )
 

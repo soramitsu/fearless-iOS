@@ -7,7 +7,7 @@ import BigInt
 import SSFModels
 
 final class StakingPayoutConfirmationInteractor: AccountFetching {
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
@@ -18,28 +18,19 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         strategy: StakingPayoutConfirmationStrategy
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.strategy = strategy
     }
 
     private func subscribeForPrices() {
-        var priceIds: [String] = []
-        if let utilityPriceId = chainAsset.chain.utilityChainAssets().first?.asset.priceId {
-            priceIds.append(utilityPriceId)
-        }
-
-        if let priceId = chainAsset.asset.priceId, !priceIds.contains(priceId) {
-            priceIds.append(priceId)
-        }
-
-        priceProvider = subscribeToPrices(for: priceIds)
+        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset.chain.utilityChainAssets().first, chainAsset].compactMap { $0 }, listener: self)
     }
 }
 
@@ -60,7 +51,7 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
     }
 }
 
-extension StakingPayoutConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension StakingPayoutConfirmationInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         presenter?.didReceivePriceData(result: result)
     }

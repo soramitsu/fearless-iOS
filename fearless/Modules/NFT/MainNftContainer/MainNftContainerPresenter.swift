@@ -1,5 +1,10 @@
 import Foundation
 import SoraFoundation
+import SSFModels
+
+enum NftAppearanceKeys: String {
+    case showNftsLikeCollection
+}
 
 final class MainNftContainerPresenter {
     // MARK: Private properties
@@ -10,6 +15,7 @@ final class MainNftContainerPresenter {
     private let viewModelFactory: NftListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
+    private let stateHolder: MainNftContainerStateHolder
 
     // MARK: - Constructors
 
@@ -19,19 +25,25 @@ final class MainNftContainerPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: NftListViewModelFactoryProtocol,
         wallet: MetaAccountModel,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        stateHolder: MainNftContainerStateHolder
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
         self.eventCenter = eventCenter
+        self.stateHolder = stateHolder
         self.localizationManager = localizationManager
 
         eventCenter.add(observer: self)
     }
 
     // MARK: - Private methods
+
+    private func setupAppearance() {
+        view?.didReceive(appearance: interactor.showNftsLikeCollection ? .collection : .table)
+    }
 }
 
 // MARK: - MainNftContainerViewOutput
@@ -40,11 +52,11 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     func didLoad(view: MainNftContainerViewInput) {
         self.view = view
         interactor.setup(with: self)
-        interactor.fetchData()
     }
 
     func viewAppeared() {
         interactor.initialSetup()
+        setupAppearance()
     }
 
     func didSelect(collection: NFTCollection) {
@@ -58,14 +70,32 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     func didPullToRefresh() {
         interactor.fetchData()
     }
+
+    func didTapFilterButton() {
+        router.presentFilters(with: stateHolder.filters, from: view, moduleOutput: self)
+    }
+
+    func didTapCollectionButton() {
+        interactor.showNftsLikeCollection = true
+    }
+
+    func didTapTableButton() {
+        interactor.showNftsLikeCollection = false
+    }
 }
 
 // MARK: - MainNftContainerInteractorOutput
 
 extension MainNftContainerPresenter: MainNftContainerInteractorOutput {
     func didReceive(collections: [NFTCollection]) {
-        let viewModels = viewModelFactory.buildViewModel(from: collections)
+        let viewModels = viewModelFactory.buildViewModel(from: collections, locale: localizationManager?.selectedLocale ?? Locale.current)
         view?.didReceive(viewModels: viewModels)
+    }
+
+    func didReceive(alert: String) {
+        DispatchQueue.main.async {
+            self.router.present(message: alert, title: "debug message", closeAction: nil, from: self.view, actions: [])
+        }
     }
 }
 
@@ -75,7 +105,16 @@ extension MainNftContainerPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension MainNftContainerPresenter: MainNftContainerModuleInput {}
+extension MainNftContainerPresenter: MainNftContainerModuleInput {
+    func didSelect(chains: [ChainModel]?) {
+        if chains != stateHolder.selectedChains {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(viewModels: nil)
+            }
+            interactor.didSelect(chains: chains)
+        }
+    }
+}
 
 extension MainNftContainerPresenter: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
@@ -85,5 +124,26 @@ extension MainNftContainerPresenter: EventVisitorProtocol {
             self?.view?.didReceive(viewModels: nil)
         }
         interactor.fetchData()
+    }
+}
+
+extension MainNftContainerPresenter: NftFiltersModuleOutput {
+    func didFinishWithFilters(filters: [FilterSet]) {
+        let selectedFiltersValues: [NftCollectionFilter] = filters.compactMap {
+            $0.items as? [NftCollectionFilter]
+        }.reduce([], +).filter { filter in
+            filter.selected
+        }
+        let previousFiltersValues: [NftCollectionFilter] = stateHolder.filters.compactMap {
+            $0.items as? [NftCollectionFilter]
+        }.reduce([], +).filter { filter in
+            filter.selected
+        }
+        if selectedFiltersValues != previousFiltersValues {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(viewModels: nil)
+            }
+            interactor.applyFilters(filters)
+        }
     }
 }

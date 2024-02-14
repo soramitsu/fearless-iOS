@@ -94,10 +94,12 @@ final class SendViewController: UIViewController, ViewHolder {
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
+
+        rootView.sendAllSwitch.addTarget(self, action: #selector(sendAllToggleSwitched), for: .valueChanged)
     }
 
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true)
+        let isEnabled = (amountInputViewModel?.isValid == true) && rootView.searchView.textField.text?.isNotEmpty == true
         rootView.actionButton.set(enabled: isEnabled)
     }
 
@@ -119,6 +121,13 @@ final class SendViewController: UIViewController, ViewHolder {
 
     @objc private func selectNetworkClicked() {
         output.didTapSelectNetwork()
+    }
+
+    @objc private func sendAllToggleSwitched() {
+        output.didSwitchSendAll(rootView.sendAllSwitch.isOn)
+        if rootView.sendAllSwitch.isOn {
+            output.selectAmountPercentage(1)
+        }
     }
 }
 
@@ -200,6 +209,19 @@ extension SendViewController: SendViewInput {
 
     func didStopLoading() {
         rootView.actionButton.set(loading: false)
+        updateActionButton()
+    }
+
+    func setHistoryButton(isVisible: Bool) {
+        rootView.historyButton.isHidden = !isVisible
+    }
+
+    func enableSendAll() {
+        rootView.sendAllSwitch.isOn = true
+    }
+
+    func switchEnableSendAllVisibility(isVisible: Bool) {
+        rootView.switchEnableSendAllVisibility(isVisible: isVisible)
     }
 }
 

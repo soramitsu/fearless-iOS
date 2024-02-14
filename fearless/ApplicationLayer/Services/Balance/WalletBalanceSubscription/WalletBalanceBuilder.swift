@@ -61,7 +61,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 dayChangePercent: dayChangePercent.isNaN ? .zero : dayChangePercent,
                 dayChangeValue: totalDayChange,
                 currency: wallet.selectedCurrency,
-                prices: prices,
+                prices: prices.filter { $0.currencyId == wallet.selectedCurrency.id },
                 accountInfos: accountInfos
             )
 

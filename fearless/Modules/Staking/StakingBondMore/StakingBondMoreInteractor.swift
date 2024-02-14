@@ -10,18 +10,18 @@ final class StakingBondMoreInteractor: AccountFetching {
 
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let strategy: StakingBondMoreStrategy
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         strategy: StakingBondMoreStrategy
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.strategy = strategy
@@ -30,9 +30,7 @@ final class StakingBondMoreInteractor: AccountFetching {
 
 extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     func setup() {
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
     }
@@ -42,8 +40,8 @@ extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     }
 }
 
-extension StakingBondMoreInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingBondMoreInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter?.didReceivePriceData(result: result)
     }
 }

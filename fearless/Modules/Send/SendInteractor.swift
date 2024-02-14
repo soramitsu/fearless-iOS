@@ -9,7 +9,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private weak var output: SendInteractorOutput?
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
@@ -17,34 +17,41 @@ final class SendInteractor: RuntimeConstantFetching {
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let addressChainDefiner: AddressChainDefiner
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
+    private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let operationQueue: OperationQueue
 
     let dependencyContainer: SendDepencyContainer
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
-    private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
+    private var utilityPriceProvider: AnySingleValueProvider<[PriceData]>?
 
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
+    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
 
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationManager: OperationManagerProtocol,
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         dependencyContainer: SendDepencyContainer,
-        addressChainDefiner: AddressChainDefiner
+        addressChainDefiner: AddressChainDefiner,
+        runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
+        operationQueue: OperationQueue
     ) {
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.operationManager = operationManager
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.chainAssetFetching = chainAssetFetching
         self.dependencyContainer = dependencyContainer
         self.addressChainDefiner = addressChainDefiner
+        self.runtimeItemRepository = runtimeItemRepository
+        self.operationQueue = operationQueue
     }
 
     // MARK: - Private methods
@@ -71,22 +78,50 @@ final class SendInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
-        priceProvider?.removeObserver(self)
-        utilityPriceProvider?.removeObserver(self)
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        } else {
-            output?.didReceivePriceData(result: .success(nil), for: nil)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
+            utilityPriceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         }
-        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
-           let priceId = utilityAsset.asset.priceId {
-            utilityPriceProvider = subscribeToPrice(for: priceId)
+    }
+
+    private func fetchCurrentRuntimeItem(currentChainAsset: ChainAsset) async throws -> RuntimeMetadataItem? {
+        if let item = runtimeItemByChainId[currentChainAsset.chain.chainId] {
+            return item
+        }
+
+        let currentChainId = currentChainAsset.chain.chainId
+
+        return try await withUnsafeThrowingContinuation { continuation in
+            let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+            runtimeItemsOperation.completionBlock = { [weak self] in
+                do {
+                    let items = try runtimeItemsOperation.extractNoCancellableResultData()
+                    self?.cache(runtimeItems: items)
+
+                    let currentRuntimeItem = items.first(where: { $0.chain == currentChainId })
+                    continuation.resume(returning: currentRuntimeItem)
+                } catch {
+                    continuation.resume(throwing: error)
+                }
+            }
+
+            operationQueue.addOperation(runtimeItemsOperation)
+        }
+    }
+
+    private func cache(runtimeItems: [RuntimeMetadataItem]) {
+        runtimeItemByChainId = runtimeItems.reduce([ChainModel.Id: RuntimeMetadataItem]()) { partialResult, currentItem in
+            var result = partialResult
+            result[currentItem.chain] = currentItem
+            return result
         }
     }
 
     private func updateDependencies(for chainAsset: ChainAsset) {
         Task {
-            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+            let runtimeItem = try await fetchCurrentRuntimeItem(currentChainAsset: chainAsset)
+            let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
             self.dependencies = dependencies
 
             if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
@@ -274,9 +309,9 @@ extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension SendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Swift.Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        output?.didReceivePriceData(result: result, for: priceId)
+extension SendInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
+        output?.didReceivePriceData(result: result)
     }
 }
 

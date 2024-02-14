@@ -27,18 +27,6 @@ enum BalanceInfoAssembly {
         let logger = Logger.shared
         let operationManager = OperationManagerFacade.sharedManager
 
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
-
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let storageRequestFactory = StorageRequestFactory(

@@ -80,10 +80,11 @@ extension AssetNetworksPresenter: AssetNetworksViewOutput {
 
     func didTapSortButton() {
         let sorts = FilterSet(
-            title: R.string.localizable.commonFilterSortHeader(preferredLanguages: selectedLocale.rLanguages),
+            title: nil,
             items: AssetNetworksSort.defaultFilters(selected: sort)
         )
-        router.showFilters(filters: [sorts], moduleOutput: self, from: view)
+        let title = R.string.localizable.commonFilterSortHeader(preferredLanguages: selectedLocale.rLanguages)
+        router.showFilters(title: title, filters: [sorts], moduleOutput: self, from: view)
     }
 }
 

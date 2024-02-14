@@ -14,7 +14,7 @@ final class ChainAssetListViewController:
     ViewHolder,
     KeyboardViewAdoptable {
     enum Constants {
-        static let sectionHeaderHeight: CGFloat = 80
+        static let sectionHeaderHeight: CGFloat = 44
     }
 
     typealias RootViewType = ChainAssetListViewLayout

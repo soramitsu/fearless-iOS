@@ -49,12 +49,7 @@ extension StakingMainInteractor {
             return
         }
 
-        guard let priceId = chainAsset.asset.priceId else {
-            presenter?.didReceive(price: nil)
-            return
-        }
-
-        priceProvider = subscribeToPrice(for: priceId)
+        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
     }
 
     func performAccountInfoSubscription() {
@@ -294,22 +289,22 @@ extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, Relayc
     }
 }
 
-extension StakingMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        if let chainAsset = stakingSettings.value, chainAsset.asset.priceId == priceId {
+extension StakingMainInteractor: PriceLocalSubscriptionHandler {
+    func handlePrices(result: Result<[PriceData], Error>) {
+        if let stakingChainAsset = stakingSettings.value {
             switch result {
-            case let .success(priceData):
-                guard let priceData = priceData else { return }
+            case let .success(prices):
+                guard let priceData = prices.first(where: { $0.priceId == stakingChainAsset.asset.priceId }) else { return }
                 presenter?.didReceive(price: priceData)
             case let .failure(error):
                 presenter?.didReceive(priceError: error)
             }
         }
 
-        if let chainAsset = rewardChainAsset, chainAsset.asset.priceId == priceId {
+        if let rewardChainAsset = rewardChainAsset {
             switch result {
-            case let .success(priceData):
-                guard let priceData = priceData else { return }
+            case let .success(prices):
+                guard let priceData = prices.first(where: { $0.priceId == rewardChainAsset.asset.priceId }) else { return }
                 presenter?.didReceive(rewardAssetPrice: priceData)
             case let .failure(error):
                 presenter?.didReceive(priceError: error)

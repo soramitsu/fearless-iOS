@@ -6,7 +6,7 @@ final class StakingPoolJoinConfigInteractor {
     // MARK: - Private properties
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private weak var output: StakingPoolJoinConfigInteractorOutput?
     private let chainAsset: ChainAsset
@@ -18,11 +18,11 @@ final class StakingPoolJoinConfigInteractor {
     private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -33,7 +33,7 @@ final class StakingPoolJoinConfigInteractor {
         callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.extrinsicService = extrinsicService
@@ -88,9 +88,7 @@ extension StakingPoolJoinConfigInteractor: StakingPoolJoinConfigInteractorInput 
         self.output = output
         feeProxy.delegate = self
 
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
@@ -120,8 +118,8 @@ extension StakingPoolJoinConfigInteractor: StakingPoolJoinConfigInteractorInput 
     }
 }
 
-extension StakingPoolJoinConfigInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingPoolJoinConfigInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         output?.didReceivePriceData(result: result)
     }
 }

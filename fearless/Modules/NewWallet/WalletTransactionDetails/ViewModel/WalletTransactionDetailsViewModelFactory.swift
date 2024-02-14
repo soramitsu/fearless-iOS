@@ -36,7 +36,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
             return nil
         }
 
-        let hash = transaction.reason ?? ""
+        let hash = transaction.transactionId
         var status: String
         var statusIcon: UIImage?
         switch transaction.status {
@@ -119,6 +119,8 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
             let module = transaction.peerFirstName
             let call = transaction.peerLastName
             let sender = transaction.peerId
+            let fee: Decimal = transaction.fees.map(\.amount.decimalValue).reduce(0, +)
+            let feeString = feeFormatter?.stringFromDecimal(fee)
 
             return ExtrinsicTransactionDetailsViewModel(
                 transaction: transaction,
@@ -129,7 +131,8 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 module: module,
                 call: call,
                 statusIcon: statusIcon,
-                sender: sender
+                sender: sender,
+                fee: feeString
             )
         case .swap, .bridge:
             let from = transactionType == .outgoing ? accountAddress : transaction.peerName

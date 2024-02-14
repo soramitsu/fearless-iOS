@@ -46,6 +46,7 @@ final class SendPresenter {
     private var scamInfo: ScamInfo?
     private var state: State = .normal
     private var eqUilibriumTotalBalance: Decimal?
+    private var sendAllEnabled: Bool = false
     private var balanceMinusFeeAndTip: Decimal {
         let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
         if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
@@ -210,6 +211,8 @@ final class SendPresenter {
 
         DispatchQueue.main.async {
             self.view?.didReceive(amountInputViewModel: inputViewModel)
+            let isVisible = chainAsset.chain.externalApi?.history != nil
+            self.view?.setHistoryButton(isVisible: isVisible)
         }
     }
 
@@ -483,9 +486,14 @@ final class SendPresenter {
             dataValidatingFactory.exsitentialDepositIsNotViolated(
                 parameters: edParameters,
                 locale: selectedLocale,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                sendAllEnabled: sendAllEnabled,
+                warningHandler: { [weak self] in
+                    self?.sendAllEnabled = true
+                    self?.view?.enableSendAll()
+                    self?.selectAmountPercentage(1)
+                }
             )
-
         ]).runValidation { [weak self] in
             guard
                 let strongSelf = self,
@@ -875,6 +883,10 @@ extension SendPresenter: SendViewOutput {
     func searchTextDidChanged(_ text: String) {
         handle(newAddress: text)
     }
+
+    func didSwitchSendAll(_ enabled: Bool) {
+        sendAllEnabled = enabled
+    }
 }
 
 // MARK: - SendInteractorOutput
@@ -923,13 +935,15 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
+            view?.switchEnableSendAllVisibility(isVisible: true)
             logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
+            view?.switchEnableSendAllVisibility(isVisible: false)
             logger?.error("Did receive minimum balance error: \(error)")
         }
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>, for _: AssetModel.PriceId?) {
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
             if let priceData = priceData {

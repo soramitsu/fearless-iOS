@@ -7,7 +7,13 @@ final class FiltersViewController: UIViewController, ViewHolder {
 
     var state: FiltersViewState = .empty
 
-    init(presenter: FiltersPresenterProtocol) {
+    private let screenTitle: String?
+
+    init(
+        screenTitle: String?,
+        presenter: FiltersPresenterProtocol
+    ) {
+        self.screenTitle = screenTitle
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
@@ -18,7 +24,7 @@ final class FiltersViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = FiltersViewLayout()
+        view = FiltersViewLayout(screenTitle: screenTitle)
     }
 
     override func viewDidLoad() {
@@ -72,18 +78,23 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
         }
 
         let section = viewModel.sections[section]
+        guard let sectionTitle = section.title else {
+            return nil
+        }
 
         let view = FilterSectionHeaderView()
-        view.titleLabel.text = section.title
+        view.titleLabel.text = sectionTitle
         return view
     }
 
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        guard case .loaded = state else {
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        guard case let .loaded(viewModel) = state else {
             return 0
         }
 
-        return 40
+        let section = viewModel.sections[section]
+
+        return section.title == nil ? 0 : 40
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {

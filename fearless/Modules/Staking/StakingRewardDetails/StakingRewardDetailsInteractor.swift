@@ -4,27 +4,25 @@ import SSFModels
 
 final class StakingRewardDetailsInteractor {
     weak var presenter: StakingRewardDetailsInteractorOutputProtocol!
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    private let asset: AssetModel
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
+    private let chainAsset: ChainAsset
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
-    init(asset: AssetModel, priceLocalSubscriptionFactory: PriceProviderFactoryProtocol) {
-        self.asset = asset
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+    init(chainAsset: ChainAsset, priceLocalSubscriber: PriceLocalStorageSubscriber) {
+        self.chainAsset = chainAsset
+        self.priceLocalSubscriber = priceLocalSubscriber
     }
 }
 
 extension StakingRewardDetailsInteractor: StakingRewardDetailsInteractorInputProtocol {
     func setup() {
-        if let priceId = asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }
 
-extension StakingRewardDetailsInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingRewardDetailsInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceive(priceResult: result)
     }
 }

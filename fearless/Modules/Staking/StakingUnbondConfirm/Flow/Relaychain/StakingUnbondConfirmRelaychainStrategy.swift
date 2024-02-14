@@ -36,7 +36,7 @@ final class StakingUnbondConfirmRelaychainStrategy: AccountFetching, RuntimeCons
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var payeeProvider: AnyDataProvider<DecodedPayee>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var extrinsicService: ExtrinsicServiceProtocol?
     private var signingWrapper: SigningWrapperProtocol?
     private let callFactory: SubstrateCallFactoryProtocol

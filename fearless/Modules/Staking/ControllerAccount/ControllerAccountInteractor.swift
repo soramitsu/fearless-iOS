@@ -138,12 +138,15 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     private func createLedgerFetchOperation(_ accountId: AccountId) -> CompoundOperationWrapper<StakingLedger?> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let wrapper: CompoundOperationWrapper<[StorageResponse<StakingLedger>]> = storageRequestFactory.queryItems(
+        guard let wrapper: CompoundOperationWrapper<[StorageResponse<StakingLedger>]> = chainAsset.chain.stakingSettings?.queryItems(
             engine: engine,
             keyParams: { [accountId] },
             factory: { try coderFactoryOperation.extractNoCancellableResultData() },
-            storagePath: .stakingLedger
-        )
+            storagePath: .stakingLedger,
+            using: storageRequestFactory
+        ) else {
+            return CompoundOperationWrapper.createWithResult(nil)
+        }
 
         let mapOperation = ClosureOperation<StakingLedger?> {
             try wrapper.targetOperation.extractNoCancellableResultData().first?.value
@@ -163,11 +166,16 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     ) -> CompoundOperationWrapper<AccountInfo?> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let wrapper: CompoundOperationWrapper<[StorageResponse<AccountInfo>]> = storageRequestFactory.queryItems(
+        guard let stakingSettings = chainAsset.chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithResult(nil)
+        }
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<AccountInfo>]> = stakingSettings.queryItems(
             engine: engine,
             keyParams: { [accountId] },
             factory: { try coderFactoryOperation.extractNoCancellableResultData() },
-            storagePath: .account
+            storagePath: .account,
+            using: storageRequestFactory
         )
 
         let mapOperation = ClosureOperation<AccountInfo?> {

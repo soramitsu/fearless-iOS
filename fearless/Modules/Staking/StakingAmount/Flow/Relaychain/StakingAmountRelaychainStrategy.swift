@@ -21,7 +21,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     private var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -33,7 +33,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     private let rewardChainAsset: ChainAsset?
 
     private weak var output: StakingAmountRelaychainStrategyOutput?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         chainAsset: ChainAsset,
@@ -46,7 +46,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         eraValidatorService: EraValidatorServiceProtocol,
         existentialDepositService: ExistentialDepositServiceProtocol,
         rewardChainAsset: ChainAsset?,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+        priceLocalSubscriber: PriceLocalStorageSubscriber
     ) {
         self.chainAsset = chainAsset
         self.runtimeService = runtimeService
@@ -58,7 +58,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         self.eraValidatorService = eraValidatorService
         self.existentialDepositService = existentialDepositService
         self.rewardChainAsset = rewardChainAsset
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
     }
 
     private func fetchMaxNominations() {
@@ -98,8 +98,8 @@ extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
             }
         }
 
-        if let priceId = rewardChainAsset?.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
+        if let chainAsset = rewardChainAsset {
+            priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         }
     }
 
@@ -164,8 +164,8 @@ extension StakingAmountRelaychainStrategy: RelaychainStakingLocalStorageSubscrib
     }
 }
 
-extension StakingAmountRelaychainStrategy: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingAmountRelaychainStrategy: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         switch result {
         case let .success(priceData):
             output?.didReceive(rewardAssetPrice: priceData)

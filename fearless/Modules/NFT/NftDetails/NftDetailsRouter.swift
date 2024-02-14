@@ -1,6 +1,6 @@
 import Foundation
 
-final class NftDetailsRouter: NftDetailsRouterInput {
+final class NftDetailsRouter: NftDetailsRouterInput, SharingPresentable {
     func openSend(nft: NFT, wallet: MetaAccountModel, from view: ControllerBackedProtocol?) {
         let sendModule = NftSendAssembly.configureModule(nft: nft, wallet: wallet)
 

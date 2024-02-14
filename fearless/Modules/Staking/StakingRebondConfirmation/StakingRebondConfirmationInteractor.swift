@@ -9,20 +9,20 @@ import SSFModels
 final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRebondConfirmationInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let strategy: StakingRebondConfirmationStrategy
 
-    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         strategy: StakingRebondConfirmationStrategy
     ) {
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.strategy = strategy
@@ -32,10 +32,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
 extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteractorInputProtocol {
     func setup() {
         strategy.setup()
-
-        if let priceId = chainAsset.asset.priceId {
-            priceProvider = subscribeToPrice(for: priceId)
-        }
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 
     func submit(builderClosure: ExtrinsicBuilderClosure?) {
@@ -53,8 +50,8 @@ extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteract
     }
 }
 
-extension StakingRebondConfirmationInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+extension StakingRebondConfirmationInteractor: PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
         presenter.didReceivePriceData(result: result)
     }
 }

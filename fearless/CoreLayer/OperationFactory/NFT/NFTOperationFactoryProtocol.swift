@@ -4,11 +4,14 @@ import SSFModels
 
 protocol NFTOperationFactoryProtocol {
     func fetchNFTs(
-        chain: ChainModel,
-        address: String
-    ) -> CompoundOperationWrapper<[NFT]?>
+        chain: SSFModels.ChainModel,
+        address: String,
+        excludeFilters: [NftCollectionFilter]
+    ) -> RobinHood.CompoundOperationWrapper<[NFT]?>
+
     func fetchCollections(
         chain: ChainModel,
-        address: String
+        address: String,
+        excludeFilters: [NftCollectionFilter]
     ) -> CompoundOperationWrapper<[NFTCollection]?>
 }
