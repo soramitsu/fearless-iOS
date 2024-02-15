@@ -28,6 +28,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     func getAvailableExportOptions(for address: String)
     func update(chain: ChainModel)
     func updateData()
+    func checkIsClaimAvailable() -> Bool
 
     var chainAsset: ChainAsset { get }
     var availableChainAssets: [ChainAsset] { get }
@@ -36,7 +37,8 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveExportOptions(options: [ExportOption])
     func didUpdate(chainAsset: ChainAsset)
-    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
+    func didReceiveBalanceLocks(_ balanceLocks: Decimal?)
+    func didReceiveBalanceLocksError(_ error: Error)
     func didReceiveWalletBalancesResult(_ result: WalletBalancesResult)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceive(accountInfo: AccountInfo?, for chainAsset: ChainAsset, accountId: AccountId)

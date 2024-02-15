@@ -5,24 +5,21 @@ final class BalanceLocksDetailInteractor {
     // MARK: - Private properties
 
     private weak var output: BalanceLocksDetailInteractorOutput?
-    private let storageRequestPerformer: StorageRequestPerformer
+    private let balanceLocksFetching: BalanceLocksFetching
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
-    private let crowdloanService: CrowdloanService
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        storageRequestPerformer: StorageRequestPerformer,
-        crowdloanService: CrowdloanService,
+        balanceLocksFetching: BalanceLocksFetching,
         priceLocalSubscriber: PriceLocalStorageSubscriber
     ) {
-        self.storageRequestPerformer = storageRequestPerformer
+        self.balanceLocksFetching = balanceLocksFetching
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.crowdloanService = crowdloanService
         self.priceLocalSubscriber = priceLocalSubscriber
     }
 
@@ -32,12 +29,11 @@ final class BalanceLocksDetailInteractor {
         }
 
         Task {
-            let request = StakingLedgerRequest(accountId: accountId)
             do {
-                let ledger: StakingLedger? = try await storageRequestPerformer.performRequest(request)
-                output?.didReceiveStakingLedger(ledger)
+                let stakingLocks: StakingLocks? = try await balanceLocksFetching.fetchStakingLocks(for: accountId)
+                output?.didReceiveStakingLocks(stakingLocks)
             } catch {
-                output?.didReceiveStakingLedgerError(error)
+                output?.didReceiveStakingLocksError(error)
             }
         }
     }
@@ -48,28 +44,26 @@ final class BalanceLocksDetailInteractor {
         }
 
         Task {
-            let request = NominationPoolsPoolMembersRequest(accountId: accountId)
             do {
-                let poolMember: StakingPoolMember? = try await storageRequestPerformer.performRequest(request)
-                output?.didReceiveStakingPoolMember(poolMember)
+                let nominationPoolLocks: StakingLocks? = try await balanceLocksFetching.fetchNominationPoolLocks(for: accountId)
+                output?.didReceiveNominationPoolLocks(nominationPoolLocks)
             } catch {
-                output?.didReceiveStakingPoolError(error)
+                output?.didReceiveNominationPoolLocksError(error)
             }
         }
     }
 
-    private func fetchBalanceLocks() {
+    private func fetchGovernanceLocks() {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             return
         }
 
         Task {
-            let request = BalancesLocksRequest(accountId: accountId)
             do {
-                let balanceLocks: BalanceLocks? = try await storageRequestPerformer.performRequest(request)
-                output?.didReceiveBalanceLocks(balanceLocks)
+                let governanceLocks: Decimal? = try await balanceLocksFetching.fetchGovernanceLocks(for: accountId)
+                output?.didReceiveGovernanceLocks(governanceLocks)
             } catch {
-                output?.didReceiveBalanceLocksError(error)
+                output?.didReceiveGovernanceLocksError(error)
             }
         }
     }
@@ -81,52 +75,26 @@ final class BalanceLocksDetailInteractor {
 
         Task {
             do {
-                let contributions = try await crowdloanService.fetchContributions(accountId: accountId)
-                output?.didReceiveCrowdloanContributions(contributions)
+                let crowdloanLocks = try await balanceLocksFetching.fetchCrowdloanLocks(for: accountId)
+                output?.didReceiveCrowdloanLocks(crowdloanLocks)
             } catch {
-                output?.didReceiveCrowdloanContributionsError(error)
+                output?.didReceiveCrowdloanLocksError(error)
             }
         }
     }
 
     private func fetchVestings() {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            output?.didReceiveVestingScheduleError(ChainAccountFetchingError.accountNotExists)
+            output?.didReceiveVestingLocksError(ChainAccountFetchingError.accountNotExists)
             return
         }
 
         Task {
-            let request = VestingVestingRequest(accountId: accountId)
-
             do {
-                let vesting: [VestingVesting]? = try await storageRequestPerformer.performRequest(request)
-                output?.didReceiveVestingVesting(vesting?.first)
+                let vestingLocks = try await balanceLocksFetching.fetchVestingLocks(for: accountId, currencyId: chainAsset.currencyId)
+                output?.didReceiveVestingLocks(vestingLocks)
             } catch {
-                output?.didReceiveVestingVestingError(error)
-            }
-        }
-
-        Task {
-            let request = VestingSchedulesRequest(accountId: accountId)
-
-            do {
-                let vestingSchedule: [VestingSchedule]? = try await storageRequestPerformer.performRequest(request)
-                output?.didReceiveVestingSchedule(vestingSchedule?.first)
-            } catch {
-                output?.didReceiveVestingScheduleError(error)
-            }
-        }
-    }
-
-    private func fetchCurrentEra() {
-        Task {
-            let request = StakingCurrentEraRequest()
-
-            do {
-                let currentEra: StringScaleMapper<UInt32>? = try await storageRequestPerformer.performRequest(request)
-                output?.didReceiveCurrentEra(currentEra?.value)
-            } catch {
-                output?.didReceiveCurrentEraError(error)
+                output?.didReceiveVestingLocksError(error)
             }
         }
     }
@@ -140,10 +108,9 @@ extension BalanceLocksDetailInteractor: BalanceLocksDetailInteractorInput {
 
         fetchStakingLocks()
         fetchNominationPoolLocks()
-        fetchBalanceLocks()
+        fetchGovernanceLocks()
         fetchCrowdloansInfo()
         fetchVestings()
-        fetchCurrentEra()
         priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }

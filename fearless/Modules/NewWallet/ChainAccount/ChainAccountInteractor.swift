@@ -25,6 +25,7 @@ final class ChainAccountInteractor {
     private let dependencyContainer = BalanceInfoDepencyContainer()
     private var currentDependencies: BalanceInfoDependencies?
     private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private let chainRegistry: ChainRegistryProtocol
 
     private var remoteFetchTimer: Timer?
 
@@ -38,7 +39,8 @@ final class ChainAccountInteractor {
         chainAssetFetching: ChainAssetFetchingProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
-        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
@@ -50,6 +52,7 @@ final class ChainAccountInteractor {
         self.storageRequestFactory = storageRequestFactory
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
+        self.chainRegistry = chainRegistry
     }
 
     private func getAvailableChainAssets() {
@@ -80,17 +83,8 @@ final class ChainAccountInteractor {
 
         currentDependencies = dependencies
 
-        if let runtimeService = dependencies.runtimeService,
-           let connection = dependencies.connection {
-            fetchBalanceLocks(
-                runtimeService: runtimeService,
-                connection: connection
-            )
-        }
-
-        fetchMinimalBalance(
-            using: dependencies.existentialDepositService
-        )
+        fetchBalanceLocks()
+        fetchMinimalBalance(using: dependencies.existentialDepositService)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
@@ -110,58 +104,26 @@ final class ChainAccountInteractor {
         }
     }
 
-    private func fetchBalanceLocks(
-        runtimeService: RuntimeCodingServiceProtocol,
-        connection: JSONRPCEngine
-    ) {
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            let balanceLocksOperation = createBalanceLocksFetchOperation(
-                for: accountId,
-                runtimeService: runtimeService,
-                connection: connection
-            )
-            balanceLocksOperation.targetOperation.completionBlock = { [weak self] in
-                DispatchQueue.main.async {
-                    do {
-                        let balanceLocks = try balanceLocksOperation.targetOperation.extractNoCancellableResultData()
-                        self?.presenter?.didReceiveBalanceLocks(result: .success(balanceLocks))
-                    } catch {
-                        self?.presenter?.didReceiveBalanceLocks(result: .failure(error))
-                    }
-                }
+    private func fetchBalanceLocks() {
+        guard
+            let balanceLocksFetcher = currentDependencies?.balanceLocksFetcher,
+            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        else {
+            return
+        }
+
+        Task {
+            do {
+                let totalLocks = try await balanceLocksFetcher.fetchTotalLocks(for: accountId, currencyId: chainAsset.currencyId)
+                await MainActor.run(body: {
+                    presenter?.didReceiveBalanceLocks(totalLocks)
+                })
+            } catch {
+                await MainActor.run(body: {
+                    self.presenter?.didReceiveBalanceLocksError(error)
+                })
             }
-            operationManager.enqueue(
-                operations: balanceLocksOperation.allOperations,
-                in: .transient
-            )
         }
-    }
-
-    private func createBalanceLocksFetchOperation(
-        for accountId: AccountId,
-        runtimeService: RuntimeCodingServiceProtocol,
-        connection: JSONRPCEngine
-    ) -> CompoundOperationWrapper<BalanceLocks?> {
-        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<BalanceLocks>]> = storageRequestFactory.queryItems(
-            engine: connection,
-            keyParams: { [accountId] },
-            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
-            storagePath: .balanceLocks
-        )
-
-        let mapOperation = ClosureOperation<BalanceLocks?> {
-            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
-        }
-
-        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
-
-        let dependencies = [coderFactoryOperation] + wrapper.allOperations
-
-        dependencies.forEach { mapOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     private func fetchMinimalBalance(using service: ExistentialDepositServiceProtocol) {
@@ -232,6 +194,16 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             self?.remoteFetchTimer = nil
         })
         ethRemoteBalanceFetching.fetch(for: chainAsset, accountId: accountId, completionBlock: { _, _ in })
+    }
+
+    func checkIsClaimAvailable() -> Bool {
+        guard
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        else {
+            return false
+        }
+        let substrateCallFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
+        return (try? substrateCallFactory.vestingClaim()) != nil
     }
 }
 

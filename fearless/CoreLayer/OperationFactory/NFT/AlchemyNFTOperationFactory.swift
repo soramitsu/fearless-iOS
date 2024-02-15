@@ -225,7 +225,7 @@ final class AlchemyNFTOperationFactory {
     ) -> BaseOperation<NFTBatch?> {
         ClosureOperation {
             let remoteTransactions = try remoteOperation.extractNoCancellableResultData().nfts
-            let nextTokenId = try remoteOperation.extractNoCancellableResultData().nextTokenId
+            let nextTokenId = try remoteOperation.extractNoCancellableResultData().nextToken
             let loadedNfts = remoteTransactions?.compactMap {
                 let media = $0.media?.compactMap {
                     NFTMedia(
@@ -288,9 +288,12 @@ final class AlchemyNFTOperationFactory {
         urlComponents?.queryItems = [
             URLQueryItem(name: "contractAddress", value: address),
             URLQueryItem(name: "withMetadata", value: "true"),
-            URLQueryItem(name: "startToken", value: nextId),
             URLQueryItem(name: "limit", value: "100"),
         ]
+
+        if let nextId = nextId {
+            urlComponents?.queryItems?.append(URLQueryItem(name: "startToken", value: nextId))
+        }
 
         guard let urlWithParameters = urlComponents?.url else {
             return BaseOperation.createWithError(AlchemyNFTOperationFactoryError.wrongUrl)

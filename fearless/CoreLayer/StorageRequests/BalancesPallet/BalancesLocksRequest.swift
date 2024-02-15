@@ -1,9 +1,9 @@
 import Foundation
 
-struct BalancesLocksRequest: StorageRequest {
-    typealias K = AccountId
+struct BalancesLocksRequest<T: Encodable>: StorageRequest {
+    typealias K = T
 
-    let accountId: AccountId
+    let accountId: T
 
     var parametersType: StorageRequestParametersType<K> {
         .encodable(params: { [accountId] })

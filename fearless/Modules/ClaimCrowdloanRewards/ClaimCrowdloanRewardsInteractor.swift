@@ -22,6 +22,7 @@ final class ClaimCrowdloanRewardsInteractor {
     private let networkInfoFetcher: NetworkInfoFetching
     private let chainRegistry: ChainRegistryProtocol
     private let storageRequestPerformer: StorageRequestPerformer
+    private let accountInfoFetcher: AccountInfoFetchingProtocol
 
     init(
         callFactory: SubstrateCallFactoryProtocol,
@@ -35,7 +36,8 @@ final class ClaimCrowdloanRewardsInteractor {
         priceLocalSubscriber: PriceLocalStorageSubscriber,
         networkInfoFetcher: NetworkInfoFetching,
         chainRegistry: ChainRegistryProtocol,
-        storageRequestPerformer: StorageRequestPerformer
+        storageRequestPerformer: StorageRequestPerformer,
+        accountInfoFetcher: AccountInfoFetchingProtocol
     ) {
         self.callFactory = callFactory
         self.wallet = wallet
@@ -49,14 +51,14 @@ final class ClaimCrowdloanRewardsInteractor {
         self.networkInfoFetcher = networkInfoFetcher
         self.chainRegistry = chainRegistry
         self.storageRequestPerformer = storageRequestPerformer
+        self.accountInfoFetcher = accountInfoFetcher
 
         self.feeProxy.delegate = self
     }
 
     private func fetchTokenLocks() {
         guard
-//            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-            let accountId = try? "0xb6886973c891bf20892bfe376d58c89e42f42163a47816c2b064ac7e78528f25".toAccountId(),
+            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
             let currencyId = chainAsset.currencyId
         else {
             output?.didReceiveBalanceLocksError(ChainAccountFetchingError.accountNotExists)
@@ -65,7 +67,7 @@ final class ClaimCrowdloanRewardsInteractor {
 
         Task {
             do {
-                let tokensLocksRequest = TokensLocksRequest(accountId: accountId, currencyId: currencyId)
+                let tokensLocksRequest = TokensLocksRequestBuilder().buildRequest(for: chainAsset, accountId: accountId, currencyId: currencyId)
                 let locks: TokenLocks? = try await storageRequestPerformer.performRequest(tokensLocksRequest)
 
                 await MainActor.run {
@@ -80,15 +82,14 @@ final class ClaimCrowdloanRewardsInteractor {
     }
 
     private func fetchBalanceLocks() {
-        guard let accountId = try? "0xb6886973c891bf20892bfe376d58c89e42f42163a47816c2b064ac7e78528f25".toAccountId() else {
-//        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             output?.didReceiveBalanceLocksError(ChainAccountFetchingError.accountNotExists)
             return
         }
 
         Task {
             do {
-                let balancesLocksRequest = BalancesLocksRequest(accountId: accountId)
+                let balancesLocksRequest = BalanceLocksRequestBuilder().buildRequest(for: chainAsset, accountId: accountId)
                 let locks: BalanceLocks? = try await storageRequestPerformer.performRequest(balancesLocksRequest)
 
                 await MainActor.run {
@@ -97,93 +98,6 @@ final class ClaimCrowdloanRewardsInteractor {
             } catch {
                 await MainActor.run {
                     output?.didReceiveBalanceLocksError(error)
-                }
-            }
-        }
-    }
-
-    private func fetchVestingSchedule() {
-        guard let accountId = try? "0xb6886973c891bf20892bfe376d58c89e42f42163a47816c2b064ac7e78528f25".toAccountId() else {
-//        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            output?.didReceiveVestingScheduleError(ChainAccountFetchingError.accountNotExists)
-            return
-        }
-
-        Task {
-            let request = VestingSchedulesRequest(accountId: accountId)
-
-            do {
-                let vestingSchedule: [VestingSchedule]? = try await storageRequestPerformer.performRequest(request)
-                fetchCurrentBlock(forRelaychain: vestingSchedule?.first?.start != 0)
-
-                await MainActor.run(body: {
-                    output?.didReceiveVestingSchedule(vestingSchedule?.first)
-                })
-            } catch {
-                await MainActor.run(body: {
-                    output?.didReceiveVestingScheduleError(error)
-                })
-            }
-        }
-    }
-
-    private func fetchVestingVesting() {
-        guard let accountId = try? "0xb6886973c891bf20892bfe376d58c89e42f42163a47816c2b064ac7e78528f25".toAccountId() else {
-//        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            output?.didReceiveVestingScheduleError(ChainAccountFetchingError.accountNotExists)
-            return
-        }
-
-        Task {
-            let request = VestingVestingRequest(accountId: accountId)
-
-            do {
-                let vesting: [VestingVesting]? = try await storageRequestPerformer.performRequest(request)
-                fetchCurrentBlock(forRelaychain: false)
-
-                await MainActor.run(body: {
-                    output?.didReceiveVestingVesting(vesting?.first)
-                })
-            } catch {
-                await MainActor.run(body: {
-                    output?.didReceiveVestingVestingError(error)
-                })
-            }
-        }
-    }
-
-    private func fetchCurrentBlock(forRelaychain: Bool) {
-        var chainId: ChainModel.Id
-
-        if forRelaychain {
-            switch chainAsset.defineEcosystem() {
-            case .polkadot:
-                chainId = Chain.polkadot.genesisHash
-            case .kusama:
-                chainId = Chain.kusama.genesisHash
-            default:
-                chainId = chainAsset.chain.chainId
-            }
-        } else {
-            chainId = chainAsset.chain.chainId
-        }
-
-        guard
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainId),
-            let connection = chainRegistry.getConnection(for: chainId)
-        else {
-            return
-        }
-
-        Task {
-            do {
-                let currentBlock = try await networkInfoFetcher.fetchCurrentBlock(runtimeService: runtimeService, connection: connection)
-                DispatchQueue.main.async { [weak self] in
-                    self?.output?.didReceiveCurrenBlock(currentBlock)
-                }
-            } catch {
-                DispatchQueue.main.async { [weak self] in
-                    self?.output?.didReceiveCurrentBlockError(error)
                 }
             }
         }
@@ -198,6 +112,19 @@ final class ClaimCrowdloanRewardsInteractor {
 
         return closure
     }
+
+    private func fetchAccountInfo() {
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            output?.didReceiveAccountInfo(accountInfo: nil)
+            return
+        }
+
+        accountInfoFetcher.fetch(for: chainAsset, accountId: accountId) { [weak self] _, accountInfo in
+            DispatchQueue.main.async {
+                self?.output?.didReceiveAccountInfo(accountInfo: accountInfo)
+            }
+        }
+    }
 }
 
 // MARK: - ClaimCrowdloanRewardsInteractorInput
@@ -209,8 +136,7 @@ extension ClaimCrowdloanRewardsInteractor: ClaimCrowdloanRewardsInteractorInput 
         priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         fetchBalanceLocks()
         fetchTokenLocks()
-        fetchVestingSchedule()
-        fetchVestingVesting()
+        fetchAccountInfo()
     }
 
     func estimateFee() {

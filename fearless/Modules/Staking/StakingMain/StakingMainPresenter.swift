@@ -294,7 +294,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 var options: [StakingManageOption] = []
                 options.append(.stakingBalance)
-                if nominatorState.commonData.chainAsset?.chain.externalApi?.staking != nil {
+                if nominatorState.commonData.chainAsset?.chain.externalApi?.staking != nil, nominatorState.commonData.chainAsset?.chain.isReef == false {
                     options.append(.pendingRewards)
                 }
                 options.append(.rewardDestination)

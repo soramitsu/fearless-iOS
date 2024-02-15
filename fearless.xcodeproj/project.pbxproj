@@ -2433,7 +2433,7 @@
 		FA74359B29C073650085A47E /* ChainSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359A29C073650085A47E /* ChainSettings.swift */; };
 		FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359C29C0736F0085A47E /* StorageWrapper.swift */; };
 		FA74359F29C073790085A47E /* ChainSettingsMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359E29C073790085A47E /* ChainSettingsMapper.swift */; };
-		FA760BD02B7247B100AD5A63 /* BalanceLockDetailViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA760BCF2B7247B100AD5A63 /* BalanceLockDetailViewModelFactory.swift */; };
+		FA760BD02B7247B100AD5A63 /* BalanceLocksDetailViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA760BCF2B7247B100AD5A63 /* BalanceLocksDetailViewModelFactory.swift */; };
 		FA760BD22B72482100AD5A63 /* BalanceLocksDetailStakingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA760BD12B72482100AD5A63 /* BalanceLocksDetailStakingViewModel.swift */; };
 		FA760BD42B7248CB00AD5A63 /* BalanceLocksDetailPoolViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA760BD32B7248CB00AD5A63 /* BalanceLocksDetailPoolViewModel.swift */; };
 		FA7A4C7E2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */; };
@@ -2902,6 +2902,20 @@
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
 		FAE687C12B7C8CE300F2AE27 /* StakingLocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687C02B7C8CE300F2AE27 /* StakingLocks.swift */; };
+		FAE687CC2B7C915400F2AE27 /* SubsquidStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687C32B7C915400F2AE27 /* SubsquidStakingRewardsFetcher.swift */; };
+		FAE687CD2B7C915400F2AE27 /* StakingRewardFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687C42B7C915400F2AE27 /* StakingRewardFetcher.swift */; };
+		FAE687CE2B7C915400F2AE27 /* SubqueryStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687C52B7C915400F2AE27 /* SubqueryStakingRewardsFetcher.swift */; };
+		FAE687CF2B7C915400F2AE27 /* StakingRewardsFetcherAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687C62B7C915400F2AE27 /* StakingRewardsFetcherAssembly.swift */; };
+		FAE687D02B7C915400F2AE27 /* ReefStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687C72B7C915400F2AE27 /* ReefStakingRewardsFetcher.swift */; };
+		FAE687D12B7C915400F2AE27 /* StakingRewardsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687C92B7C915400F2AE27 /* StakingRewardsRequest.swift */; };
+		FAE687D22B7C915400F2AE27 /* SoraStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687CA2B7C915400F2AE27 /* SoraStakingRewardsFetcher.swift */; };
+		FAE687D32B7C915400F2AE27 /* GiantsquidStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687CB2B7C915400F2AE27 /* GiantsquidStakingRewardsFetcher.swift */; };
+		FAE687DD2B7CCC2400F2AE27 /* BalanceLocksFetchingFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687DC2B7CCC2400F2AE27 /* BalanceLocksFetchingFactory.swift */; };
+		FAE687E22B7CD3AC00F2AE27 /* StakingLedgerRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687E12B7CD3AC00F2AE27 /* StakingLedgerRequestBuilder.swift */; };
+		FAE687E42B7CD4F500F2AE27 /* BalanceLocksRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687E32B7CD4F500F2AE27 /* BalanceLocksRequestBuilder.swift */; };
+		FAE687E82B7DD82E00F2AE27 /* TokensLocksRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687E72B7DD82E00F2AE27 /* TokensLocksRequestBuilder.swift */; };
+		FAE687EA2B7DDF9D00F2AE27 /* StakingControllerRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687E92B7DDF9D00F2AE27 /* StakingControllerRequest.swift */; };
+		FAE687EC2B7DDFD500F2AE27 /* StakingControllerRequestBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE687EB2B7DDFD500F2AE27 /* StakingControllerRequestBuilder.swift */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
 		FAE9EB9F288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9E288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift */; };
 		FAE9EBA1288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EBA0288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift */; };
@@ -5480,7 +5494,7 @@
 		FA74359A29C073650085A47E /* ChainSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettings.swift; sourceTree = "<group>"; };
 		FA74359C29C0736F0085A47E /* StorageWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageWrapper.swift; sourceTree = "<group>"; };
 		FA74359E29C073790085A47E /* ChainSettingsMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettingsMapper.swift; sourceTree = "<group>"; };
-		FA760BCF2B7247B100AD5A63 /* BalanceLockDetailViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLockDetailViewModelFactory.swift; sourceTree = "<group>"; };
+		FA760BCF2B7247B100AD5A63 /* BalanceLocksDetailViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLocksDetailViewModelFactory.swift; sourceTree = "<group>"; };
 		FA760BD12B72482100AD5A63 /* BalanceLocksDetailStakingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLocksDetailStakingViewModel.swift; sourceTree = "<group>"; };
 		FA760BD32B7248CB00AD5A63 /* BalanceLocksDetailPoolViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLocksDetailPoolViewModel.swift; sourceTree = "<group>"; };
 		FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorEngine.swift; sourceTree = "<group>"; };
@@ -5961,6 +5975,20 @@
 		FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewState.swift; sourceTree = "<group>"; };
 		FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModelFactory.swift; sourceTree = "<group>"; };
 		FAE687C02B7C8CE300F2AE27 /* StakingLocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingLocks.swift; sourceTree = "<group>"; };
+		FAE687C32B7C915400F2AE27 /* SubsquidStakingRewardsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubsquidStakingRewardsFetcher.swift; sourceTree = "<group>"; };
+		FAE687C42B7C915400F2AE27 /* StakingRewardFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRewardFetcher.swift; sourceTree = "<group>"; };
+		FAE687C52B7C915400F2AE27 /* SubqueryStakingRewardsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryStakingRewardsFetcher.swift; sourceTree = "<group>"; };
+		FAE687C62B7C915400F2AE27 /* StakingRewardsFetcherAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRewardsFetcherAssembly.swift; sourceTree = "<group>"; };
+		FAE687C72B7C915400F2AE27 /* ReefStakingRewardsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReefStakingRewardsFetcher.swift; sourceTree = "<group>"; };
+		FAE687C92B7C915400F2AE27 /* StakingRewardsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRewardsRequest.swift; sourceTree = "<group>"; };
+		FAE687CA2B7C915400F2AE27 /* SoraStakingRewardsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraStakingRewardsFetcher.swift; sourceTree = "<group>"; };
+		FAE687CB2B7C915400F2AE27 /* GiantsquidStakingRewardsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GiantsquidStakingRewardsFetcher.swift; sourceTree = "<group>"; };
+		FAE687DC2B7CCC2400F2AE27 /* BalanceLocksFetchingFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetchingFactory.swift; sourceTree = "<group>"; };
+		FAE687E12B7CD3AC00F2AE27 /* StakingLedgerRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingLedgerRequestBuilder.swift; sourceTree = "<group>"; };
+		FAE687E32B7CD4F500F2AE27 /* BalanceLocksRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceLocksRequestBuilder.swift; sourceTree = "<group>"; };
+		FAE687E72B7DD82E00F2AE27 /* TokensLocksRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TokensLocksRequestBuilder.swift; sourceTree = "<group>"; };
+		FAE687E92B7DDF9D00F2AE27 /* StakingControllerRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingControllerRequest.swift; sourceTree = "<group>"; };
+		FAE687EB2B7DDFD500F2AE27 /* StakingControllerRequestBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingControllerRequestBuilder.swift; sourceTree = "<group>"; };
 		FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsFlow.swift; sourceTree = "<group>"; };
 		FAE9EB9E288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticRewardsParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAE9EBA0288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticRewardsParachainStrategy.swift; sourceTree = "<group>"; };
@@ -12832,6 +12860,7 @@
 		FA30673A2B625806006A0BA5 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				FAE687E02B7CD39A00F2AE27 /* RequestBuilders */,
 				FA3067302B624DEE006A0BA5 /* StorageRequestOperationBuilderFactory.swift */,
 				FA30673B2B625824006A0BA5 /* StorageResponseDecoderFactory.swift */,
 				FA3067462B625C4B006A0BA5 /* StorageNetworkWorkerFactory.swift */,
@@ -13058,6 +13087,8 @@
 		FA38C9A227606FDD005C5577 /* ApplicationLayer */ = {
 			isa = PBXGroup;
 			children = (
+				FAE687DB2B7CCC0E00F2AE27 /* ComponentFactories */,
+				FAE687C22B7C915400F2AE27 /* StakingRewards */,
 				FA9A8F0A2A72573C008FA99F /* Alchemy */,
 				FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */,
 				FA2FC82C28B3816D00CC0A42 /* StorageKeyDataExtractor.swift */,
@@ -13391,6 +13422,7 @@
 			children = (
 				FA6DD1C02B6B658F007EF1F8 /* StakingLedgerRequest.swift */,
 				FA566BF22B75E5E500FD20B1 /* StakingCurrentEraRequest.swift */,
+				FAE687E92B7DDF9D00F2AE27 /* StakingControllerRequest.swift */,
 			);
 			path = StakingPallet;
 			sourceTree = "<group>";
@@ -13570,7 +13602,7 @@
 		FA760BCE2B72462D00AD5A63 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				FA760BCF2B7247B100AD5A63 /* BalanceLockDetailViewModelFactory.swift */,
+				FA760BCF2B7247B100AD5A63 /* BalanceLocksDetailViewModelFactory.swift */,
 				FA760BD12B72482100AD5A63 /* BalanceLocksDetailStakingViewModel.swift */,
 				FA760BD32B7248CB00AD5A63 /* BalanceLocksDetailPoolViewModel.swift */,
 			);
@@ -14973,6 +15005,48 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		FAE687C22B7C915400F2AE27 /* StakingRewards */ = {
+			isa = PBXGroup;
+			children = (
+				FAE687C32B7C915400F2AE27 /* SubsquidStakingRewardsFetcher.swift */,
+				FAE687C42B7C915400F2AE27 /* StakingRewardFetcher.swift */,
+				FAE687C52B7C915400F2AE27 /* SubqueryStakingRewardsFetcher.swift */,
+				FAE687C62B7C915400F2AE27 /* StakingRewardsFetcherAssembly.swift */,
+				FAE687C72B7C915400F2AE27 /* ReefStakingRewardsFetcher.swift */,
+				FAE687C82B7C915400F2AE27 /* Requests */,
+				FAE687CA2B7C915400F2AE27 /* SoraStakingRewardsFetcher.swift */,
+				FAE687CB2B7C915400F2AE27 /* GiantsquidStakingRewardsFetcher.swift */,
+			);
+			path = StakingRewards;
+			sourceTree = "<group>";
+		};
+		FAE687C82B7C915400F2AE27 /* Requests */ = {
+			isa = PBXGroup;
+			children = (
+				FAE687C92B7C915400F2AE27 /* StakingRewardsRequest.swift */,
+			);
+			path = Requests;
+			sourceTree = "<group>";
+		};
+		FAE687DB2B7CCC0E00F2AE27 /* ComponentFactories */ = {
+			isa = PBXGroup;
+			children = (
+				FAE687DC2B7CCC2400F2AE27 /* BalanceLocksFetchingFactory.swift */,
+			);
+			path = ComponentFactories;
+			sourceTree = "<group>";
+		};
+		FAE687E02B7CD39A00F2AE27 /* RequestBuilders */ = {
+			isa = PBXGroup;
+			children = (
+				FAE687E12B7CD3AC00F2AE27 /* StakingLedgerRequestBuilder.swift */,
+				FAE687E32B7CD4F500F2AE27 /* BalanceLocksRequestBuilder.swift */,
+				FAE687E72B7DD82E00F2AE27 /* TokensLocksRequestBuilder.swift */,
+				FAE687EB2B7DDFD500F2AE27 /* StakingControllerRequestBuilder.swift */,
+			);
+			path = RequestBuilders;
+			sourceTree = "<group>";
+		};
 		FAE9EB99288AB72D009390B6 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
@@ -15783,6 +15857,7 @@
 				FA2FC7F928B3807C00CC0A42 /* StakingPoolJoinChoosePoolViewModelFactory.swift in Sources */,
 				FA99425328053C8800D771E5 /* SelectExportAccountViewModel.swift in Sources */,
 				FA17B4BC27E873F3006E0735 /* WarningAlertDismissAnimator.swift in Sources */,
+				FAE687E42B7CD4F500F2AE27 /* BalanceLocksRequestBuilder.swift in Sources */,
 				8460E11D2542011200826F55 /* DetailsTriangularedView.swift in Sources */,
 				FA93A2D728323CB90021330F /* CustomValidatorListParachainViewModelState.swift in Sources */,
 				841AAC2326F6879900F0A25E /* AssetBalanceDisplayInfo.swift in Sources */,
@@ -15858,6 +15933,7 @@
 				841494402604E71C000D8D1A /* TotalRewardItem.swift in Sources */,
 				FA584C7A2AB2BFE300F6F020 /* MediaType.swift in Sources */,
 				C6264C292799A56E00FCA0DB /* WalletDetailsTableCell.swift in Sources */,
+				FAE687CC2B7C915400F2AE27 /* SubsquidStakingRewardsFetcher.swift in Sources */,
 				84DA3B1224C6D29100B5E27F /* RuntimeVersion.swift in Sources */,
 				FA176BB82851B42700258125 /* StakingBalanceParachainViewModelFactory.swift in Sources */,
 				843C49DB24DF373000B71DDA /* AccountImportRequest.swift in Sources */,
@@ -15922,6 +15998,7 @@
 				07DFA45A289B8D520035A8AB /* WalletBalanceInfo.swift in Sources */,
 				FAA0137328DA12E3000A5230 /* StakingRedeemConfirmationFlow.swift in Sources */,
 				846AF8462525C93A00868F37 /* BalanceContext.swift in Sources */,
+				FAE687EC2B7DDFD500F2AE27 /* StakingControllerRequestBuilder.swift in Sources */,
 				842D1E8624D1A90400C30A7A /* NSPredicate+Validation.swift in Sources */,
 				F4FDA0F826A57626003D753B /* EraCountdownOperationFactory.swift in Sources */,
 				07D05E6028EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelFactory.swift in Sources */,
@@ -16014,6 +16091,7 @@
 				8490145324A93FD1008F705E /* FearlessLoadingViewFactory.swift in Sources */,
 				849842F92659241C006BBB9F /* CompletedCrowdloanTableViewCell.swift in Sources */,
 				07089AF728B64928001566CA /* NetworkIssuesProviderProtocol.swift in Sources */,
+				FAE687CF2B7C915400F2AE27 /* StakingRewardsFetcherAssembly.swift in Sources */,
 				8428768A24AE046300D91AD8 /* AboutProtocols.swift in Sources */,
 				FA004893282CCA520032FF49 /* SelectValidatorsStartRelaychainStrategy.swift in Sources */,
 				FA7254262AC2E48500EC47A6 /* WalletConnectEthereumTransaction.swift in Sources */,
@@ -16639,6 +16717,7 @@
 				C65A6592288E5CF400679D65 /* AccountInfoFetching.swift in Sources */,
 				FA256A20274CE7D600875A53 /* AstarBonusService.swift in Sources */,
 				078E34C128058B9D00DF187A /* DocumentType.swift in Sources */,
+				FAE687CD2B7C915400F2AE27 /* StakingRewardFetcher.swift in Sources */,
 				8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */,
 				84DB9E902640A48E00F23DD3 /* StakingRedeemViewModel.swift in Sources */,
 				FAFFAE9729AC84B10074AF1F /* GiantsquidSlash.swift in Sources */,
@@ -16648,6 +16727,7 @@
 				FABA162D2B0C9504001AF2F0 /* TabBar.swift in Sources */,
 				AEF507F226259DF00098574D /* ValidationViewModel.swift in Sources */,
 				FA286B102A3043DB008BD527 /* CrossChainConfirmationPresenter.swift in Sources */,
+				FAE687CE2B7C915400F2AE27 /* SubqueryStakingRewardsFetcher.swift in Sources */,
 				FA17B4B127E856B7006E0735 /* UnsupportedChainAlertConfig.swift in Sources */,
 				848FFE8B25E69A6000652AA5 /* EraValidatorServiceProtocol.swift in Sources */,
 				842876A624AE049B00D91AD8 /* SelectableViewModelProtocol.swift in Sources */,
@@ -16704,6 +16784,7 @@
 				FA8ED43628FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift in Sources */,
 				AE6F7FE62685F2C3002BBC3E /* ValidatorListFilterViewModel.swift in Sources */,
 				C6264C322799DB8C00FCA0DB /* WalletDetailsViewController.swift in Sources */,
+				FAE687DD2B7CCC2400F2AE27 /* BalanceLocksFetchingFactory.swift in Sources */,
 				FA3067202B621144006A0BA5 /* TokenLock.swift in Sources */,
 				C6264C3E279E9D5000FCA0DB /* WalletTableViewCell.swift in Sources */,
 				F40966F626B299FC008CD244 /* SubqueryStakeSource.swift in Sources */,
@@ -16735,6 +16816,7 @@
 				FA9A8F262A72579D008FA99F /* AlchemySortOrder.swift in Sources */,
 				FAFFAEAC29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift in Sources */,
 				FA8800632B31A04C000AE5EB /* StakingAccountResolverAssembly.swift in Sources */,
+				FAE687EA2B7DDF9D00F2AE27 /* StakingControllerRequest.swift in Sources */,
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
 				FAA013B328DA1355000A5230 /* StakingPoolRewards.swift in Sources */,
 				FAA0139828DA1312000A5230 /* StakingBondMoreConfirmationPoolStrategy.swift in Sources */,
@@ -16868,6 +16950,7 @@
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
 				FA4CC6642817C3AC00A7E85F /* StackedTableView.swift in Sources */,
 				FAD429042A86567F001D6A16 /* BackupCreatePasswordInteractor.swift in Sources */,
+				FAE687D32B7C915400F2AE27 /* GiantsquidStakingRewardsFetcher.swift in Sources */,
 				FAA0138B28DA1303000A5230 /* StakingPayoutConfirmationFlow.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */,
 				FAD428F62A86567F001D6A16 /* BackupPasswordAssembly.swift in Sources */,
@@ -16880,6 +16963,7 @@
 				C600C4D928054A1B00111316 /* AccountCreateFlow.swift in Sources */,
 				FAFFAE8F29AC84B10074AF1F /* SubqueryCollatorApr.swift in Sources */,
 				FAD646DA284F58C1007CCB92 /* StakingUnbondSetupRelaychainStrategy.swift in Sources */,
+				FAE687D02B7C915400F2AE27 /* ReefStakingRewardsFetcher.swift in Sources */,
 				FA62625D2AC2E35A005D3D95 /* RawDataInteractor.swift in Sources */,
 				FABA163D2B0C9510001AF2F0 /* NetworkManagmentProtocols.swift in Sources */,
 				84113B6C255B2835009BD21A /* AccountCreateError.swift in Sources */,
@@ -17264,6 +17348,7 @@
 				FA9A8F092A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift in Sources */,
 				FA93A3062834FBF60021330F /* ValidatorSearchFlow.swift in Sources */,
 				84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */,
+				FAE687E82B7DD82E00F2AE27 /* TokensLocksRequestBuilder.swift in Sources */,
 				84E6D57C262E2CE8000EA3F5 /* OperationCombiningService.swift in Sources */,
 				0726FFAD2AC4399C00336D76 /* WalletConnectPolkadotParser.swift in Sources */,
 				FAED6F4427DA19C70051B337 /* AccountInfoSubscriptionAdapter.swift in Sources */,
@@ -17911,7 +17996,7 @@
 				FA28A9B229D2E451005AA42E /* MultiassetV9.xcmappingmodel in Sources */,
 				A871B6ABACAE8A811010F792 /* StakingPayoutConfirmationWireframe.swift in Sources */,
 				F4D6FF1326B3DDDF002313AF /* AnalyticsRewardsViewController.swift in Sources */,
-				FA760BD02B7247B100AD5A63 /* BalanceLockDetailViewModelFactory.swift in Sources */,
+				FA760BD02B7247B100AD5A63 /* BalanceLocksDetailViewModelFactory.swift in Sources */,
 				1795E946F1E386442E96E2BC /* StakingPayoutConfirmationPresenter.swift in Sources */,
 				AEFA82BC4285117096BCBB16 /* StakingPayoutConfirmationInteractor.swift in Sources */,
 				6D47EAB127FAB7559A9FA107 /* StakingPayoutConfirmationViewController.swift in Sources */,
@@ -17992,6 +18077,7 @@
 				8401AEC52642A71D000B03E3 /* StakingRebondConfirmationViewFactory.swift in Sources */,
 				07D05E4B28EEFF3100B66C70 /* SelectValidatorsStartPoolViewModelFactory.swift in Sources */,
 				27FA1D57A06AA3A030D226B6 /* StakingUnbondConfirmWireframe.swift in Sources */,
+				FAE687D22B7C915400F2AE27 /* SoraStakingRewardsFetcher.swift in Sources */,
 				843A2C7326A8641400266F53 /* MultiValueView.swift in Sources */,
 				3FF8EE1158A273D0D50BC7A6 /* StakingUnbondConfirmPresenter.swift in Sources */,
 				FA99425728053C8800D771E5 /* SelectExportAccountPresenter.swift in Sources */,
@@ -18095,6 +18181,7 @@
 				FA256A2C274CE7D600875A53 /* MoonbeamHTTPHeadersBuilder.swift in Sources */,
 				FA8ED43A28FD985000EBB712 /* YourValidatorListRelaychainViewModelFactory.swift in Sources */,
 				FAD4291D2A86567F001D6A16 /* WalletNameViewLayout.swift in Sources */,
+				FAE687E22B7CD3AC00F2AE27 /* StakingLedgerRequestBuilder.swift in Sources */,
 				846A2606267C792000429A7F /* CrowdloanContributionResponse.swift in Sources */,
 				0C2AA829B5CB89B39E0FA95E /* CrowdloanContributionConfirmProtocols.swift in Sources */,
 				FA8644332767AB2300956D8E /* HistoryService.swift in Sources */,
@@ -18389,6 +18476,7 @@
 				159A8702C30A21988AD76805 /* StakingPoolCreateConfirmAssembly.swift in Sources */,
 				DA62812C23210601F4ECF84D /* ContactsProtocols.swift in Sources */,
 				F6CD0ED1CF9A605222745BEC /* ContactsRouter.swift in Sources */,
+				FAE687D12B7C915400F2AE27 /* StakingRewardsRequest.swift in Sources */,
 				DAAD3A3FCBA0C0E613167EBF /* ContactsPresenter.swift in Sources */,
 				705F5EEDD70D6941D138D3F9 /* ContactsInteractor.swift in Sources */,
 				3336F04749ADC27C81BA9464 /* ContactsViewController.swift in Sources */,

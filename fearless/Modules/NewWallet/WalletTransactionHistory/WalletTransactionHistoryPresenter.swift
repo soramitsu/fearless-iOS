@@ -43,6 +43,16 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryModuleInput
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterProtocol {
+    func didChangeFiltersSliderValue(index: Int) {
+        guard let type = WalletTransactionHistoryFilter.HistoryFilterType.type(from: index) else {
+            return
+        }
+
+        let filter = WalletTransactionHistoryFilter(type: type, selected: true)
+        let filters = [FilterSet(title: nil, items: [filter])]
+        interactor.applyFilters(filters)
+    }
+
     func setup() {
         interactor.setup()
     }
@@ -56,7 +66,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
             return
         }
 
-        wireframe.presentFilters(with: filters, from: view, moduleOutput: self)
+        let mode: FiltersMode = chainAsset.chain.isReef ? .singleSelection : .multiSelection
+        wireframe.presentFilters(with: filters, from: view, mode: mode, moduleOutput: self)
     }
 
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel) {
@@ -103,7 +114,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
             let viewModel = WalletTransactionHistoryViewModel(
                 sections: viewModels,
                 lastChanges: viewChanges,
-                filtersEnabled: chainAsset.chain.externalApi?.history?.type != .etherscan && chainAsset.chain.externalApi?.history != nil
+                filtering: buildFiltering(for: chainAsset.chain)
             )
 
             let state: WalletTransactionHistoryViewState = reload
@@ -114,6 +125,14 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
             logger.error("\(error)")
             view?.didReceive(state: .unsupported)
         }
+    }
+
+    private func buildFiltering(for chain: ChainModel) -> WalletTransactionHistoryViewFilterMode {
+        if chain.isReef {
+            return .single
+        }
+
+        return (chainAsset.chain.externalApi?.history?.type != .etherscan && chainAsset.chain.externalApi?.history != nil) ? .multiple : .disabled
     }
 }
 

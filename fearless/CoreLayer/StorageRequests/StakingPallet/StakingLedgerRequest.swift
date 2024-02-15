@@ -1,10 +1,10 @@
 import Foundation
 import SSFModels
 
-struct StakingLedgerRequest: StorageRequest {
-    typealias K = AccountId
+struct StakingLedgerRequest<T: Encodable>: StorageRequest {
+    typealias K = T
 
-    let accountId: AccountId
+    let accountId: T
 
     var parametersType: StorageRequestParametersType<K> {
         .encodable {

@@ -56,7 +56,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     private var chainSubscriptionId: UUID?
     private var accountSubscriptionId: UUID?
 
-    var rewardAssetPriceProvider: AnySingleValueProvider<[PriceData]>?
     var priceProvider: AnySingleValueProvider<[PriceData]>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     var stashControllerProvider: StreamableProvider<StashItem>?
@@ -405,7 +404,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        rewardAssetPriceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, stakingSettings.value].compactMap { $0 }, listener: self)
     }
 
 //    Parachain

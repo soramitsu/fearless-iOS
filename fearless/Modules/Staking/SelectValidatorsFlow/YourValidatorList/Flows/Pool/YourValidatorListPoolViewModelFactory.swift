@@ -123,11 +123,13 @@ extension YourValidatorListPoolViewModelFactory: YourValidatorListViewModelFacto
 
         let allValidatorsWithoutReward = !activeAllocations.isEmpty &&
             activeAllocations.allSatisfy { !$0.isRewarded }
+        let hasOversubsctibedValidators = model.currentValidators.first(where: { $0.oversubscribed }) != nil
 
         return YourValidatorListViewModel(
             allValidatorWithoutRewards: allValidatorsWithoutReward,
             sections: sections,
-            userCanSelectValidators: relaychainViewModelState.selectValidatorsStartFlow() != nil
+            userCanSelectValidators: relaychainViewModelState.selectValidatorsStartFlow() != nil,
+            hasOversubscribedValidators: hasOversubsctibedValidators
         )
     }
 }

@@ -18,12 +18,13 @@ enum ChainAccountViewFactory {
         moduleOutput: ChainAccountModuleOutput,
         mode: ChainAccountViewMode
     ) -> ChainAccountModule? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
         let operationManager = OperationManagerFacade.sharedManager
         let eventCenter = EventCenter.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
@@ -65,7 +66,8 @@ enum ChainAccountViewFactory {
             chainAssetFetching: chainAssetFetching,
             storageRequestFactory: storageRequestFactory,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
-            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching
+            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            chainRegistry: chainRegistry
         )
 
         let wireframe = ChainAccountWireframe()

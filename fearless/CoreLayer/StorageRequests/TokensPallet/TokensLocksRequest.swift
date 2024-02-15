@@ -1,10 +1,10 @@
 import Foundation
 import SSFModels
 
-struct TokensLocksRequest: StorageRequest {
-    typealias K = AccountId
+struct TokensLocksRequest<T: Encodable>: StorageRequest {
+    typealias K = T
 
-    let accountId: AccountId
+    let accountId: T
     let currencyId: CurrencyId
 
     var parametersType: StorageRequestParametersType<K> {

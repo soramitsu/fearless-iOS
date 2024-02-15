@@ -22,23 +22,19 @@ protocol BalanceLocksDetailInteractorInput: AnyObject {
 }
 
 protocol BalanceLocksDetailInteractorOutput: AnyObject {
-    func didReceiveStakingLedger(_ stakingLedger: StakingLedger?)
-    func didReceiveStakingPoolMember(_ stakingPoolMember: StakingPoolMember?)
-    func didReceiveBalanceLocks(_ balanceLocks: BalanceLocks?)
-    func didReceiveCrowdloanContributions(_ contributions: CrowdloanContributionDict?)
+    func didReceiveStakingLocks(_ stakingLocks: StakingLocks?)
+    func didReceiveNominationPoolLocks(_ nominationPoolLocks: StakingLocks?)
+    func didReceiveGovernanceLocks(_ balanceLocks: Decimal?)
+    func didReceiveCrowdloanLocks(_ crowdloanLocks: Decimal?)
+    func didReceiveVestingLocks(_ vestingLocks: Decimal?)
     func didReceivePrice(_ price: PriceData?)
-    func didReceiveVestingSchedule(_ vestingSchedule: VestingSchedule?)
-    func didReceiveVestingVesting(_ vesting: VestingVesting?)
-    func didReceiveCurrentEra(_ era: EraIndex?)
 
-    func didReceiveStakingLedgerError(_ error: Error)
-    func didReceiveStakingPoolError(_ error: Error)
-    func didReceiveBalanceLocksError(_ error: Error)
-    func didReceiveCrowdloanContributionsError(_ error: Error)
+    func didReceiveStakingLocksError(_ error: Error)
+    func didReceiveNominationPoolLocksError(_ error: Error)
+    func didReceiveGovernanceLocksError(_ error: Error)
+    func didReceiveCrowdloanLocksError(_ error: Error)
+    func didReceiveVestingLocksError(_ error: Error)
     func didReceivePriceError(_ error: Error)
-    func didReceiveVestingScheduleError(_ error: Error)
-    func didReceiveVestingVestingError(_ error: Error)
-    func didReceiveCurrentEraError(_ error: Error)
 }
 
 protocol BalanceLocksDetailRouterInput: AnyObject, AnyDismissable {}

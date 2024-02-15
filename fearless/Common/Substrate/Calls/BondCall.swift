@@ -26,7 +26,7 @@ struct BondCall: Codable {
             try container.encode(controller, forKey: .controller)
         }
 
-        try container.encode(value, forKey: .value)
+        try container.encode(StringScaleMapper(value: value), forKey: .value)
         try container.encode(payee, forKey: .payee)
     }
 }

@@ -123,7 +123,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNewChain()
 
         clear(singleValueProvider: &priceProvider)
-        clear(singleValueProvider: &rewardAssetPriceProvider)
         clear(dataProvider: &delegatorStateProvider)
         collatorIds = nil
         performPriceSubscription()

@@ -18,22 +18,7 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
         return view
     }()
 
-    let totalRewardsView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = R.color.colorWhite()
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        view.valueTop.lineBreakMode = .byTruncatingTail
-        view.valueBottom.lineBreakMode = .byTruncatingMiddle
-        return view
-    }()
-
-    let claimableRewardsView: TitleMultiValueView = {
+    let transerableBalanceView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
@@ -118,9 +103,9 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
         navigationBar.backButton.rounded()
     }
 
-    func bind(hintViewModel: TitleIconViewModel?) {
+    func bind(hintViewModel: DetailsTriangularedAttributedViewModel?) {
         hintView.iconWidth = UIConstants.iconSize
-        hintView.detailsLabel.text = hintViewModel?.title
+        hintView.detailsLabel.attributedText = hintViewModel?.title
         hintView.imageView.image = hintViewModel?.icon
     }
 
@@ -128,7 +113,8 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
         addSubview(contentView)
         addSubview(navigationBar)
         addSubview(networkFeeFooterView)
-        addSubview(hintView)
+
+        hintView.stackViewAlignment = .top
 
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
@@ -141,6 +127,8 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
         contentView.stackView.addArrangedSubview(infoBackground)
+        contentView.stackView.addArrangedSubview(hintView)
+
         infoBackground.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
@@ -151,22 +139,16 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        infoStackView.addArrangedSubview(totalRewardsView)
         infoStackView.addArrangedSubview(lockedRewardsView)
-        infoStackView.addArrangedSubview(claimableRewardsView)
+        infoStackView.addArrangedSubview(transerableBalanceView)
         infoStackView.addArrangedSubview(feeView)
-
-        totalRewardsView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
-        }
 
         lockedRewardsView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
 
-        claimableRewardsView.snp.makeConstraints { make in
+        transerableBalanceView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
@@ -177,20 +159,19 @@ final class ClaimCrowdloanRewardsViewLayout: UIView {
         }
 
         hintView.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom)
-            make.leading.trailing.equalToSuperview()
+            make.leading.equalToSuperview().inset(8)
+            make.trailing.equalToSuperview().inset(16)
         }
 
         networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
-            make.top.equalTo(hintView.snp.bottom).offset(16)
+            make.top.equalTo(contentView.snp.bottom).offset(16)
         }
     }
 
     private func applyLocalization() {
-        totalRewardsView.titleLabel.text = R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)
-        lockedRewardsView.titleLabel.text = R.string.localizable.walletBalanceLocked(preferredLanguages: locale.rLanguages)
-        claimableRewardsView.titleLabel.text = R.string.localizable.poolClaimableTitle(preferredLanguages: locale.rLanguages)
+        lockedRewardsView.titleLabel.text = R.string.localizable.vestingLockedTitle(preferredLanguages: locale.rLanguages)
+        transerableBalanceView.titleLabel.text = R.string.localizable.assetdetailsBalanceTransferable(preferredLanguages: locale.rLanguages)
 
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(
             preferredLanguages: locale.rLanguages

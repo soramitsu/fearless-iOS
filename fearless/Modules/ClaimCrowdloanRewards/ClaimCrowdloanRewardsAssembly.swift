@@ -52,6 +52,15 @@ final class ClaimCrowdloanRewardsAssembly {
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory
         )
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetcher = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: chainRegistry,
+            operationQueue: OperationQueue()
+        )
         let interactor = ClaimCrowdloanRewardsInteractor(
             callFactory: callFactory,
             wallet: wallet,
@@ -64,7 +73,8 @@ final class ClaimCrowdloanRewardsAssembly {
             priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             networkInfoFetcher: networkInfoFetcher,
             chainRegistry: chainRegistry,
-            storageRequestPerformer: storageRequestPerformer
+            storageRequestPerformer: storageRequestPerformer,
+            accountInfoFetcher: accountInfoFetcher
         )
         let router = ClaimCrowdloanRewardsRouter()
 
@@ -83,7 +93,8 @@ final class ClaimCrowdloanRewardsAssembly {
             logger: Logger.shared,
             chainAsset: chainAsset,
             balanceViewModelFactory: balanceViewModelFactory,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            wallet: wallet
         )
 
         let view = ClaimCrowdloanRewardsViewController(

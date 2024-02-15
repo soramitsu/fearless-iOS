@@ -26,14 +26,13 @@ final class BalanceLocksDetailPresenter {
     private let viewModelFactory: BalanceLockDetailViewModelFactory
     private let chainAsset: ChainAsset
 
-    private var stakingLedger: NoneStateOptional<StakingLedger?> = .none
-    private var stakingPoolMember: NoneStateOptional<StakingPoolMember?> = .none
-    private var balanceLocks: NoneStateOptional<BalanceLocks?> = .none
-    private var contributions: NoneStateOptional<CrowdloanContributionDict?> = .none
-    private var vestingSchedule: NoneStateOptional<VestingSchedule?> = .none
-    private var vesting: NoneStateOptional<VestingVesting?> = .none
+    private var stakingLocks: NoneStateOptional<StakingLocks?> = .none
+    private var nominationPoolLocks: NoneStateOptional<StakingLocks?> = .none
+    private var governanceLocks: NoneStateOptional<Decimal?> = .none
+    private var crowdloanLocks: NoneStateOptional<Decimal?> = .none
+    private var vestingLocks: NoneStateOptional<Decimal?> = .none
+    private var totalLocks: NoneStateOptional<Decimal?> = .none
     private var priceData: PriceData?
-    private var currentEra: NoneStateOptional<EraIndex?> = .none
 
     // MARK: - Constructors
 
@@ -57,16 +56,14 @@ final class BalanceLocksDetailPresenter {
 
     private func provideStakingViewModel() {
         guard
-            let stakingLedger = stakingLedger.value,
-            let currentEra = currentEra.value
+            let stakingLocks = stakingLocks.value
         else {
             return
         }
 
         let viewModel = viewModelFactory.buildStakingLocksViewModel(
-            stakingLedger: stakingLedger,
-            priceData: priceData,
-            activeEra: currentEra
+            stakingLocks: stakingLocks,
+            priceData: priceData
         )
 
         Task {
@@ -76,16 +73,14 @@ final class BalanceLocksDetailPresenter {
 
     private func providePoolsViewModel() {
         guard
-            let stakingPoolMember = stakingPoolMember.value,
-            let currentEra = currentEra.value
+            let nominationPoolLocks = nominationPoolLocks.value
         else {
             return
         }
 
-        let viewModel = viewModelFactory.buildPoolLocksViewModel(
-            stakingPoolMember: stakingPoolMember,
-            priceData: priceData,
-            activeEra: currentEra
+        let viewModel = viewModelFactory.buildNominationPoolLocksViewModel(
+            nominationPoolLocks: nominationPoolLocks,
+            priceData: priceData
         )
 
         Task {
@@ -98,13 +93,13 @@ final class BalanceLocksDetailPresenter {
     private func provideCrowdloanViewModel() {
         guard
             chainAsset.chain.isRelaychain,
-            let contributions = contributions.value
+            let crowdloanLocks = crowdloanLocks.value
         else {
             return
         }
 
         let viewModel = viewModelFactory.buildCrowdloanLocksViewModel(
-            crowdloanConbibutions: contributions,
+            crowdloanLocks: crowdloanLocks,
             priceData: priceData
         )
 
@@ -116,15 +111,13 @@ final class BalanceLocksDetailPresenter {
     private func provideVestingViewModel() {
         guard
             !chainAsset.chain.isRelaychain,
-            let vesting = vesting.value,
-            let vestingSchedule = vestingSchedule.value
+            let vestingLocks = vestingLocks.value
         else {
             return
         }
 
         let viewModel = viewModelFactory.buildVestingLocksViewModel(
-            vesting: vesting,
-            vestingSchedule: vestingSchedule,
+            vestingLocks: vestingLocks,
             priceData: priceData
         )
 
@@ -134,11 +127,11 @@ final class BalanceLocksDetailPresenter {
     }
 
     private func provideGovernanceViewModel() {
-        guard let balanceLocks = balanceLocks.value else {
+        guard let governanceLocks = governanceLocks.value else {
             return
         }
         let viewModel = viewModelFactory.buildGovernanceLocksViewModel(
-            balanceLocks: balanceLocks,
+            governanceLocks: governanceLocks,
             priceData: priceData
         )
 
@@ -149,25 +142,21 @@ final class BalanceLocksDetailPresenter {
 
     private func provideTotalViewModel() {
         guard
-            let stakingLedger = stakingLedger.value,
-            let stakingPoolMember = stakingPoolMember.value,
-            let balanceLocks = balanceLocks.value,
-            let vesting = vesting.value,
-            let vestingSchedule = vestingSchedule.value,
-            let activeEra = currentEra.value,
-            let contributions = contributions.value
+            let stakingLocks = stakingLocks.value,
+            let nominationPoolLocks = nominationPoolLocks.value,
+            let governanceLocks = governanceLocks.value,
+            let crowdloanLocks = crowdloanLocks.value,
+            let vestingLocks = vestingLocks.value
         else {
             return
         }
 
         let viewModel = viewModelFactory.buildTotalLocksViewModel(
-            stakingLedger: stakingLedger,
-            stakingPoolMember: stakingPoolMember,
-            balanceLocks: balanceLocks,
-            crowdloanConbibutions: contributions,
-            vesting: vesting,
-            vestingSchedule: vestingSchedule,
-            activeEra: activeEra,
+            stakingLocks: stakingLocks,
+            nominationPoolLocks: nominationPoolLocks,
+            governanceLocks: governanceLocks,
+            crowdloanLocks: crowdloanLocks,
+            vestingLocks: vestingLocks,
             priceData: priceData
         )
 
@@ -205,20 +194,6 @@ extension BalanceLocksDetailPresenter: BalanceLocksDetailViewOutput {
 // MARK: - BalanceLocksDetailInteractorOutput
 
 extension BalanceLocksDetailPresenter: BalanceLocksDetailInteractorOutput {
-    func didReceiveCurrentEra(_ era: EraIndex?) {
-        currentEra = .value(era)
-
-        provideStakingViewModel()
-        providePoolsViewModel()
-        provideTotalViewModel()
-    }
-
-    func didReceiveCurrentEraError(_ error: Error) {
-        currentEra = .value(nil)
-
-        logger?.error(error.localizedDescription)
-    }
-
     func didReceivePrice(_ price: PriceData?) {
         priceData = price
 
@@ -234,84 +209,70 @@ extension BalanceLocksDetailPresenter: BalanceLocksDetailInteractorOutput {
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveStakingLedger(_ stakingLedger: StakingLedger?) {
-        self.stakingLedger = .value(stakingLedger)
+    func didReceiveStakingLocks(_ stakingLocks: StakingLocks?) {
+        self.stakingLocks = .value(stakingLocks)
         provideStakingViewModel()
         provideTotalViewModel()
     }
 
-    func didReceiveStakingPoolMember(_ stakingPoolMember: StakingPoolMember?) {
-        self.stakingPoolMember = .value(stakingPoolMember)
+    func didReceiveNominationPoolLocks(_ nominationPoolLocks: StakingLocks?) {
+        self.nominationPoolLocks = .value(nominationPoolLocks)
         providePoolsViewModel()
         provideTotalViewModel()
     }
 
-    func didReceiveBalanceLocks(_ balanceLocks: BalanceLocks?) {
-        self.balanceLocks = .value(balanceLocks)
+    func didReceiveGovernanceLocks(_ governanceLocks: Decimal?) {
+        self.governanceLocks = .value(governanceLocks)
         provideGovernanceViewModel()
         provideTotalViewModel()
     }
 
-    func didReceiveCrowdloanContributions(_ contributions: CrowdloanContributionDict?) {
-        self.contributions = .value(contributions)
+    func didReceiveCrowdloanLocks(_ crowdloanLocks: Decimal?) {
+        self.crowdloanLocks = .value(crowdloanLocks)
         provideCrowdloanViewModel()
         provideTotalViewModel()
     }
 
-    func didReceiveVestingVesting(_ vesting: VestingVesting?) {
-        self.vesting = .value(vesting)
+    func didReceiveVestingLocks(_ vestingLocks: Decimal?) {
+        self.vestingLocks = .value(vestingLocks)
         provideVestingViewModel()
         provideTotalViewModel()
     }
 
-    func didReceiveVestingSchedule(_ vestingSchedule: VestingSchedule?) {
-        self.vestingSchedule = .value(vestingSchedule)
-        provideVestingViewModel()
-        provideTotalViewModel()
-    }
-
-    func didReceiveStakingLedgerError(_ error: Error) {
-        stakingLedger = .value(nil)
+    func didReceiveStakingLocksError(_ error: Error) {
+        stakingLocks = .value(nil)
         provideStakingViewModel()
         provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveStakingPoolError(_ error: Error) {
-        stakingPoolMember = .value(nil)
+    func didReceiveNominationPoolLocksError(_ error: Error) {
+        nominationPoolLocks = .value(nil)
         providePoolsViewModel()
         provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveBalanceLocksError(_ error: Error) {
-        balanceLocks = .value(nil)
+    func didReceiveGovernanceLocksError(_ error: Error) {
+        governanceLocks = .value(nil)
         provideGovernanceViewModel()
         provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveCrowdloanContributionsError(_ error: Error) {
-        contributions = .value(nil)
+    func didReceiveCrowdloanLocksError(_ error: Error) {
+        crowdloanLocks = .value(nil)
         provideCrowdloanViewModel()
         provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveVestingScheduleError(_ error: Error) {
-        vestingSchedule = .value(nil)
-        provideVestingViewModel()
-        provideTotalViewModel()
-
-        logger?.error(error.localizedDescription)
-    }
-
-    func didReceiveVestingVestingError(_ error: Error) {
-        vesting = .value(nil)
+    func didReceiveVestingLocksError(_ error: Error) {
+        vestingLocks = .value(nil)
         provideVestingViewModel()
         provideTotalViewModel()
 
