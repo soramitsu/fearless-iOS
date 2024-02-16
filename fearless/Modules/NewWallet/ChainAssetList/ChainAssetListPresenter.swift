@@ -49,11 +49,11 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        guard let chainAssets = self.chainAssets else {
-            return
-        }
-
         lock.concurrentlyRead {
+            guard let chainAssets = self.chainAssets else {
+                return
+            }
+
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
             let chainsWithMissingAccounts = self.chainsWithMissingAccounts
@@ -179,7 +179,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didPullToRefresh() {
-        interactor.reload(fetchPrices: prices.updated)
+        interactor.reload()
     }
 }
 

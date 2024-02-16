@@ -98,7 +98,9 @@ final class CustomValidatorListRelaychainViewModelFactory {
                 shouldShowError: validator.hasSlashes,
                 isSelected: selectedValidatorList.contains(validator)
             )
-        }
+        }.sorted(by: { viewModel1, viewModel2 in
+            viewModel1.isSelected.intValue > viewModel2.isSelected.intValue
+        })
     }
 }
 

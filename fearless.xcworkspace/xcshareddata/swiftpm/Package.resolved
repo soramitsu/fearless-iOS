@@ -167,8 +167,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/WalletConnect/WalletConnectSwiftV2",
       "state" : {
-        "branch" : "main",
-        "revision" : "031c61bfbd4c4eed4a5cb6790152ce736a4f1fba"
+        "revision" : "58d2b49eeac5cf94432e2647b9107577c156a25c",
+        "version" : "1.9.9"
       }
     },
     {

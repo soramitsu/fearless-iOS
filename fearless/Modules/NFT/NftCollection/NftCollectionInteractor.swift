@@ -6,7 +6,7 @@ final class NftCollectionInteractor {
     private weak var output: NftCollectionInteractorOutput?
     private var collection: NFTCollection
     private var isReady: Bool = false
-    private var page: Int = 0
+    private var nextTokenId: String?
 
     private let nftFetchingService: NFTFetchingServiceProtocol
 
@@ -37,7 +37,7 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
         output.didReceive(collection: collection)
     }
 
-    func fetchData(page: Int = 0) {
+    func fetchData() {
         guard isReady else {
             return
         }
@@ -47,19 +47,20 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
         Task {
             do {
                 if let address = collection.address {
-                    let nfts = try await nftFetchingService.fetchCollectionNfts(
+                    let nftBatch = try await nftFetchingService.fetchCollectionNfts(
                         collectionAddress: address,
                         chain: collection.chain,
-                        offset: page * 100
+                        nextId: nextTokenId
                     )
-                    let availableNfts = nfts.filter { collection.nfts?.contains($0) != true }
+                    nextTokenId = nftBatch.nextTokenId
+                    let ids = nftBatch.nfts?.compactMap { $0.tokenId }
+                    let availableNfts = nftBatch.nfts?.filter { collection.nfts?.contains($0) != true } ?? []
                     if let _ = collection.availableNfts {
                         collection.availableNfts?.append(contentsOf: availableNfts)
                     } else {
                         collection.availableNfts = availableNfts
                     }
 
-                    self.page += 1
                     self.isReady = true
                     await MainActor.run(body: {
                         output?.didReceive(collection: collection)
@@ -67,9 +68,5 @@ extension NftCollectionInteractor: NftCollectionInteractorInput {
                 }
             }
         }
-    }
-
-    func loadNext() {
-        fetchData(page: page)
     }
 }

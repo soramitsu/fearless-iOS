@@ -4,7 +4,7 @@ import SoraUI
 
 final class SelectedNetworkButton: UIControl {
     private enum Constants {
-        static let insets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 4)
+        static let insets = UIEdgeInsets(top: 2, left: 4, bottom: 2, right: 8)
         static let imageVerticalPosition: CGFloat = 3
         static let imageWidth: CGFloat = 12
         static let imageHeight: CGFloat = 6
@@ -42,9 +42,16 @@ final class SelectedNetworkButton: UIControl {
     }
 
     func set(text: String, image: ImageViewModelProtocol?) {
-        iconImageView.image = nil
         title.text = text
-        image?.loadImage(on: iconImageView, targetSize: CGSize(width: 16, height: 16), animated: true)
+        if let imageViewModel = image {
+            imageViewModel.loadImage(on: iconImageView, targetSize: CGSize(width: 16, height: 16), animated: false)
+        } else {
+            iconImageView.image = nil
+        }
+    }
+
+    func applySelectableStyle(_ selectable: Bool) {
+        dropTraingleImageView.isHidden = !selectable
     }
 
     private func setup() {

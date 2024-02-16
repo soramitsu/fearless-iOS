@@ -111,29 +111,21 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
         router.dismiss(view: view)
     }
 
-    func didActionButtonTapped() {
-        switch type {
-        case .owned:
-            router.openSend(nft: nft, wallet: wallet, from: view)
-        case .available:
-            prepareShareSources { [weak self] sources in
-                self?.router.share(
-                    sources: sources,
-                    from: self?.view,
-                    with: nil
-                )
-            }
+    func didTapSendButton() {
+        router.openSend(nft: nft, wallet: wallet, from: view)
+    }
+
+    func didTapShareButton() {
+        prepareShareSources { [weak self] sources in
+            self?.router.share(
+                sources: sources,
+                from: self?.view,
+                with: nil
+            )
         }
     }
 
-    func didTapCopyOwner() {
-        router.presentStatus(
-            with: CommonCopiedEvent(locale: selectedLocale),
-            animated: true
-        )
-    }
-
-    func didTapCopyTokenId() {
+    func didTapCopy() {
         router.presentStatus(
             with: CommonCopiedEvent(locale: selectedLocale),
             animated: true

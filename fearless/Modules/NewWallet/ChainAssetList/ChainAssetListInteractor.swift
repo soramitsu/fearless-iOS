@@ -27,6 +27,7 @@ final class ChainAssetListInteractor {
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
+    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -35,12 +36,11 @@ final class ChainAssetListInteractor {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
     }()
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     weak var presenter: ChainAssetListInteractorOutput?
 
     init(
         wallet: MetaAccountModel,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        priceLocalSubscriber: PriceLocalStorageSubscriber,
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
@@ -51,7 +51,7 @@ final class ChainAssetListInteractor {
         chainAssetFetching: ChainAssetFetchingProtocol
     ) {
         self.wallet = wallet
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.priceLocalSubscriber = priceLocalSubscriber
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
@@ -74,7 +74,7 @@ final class ChainAssetListInteractor {
         saveOperation.completionBlock = { [weak self, shouldNotify] in
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
-                case let .success(account):
+                case .success:
                     guard shouldNotify else { return }
                     self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: updatedAccount))
                 case .failure:
@@ -193,7 +193,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         save(updatedAccount, shouldNotify: true)
     }
 
-    func reload(fetchPrices: Bool) {
+    func reload() {
         guard let chainAssets = chainAssets else {
             return
         }
@@ -203,12 +203,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfosByChainAssets in
             self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
             self?.subscribeToAccountInfo(for: chainAssets)
-
-            if fetchPrices {
-                self?.subscribeToPrice(for: chainAssets)
-            }
         }
 
+        subscribeToPrice(for: chainAssets)
         guard remoteFetchTimer == nil else {
             return
         }
@@ -224,9 +221,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"])],
             sortDescriptors: []
-        ) { [weak self] result in
+        ) { result in
             switch result {
             case let .success(availableChainAssets):
                 completion(availableChainAssets)
@@ -243,7 +240,7 @@ private extension ChainAssetListInteractor {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = subscribeToPrices(for: chainAssets)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     func resetAccountInfoSubscription() {
@@ -288,7 +285,7 @@ private extension ChainAssetListInteractor {
     }
 }
 
-extension ChainAssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension ChainAssetListInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):
@@ -318,7 +315,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.didReceiveWallet(wallet: event.account)
 
         if wallet.selectedCurrency != event.account.selectedCurrency {
-            pricesProvider?.refresh()
+            guard let chainAssets = chainAssets else {
+                return
+            }
+            subscribeToPrice(for: chainAssets)
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
@@ -353,7 +353,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        reload(fetchPrices: false)
+        reload()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

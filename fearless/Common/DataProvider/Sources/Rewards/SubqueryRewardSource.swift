@@ -10,7 +10,7 @@ final class SubqueryRewardSource {
     let assetPrecision: Int16
     let targetIdentifier: String
     let repository: AnyDataProviderRepository<SingleValueProviderObject>
-    let operationFactory: RewardOperationFactoryProtocol
+    let rewardsFetcher: StakingRewardsFetcher
     let trigger: DataProviderTriggerProtocol
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
@@ -25,7 +25,7 @@ final class SubqueryRewardSource {
         assetPrecision: Int16,
         targetIdentifier: String,
         repository: AnyDataProviderRepository<SingleValueProviderObject>,
-        operationFactory: RewardOperationFactoryProtocol,
+        rewardsFetcher: StakingRewardsFetcher,
         trigger: DataProviderTriggerProtocol,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
@@ -34,7 +34,7 @@ final class SubqueryRewardSource {
         self.assetPrecision = assetPrecision
         self.targetIdentifier = targetIdentifier
         self.repository = repository
-        self.operationFactory = operationFactory
+        self.rewardsFetcher = rewardsFetcher
         self.trigger = trigger
         self.operationManager = operationManager
         self.logger = logger
@@ -75,34 +75,25 @@ final class SubqueryRewardSource {
     }
 
     private func fetch() {
-        let remoteOperation = operationFactory.createHistoryOperation(address: address)
+        Task {
+            do {
+                let rewards = try await rewardsFetcher.fetchAllRewards(
+                    address: address,
+                    startTimestamp: nil,
+                    endTimestamp: nil
+                )
 
-        remoteOperation.completionBlock = { [weak self] in
-            DispatchQueue.global(qos: .userInitiated).async {
-                self?.mutex.lock()
-
-                defer {
-                    self?.mutex.unlock()
-                }
-
-                self?.processOperations(remoteOperation: remoteOperation)
+                self.processRemoteRewards(rewards)
+            } catch {
+                self.finalize(with: error)
             }
         }
-
-        operationManager.enqueue(operations: [remoteOperation], in: .transient)
     }
 
-    private func processOperations(remoteOperation: BaseOperation<RewardOrSlashResponse>) {
-        do {
-            let remoteData = try remoteOperation.extractNoCancellableResultData()
-            let newReward = calculateReward(from: remoteData.data)
-
-            logger?.debug("New total reward: \(newReward)")
-
-            finalize(with: newReward)
-        } catch {
-            finalize(with: error)
-        }
+    private func processRemoteRewards(_ rewards: [RewardOrSlashData]) {
+        let newReward = calculateReward(from: rewards)
+        logger?.debug("New total reward: \(newReward)")
+        finalize(with: newReward)
     }
 
     private func finalize(with newReward: Decimal) {

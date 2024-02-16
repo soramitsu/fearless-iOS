@@ -20,7 +20,8 @@ protocol PolkaswapAdjustmentViewModelFactoryProtocol {
         fromAsset: AssetModel?,
         toAsset: AssetModel?,
         params: PolkaswapQuoteParams,
-        quote: [SwapValues]
+        quote: [SwapValues],
+        swapVariant: SwapVariant
     ) -> SwapQuoteAmounts?
 
     func createDetailsViewModel(
@@ -78,7 +79,8 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         fromAsset: AssetModel?,
         toAsset: AssetModel?,
         params: PolkaswapQuoteParams,
-        quote: [SwapValues]
+        quote: [SwapValues],
+        swapVariant: SwapVariant
     ) -> SwapQuoteAmounts? {
         let substrateSwapValues: [SubstrateSwapValues] = quote.compactMap { quote -> SubstrateSwapValues? in
             guard let toAmountBig = BigUInt(quote.amount),
@@ -93,10 +95,19 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
                 rewards: quote.rewards
             )
         }
-        guard let bestQuote = substrateSwapValues.sorted(by: {
-            $0.amount > $1.amount
-        }).first else {
-            return nil
+
+        let bestQuote: SubstrateSwapValues
+        switch swapVariant {
+        case .desiredInput:
+            guard let swapValue = substrateSwapValues.sorted(by: { $0.amount > $1.amount }).first else {
+                return nil
+            }
+            bestQuote = swapValue
+        case .desiredOutput:
+            guard let swapValue = substrateSwapValues.sorted(by: { $0.amount < $1.amount }).first else {
+                return nil
+            }
+            bestQuote = swapValue
         }
 
         guard
@@ -173,9 +184,9 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             minMaxReceiveValue: minMaxReceiveVieModel.1,
             route: route,
             fromPerToTitle: fromPerToTitle,
-            fromPerToValue: fromPerToValue.toString(locale: locale, maximumDigits: .max) ?? "",
+            fromPerToValue: fromPerToValue.toString(locale: locale, maximumDigits: 16) ?? "",
             toPerFromTitle: toPerFromTitle,
-            toPerFromValue: toPerFromValue.toString(locale: locale, maximumDigits: .max) ?? "",
+            toPerFromValue: toPerFromValue.toString(locale: locale, maximumDigits: 16) ?? "",
             liqudityProviderFeeVieModel: liqudityProviderFeeVieModel
         )
 

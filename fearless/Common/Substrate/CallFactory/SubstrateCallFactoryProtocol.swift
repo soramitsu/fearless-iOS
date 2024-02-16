@@ -81,7 +81,7 @@ protocol SubstrateCallFactoryProtocol {
         root: MultiAddress,
         nominator: MultiAddress,
         bouncer: MultiAddress
-    ) -> any RuntimeCallable
+    ) throws -> any RuntimeCallable
     func setPoolMetadata(
         poolId: String,
         metadata: Data
@@ -111,4 +111,5 @@ protocol SubstrateCallFactoryProtocol {
         stashItem: StashItem,
         chainAsset: ChainAsset
     ) throws -> any RuntimeCallable
+    func vestingClaim() throws -> any RuntimeCallable
 }

@@ -13,7 +13,7 @@ final class AssetNetworksViewController: UIViewController, ViewHolder {
         rootView
     }
 
-    var delegate: DraggableDelegate?
+    weak var delegate: DraggableDelegate?
 
     var scrollPanRecognizer: UIPanGestureRecognizer? {
         nil

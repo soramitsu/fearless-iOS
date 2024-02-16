@@ -64,12 +64,12 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     ) -> StakingUnbondSetupInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingUnbondSetupInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }
@@ -131,7 +131,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
         let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case .relaychain:

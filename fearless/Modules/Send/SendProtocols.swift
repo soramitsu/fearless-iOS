@@ -18,6 +18,8 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didBlockUserInteractive(isUserInteractiveAmount: Bool)
     func setInputAccessoryView(visible: Bool)
     func setHistoryButton(isVisible: Bool)
+    func switchEnableSendAllState(enabled: Bool)
+    func switchEnableSendAllVisibility(isVisible: Bool)
 }
 
 protocol SendViewOutput: AnyObject {
@@ -32,6 +34,7 @@ protocol SendViewOutput: AnyObject {
     func searchTextDidChanged(_ text: String)
     func selectAmountPercentage(_ percentage: Float)
     func updateAmount(_ newValue: Decimal)
+    func didSwitchSendAll(_ enabled: Bool)
 }
 
 protocol SendInteractorInput: AnyObject {
