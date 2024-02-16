@@ -216,8 +216,8 @@ extension SendViewController: SendViewInput {
         rootView.historyButton.isHidden = !isVisible
     }
 
-    func enableSendAll() {
-        rootView.sendAllSwitch.isOn = true
+    func switchEnableSendAllState(enabled: Bool) {
+        rootView.sendAllSwitch.isOn = enabled
     }
 
     func switchEnableSendAllVisibility(isVisible: Bool) {
