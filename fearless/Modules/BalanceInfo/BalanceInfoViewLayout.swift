@@ -15,6 +15,7 @@ final class BalanceInfoViewLayout: UIView {
         let label = UILabel()
         label.font = .h1Title
         label.lineBreakMode = .byTruncatingMiddle
+        label.textAlignment = .center
         return label
     }()
 

@@ -130,6 +130,7 @@ class ExtrinsicTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
     let module: String?
     let call: String?
     let sender: String?
+    let fee: String?
 
     init(
         transaction: AssetTransactionData,
@@ -140,11 +141,13 @@ class ExtrinsicTransactionDetailsViewModel: WalletTransactionDetailsViewModel {
         module: String?,
         call: String?,
         statusIcon: UIImage?,
-        sender: String?
+        sender: String?,
+        fee: String?
     ) {
         self.module = module
         self.call = call
         self.sender = sender
+        self.fee = fee
 
         super.init(
             transaction: transaction,

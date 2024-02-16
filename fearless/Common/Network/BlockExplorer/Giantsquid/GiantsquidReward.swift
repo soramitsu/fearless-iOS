@@ -23,7 +23,7 @@ struct GiantsquidReward: Decodable {
     let timestamp: String
     let extrinsicHash: String?
     let blockNumber: UInt32?
-    let id: String
+    let id: String?
 
     var timestampInSeconds: Int64 {
         let dateFormatter = DateFormatter.giantsquidDate
@@ -40,7 +40,7 @@ struct GiantsquidReward: Decodable {
         validator = try container.decodeIfPresent(String.self, forKey: .validator)
         extrinsicHash = try container.decodeIfPresent(String.self, forKey: .extrinsicHash)
         blockNumber = try container.decodeIfPresent(UInt32.self, forKey: .blockNumber)
-        id = try container.decode(String.self, forKey: .id)
+        id = try container.decodeIfPresent(String.self, forKey: .id)
 
         do {
             timestamp = try container.decode(String.self, forKey: .timestamp)
@@ -79,7 +79,7 @@ extension GiantsquidReward: RewardOrSlashData, RewardOrSlash {
 
 extension GiantsquidReward: WalletRemoteHistoryItemProtocol {
     var identifier: String {
-        id
+        id.or(extrinsicHash.or(timestamp + amount))
     }
 
     var itemBlockNumber: UInt64 { 0 }

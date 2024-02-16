@@ -193,7 +193,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         save(updatedAccount, shouldNotify: true)
     }
 
-    func reload(fetchPrices: Bool) {
+    func reload() {
         guard let chainAssets = chainAssets else {
             return
         }
@@ -205,6 +205,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             self?.subscribeToAccountInfo(for: chainAssets)
         }
 
+        subscribeToPrice(for: chainAssets)
         guard remoteFetchTimer == nil else {
             return
         }
@@ -215,15 +216,12 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         })
 
         ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
-        if fetchPrices {
-            pricesProvider?.refresh()
-        }
     }
 
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"])],
             sortDescriptors: []
         ) { result in
             switch result {
@@ -317,7 +315,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.didReceiveWallet(wallet: event.account)
 
         if wallet.selectedCurrency != event.account.selectedCurrency {
-            pricesProvider?.refresh()
+            guard let chainAssets = chainAssets else {
+                return
+            }
+            subscribeToPrice(for: chainAssets)
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
@@ -352,7 +353,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
-        reload(fetchPrices: false)
+        reload()
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

@@ -70,9 +70,9 @@ final class WalletConnectSessionPresenter {
 
                 await MainActor.run {
                     view?.didReceive(viewModel: viewModel)
+                    self.viewModel = viewModel
                 }
 
-                self.viewModel = viewModel
             } catch {
                 await MainActor.run(body: {
                     handle(error: error, request: request)

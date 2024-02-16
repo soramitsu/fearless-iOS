@@ -18,19 +18,19 @@ extension CustomValidatorRelaychainListComposer: RecommendationsComposing {
 
         if !filter.allowsNoIdentity {
             filtered = filtered.filter {
-                $0.hasIdentity
+                $0.hasIdentity || $0.myNomination != nil
             }
         }
 
         if !filter.allowsOversubscribed {
             filtered = filtered.filter {
-                !$0.oversubscribed
+                !$0.oversubscribed || $0.myNomination != nil
             }
         }
 
         if !filter.allowsSlashed {
             filtered = filtered.filter {
-                !$0.hasSlashes
+                !$0.hasSlashes || $0.myNomination != nil
             }
         }
 

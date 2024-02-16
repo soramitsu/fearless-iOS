@@ -28,6 +28,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     func getAvailableExportOptions(for address: String)
     func update(chain: ChainModel)
     func updateData()
+    func checkIsClaimAvailable() -> Bool
 
     var chainAsset: ChainAsset { get }
     var availableChainAssets: [ChainAsset] { get }
@@ -130,6 +131,11 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         currency: Currency
     )
     func presentCrossChainFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
+    func showClaimCrowdloanRewardsFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel

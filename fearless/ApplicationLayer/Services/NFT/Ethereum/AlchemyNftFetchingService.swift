@@ -81,27 +81,27 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
     private func fetchCollectionNfts(
         for chain: ChainModel,
         address: String,
-        offset: Int
-    ) async throws -> [NFT]? {
+        nextId: String?
+    ) async throws -> NFTBatch? {
         try await withCheckedThrowingContinuation { [weak self] continuation in
             guard let strongSelf = self else {
-                continuation.resume(with: .success([]))
+                continuation.resume(with: .success(NFTBatch(nfts: [], nextTokenId: nil)))
                 return
             }
 
             let fetchNftsOperation = strongSelf.operationFactory.fetchCollectionNfts(
                 chain: chain,
                 address: address,
-                offset: offset
+                nextId: nextId
             )
 
             fetchNftsOperation.targetOperation.completionBlock = { [weak self] in
                 do {
-                    let nfts = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
-                    continuation.resume(with: .success(nfts))
+                    let nftBatch = try fetchNftsOperation.targetOperation.extractNoCancellableResultData()
+                    continuation.resume(with: .success(nftBatch))
                 } catch {
                     self?.logger.error(error.localizedDescription)
-                    continuation.resume(with: .success([]))
+                    continuation.resume(with: .success(NFTBatch(nfts: [], nextTokenId: nil)))
                 }
             }
 
@@ -212,19 +212,19 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
     func fetchCollectionNfts(
         collectionAddress: String,
         chain: ChainModel,
-        offset: Int
-    ) async throws -> [NFT] {
-        let nfts = try await withThrowingTaskGroup(of: [NFT].self) { [weak self] _ in
+        nextId: String?
+    ) async throws -> NFTBatch {
+        let nfts = try await withThrowingTaskGroup(of: NFTBatch.self) { [weak self] _ in
             guard let strongSelf = self else {
-                return [NFT]()
+                return NFTBatch(nfts: [], nextTokenId: nil)
             }
 
             let result = try await strongSelf.fetchCollectionNfts(
                 for: chain,
                 address: collectionAddress,
-                offset: offset
+                nextId: nextId
             )
-            return result ?? []
+            return result ?? NFTBatch(nfts: [], nextTokenId: nil)
         }
         return nfts
     }

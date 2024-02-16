@@ -9,7 +9,8 @@ protocol HistoryDataProviderFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         targetIdentifier: String,
-        using _: DispatchQueue
+        using _: DispatchQueue,
+        filters: [WalletTransactionHistoryFilter]
     ) throws
         -> SingleValueProvider<AssetTransactionPageData>
 }
@@ -37,14 +38,14 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
         asset: AssetModel,
         chain: ChainModel,
         targetIdentifier: String,
-        using _: DispatchQueue
+        using _: DispatchQueue,
+        filters: [WalletTransactionHistoryFilter]
     ) throws
         -> SingleValueProvider<AssetTransactionPageData> {
         let pagination = Pagination(count: Constants.historyDefaultPageSize)
 
         let source: AnySingleValueProviderSource<AssetTransactionPageData> =
             AnySingleValueProviderSource {
-                let filters: [WalletTransactionHistoryFilter] = WalletTransactionHistoryFilter.defaultFilters()
                 let operation = self.operationFactory
                     .fetchTransactionHistoryOperation(
                         asset: asset,

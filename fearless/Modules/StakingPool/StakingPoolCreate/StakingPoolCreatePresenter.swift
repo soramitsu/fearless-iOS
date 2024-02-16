@@ -253,6 +253,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
         refreshFee()
         provideViewModel()
         provideInputViewModel()
+        provideFeeViewModel()
 
         view.didReceive(nameViewModel: poolNameInputViewModel)
     }
@@ -378,7 +379,6 @@ extension StakingPoolCreatePresenter: Localizable {
     func applyLocalization() {
         provideAssetVewModel()
         provideInputViewModel()
-        provideFeeViewModel()
     }
 }
 

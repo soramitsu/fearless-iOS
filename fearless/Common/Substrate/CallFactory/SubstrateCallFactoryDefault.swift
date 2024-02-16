@@ -7,6 +7,7 @@ import SSFRuntimeCodingService
 
 enum SubstrateCallFactoryError: Error {
     case metadataUnavailable
+    case callNotFound
 }
 
 // swiftlint:disable type_body_length file_length
@@ -761,5 +762,55 @@ extension SubstrateCallFactoryDefault {
         }()
 
         return setPayee(for: arg)
+    }
+
+    func vestingClaim() throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            throw SubstrateCallFactoryError.metadataUnavailable
+        }
+        let vestingClaimPath: SubstrateCallPath = .vestingClaim
+        let vestingVestPath: SubstrateCallPath = .vestingVest
+        let vestedRewardsClaimRewardsPath: SubstrateCallPath = .vestedRewardsClaimRewards
+
+        let vestingClaimCallExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestingClaimPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestingClaimPath.callName.lowercased() }) != nil
+
+        let vestingVestCallExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestingVestPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestingVestPath.callName.lowercased() }) != nil
+
+        let vestedRewardsClaimRewardsExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestedRewardsClaimRewardsPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestedRewardsClaimRewardsPath.callName.lowercased() }) != nil
+
+        if vestingVestCallExists {
+            let path: SubstrateCallPath = vestingVestPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        if vestingClaimCallExists {
+            let path: SubstrateCallPath = vestingClaimPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        if vestedRewardsClaimRewardsExists {
+            let path: SubstrateCallPath = vestedRewardsClaimRewardsPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        throw SubstrateCallFactoryError.callNotFound
     }
 }

@@ -718,8 +718,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             )
         ]).runValidation { [weak self] in
             self?.confirmationScreenModuleInput = self?.router.showConfirmation(with: params, from: self?.view, completeClosure: {
-                self?.updateToAmount(.zero)
-                self?.updateFromAmount(.zero)
+                self?.invalidateParams()
             })
         }
     }

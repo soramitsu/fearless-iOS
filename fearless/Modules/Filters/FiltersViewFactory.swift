@@ -14,7 +14,7 @@ enum FiltersViewFactory {
         mode: FiltersMode = .multiSelection,
         moduleOutput: FiltersModuleOutput?
     ) -> FiltersViewProtocol? {
-        let interactor = FiltersInteractor(filters: filters)
+        let interactor = FiltersInteractor(filters: filters, mode: mode)
         let wireframe = FiltersWireframe()
 
         let viewModelFactory: FiltersViewModelFactoryProtocol = FiltersViewModelFactory()
