@@ -2675,7 +2675,6 @@
 		FAA086D628475AF300CC2F33 /* ParachainStakingDelegatorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */; };
 		FAA086D82848AB8600CC2F33 /* YourRewardDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D72848AB8600CC2F33 /* YourRewardDestinationViewModel.swift */; };
 		FAA4E3162B7229B500E5E85D /* CrowdloanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA4E3152B7229B500E5E85D /* CrowdloanService.swift */; };
-		FAA4EAD42B5A926A0013EFD4 /* VestingSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA4EAD32B5A926A0013EFD4 /* VestingSchedule.swift */; };
 		FAAB998D27A7C79D00CD1A3B /* QRParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB998C27A7C79D00CD1A3B /* QRParser.swift */; };
 		FAABC46E2845BADA002CF40E /* CustomValidatorParachainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */; };
 		FAABC4702845BAEE002CF40E /* CustomValidatorParachainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */; };
@@ -2938,11 +2937,8 @@
 		FAF5E9DE27E46DCC005A3448 /* String+VersionComparsion.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9DD27E46DCC005A3448 /* String+VersionComparsion.swift */; };
 		FAF5E9E127E4A4C1005A3448 /* RootViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */; };
 		FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF92E6527B4275E005467CE /* Bool+ToInt.swift */; };
-		FAF96B522B636D7100E299C1 /* VestingVestingRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF96B512B636D7100E299C1 /* VestingVestingRequest.swift */; };
-		FAF96B552B636F8200E299C1 /* VestingSchedulesRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF96B542B636F8200E299C1 /* VestingSchedulesRequest.swift */; };
 		FAF96B582B636FC700E299C1 /* SystemNumberRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF96B572B636FC700E299C1 /* SystemNumberRequest.swift */; };
 		FAF96B5A2B6372FE00E299C1 /* KeysStorageRequestOperationBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF96B592B6372FE00E299C1 /* KeysStorageRequestOperationBuilder.swift */; };
-		FAF96B5C2B637BBA00E299C1 /* VestingVesting.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF96B5B2B637BBA00E299C1 /* VestingVesting.swift */; };
 		FAF9C2962AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */; };
 		FAF9C29E2AAEED9600A61D21 /* TitleCopyableValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C29D2AAEED9600A61D21 /* TitleCopyableValueView.swift */; };
 		FAF9C2A02AAF163D00A61D21 /* CommonCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C29F2AAF163D00A61D21 /* CommonCopiedEvent.swift */; };
@@ -5736,7 +5732,6 @@
 		FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingDelegatorState.swift; sourceTree = "<group>"; };
 		FAA086D72848AB8600CC2F33 /* YourRewardDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourRewardDestinationViewModel.swift; sourceTree = "<group>"; };
 		FAA4E3152B7229B500E5E85D /* CrowdloanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanService.swift; sourceTree = "<group>"; };
-		FAA4EAD32B5A926A0013EFD4 /* VestingSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VestingSchedule.swift; sourceTree = "<group>"; };
 		FAAB998C27A7C79D00CD1A3B /* QRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRParser.swift; sourceTree = "<group>"; };
 		FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListFilter.swift; sourceTree = "<group>"; };
 		FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListComposer.swift; sourceTree = "<group>"; };
@@ -6011,11 +6006,8 @@
 		FAF5E9DD27E46DCC005A3448 /* String+VersionComparsion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "String+VersionComparsion.swift"; sourceTree = "<group>"; };
 		FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		FAF92E6527B4275E005467CE /* Bool+ToInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
-		FAF96B512B636D7100E299C1 /* VestingVestingRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VestingVestingRequest.swift; sourceTree = "<group>"; };
-		FAF96B542B636F8200E299C1 /* VestingSchedulesRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VestingSchedulesRequest.swift; sourceTree = "<group>"; };
 		FAF96B572B636FC700E299C1 /* SystemNumberRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNumberRequest.swift; sourceTree = "<group>"; };
 		FAF96B592B6372FE00E299C1 /* KeysStorageRequestOperationBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeysStorageRequestOperationBuilder.swift; sourceTree = "<group>"; };
-		FAF96B5B2B637BBA00E299C1 /* VestingVesting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VestingVesting.swift; sourceTree = "<group>"; };
 		FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedControllerStashAccountCheckService.swift; sourceTree = "<group>"; };
 		FAF9C2972AAED41500A61D21 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
 		FAF9C2982AAED41C00A61D21 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -8207,8 +8199,6 @@
 				8444D1732671372800AF6D8C /* BytesCodable.swift */,
 				846A2600267C768500429A7F /* CrowdloanContributionMapper.swift */,
 				845532CF2684690D00C2645D /* ParachainSlotLease.swift */,
-				FAA4EAD32B5A926A0013EFD4 /* VestingSchedule.swift */,
-				FAF96B5B2B637BBA00E299C1 /* VestingVesting.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -12894,7 +12884,6 @@
 				FA6DD1C22B6B681F007EF1F8 /* NominationPoolsPallet */,
 				FA6DD1BF2B6B6584007EF1F8 /* StakingPallet */,
 				FAF96B562B636FBC00E299C1 /* SystemPallet */,
-				FAF96B502B635CD100E299C1 /* VestingPallet */,
 				FA30674E2B627D15006A0BA5 /* TokensPallet */,
 				FA3067492B625DAE006A0BA5 /* BalancesPallet */,
 			);
@@ -15133,15 +15122,6 @@
 				FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */,
 			);
 			path = ViewModel;
-			sourceTree = "<group>";
-		};
-		FAF96B502B635CD100E299C1 /* VestingPallet */ = {
-			isa = PBXGroup;
-			children = (
-				FAF96B512B636D7100E299C1 /* VestingVestingRequest.swift */,
-				FAF96B542B636F8200E299C1 /* VestingSchedulesRequest.swift */,
-			);
-			path = VestingPallet;
 			sourceTree = "<group>";
 		};
 		FAF96B562B636FBC00E299C1 /* SystemPallet */ = {
@@ -17718,7 +17698,6 @@
 				FA88006A2B31A33E000AE5EB /* StakingAccountSubscriptionV14.swift in Sources */,
 				FAADF71229C47D10002B6D39 /* RuntimeSpecVersion.swift in Sources */,
 				FAD428F42A86567F001D6A16 /* BackupPasswordPresenter.swift in Sources */,
-				FAA4EAD42B5A926A0013EFD4 /* VestingSchedule.swift in Sources */,
 				FA72543A2AC2E48500EC47A6 /* ABIElements.swift in Sources */,
 				848919DB26FB663D004DBAD5 /* CrowdloansChainViewModel.swift in Sources */,
 				8430AAF12602306A005B1066 /* BondedState.swift in Sources */,
@@ -17933,7 +17912,6 @@
 				FA38C9A1275FD6B9005C5577 /* BundleImageViewModel.swift in Sources */,
 				D344C6DAC1F8BB6152BA8DD0 /* RecommendedValidatorListProtocols.swift in Sources */,
 				FA4B92A02844D0C80003BCEF /* Optional.swift in Sources */,
-				FAF96B5C2B637BBA00E299C1 /* VestingVesting.swift in Sources */,
 				FAA086D4284759D000CC2F33 /* ParachainStakingCollatorSnapshot.swift in Sources */,
 				076D9D59294C461E002762E3 /* PolkaswapDoubleSymbolView.swift in Sources */,
 				FAD428F72A86567F001D6A16 /* BackupPasswordRouter.swift in Sources */,
@@ -18189,7 +18167,6 @@
 				FAA013B528DA16E5000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift in Sources */,
 				FACACE1427BCF10F005422EE /* MetaAccountImportMetadata.swift in Sources */,
 				FA2FC81228B3807D00CC0A42 /* StakingPoolJoinConfirmViewLayout.swift in Sources */,
-				FAF96B522B636D7100E299C1 /* VestingVestingRequest.swift in Sources */,
 				D1C6EABB48DC3EE254E5A095 /* CrowdloanContributionConfirmPresenter.swift in Sources */,
 				07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */,
 				843A2C7126A85B5B00266F53 /* GenericTitleValueView.swift in Sources */,
@@ -18434,7 +18411,6 @@
 				FA8ED43328FD960F00EBB712 /* YourValidatorListFlow.swift in Sources */,
 				3F006E0E370747024D828312 /* MainNftContainerPresenter.swift in Sources */,
 				992A5E2E06A9C0E603A10BF7 /* MainNftContainerInteractor.swift in Sources */,
-				FAF96B552B636F8200E299C1 /* VestingSchedulesRequest.swift in Sources */,
 				F38273DB7A8B139B9FD8FBE2 /* MainNftContainerViewController.swift in Sources */,
 				E58F94758A6B8BCF3BE0EAEA /* MainNftContainerViewLayout.swift in Sources */,
 				F865D752EBD2363E971BE267 /* MainNftContainerAssembly.swift in Sources */,

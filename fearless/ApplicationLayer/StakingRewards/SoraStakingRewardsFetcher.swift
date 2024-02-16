@@ -37,7 +37,7 @@ final class SoraStakingRewardsFetcher {
 
         return """
                 query MyQuery {
-                  stakingRewards(orderBy: timestamp_DESC, where: {payee_containsInsensitive: \"\(address)\",  \(timestampFilter)}) {
+                  stakingRewards(orderBy: timestamp_DESC, where: {payee_eq: \"\(address)\",  \(timestampFilter)}) {
                     id
                     amount
                     timestamp

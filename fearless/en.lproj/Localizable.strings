@@ -219,6 +219,7 @@ Euro cash";
 "common.error.no.data.retrieved" = "No data retrieved.";
 "common.error.password.mismatch" = "Passwords do not match";
 "common.events" = "Events";
+"common.existential.warning.max.amount" = "Set max amount";
 "common.existential.warning.message" = "This transaction will result in the account going below the Existential Deposit (%@), which will cause it to be reaped (the account will be wiped from the blockchain's state to conserve space). If you choose to continue you will lose any funds that are below the existential deposit amount set by the network. For detailed information please refer to the official network documentation (e.g., the Polkadot Wiki). Fearless Wallet is a fully non-custodial application and has no control or knowledge of any of your actions on the network itself. ONLY CONTINUE IF YOU FULLY AGREE TO AND UNDERSTAND THE IMPLICATIONS.";
 "common.existential.warning.title" = "This operation will remove the account";
 "common.expiry" = "Expiry";
@@ -698,6 +699,7 @@ Terms and Conditions and Privacy Policy";
 "share.referral.code" = "Share referral code";
 "sign.this.message" = "Sign this message?";
 "sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %@ network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
 "sora.card.status.failure.text" = "The KYC was terminated or it failed otherwise.";
 "sora.card.status.failure.title" = "Verification failed";
@@ -1201,6 +1203,8 @@ Hold, stake or provide liquidity for at least €%@ worth of XOR in your SORA ac
 "get.prepared.title" = "Get prepared";
 "iban.pending.description" = "Your IBAN issuance is pending.\
 In case the wait longer than 72h contact us via %@";
+"iban.suspended.description" = "Your IBAN has been suspended.\
+To find out more, contact %@";
 "kyc.result.verification.in.progress" = "Verification in progress";
 "kyc.result.verification.in.progress.description" = "You have successfully completed your KYC application. The review is pending and you can expect a decision shortly.\n\nUsually the decision is made the same day and in some cases can take up to 3 days.";
 "log.out" = "Log out";
