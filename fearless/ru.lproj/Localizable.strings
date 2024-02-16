@@ -219,6 +219,7 @@ Euro cash";
 "common.error.no.data.retrieved" = "Данные не получены.";
 "common.error.password.mismatch" = "Неверный пароль";
 "common.events" = "Events";
+"common.existential.warning.max.amount" = "Set max amount";
 "common.existential.warning.message" = "Эта операция приведет к тому, что счет опустится ниже экзистенциального депозита %@, что приведет к его деактивации (счет будет стерт из состояния блокчейна для экономии места). Если вы решите продолжить, вы потеряете все средства, которые находятся ниже суммы экзистенциального депозита, установленного сетью. За подробной информацией обращайтесь к официальной документации сети (например, Polkadot Wiki). Fearless Wallet является полностью не опекунским приложением и не контролирует и не знает о любых ваших действиях в самой сети. ПРОДОЛЖАЙТЕ ТОЛЬКО В ТОМ СЛУЧАЕ, ЕСЛИ ВЫ ПОЛНОСТЬЮ СОГЛАСНЫ И ПОНИМАЕТЕ ПОСЛЕДСТВИЯ.";
 "common.existential.warning.title" = "Операция сделает аккаунт неактивным";
 "common.expiry" = "Expiry";
@@ -694,7 +695,8 @@ Euro cash";
 "settings.hide.zero.balances" = "Скрыть нулевые балансы";
 "share.referral.code" = "Поделиться реферальным кодом";
 "sign.this.message" = "Sign this message?";
-"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the Kusama network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %@ network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
 "sora.card.status.failure.text" = "The KYC was terminated or it failed otherwise.";
 "sora.card.status.failure.title" = "Verification failed";
@@ -1199,6 +1201,8 @@ Euro cash";
 "get.prepared.title" = "Подготовьтесь";
 "iban.pending.description" = "Выдача вашего IBAN ожидается.\
 В случае ожидания более 72 часов свяжитесь с нами по адресу %@";
+"iban.suspended.description" = "Ваш IBAN был приостановлен.\
+Чтобы узнать больше, свяжитесь с %@";
 "kyc.result.verification.in.progress" = "Выполняется проверка";
 "kyc.result.verification.in.progress.description" = "Вы успешно завершили подачу заявки на KYC. Решение на стадии рассмотрения, и вы можете ожидать его в ближайшее время.\n\nОбычно решение принимается в тот же день, но в некоторых случаях может потребоваться до 3 дней.";
 "log.out" = "Выйти";
