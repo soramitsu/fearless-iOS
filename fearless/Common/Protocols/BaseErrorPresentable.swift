@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol BaseErrorPresentable {
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
@@ -20,6 +21,7 @@ protocol BaseErrorPresentable {
     )
     func presentSoraBridgeLowAmountError(
         from view: ControllerBackedProtocol,
+        originChainId: ChainModel.Id,
         locale: Locale
     )
     func presentWarning(
@@ -186,10 +188,21 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
 
     func presentSoraBridgeLowAmountError(
         from view: ControllerBackedProtocol,
+        originChainId: ChainModel.Id,
         locale: Locale
     ) {
+        let originKnownChain = Chain(chainId: originChainId)
+        let message: String?
+        switch originKnownChain {
+        case .kusama:
+            message = R.string.localizable.soraBridgeLowAmountAlert(preferredLanguages: locale.rLanguages)
+        case .polkadot, .soraMain:
+            message = R.string.localizable.soraBridgeLowAmauntPolkadotAlert(preferredLanguages: locale.rLanguages)
+        default:
+            message = nil
+        }
+
         let title = R.string.localizable.commonAttention(preferredLanguages: locale.rLanguages)
-        let message = R.string.localizable.soraBridgeLowAmountAlert(preferredLanguages: locale.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
         present(message: message, title: title, closeAction: closeTitle, from: view, actions: [])
     }

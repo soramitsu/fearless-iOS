@@ -155,6 +155,11 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
+            dataValidatingFactory.isNotAlreadyController(
+                stashItem: stashItem,
+                chosenAccount: chosenAccountItem,
+                locale: locale
+            ),
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.refreshFeeIfNeeded()
             }),

@@ -94,7 +94,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             logger: logger
         )
 
-        let priceLocalSubcriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -135,7 +135,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             accountResponse: accountResponse
         )
 
-        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         switch flow {
         case let .relaychainInitiated(targets, maxTargets, bonding):
@@ -152,7 +152,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
+                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -186,7 +186,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             let strategy = SelectValidatorsConfirmRelaychainExistingStrategy(
                 balanceAccountId: bonding.controllerAccount.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
+                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -267,7 +267,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
+                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -305,7 +305,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
+                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -405,8 +405,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         chainAsset: ChainAsset,
         strategy: SelectValidatorsConfirmStrategy
     ) -> SelectValidatorsConfirmInteractorBase? {
-        let priceLocalSubcriptionFactory = PriceProviderFactory.shared
-
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             return nil
         }
@@ -418,7 +416,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         return SelectValidatorsConfirmInteractorBase(
             balanceAccountId: accountId,
-            priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             chainAsset: chainAsset,
             strategy: strategy,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter

@@ -40,8 +40,19 @@ extension AssetTransactionData {
             fees.append(fee)
         }
 
+        if let signedData = transfer.signedData, let fee = signedData.fee, let partialFee = fee.partialFee, let partialFeeDecimal = Decimal.fromSubstrateAmount(partialFee, precision: Int16(asset.precision)) {
+            let fee = AssetTransactionFee(
+                identifier: asset.identifier,
+                assetId: asset.identifier,
+                amount: AmountDecimal(value: partialFeeDecimal),
+                context: nil
+            )
+
+            fees.append(fee)
+        }
+
         return AssetTransactionData(
-            transactionId: transfer.id,
+            transactionId: transfer.identifier,
             status: status,
             assetId: "",
             peerId: "",
@@ -80,7 +91,7 @@ extension AssetTransactionData {
         let peerId = accountId?.toHex() ?? address
 
         return AssetTransactionData(
-            transactionId: reward.id,
+            transactionId: reward.identifier,
             status: .commited,
             assetId: "",
             peerId: peerId,

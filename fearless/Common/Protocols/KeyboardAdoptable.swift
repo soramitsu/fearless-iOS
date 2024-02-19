@@ -77,6 +77,13 @@ extension KeyboardViewAdoptable where Self: UIViewController {
         updateWhileKeyboardFrameChanging(frame)
     }
 
+    func addEndEditingTapGesture(for view: UIView) {
+        let tapGestureRecognizer = UITapGestureRecognizer()
+        tapGestureRecognizer.addTarget(self, action: #selector(endEditingBackgroundTapped))
+        tapGestureRecognizer.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGestureRecognizer)
+    }
+
     private func apply(keyboardHeight: CGFloat, to target: Constraint) {
         target.update(inset: keyboardHeight + offsetFromKeyboardWithInset(keyboardHeight))
     }
@@ -101,5 +108,11 @@ extension KeyboardViewAdoptable where Self: UIViewController {
         apply(keyboardFrame: newBounds.cgRectValue, keyboardHidden: keyboardHidden)
 
         UIView.commitAnimations()
+    }
+}
+
+private extension UIViewController {
+    @objc func endEditingBackgroundTapped() {
+        view.endEditing(true)
     }
 }

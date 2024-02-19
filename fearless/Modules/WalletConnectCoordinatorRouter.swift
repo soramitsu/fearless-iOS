@@ -2,12 +2,17 @@ import Foundation
 import UIKit
 
 protocol WalletConnectCoordinatorRouter {
+    var isBusy: Bool { get }
     func setRoot(controller: UIViewController)
     func present(controller: UIViewController)
     func dismiss(completion: (() -> Void)?)
 }
 
 final class WalletConnectCoordinatorRouterImpl: WalletConnectCoordinatorRouter {
+    var isBusy: Bool {
+        coveringWindow != nil
+    }
+
     private var coveringWindow: UIWindow?
 
     func setRoot(controller: UIViewController) {

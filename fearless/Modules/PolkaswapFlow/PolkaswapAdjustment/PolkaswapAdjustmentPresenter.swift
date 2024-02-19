@@ -261,7 +261,8 @@ final class PolkaswapAdjustmentPresenter {
             fromAsset: swapFromChainAsset?.asset,
             toAsset: swapToChainAsset?.asset,
             params: params,
-            quote: quotes
+            quote: quotes,
+            swapVariant: swapVariant
         ) else {
             return
         }
@@ -717,8 +718,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             )
         ]).runValidation { [weak self] in
             self?.confirmationScreenModuleInput = self?.router.showConfirmation(with: params, from: self?.view, completeClosure: {
-                self?.updateToAmount(.zero)
-                self?.updateFromAmount(.zero)
+                self?.invalidateParams()
             })
         }
     }

@@ -26,7 +26,7 @@ final class SendAssembly {
             operationManager: operationManager
         )
         let repositoryFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
             CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
         let scamRepository: CoreDataRepository<ScamInfo, CDScamInfo> =
@@ -60,7 +60,7 @@ final class SendAssembly {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             ),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             operationManager: operationManager,
             scamServiceOperationFactory: scamServiceOperationFactory,
             chainAssetFetching: chainAssetFetching,

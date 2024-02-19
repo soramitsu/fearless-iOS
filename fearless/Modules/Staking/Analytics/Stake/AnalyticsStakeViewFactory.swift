@@ -18,7 +18,7 @@ struct AnalyticsStakeViewFactory {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriptionFactory = PriceProviderFactory.shared
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -35,7 +35,7 @@ struct AnalyticsStakeViewFactory {
 
         let interactor = AnalyticsStakeInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            priceLocalSubscriber: priceLocalSubscriber,
             operationManager: operationManager,
             selectedAccountAddress: accountAddress,
             chainAsset: chainAsset

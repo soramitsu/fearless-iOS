@@ -490,9 +490,13 @@ final class SendPresenter {
                 chainAsset: chainAsset,
                 sendAllEnabled: sendAllEnabled,
                 warningHandler: { [weak self] in
-                    self?.sendAllEnabled = true
-                    self?.view?.enableSendAll()
-                    self?.selectAmountPercentage(1)
+                    guard let self else {
+                        return
+                    }
+
+                    self.sendAllEnabled = true
+                    self.view?.switchEnableSendAllState(enabled: self.sendAllEnabled)
+                    self.selectAmountPercentage(1)
                 }
             )]
         case .validateAll:

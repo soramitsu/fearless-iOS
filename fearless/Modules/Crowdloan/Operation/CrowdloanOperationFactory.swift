@@ -3,6 +3,7 @@ import RobinHood
 import SSFUtils
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 protocol CrowdloanOperationFactoryProtocol {
     func fetchCrowdloansOperation(
@@ -25,12 +26,18 @@ protocol CrowdloanOperationFactoryProtocol {
 }
 
 final class CrowdloanOperationFactory {
-    let operationManager: OperationManagerProtocol
-    let requestOperationFactory: StorageRequestFactoryProtocol
+    private let operationManager: OperationManagerProtocol
+    private let requestOperationFactory: StorageRequestFactoryProtocol
+    private let chainRegistry: ChainRegistryProtocol
 
-    init(requestOperationFactory: StorageRequestFactoryProtocol, operationManager: OperationManagerProtocol) {
+    init(
+        requestOperationFactory: StorageRequestFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        chainRegistry: ChainRegistryProtocol
+    ) {
         self.requestOperationFactory = requestOperationFactory
         self.operationManager = operationManager
+        self.chainRegistry = chainRegistry
     }
 }
 

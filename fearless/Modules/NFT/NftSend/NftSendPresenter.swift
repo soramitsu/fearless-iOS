@@ -19,6 +19,7 @@ final class NftSendPresenter {
     private var fee: Decimal?
     private var scamInfo: ScamInfo?
     private var balance: Decimal?
+    private var priceData: PriceData?
 
     // MARK: - Constructors
 
@@ -66,7 +67,7 @@ final class NftSendPresenter {
         else { return }
 
         let viewModel = fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: nil, usageCase: .detailsCrypto) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
 
         DispatchQueue.main.async {
@@ -183,6 +184,18 @@ extension NftSendPresenter: NftSendInteractorOutput {
             } ?? 0.0
         case let .failure(error):
             logger.error("Did receive account info error: \(error)")
+        }
+    }
+
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            if let priceData = priceData {
+                self.priceData = priceData
+                provideFeeViewModel()
+            }
+        case let .failure(error):
+            logger.error("Did receive price error: \(error)")
         }
     }
 }

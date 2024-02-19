@@ -17,6 +17,14 @@ final class WalletTransactionHistoryViewLayout: UIView {
         return imageView
     }()
 
+    let typeSwitcherContainer: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        return view
+    }()
+
+    let typeSwitcher = FWSegmentedControl()
+
     private let containerView = UIView()
     private let backgroundView: TriangularedView = {
         let view = TriangularedView()
@@ -55,12 +63,14 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
     let headerView = UIView()
 
-    private let headerStackView: UIStackView = {
+    private let headerTopStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 8
         return stackView
     }()
+
+    private let headerContentStackView = UIFactory.default.createVerticalStackView(spacing: 4)
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -70,7 +80,13 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
     let panIndicatorView = RoundedView()
 
-    private let separatorView: UIView = {
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
+    let separatorView: UIView = {
         let view = UIView()
         view.backgroundColor = R.color.colorWhite8()
         return view
@@ -80,6 +96,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
         super.init(frame: frame)
 
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -100,12 +117,15 @@ final class WalletTransactionHistoryViewLayout: UIView {
         containerView.addSubview(tableView)
         containerView.addSubview(stripeIconImageView)
 
-        headerView.addSubview(headerStackView)
-        headerView.addSubview(separatorView)
+        headerView.addSubview(headerContentStackView)
+        headerContentStackView.addArrangedSubview(headerTopStackView)
+        headerContentStackView.addArrangedSubview(typeSwitcherContainer)
+        typeSwitcherContainer.addSubview(typeSwitcher)
+        headerContentStackView.addArrangedSubview(separatorView)
 
-        headerStackView.addArrangedSubview(closeButton)
-        headerStackView.addArrangedSubview(titleLabel)
-        headerStackView.addArrangedSubview(filterButton)
+        headerTopStackView.addArrangedSubview(closeButton)
+        headerTopStackView.addArrangedSubview(titleLabel)
+        headerTopStackView.addArrangedSubview(filterButton)
 
         containerView.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
@@ -113,9 +133,9 @@ final class WalletTransactionHistoryViewLayout: UIView {
             make.trailing.equalToSuperview()
         }
 
-        headerStackView.snp.makeConstraints { make in
+        headerTopStackView.snp.makeConstraints { make in
             make.leading.top.equalToSuperview().offset(UIConstants.bigOffset)
-            make.bottom.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         stripeIconImageView.snp.makeConstraints { make in
@@ -131,7 +151,12 @@ final class WalletTransactionHistoryViewLayout: UIView {
         headerView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview()
+        }
+
+        typeSwitcher.snp.makeConstraints { make in
+            make.height.equalTo(32)
+            make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
+            make.edges.equalToSuperview()
         }
 
         contentView.snp.makeConstraints { make in
@@ -158,8 +183,11 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
         separatorView.snp.makeConstraints { make in
             make.height.equalTo(Constants.separatorHeight)
-            make.leading.trailing.equalTo(headerStackView)
-            make.bottom.equalToSuperview()
+            make.leading.trailing.equalTo(headerTopStackView)
+        }
+
+        headerContentStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
 
@@ -187,5 +215,10 @@ final class WalletTransactionHistoryViewLayout: UIView {
             make.top.equalToSuperview().offset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
+    }
+
+    private func applyLocalization() {
+        typeSwitcher.setSegmentItems([R.string.localizable.walletFiltersTransfers(preferredLanguages: locale.rLanguages),
+                                      R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)])
     }
 }
