@@ -7,11 +7,19 @@ protocol BaseErrorPresentable {
     func presentExsitentialDepositNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
-
+    
     func presentExistentialDepositWarning(
         existentianDepositValue: String,
         from view: ControllerBackedProtocol,
         action: @escaping () -> Void,
+        locale: Locale?
+    )
+
+    func presentExistentialDepositWarning(
+        existentianDepositValue: String,
+        from view: ControllerBackedProtocol,
+        proceedAction: @escaping () -> Void,
+        setMaxAction: @escaping () -> Void,
         locale: Locale?
     )
     func presentExistentialDepositError(
@@ -69,6 +77,26 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
 
         present(message: message, title: title, closeAction: closeAction, from: view)
     }
+    
+    func presentExistentialDepositWarning(
+        existentianDepositValue: String,
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    ) {
+        let title = R.string.localizable
+            .commonExistentialWarningTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
+
+        presentWarning(
+            for: title,
+            message: message,
+            action: action,
+            view: view,
+            locale: locale
+        )
+    }
 
     func presentExistentialDepositWarning(
         existentianDepositValue: String,
@@ -86,14 +114,14 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
             proceedAction()
         }
         let setMaxTitle = "Set max amount"
-        let sendMaxAction = SheetAlertPresentableAction(title: setMaxTitle, style: .grayBackgroundWhiteText) {
+        let setMaxAction = SheetAlertPresentableAction(title: setMaxTitle, style: .grayBackgroundWhiteText) {
             setMaxAction()
         }
 
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [proceedAction, sendMaxAction],
+            actions: [proceedAction, setMaxAction],
             closeAction: "Cancel",
             icon: R.image.iconWarningBig()
         )

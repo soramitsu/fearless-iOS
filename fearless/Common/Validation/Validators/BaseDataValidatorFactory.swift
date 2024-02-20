@@ -28,7 +28,8 @@ protocol BaseDataValidatingFactoryProtocol: AnyObject {
         minimumBalance: BigUInt?,
         locale: Locale,
         chainAsset: ChainAsset,
-        canProceedIfViolated: Bool
+        canProceedIfViolated: Bool,
+        setMaxAction: () -> Void
     ) -> DataValidating
 }
 
@@ -100,7 +101,8 @@ extension BaseDataValidatingFactoryProtocol {
         minimumBalance: BigUInt?,
         locale: Locale,
         chainAsset: ChainAsset,
-        canProceedIfViolated: Bool = true
+        canProceedIfViolated: Bool = true,
+        setMaxAction: @escaping () -> Void
     ) -> DataValidating {
         WarningConditionViolation(onWarning: { [weak self] delegate in
             guard let view = self?.view else {
@@ -124,8 +126,11 @@ extension BaseDataValidatingFactoryProtocol {
             self?.basePresentable.presentExistentialDepositWarning(
                 existentianDepositValue: existentianDepositValue,
                 from: view,
-                action: {
+                proceedAction: {
                     delegate.didCompleteWarningHandling()
+                },
+                setMaxAction: {
+                    setMaxAction()
                 },
                 locale: locale
             )
