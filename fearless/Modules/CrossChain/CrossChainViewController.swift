@@ -15,6 +15,7 @@ protocol CrossChainViewOutput: AnyObject {
     func didTapMyWalletsButton()
     func didTapPasteButton()
     func searchTextDidChanged(_ text: String)
+    func didSwitchSendAll(_ enabled: Bool)
 }
 
 final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -100,6 +101,11 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
         rootView.searchView.onPasteTapped = { [weak self] in
             self?.output.didTapPasteButton()
         }
+        rootView.sendAllSwitch.addAction { [weak self] in
+            guard let self = self else { return }
+            self.output.didSwitchSendAll(self.rootView.sendAllSwitch.isOn)
+            self.output.selectAmountPercentage(self.rootView.sendAllSwitch.isOn ? 1 : 0)
+        }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory
@@ -165,6 +171,14 @@ extension CrossChainViewController: CrossChainViewInput {
     func didStopLoading() {
         rootView.actionButton.set(loading: false)
         updatePreviewButton()
+    }
+
+    func switchEnableSendAllState(enabled: Bool) {
+        rootView.sendAllSwitch.isOn = enabled
+    }
+
+    func switchEnableSendAllVisibility(isVisible: Bool) {
+        rootView.switchEnableSendAllVisibility(isVisible: isVisible)
     }
 }
 

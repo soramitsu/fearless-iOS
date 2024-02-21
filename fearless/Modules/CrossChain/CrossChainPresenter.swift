@@ -14,6 +14,8 @@ protocol CrossChainViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(destinationFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(recipientViewModel: RecipientViewModel)
+    func switchEnableSendAllState(enabled: Bool)
+    func switchEnableSendAllVisibility(isVisible: Bool)
 }
 
 protocol CrossChainInteractorInput: AnyObject {
@@ -58,6 +60,7 @@ final class CrossChainPresenter {
     private var inputViewModel: IAmountInputViewModel?
     private var originNetworkFeeViewModel: BalanceViewModelProtocol?
     private var destNetworkFeeViewModel: BalanceViewModelProtocol?
+    private var sendAllEnabled: Bool = false
 
     // MARK: - Constructors
 
@@ -231,6 +234,49 @@ final class CrossChainPresenter {
         }
     }
 
+    private func validateAmount(completionBlock: @escaping () -> Void) {
+        let inputAmountDecimal = amountInputResult?
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
+        guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
+            return
+        }
+        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
+        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
+        let edParameters: ExistentialDepositValidationParameters = .utility(
+            spendingAmount: inputAmountDecimal + (originNetworkFee ?? .zero),
+            totalAmount: utilityBalance,
+            minimumBalance: minimumBalance
+        )
+
+        let existentialDepositIsNotViolated = dataValidatingFactory.exsitentialDepositIsNotViolated(
+            parameters: edParameters,
+            locale: selectedLocale,
+            chainAsset: selectedAmountChainAsset,
+            sendAllEnabled: sendAllEnabled,
+            proceedAction: { [weak self] in
+                self?.sendAllEnabled = true
+                self?.view?.switchEnableSendAllState(enabled: true)
+                completionBlock()
+            },
+            setMaxAction: { [weak self] in
+                self?.sendAllEnabled = true
+                self?.view?.switchEnableSendAllState(enabled: true)
+                self?.selectAmountPercentage(1)
+            },
+            cancelAction: { [weak self] in
+                self?.sendAllEnabled = false
+                self?.view?.switchEnableSendAllState(enabled: false)
+                self?.selectAmountPercentage(0)
+            }
+        )
+
+        let validators: [DataValidating] = [existentialDepositIsNotViolated]
+        DataValidationRunner(validators: validators)
+            .runValidation {
+                completionBlock()
+            }
+    }
+
     private func continueWithValidation() {
         let inputAmountDecimal = amountInputResult?
             .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
@@ -241,7 +287,7 @@ final class CrossChainPresenter {
         let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
         let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
         let edParameters: ExistentialDepositValidationParameters = .utility(
-            spendingAmount: originNetworkFee,
+            spendingAmount: inputAmountDecimal + (originNetworkFee ?? .zero),
             totalAmount: utilityBalance,
             minimumBalance: minimumBalance
         )
@@ -282,7 +328,22 @@ final class CrossChainPresenter {
         let exsitentialDepositIsNotViolated = dataValidatingFactory.exsitentialDepositIsNotViolated(
             parameters: edParameters,
             locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset
+            chainAsset: selectedAmountChainAsset,
+            sendAllEnabled: sendAllEnabled,
+            proceedAction: { [weak self] in
+                self?.sendAllEnabled = true
+                self?.view?.switchEnableSendAllState(enabled: true)
+            },
+            setMaxAction: { [weak self] in
+                self?.sendAllEnabled = true
+                self?.view?.switchEnableSendAllState(enabled: true)
+                self?.selectAmountPercentage(1)
+            },
+            cancelAction: { [weak self] in
+                self?.sendAllEnabled = false
+                self?.view?.switchEnableSendAllState(enabled: false)
+                self?.selectAmountPercentage(0)
+            }
         )
 
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
@@ -396,18 +457,22 @@ final class CrossChainPresenter {
 
 extension CrossChainPresenter: CrossChainViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
-        view?.didStartLoading()
         amountInputResult = .rate(Decimal(Double(percentage)))
-        provideAssetViewModel()
-        provideInputViewModel()
-        estimateFee()
+        validateAmount { [weak self] in
+            self?.view?.didStartLoading()
+            self?.provideAssetViewModel()
+            self?.provideInputViewModel()
+            self?.estimateFee()
+        }
     }
 
     func updateAmount(_ newValue: Decimal) {
-        view?.didStartLoading()
         amountInputResult = .absolute(newValue)
-        provideAssetViewModel()
-        estimateFee()
+        validateAmount { [weak self] in
+            self?.view?.didStartLoading()
+            self?.provideAssetViewModel()
+            self?.estimateFee()
+        }
     }
 
     func didTapSelectAsset() {
@@ -476,6 +541,10 @@ extension CrossChainPresenter: CrossChainViewOutput {
     func searchTextDidChanged(_ text: String) {
         destWallet = nil
         handle(newAddress: text)
+    }
+
+    func didSwitchSendAll(_ enabled: Bool) {
+        sendAllEnabled = enabled
     }
 }
 
@@ -588,8 +657,10 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(existentialDeposit):
+            view?.switchEnableSendAllVisibility(isVisible: true)
             self.existentialDeposit = existentialDeposit
         case let .failure(error):
+            view?.switchEnableSendAllVisibility(isVisible: false)
             logger.customError(error)
         }
     }

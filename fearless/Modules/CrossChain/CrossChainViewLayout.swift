@@ -72,6 +72,33 @@ final class CrossChainViewLayout: UIView {
         return button
     }()
 
+    private let bottomContainer: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        return view
+    }()
+
+    let sendAllContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .clear
+        view.isHidden = true
+        return view
+    }()
+
+    let sendAllLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = R.color.colorWhite()
+        label.font = .p1Paragraph
+        label.numberOfLines = 0
+        return label
+    }()
+
+    let sendAllSwitch: UISwitch = {
+        let switchView = UISwitch()
+        switchView.onTintColor = R.color.colorPink()
+        return switchView
+    }()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -127,18 +154,48 @@ final class CrossChainViewLayout: UIView {
         searchView.updateState(icon: recipientViewModel.icon)
     }
 
+    func switchEnableSendAllVisibility(isVisible: Bool) {
+        sendAllContainerView.isHidden = !isVisible
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(contentView)
-        addSubview(actionButton)
+        addSubview(bottomContainer)
 
-        actionButton.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        bottomContainer.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint =
                 make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
+        }
+
+        bottomContainer.addSubview(actionButton)
+        actionButton.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        sendAllContainerView.addSubview(sendAllLabel)
+        sendAllLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.top.bottom.equalToSuperview().offset(4)
+        }
+
+        sendAllContainerView.addSubview(sendAllSwitch)
+        sendAllSwitch.snp.makeConstraints { make in
+            make.leading.greaterThanOrEqualTo(sendAllLabel.snp.trailing).offset(4)
+            make.trailing.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
+
+        bottomContainer.addSubview(sendAllContainerView)
+        sendAllContainerView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
+            make.top.equalToSuperview()
         }
 
         navigationBar.setCenterViews([navigationTitleLabel])
@@ -241,5 +298,6 @@ final class CrossChainViewLayout: UIView {
         destSelectNetworkView.title = R.string.localizable.xcmDestinationNetworkTitle(preferredLanguages: locale.rLanguages)
         originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
         destinationNetworkFeeView.titleLabel.text = R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        sendAllLabel.text = R.string.localizable.sendAllTitle(preferredLanguages: locale.rLanguages)
     }
 }

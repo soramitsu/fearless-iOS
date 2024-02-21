@@ -11,7 +11,7 @@ final class SendPresenter {
     }
 
     enum ValidationCase {
-        case validateAmount
+        case validateAmount(completionHandler: () -> Void)
         case validateAll
     }
 
@@ -483,20 +483,30 @@ final class SendPresenter {
         }
         var validators: [DataValidating]
         switch validationCase {
-        case .validateAmount:
+        case let .validateAmount(handler):
             validators = [dataValidatingFactory.exsitentialDepositIsNotViolated(
                 parameters: edParameters,
                 locale: selectedLocale,
                 chainAsset: chainAsset,
                 sendAllEnabled: sendAllEnabled,
-                warningHandler: { [weak self] in
+                proceedAction: { [weak self] in
                     guard let self else {
                         return
                     }
 
                     self.sendAllEnabled = true
                     self.view?.switchEnableSendAllState(enabled: self.sendAllEnabled)
-                    self.selectAmountPercentage(1)
+                    handler()
+                },
+                setMaxAction: { [weak self] in
+                    self?.sendAllEnabled = true
+                    self?.view?.switchEnableSendAllState(enabled: true)
+                    self?.selectAmountPercentage(1)
+                },
+                cancelAction: { [weak self] in
+                    self?.sendAllEnabled = false
+                    self?.view?.switchEnableSendAllState(enabled: false)
+                    self?.selectAmountPercentage(0)
                 }
             )]
         case .validateAll:
@@ -515,18 +525,27 @@ final class SendPresenter {
                     locale: selectedLocale,
                     chainAsset: chainAsset,
                     sendAllEnabled: sendAllEnabled,
-                    warningHandler: { [weak self] in
+                    proceedAction: { [weak self] in
                         self?.sendAllEnabled = true
-                        self?.view?.enableSendAll()
+                        self?.view?.switchEnableSendAllState(enabled: true)
+                    },
+                    setMaxAction: { [weak self] in
+                        self?.sendAllEnabled = true
+                        self?.view?.switchEnableSendAllState(enabled: true)
                         self?.selectAmountPercentage(1)
+                    },
+                    cancelAction: { [weak self] in
+                        self?.sendAllEnabled = false
+                        self?.view?.switchEnableSendAllState(enabled: false)
+                        self?.selectAmountPercentage(0)
                     }
                 )
             ]
         }
         DataValidationRunner(validators: validators).runValidation { [weak self] in
             switch validationCase {
-            case .validateAmount:
-                return
+            case let .validateAmount(handler):
+                handler()
             case .validateAll:
                 guard
                     let strongSelf = self,
@@ -847,6 +866,19 @@ extension SendPresenter: SendViewOutput {
 
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
+        if let chainAsset = selectedChainAsset {
+            validateInputData(
+                with: "",
+                chainAsset: chainAsset,
+                validationCase: .validateAmount(completionHandler: { [weak self] in
+                    self?.inputResult = .rate(Decimal(Double(percentage)))
+                    self?.provideAssetVewModel()
+                    self?.provideInputViewModel()
+                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
+                })
+            )
+        }
+
         provideAssetVewModel()
         provideInputViewModel()
         guard let chainAsset = selectedChainAsset else { return }
@@ -855,6 +887,17 @@ extension SendPresenter: SendViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
+        if let chainAsset = selectedChainAsset {
+            validateInputData(
+                with: "",
+                chainAsset: chainAsset,
+                validationCase: .validateAmount(completionHandler: { [weak self] in
+                    self?.provideAssetVewModel()
+                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
+                })
+            )
+        }
+
         provideAssetVewModel()
         guard let chainAsset = selectedChainAsset else { return }
         refreshFee(for: chainAsset, address: recipientAddress)

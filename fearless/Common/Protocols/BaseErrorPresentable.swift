@@ -7,7 +7,7 @@ protocol BaseErrorPresentable {
     func presentExsitentialDepositNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
-    
+
     func presentExistentialDepositWarning(
         existentianDepositValue: String,
         from view: ControllerBackedProtocol,
@@ -20,6 +20,7 @@ protocol BaseErrorPresentable {
         from view: ControllerBackedProtocol,
         proceedAction: @escaping () -> Void,
         setMaxAction: @escaping () -> Void,
+        cancelAction: @escaping () -> Void,
         locale: Locale?
     )
     func presentExistentialDepositError(
@@ -77,7 +78,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
 
         present(message: message, title: title, closeAction: closeAction, from: view)
     }
-    
+
     func presentExistentialDepositWarning(
         existentianDepositValue: String,
         from view: ControllerBackedProtocol,
@@ -103,6 +104,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         from view: ControllerBackedProtocol,
         proceedAction: @escaping () -> Void,
         setMaxAction: @escaping () -> Void,
+        cancelAction: @escaping () -> Void,
         locale: Locale?
     ) {
         let title = R.string.localizable
@@ -113,16 +115,23 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let proceedAction = SheetAlertPresentableAction(title: title, style: .pinkBackgroundWhiteText) {
             proceedAction()
         }
-        let setMaxTitle = "Set max amount"
+        let setMaxTitle = R.string.localizable.commonExistentialWarningMaxAmount(preferredLanguages: locale?.rLanguages)
         let setMaxAction = SheetAlertPresentableAction(title: setMaxTitle, style: .grayBackgroundWhiteText) {
             setMaxAction()
+        }
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let cancelAction = SheetAlertPresentableAction(
+            title: cancelTitle,
+            style: .grayBackgroundWhiteText
+        ) {
+            cancelAction()
         }
 
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [proceedAction, setMaxAction],
-            closeAction: "Cancel",
+            actions: [proceedAction, setMaxAction, cancelAction],
+            closeAction: nil,
             icon: R.image.iconWarningBig()
         )
 
