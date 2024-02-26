@@ -27,6 +27,11 @@ protocol CrossChainInteractorInput: AnyObject {
 }
 
 final class CrossChainPresenter {
+    enum ValidationCase {
+        case validateAmount
+        case validateAll
+    }
+    
     // MARK: Private properties
 
     private weak var view: CrossChainViewInput?
@@ -234,50 +239,50 @@ final class CrossChainPresenter {
         }
     }
 
-    private func validateAmount(completionBlock: @escaping () -> Void) {
-        let inputAmountDecimal = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
-        guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
-            return
-        }
-        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
-        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
-        let edParameters: ExistentialDepositValidationParameters = .utility(
-            spendingAmount: inputAmountDecimal + (originNetworkFee ?? .zero),
-            totalAmount: utilityBalance,
-            minimumBalance: minimumBalance
-        )
+//    private func validateAmount(completionBlock: @escaping () -> Void) {
+//        let inputAmountDecimal = amountInputResult?
+//            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
+//        guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
+//            return
+//        }
+//        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
+//        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
+//        let edParameters: ExistentialDepositValidationParameters = .utility(
+//            spendingAmount: inputAmountDecimal + (originNetworkFee ?? .zero),
+//            totalAmount: utilityBalance,
+//            minimumBalance: minimumBalance
+//        )
+//
+//        let existentialDepositIsNotViolatedValidator = dataValidatingFactory.exsitentialDepositIsNotViolated(
+//            parameters: edParameters,
+//            locale: selectedLocale,
+//            chainAsset: selectedAmountChainAsset,
+//            sendAllEnabled: sendAllEnabled,
+//            proceedAction: { [weak self] in
+//                self?.sendAllEnabled = true
+//                self?.view?.switchEnableSendAllState(enabled: true)
+//                completionBlock()
+//            },
+//            setMaxAction: { [weak self] in
+//                self?.sendAllEnabled = true
+//                self?.view?.switchEnableSendAllState(enabled: true)
+//                self?.selectAmountPercentage(1)
+//            },
+//            cancelAction: { [weak self] in
+//                self?.sendAllEnabled = false
+//                self?.view?.switchEnableSendAllState(enabled: false)
+//                self?.selectAmountPercentage(0)
+//            }
+//        )
+//
+//        let validators: [DataValidating] = [existentialDepositIsNotViolatedValidator]
+//        DataValidationRunner(validators: validators)
+//            .runValidation {
+//                completionBlock()
+//            }
+//    }
 
-        let existentialDepositIsNotViolated = dataValidatingFactory.exsitentialDepositIsNotViolated(
-            parameters: edParameters,
-            locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset,
-            sendAllEnabled: sendAllEnabled,
-            proceedAction: { [weak self] in
-                self?.sendAllEnabled = true
-                self?.view?.switchEnableSendAllState(enabled: true)
-                completionBlock()
-            },
-            setMaxAction: { [weak self] in
-                self?.sendAllEnabled = true
-                self?.view?.switchEnableSendAllState(enabled: true)
-                self?.selectAmountPercentage(1)
-            },
-            cancelAction: { [weak self] in
-                self?.sendAllEnabled = false
-                self?.view?.switchEnableSendAllState(enabled: false)
-                self?.selectAmountPercentage(0)
-            }
-        )
-
-        let validators: [DataValidating] = [existentialDepositIsNotViolated]
-        DataValidationRunner(validators: validators)
-            .runValidation {
-                completionBlock()
-            }
-    }
-
-    private func continueWithValidation() {
+    private func validate(validationCase: ValidationCase, completionBlock: @escaping () -> Void) {
         let inputAmountDecimal = amountInputResult?
             .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
 
@@ -317,15 +322,10 @@ final class CrossChainPresenter {
             sendAmount = inputAmountDecimal
             balanceType = .orml(balance: originNetworkSelectedAssetBalance, utilityBalance: utilityBalance)
         }
-
-        let canPayOriginalFeeAndAmount = dataValidatingFactory.canPayFeeAndAmount(
-            balanceType: balanceType,
-            feeAndTip: originNetworkFee,
-            sendAmount: sendAmount,
-            locale: selectedLocale
-        )
-
-        let exsitentialDepositIsNotViolated = dataValidatingFactory.exsitentialDepositIsNotViolated(
+        
+        var validators: [DataValidating] = []
+        
+        let existentialDepositValidator = dataValidatingFactory.exsitentialDepositIsNotViolated(
             parameters: edParameters,
             locale: selectedLocale,
             chainAsset: selectedAmountChainAsset,
@@ -345,33 +345,38 @@ final class CrossChainPresenter {
                 self?.selectAmountPercentage(0)
             }
         )
-
-        let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
-            originCHainId: selectedOriginChainModel.chainId,
-            destChainId: selectedDestChainModel?.chainId,
-            amount: inputAmountDecimal,
-            locale: selectedLocale
-        )
-
-        let soraBridgeAmountLessFeeViolated = dataValidatingFactory.soraBridgeAmountLessFeeViolated(
-            originCHainId: selectedOriginChainModel.chainId,
-            destChainId: selectedDestChainModel?.chainId,
-            amount: inputAmountDecimal,
-            fee: destNetworkFee,
-            locale: selectedLocale
-        )
-
-        let validators: [DataValidating] = [
-            originFeeValidating,
-            canPayOriginalFeeAndAmount,
-            exsitentialDepositIsNotViolated,
-            destFeeValidating,
-            soraBridgeViolated,
-            soraBridgeAmountLessFeeViolated
-        ]
+        
+        validators.append(existentialDepositValidator)
+        
+        if case .validateAll = validationCase {
+            let canPayOriginalFeeAndAmountValidator = dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: balanceType,
+                feeAndTip: originNetworkFee,
+                sendAmount: sendAmount,
+                locale: selectedLocale
+            )
+            validators.append(canPayOriginalFeeAndAmountValidator)
+            
+            let soraBridgeViolatedValidator = dataValidatingFactory.soraBridgeViolated(
+                originCHainId: selectedOriginChainModel.chainId,
+                destChainId: selectedDestChainModel?.chainId,
+                amount: inputAmountDecimal,
+                locale: selectedLocale
+            )
+            validators.append(soraBridgeViolatedValidator)
+            
+            let soraBridgeAmountLessFeeViolatedValidator = dataValidatingFactory.soraBridgeAmountLessFeeViolated(
+                originCHainId: selectedOriginChainModel.chainId,
+                destChainId: selectedDestChainModel?.chainId,
+                amount: inputAmountDecimal,
+                fee: destNetworkFee,
+                locale: selectedLocale
+            )
+            validators.append(soraBridgeAmountLessFeeViolatedValidator)
+        }
         DataValidationRunner(validators: validators)
-            .runValidation { [weak self] in
-                self?.prepareAndShowConfirmation()
+            .runValidation {
+                completionBlock()
             }
     }
 
@@ -458,7 +463,7 @@ final class CrossChainPresenter {
 extension CrossChainPresenter: CrossChainViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
         amountInputResult = .rate(Decimal(Double(percentage)))
-        validateAmount { [weak self] in
+        validate(validationCase: .validateAmount) { [weak self] in
             self?.view?.didStartLoading()
             self?.provideAssetViewModel()
             self?.provideInputViewModel()
@@ -468,7 +473,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         amountInputResult = .absolute(newValue)
-        validateAmount { [weak self] in
+        validate(validationCase: .validateAmount) { [weak self] in
             self?.view?.didStartLoading()
             self?.provideAssetViewModel()
             self?.estimateFee()
@@ -508,7 +513,9 @@ extension CrossChainPresenter: CrossChainViewOutput {
     }
 
     func didTapContinueButton() {
-        continueWithValidation()
+        validate(validationCase: .validateAll) { [weak self] in
+            self?.prepareAndShowConfirmation()
+        }
     }
 
     func didTapScanButton() {
@@ -657,7 +664,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(existentialDeposit):
-            view?.switchEnableSendAllVisibility(isVisible: true)
+            view?.switchEnableSendAllVisibility(isVisible: existentialDeposit > BigUInt.zero)
             self.existentialDeposit = existentialDeposit
         case let .failure(error):
             view?.switchEnableSendAllVisibility(isVisible: false)

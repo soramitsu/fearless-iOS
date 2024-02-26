@@ -111,9 +111,9 @@ class SendDataValidatingFactory: NSObject {
             self?.basePresentable.presentExistentialDepositWarning(
                 existentianDepositValue: existentianDepositValue,
                 from: view,
-                proceedAction: proceedAction,
-                setMaxAction: setMaxAction,
-                cancelAction: cancelAction,
+                proceedHandler: proceedAction,
+                setMaxHandler: setMaxAction,
+                cancelHandler: cancelAction,
                 locale: locale
             )
         }, preservesCondition: {

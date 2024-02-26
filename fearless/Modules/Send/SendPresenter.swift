@@ -1016,7 +1016,7 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
-            view?.switchEnableSendAllVisibility(isVisible: true)
+            view?.switchEnableSendAllVisibility(isVisible: minimumBalance > BigUInt.zero)
             logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
             view?.switchEnableSendAllVisibility(isVisible: false)
