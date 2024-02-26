@@ -37,4 +37,11 @@ final class StorageKeyDataExtractor {
         let uint64 = try UInt64(scaleDecoder: decoder)
         return uint64
     }
+
+    func extractAccountIdParameter() throws -> Data {
+        let keyString = storageKey.toHex()
+        let idHexString = keyString.suffix(64)
+        let idData = try Data(hexStringSSF: String(idHexString))
+        return idData
+    }
 }

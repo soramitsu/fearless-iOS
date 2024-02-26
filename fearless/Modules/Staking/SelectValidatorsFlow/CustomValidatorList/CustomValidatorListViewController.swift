@@ -3,11 +3,20 @@ import SoraFoundation
 import SoraUI
 
 final class CustomValidatorListViewController: UIViewController, ViewHolder, ImportantViewProtocol {
+    private enum Constants {
+        static let regularHeaderMargins = UIEdgeInsets(
+            top: 16.0,
+            left: 0.0,
+            bottom: 8.0,
+            right: 0.0
+        )
+    }
+
     typealias RootViewType = CustomValidatorListViewLayout
 
     let presenter: CustomValidatorListPresenterProtocol
 
-    private var cellViewModels: [CustomValidatorCellViewModel]?
+    private var sections: [CustomValidatorListSectionViewModel]?
     private var headerViewModel: TitleWithSubtitleViewModel?
     private var selectedValidatorsCount: Int = 0
     private var selectedValidatorsLimit: Int = 0
@@ -71,6 +80,9 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         rootView.tableView.registerHeaderFooterView(withClass: CustomValidatorListHeaderView.self)
         rootView.tableView.rowHeight = UIConstants.validatorCellHeight
         rootView.tableView.separatorStyle = .none
+        rootView.tableView.registerHeaderFooterView(
+            withClass: YourValidatorListStatusSectionView.self
+        )
     }
 
     private func setupNavigationBar() {
@@ -125,6 +137,18 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         }
     }
 
+    private func configureElected(headerView: YourValidatorListStatusSectionView, section: CustomValidatorListSectionViewModel) {
+        let icon = R.image.iconAlgoItem()!
+        let value = R.string.localizable
+            .stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages).uppercased()
+
+        headerView.statusView.titleLabel.textColor = R.color.colorWhite()
+        headerView.bind(icon: section.icon, title: section.title, value: "")
+
+        headerView.borderView.borderType = .none
+        headerView.mainStackView.layoutMargins = Constants.regularHeaderMargins
+    }
+
     // MARK: - Actions
 
     @objc private func tapFilterButton() {
@@ -156,7 +180,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
     func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
         title = viewModel.title
 
-        cellViewModels = viewModel.cellViewModels
+        sections = viewModel.sections
         headerViewModel = viewModel.headerViewModel
         selectedValidatorsCount = viewModel.selectedValidatorsCount
         selectedValidatorsLimit = viewModel.selectedValidatorsLimit ?? 0
@@ -191,26 +215,42 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
 // MARK: - UITableViewDataSource
 
 extension CustomValidatorListViewController: UITableViewDataSource {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        guard let cellViewModels = cellViewModels else {
+    func numberOfSections(in _: UITableView) -> Int {
+        (sections?.count).or(0)
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        guard let section = sections?[section] else {
             return 0
         }
 
-        return cellViewModels.count
+        return section.cells.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cellViewModels = cellViewModels else {
+        guard
+            let section = sections?[indexPath.section]
+        else {
             return UITableViewCell()
         }
 
+        let viewModel = section.cells[indexPath.row]
+
         let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self)!
         cell.delegate = self
-
-        let viewModel = cellViewModels[indexPath.row]
         cell.bind(viewModel: viewModel)
 
         return cell
+    }
+
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        guard let section = sections?[section] else {
+            return nil
+        }
+
+        let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+        configureElected(headerView: headerView, section: section)
+        return headerView
     }
 }
 
@@ -218,12 +258,14 @@ extension CustomValidatorListViewController: UITableViewDataSource {
 
 extension CustomValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let cellViewModels = cellViewModels else {
+        guard
+            let section = sections?[indexPath.section]
+        else {
             return
         }
 
         tableView.deselectRow(at: indexPath, animated: true)
-        let viewModel = cellViewModels[indexPath.row]
+        let viewModel = section.cells[indexPath.row]
 
         presenter.changeValidatorSelection(address: viewModel.address)
     }
@@ -233,12 +275,10 @@ extension CustomValidatorListViewController: UITableViewDelegate {
 
 extension CustomValidatorListViewController: CustomValidatorCellDelegate {
     func didTapInfoButton(in cell: CustomValidatorCell) {
-        guard let cellViewModels = cellViewModels else {
-            return
-        }
-
-        if let indexPath = rootView.tableView.indexPath(for: cell) {
-            let viewModel = cellViewModels[indexPath.row]
+        if
+            let indexPath = rootView.tableView.indexPath(for: cell),
+            let section = sections?[indexPath.section] {
+            let viewModel = section.cells[indexPath.row]
             presenter.didSelectValidator(address: viewModel.address)
         }
     }
@@ -251,7 +291,7 @@ extension CustomValidatorListViewController: EmptyStateViewOwnerProtocol {
 
 extension CustomValidatorListViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        guard let _ = cellViewModels else {
+        guard let _ = sections else {
             return nil
         }
 
@@ -267,10 +307,10 @@ extension CustomValidatorListViewController: EmptyStateDataSource {
 
 extension CustomValidatorListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        guard let cellViewModels = cellViewModels else {
+        guard let sections = sections else {
             return false
         }
 
-        return cellViewModels.isEmpty
+        return sections.isEmpty
     }
 }

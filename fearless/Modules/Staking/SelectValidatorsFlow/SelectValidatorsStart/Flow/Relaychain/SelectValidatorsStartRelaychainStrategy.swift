@@ -25,7 +25,7 @@ final class SelectValidatorsStartRelaychainStrategy: RuntimeConstantFetching {
     }
 
     private func prepareRecommendedValidatorList() {
-        let wrapper = operationFactory.allElectedOperation()
+        let wrapper = operationFactory.fetchAllValidators()
 
         wrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {

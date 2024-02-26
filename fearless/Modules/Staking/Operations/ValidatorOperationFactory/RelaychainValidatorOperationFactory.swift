@@ -429,6 +429,94 @@ final class RelaychainValidatorOperationFactory {
         )
     }
 
+    func createAllValidatorsMergeOperation(
+        dependingOn allValidatorsOperation: BaseOperation<[EraValidatorInfo]>,
+        electedValidatorOperation: BaseOperation<EraStakersInfo>,
+        rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
+        maxNominatorsOperation: BaseOperation<UInt32>,
+        slashesOperation: UnappliedSlashesOperation,
+        identitiesOperation: BaseOperation<[String: AccountIdentity]>
+    ) -> BaseOperation<[ElectedValidatorInfo]> {
+        let chainFormat = chain.chainFormat
+        let addressPrefix = chain.addressPrefix
+
+        return ClosureOperation<[ElectedValidatorInfo]> {
+            let eraStakersInfo = try electedValidatorOperation.extractNoCancellableResultData()
+            let allValidators = try allValidatorsOperation.extractNoCancellableResultData()
+            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let slashings = try slashesOperation.extractNoCancellableResultData()
+            let identities = try identitiesOperation.extractNoCancellableResultData()
+            let calculator = try rewardOperation.extractNoCancellableResultData()
+
+            let slashed: Set<Data> = slashings.reduce(into: Set<Data>()) { result, slashInEra in
+                slashInEra.value?.forEach { slash in
+                    result.insert(slash.validator)
+                }
+            }
+
+            let electedValidators = try eraStakersInfo.validators.map { validator in
+                let hasSlashes = slashed.contains(validator.accountId)
+
+                let address = try AddressFactory.address(
+                    for: validator.accountId,
+                    chainFormat: chainFormat
+                )
+
+                let validatorReturn = try? calculator
+                    .calculateValidatorReturn(
+                        validatorAccountId: validator.accountId,
+                        isCompound: true,
+                        period: .year
+                    )
+
+                return try ElectedValidatorInfo(
+                    validator: validator,
+                    identity: identities[address],
+                    stakeReturn: validatorReturn.or(.zero),
+                    hasSlashes: hasSlashes,
+                    maxNominatorsRewarded: maxNominators,
+                    chainFormat: chainFormat,
+                    blocked: validator.prefs.blocked,
+                    precision: Int16(self.asset.precision),
+                    elected: true
+                )
+            }
+
+            let electedIds = eraStakersInfo.validators.compactMap { $0.accountId }
+            let notElectedValidators = try allValidators
+                .filter { !electedIds.contains($0.accountId) }
+                .compactMap { validator in
+                    let hasSlashes = slashed.contains(validator.accountId)
+
+                    let address = try AddressFactory.address(
+                        for: validator.accountId,
+                        chainFormat: chainFormat
+                    )
+
+                    let validatorReturn = try? calculator
+                        .calculateValidatorReturn(
+                            validatorAccountId: validator.accountId,
+                            isCompound: true,
+                            period: .year
+                        )
+
+                    return try ElectedValidatorInfo(
+                        validator: validator,
+                        identity: identities[address],
+                        stakeReturn: validatorReturn.or(.zero),
+                        hasSlashes: hasSlashes,
+                        maxNominatorsRewarded: maxNominators,
+                        chainFormat: chainFormat,
+                        blocked: validator.prefs.blocked,
+                        precision: Int16(self.asset.precision),
+                        elected: false
+                    )
+                }
+
+            return electedValidators + notElectedValidators
+        }
+    }
+
     func createElectedValidatorsMergeOperation(
         dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
         rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
@@ -460,7 +548,7 @@ final class RelaychainValidatorOperationFactory {
                     chainFormat: chainFormat
                 )
 
-                let validatorReturn = try calculator
+                let validatorReturn = try? calculator
                     .calculateValidatorReturn(
                         validatorAccountId: validator.accountId,
                         isCompound: true,
@@ -470,12 +558,13 @@ final class RelaychainValidatorOperationFactory {
                 return try ElectedValidatorInfo(
                     validator: validator,
                     identity: identities[address],
-                    stakeReturn: validatorReturn,
+                    stakeReturn: validatorReturn.or(.zero),
                     hasSlashes: hasSlashes,
                     maxNominatorsRewarded: maxNominators,
                     chainFormat: chainFormat,
                     blocked: validator.prefs.blocked,
-                    precision: Int16(self.asset.precision)
+                    precision: Int16(self.asset.precision),
+                    elected: validator.exposure.others.isNotEmpty
                 )
             }
         }
@@ -521,11 +610,145 @@ final class RelaychainValidatorOperationFactory {
             dependencies: [runtimeOperation] + nominatorsWrapper.allOperations
         )
     }
+
+    func createAllValidatorsOperation(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        let validatorPrefsWrapper: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> =
+            storageRequestFactory.queryItemsByPrefix(
+                engine: connection,
+                keys: { [try StorageKeyFactory().key(from: .validatorPrefs)] },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .validatorPrefs
+            )
+
+        validatorPrefsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return validatorPrefsWrapper
+    }
 }
 
 extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol {
     func nomination(accountId: AccountId) -> CompoundOperationWrapper<Nomination?> {
         createNominatorsOperation(for: accountId)
+    }
+
+    func fetchAllValidators() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let slashDeferOperation: BaseOperation<UInt32> =
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .slashDeferDuration
+            )
+
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
+        let maxNominatorsOperation: BaseOperation<UInt32> =
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: maxNominatorsConstantCodingPath
+            )
+
+        slashDeferOperation.addDependency(runtimeOperation)
+        maxNominatorsOperation.addDependency(runtimeOperation)
+
+        let allValidatorPrefsOperation = createAllValidatorsOperation(dependingOn: runtimeOperation)
+        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
+
+        let allValidatorsOperation: BaseOperation<[EraValidatorInfo]> = ClosureOperation {
+            let allValidators: [EraValidatorInfo] = try allValidatorPrefsOperation.targetOperation.extractNoCancellableResultData().compactMap {
+                guard let prefs = $0.value else {
+                    return nil
+                }
+
+                let extractor = StorageKeyDataExtractor(storageKey: $0.key)
+                let accountId = try extractor.extractAccountIdParameter()
+                let exposure = ValidatorExposure(total: .zero, own: .zero, others: [])
+
+                return EraValidatorInfo(
+                    accountId: accountId,
+                    exposure: exposure,
+                    prefs: prefs
+                )
+            }
+
+            return allValidators
+        }
+
+        allValidatorsOperation.addDependency(allValidatorPrefsOperation.targetOperation)
+
+        let accountIdsClosure: () throws -> [AccountId] = {
+            try allValidatorsOperation.extractNoCancellableResultData().compactMap { $0.accountId }
+        }
+
+        let identityWrapper = identityOperationFactory.createIdentityWrapper(
+            for: accountIdsClosure,
+            engine: connection,
+            runtimeService: runtimeService,
+            chain: chain
+        )
+
+        identityWrapper.allOperations.forEach { $0.addDependency(allValidatorsOperation) }
+
+        let slashingsWrapper = createUnappliedSlashesWrapper(
+            dependingOn: { try eraValidatorsOperation.extractNoCancellableResultData().activeEra },
+            runtime: runtimeOperation,
+            slashDefer: slashDeferOperation
+        )
+
+        slashingsWrapper.allOperations.forEach {
+            $0.addDependency(eraValidatorsOperation)
+            $0.addDependency(runtimeOperation)
+            $0.addDependency(slashDeferOperation)
+        }
+
+        let rewardOperation = rewardService.fetchCalculatorOperation()
+
+        let mergeOperation = createAllValidatorsMergeOperation(
+            dependingOn: allValidatorsOperation,
+            electedValidatorOperation: eraValidatorsOperation,
+            rewardOperation: rewardOperation,
+            maxNominatorsOperation: maxNominatorsOperation,
+            slashesOperation: slashingsWrapper.targetOperation,
+            identitiesOperation: identityWrapper.targetOperation
+        )
+
+        mergeOperation.addDependency(slashingsWrapper.targetOperation)
+        mergeOperation.addDependency(identityWrapper.targetOperation)
+        mergeOperation.addDependency(allValidatorPrefsOperation.targetOperation)
+        mergeOperation.addDependency(eraValidatorsOperation)
+        mergeOperation.addDependency(allValidatorsOperation)
+        mergeOperation.addDependency(maxNominatorsOperation)
+        mergeOperation.addDependency(rewardOperation)
+
+        let baseOperations = [
+            runtimeOperation,
+            slashDeferOperation,
+            maxNominatorsOperation,
+            rewardOperation,
+            eraValidatorsOperation,
+        ]
+
+        let dependencies = baseOperations + allValidatorPrefsOperation.allOperations + [allValidatorsOperation] + identityWrapper.allOperations + slashingsWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }
 
     // swiftlint:disable function_body_length

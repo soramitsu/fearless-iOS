@@ -179,7 +179,7 @@ extension ValidatorInfoRelaychainViewModelFactory: ValidatorInfoViewModelFactory
 
         let status: ValidatorInfoViewModel.StakingStatus
 
-        if validatorInfo.stakeInfo != nil {
+        if validatorInfo.stakeInfo != nil, validatorInfo.elected {
             let exposure = createExposure(from: validatorInfo, priceData: priceData, locale: locale)
             status = .elected(exposure: exposure)
         } else {

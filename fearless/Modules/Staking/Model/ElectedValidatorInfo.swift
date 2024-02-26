@@ -12,6 +12,7 @@ struct ElectedValidatorInfo: Equatable, Hashable, Recommendable {
     let hasSlashes: Bool
     let maxNominatorsRewarded: UInt32
     let blocked: Bool
+    let elected: Bool
 
     var oversubscribed: Bool {
         nominators.count > maxNominatorsRewarded
@@ -40,7 +41,8 @@ extension ElectedValidatorInfo {
         maxNominatorsRewarded: UInt32,
         chainFormat: ChainFormat,
         blocked: Bool,
-        precision: Int16
+        precision: Int16,
+        elected: Bool
     ) throws {
         self.hasSlashes = hasSlashes
         self.identity = identity
@@ -66,5 +68,6 @@ extension ElectedValidatorInfo {
         comission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0
 
         self.blocked = blocked
+        self.elected = elected
     }
 }
