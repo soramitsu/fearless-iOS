@@ -52,7 +52,7 @@ final class AlchemyHistoryOperationFactory {
                 .filter { $0.asset.lowercased() == asset.symbol.lowercased() }
                 .sorted(by: { $0.timestampInSeconds > $1.timestampInSeconds })
                 .compactMap {
-                    AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
+                    AssetTransactionData.createTransaction(from: $0, address: address)
                 }
 
             return AssetTransactionPageData(transactions: transactions)

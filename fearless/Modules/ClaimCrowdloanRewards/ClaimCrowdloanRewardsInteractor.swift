@@ -156,9 +156,9 @@ extension ClaimCrowdloanRewardsInteractor: ClaimCrowdloanRewardsInteractorInput 
                 guard let self else { return }
                 switch result {
                 case let .success(txHash):
-                    output?.didReceiveTxHash(txHash)
+                    self.output?.didReceiveTxHash(txHash)
                 case let .failure(error):
-                    output?.didReceiveTxError(error)
+                    self.output?.didReceiveTxError(error)
                 }
             }
         )
