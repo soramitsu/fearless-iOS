@@ -20,16 +20,6 @@ extension ChainModel: Identifiable {
             return DefaultRelaychainChainStakingSettings()
         }
     }
-
-    func accountIdRuntimeParameter(accountId: AccountId) -> any Encodable {
-        let oldChainModel = Chain(rawValue: name)
-        switch oldChainModel {
-        case .reef, .scuba:
-            return accountId.toHex()
-        default:
-            return accountId
-        }
-    }
 }
 
 // MARK: - Wallet connect

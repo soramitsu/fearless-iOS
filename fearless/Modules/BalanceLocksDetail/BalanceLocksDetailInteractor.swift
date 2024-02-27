@@ -23,79 +23,69 @@ final class BalanceLocksDetailInteractor {
         self.priceLocalSubscriber = priceLocalSubscriber
     }
 
-    private func fetchStakingLocks() {
+    private func fetchStakingLocks() async {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             return
         }
 
-        Task {
-            do {
-                let stakingLocks: StakingLocks? = try await balanceLocksFetching.fetchStakingLocks(for: accountId)
-                output?.didReceiveStakingLocks(stakingLocks)
-            } catch {
-                output?.didReceiveStakingLocksError(error)
-            }
+        do {
+            let stakingLocks: StakingLocks? = try await balanceLocksFetching.fetchStakingLocks(for: accountId)
+            await output?.didReceiveStakingLocks(stakingLocks)
+        } catch {
+            await output?.didReceiveStakingLocksError(error)
         }
     }
 
-    private func fetchNominationPoolLocks() {
+    private func fetchNominationPoolLocks() async {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             return
         }
 
-        Task {
-            do {
-                let nominationPoolLocks: StakingLocks? = try await balanceLocksFetching.fetchNominationPoolLocks(for: accountId)
-                output?.didReceiveNominationPoolLocks(nominationPoolLocks)
-            } catch {
-                output?.didReceiveNominationPoolLocksError(error)
-            }
+        do {
+            let nominationPoolLocks: StakingLocks? = try await balanceLocksFetching.fetchNominationPoolLocks(for: accountId)
+            await output?.didReceiveNominationPoolLocks(nominationPoolLocks)
+        } catch {
+            await output?.didReceiveNominationPoolLocksError(error)
         }
     }
 
-    private func fetchGovernanceLocks() {
+    private func fetchGovernanceLocks() async {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             return
         }
 
-        Task {
-            do {
-                let governanceLocks: Decimal? = try await balanceLocksFetching.fetchGovernanceLocks(for: accountId)
-                output?.didReceiveGovernanceLocks(governanceLocks)
-            } catch {
-                output?.didReceiveGovernanceLocksError(error)
-            }
+        do {
+            let governanceLocks: Decimal? = try await balanceLocksFetching.fetchGovernanceLocks(for: accountId)
+            await output?.didReceiveGovernanceLocks(governanceLocks)
+        } catch {
+            await output?.didReceiveGovernanceLocksError(error)
         }
     }
 
-    private func fetchCrowdloansInfo() {
+    private func fetchCrowdloansInfo() async {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             return
         }
 
-        Task {
-            do {
-                let crowdloanLocks = try await balanceLocksFetching.fetchCrowdloanLocks(for: accountId)
-                output?.didReceiveCrowdloanLocks(crowdloanLocks)
-            } catch {
-                output?.didReceiveCrowdloanLocksError(error)
-            }
+        do {
+            let crowdloanLocks = try await balanceLocksFetching.fetchCrowdloanLocks(for: accountId)
+            await output?.didReceiveCrowdloanLocks(crowdloanLocks)
+        } catch {
+            await output?.didReceiveCrowdloanLocksError(error)
         }
     }
 
-    private func fetchVestings() {
+    private func fetchVestings() async {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            output?.didReceiveVestingLocksError(ChainAccountFetchingError.accountNotExists)
+            await output?.didReceiveVestingLocksError(ChainAccountFetchingError.accountNotExists)
             return
         }
 
-        Task {
-            do {
-                let vestingLocks = try await balanceLocksFetching.fetchVestingLocks(for: accountId, currencyId: chainAsset.currencyId)
-                output?.didReceiveVestingLocks(vestingLocks)
-            } catch {
-                output?.didReceiveVestingLocksError(error)
-            }
+        do {
+            let vestingLocks = try await balanceLocksFetching.fetchVestingLocks(for: accountId, currencyId: chainAsset.currencyId)
+            await output?.didReceiveVestingLocks(vestingLocks)
+        } catch {
+            await output?.didReceiveVestingLocksError(error)
         }
     }
 }
@@ -106,11 +96,14 @@ extension BalanceLocksDetailInteractor: BalanceLocksDetailInteractorInput {
     func setup(with output: BalanceLocksDetailInteractorOutput) {
         self.output = output
 
-        fetchStakingLocks()
-        fetchNominationPoolLocks()
-        fetchGovernanceLocks()
-        fetchCrowdloansInfo()
-        fetchVestings()
+        Task {
+            await fetchStakingLocks()
+            await fetchNominationPoolLocks()
+            await fetchGovernanceLocks()
+            await fetchCrowdloansInfo()
+            await fetchVestings()
+        }
+
         priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }

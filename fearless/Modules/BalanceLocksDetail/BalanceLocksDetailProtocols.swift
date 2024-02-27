@@ -22,18 +22,18 @@ protocol BalanceLocksDetailInteractorInput: AnyObject {
 }
 
 protocol BalanceLocksDetailInteractorOutput: AnyObject {
-    func didReceiveStakingLocks(_ stakingLocks: StakingLocks?)
-    func didReceiveNominationPoolLocks(_ nominationPoolLocks: StakingLocks?)
-    func didReceiveGovernanceLocks(_ balanceLocks: Decimal?)
-    func didReceiveCrowdloanLocks(_ crowdloanLocks: Decimal?)
-    func didReceiveVestingLocks(_ vestingLocks: Decimal?)
+    func didReceiveStakingLocks(_ stakingLocks: StakingLocks?) async
+    func didReceiveNominationPoolLocks(_ nominationPoolLocks: StakingLocks?) async
+    func didReceiveGovernanceLocks(_ balanceLocks: Decimal?) async
+    func didReceiveCrowdloanLocks(_ crowdloanLocks: Decimal?) async
+    func didReceiveVestingLocks(_ vestingLocks: Decimal?) async
     func didReceivePrice(_ price: PriceData?)
 
-    func didReceiveStakingLocksError(_ error: Error)
-    func didReceiveNominationPoolLocksError(_ error: Error)
-    func didReceiveGovernanceLocksError(_ error: Error)
-    func didReceiveCrowdloanLocksError(_ error: Error)
-    func didReceiveVestingLocksError(_ error: Error)
+    func didReceiveStakingLocksError(_ error: Error) async
+    func didReceiveNominationPoolLocksError(_ error: Error) async
+    func didReceiveGovernanceLocksError(_ error: Error) async
+    func didReceiveCrowdloanLocksError(_ error: Error) async
+    func didReceiveVestingLocksError(_ error: Error) async
     func didReceivePriceError(_ error: Error)
 }
 

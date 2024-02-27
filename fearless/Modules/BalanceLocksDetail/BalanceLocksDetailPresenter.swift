@@ -26,8 +26,8 @@ final class BalanceLocksDetailPresenter {
     private let viewModelFactory: BalanceLockDetailViewModelFactory
     private let chainAsset: ChainAsset
 
-    private var stakingLocks: NoneStateOptional<StakingLocks?> = .none
     private var nominationPoolLocks: NoneStateOptional<StakingLocks?> = .none
+    private var stakingLocks: NoneStateOptional<StakingLocks?> = .none
     private var governanceLocks: NoneStateOptional<Decimal?> = .none
     private var crowdloanLocks: NoneStateOptional<Decimal?> = .none
     private var vestingLocks: NoneStateOptional<Decimal?> = .none
@@ -54,7 +54,7 @@ final class BalanceLocksDetailPresenter {
 
     // MARK: - Private methods
 
-    private func provideStakingViewModel() {
+    private func provideStakingViewModel() async {
         guard
             let stakingLocks = stakingLocks.value
         else {
@@ -66,12 +66,10 @@ final class BalanceLocksDetailPresenter {
             priceData: priceData
         )
 
-        Task {
-            await view?.didReceiveStakingLocksViewModel(viewModel)
-        }
+        await view?.didReceiveStakingLocksViewModel(viewModel)
     }
 
-    private func providePoolsViewModel() {
+    private func providePoolsViewModel() async {
         guard
             let nominationPoolLocks = nominationPoolLocks.value
         else {
@@ -83,14 +81,12 @@ final class BalanceLocksDetailPresenter {
             priceData: priceData
         )
 
-        Task {
-            await view?.didReceivePoolLocksViewModel(viewModel)
-        }
+        await view?.didReceivePoolLocksViewModel(viewModel)
     }
 
     private func provideLiquidityPoolsViewModel() {}
 
-    private func provideCrowdloanViewModel() {
+    private func provideCrowdloanViewModel() async {
         guard
             chainAsset.chain.isRelaychain,
             let crowdloanLocks = crowdloanLocks.value
@@ -103,12 +99,10 @@ final class BalanceLocksDetailPresenter {
             priceData: priceData
         )
 
-        Task {
-            await view?.didReceiveCrowdloanLocksViewModel(viewModel)
-        }
+        await view?.didReceiveCrowdloanLocksViewModel(viewModel)
     }
 
-    private func provideVestingViewModel() {
+    private func provideVestingViewModel() async {
         guard
             !chainAsset.chain.isRelaychain,
             let vestingLocks = vestingLocks.value
@@ -121,12 +115,10 @@ final class BalanceLocksDetailPresenter {
             priceData: priceData
         )
 
-        Task {
-            await view?.didReceiveCrowdloanLocksViewModel(viewModel)
-        }
+        await view?.didReceiveCrowdloanLocksViewModel(viewModel)
     }
 
-    private func provideGovernanceViewModel() {
+    private func provideGovernanceViewModel() async {
         guard let governanceLocks = governanceLocks.value else {
             return
         }
@@ -135,12 +127,10 @@ final class BalanceLocksDetailPresenter {
             priceData: priceData
         )
 
-        Task {
-            await view?.didReceiveGovernanceLocksViewModel(viewModel)
-        }
+        await view?.didReceiveGovernanceLocksViewModel(viewModel)
     }
 
-    private func provideTotalViewModel() {
+    private func provideTotalViewModel() async {
         guard
             let stakingLocks = stakingLocks.value,
             let nominationPoolLocks = nominationPoolLocks.value,
@@ -160,9 +150,7 @@ final class BalanceLocksDetailPresenter {
             priceData: priceData
         )
 
-        Task {
-            await view?.didReceiveTotalLocksViewModel(viewModel)
-        }
+        await view?.didReceiveTotalLocksViewModel(viewModel)
     }
 
     private func provideLoadingViewState() {
@@ -197,84 +185,86 @@ extension BalanceLocksDetailPresenter: BalanceLocksDetailInteractorOutput {
     func didReceivePrice(_ price: PriceData?) {
         priceData = price
 
-        provideStakingViewModel()
-        providePoolsViewModel()
-        provideGovernanceViewModel()
-        provideCrowdloanViewModel()
-        provideVestingViewModel()
-        provideTotalViewModel()
+        Task {
+            await provideStakingViewModel()
+            await providePoolsViewModel()
+            await provideGovernanceViewModel()
+            await provideCrowdloanViewModel()
+            await provideVestingViewModel()
+            await provideTotalViewModel()
+        }
     }
 
     func didReceivePriceError(_ error: Error) {
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveStakingLocks(_ stakingLocks: StakingLocks?) {
+    func didReceiveStakingLocks(_ stakingLocks: StakingLocks?) async {
         self.stakingLocks = .value(stakingLocks)
-        provideStakingViewModel()
-        provideTotalViewModel()
+        await provideStakingViewModel()
+        await provideTotalViewModel()
     }
 
-    func didReceiveNominationPoolLocks(_ nominationPoolLocks: StakingLocks?) {
+    func didReceiveNominationPoolLocks(_ nominationPoolLocks: StakingLocks?) async {
         self.nominationPoolLocks = .value(nominationPoolLocks)
-        providePoolsViewModel()
-        provideTotalViewModel()
+        await providePoolsViewModel()
+        await provideTotalViewModel()
     }
 
-    func didReceiveGovernanceLocks(_ governanceLocks: Decimal?) {
+    func didReceiveGovernanceLocks(_ governanceLocks: Decimal?) async {
         self.governanceLocks = .value(governanceLocks)
-        provideGovernanceViewModel()
-        provideTotalViewModel()
+        await provideGovernanceViewModel()
+        await provideTotalViewModel()
     }
 
-    func didReceiveCrowdloanLocks(_ crowdloanLocks: Decimal?) {
+    func didReceiveCrowdloanLocks(_ crowdloanLocks: Decimal?) async {
         self.crowdloanLocks = .value(crowdloanLocks)
-        provideCrowdloanViewModel()
-        provideTotalViewModel()
+        await provideCrowdloanViewModel()
+        await provideTotalViewModel()
     }
 
-    func didReceiveVestingLocks(_ vestingLocks: Decimal?) {
+    func didReceiveVestingLocks(_ vestingLocks: Decimal?) async {
         self.vestingLocks = .value(vestingLocks)
-        provideVestingViewModel()
-        provideTotalViewModel()
+        await provideVestingViewModel()
+        await provideTotalViewModel()
     }
 
-    func didReceiveStakingLocksError(_ error: Error) {
+    func didReceiveStakingLocksError(_ error: Error) async {
         stakingLocks = .value(nil)
-        provideStakingViewModel()
-        provideTotalViewModel()
+        await provideStakingViewModel()
+        await provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveNominationPoolLocksError(_ error: Error) {
+    func didReceiveNominationPoolLocksError(_ error: Error) async {
         nominationPoolLocks = .value(nil)
-        providePoolsViewModel()
-        provideTotalViewModel()
+        await providePoolsViewModel()
+        await provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveGovernanceLocksError(_ error: Error) {
+    func didReceiveGovernanceLocksError(_ error: Error) async {
         governanceLocks = .value(nil)
-        provideGovernanceViewModel()
-        provideTotalViewModel()
+        await provideGovernanceViewModel()
+        await provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveCrowdloanLocksError(_ error: Error) {
+    func didReceiveCrowdloanLocksError(_ error: Error) async {
         crowdloanLocks = .value(nil)
-        provideCrowdloanViewModel()
-        provideTotalViewModel()
+        await provideCrowdloanViewModel()
+        await provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
 
-    func didReceiveVestingLocksError(_ error: Error) {
+    func didReceiveVestingLocksError(_ error: Error) async {
         vestingLocks = .value(nil)
-        provideVestingViewModel()
-        provideTotalViewModel()
+        await provideVestingViewModel()
+        await provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
     }
