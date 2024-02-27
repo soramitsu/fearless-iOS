@@ -44,7 +44,7 @@ class NftListCell: UITableViewCell {
 
     let nftCountLabel: UILabel = {
         let label = UILabel()
-        label.font = .h5Title
+        label.font = .p2Paragraph
         label.textColor = R.color.colorWhite50()
         return label
     }()
