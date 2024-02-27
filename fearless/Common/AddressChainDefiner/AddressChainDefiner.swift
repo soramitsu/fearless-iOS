@@ -64,7 +64,7 @@ final class AddressChainDefiner {
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
-        guard let address = address, !address.isEmpty, let accoundId = (try? AddressFactory.accountId(from: address, chain: chain)) else {
+        guard let address = address, address.isNotEmpty, let accoundId = (try? AddressFactory.accountId(from: address, chain: chain)) else {
             return .invalid(address)
         }
         if accoundId == wallet.substrateAccountId || accoundId == wallet.ethereumAddress {
