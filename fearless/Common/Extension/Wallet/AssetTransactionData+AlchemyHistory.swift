@@ -6,9 +6,7 @@ import SSFModels
 extension AssetTransactionData {
     static func createTransaction(
         from item: AlchemyHistoryElement,
-        address: String,
-        chain _: ChainModel,
-        asset _: AssetModel
+        address: String
     ) -> AssetTransactionData {
         let peerAddress = item.from == address ? item.to : item.from
         let type = item.from == address ? TransactionType.outgoing :
