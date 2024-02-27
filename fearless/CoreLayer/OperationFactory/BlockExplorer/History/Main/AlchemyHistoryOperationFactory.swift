@@ -39,8 +39,7 @@ final class AlchemyHistoryOperationFactory {
         dependingOn receivedOperation: BaseOperation<AlchemyHistory>,
         sentOperation: BaseOperation<AlchemyHistory>,
         address: String,
-        asset: AssetModel,
-        chain: ChainModel
+        asset: AssetModel
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let received = try receivedOperation.extractNoCancellableResultData()
@@ -52,7 +51,7 @@ final class AlchemyHistoryOperationFactory {
                 .filter { $0.asset.lowercased() == asset.symbol.lowercased() }
                 .sorted(by: { $0.timestampInSeconds > $1.timestampInSeconds })
                 .compactMap {
-                    AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)
+                    AssetTransactionData.createTransaction(from: $0, address: address)
                 }
 
             return AssetTransactionPageData(transactions: transactions)
@@ -63,7 +62,7 @@ final class AlchemyHistoryOperationFactory {
 extension AlchemyHistoryOperationFactory: HistoryOperationFactoryProtocol {
     func fetchTransactionHistoryOperation(
         asset: AssetModel,
-        chain: ChainModel,
+        chain _: ChainModel,
         address: String,
         filters _: [WalletTransactionHistoryFilter],
         pagination _: Pagination
@@ -75,8 +74,7 @@ extension AlchemyHistoryOperationFactory: HistoryOperationFactoryProtocol {
             dependingOn: receivedOperation,
             sentOperation: sentOperation,
             address: address,
-            asset: asset,
-            chain: chain
+            asset: asset
         )
 
         mapOperation.addDependency(receivedOperation)
