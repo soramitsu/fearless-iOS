@@ -90,7 +90,7 @@ extension NftCollectionViewController: UICollectionViewDataSource, UICollectionV
         case 0:
             let space: CGFloat = (flowlayout?.sectionInset.left ?? 0.0) + (flowlayout?.sectionInset.right ?? 0.0)
             let width = rootView.collectionView.frame.size.width - space
-            let expectedLabelHeight = viewModel?.collectionDescription?.height(withConstrainedWidth: width, font: .p1Paragraph) ?? 0
+            let expectedLabelHeight = viewModel?.collectionDescription?.height(withConstrainedWidth: width, font: NftHeaderCell.LayoutConstants.labelFont) ?? 0
             return CGSize(width: width, height: width + expectedLabelHeight + UIConstants.minimalOffset)
         default:
             let space: CGFloat = (flowlayout?.minimumInteritemSpacing ?? 0.0) + (flowlayout?.sectionInset.left ?? 0.0) + (flowlayout?.sectionInset.right ?? 0.0)

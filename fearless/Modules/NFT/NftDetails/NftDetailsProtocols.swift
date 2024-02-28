@@ -5,7 +5,6 @@ protocol NftDetailsViewInput: ControllerBackedProtocol {
 }
 
 protocol NftDetailsViewOutput: AnyObject {
-    func viewAppeared()
     func didLoad(view: NftDetailsViewInput)
     func didBackButtonTapped()
     func didTapSendButton()
@@ -14,7 +13,6 @@ protocol NftDetailsViewOutput: AnyObject {
 }
 
 protocol NftDetailsInteractorInput: AnyObject {
-    func initialSetup()
     func setup(with output: NftDetailsInteractorOutput)
 }
 

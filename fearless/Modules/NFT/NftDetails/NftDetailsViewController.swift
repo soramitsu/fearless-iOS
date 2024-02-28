@@ -59,11 +59,6 @@ final class NftDetailsViewController: UIViewController, ViewHolder, HiddableBarW
         }
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        output.viewAppeared()
-    }
-
     // MARK: - Private methods
 }
 

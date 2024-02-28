@@ -117,10 +117,6 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
         interactor.setup(with: self)
     }
 
-    func viewAppeared() {
-        interactor.initialSetup()
-    }
-
     func didBackButtonTapped() {
         router.dismiss(view: view)
     }

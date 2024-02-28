@@ -4,7 +4,7 @@ import BigInt
 
 protocol NftDetailViewModelFactoryProtocol {
     func buildViewModel(with nft: NFT, nftType: NftType, ownerString: String?) -> NftDetailViewModel
-    func buildOwnerString(owners: [String], address: String, locale: Locale) -> String
+    func buildOwnerString(owners: [String], address: String, locale: Locale) -> String?
 }
 
 final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
@@ -33,11 +33,16 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
         )
     }
 
-    func buildOwnerString(owners: [String], address: String, locale _: Locale) -> String {
+    func buildOwnerString(owners: [String], address: String, locale: Locale) -> String? {
         var ownerString = owners.first { ownerAddress in
             ownerAddress == address
         } ?? owners.first
-        if owners.count > 1 {}
+        if let owner = ownerString, owners.count > 1 {
+            ownerString = R.string.localizable.commonAndOthersPlaceholder(
+                owner,
+                preferredLanguages: locale.rLanguages
+            )
+        }
         return ownerString ?? ""
     }
 }

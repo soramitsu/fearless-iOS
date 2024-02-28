@@ -22,7 +22,11 @@ final class NftDetailsAssembly {
             logger: Logger.shared
         )
 
-        let interactor = NftDetailsInteractor(nft: nft, nftFetchingService: nftFetchingService)
+        let interactor = NftDetailsInteractor(
+            nft: nft,
+            nftFetchingService: nftFetchingService,
+            logger: Logger.shared
+        )
         let router = NftDetailsRouter()
 
         let presenter = NftDetailsPresenter(

@@ -400,7 +400,7 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         chain: SSFModels.ChainModel,
         address: String,
         excludeFilters: [NftCollectionFilter]
-    ) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
+    ) -> CompoundOperationWrapper<[NFT]?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
@@ -446,7 +446,7 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [fetchOperation])
     }
 
-    func fetchCollectionNfts(chain: ChainModel, address: String, nextId: String?) -> RobinHood.CompoundOperationWrapper<NFTBatch?> {
+    func fetchCollectionNfts(chain: ChainModel, address: String, nextId: String?) -> CompoundOperationWrapper<NFTBatch?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
@@ -467,7 +467,7 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [fetchOperation])
     }
 
-    func fetchOwners(for chain: ChainModel, address: String, tokenId: String) -> RobinHood.CompoundOperationWrapper<[String]?> {
+    func fetchOwners(for chain: ChainModel, address: String, tokenId: String) -> CompoundOperationWrapper<[String]?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
