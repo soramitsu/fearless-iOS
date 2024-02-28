@@ -3,11 +3,12 @@ import SSFModels
 import BigInt
 
 protocol NftDetailViewModelFactoryProtocol {
-    func buildViewModel(with nft: NFT, address: String, nftType: NftType) -> NftDetailViewModel
+    func buildViewModel(with nft: NFT, nftType: NftType, ownerString: String?) -> NftDetailViewModel
+    func buildOwnerString(owners: [String], address: String, locale: Locale) -> String
 }
 
 final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
-    func buildViewModel(with nft: NFT, address: String, nftType: NftType) -> NftDetailViewModel {
+    func buildViewModel(with nft: NFT, nftType: NftType, ownerString: String?) -> NftDetailViewModel {
         var imageViewModel: ImageViewModelProtocol?
         if let url = nft.thumbnailURL {
             imageViewModel = RemoteImageViewModel(url: url)
@@ -20,7 +21,7 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
             nftName: nft.displayName,
             nftDescription: nft.displayDescription,
             collectionName: nft.collection?.displayName,
-            owner: address,
+            owner: ownerString,
             tokenId: tokenId ?? "",
             chain: nft.chain.name,
             imageViewModel: imageViewModel,
@@ -30,5 +31,13 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
             creator: nft.collection?.creator,
             priceString: nil
         )
+    }
+
+    func buildOwnerString(owners: [String], address: String, locale _: Locale) -> String {
+        var ownerString = owners.first { ownerAddress in
+            ownerAddress == address
+        } ?? owners.first
+        if owners.count > 1 {}
+        return ownerString ?? ""
     }
 }

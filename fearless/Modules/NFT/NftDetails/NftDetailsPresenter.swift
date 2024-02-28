@@ -97,6 +97,16 @@ final class NftDetailsPresenter {
             completion(nil)
         }
     }
+
+    private func provideViewModel(for nft: NFT, owner: String?) {
+        let viewModel = viewModelFactory.buildViewModel(
+            with: nft,
+            nftType: type,
+            ownerString: owner
+        )
+        self.viewModel = viewModel
+        view?.didReceive(viewModel: viewModel)
+    }
 }
 
 // MARK: - NftDetailsViewOutput
@@ -105,6 +115,10 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
     func didLoad(view: NftDetailsViewInput) {
         self.view = view
         interactor.setup(with: self)
+    }
+
+    func viewAppeared() {
+        interactor.initialSetup()
     }
 
     func didBackButtonTapped() {
@@ -137,13 +151,16 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
 
 extension NftDetailsPresenter: NftDetailsInteractorOutput {
     func didReceive(nft: NFT) {
-        let viewModel = viewModelFactory.buildViewModel(
-            with: nft,
+        provideViewModel(for: nft, owner: nil)
+    }
+
+    func didReceive(owners: [String]) {
+        let ownerString = viewModelFactory.buildOwnerString(
+            owners: owners,
             address: address,
-            nftType: type
+            locale: selectedLocale
         )
-        self.viewModel = viewModel
-        view?.didReceive(viewModel: viewModel)
+        provideViewModel(for: nft, owner: ownerString)
     }
 }
 

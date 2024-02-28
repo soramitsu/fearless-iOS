@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import RobinHood
 
 final class NftDetailsAssembly {
     static func configureModule(
@@ -10,7 +11,18 @@ final class NftDetailsAssembly {
     ) -> NftDetailsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = NftDetailsInteractor(nft: nft)
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let nftFetchingService = AlchemyNftFetchingService(
+            operationFactory: AlchemyNFTOperationFactory(),
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationQueue(),
+            logger: Logger.shared
+        )
+
+        let interactor = NftDetailsInteractor(nft: nft, nftFetchingService: nftFetchingService)
         let router = NftDetailsRouter()
 
         let presenter = NftDetailsPresenter(

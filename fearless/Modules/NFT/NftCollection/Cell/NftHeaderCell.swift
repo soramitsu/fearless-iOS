@@ -40,12 +40,12 @@ class NftHeaderCell: UICollectionViewCell {
     private func setupConstraints() {
         imageView.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
-            make.width.equalTo(imageView.snp.height)
+            make.width.height.equalTo(imageView.snp.height)
         }
 
         titleLabel.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(imageView.snp.bottom)
+            make.top.equalTo(imageView.snp.bottom).offset(UIConstants.minimalOffset)
         }
     }
 
@@ -55,5 +55,6 @@ class NftHeaderCell: UICollectionViewCell {
         } else {
             imageView.image = R.image.nftStub()
         }
+        titleLabel.text = cellModel.title
     }
 }

@@ -48,7 +48,7 @@ final class NftCollectionViewModelFactory: NftCollectionViewModelFactoryProtocol
         return NftCollectionViewModel(
             collectionName: collection.displayName,
             collectionImage: imageViewModel,
-            collectionDescription: collection.desc,
+            collectionDescription: collection.nfts?.first?.collection?.desc,
             ownedCellModels: ownedCellModels,
             availableCellModels: availableCellModels
         )
