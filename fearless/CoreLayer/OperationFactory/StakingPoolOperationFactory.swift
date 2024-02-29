@@ -309,14 +309,15 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let bondedPoolsOperation = createBondedPoolsOperation(dependingOn: runtimeOperation)
 
-        let mapBondedPoolsOperation = ClosureOperation<[StakingPool]> {
-            try bondedPoolsOperation.targetOperation.extractNoCancellableResultData().compactMap { storageResponse in
+        let mapBondedPoolsOperation = AwaitOperation<[StakingPool]> {
+            try await bondedPoolsOperation.targetOperation.extractNoCancellableResultData().asyncMap { storageResponse in
                 guard let stakingPoolInfo = storageResponse.value else {
                     return nil
                 }
-                let extractor = StorageKeyDataExtractor(storageKey: storageResponse.key)
-                let id = try extractor.extractU32Parameter()
-                return StakingPool(id: "\(id)", info: stakingPoolInfo, name: "")
+
+                let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
+                let id = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .bondedPools, type: .u32)
+                return StakingPool(id: id, info: stakingPoolInfo, name: "")
             }
         }
 
@@ -324,16 +325,15 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
             try mapBondedPoolsOperation.extractNoCancellableResultData().compactMap { $0.id }
         }
 
-        let mapOperation = ClosureOperation<[StakingPool]> {
+        let mapOperation = AwaitOperation<[StakingPool]> {
             let pools = try mapBondedPoolsOperation.extractNoCancellableResultData()
-            let result = try metadataOperation.targetOperation.extractNoCancellableResultData()
-                .compactMap { storageResponse -> StakingPool? in
+            let result = try await metadataOperation.targetOperation.extractNoCancellableResultData()
+                .asyncMap { storageResponse -> StakingPool? in
                     let name = storageResponse.value?.toUTF8String() ?? ""
-                    let extractor = StorageKeyDataExtractor(storageKey: storageResponse.key)
-                    let id = try extractor.extractU32Parameter()
-                    let idString = "\(id)"
+                    let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
+                    let id = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .stakingPoolMetadata, type: .u32)
 
-                    guard let pool = pools.first(where: { $0.id.lowercased() == idString.lowercased() }) else {
+                    guard let pool = pools.first(where: { $0.id.lowercased() == id.lowercased() }) else {
                         return nil
                     }
 
@@ -364,15 +364,15 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
             [poolId]
         }
 
-        let mapBondedPoolOperation = ClosureOperation<StakingPool?> {
+        let mapBondedPoolOperation = AwaitOperation<StakingPool?> {
             guard let storageResponse = try bondedPoolsOperation.targetOperation.extractNoCancellableResultData().first,
                   let stakingPoolInfo = storageResponse.value else {
                 return nil
             }
 
-            let extractor = StorageKeyDataExtractor(storageKey: storageResponse.key)
-            let id = try extractor.extractU32Parameter()
-            return StakingPool(id: "\(id)", info: stakingPoolInfo, name: "")
+            let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
+            let id = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .bondedPools, type: .u32)
+            return StakingPool(id: id, info: stakingPoolInfo, name: "")
         }
 
         let metadataOperation = createMetadataOperation(dependingOn: runtimeOperation) {

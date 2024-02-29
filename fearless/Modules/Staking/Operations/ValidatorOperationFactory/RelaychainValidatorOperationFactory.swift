@@ -672,14 +672,28 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         let allValidatorPrefsOperation = createAllValidatorsOperation(dependingOn: runtimeOperation)
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
-        let allValidatorsOperation: BaseOperation<[EraValidatorInfo]> = ClosureOperation {
-            let allValidators: [EraValidatorInfo] = try allValidatorPrefsOperation.targetOperation.extractNoCancellableResultData().compactMap {
+        let allValidatorsOperation: AwaitOperation<[EraValidatorInfo]> = AwaitOperation { [weak self] in
+            guard let self else {
+                return []
+            }
+
+            let allValidators: [EraValidatorInfo] = try await allValidatorPrefsOperation.targetOperation.extractNoCancellableResultData().asyncMap {
                 guard let prefs = $0.value else {
                     return nil
                 }
 
-                let extractor = StorageKeyDataExtractor(storageKey: $0.key)
-                let accountId = try extractor.extractAccountIdParameter()
+                var accountId: Data
+
+                if self.chain.isReef {
+                    let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
+                    let key = try await extractor.extractKey(storageKey: $0.key, storagePath: .validatorPrefs, type: .accountId)
+                    accountId = try key.toAccountId()
+                } else {
+                    let extractor = StorageKeyDataExtractor<AccountId>(runtimeService: runtimeService)
+                    let key = try await extractor.extractKey(storageKey: $0.key, storagePath: .validatorPrefs, type: .accountId)
+                    accountId = key
+                }
+
                 let exposure = ValidatorExposure(total: .zero, own: .zero, others: [])
 
                 return EraValidatorInfo(

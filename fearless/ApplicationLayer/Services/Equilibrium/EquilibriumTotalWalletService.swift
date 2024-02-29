@@ -166,22 +166,26 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
 
     private func createMapOraclePriceOperation(
         dependingOn operation: CompoundOperationWrapper<[StorageResponse<EqOraclePricePoint>]>
-    ) -> ClosureOperation<[UInt64: BigUInt]> {
-        let mapOraclePriceOperation = ClosureOperation<[UInt64: BigUInt]> { [weak self] in
+    ) -> AwaitOperation<[UInt64: BigUInt]> {
+        let mapOraclePriceOperation = AwaitOperation<[UInt64: BigUInt]> { [weak self] in
             guard let strongSelf = self else {
                 return [:]
             }
             let oraclePrice = try operation.targetOperation.extractNoCancellableResultData()
 
-            let map = oraclePrice.reduce([UInt64: BigUInt]()) { partialResult, storageResponse -> [UInt64: BigUInt] in
+            let map = await oraclePrice.asyncReduce([UInt64: BigUInt]()) { partialResult, storageResponse -> [UInt64: BigUInt] in
                 var map = partialResult
-                guard let value = storageResponse.value else {
+                guard let self, let value = storageResponse.value, let runtimeService = self.runtimeService else {
                     return map
                 }
 
                 do {
-                    let extractor = StorageKeyDataExtractor(storageKey: storageResponse.key)
-                    let currencyId = try extractor.extractU64Parameter()
+                    let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
+                    let currencyIdString = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .eqOraclePricePoint, type: .u64)
+                    guard let currencyId = UInt64(currencyIdString) else {
+                        return map
+                    }
+
                     map[currencyId] = value.price
                 } catch {
                     strongSelf.logger.error("\(error)")

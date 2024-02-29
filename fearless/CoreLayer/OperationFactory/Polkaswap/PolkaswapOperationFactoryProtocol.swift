@@ -156,13 +156,13 @@ final class PolkaswapOperationFactory: PolkaswapOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let dexInfosOperation = createDexInfosOperation(dependingOn: runtimeOperation)
 
-        let mapDexInfosOperation = ClosureOperation<[UInt32]> {
-            try dexInfosOperation.targetOperation.extractNoCancellableResultData().compactMap { storageResponse in
-                let extractor = StorageKeyDataExtractor(storageKey: storageResponse.key)
-                let id = try extractor.extractU32Parameter()
-                return id
+        let mapDexInfosOperation = AwaitOperation<[UInt32]>(closure: {
+            try await dexInfosOperation.targetOperation.extractNoCancellableResultData().asyncMap { storageResponse in
+                let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
+                let id = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .polkaswapDexManagerDesInfos, type: .u32)
+                return UInt32(id)
             }
-        }
+        })
 
         mapDexInfosOperation.addDependency(dexInfosOperation.targetOperation)
 

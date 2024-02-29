@@ -68,7 +68,7 @@ final class ClaimCrowdloanRewardsInteractor {
         Task {
             do {
                 let tokensLocksRequest = TokensLocksRequest(accountId: accountId, currencyId: currencyId)
-                let locks: TokenLocks? = try await storageRequestPerformer.performRequest(tokensLocksRequest)
+                let locks: TokenLocks? = try await storageRequestPerformer.performSingle(tokensLocksRequest)
 
                 await MainActor.run {
                     output?.didReceiveTokenLocks(locks)
@@ -90,7 +90,7 @@ final class ClaimCrowdloanRewardsInteractor {
         Task {
             do {
                 let balancesLocksRequest = BalancesLocksRequest(accountId: accountId)
-                let locks: BalanceLocks? = try await storageRequestPerformer.performRequest(balancesLocksRequest)
+                let locks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest)
 
                 await MainActor.run {
                     output?.didReceiveBalanceLocks(locks)

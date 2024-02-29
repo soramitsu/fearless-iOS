@@ -63,6 +63,14 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     ) throws -> RewardCalculatorServiceProtocol {
         switch chainAsset.stakingType {
         case .relaychain:
+            if chainAsset.chain.isReef {
+                return try createReefRewardCalculator(
+                    chainAsset: chainAsset,
+                    assetPrecision: assetPrecision,
+                    validatorService: validatorService
+                )
+            }
+
             return InflationRewardCalculatorService(
                 chainAsset: chainAsset,
                 assetPrecision: assetPrecision,
@@ -117,6 +125,38 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     }
 
     // MARK: - Private methods
+
+    private func createReefRewardCalculator(
+        chainAsset: ChainAsset,
+        assetPrecision: Int16,
+        validatorService: EraValidatorServiceProtocol
+    ) throws -> RewardCalculatorServiceProtocol {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+
+        let operationManager = OperationManagerFacade.sharedManager
+        let storageRequestPerformer = StorageRequestPerformerDefault(runtimeService: runtimeService, connection: connection)
+
+        return ReefRewardCalculatorService(
+            chainAsset: chainAsset,
+            assetPrecision: assetPrecision,
+            eraValidatorsService: validatorService,
+            operationManager: operationManager,
+            providerFactory: substrateDataProviderFactory,
+            chainRegistry: chainRegistry,
+            stakingDurationFactory: StakingDurationOperationFactory(),
+            storageFacade: storageFacade,
+            logger: logger,
+            storageRequestPerformer: storageRequestPerformer
+        )
+    }
 
     private func createSoraRewardCalculator(
         for chainAsset: ChainAsset,

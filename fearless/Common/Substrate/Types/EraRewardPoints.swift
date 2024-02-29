@@ -17,7 +17,12 @@ struct IndividualReward: Decodable {
 
     init(from decoder: Decoder) throws {
         var container = try decoder.unkeyedContainer()
-        accountId = try container.decode(Data.self)
+        do {
+            accountId = try container.decode(Data.self)
+        } catch {
+            let address = try container.decode(String.self)
+            accountId = try address.toAccountId()
+        }
 
         let rewardScaled = try container.decode(StringScaleMapper<RewardPoint>.self)
         rewardPoint = rewardScaled.value
