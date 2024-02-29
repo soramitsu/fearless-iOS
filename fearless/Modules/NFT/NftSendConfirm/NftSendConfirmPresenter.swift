@@ -76,11 +76,8 @@ final class NftSendConfirmPresenter {
             return
         }
 
-        let title = R.string.localizable
-            .transactionDetailsFrom(preferredLanguages: selectedLocale.rLanguages)
-
         let viewModel = accountViewModelFactory.buildViewModel(
-            title: title,
+            title: wallet.name,
             address: senderAddress,
             locale: selectedLocale
         )
