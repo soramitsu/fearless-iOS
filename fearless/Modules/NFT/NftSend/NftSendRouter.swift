@@ -35,4 +35,20 @@ final class NftSendRouter: NftSendRouterInput {
 
         view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
+
+    func showWalletManagment(
+        selectedWalletId: MetaAccountId?,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput?
+    ) {
+        guard let module = WalletsManagmentAssembly.configureModule(
+            viewType: .selectYourWallet(selectedWalletId: selectedWalletId),
+            shouldSaveSelected: false,
+            moduleOutput: moduleOutput
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
 }
