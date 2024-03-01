@@ -160,6 +160,15 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
@@ -197,6 +206,11 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             operationManager: operationManager
         )
 
+        let storageRequestPerformer = StorageRequestPerformerDefault(
+            runtimeService: runtimeService,
+            connection: connection
+        )
+
         return SoraRewardCalculatorService(
             chainAsset: chainAsset,
             assetPrecision: assetPrecision,
@@ -210,7 +224,8 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             chainAssetFetching: chainAssetFetching,
             settingsRepository: AnyDataProviderRepository(settingsRepository),
             logger: Logger.shared,
-            storageRequestFactory: requestFactory
+            storageRequestFactory: requestFactory,
+            storageRequestPerformer: storageRequestPerformer
         )
     }
 }

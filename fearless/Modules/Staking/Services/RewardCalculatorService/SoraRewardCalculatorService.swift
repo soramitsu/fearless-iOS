@@ -28,6 +28,9 @@ final class SoraRewardCalculatorService {
     private var polkaswapRemoteSettings: PolkaswapRemoteSettings?
     private var dexIds: [UInt32] = []
     private var marketSource: SwapMarketSourceProtocol?
+    private var totalStakeByEra: [EraIndex: BigUInt]?
+    private var rewardPointsByEra: [EraIndex: EraRewardPoints]?
+    private var validatorRewardsByEra: [EraIndex: BigUInt]?
 
     private var swapValues: [SwapValues] = []
     private var swapValueErrors: [Error] = []
@@ -49,6 +52,7 @@ final class SoraRewardCalculatorService {
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>
     private let storageRequestFactory: StorageRequestFactoryProtocol
+    private let storageRequestPerformer: StorageRequestPerformer
 
     init(
         chainAsset: ChainAsset,
@@ -63,7 +67,8 @@ final class SoraRewardCalculatorService {
         chainAssetFetching: ChainAssetFetchingProtocol,
         settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
         logger: LoggerProtocol? = nil,
-        storageRequestFactory: StorageRequestFactoryProtocol
+        storageRequestFactory: StorageRequestFactoryProtocol,
+        storageRequestPerformer: StorageRequestPerformer
     ) {
         self.chainAsset = chainAsset
         self.assetPrecision = assetPrecision
@@ -78,6 +83,7 @@ final class SoraRewardCalculatorService {
         self.settingsRepository = settingsRepository
         self.logger = logger
         self.storageRequestFactory = storageRequestFactory
+        self.storageRequestPerformer = storageRequestPerformer
     }
 
     // MARK: - Polkaswap quoutes
@@ -212,18 +218,18 @@ final class SoraRewardCalculatorService {
     ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
-        if let snapshot = snapshot {
-            deliver(snapshot: snapshot, to: request, chainId: chainAsset.chain.chainId, assetPrecision: assetPrecision)
+        if let totalStake = totalStakeByEra, let rewardPoints = rewardPointsByEra, let validatorRewards = validatorRewardsByEra {
+            deliver(totalStake: totalStake, rewardPoints: rewardPoints, validatorRewards: validatorRewards, to: request)
         } else {
             pendingRequests.append(request)
         }
     }
 
     private func deliver(
-        snapshot: BigUInt,
-        to request: PendingRequest,
-        chainId: ChainModel.Id,
-        assetPrecision: Int16
+        totalStake: [EraIndex: BigUInt],
+        rewardPoints: [EraIndex: EraRewardPoints],
+        validatorRewards: [EraIndex: BigUInt],
+        to request: PendingRequest
     ) {
         guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
@@ -237,16 +243,21 @@ final class SoraRewardCalculatorService {
         let eraOperation = eraValidatorsService.fetchInfoOperation()
 
         let mapOperation = ClosureOperation<RewardCalculatorEngineProtocol> { [weak self] in
+            guard let self else {
+                throw ConvenienceError(error: "Service corrupted")
+            }
+
             let eraStakersInfo = try eraOperation.extractNoCancellableResultData()
             let stakingDuration = try durationWrapper.targetOperation.extractNoCancellableResultData()
 
             return SoraRewardCalculatorEngine(
-                chainId: chainId,
-                assetPrecision: assetPrecision,
-                averageTotalRewardsPerEra: snapshot,
+                totalStakeByEra: totalStake,
+                rewardPointsByEra: rewardPoints,
+                validatorRewardsByEra: validatorRewards,
                 validators: eraStakersInfo.validators,
+                chainAsset: self.chainAsset,
                 eraDurationInSeconds: stakingDuration.era,
-                rewardAssetRate: self?.rewardAssetRate ?? 1.0
+                rewardAssetRate: rewardAssetRate.or(1.0)
             )
         }
 
@@ -272,10 +283,12 @@ final class SoraRewardCalculatorService {
         )
     }
 
-    private func notifyPendingClosures(with eraValBurned: BigUInt) {
-        logger?.debug("Attempt fulfill pendings \(pendingRequests.count)")
-
-        guard !pendingRequests.isEmpty else {
+    private func notifyPendingClosures(
+        with totalStake: [EraIndex: BigUInt],
+        rewardPoints: [EraIndex: EraRewardPoints],
+        validatorRewards: [EraIndex: BigUInt]
+    ) {
+        guard pendingRequests.isNotEmpty else {
             return
         }
 
@@ -284,59 +297,73 @@ final class SoraRewardCalculatorService {
 
         requests.forEach {
             deliver(
-                snapshot: eraValBurned,
-                to: $0,
-                chainId: chainAsset.chain.chainId,
-                assetPrecision: assetPrecision
+                totalStake: totalStake,
+                rewardPoints: rewardPoints,
+                validatorRewards: validatorRewards,
+                to: $0
             )
         }
-
-        logger?.debug("Fulfilled pendings")
-    }
-
-    private func createTotalValidatorRewardsOperation(
-        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-        let totalValidatorRewardsWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
-            storageRequestFactory.queryItemsByPrefix(
-                engine: connection,
-                keys: { [try StorageKeyFactory().key(from: .totalValidatorReward)] },
-                factory: { try runtimeOperation.extractNoCancellableResultData() },
-                storagePath: .totalValidatorReward
-            )
-
-        totalValidatorRewardsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
-
-        return CompoundOperationWrapper(targetOperation: totalValidatorRewardsWrapper.targetOperation, dependencies: [runtimeOperation] + totalValidatorRewardsWrapper.dependencies)
     }
 
     private func fetchTotalValidatorRewards() {
-        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
-            return
-        }
+        let totalStakeRequest = StakingErasTotalStakeRequest()
+        let rewardPointsRequest = StakingErasRewardPointsRequest()
+        let validatorRewardRequest = StakingErasValidatorRewardRequest()
 
-        let runtimeOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let totalValidatorRewardsOperation = createTotalValidatorRewardsOperation(dependingOn: runtimeOperation)
-
-        totalValidatorRewardsOperation.targetOperation.completionBlock = { [weak self] in
+        Task {
             do {
-                let result = try totalValidatorRewardsOperation.targetOperation.extractNoCancellableResultData()
+                async let totalStake: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(totalStakeRequest)
+                async let rewardPoints: [String: EraRewardPoints]? = try await storageRequestPerformer.performPrefix(rewardPointsRequest)
+                async let validatorRewards: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(validatorRewardRequest)
 
-                let values = result.compactMap { $0.value?.value }
-                let averageTotalValidatorReward = values.reduce(BigUInt.zero, +) / BigUInt(result.count)
+                let totalStakeValue = try await totalStake
+                let totalStakeByEra = totalStakeValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
+                    var map = partialResult
 
-                self?.snapshot = averageTotalValidatorReward
-                self?.notifyPendingClosures(with: averageTotalValidatorReward)
+                    guard let era = EraIndex(key), let value = totalStakeValue?[key]?.value else {
+                        return partialResult
+                    }
+
+                    map[era] = value
+
+                    return map
+                }
+
+                let rewardPointsValue = try await rewardPoints
+                let rewardPointsByEra = rewardPointsValue?.keys.reduce([EraIndex: EraRewardPoints]()) { partialResult, key in
+                    var map = partialResult
+
+                    guard let era = EraIndex(key), let points = rewardPointsValue?[key] else {
+                        return partialResult
+                    }
+
+                    map[era] = points
+
+                    return map
+                }
+
+                let validatorRewardsValue = try await validatorRewards
+                let validatorRewardsByEra = validatorRewardsValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
+                    var map = partialResult
+
+                    guard let era = EraIndex(key), let value = validatorRewardsValue?[key]?.value else {
+                        return partialResult
+                    }
+
+                    map[era] = value
+
+                    return map
+                }
+
+                notifyPendingClosures(
+                    with: totalStakeByEra.or([:]),
+                    rewardPoints: rewardPointsByEra.or([:]),
+                    validatorRewards: validatorRewardsByEra.or([:])
+                )
             } catch {
-                self?.logger?.error("Error on fetching total validator rewards: \(error)")
+                logger?.error(error.localizedDescription)
             }
         }
-
-        operationManager.enqueue(operations: totalValidatorRewardsOperation.allOperations, in: .transient)
     }
 }
 
