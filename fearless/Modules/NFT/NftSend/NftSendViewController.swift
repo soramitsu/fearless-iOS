@@ -44,11 +44,14 @@ final class NftSendViewController: UIViewController, ViewHolder, HiddableBarWhen
         rootView.historyButton.addAction { [weak self] in
             self?.output.didTapHistoryButton()
         }
-        rootView.pasteButton.addAction { [weak self] in
-            self?.output.didTapPasteButton()
-        }
         rootView.actionButton.addAction { [weak self] in
             self?.output.didTapContinueButton()
+        }
+        rootView.myWalletsButton.addAction { [weak self] in
+            self?.output.didTapMyWalletsButton()
+        }
+        rootView.searchView.onPasteTapped = { [weak self] in
+            self?.output.didTapPasteButton()
         }
 
         rootView.searchView.textField.delegate = self

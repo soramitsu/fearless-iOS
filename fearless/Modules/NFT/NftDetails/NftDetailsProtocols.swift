@@ -18,6 +18,7 @@ protocol NftDetailsInteractorInput: AnyObject {
 
 protocol NftDetailsInteractorOutput: AnyObject {
     func didReceive(nft: NFT)
+    func didReceive(owners: [String])
 }
 
 protocol NftDetailsRouterInput: AnyObject, PushDismissable, ApplicationStatusPresentable, SharingPresentable {
