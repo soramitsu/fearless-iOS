@@ -16,6 +16,7 @@ protocol NftSendViewOutput: AnyObject {
     func didTapPasteButton()
     func didTapContinueButton()
     func searchTextDidChanged(_ text: String)
+    func didTapMyWalletsButton()
 }
 
 protocol NftSendInteractorInput: AnyObject {
@@ -50,6 +51,12 @@ protocol NftSendRouterInput: AnyObject, PushDismissable, BaseErrorPresentable, S
         scamInfo: ScamInfo?,
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
+    )
+
+    func showWalletManagment(
+        selectedWalletId: MetaAccountId?,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput?
     )
 }
 

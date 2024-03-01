@@ -23,4 +23,10 @@ protocol NFTFetchingServiceProtocol {
         chain: ChainModel,
         nextId: String?
     ) async throws -> NFTBatch
+
+    func fetchOwners(
+        for address: String,
+        tokenId: String,
+        chain: ChainModel
+    ) async throws -> [String]
 }
