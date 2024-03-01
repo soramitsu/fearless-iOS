@@ -438,7 +438,6 @@ final class RelaychainValidatorOperationFactory {
         identitiesOperation: BaseOperation<[String: AccountIdentity]>
     ) -> BaseOperation<[ElectedValidatorInfo]> {
         let chainFormat = chain.chainFormat
-        let addressPrefix = chain.addressPrefix
 
         return ClosureOperation<[ElectedValidatorInfo]> {
             let eraStakersInfo = try electedValidatorOperation.extractNoCancellableResultData()
@@ -513,7 +512,9 @@ final class RelaychainValidatorOperationFactory {
                     )
                 }
 
-            return electedValidators + notElectedValidators
+            let mappedValidators = [electedValidators, notElectedValidators].reduce([], +)
+
+            return mappedValidators
         }
     }
 
@@ -525,7 +526,6 @@ final class RelaychainValidatorOperationFactory {
         identitiesOperation: BaseOperation<[String: AccountIdentity]>
     ) -> BaseOperation<[ElectedValidatorInfo]> {
         let chainFormat = chain.chainFormat
-        let addressPrefix = chain.addressPrefix
 
         return ClosureOperation<[ElectedValidatorInfo]> {
             let electedInfo = try eraValidatorsOperation.extractNoCancellableResultData()
@@ -685,12 +685,20 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 var accountId: Data
 
                 if self.chain.isReef {
-                    let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
-                    let key = try await extractor.extractKey(storageKey: $0.key, storagePath: .validatorPrefs, type: .accountId)
+                    let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
+                    let key: String = try await extractor.extractKey(
+                        storageKey: $0.key,
+                        storagePath: .validatorPrefs,
+                        type: .accountId
+                    )
                     accountId = try key.toAccountId()
                 } else {
-                    let extractor = StorageKeyDataExtractor<AccountId>(runtimeService: runtimeService)
-                    let key = try await extractor.extractKey(storageKey: $0.key, storagePath: .validatorPrefs, type: .accountId)
+                    let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
+                    let key: AccountId = try await extractor.extractKey(
+                        storageKey: $0.key,
+                        storagePath: .validatorPrefs,
+                        type: .accountId
+                    )
                     accountId = key
                 }
 
@@ -896,7 +904,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         validatorsStakingInfoWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
         let chainFormat = chain.chainFormat
-        let precision = asset.precision
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let eraStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()

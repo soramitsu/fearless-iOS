@@ -66,7 +66,6 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             if chainAsset.chain.isReef {
                 return try createReefRewardCalculator(
                     chainAsset: chainAsset,
-                    assetPrecision: assetPrecision,
                     validatorService: validatorService
                 )
             }
@@ -128,7 +127,6 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
 
     private func createReefRewardCalculator(
         chainAsset: ChainAsset,
-        assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
@@ -142,17 +140,16 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let storageRequestPerformer = StorageRequestPerformerDefault(runtimeService: runtimeService, connection: connection)
+        let storageRequestPerformer = StorageRequestPerformerDefault(
+            runtimeService: runtimeService,
+            connection: connection
+        )
 
         return ReefRewardCalculatorService(
             chainAsset: chainAsset,
-            assetPrecision: assetPrecision,
             eraValidatorsService: validatorService,
             operationManager: operationManager,
-            providerFactory: substrateDataProviderFactory,
             chainRegistry: chainRegistry,
-            stakingDurationFactory: StakingDurationOperationFactory(),
-            storageFacade: storageFacade,
             logger: logger,
             storageRequestPerformer: storageRequestPerformer
         )

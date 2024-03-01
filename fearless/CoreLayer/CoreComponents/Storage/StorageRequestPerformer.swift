@@ -120,12 +120,12 @@ final class StorageRequestPerformerDefault: StorageRequestPerformer {
             runtimeService: runtimeService,
             connection: connection,
             storageRequestFactory: storageRequestFactory,
-            type: request.parametersType.workerType
+            type: .prefix
         )
 
         let valueExtractor = PrefixStorageResponseValueExtractor(runtimeService: runtimeService)
         let response: [StorageResponse<T>] = try await worker.perform(
-            params: request.parametersType.workerType,
+            params: .prefix,
             storagePath: request.storagePath
         )
         let values: [K: T]? = try await valueExtractor.extractValue(request: request, storageResponse: response)

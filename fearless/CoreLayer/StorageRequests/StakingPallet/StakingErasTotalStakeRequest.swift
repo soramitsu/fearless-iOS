@@ -6,11 +6,7 @@ struct StakingErasTotalStakeRequest: PrefixRequest {
         .erasTotalStake
     }
 
-    var keyType: RuntimePrimitive {
+    var keyType: RuntimeType {
         .u32
-    }
-
-    var parametersType: PrefixStorageRequestParametersType {
-        .empty
     }
 }

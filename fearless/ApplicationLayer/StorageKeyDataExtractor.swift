@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 
-final class StorageKeyDataExtractor<T: Decodable & ScaleCodable> {
+final class StorageKeyDataExtractor {
     private let runtimeService: RuntimeCodingServiceProtocol
 
     private lazy var storageKeyFactory = {
@@ -12,7 +12,11 @@ final class StorageKeyDataExtractor<T: Decodable & ScaleCodable> {
         self.runtimeService = runtimeService
     }
 
-    func extractKey(storageKey: Data, storagePath: StorageCodingPath, type: RuntimePrimitive) async throws -> T {
+    func extractKey<T: Decodable & ScaleCodable>(
+        storageKey: Data,
+        storagePath: StorageCodingPath,
+        type: RuntimeType
+    ) async throws -> T {
         let storageKeyHex = storageKey.toHex()
         let bytesPerHexSymbol = 2
         let parameterHex = String(storageKeyHex.suffix(type.bytesCount * bytesPerHexSymbol))

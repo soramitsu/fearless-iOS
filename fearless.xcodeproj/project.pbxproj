@@ -2663,7 +2663,6 @@
 		FAAA29102B8C92E00089AFE6 /* StakingErasTotalStakeRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA290F2B8C92E00089AFE6 /* StakingErasTotalStakeRequest.swift */; };
 		FAAA29122B8C96CE0089AFE6 /* StakingErasValidatorRewardRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29112B8C96CE0089AFE6 /* StakingErasValidatorRewardRequest.swift */; };
 		FAAA291D2B8DBFEE0089AFE6 /* StorageRequestWorkerBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA291B2B8DBFEE0089AFE6 /* StorageRequestWorkerBuilder.swift */; };
-		FAAA291E2B8DBFEE0089AFE6 /* StorageRequestKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA291C2B8DBFEE0089AFE6 /* StorageRequestKeyFactory.swift */; };
 		FAAA29212B8DCE260089AFE6 /* StorageRequestPerformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA291F2B8DCE250089AFE6 /* StorageRequestPerformer.swift */; };
 		FAAA29222B8DCE260089AFE6 /* CachedStorageRequestPerformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29202B8DCE250089AFE6 /* CachedStorageRequestPerformer.swift */; };
 		FAAA29272B8DCE3E0089AFE6 /* MultipleStorageResponseValueExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29232B8DCE3D0089AFE6 /* MultipleStorageResponseValueExtractor.swift */; };
@@ -2685,7 +2684,7 @@
 		FAAA29492B8DCF350089AFE6 /* AsyncStorageRequestFactoryDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29462B8DCF340089AFE6 /* AsyncStorageRequestFactoryDefault.swift */; };
 		FAAA294A2B8DCF350089AFE6 /* AsyncStorageRequestFactory+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29472B8DCF350089AFE6 /* AsyncStorageRequestFactory+Extension.swift */; };
 		FAAA294B2B8DCF350089AFE6 /* AsyncStorageRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29482B8DCF350089AFE6 /* AsyncStorageRequestFactory.swift */; };
-		FAAA29572B8DED770089AFE6 /* RuntimePrimitive.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29562B8DED770089AFE6 /* RuntimePrimitive.swift */; };
+		FAAA29572B8DED770089AFE6 /* RuntimeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29562B8DED770089AFE6 /* RuntimeType.swift */; };
 		FAAB998D27A7C79D00CD1A3B /* QRParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB998C27A7C79D00CD1A3B /* QRParser.swift */; };
 		FAABC46E2845BADA002CF40E /* CustomValidatorParachainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */; };
 		FAABC4702845BAEE002CF40E /* CustomValidatorParachainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */; };
@@ -5717,7 +5716,6 @@
 		FAAA290F2B8C92E00089AFE6 /* StakingErasTotalStakeRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingErasTotalStakeRequest.swift; sourceTree = "<group>"; };
 		FAAA29112B8C96CE0089AFE6 /* StakingErasValidatorRewardRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingErasValidatorRewardRequest.swift; sourceTree = "<group>"; };
 		FAAA291B2B8DBFEE0089AFE6 /* StorageRequestWorkerBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageRequestWorkerBuilder.swift; sourceTree = "<group>"; };
-		FAAA291C2B8DBFEE0089AFE6 /* StorageRequestKeyFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageRequestKeyFactory.swift; sourceTree = "<group>"; };
 		FAAA291F2B8DCE250089AFE6 /* StorageRequestPerformer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageRequestPerformer.swift; sourceTree = "<group>"; };
 		FAAA29202B8DCE250089AFE6 /* CachedStorageRequestPerformer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CachedStorageRequestPerformer.swift; sourceTree = "<group>"; };
 		FAAA29232B8DCE3D0089AFE6 /* MultipleStorageResponseValueExtractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultipleStorageResponseValueExtractor.swift; sourceTree = "<group>"; };
@@ -5739,7 +5737,7 @@
 		FAAA29462B8DCF340089AFE6 /* AsyncStorageRequestFactoryDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncStorageRequestFactoryDefault.swift; sourceTree = "<group>"; };
 		FAAA29472B8DCF350089AFE6 /* AsyncStorageRequestFactory+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AsyncStorageRequestFactory+Extension.swift"; sourceTree = "<group>"; };
 		FAAA29482B8DCF350089AFE6 /* AsyncStorageRequestFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncStorageRequestFactory.swift; sourceTree = "<group>"; };
-		FAAA29562B8DED770089AFE6 /* RuntimePrimitive.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimePrimitive.swift; sourceTree = "<group>"; };
+		FAAA29562B8DED770089AFE6 /* RuntimeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeType.swift; sourceTree = "<group>"; };
 		FAAB998C27A7C79D00CD1A3B /* QRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRParser.swift; sourceTree = "<group>"; };
 		FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListFilter.swift; sourceTree = "<group>"; };
 		FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListComposer.swift; sourceTree = "<group>"; };
@@ -9256,7 +9254,7 @@
 				0783EEB12AE193F3006476F4 /* BokoloConstants.swift */,
 				FA30671F2B621144006A0BA5 /* TokenLock.swift */,
 				FA3067212B621540006A0BA5 /* LockProtocol.swift */,
-				FAAA29562B8DED770089AFE6 /* RuntimePrimitive.swift */,
+				FAAA29562B8DED770089AFE6 /* RuntimeType.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -12831,7 +12829,6 @@
 		FA30673A2B625806006A0BA5 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				FAAA291C2B8DBFEE0089AFE6 /* StorageRequestKeyFactory.swift */,
 				FAAA291B2B8DBFEE0089AFE6 /* StorageRequestWorkerBuilder.swift */,
 			);
 			path = Storage;
@@ -16808,7 +16805,7 @@
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				2AD0A19025D3D1E100312428 /* GitHubPhishingServiceFactory.swift in Sources */,
 				FA14AE892B0785670066CADF /* SoraSubsquidHistoryResponse.swift in Sources */,
-				FAAA29572B8DED770089AFE6 /* RuntimePrimitive.swift in Sources */,
+				FAAA29572B8DED770089AFE6 /* RuntimeType.swift in Sources */,
 				FACD42BC2A5BE91E009975AA /* PortionRewardCalculatorEngine.swift in Sources */,
 				AEF505A92620249F0098574D /* UIColor+HEX.swift in Sources */,
 				FACD42A12A5BE811009975AA /* MultiassetV2MigrationPolicy.swift in Sources */,
@@ -17660,7 +17657,6 @@
 				848919DB26FB663D004DBAD5 /* CrowdloansChainViewModel.swift in Sources */,
 				8430AAF12602306A005B1066 /* BondedState.swift in Sources */,
 				FAA086D628475AF300CC2F33 /* ParachainStakingDelegatorState.swift in Sources */,
-				FAAA291E2B8DBFEE0089AFE6 /* StorageRequestKeyFactory.swift in Sources */,
 				84C3F77B2601F08B00D47501 /* NominationViewModel.swift in Sources */,
 				07DE95D428A225A100E9C2CB /* WalletMainContainerViewModelFactory.swift in Sources */,
 				846A2C4B2529F99400731018 /* AccountRepositoryFactory.swift in Sources */,

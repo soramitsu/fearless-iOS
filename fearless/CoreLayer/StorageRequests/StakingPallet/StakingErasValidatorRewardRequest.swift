@@ -6,11 +6,7 @@ struct StakingErasValidatorRewardRequest: PrefixRequest {
         .erasValidatorReward
     }
 
-    var keyType: RuntimePrimitive {
+    var keyType: RuntimeType {
         .u32
-    }
-
-    var parametersType: PrefixStorageRequestParametersType {
-        .empty
     }
 }

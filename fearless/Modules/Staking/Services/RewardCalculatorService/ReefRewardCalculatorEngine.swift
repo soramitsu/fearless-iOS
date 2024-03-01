@@ -43,6 +43,7 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         guard let validator = validators.first(where: { $0.accountId == validatorAccountId }) else {
             throw ReefRewardCalculatorEngineError.validatorNotFound(accountId: validatorAccountId)
         }
+
         let validatorTotalBonded = Decimal.fromSubstrateAmount(
             validator.exposure.total,
             precision: Int16(chainAsset.asset.precision)
@@ -57,8 +58,6 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             .compactMap { $0.rewardPoint }
             .average()
         let eraRewardPointsTotal = (rewardPointsByEra.sorted(by: { $0.key < $1.key }).last?.value.total).or(RewardPoint.min)
-
-//        let participation = rewardPointsByEra.sorted(by: { $0.key < $1.key }).suffix(14).compactMap { Decimal($0.value.individual.first(where: { $0.accountId == validatorAccountId })?.rewardPoint ?? 0) / Decimal($0.value.total ?? 1) }.sum() / 14.0
         let participation = Decimal(avgIndividualRewardPoint) / Decimal(eraRewardPointsTotal)
         let totalRewards = (validatorRewardsByEra.sorted(by: { $0.key < $1.key }).last?.value).or(.zero)
         let totalRewardsDecimal = Decimal.fromSubstrateAmount(totalRewards, precision: Int16(chainAsset.asset.precision)).or(.zero)
@@ -77,7 +76,7 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             let validatorsEarnings = try electedValidators.compactMap { try calculateEarnings(amount: amount, validatorAccountId: $0.accountId, isCompound: isCompound, period: period) }
             return validatorsEarnings.max() ?? .zero
         } catch {
-            return 0.0
+            return .zero
         }
     }
 
@@ -92,7 +91,7 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
             return validatorsEarnings.sum() / Decimal(electedValidators.count)
         } catch {
-            return 0.0
+            return .zero
         }
     }
 
@@ -104,7 +103,7 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         switch type {
         case let .max(validatorId):
             if let validatorId = validatorId {
-                return (try? calculateValidatorReturn(validatorAccountId: validatorId, isCompound: isCompound, period: period)) ?? 0.0
+                return (try? calculateValidatorReturn(validatorAccountId: validatorId, isCompound: isCompound, period: period)) ?? .zero
             } else {
                 return calculateMaxEarnings(amount: 1.0, isCompound: isCompound, period: period)
             }

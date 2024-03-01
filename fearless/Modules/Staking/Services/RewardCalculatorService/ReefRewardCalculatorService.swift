@@ -10,7 +10,7 @@ enum ReefCalculatorServiceError: Error {
 }
 
 final class ReefRewardCalculatorService {
-    static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
+    static let queueLabelPrefix = "jp.co.fearless.reefrewardcalculator"
 
     private struct PendingRequest {
         let resultClosure: (RewardCalculatorEngineProtocol) -> Void
@@ -29,35 +29,23 @@ final class ReefRewardCalculatorService {
     private var validatorRewardsByEra: [EraIndex: BigUInt]?
 
     private let chainAsset: ChainAsset
-    private let assetPrecision: Int16
     private let eraValidatorsService: EraValidatorServiceProtocol
     private let logger: LoggerProtocol?
     private let operationManager: OperationManagerProtocol
-    private let providerFactory: SubstrateDataProviderFactoryProtocol
-    private let storageFacade: StorageFacadeProtocol
     private let chainRegistry: ChainRegistryProtocol
-    private let stakingDurationFactory: StakingDurationOperationFactoryProtocol
     private let storageRequestPerformer: StorageRequestPerformer
 
     init(
         chainAsset: ChainAsset,
-        assetPrecision: Int16,
         eraValidatorsService: EraValidatorServiceProtocol,
         operationManager: OperationManagerProtocol,
-        providerFactory: SubstrateDataProviderFactoryProtocol,
         chainRegistry: ChainRegistryProtocol,
-        stakingDurationFactory: StakingDurationOperationFactoryProtocol,
-        storageFacade: StorageFacadeProtocol,
         logger: LoggerProtocol? = nil,
         storageRequestPerformer: StorageRequestPerformer
     ) {
         self.chainAsset = chainAsset
-        self.assetPrecision = assetPrecision
-        self.storageFacade = storageFacade
-        self.providerFactory = providerFactory
         self.operationManager = operationManager
         self.eraValidatorsService = eraValidatorsService
-        self.stakingDurationFactory = stakingDurationFactory
         self.chainRegistry = chainRegistry
         self.storageRequestPerformer = storageRequestPerformer
         self.logger = logger
@@ -80,8 +68,7 @@ final class ReefRewardCalculatorService {
                 rewardPoints: rewardPointsByEra,
                 validatorRewards: validatorRewardsByEra,
                 to: request,
-                chainId: chainAsset.chain.chainId,
-                assetPrecision: assetPrecision
+                chainId: chainAsset.chain.chainId
             )
         } else {
             pendingRequests.append(request)
@@ -93,18 +80,8 @@ final class ReefRewardCalculatorService {
         rewardPoints: [EraIndex: EraRewardPoints],
         validatorRewards: [EraIndex: BigUInt],
         to request: PendingRequest,
-        chainId: ChainModel.Id,
-        assetPrecision _: Int16
+        chainId _: ChainModel.Id
     ) {
-        guard let runtimeCodingService = chainRegistry.getRuntimeProvider(for: chainId) else {
-            logger?.error(ChainRegistryError.runtimeMetadaUnavailable.localizedDescription)
-            return
-        }
-
-        let durationWrapper = stakingDurationFactory.createDurationOperation(
-            from: runtimeCodingService
-        )
-
         let eraOperation = eraValidatorsService.fetchInfoOperation()
 
         let mapOperation = ClosureOperation<RewardCalculatorEngineProtocol> { [weak self] in
@@ -113,7 +90,6 @@ final class ReefRewardCalculatorService {
             }
 
             let eraStakersInfo = try eraOperation.extractNoCancellableResultData()
-            let stakingDuration = try durationWrapper.targetOperation.extractNoCancellableResultData()
 
             return ReefRewardCalculatorEngine(
                 totalStakeByEra: totalStake,
@@ -124,7 +100,6 @@ final class ReefRewardCalculatorService {
             )
         }
 
-        mapOperation.addDependency(durationWrapper.targetOperation)
         mapOperation.addDependency(eraOperation)
 
         mapOperation.completionBlock = { [weak self] in
@@ -141,7 +116,7 @@ final class ReefRewardCalculatorService {
         }
 
         operationManager.enqueue(
-            operations: durationWrapper.allOperations + [eraOperation, mapOperation],
+            operations: [eraOperation, mapOperation],
             in: .transient
         )
     }
@@ -151,9 +126,7 @@ final class ReefRewardCalculatorService {
         rewardPoints: [EraIndex: EraRewardPoints],
         validatorRewards: [EraIndex: BigUInt]
     ) {
-        logger?.debug("Attempt fulfill pendings \(pendingRequests.count)")
-
-        guard !pendingRequests.isEmpty else {
+        guard pendingRequests.isNotEmpty else {
             return
         }
 
@@ -166,12 +139,9 @@ final class ReefRewardCalculatorService {
                 rewardPoints: rewardPoints,
                 validatorRewards: validatorRewards,
                 to: $0,
-                chainId: chainAsset.chain.chainId,
-                assetPrecision: assetPrecision
+                chainId: chainAsset.chain.chainId
             )
         }
-
-        logger?.debug("Fulfilled pendings")
     }
 
     private func fetchTotalValidatorRewards() {
@@ -181,14 +151,15 @@ final class ReefRewardCalculatorService {
 
         Task {
             do {
-                let totalStake: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(totalStakeRequest)
-                let rewardPoints: [String: EraRewardPoints]? = try await storageRequestPerformer.performPrefix(rewardPointsRequest)
-                let validatorRewards: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(validatorRewardRequest)
+                async let totalStake: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(totalStakeRequest)
+                async let rewardPoints: [String: EraRewardPoints]? = try await storageRequestPerformer.performPrefix(rewardPointsRequest)
+                async let validatorRewards: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(validatorRewardRequest)
 
-                let totalStakeByEra = totalStake?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
+                let totalStakeValue = try await totalStake
+                let totalStakeByEra = totalStakeValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
                     var map = partialResult
 
-                    guard let era = EraIndex(key), let value = totalStake?[key]?.value else {
+                    guard let era = EraIndex(key), let value = totalStakeValue?[key]?.value else {
                         return partialResult
                     }
 
@@ -197,10 +168,11 @@ final class ReefRewardCalculatorService {
                     return map
                 }
 
-                let rewardPointsByEra = rewardPoints?.keys.reduce([EraIndex: EraRewardPoints]()) { partialResult, key in
+                let rewardPointsValue = try await rewardPoints
+                let rewardPointsByEra = rewardPointsValue?.keys.reduce([EraIndex: EraRewardPoints]()) { partialResult, key in
                     var map = partialResult
 
-                    guard let era = EraIndex(key), let points = rewardPoints?[key] else {
+                    guard let era = EraIndex(key), let points = rewardPointsValue?[key] else {
                         return partialResult
                     }
 
@@ -209,10 +181,11 @@ final class ReefRewardCalculatorService {
                     return map
                 }
 
-                let validatorRewardsByEra = validatorRewards?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
+                let validatorRewardsValue = try await validatorRewards
+                let validatorRewardsByEra = validatorRewardsValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in
                     var map = partialResult
 
-                    guard let era = EraIndex(key), let value = validatorRewards?[key]?.value else {
+                    guard let era = EraIndex(key), let value = validatorRewardsValue?[key]?.value else {
                         return partialResult
                     }
 
@@ -227,7 +200,7 @@ final class ReefRewardCalculatorService {
                     validatorRewards: validatorRewardsByEra.or([:])
                 )
             } catch {
-                print("ERROR: ", error)
+                logger?.error(error.localizedDescription)
             }
         }
     }

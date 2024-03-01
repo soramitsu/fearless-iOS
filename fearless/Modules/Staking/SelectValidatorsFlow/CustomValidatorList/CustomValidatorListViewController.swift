@@ -138,10 +138,6 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
     }
 
     private func configureElected(headerView: YourValidatorListStatusSectionView, section: CustomValidatorListSectionViewModel) {
-        let icon = R.image.iconAlgoItem()!
-        let value = R.string.localizable
-            .stakingCommonRewardsApy(preferredLanguages: selectedLocale.rLanguages).uppercased()
-
         headerView.statusView.titleLabel.textColor = R.color.colorWhite()
         headerView.bind(icon: section.icon, title: section.title, value: "")
 
@@ -291,7 +287,7 @@ extension CustomValidatorListViewController: EmptyStateViewOwnerProtocol {
 
 extension CustomValidatorListViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        guard let _ = sections else {
+        guard sections != nil else {
             return nil
         }
 
@@ -307,10 +303,6 @@ extension CustomValidatorListViewController: EmptyStateDataSource {
 
 extension CustomValidatorListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        guard let sections = sections else {
-            return false
-        }
-
-        return sections.isEmpty
+        sections?.isEmpty == true
     }
 }

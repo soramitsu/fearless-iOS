@@ -315,8 +315,12 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
                     return nil
                 }
 
-                let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
-                let id = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .bondedPools, type: .u32)
+                let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
+                let id: String = try await extractor.extractKey(
+                    storageKey: storageResponse.key,
+                    storagePath: .bondedPools,
+                    type: .u32
+                )
                 return StakingPool(id: id, info: stakingPoolInfo, name: "")
             }
         }
@@ -327,11 +331,16 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
 
         let mapOperation = AwaitOperation<[StakingPool]> {
             let pools = try mapBondedPoolsOperation.extractNoCancellableResultData()
+            let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
+
             let result = try await metadataOperation.targetOperation.extractNoCancellableResultData()
                 .asyncMap { storageResponse -> StakingPool? in
                     let name = storageResponse.value?.toUTF8String() ?? ""
-                    let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
-                    let id = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .stakingPoolMetadata, type: .u32)
+                    let id: String = try await extractor.extractKey(
+                        storageKey: storageResponse.key,
+                        storagePath: .stakingPoolMetadata,
+                        type: .u32
+                    )
 
                     guard let pool = pools.first(where: { $0.id.lowercased() == id.lowercased() }) else {
                         return nil
@@ -370,8 +379,12 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
                 return nil
             }
 
-            let extractor = StorageKeyDataExtractor<String>(runtimeService: runtimeService)
-            let id = try await extractor.extractKey(storageKey: storageResponse.key, storagePath: .bondedPools, type: .u32)
+            let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
+            let id: String = try await extractor.extractKey(
+                storageKey: storageResponse.key,
+                storagePath: .bondedPools,
+                type: .u32
+            )
             return StakingPool(id: id, info: stakingPoolInfo, name: "")
         }
 
