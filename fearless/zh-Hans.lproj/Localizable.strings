@@ -154,6 +154,10 @@
 为了确保替换后的链账户的安全性，在继续当前流程之前，我们建议您先单独备份它。一旦成功备份了替换后的链账户，就可以放心地进行当前流程。";
 "backup.wallet.seed" = "显示原始种子";
 "backup.wallet.title" = "备份钱包";
+"balance.locks.governance.row.title" = "治理";
+"balance.locks.liquidity.pools.row.title" = "流动性池";
+"balance.locks.nomination.pools.row.title" = "提名池";
+"balance.locks.screen.title" = "锁定的详细信息";
 "banners.view.factory.backup.action.title" = "立即备份";
 "banners.view.factory.backup.subtitle" = "保护自己避免失去对资金的访问权限。";
 "banners.view.factory.backup.title" = "钱包备份";
@@ -195,6 +199,7 @@
 "common.choose.action" = "选择操作";
 "common.choose.network" = "选择网络";
 "common.close" = "关闭";
+"common.commission" = "Commission";
 "common.confirm" = "确认";
 "common.confirm.password" = "确认密码";
 "common.confirm.title" = "确认";
@@ -489,6 +494,7 @@
 "network.status.connected" = "已连接";
 "network.status.connecting" = "正在连接...";
 "network.url.address" = "URL地址";
+"nft.choose.recipient.title" = "选择接收人";
 "nft.collection.available.nfts" = "%s 集合中可用的 NFT";
 "nft.collection.my.nfts" = "我的 NFT";
 "nft.collection.title" = "收藏品";
@@ -698,8 +704,8 @@
 "settings.hide.zero.balances" = "隐藏零余额";
 "share.referral.code" = "分享推荐码";
 "sign.this.message" = "签署此消息？";
-"sora.bridge.amount.less.fee" = "您尝试转账的金额不足以支付%@网络上的交易费用。尽管交易无法完成，您仍将在Sora网络上被收取费用。";
-"sora.bridge.low.amaunt.polkadot.alert" = "目前，为了确保 SORA 网络的稳定性和安全性，跨链需要最少 1 个 DOT。感谢您的理解。";
+"sora.bridge.amount.less.fee" = "您尝试转账的金额不足以支付%s网络上的交易费用。尽管交易无法完成，您仍将在Sora网络上被收取费用。";
+"sora.bridge.low.amaunt.polkadot.alert" = "目前，为了确保稳定性和安全性，跨链最低金额为1.1 DOT。感谢您的理解。";
 "sora.bridge.low.amount.alert" = "目前，为了确保SORA网络的稳定性和安全性，跨链桥转账的最低金额为0.05 KSM。感谢您的理解。";
 "sora.card.status.failure.text" = "KYC已终止或以其他方式失败。";
 "sora.card.status.failure.title" = "验证失败";
@@ -1004,6 +1010,7 @@
 "terms.and.conditions.sora.community.alert.main" = "SORA社区不会收集您的任何个人数据，";
 "terms.and.conditions.sora.community.alert.secondary" = "但是要获得SORA卡和IBAN账户，您需要通过一家发卡机构进行KYC验证。";
 "terms.and.conditions.title" = "条款与条件";
+"tranaction.history.others.tab.title" = "其他";
 "transaction.detail.date" = "日期";
 "transaction.detail.status" = "状态";
 "transaction.details.copy.hash" = "复制哈希";
@@ -1029,6 +1036,9 @@
 "username.setup.title.2.0" = "创建一个新的钱包";
 "validator.info.comission.title" = "佣金";
 "validators.list.empty.message" = "未找到验证人";
+"vesting.claim.disclaimer.text" = "由于每个平行链的独特归属计划，我们的应用无法显示可认领的锁定代币数量。请注意，如果预计金额微不足道且与涉及的交易费用相当，发起认领可能是不切实际的。要全面了解您的锁定余额，请咨询Subscan区块浏览器。我们敦促您仔细评估信息，并根据自己的判断继续操作。";
+"vesting.claim.disclaimer.title" = "关于代币申领的重要通知：";
+"vesting.locked.title" = "归属锁定";
 "view.in" = "在%s中查看";
 "view.wallet" = "查看钱包";
 "wallet.account.locks.democracy" = "民主";
@@ -1196,6 +1206,8 @@
 "get.prepared.take.selfie.description" = "在过程中将提供指导";
 "get.prepared.take.selfie.title" = "自拍";
 "get.prepared.title" = "做好准备";
+"iban.frozen.description" = "您的国际银行账号(IBAN)已被冻结。\
+欲了解更多信息，请联系%@。";
 "iban.pending.description" = "您的 IBAN 正在等待签发。\
 如果等待时间超过 72 小时，请通过%@联系我们";
 "iban.suspended.description" = "您的IBAN已被暂停使用。\
@@ -1239,9 +1251,5 @@
 "verify.phone.number.code.input.field.label" = "短信验证码";
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
-"verify.phone.number.title" = "验证您的电话号码";
 "send.all.title" = "Send all tokens and reap the account";
-"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
-"vesting.locked.title" = "Vesting Locked";
-"vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
-"vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
+"verify.phone.number.title" = "验证您的电话号码";
