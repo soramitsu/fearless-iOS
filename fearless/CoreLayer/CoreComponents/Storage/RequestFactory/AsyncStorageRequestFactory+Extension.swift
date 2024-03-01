@@ -51,13 +51,13 @@ extension AsyncStorageRequestFactory {
 
     func queryItemsByPrefix<T>(
         engine: JSONRPCEngine,
-        keys: [Data],
+        key: Data,
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath
     ) async throws -> [StorageResponse<T>] where T: Decodable {
         try await queryItemsByPrefix(
             engine: engine,
-            keys: keys,
+            key: key,
             factory: factory,
             storagePath: storagePath,
             at: nil

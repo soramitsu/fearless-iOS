@@ -39,7 +39,7 @@ protocol AsyncStorageRequestFactory {
 
     func queryItemsByPrefix<T>(
         engine: JSONRPCEngine,
-        keys: [Data],
+        key: Data,
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath,
         at blockHash: Data?
