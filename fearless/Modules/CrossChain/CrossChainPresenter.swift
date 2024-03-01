@@ -239,49 +239,6 @@ final class CrossChainPresenter {
         }
     }
 
-//    private func validateAmount(completionBlock: @escaping () -> Void) {
-//        let inputAmountDecimal = amountInputResult?
-//            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
-//        guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
-//            return
-//        }
-//        let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
-//        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
-//        let edParameters: ExistentialDepositValidationParameters = .utility(
-//            spendingAmount: inputAmountDecimal + (originNetworkFee ?? .zero),
-//            totalAmount: utilityBalance,
-//            minimumBalance: minimumBalance
-//        )
-//
-//        let existentialDepositIsNotViolatedValidator = dataValidatingFactory.exsitentialDepositIsNotViolated(
-//            parameters: edParameters,
-//            locale: selectedLocale,
-//            chainAsset: selectedAmountChainAsset,
-//            sendAllEnabled: sendAllEnabled,
-//            proceedAction: { [weak self] in
-//                self?.sendAllEnabled = true
-//                self?.view?.switchEnableSendAllState(enabled: true)
-//                completionBlock()
-//            },
-//            setMaxAction: { [weak self] in
-//                self?.sendAllEnabled = true
-//                self?.view?.switchEnableSendAllState(enabled: true)
-//                self?.selectAmountPercentage(1)
-//            },
-//            cancelAction: { [weak self] in
-//                self?.sendAllEnabled = false
-//                self?.view?.switchEnableSendAllState(enabled: false)
-//                self?.selectAmountPercentage(0)
-//            }
-//        )
-//
-//        let validators: [DataValidating] = [existentialDepositIsNotViolatedValidator]
-//        DataValidationRunner(validators: validators)
-//            .runValidation {
-//                completionBlock()
-//            }
-//    }
-
     private func validate(validationCase: ValidationCase, completionBlock: @escaping () -> Void) {
         let inputAmountDecimal = amountInputResult?
             .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
