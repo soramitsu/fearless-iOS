@@ -60,7 +60,6 @@ class TitleMultiValueView: UIView {
         super.init(frame: frame)
 
         setupLayout()
-//        startLoadingIfNeeded()
     }
 
     @available(*, unavailable)

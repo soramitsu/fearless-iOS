@@ -2675,6 +2675,7 @@
 		FAA086D628475AF300CC2F33 /* ParachainStakingDelegatorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */; };
 		FAA086D82848AB8600CC2F33 /* YourRewardDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D72848AB8600CC2F33 /* YourRewardDestinationViewModel.swift */; };
 		FAA4E3162B7229B500E5E85D /* CrowdloanService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA4E3152B7229B500E5E85D /* CrowdloanService.swift */; };
+		FAA9BC442B919CB800A875BF /* NoneStateOptional.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA9BC432B919CB800A875BF /* NoneStateOptional.swift */; };
 		FAAB998D27A7C79D00CD1A3B /* QRParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB998C27A7C79D00CD1A3B /* QRParser.swift */; };
 		FAABC46E2845BADA002CF40E /* CustomValidatorParachainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */; };
 		FAABC4702845BAEE002CF40E /* CustomValidatorParachainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */; };
@@ -5732,6 +5733,7 @@
 		FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingDelegatorState.swift; sourceTree = "<group>"; };
 		FAA086D72848AB8600CC2F33 /* YourRewardDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourRewardDestinationViewModel.swift; sourceTree = "<group>"; };
 		FAA4E3152B7229B500E5E85D /* CrowdloanService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanService.swift; sourceTree = "<group>"; };
+		FAA9BC432B919CB800A875BF /* NoneStateOptional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NoneStateOptional.swift; sourceTree = "<group>"; };
 		FAAB998C27A7C79D00CD1A3B /* QRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRParser.swift; sourceTree = "<group>"; };
 		FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListFilter.swift; sourceTree = "<group>"; };
 		FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListComposer.swift; sourceTree = "<group>"; };
@@ -13076,6 +13078,7 @@
 		FA38C9A227606FDD005C5577 /* ApplicationLayer */ = {
 			isa = PBXGroup;
 			children = (
+				FAA9BC422B919CAB00A875BF /* Models */,
 				FAE687DB2B7CCC0E00F2AE27 /* ComponentFactories */,
 				FAE687C22B7C915400F2AE27 /* StakingRewards */,
 				FA9A8F0A2A72573C008FA99F /* Alchemy */,
@@ -14354,6 +14357,14 @@
 				FAA086D128470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift */,
 			);
 			path = Parachain;
+			sourceTree = "<group>";
+		};
+		FAA9BC422B919CAB00A875BF /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FAA9BC432B919CB800A875BF /* NoneStateOptional.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 		FAAB998A27A7C76100CD1A3B /* CoreComponents */ = {
@@ -16697,6 +16708,7 @@
 				C65A6592288E5CF400679D65 /* AccountInfoFetching.swift in Sources */,
 				FA256A20274CE7D600875A53 /* AstarBonusService.swift in Sources */,
 				078E34C128058B9D00DF187A /* DocumentType.swift in Sources */,
+				FAA9BC442B919CB800A875BF /* NoneStateOptional.swift in Sources */,
 				FAE687CD2B7C915400F2AE27 /* StakingRewardFetcher.swift in Sources */,
 				8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */,
 				84DB9E902640A48E00F23DD3 /* StakingRedeemViewModel.swift in Sources */,

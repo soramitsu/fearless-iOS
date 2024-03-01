@@ -116,7 +116,6 @@ final class BalanceLocksDetailViewLayout: UIView {
         contentView.addArrangedSubview(governanceView)
         contentView.addArrangedSubview(totalView)
 
-        poolsClaimableRowView.isHidden = true
         liquidityPoolsView.isHidden = true
     }
 

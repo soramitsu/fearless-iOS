@@ -2,6 +2,7 @@ import Foundation
 import SSFModels
 import SSFUtils
 import RobinHood
+import BigInt
 
 enum BalanceLocksFetchingError: Error {
     case unknownChainAssetType
@@ -21,15 +22,19 @@ final class BalanceLocksFetchingDefault {
     private let storageRequestPerformer: StorageRequestPerformer
     private let chainAsset: ChainAsset
     private let crowdloanService: CrowdloanService
+    private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
+    private let operationQueue = OperationQueue()
 
     init(
         storageRequestPerformer: StorageRequestPerformer,
         chainAsset: ChainAsset,
-        crowdloanService: CrowdloanService
+        crowdloanService: CrowdloanService,
+        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     ) {
         self.storageRequestPerformer = storageRequestPerformer
         self.chainAsset = chainAsset
         self.crowdloanService = crowdloanService
+        self.stakingPoolOperationFactory = stakingPoolOperationFactory
     }
 
     private func fetchStakingController(accountId: AccountId) async throws -> AccountId? {
@@ -41,6 +46,22 @@ final class BalanceLocksFetchingDefault {
 
         let controllerAccountId: Data? = try await storageRequestPerformer.performRequest(controllerRequest)
         return controllerAccountId
+    }
+
+    private func fetchPoolPendingRewards(for accountId: AccountId) async throws -> BigUInt? {
+        let operation = stakingPoolOperationFactory.fetchPendingRewards(accountId: accountId)
+        operationQueue.addOperations(operation.allOperations, waitUntilFinished: false)
+
+        return try await withCheckedThrowingContinuation { continuation in
+            operation.targetOperation.completionBlock = {
+                do {
+                    let claimable = try operation.targetOperation.extractNoCancellableResultData()
+                    return continuation.resume(with: .success(claimable))
+                } catch {
+                    return continuation.resume(with: .failure(error))
+                }
+            }
+        }
     }
 }
 
@@ -118,9 +139,11 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
 
         async let asyncStakingPoolMember: StakingPoolMember? = storageRequestPerformer.performRequest(poolMemberRequest)
         async let asyncActiveEra: StringScaleMapper<EraIndex>? = storageRequestPerformer.performRequest(eraRequest)
+        async let claimableResponse = try await fetchPoolPendingRewards(for: accountId)
 
         let stakingPoolMember = try await asyncStakingPoolMember
         let activeEra = try await asyncActiveEra?.value
+        let claimableValue = try await claimableResponse
 
         let precision = Int16(chainAsset.asset.precision)
 
@@ -148,11 +171,16 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
             precision: precision
         ).or(.zero)
 
+        let claimable = Decimal.fromSubstrateAmount(
+            claimableValue.or(.zero),
+            precision: precision
+        ).or(.zero)
+
         return StakingLocks(
             staked: staked,
             unstaking: unstaking,
             redeemable: redeemable,
-            claimable: nil
+            claimable: claimable
         )
     }
 

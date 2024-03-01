@@ -3,14 +3,14 @@ import SSFModels
 import SSFUtils
 
 final class BalanceLocksFetchingFactory {
-    static func buildBalanceLocksFetcher(for chainAsset: ChainAsset) throws -> BalanceLocksFetching {
+    static func buildBalanceLocksFetcher(for chainAsset: ChainAsset) -> BalanceLocksFetching? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.connectionUnavailable
+        guard
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId)
+        else {
+            return nil
         }
 
         let operationManager = OperationManagerFacade.sharedManager
@@ -37,10 +37,17 @@ final class BalanceLocksFetchingFactory {
             operationManager: operationManager
         )
 
+        let stakingPoolOperationFactory = StakingPoolOperationFactory(
+            chainAsset: chainAsset,
+            storageRequestFactory: storageRequestFactory,
+            chainRegistry: chainRegistry
+        )
+
         return BalanceLocksFetchingDefault(
             storageRequestPerformer: storageRequestPerformer,
             chainAsset: chainAsset,
-            crowdloanService: crowdloanService
+            crowdloanService: crowdloanService,
+            stakingPoolOperationFactory: stakingPoolOperationFactory
         )
     }
 }

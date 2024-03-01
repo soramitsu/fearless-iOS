@@ -95,15 +95,22 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
             usageCase: .detailsCrypto
         )
 
+        let claimableViewModel = balanceViewModelFactory.balanceFromPrice(
+            (nominationPoolLocks?.claimable).or(.zero),
+            priceData: priceData,
+            usageCase: .detailsCrypto
+        )
+
         return BalanceLocksDetailPoolViewModel(
             stakedViewModel: stakedViewModel,
             unstakingViewModel: unstakingViewModel,
             redeemableViewModel: redeemableViewModel,
-            claimableViewModel: nil
+            claimableViewModel: claimableViewModel
         )
     }
 
     func buildLiquidityPoolLocksViewModel() -> TitleMultiValueViewModel? {
+        // Will be implemented within the LP's integration
         nil
     }
 

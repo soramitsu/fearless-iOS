@@ -22,7 +22,7 @@ final class BalanceInfoDepencyContainer {
             chainRegistry: chainRegistry,
             chainId: chainAsset.chain.chainId
         )
-        let balanceLocksFetcher = try? BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset)
+        let balanceLocksFetcher = BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset)
 
         return BalanceInfoDependencies(
             connection: connection,

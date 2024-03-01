@@ -7,7 +7,7 @@ final class BalanceLocksDetailAssembly {
     static func configureModule(chainAsset: ChainAsset, wallet: MetaAccountModel) -> BalanceLocksDetailModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         guard
-            let balanceLocksFetching = try? BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset)
+            let balanceLocksFetching = BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset)
         else {
             return nil
         }
