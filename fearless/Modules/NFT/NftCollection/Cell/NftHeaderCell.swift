@@ -1,8 +1,9 @@
 import UIKit
 
 class NftHeaderCell: UICollectionViewCell {
-    private enum LayoutConstants {
+    enum LayoutConstants {
         static let imageSize: CGFloat = 152.0
+        static let labelFont: UIFont = .p1Paragraph
     }
 
     let imageView: UIImageView = {
@@ -14,7 +15,7 @@ class NftHeaderCell: UICollectionViewCell {
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
+        label.font = LayoutConstants.labelFont
         label.textColor = R.color.colorWhite()
         label.numberOfLines = 0
         return label
@@ -40,12 +41,12 @@ class NftHeaderCell: UICollectionViewCell {
     private func setupConstraints() {
         imageView.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
-            make.width.equalTo(imageView.snp.height)
+            make.height.equalTo(imageView.snp.width)
         }
 
         titleLabel.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(imageView.snp.bottom)
+            make.top.equalTo(imageView.snp.bottom).offset(UIConstants.minimalOffset)
         }
     }
 
@@ -55,5 +56,6 @@ class NftHeaderCell: UICollectionViewCell {
         } else {
             imageView.image = R.image.nftStub()
         }
+        titleLabel.text = cellModel.title
     }
 }

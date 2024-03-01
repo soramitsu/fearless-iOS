@@ -152,6 +152,10 @@
 "backup.wallet.replace.several.alert" = "Bạn hiện có một số tài khoản chuỗi đã được thêm bằng cách thay thế cặp khóa chính và tài khoản này sở hữu một tài khoản cụ thể. Tuy nhiên, xin lưu ý rằng luồng sao lưu (xuất) ví hiện tại của chúng tôi không hỗ trợ lưu trữ nhiều cặp khóa. Do đó, bạn chỉ có thể lưu cặp khóa chính của mình. \n \n Để đảm bảo an toàn cho tài khoản chuỗi đã thay thế của bạn, trước tiên chúng tôi khuyên bạn nên sao lưu tài khoản đó một cách riêng biệt trước khi tiếp tục với quy trình hiện tại. Khi bạn đã sao lưu thành công tài khoản chuỗi đã thay thế của mình, bạn có thể tiếp tục quy trình hiện tại mà không có bất kỳ lo ngại nào.";
 "backup.wallet.seed" = "Hiển thị Raw Seed";
 "backup.wallet.title" = "Sao lưu ví";
+"balance.locks.governance.row.title" = "Quản trị";
+"balance.locks.liquidity.pools.row.title" = "Pool thanh khoản";
+"balance.locks.nomination.pools.row.title" = "Nhóm Nomination";
+"balance.locks.screen.title" = "Chi tiết đã khóa";
 "banners.view.factory.backup.action.title" = "Sao lưu ngay";
 "banners.view.factory.backup.subtitle" = "Nếu bạn làm mất thiết bị của mình, bạn\
  sẽ mất tiền của bạn mãi mãi";
@@ -195,6 +199,7 @@ tiền Euro";
 "common.choose.action" = "Chọn hành động";
 "common.choose.network" = "Chọn mạng";
 "common.close" = "Đóng";
+"common.commission" = "Commission";
 "common.confirm" = "Xác nhận";
 "common.confirm.password" = "Xác nhận mật khẩu";
 "common.confirm.title" = "Xác nhận";
@@ -489,6 +494,7 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "network.status.connected" = "Đã kết nối";
 "network.status.connecting" = "Đang kết nối...";
 "network.url.address" = "Địa chỉ URL";
+"nft.choose.recipient.title" = "Chọn người nhận";
 "nft.collection.available.nfts" = "NFT có sẵn trong bộ sưu tập %s";
 "nft.collection.my.nfts" = "NFT của tôi";
 "nft.collection.title" = "Bộ sưu tập";
@@ -698,7 +704,7 @@ Xin lưu ý rằng việc ký giao dịch này sẽ phải chịu phí giao dị
 "settings.hide.zero.balances" = "Ẩn số dư bằng không";
 "share.referral.code" = "Chia sẻ mã giới thiệu";
 "sign.this.message" = "Ký tin nhắn này?";
-"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %@ network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.amount.less.fee" = "Số tiền bạn đang cố chuyển không đủ để trả phí giao dịch trên mạng %s . Mặc dù giao dịch không được xử lý nhưng bạn vẫn sẽ bị tính phí trên mạng Sora.";
 "sora.bridge.low.amaunt.polkadot.alert" = "Hiện tại, có một phút. số tiền 1,1 DOT để bắc cầu để đảm bảo sự ổn định và bảo mật. Chúng tôi đánh giá cao sự hiểu biết của bạn.";
 "sora.bridge.low.amount.alert" = "Hiện tại, có một phút. số tiền 0,05 KSM để bắc cầu nhằm đảm bảo tính ổn định và bảo mật của Mạng SORA. Chúng tôi đánh giá cao sự hiểu biết của bạn.";
 "sora.card.status.failure.text" = "KYC đã bị hủy hoặc không thành công.";
@@ -1006,6 +1012,7 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "terms.and.conditions.sora.community.alert.main" = "Cộng đồng SORA không thu thập bất kỳ dữ liệu cá nhân nào của bạn,";
 "terms.and.conditions.sora.community.alert.secondary" = "nhưng để có được Thẻ SORA và tài khoản IBAN, bạn cần thực hiện quy trình KYC với nhà phát hành thẻ.";
 "terms.and.conditions.title" = "Điều khoản & Điều kiện";
+"tranaction.history.others.tab.title" = "Khác";
 "transaction.detail.date" = "Ngày";
 "transaction.detail.status" = "Trạng thái";
 "transaction.details.copy.hash" = "Sao chép hash";
@@ -1031,6 +1038,9 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "username.setup.title.2.0" = "Tạo một ví mới";
 "validator.info.comission.title" = "Sứ mệnh";
 "validators.list.empty.message" = "Không tìm thấy validator nào";
+"vesting.claim.disclaimer.text" = "Do lịch trình trao quyền duy nhất của mỗi parachain, ứng dụng của chúng tôi không thể hiển thị số lượng mã thông báo bị khóa đủ điều kiện để yêu cầu. Xin lưu ý rằng việc bắt đầu yêu cầu bồi thường có thể không thực tế nếu số tiền tiềm năng là rất nhỏ và có thể so sánh được với phí giao dịch liên quan. Để có thông tin chi tiết toàn diện về số dư bị khóa của bạn, hãy tham khảo Subscan blockexplorer. Chúng tôi khuyên bạn nên đánh giá thông tin một cách cẩn thận và tiến hành theo ý riêng của bạn.";
+"vesting.claim.disclaimer.title" = "Thông báo quan trọng về yêu cầu token:";
+"vesting.locked.title" = "Vesting Locked";
 "view.in" = "Xem trong %s";
 "view.wallet" = "Xem ví";
 "wallet.account.locks.democracy" = "Dân chủ";
@@ -1199,6 +1209,8 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "get.prepared.take.selfie.description" = "Hướng dẫn sẽ được cung cấp trong quá trình này";
 "get.prepared.take.selfie.title" = "Chụp ảnh selfie";
 "get.prepared.title" = "Chuẩn bị sẵn sàng";
+"iban.frozen.description" = "IBAN của bạn đã bị đóng băng.\
+ Để tìm hiểu thêm, hãy liên hệ %@";
 "iban.pending.description" = "Việc cấp IBAN của bạn đang chờ xử lý.\
  Trong trường hợp chờ đợi lâu hơn 72h, hãy liên hệ với chúng tôi qua %@";
 "iban.suspended.description" = "IBAN của bạn đã bị đình chỉ.\
@@ -1241,9 +1253,10 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "verify.phone.number.code.input.field.label" = "Mã SMS";
 "verify.phone.number.description" = "Nhập mã SMS đã được gửi đến\n%@";
 "verify.phone.number.send.code" = "GỬI MÃ";
-"verify.phone.number.title" = "Xác minh số điện thoại của bạn";
 "send.all.title" = "Send all tokens and reap the account";
+"verify.phone.number.title" = "Xác minh số điện thoại của bạn";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "vesting.locked.title" = "Vesting Locked";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
+"common.and.others.placeholder" = "%s & others";

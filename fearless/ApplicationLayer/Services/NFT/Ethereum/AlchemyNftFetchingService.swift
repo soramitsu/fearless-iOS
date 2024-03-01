@@ -108,6 +108,37 @@ final class AlchemyNftFetchingService: BaseNftFetchingService {
             self?.operationQueue.addOperations(fetchNftsOperation.allOperations, waitUntilFinished: false)
         }
     }
+
+    private func fetchOwners(
+        for chain: ChainModel,
+        address: String,
+        tokenId: String
+    ) async throws -> [String]? {
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let strongSelf = self else {
+                continuation.resume(with: .success([]))
+                return
+            }
+
+            let fetchOwnersOperation = strongSelf.operationFactory.fetchOwners(
+                for: chain,
+                address: address,
+                tokenId: tokenId
+            )
+
+            fetchOwnersOperation.targetOperation.completionBlock = { [weak self] in
+                do {
+                    let owners = try fetchOwnersOperation.targetOperation.extractNoCancellableResultData()
+                    continuation.resume(with: .success(owners))
+                } catch {
+                    self?.logger.error(error.localizedDescription)
+                    continuation.resume(with: .success([]))
+                }
+            }
+
+            self?.operationQueue.addOperations(fetchOwnersOperation.allOperations, waitUntilFinished: false)
+        }
+    }
 }
 
 extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
@@ -227,5 +258,25 @@ extension AlchemyNftFetchingService: NFTFetchingServiceProtocol {
             return result ?? NFTBatch(nfts: [], nextTokenId: nil)
         }
         return nfts
+    }
+
+    func fetchOwners(
+        for address: String,
+        tokenId: String,
+        chain: ChainModel
+    ) async throws -> [String] {
+        let owners: [String] = try await withThrowingTaskGroup(of: [String].self) { [weak self] _ in
+            guard let strongSelf = self else {
+                return []
+            }
+
+            let result = try await strongSelf.fetchOwners(
+                for: chain,
+                address: address,
+                tokenId: tokenId
+            )
+            return result ?? []
+        }
+        return owners
     }
 }

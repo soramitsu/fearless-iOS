@@ -152,6 +152,10 @@
 "backup.wallet.replace.several.alert" = "Atualmente você tem várias contas na cadeia que foram adicionadas substituindo o par de chaves principal e possui uma específica. No entanto, observe que nosso fluxo atual de backup (exportação) de carteira não suporta o armazenamento de vários pares de chaves. Como resultado, você só pode salvar seu par de chaves principal. \n \n Para garantir a segurança da sua conta da rede substituída, recomendamos que você primeiro faça backup dela separadamente antes de prosseguir com o fluxo atual. Depois de fazer backup com êxito de sua conta na cadeia substituída, você poderá prosseguir para o fluxo atual sem preocupações.";
 "backup.wallet.seed" = "Mostrar semente crua";
 "backup.wallet.title" = "Carteira de backup";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.screen.title" = "Locked details";
 "banners.view.factory.backup.action.title" = "Faça backup agora";
 "banners.view.factory.backup.subtitle" = "Se você perder seu dispositivo, seus fundos serão perdidos para sempre";
 "banners.view.factory.backup.title" = "Faça backup da sua carteira";
@@ -193,6 +197,7 @@
 "common.choose.action" = "Escolher ação";
 "common.choose.network" = "Escolher a rede";
 "common.close" = "Fechar";
+"common.commission" = "Commission";
 "common.confirm" = "Confirmar";
 "common.confirm.password" = "Confirmar senha";
 "common.confirm.title" = "Confirmação";
@@ -218,6 +223,7 @@
 "common.error.no.data.retrieved" = "Nenhuns dados recuperados.";
 "common.error.password.mismatch" = "A senha não corresponde";
 "common.events" = "Eventos";
+"common.existential.warning.max.amount" = "Set max amount";
 "common.existential.warning.message" = "Esta transação terá como resultado que a conta passe abaixo do Depósito Existencial, o que fará com que ela seja colhida (a conta será apagada da blockchain para conservar espaço). Se optar por continuar, perderá quaisquer fundos que estejam abaixo do montante do depósito existencial estabelecido pela rede. Para informações detalhadas, consulte a documentação oficial da rede (por exemplo, a Polkadot Wiki). A Fearless Wallet é uma aplicação totalmente não custodial, e não tem nenhum controlo ou conhecimento de qualquer das suas ações na própria rede. CONTINUE SÓ SE CONCORDAR PLENAMENTE E COMPREENDER AS IMPLICAÇÕES.";
 "common.existential.warning.title" = "A operação irá remover a conta";
 "common.expiry" = "Expiração";
@@ -487,6 +493,7 @@ Este é o hash da sua transação:";
 "network.status.connected" = "Conectado";
 "network.status.connecting" = "Conectando...";
 "network.url.address" = "Endereço URL";
+"nft.choose.recipient.title" = "Choose recipient";
 "nft.collection.available.nfts" = "Available NFTs in the %s collection";
 "nft.collection.my.nfts" = "My NFTs";
 "nft.collection.title" = "Coleção";
@@ -702,7 +709,8 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "settings.hide.zero.balances" = "Ocultar saldos nulos";
 "share.referral.code" = "Partilhar código de referência";
 "sign.this.message" = "Assinar esta mensagem?";
-"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the Kusama network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %s network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "Currently, there's a min. amount 0.05 KSM for bridging to ensure the stability and security of the SORA Network. We appreciate your understanding.";
 "sora.card.status.failure.text" = "O KYC foi encerrado ou falhou.";
 "sora.card.status.failure.title" = "Falha na verificação";
@@ -1009,6 +1017,7 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "terms.and.conditions.sora.community.alert.main" = "A comunidade SORA não coleta nenhum dos seus dados pessoais,";
 "terms.and.conditions.sora.community.alert.secondary" = "mas para obter o cartão SORA e a conta IBAN você precisa passar pelo processo KYC com um emissor do cartão.";
 "terms.and.conditions.title" = "Termos e Condições";
+"tranaction.history.others.tab.title" = "Others";
 "transaction.detail.date" = "Data";
 "transaction.detail.status" = "Status";
 "transaction.details.copy.hash" = "Copiar hash";
@@ -1034,6 +1043,9 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "username.setup.title.2.0" = "Criar nova carteira";
 "validator.info.comission.title" = "Comissão";
 "validators.list.empty.message" = "Não foram encontrados validadores";
+"vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
+"vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
+"vesting.locked.title" = "Vesting Locked";
 "view.in" = "Ver em %s";
 "view.wallet" = "Ver carteira";
 "wallet.account.locks.democracy" = "Democracia";
@@ -1204,8 +1216,12 @@ Mantenha, faça STAKE ou forneça liquidez de um valor mínimo de XOR equivalent
 "get.prepared.take.selfie.description" = "As orientações serão fornecidas durante o processo";
 "get.prepared.take.selfie.title" = "Tirar uma selfie";
 "get.prepared.title" = "Preparar-se";
+"iban.frozen.description" = "Your IBAN has been frozen.\
+To find out more, contact %@";
 "iban.pending.description" = "A emissão do seu IBAN está pendente.\
  Caso a espera seja superior a 72h contacte-nos através de %@";
+"iban.suspended.description" = "Your IBAN has been suspended.\
+To find out more, contact %@";
 "kyc.result.verification.in.progress" = "Verificação em curso";
 "kyc.result.verification.in.progress.description" = "Concluiu com sucesso a sua aplicação KYC. A revisão está pendente e pode esperar uma decisão em breve.\n\nNormalmente, a decisão é tomada no mesmo dia e, em alguns casos, pode demorar até 3 dias.";
 "log.out" = "Terminar sessão";
@@ -1244,9 +1260,10 @@ Mantenha, faça STAKE ou forneça liquidez de um valor mínimo de XOR equivalent
 "verify.phone.number.code.input.field.label" = "Código SMS";
 "verify.phone.number.description" = "Introduzir o código SMS que foi enviado para\n%@";
 "verify.phone.number.send.code" = "ENVIAR CÓDIGO";
-"verify.phone.number.title" = "Verificar o seu número de telefone";
 "send.all.title" = "Send all tokens and reap the account";
+"verify.phone.number.title" = "Verificar o seu número de telefone";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "vesting.locked.title" = "Vesting Locked";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
+"common.and.others.placeholder" = "%s & others";
