@@ -143,6 +143,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 operationFactory: operationFactory,
                 operationManager: operationManager,
                 runtimeService: runtimeService,
+                staked: bonding.amount,
                 output: viewModelState
             )
 
@@ -173,6 +174,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 operationFactory: operationFactory,
                 operationManager: operationManager,
                 runtimeService: runtimeService,
+                staked: bonding.amount,
                 output: viewModelState
             )
 

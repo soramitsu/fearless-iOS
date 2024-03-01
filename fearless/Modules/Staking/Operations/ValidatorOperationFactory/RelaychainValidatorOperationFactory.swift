@@ -435,7 +435,8 @@ final class RelaychainValidatorOperationFactory {
         rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
         maxNominatorsOperation: BaseOperation<UInt32>,
         slashesOperation: UnappliedSlashesOperation,
-        identitiesOperation: BaseOperation<[String: AccountIdentity]>
+        identitiesOperation: BaseOperation<[String: AccountIdentity]>,
+        staked: Decimal
     ) -> BaseOperation<[ElectedValidatorInfo]> {
         let chainFormat = chain.chainFormat
 
@@ -461,12 +462,12 @@ final class RelaychainValidatorOperationFactory {
                     chainFormat: chainFormat
                 )
 
-                let validatorReturn = try? calculator
-                    .calculateValidatorReturn(
-                        validatorAccountId: validator.accountId,
-                        isCompound: true,
-                        period: .year
-                    )
+                let validatorReturn = try? calculator.calculateEarnings(
+                    amount: staked,
+                    validatorAccountId: validator.accountId,
+                    isCompound: true,
+                    period: .year
+                )
 
                 return try ElectedValidatorInfo(
                     validator: validator,
@@ -637,7 +638,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         createNominatorsOperation(for: accountId)
     }
 
-    func fetchAllValidators() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
+    func fetchAllValidators(staked: Decimal) -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
         guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
@@ -749,7 +750,8 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             rewardOperation: rewardOperation,
             maxNominatorsOperation: maxNominatorsOperation,
             slashesOperation: slashingsWrapper.targetOperation,
-            identitiesOperation: identityWrapper.targetOperation
+            identitiesOperation: identityWrapper.targetOperation,
+            staked: staked
         )
 
         mergeOperation.addDependency(slashingsWrapper.targetOperation)
