@@ -69,7 +69,7 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
     private func setupPageViewController() {
         addChild(rootView.pageViewController)
 
-        rootView.pageViewController.setViewControllers([pageControllers[0]], direction: .forward, animated: false)
+        rootView.pageViewController.setViewControllers(pageControllers, direction: .forward, animated: false)
     }
 
     private func setupActions() {
