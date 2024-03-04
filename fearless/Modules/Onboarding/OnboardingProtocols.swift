@@ -4,10 +4,10 @@ typealias OnboardingModuleCreationResult = (
 )
 
 protocol OnboardingRouterInput: AnyObject {
-    func showMain()
-    func showLocalAuthentication()
-    func showLogin()
-    func showPincodeSetup()
+    func showMain() async
+    func showLocalAuthentication() async
+    func showLogin() async
+    func showPincodeSetup() async
 }
 
 protocol OnboardingModuleInput: AnyObject {}

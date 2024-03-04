@@ -59,7 +59,7 @@ final class OnboardingViewController: UIViewController, ViewHolder {
 // MARK: - OnboardingViewInput
 
 extension OnboardingViewController: OnboardingViewInput {
-    func didReceive(viewModel: OnboardingDataSource) {
+    @MainActor func didReceive(viewModel: OnboardingDataSource) async {
         dataSource = CollectionViewDataSource(data: viewModel.pages, cellClass: OnboardingPageCell.self) { model, cell in
             cell.bind(viewModel: model)
         }
@@ -76,6 +76,8 @@ extension OnboardingViewController: OnboardingViewInput {
                     direction: .horizontal(offset: 16)
                 )
             )
+        } else {
+            output.didTapSkipButton()
         }
     }
 }

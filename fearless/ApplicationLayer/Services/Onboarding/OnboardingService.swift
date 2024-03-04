@@ -8,7 +8,7 @@ enum OnboardingServiceError: Error {
 }
 
 protocol OnboardingServiceProtocol {
-    func fetchConfigOperation() -> BaseOperation<OnboardingConfigWrapper>
+    func fetchConfig() async throws -> OnboardingConfigWrapper
 }
 
 final class OnboardingService {
@@ -21,23 +21,6 @@ final class OnboardingService {
     ) {
         self.networkOperationFactory = networkOperationFactory
         self.operationQueue = operationQueue
-    }
-
-    private func fetchConfig(
-        runCompletionIn _: DispatchQueue?,
-        executing closure: @escaping (OnboardingConfigWrapper) -> Void
-    ) {
-        guard let onboardingConfigUrl = ApplicationConfig.shared.onboardingConfig else {
-            Logger.shared.customError(OnboardingServiceError.urlBroken)
-            return
-        }
-        let fetchConfigOperation: BaseOperation<OnboardingConfigWrapper> = networkOperationFactory.fetchData(from: onboardingConfigUrl)
-
-        fetchConfigOperation.completionBlock = { [weak self] in
-            self?.handle(result: fetchConfigOperation.result, executing: closure)
-        }
-
-        operationQueue.addOperation(fetchConfigOperation)
     }
 
     private func handle(
@@ -56,13 +39,18 @@ final class OnboardingService {
 }
 
 extension OnboardingService: OnboardingServiceProtocol {
-    func fetchConfigOperation() -> BaseOperation<OnboardingConfigWrapper> {
-        AwaitOperation { [weak self] in
-            try await withCheckedThrowingContinuation { continuation in
-                self?.fetchConfig(runCompletionIn: nil) { factory in
-                    continuation.resume(with: .success(factory))
-                }
-            }
+    func fetchConfig() async throws -> OnboardingConfigWrapper {
+        guard let onboardingConfigUrl = ApplicationConfig.shared.onboardingConfig else {
+            throw OnboardingServiceError.urlBroken
         }
+        let request = RequestConfig(
+            baseURL: onboardingConfigUrl,
+            method: .get,
+            endpoint: nil,
+            headers: nil,
+            body: nil
+        )
+        let worker = NetworkWorker()
+        return try await worker.performRequest(with: request)
     }
 }

@@ -39,10 +39,13 @@ final class OnboardingPageCell: UICollectionViewCell {
     func bind(viewModel: OnboardingPageViewModel) {
         titleLabel.text = viewModel.title
         descriptionLabel.text = viewModel.description
+        let imageWidth = UIScreen.superviewWidth
+        let imageHeight = imageWidth / 327 * 336
         viewModel.imageViewModel?.loadImage(
             on: imageView,
-            targetSize: CGSize(width: 327, height: 336),
-            animated: true
+            targetSize: CGSize(width: imageWidth, height: imageHeight),
+            animated: true,
+            cornerRadius: 0
         )
     }
 

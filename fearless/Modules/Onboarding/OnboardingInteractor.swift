@@ -6,7 +6,8 @@ enum OnboardingKeys: String {
 }
 
 protocol OnboardingInteractorOutput: AnyObject {
-    func didReceiveOnboardingConfig(result: Result<OnboardingConfigWrapper, Error>?)
+    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper) async
+    func didReceiveOnboardingConfig(error: Error) async
 }
 
 final class OnboardingInteractor {
@@ -27,14 +28,13 @@ final class OnboardingInteractor {
         self.userDefaultsStorage = userDefaultsStorage
     }
 
-    private func loadConfig() {
-        let fetchOperation = onboardingService.fetchConfigOperation()
-        fetchOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.output?.didReceiveOnboardingConfig(result: fetchOperation.result)
-            }
+    private func loadConfig() async {
+        do {
+            let onboardingWrapper = try await onboardingService.fetchConfig()
+            await output?.didReceiveOnboardingConfig(onboardingWrapper)
+        } catch {
+            await output?.didReceiveOnboardingConfig(error: error)
         }
-        operationQueue.addOperation(fetchOperation)
     }
 
     func didClose() {
@@ -50,6 +50,8 @@ final class OnboardingInteractor {
 extension OnboardingInteractor: OnboardingInteractorInput {
     func setup(with output: OnboardingInteractorOutput) {
         self.output = output
-        loadConfig()
+        Task {
+            await loadConfig()
+        }
     }
 }
