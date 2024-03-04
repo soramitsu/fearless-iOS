@@ -22,7 +22,7 @@ final class WalletTransactionHistoryDependencyContainer {
 
         guard
             let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
-                chainAsset: chainAsset,
+                chain: chainAsset.chain,
                 txStorage: AnyDataProviderRepository(txStorage)
             )
         else {

@@ -46,7 +46,7 @@ final class SendRouter: SendRouterInput {
     ) {
         guard let module = ContactsAssembly.configureModule(
             wallet: wallet,
-            chainAsset: chainAsset,
+            source: .token(chainAsset: chainAsset),
             moduleOutput: moduleOutput
         ) else {
             return
