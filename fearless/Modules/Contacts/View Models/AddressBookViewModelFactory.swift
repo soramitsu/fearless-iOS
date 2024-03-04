@@ -50,6 +50,6 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
         if savedContacts.isEmpty, recentContacts.isEmpty {
             return []
         }
-        return [recentContactsSection] + savedContactsSections
+        return ([recentContactsSection] + savedContactsSections).filter { $0.cellViewModels.isNotEmpty }
     }
 }

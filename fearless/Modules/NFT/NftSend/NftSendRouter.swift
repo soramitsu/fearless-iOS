@@ -14,11 +14,21 @@ final class NftSendRouter: NftSendRouterInput {
     }
 
     func presentHistory(
-        from _: ControllerBackedProtocol?,
-        wallet _: MetaAccountModel,
-        chain _: ChainModel,
-        moduleOutput _: ContactsModuleOutput
-    ) {}
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        chain: ChainModel,
+        moduleOutput: ContactsModuleOutput
+    ) {
+        guard let module = ContactsAssembly.configureModule(
+            wallet: wallet,
+            source: .nft(chain: chain),
+            moduleOutput: moduleOutput
+        ) else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+        view?.controller.present(navigationController, animated: true)
+    }
 
     func presentConfirm(
         nft: NFT,

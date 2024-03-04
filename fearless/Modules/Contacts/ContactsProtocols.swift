@@ -6,6 +6,7 @@ typealias ContactsModuleCreationResult = (view: ContactsViewInput, input: Contac
 protocol ContactsViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(sections: [ContactsTableSectionModel])
     func didReceive(locale: Locale)
+    func didReceive(source: ContactSource)
 }
 
 protocol ContactsViewOutput: AnyObject {
