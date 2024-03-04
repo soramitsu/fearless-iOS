@@ -57,9 +57,6 @@ final class OnboardingViewController: UIViewController, ViewHolder {
         rootView.skipButton.addAction { [weak self] in
             self?.output.didTapSkipButton()
         }
-        rootView.crossButton.addAction { [weak self] in
-            self?.output.didTapSkipButton()
-        }
     }
 }
 

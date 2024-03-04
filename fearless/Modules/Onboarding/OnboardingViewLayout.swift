@@ -3,12 +3,6 @@ import UIKit
 final class OnboardingViewLayout: UIView {
     private let pageViewControllerContainer = UIView()
 
-    let crossButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconClose(), for: .normal)
-        return button
-    }()
-
     let collectionView: UICollectionView = {
         let view = UICollectionView(frame: .zero, collectionViewLayout: DefaultFlowLayout())
         view.showsVerticalScrollIndicator = false
@@ -95,13 +89,6 @@ final class OnboardingViewLayout: UIView {
         stackContainer.addArrangedSubview(pageControl)
         pageControl.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-        }
-
-        addSubview(crossButton)
-        crossButton.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(32)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.size.equalTo(UIConstants.roundedCloseButtonSize)
         }
     }
 
