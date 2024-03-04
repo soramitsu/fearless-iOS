@@ -41,14 +41,10 @@ final class OnboardingViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
         rootView.collectionView.delegate = self
-        setup()
+        setupActions()
     }
 
     // MARK: - Private methods
-
-    private func setup() {
-        setupActions()
-    }
 
     private func setupActions() {
         rootView.nextButton.addAction { [weak self] in
@@ -74,7 +70,12 @@ extension OnboardingViewController: OnboardingViewInput {
 
     func showNextPage() {
         if let pagesCount = dataSource?.data.count, rootView.pageControl.currentPage + 1 < pagesCount {
-            rootView.collectionView.scrollTo(horizontalPage: rootView.pageControl.currentPage + 1, offset: 16)
+            rootView.collectionView.scrollTo(
+                horizontalPage: UIScrollView.Page(
+                    intValue: rootView.pageControl.currentPage + 1,
+                    direction: .horizontal(offset: 16)
+                )
+            )
         }
     }
 }

@@ -14,14 +14,18 @@ final class OnboardingRouter: OnboardingRouterInput {
 
     func showLogin() {
         let onboardingView = OnboardingMainViewFactory.createViewForOnboarding()
-        let onboardingController = onboardingView?.controller ?? UIViewController()
+        guard let onboardingController = onboardingView?.controller else {
+            return
+        }
 
         animateTransition(to: onboardingController)
     }
 
     func showLocalAuthentication() {
         let pincodeView = PinViewFactory.createSecuredPinView()
-        let pincodeController = pincodeView?.controller ?? UIViewController()
+        guard let pincodeController = pincodeView?.controller else {
+            return
+        }
 
         animateTransition(to: pincodeController)
     }
