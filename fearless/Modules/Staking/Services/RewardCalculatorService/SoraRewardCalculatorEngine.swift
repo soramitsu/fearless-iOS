@@ -129,16 +129,24 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     func calculateAvgEarnings(
         amount: Decimal,
-        isCompound _: Bool,
+        isCompound: Bool,
         period: CalculationPeriod
     ) -> Decimal {
-        calculateEarningsForAmount(
-            amount,
-            stake: averageStake,
-            commission: medianCommission,
-            period: period,
-            rewardAssetType: .percent
-        )
+        do {
+            let electedValidators = validators.filter { $0.exposure.total > 0 }
+            let validatorsEarnings = try electedValidators.compactMap {
+                try calculateEarnings(
+                    amount: amount,
+                    validatorAccountId: $0.accountId,
+                    isCompound: isCompound,
+                    period: period
+                )
+            }
+
+            return validatorsEarnings.sum() / Decimal(electedValidators.count)
+        } catch {
+            return .zero
+        }
     }
 
     func calculatorReturn(isCompound _: Bool, period: CalculationPeriod, type: RewardReturnType) -> Decimal {

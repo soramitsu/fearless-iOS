@@ -131,7 +131,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             amount: amount,
             isCompound: isCompound,
             period: period,
-            resultType: .value
+            resultType: .percent
         )
     }
 
@@ -149,7 +149,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             amount: amount,
             isCompound: isCompound,
             period: period,
-            resultType: .value
+            resultType: .percent
         )
     }
 
@@ -190,15 +190,11 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
                 return dailyReturn * Decimal(period.inDays)
             }
         case .avg:
-            let commission = validators.compactMap { Decimal.fromSubstratePerbill(value: $0.prefs.commission) ?? 0.0 }.reduce(0,+) / Decimal(validators.count)
-            let annualReturn = calculateReturnForStake(averageStake, commission: commission)
+            let commission = validators.compactMap { Decimal.fromSubstratePerbill(value: $0.prefs.commission) ?? 0.0 }.filter { $0 < 1.0 }.reduce(0,+) / Decimal(validators.count)
+            let annualReturn = calculateReturnForStake(averageStake, commission: medianCommission)
             let dailyReturn = annualReturn / 365.0
 
-            if isCompound {
-                return calculateCompoundReward(initialAmount: 1.0, period: period, dailyInterestRate: dailyReturn)
-            } else {
-                return dailyReturn * Decimal(period.inDays)
-            }
+            return dailyReturn * Decimal(period.inDays)
         }
     }
 

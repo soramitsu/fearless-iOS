@@ -314,7 +314,7 @@ final class RelaychainValidatorOperationFactory {
 
                     let stakeReturn = try returnCalculator.calculateValidatorReturn(
                         validatorAccountId: validatorId,
-                        isCompound: true,
+                        isCompound: false,
                         period: .year
                     )
 
@@ -405,7 +405,7 @@ final class RelaychainValidatorOperationFactory {
 
                     let stakeReturn = try returnCalculator.calculateValidatorReturn(
                         validatorAccountId: validator.accountId,
-                        isCompound: true,
+                        isCompound: false,
                         period: .year
                     )
 
@@ -436,7 +436,7 @@ final class RelaychainValidatorOperationFactory {
         maxNominatorsOperation: BaseOperation<UInt32>,
         slashesOperation: UnappliedSlashesOperation,
         identitiesOperation: BaseOperation<[String: AccountIdentity]>,
-        staked: Decimal
+        staked _: Decimal
     ) -> BaseOperation<[ElectedValidatorInfo]> {
         let chainFormat = chain.chainFormat
 
@@ -462,10 +462,9 @@ final class RelaychainValidatorOperationFactory {
                     chainFormat: chainFormat
                 )
 
-                let validatorReturn = try? calculator.calculateEarnings(
-                    amount: staked,
+                let validatorReturn = try? calculator.calculateValidatorReturn(
                     validatorAccountId: validator.accountId,
-                    isCompound: true,
+                    isCompound: false,
                     period: .year
                 )
 
@@ -496,7 +495,7 @@ final class RelaychainValidatorOperationFactory {
                     let validatorReturn = try? calculator
                         .calculateValidatorReturn(
                             validatorAccountId: validator.accountId,
-                            isCompound: true,
+                            isCompound: false,
                             period: .year
                         )
 
@@ -552,7 +551,7 @@ final class RelaychainValidatorOperationFactory {
                 let validatorReturn = try? calculator
                     .calculateValidatorReturn(
                         validatorAccountId: validator.accountId,
-                        isCompound: true,
+                        isCompound: false,
                         period: .year
                     )
 

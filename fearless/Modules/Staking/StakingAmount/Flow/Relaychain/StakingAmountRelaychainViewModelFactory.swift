@@ -73,23 +73,16 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
                 type: .max()
             )
 
-            let amount = viewModelState.amount ?? 0.0
+            let amount = viewModelState.amount ?? 1.0
 
-            let restakeEarnings = calculator.calculateMaxEarnings(
-                amount: amount,
-                isCompound: true,
-                period: .year
-            )
-            let payoutEarnings = calculator.calculateMaxEarnings(
-                amount: amount,
-                isCompound: false,
-                period: .year
-            )
+            let rewardAssetRate = calculator.rewardAssetRate
+            let restakeReturnAmount = restake * amount * rewardAssetRate
+            let payoutReturnAmount = payout * amount * rewardAssetRate
 
             reward = CalculatedReward(
-                restakeReturn: restakeEarnings,
+                restakeReturn: restakeReturnAmount,
                 restakeReturnPercentage: restake,
-                payoutReturn: payoutEarnings,
+                payoutReturn: payoutReturnAmount,
                 payoutReturnPercentage: payout
             )
         } else {

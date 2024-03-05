@@ -37,7 +37,7 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     func calculateEarnings(
         amount: Decimal,
         validatorAccountId: AccountId,
-        isCompound _: Bool,
+        isCompound: Bool,
         period: CalculationPeriod
     ) throws -> Decimal {
         guard let validator = validators.first(where: { $0.accountId == validatorAccountId }) else {
@@ -49,21 +49,33 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             precision: Int16(chainAsset.asset.precision)
         ).or(.zero)
         let ratio = amount / validatorTotalBonded
-        let avgIndividualRewardPoint = rewardPointsByEra
+        let last14ErasRewardPoints = rewardPointsByEra
             .sorted(by: { $0.key < $1.key })
-            .suffix(14)
+            .suffix(15)
+            .prefix(14)
+        let last14ErasValidatorRewards = validatorRewardsByEra
+            .sorted(by: { $0.key < $1.key })
+            .suffix(15)
+            .prefix(14)
+        let avgIndividualRewardPoint = last14ErasRewardPoints
             .compactMap { $0.value.individual }
             .reduce([], +)
             .filter { $0.accountId == validatorAccountId }
-            .compactMap { $0.rewardPoint }
+            .compactMap { Double($0.rewardPoint) }
             .average()
-        let eraRewardPointsTotal = (rewardPointsByEra.sorted(by: { $0.key < $1.key }).last?.value.total).or(RewardPoint.min)
+        let eraRewardPointsTotal = (last14ErasRewardPoints.last?.value.total).or(RewardPoint.min)
         let participation = Decimal(avgIndividualRewardPoint) / Decimal(eraRewardPointsTotal)
-        let totalRewards = (validatorRewardsByEra.sorted(by: { $0.key < $1.key }).last?.value).or(.zero)
+        let totalRewards = (last14ErasValidatorRewards.last?.value).or(.zero)
         let totalRewardsDecimal = Decimal.fromSubstrateAmount(totalRewards, precision: Int16(chainAsset.asset.precision)).or(.zero)
         let poolAllocation = totalRewardsDecimal * participation
         let comissionDecimal = Decimal.fromSubstratePerbill(value: validator.prefs.commission).or(0)
-        return ((ratio * poolAllocation) - (comissionDecimal * (ratio * poolAllocation))) * Decimal(period.inDays) / amount
+
+        let dailyInterestRate = ((ratio * poolAllocation) - (comissionDecimal * (ratio * poolAllocation))) / amount
+        if isCompound {
+            return pow(1.0 + dailyInterestRate, period.inDays) - 1.0
+        } else {
+            return dailyInterestRate * Decimal(period.inDays)
+        }
     }
 
     func calculateMaxEarnings(
@@ -87,7 +99,14 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     ) -> Decimal {
         do {
             let electedValidators = validators.filter { $0.exposure.total > 0 }
-            let validatorsEarnings = try electedValidators.compactMap { try calculateEarnings(amount: amount, validatorAccountId: $0.accountId, isCompound: isCompound, period: period) }
+            let validatorsEarnings = try electedValidators.compactMap {
+                try calculateEarnings(
+                    amount: amount,
+                    validatorAccountId: $0.accountId,
+                    isCompound: isCompound,
+                    period: period
+                )
+            }
 
             return validatorsEarnings.sum() / Decimal(electedValidators.count)
         } catch {

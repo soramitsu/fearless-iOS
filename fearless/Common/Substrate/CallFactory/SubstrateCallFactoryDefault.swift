@@ -41,7 +41,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             destArg = .staked
         case let .payout(address):
             let accountId = try AddressFactory.accountId(from: address, chain: chainAsset.chain)
-            destArg = .account(accountId)
+            destArg = chainAsset.chain.stakingSettings?.rewardDestinationArg(accountId: accountId) ?? .account(accountId)
         }
         let path: SubstrateCallPath = .bond
 

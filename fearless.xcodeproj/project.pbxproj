@@ -1987,6 +1987,7 @@
 		FA17B4D427E9CF2D006E0735 /* UtilityConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA17B4D327E9CF2C006E0735 /* UtilityConstants.swift */; };
 		FA1A023C274F51A900DA07CB /* ChainAccountBalanceTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */; };
 		FA1A023E274F55D900DA07CB /* HorizontalKeyValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */; };
+		FA24FEFE2B95C32200CD9E04 /* Decimal+DoubleValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA24FEFD2B95C32200CD9E04 /* Decimal+DoubleValue.swift */; };
 		FA256984274CE5A500875A53 /* BalanceLockType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256982274CE5A400875A53 /* BalanceLockType.swift */; };
 		FA256985274CE5A500875A53 /* BalanceLocks+Sort.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256983274CE5A500875A53 /* BalanceLocks+Sort.swift */; };
 		FA256987274CE5B700875A53 /* SHA256.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256986274CE5B700875A53 /* SHA256.swift */; };
@@ -5046,6 +5047,7 @@
 		FA17B4D327E9CF2C006E0735 /* UtilityConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UtilityConstants.swift; sourceTree = "<group>"; };
 		FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceTableCell.swift; sourceTree = "<group>"; };
 		FA1A023D274F55D900DA07CB /* HorizontalKeyValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HorizontalKeyValueView.swift; sourceTree = "<group>"; };
+		FA24FEFD2B95C32200CD9E04 /* Decimal+DoubleValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+DoubleValue.swift"; sourceTree = "<group>"; };
 		FA256982274CE5A400875A53 /* BalanceLockType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLockType.swift; sourceTree = "<group>"; };
 		FA256983274CE5A500875A53 /* BalanceLocks+Sort.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "BalanceLocks+Sort.swift"; sourceTree = "<group>"; };
 		FA256986274CE5B700875A53 /* SHA256.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SHA256.swift; sourceTree = "<group>"; };
@@ -9157,6 +9159,7 @@
 				C6DC2D5F2B18411000BAA4DB /* UIImageView+gif.swift */,
 				FAD9AAC02B8DF62100AA603B /* AsyncMap.swift */,
 				FAA9BC402B8F17BA00A875BF /* Collection+Average.swift */,
+				FA24FEFD2B95C32200CD9E04 /* Decimal+DoubleValue.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -15381,7 +15384,7 @@
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
 				FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift.git" */,
+				FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -15597,7 +15600,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -15678,7 +15681,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -15728,7 +15731,7 @@
 			);
 			inputPaths = (
 				"${BUILT_PRODUCTS_DIR}/${INFOPLIST_PATH}",
-				"$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift",
+				$PODS_ROOT/FearlessKeys/FearlessKeys/Classes/FearlessKeys.swift,
 			);
 			name = "Inject Google Keys";
 			outputFileListPaths = (
@@ -18289,6 +18292,7 @@
 				FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */,
 				41831354E275074C7BBC4C28 /* NodeSelectionViewFactory.swift in Sources */,
 				C6CA203F2B072871001503C2 /* NftFiltersRouter.swift in Sources */,
+				FA24FEFE2B95C32200CD9E04 /* Decimal+DoubleValue.swift in Sources */,
 				FAF9C2B12AAF3FDF00A61D21 /* GetPreinstalledWalletRouter.swift in Sources */,
 				6C0289728544A96852CCBF20 /* AddCustomNodeProtocols.swift in Sources */,
 				9C8AAE31F22421A975A17DF4 /* AddCustomNodeWireframe.swift in Sources */,
@@ -19235,7 +19239,7 @@
 				version = 1.9.9;
 			};
 		};
-		FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift.git" */ = {
+		FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
@@ -19281,17 +19285,17 @@
 		};
 		FA8FD1802AF4B55100354482 /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3;
 		};
 		FA8FD1822AF4B55100354482 /* Web3ContractABI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3ContractABI;
 		};
 		FA8FD1842AF4B55100354482 /* Web3PromiseKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift.git" */;
+			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
 			productName = Web3PromiseKit;
 		};
 		FA8FD1872AF4BEDD00354482 /* Swime */ = {
