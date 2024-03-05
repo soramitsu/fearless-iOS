@@ -47,7 +47,6 @@ final class NftSendViewLayout: UIView {
         let button = TriangularedButton()
         button.applyStackButtonStyle()
         button.imageWithTitleView?.iconImage = R.image.iconHistory()
-        button.isHidden = true
         return button
     }()
 
@@ -193,7 +192,7 @@ final class NftSendViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         ).uppercased()
 
-        historyButton.imageWithTitleView?.title = R.string.localizable.walletHistoryTitle_v190(
+        historyButton.imageWithTitleView?.title = R.string.localizable.walletSearchContacts(
             preferredLanguages: locale.rLanguages
         ).uppercased()
 
