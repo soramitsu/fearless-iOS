@@ -28,7 +28,10 @@ class JSONRPCWorker<P: Encodable, T: Decodable> {
                 let timeoutTask = Task {
                     let duration = UInt64(timeout * 1_000_000_000)
                     try await Task.sleep(nanoseconds: duration)
-                    continuation.resume(throwing: JSONRPCWorkerContinuationError())
+
+                    if let requestId = requestId {
+                        engine.cancelForIdentifier(requestId)
+                    }
                 }
 
                 do {

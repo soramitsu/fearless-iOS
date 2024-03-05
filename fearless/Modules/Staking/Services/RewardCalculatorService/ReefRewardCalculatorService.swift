@@ -10,17 +10,10 @@ enum ReefCalculatorServiceError: Error {
 }
 
 final class ReefRewardCalculatorService {
-    static let queueLabelPrefix = "jp.co.fearless.reefrewardcalculator"
-
     private struct PendingRequest {
         let resultClosure: (RewardCalculatorEngineProtocol) -> Void
         let queue: DispatchQueue?
     }
-
-    private let syncQueue = DispatchQueue(
-        label: "\(queueLabelPrefix).\(UUID().uuidString)",
-        qos: .userInitiated
-    )
 
     private var isActive: Bool = false
     private var pendingRequests: [PendingRequest] = []
@@ -211,23 +204,19 @@ extension ReefRewardCalculatorService: RewardCalculatorServiceProtocol {
         eraValidatorsService.setup()
         fetchTotalValidatorRewards()
 
-        syncQueue.async {
-            guard !self.isActive else {
-                return
-            }
-
-            self.isActive = true
+        guard !isActive else {
+            return
         }
+
+        isActive = true
     }
 
     func throttle() {
-        syncQueue.async {
-            guard !self.isActive else {
-                return
-            }
-
-            self.isActive = false
+        guard !isActive else {
+            return
         }
+
+        isActive = false
     }
 
     func fetchCalculatorOperation() -> BaseOperation<RewardCalculatorEngineProtocol> {

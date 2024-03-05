@@ -5,6 +5,7 @@ import Accelerate
 
 enum ReefRewardCalculatorEngineError: Error {
     case validatorNotFound(accountId: AccountId)
+    case noData
 }
 
 final class ReefRewardCalculatorEngine {
@@ -48,6 +49,7 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             validator.exposure.total,
             precision: Int16(chainAsset.asset.precision)
         ).or(.zero)
+
         let ratio = amount / validatorTotalBonded
         let last14ErasRewardPoints = rewardPointsByEra
             .sorted(by: { $0.key < $1.key })
@@ -63,9 +65,14 @@ extension ReefRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             .filter { $0.accountId == validatorAccountId }
             .compactMap { Double($0.rewardPoint) }
             .average()
-        let eraRewardPointsTotal = (last14ErasRewardPoints.last?.value.total).or(RewardPoint.min)
+
+        guard
+            let eraRewardPointsTotal = last14ErasRewardPoints.last?.value.total,
+            let totalRewards = last14ErasValidatorRewards.last?.value
+        else {
+            throw ReefRewardCalculatorEngineError.noData
+        }
         let participation = Decimal(avgIndividualRewardPoint) / Decimal(eraRewardPointsTotal)
-        let totalRewards = (last14ErasValidatorRewards.last?.value).or(.zero)
         let totalRewardsDecimal = Decimal.fromSubstrateAmount(totalRewards, precision: Int16(chainAsset.asset.precision)).or(.zero)
         let poolAllocation = totalRewardsDecimal * participation
         let comissionDecimal = Decimal.fromSubstratePerbill(value: validator.prefs.commission).or(0)
