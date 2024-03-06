@@ -213,6 +213,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
             GitHubUrl.url(suffix: "appConfigs/feature_toggle")
         #endif
     }
+
+    var onboardingConfig: URL? {
+        GitHubUrl.url(suffix: "appConfigs/onboarding/mobile.json", branch: .developFree)
+    }
 }
 
 private enum GitHubUrl {
