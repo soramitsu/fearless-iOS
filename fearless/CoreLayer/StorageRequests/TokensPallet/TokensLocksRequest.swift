@@ -1,26 +1,26 @@
 import Foundation
 import SSFModels
 
-struct TokensLocksRequest<T: Encodable>: StorageRequest {
-    typealias K = T
-
-    let accountId: T
+struct TokensLocksRequest: StorageRequest {
+    let accountId: AccountIdVariant
     let currencyId: CurrencyId
 
-    var parametersType: StorageRequestParametersType<K> {
-        .nMap {
-            [
+    var parametersType: StorageRequestParametersType {
+        switch accountId {
+        case let .accountId(accountId):
+            return .nMap(params: [
                 [NMapKeyParam(value: accountId)],
                 [NMapKeyParam(value: currencyId)]
-            ]
+            ])
+        case let .address(address):
+            return .nMap(params: [
+                [NMapKeyParam(value: address)],
+                [NMapKeyParam(value: currencyId)]
+            ])
         }
     }
 
     var storagePath: StorageCodingPath {
         .tokensLocks
-    }
-
-    var responseType: StorageResponseType {
-        .single
     }
 }

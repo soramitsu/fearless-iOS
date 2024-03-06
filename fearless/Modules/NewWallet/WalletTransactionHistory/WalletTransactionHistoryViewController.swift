@@ -624,6 +624,8 @@ extension WalletTransactionHistoryViewController: EmptyStateViewOwnerProtocol {
 
 extension WalletTransactionHistoryViewController: Localizable {
     func applyLocalization() {
+        rootView.locale = selectedLocale
+
         if isViewLoaded {
             reloadEmptyState(animated: false)
 

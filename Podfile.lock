@@ -10,9 +10,9 @@ PODS:
     - Charts/Core (= 4.1.0)
   - Charts/Core (4.1.0):
     - SwiftAlgorithms (~> 1.0)
-  - CocoaLumberjack (3.8.2):
-    - CocoaLumberjack/Core (= 3.8.2)
-  - CocoaLumberjack/Core (3.8.2)
+  - CocoaLumberjack (3.8.4):
+    - CocoaLumberjack/Core (= 3.8.4)
+  - CocoaLumberjack/Core (3.8.4)
   - CommonWallet/Core (1.16.0):
     - RobinHood (~> 2.6.1)
     - SoraFoundation/DateProcessing (~> 1.0.0)
@@ -37,10 +37,10 @@ PODS:
   - GTMAppAuth (2.0.0):
     - AppAuth/Core (~> 1.6)
     - GTMSessionFetcher/Core (< 4.0, >= 1.5)
-  - GTMSessionFetcher (3.2.0):
-    - GTMSessionFetcher/Full (= 3.2.0)
-  - GTMSessionFetcher/Core (3.2.0)
-  - GTMSessionFetcher/Full (3.2.0):
+  - GTMSessionFetcher (3.3.1):
+    - GTMSessionFetcher/Full (= 3.3.1)
+  - GTMSessionFetcher/Core (3.3.1)
+  - GTMSessionFetcher/Full (3.3.1):
     - GTMSessionFetcher/Core
   - IrohaCrypto (0.10.0):
     - IrohaCrypto/BIP39 (= 0.10.0)
@@ -249,7 +249,7 @@ DEPENDENCIES:
   - FireMock
   - IrohaCrypto
   - keccak.c
-  - Kingfisher
+  - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - MPQRCoreSDK
   - R.swift (= 6.1.0)
@@ -362,7 +362,7 @@ SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
-  CocoaLumberjack: f8d89a516e7710fdb2e9b8f1560b16ec6040eef0
+  CocoaLumberjack: df59726690390bb8aaaa585938564ba1c8dbbb44
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 20b8aed94022e0e43e90f7c9e4fb0c86f0926a01
   FearlessKeys: c86874e021dbc11c035f68a83f35569cd21d2e6c
@@ -370,7 +370,7 @@ SPEC CHECKSUMS:
   GoogleAPIClientForREST: a8b95a252014ce2e618df6b75dc72eca2c00b4af
   GoogleSignIn: b232380cf495a429b8095d3178a8d5855b42e842
   GTMAppAuth: 99fb010047ba3973b7026e45393f51f27ab965ae
-  GTMSessionFetcher: 41b9ef0b4c08a6db4b7eb51a21ae5183ec99a2c8
+  GTMSessionFetcher: 8a1b34ad97ebe6f909fb8b9b77fba99943007556
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
   Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
@@ -412,6 +412,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: f154a02f062b2d5cbccad0492163642c80279aee
+PODFILE CHECKSUM: 4949d659e83fabe2ba207aa9a33c8ff14a7b2a43
 
 COCOAPODS: 1.15.2

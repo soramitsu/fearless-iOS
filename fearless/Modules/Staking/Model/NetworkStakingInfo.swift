@@ -57,7 +57,11 @@ struct RelaychainStakingInfo {
 
 extension NetworkStakingInfo {
     func calculateMinimumStake(given minNominatorBond: BigUInt?) -> BigUInt {
-        let minStake = max(baseInfo.minStakeAmongActiveNominators, baseInfo.minimalBalance)
+        let minStakeAmongActiveNominatorsDecimal = Decimal.fromSubstratePerbill(value: baseInfo.minStakeAmongActiveNominators).or(.zero)
+        let safeMinStakeAmongActiveNominatorsDecimal = minStakeAmongActiveNominatorsDecimal * 1.15
+        let safeMinStakeAmongActiveNominators = safeMinStakeAmongActiveNominatorsDecimal.toSubstrateAmount(precision: 9).or(.zero)
+
+        let minStake = max(safeMinStakeAmongActiveNominators, baseInfo.minimalBalance)
 
         guard let minNominatorBond = minNominatorBond else {
             return minStake

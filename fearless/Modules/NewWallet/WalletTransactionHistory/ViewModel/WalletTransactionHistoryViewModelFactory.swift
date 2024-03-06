@@ -323,10 +323,12 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             imageViewModel = RemoteImageViewModel(url: assetIconURL)
         }
 
+        let image: UIImage? = data.peerFirstName?.lowercased() == "staking" ? R.image.iconRewardAndSlashes() : nil
+
         let viewModel = WalletTransactionHistoryCellViewModel(
             transaction: data,
             address: moduleName,
-            icon: nil,
+            icon: image,
             transactionType: callName,
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,

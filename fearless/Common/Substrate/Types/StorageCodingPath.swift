@@ -143,6 +143,12 @@ enum StorageCodingPath: Equatable, CaseIterable {
             return (moduleName: "Tokens", itemName: "Locks")
         case .vestingVesting:
             return (moduleName: "Vesting", itemName: "Vesting")
+        case .erasRewardPoints:
+            return (moduleName: "Staking", itemName: "ErasRewardPoints")
+        case .erasTotalStake:
+            return (moduleName: "Staking", itemName: "ErasTotalStake")
+        case .erasValidatorReward:
+            return (moduleName: "Staking", itemName: "ErasValidatorReward")
         }
     }
 
@@ -212,4 +218,7 @@ enum StorageCodingPath: Equatable, CaseIterable {
     case vestingSchedule
     case tokensLocks
     case vestingVesting
+    case erasRewardPoints
+    case erasTotalStake
+    case erasValidatorReward
 }

@@ -54,7 +54,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
     }
 
     func setup() {
-        interactor.setup()
+        interactor.setup(with: self)
     }
 
     func loadNext() -> Bool {

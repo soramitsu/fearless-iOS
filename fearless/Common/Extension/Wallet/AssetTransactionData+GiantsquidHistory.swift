@@ -185,4 +185,52 @@ extension AssetTransactionData {
             context: nil
         )
     }
+
+    static func createTransaction(
+        extrinsic: GiantsquidExtrinsic,
+        address: String,
+        asset: AssetModel
+    ) -> AssetTransactionData {
+        let amount = Decimal.fromSubstrateAmount(
+            (extrinsic.signedData?.fee?.partialFee).or(.zero),
+            precision: Int16(asset.precision)
+        ) ?? .zero
+
+        let status: AssetTransactionStatus = extrinsic.status?.lowercased() == "success" ? .commited : .rejected
+
+        var fees: [AssetTransactionFee] = []
+
+        if
+            let signedData = extrinsic.signedData,
+            let fee = signedData.fee,
+            let partialFee = fee.partialFee,
+            let partialFeeDecimal = Decimal.fromSubstrateAmount(partialFee, precision: Int16(asset.precision))
+        {
+            let fee = AssetTransactionFee(
+                identifier: asset.identifier,
+                assetId: asset.identifier,
+                amount: AmountDecimal(value: partialFeeDecimal),
+                context: nil
+            )
+
+            fees.append(fee)
+        }
+
+        return AssetTransactionData(
+            transactionId: extrinsic.hash ?? extrinsic.id,
+            status: status,
+            assetId: asset.identifier,
+            peerId: address,
+            peerFirstName: extrinsic.section,
+            peerLastName: extrinsic.method,
+            peerName: "\(extrinsic.section ?? "") \(extrinsic.method ?? "")",
+            details: "",
+            amount: AmountDecimal(value: amount),
+            fees: fees,
+            timestamp: extrinsic.timestampInSeconds,
+            type: TransactionType.extrinsic.rawValue,
+            reason: extrinsic.identifier,
+            context: nil
+        )
+    }
 }

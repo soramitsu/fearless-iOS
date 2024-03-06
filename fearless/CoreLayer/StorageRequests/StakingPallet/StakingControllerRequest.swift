@@ -1,21 +1,18 @@
 import Foundation
 
-struct StakingControllerRequest<T: Encodable>: StorageRequest {
-    typealias K = T
+struct StakingControllerRequest: StorageRequest {
+    let accountId: AccountIdVariant
 
-    let accountId: T
-
-    var parametersType: StorageRequestParametersType<K> {
-        .encodable {
-            [accountId]
+    var parametersType: StorageRequestParametersType {
+        switch accountId {
+        case let .accountId(accountId):
+            return .encodable(param: accountId)
+        case let .address(address):
+            return .encodable(param: address)
         }
     }
 
     var storagePath: StorageCodingPath {
         .controller
-    }
-
-    var responseType: StorageResponseType {
-        .single
     }
 }

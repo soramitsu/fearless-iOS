@@ -1,43 +1,51 @@
 import Foundation
 import SSFUtils
+import SSFRuntimeCodingService
 
-protocol StorageRequestOperationBuilderFactory {
-    func buildStorageRequestOperationBuilder(
+protocol StorageRequestWorkerBuilder {
+    func buildWorker(
         runtimeService: RuntimeCodingServiceProtocol,
         connection: JSONRPCEngine,
-        storageRequestFactory: StorageRequestFactoryProtocol,
-        request: some StorageRequest
-    ) -> StorageRequestOperationBuilder
+        storageRequestFactory: AsyncStorageRequestFactory,
+        type: StorageRequestWorkerType
+    ) -> StorageRequestWorker
 }
 
-final class BaseStorageRequestOperationBuilderFactory<T: Decodable>: StorageRequestOperationBuilderFactory {
-    func buildStorageRequestOperationBuilder(
+enum StorageRequestWorkerType {
+    case nMap(params: [[any NMapKeyParamProtocol]])
+    case encodable(params: [any Encodable])
+    case simple
+    case prefix
+}
+
+final class StorageRequestWorkerBuilderDefault<T: Decodable>: StorageRequestWorkerBuilder {
+    func buildWorker(
         runtimeService: RuntimeCodingServiceProtocol,
         connection: JSONRPCEngine,
-        storageRequestFactory: StorageRequestFactoryProtocol,
-        request: some StorageRequest
-    ) -> StorageRequestOperationBuilder {
-        switch request.parametersType {
+        storageRequestFactory: AsyncStorageRequestFactory,
+        type: StorageRequestWorkerType
+    ) -> StorageRequestWorker {
+        switch type {
         case .nMap:
-            return NMapStorageRequestOperationBuilder<T>(
+            return NMapStorageRequestWorker<T>(
                 runtimeService: runtimeService,
                 connection: connection,
                 storageRequestFactory: storageRequestFactory
             )
         case .encodable:
-            return EncodableStorageRequestOperationBuilder<T>(
+            return EncodableStorageRequestWorker<T>(
                 runtimeService: runtimeService,
                 connection: connection,
                 storageRequestFactory: storageRequestFactory
             )
-        case .keys:
-            return KeysStorageRequestOperationBuilder<T>(
+        case .simple:
+            return SimpleStorageRequestWorker<T>(
                 runtimeService: runtimeService,
                 connection: connection,
                 storageRequestFactory: storageRequestFactory
             )
-        case .childKeyParam:
-            return KeysStorageRequestOperationBuilder<T>(
+        case .prefix:
+            return PrefixStorageRequestWorker<T>(
                 runtimeService: runtimeService,
                 connection: connection,
                 storageRequestFactory: storageRequestFactory

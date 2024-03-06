@@ -17,19 +17,21 @@ extension ElectedValidatorInfo {
             myNomination = nil
         }
 
+        let stakeInfo = ValidatorStakeInfo(
+            nominators: nominators,
+            totalStake: totalStake,
+            stakeReturn: stakeReturn,
+            maxNominatorsRewarded: maxNominatorsRewarded
+        )
         return SelectedValidatorInfo(
             address: address,
             identity: identity,
-            stakeInfo: ValidatorStakeInfo(
-                nominators: nominators,
-                totalStake: totalStake,
-                stakeReturn: stakeReturn,
-                maxNominatorsRewarded: maxNominatorsRewarded
-            ),
+            stakeInfo: stakeInfo,
             myNomination: myNomination,
             commission: comission,
             hasSlashes: hasSlashes,
-            blocked: blocked
+            blocked: blocked,
+            elected: elected
         )
     }
 }

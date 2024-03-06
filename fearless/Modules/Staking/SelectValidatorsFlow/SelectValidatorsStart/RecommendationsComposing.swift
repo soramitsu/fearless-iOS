@@ -65,7 +65,7 @@ final class RecommendationsComposer: RecommendationsComposing {
 
     func compose(from validators: [RecommendableType]) -> [RecommendableType] {
         let filtered = validators
-            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed && !$0.blocked }
+            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed && !$0.blocked && $0.comission != 1.0 }
             .sorted(by: { $0.stakeReturn >= $1.stakeReturn })
 
         return processClusters(items: filtered, clusterSizeLimit: clusterSizeLimit, resultSize: resultSize)
