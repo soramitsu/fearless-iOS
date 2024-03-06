@@ -15,7 +15,7 @@ final class StorageKeyDataExtractor {
     func extractKey<T: Decodable & ScaleCodable>(
         storageKey: Data,
         storagePath: StorageCodingPath,
-        type: RuntimeType
+        type: MapKeyType
     ) async throws -> T {
         let storageKeyHex = storageKey.toHex()
         let bytesPerHexSymbol = 2

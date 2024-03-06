@@ -191,7 +191,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         switch flow {
-        case let .relaychain:
+        case .relaychain:
             let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
                 chainRegistry: chainRegistry,
                 storageFacade: substrateStorageFacade,

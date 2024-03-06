@@ -6,7 +6,7 @@ struct StakingErasRewardPointsRequest: PrefixRequest {
         .erasRewardPoints
     }
 
-    var keyType: RuntimeType {
+    var keyType: MapKeyType {
         .u32
     }
 }

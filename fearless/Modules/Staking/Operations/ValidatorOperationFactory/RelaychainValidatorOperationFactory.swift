@@ -435,8 +435,7 @@ final class RelaychainValidatorOperationFactory {
         rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
         maxNominatorsOperation: BaseOperation<UInt32>,
         slashesOperation: UnappliedSlashesOperation,
-        identitiesOperation: BaseOperation<[String: AccountIdentity]>,
-        staked _: Decimal
+        identitiesOperation: BaseOperation<[String: AccountIdentity]>
     ) -> BaseOperation<[ElectedValidatorInfo]> {
         let chainFormat = chain.chainFormat
 
@@ -637,7 +636,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         createNominatorsOperation(for: accountId)
     }
 
-    func fetchAllValidators(staked: Decimal) -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
+    func fetchAllValidators() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
         guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
@@ -749,8 +748,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             rewardOperation: rewardOperation,
             maxNominatorsOperation: maxNominatorsOperation,
             slashesOperation: slashingsWrapper.targetOperation,
-            identitiesOperation: identityWrapper.targetOperation,
-            staked: staked
+            identitiesOperation: identityWrapper.targetOperation
         )
 
         mergeOperation.addDependency(slashingsWrapper.targetOperation)

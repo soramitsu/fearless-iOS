@@ -80,7 +80,7 @@ public extension NumberFormatter {
         return formatter
     }
 
-    private static func defaultFiatFormatter(locale _: Locale) -> NumberFormatter {
+    private static func defaultFiatFormatter(locale: Locale) -> NumberFormatter {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
         numberFormatter.minimumIntegerDigits = 1
@@ -89,6 +89,7 @@ public extension NumberFormatter {
         numberFormatter.usesGroupingSeparator = true
         numberFormatter.alwaysShowsDecimalSeparator = false
         numberFormatter.usesSignificantDigits = true
+        numberFormatter.locale = locale
 
         return numberFormatter
     }

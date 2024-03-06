@@ -6,7 +6,7 @@ struct StakingErasValidatorRewardRequest: PrefixRequest {
         .erasValidatorReward
     }
 
-    var keyType: RuntimeType {
+    var keyType: MapKeyType {
         .u32
     }
 }

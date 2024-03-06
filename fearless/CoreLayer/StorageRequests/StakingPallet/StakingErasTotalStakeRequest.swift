@@ -6,7 +6,7 @@ struct StakingErasTotalStakeRequest: PrefixRequest {
         .erasTotalStake
     }
 
-    var keyType: RuntimeType {
+    var keyType: MapKeyType {
         .u32
     }
 }

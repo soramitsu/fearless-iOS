@@ -10,25 +10,22 @@ final class SelectValidatorsStartRelaychainStrategy: RuntimeConstantFetching {
     private let operationFactory: ValidatorOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
-    private let staked: Decimal
     private weak var output: SelectValidatorsStartRelaychainStrategyOutput?
 
     init(
         operationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        staked: Decimal,
         output: SelectValidatorsStartRelaychainStrategyOutput?
     ) {
         self.operationFactory = operationFactory
         self.operationManager = operationManager
         self.runtimeService = runtimeService
-        self.staked = staked
         self.output = output
     }
 
     private func prepareRecommendedValidatorList() {
-        let wrapper = operationFactory.fetchAllValidators(staked: staked)
+        let wrapper = operationFactory.fetchAllValidators()
 
         wrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {

@@ -5,7 +5,7 @@ import BigInt
 import SSFModels
 
 enum ReefCalculatorServiceError: Error {
-    case timedOut
+    case timeout
     case unexpectedInfo
 }
 
@@ -60,8 +60,7 @@ final class ReefRewardCalculatorService {
                 totalStake: totalStakeByEra,
                 rewardPoints: rewardPointsByEra,
                 validatorRewards: validatorRewardsByEra,
-                to: request,
-                chainId: chainAsset.chain.chainId
+                to: request
             )
         } else {
             pendingRequests.append(request)
@@ -72,8 +71,7 @@ final class ReefRewardCalculatorService {
         totalStake: [EraIndex: BigUInt],
         rewardPoints: [EraIndex: EraRewardPoints],
         validatorRewards: [EraIndex: BigUInt],
-        to request: PendingRequest,
-        chainId _: ChainModel.Id
+        to request: PendingRequest
     ) {
         let eraOperation = eraValidatorsService.fetchInfoOperation()
 
@@ -131,8 +129,7 @@ final class ReefRewardCalculatorService {
                 totalStake: totalStake,
                 rewardPoints: rewardPoints,
                 validatorRewards: validatorRewards,
-                to: $0,
-                chainId: chainAsset.chain.chainId
+                to: $0
             )
         }
     }
