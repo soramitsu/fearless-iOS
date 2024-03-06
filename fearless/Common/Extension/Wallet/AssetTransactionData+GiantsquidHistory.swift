@@ -218,7 +218,7 @@ extension AssetTransactionData {
         }
 
         return AssetTransactionData(
-            transactionId: extrinsic.extrinsicHash ?? extrinsic.id,
+            transactionId: extrinsic.hash ?? extrinsic.id,
             status: status,
             assetId: asset.identifier,
             peerId: address,
