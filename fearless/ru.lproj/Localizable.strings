@@ -1034,7 +1034,7 @@ Euro cash";
 "username.setup.hint.2.0" = "Пример: Сбережения, инвестиции, краудлоуны, стейкинг. Данное имя будет отображаться только для вас и храниться только на вашем мобильном устройстве.";
 "username.setup.title" = "Создать аккаунт";
 "username.setup.title.2.0" = "Создать новый кошелек";
-"validator.info.comission.title" = "Comission";
+"validator.info.comission.title" = "Commission";
 "validators.list.empty.message" = "Валидаторы не найдены";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";

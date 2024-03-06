@@ -67,7 +67,7 @@ final class CustomValidatorListRelaychainViewModelFactory {
 
         let comissionPercent = NumberFormatter.percent.stringFromDecimal(validator.commission)
         let comission: NSAttributedString? = comissionPercent.map { comission in
-            let apyString = "Comission \(comission)"
+            let apyString = "\(R.string.localizable.validatorInfoComissionTitle(preferredLanguages: locale.rLanguages)) \(comission)"
 
             let apyStringAttributed = NSMutableAttributedString(string: apyString)
             apyStringAttributed.addAttribute(

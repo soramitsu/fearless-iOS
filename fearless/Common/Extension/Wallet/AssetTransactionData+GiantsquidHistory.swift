@@ -189,7 +189,6 @@ extension AssetTransactionData {
     static func createTransaction(
         extrinsic: GiantsquidExtrinsic,
         address: String,
-        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(

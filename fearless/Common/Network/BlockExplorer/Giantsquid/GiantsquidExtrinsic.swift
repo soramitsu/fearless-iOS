@@ -37,13 +37,12 @@ extension GiantsquidExtrinsic: WalletRemoteHistoryItemProtocol {
 
     func createTransactionForAddress(
         _ address: String,
-        chain: ChainModel,
+        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         AssetTransactionData.createTransaction(
             extrinsic: self,
             address: address,
-            chain: chain,
             asset: asset
         )
     }
