@@ -32,7 +32,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
 
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
 
-        let controllerIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+        let controllerIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: controllerId) ?? .accoundId(controllerId)
 
         let destArg: RewardDestinationArg
 
@@ -100,7 +100,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     func nominate(targets: [SelectedValidatorInfo], chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let addresses: [MultiAddress] = try targets.map { info in
             let accountId = try AddressFactory.accountId(from: info.address, chain: chainAsset.chain)
-            let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: accountId) ?? .accoundId(accountId)
+            let accountIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: accountId) ?? .accoundId(accountId)
             return accountIdParam
         }
 
@@ -258,7 +258,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             .arguments.isNotEmpty == true
 
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
-        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+        let accountIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: controllerId) ?? .accoundId(controllerId)
 
         let path: SubstrateCallPath = .setController
 
@@ -273,7 +273,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
 
     private func defaultSetController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
-        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+        let accountIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: controllerId) ?? .accoundId(controllerId)
 
         let args = SetControllerCall(controller: accountIdParam)
         let path: SubstrateCallPath = .setController

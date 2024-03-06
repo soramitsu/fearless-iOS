@@ -1,16 +1,18 @@
 import Foundation
 
-struct BalancesLocksRequest<T: Encodable>: StorageRequest {
+struct StakingControllerRequest<T: Encodable>: StorageRequest {
     typealias K = T
 
     let accountId: T
 
     var parametersType: StorageRequestParametersType<K> {
-        .encodable(params: { [accountId] })
+        .encodable {
+            [accountId]
+        }
     }
 
     var storagePath: StorageCodingPath {
-        .balanceLocks
+        .controller
     }
 
     var responseType: StorageResponseType {
