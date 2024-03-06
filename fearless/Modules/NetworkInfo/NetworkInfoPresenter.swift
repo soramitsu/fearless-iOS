@@ -30,8 +30,9 @@ final class NetworkInfoPresenter {
         nameViewModel = InputViewModel(inputHandler: nameInputHandling)
 
         let processor = TrimmingCharacterProcessor(charset: CharacterSet.whitespacesAndNewlines)
+        let url = DwillerApiKeyInjector().apiKeyInjectedURL(node: node)
         let nodeInputHandling = InputHandler(
-            value: node.clearUrlString ?? "",
+            value: url.absoluteString,
             enabled: mode.contains(.node),
             predicate: NSPredicate.websocket,
             processor: processor

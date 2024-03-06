@@ -81,9 +81,10 @@ extension ConnectionPool: ConnectionPoolProtocol {
             self?.failedUrls[chain.chainId] = chainFailedUrls
         }
 
-        guard let url = node?.url else {
+        guard let node = node else {
             throw ConnectionPoolError.onlyOneNode
         }
+        let url = DwillerApiKeyInjector().apiKeyInjectedURL(node: node)
 
         clearUnusedConnections()
 
@@ -142,5 +143,19 @@ extension ConnectionPool: WebSocketEngineDelegate {
         }
 
         delegate?.webSocketDidChangeState(url: previousUrl, state: newState)
+    }
+}
+
+struct DwillerApiKeyInjector {
+    func apiKeyInjectedURL(node: ChainNodeModel) -> URL {
+        guard node.name.contains("Dwellir") else {
+            return node.url
+        }
+        #if DEBUG
+            return node.url
+        #else
+            let apiKey = DwellirNodeApiKey.dwellirApiKey
+            return node.url.appendingPathComponent("/\(apiKey)")
+        #endif
     }
 }
