@@ -55,7 +55,6 @@ enum WalletTransactionHistoryViewFactory {
         )
 
         presenter.view = view
-        interactor.presenter = presenter
 
         return WalletTransactionHistoryModule(view: view, moduleInput: presenter)
     }

@@ -186,7 +186,10 @@ extension ValidatorInfoPoolViewModelFactory: ValidatorInfoViewModelFactoryProtoc
             let exposure = createExposure(from: validatorInfo, priceData: priceData, locale: locale)
             status = .elected(exposure: exposure)
         } else {
-            status = .unelected
+            let commission = NumberFormatter.percentBase.localizableResource()
+                .value(for: locale).stringFromDecimal(validatorInfo.commission)
+
+            status = .unelected(commission: commission)
         }
 
         let staking = ValidatorInfoViewModel.Staking(

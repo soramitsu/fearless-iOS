@@ -80,15 +80,17 @@ public extension NumberFormatter {
         return formatter
     }
 
-    private static func defaultFiatFormatter(locale: Locale) -> NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.locale = locale
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = Int.max
-        formatter.usesSignificantDigits = true
-        formatter.minimumSignificantDigits = 4
-        formatter.maximumSignificantDigits = 4
-        return formatter
+    private static func defaultFiatFormatter(locale _: Locale) -> NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.minimumIntegerDigits = 1
+        numberFormatter.minimumFractionDigits = 0
+        numberFormatter.maximumFractionDigits = Int.max
+        numberFormatter.usesGroupingSeparator = true
+        numberFormatter.alwaysShowsDecimalSeparator = false
+        numberFormatter.usesSignificantDigits = true
+
+        return numberFormatter
     }
 
     private static func defaultPercentFormatter(locale: Locale) -> NumberFormatter {

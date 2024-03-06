@@ -15,7 +15,7 @@ protocol WalletTransactionHistoryPresenterProtocol: AnyObject {
 }
 
 protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {
-    func setup()
+    func setup(with presenter: WalletTransactionHistoryInteractorOutputProtocol?)
     func loadNext() -> Bool
     func applyFilters(_ filters: [FilterSet])
     func reload()
