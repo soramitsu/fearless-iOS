@@ -148,7 +148,7 @@ extension ConnectionPool: WebSocketEngineDelegate {
 
 struct DwillerApiKeyInjector {
     func apiKeyInjectedURL(node: ChainNodeModel) -> URL {
-        guard node.name.contains("Dwellir") else {
+        guard node.name.lowercased().contains("dwellir") else {
             return node.url
         }
         #if DEBUG
