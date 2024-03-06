@@ -1132,3 +1132,4 @@ ait olduğundan emin olun.";
 "your.validators.validator.total.stake" = "Toplam yatırılan miktar:%@";
 "сurrencies.stub.text" = "Para birimleri";
 "send.all.title" = "Send all tokens and reap the account";
+"onboarding.start.title" = "The DeFi Wallet For The Future";

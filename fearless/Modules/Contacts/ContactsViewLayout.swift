@@ -96,8 +96,5 @@ final class ContactsViewLayout: UIView {
         createButton.imageWithTitleView?.title = R.string.localizable.contactsCreateContact(
             preferredLanguages: locale.rLanguages
         )
-        navigationBar.setTitle(R.string.localizable.walletHistoryTitle_v190(
-            preferredLanguages: locale.rLanguages
-        ))
     }
 }

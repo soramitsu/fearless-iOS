@@ -37,7 +37,8 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveExportOptions(options: [ExportOption])
     func didUpdate(chainAsset: ChainAsset)
-    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
+    func didReceiveBalanceLocks(_ balanceLocks: Decimal?)
+    func didReceiveBalanceLocksError(_ error: Error)
     func didReceiveWalletBalancesResult(_ result: WalletBalancesResult)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceive(accountInfo: AccountInfo?, for chainAsset: ChainAsset, accountId: AccountId)
@@ -126,9 +127,8 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     )
     func presentLockedInfo(
         from view: ControllerBackedProtocol?,
-        balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo,
-        currency: Currency
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
     func presentCrossChainFlow(
         from view: ControllerBackedProtocol?,
