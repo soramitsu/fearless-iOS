@@ -63,6 +63,13 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     ) throws -> RewardCalculatorServiceProtocol {
         switch chainAsset.stakingType {
         case .relaychain:
+            if chainAsset.chain.isReef {
+                return try createReefRewardCalculator(
+                    chainAsset: chainAsset,
+                    validatorService: validatorService
+                )
+            }
+
             return InflationRewardCalculatorService(
                 chainAsset: chainAsset,
                 assetPrecision: assetPrecision,
@@ -118,11 +125,50 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
 
     // MARK: - Private methods
 
+    private func createReefRewardCalculator(
+        chainAsset: ChainAsset,
+        validatorService: EraValidatorServiceProtocol
+    ) throws -> RewardCalculatorServiceProtocol {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+
+        let operationManager = OperationManagerFacade.sharedManager
+        let storageRequestPerformer = StorageRequestPerformerDefault(
+            runtimeService: runtimeService,
+            connection: connection
+        )
+
+        return ReefRewardCalculatorService(
+            chainAsset: chainAsset,
+            eraValidatorsService: validatorService,
+            operationManager: operationManager,
+            chainRegistry: chainRegistry,
+            logger: logger,
+            storageRequestPerformer: storageRequestPerformer
+        )
+    }
+
     private func createSoraRewardCalculator(
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
@@ -160,6 +206,11 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             operationManager: operationManager
         )
 
+        let storageRequestPerformer = StorageRequestPerformerDefault(
+            runtimeService: runtimeService,
+            connection: connection
+        )
+
         return SoraRewardCalculatorService(
             chainAsset: chainAsset,
             assetPrecision: assetPrecision,
@@ -173,7 +224,8 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             chainAssetFetching: chainAssetFetching,
             settingsRepository: AnyDataProviderRepository(settingsRepository),
             logger: Logger.shared,
-            storageRequestFactory: requestFactory
+            storageRequestFactory: requestFactory,
+            storageRequestPerformer: storageRequestPerformer
         )
     }
 }

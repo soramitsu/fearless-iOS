@@ -1,4 +1,11 @@
 import SSFUtils
+import UIKit
+
+struct CustomValidatorListSectionViewModel {
+    let title: String
+    let cells: [CustomValidatorCellViewModel]
+    let icon: UIImage
+}
 
 struct CustomValidatorCellViewModel {
     let icon: DrawableIcon?
@@ -13,7 +20,7 @@ struct CustomValidatorCellViewModel {
 
 struct CustomValidatorListViewModel {
     var headerViewModel: TitleWithSubtitleViewModel
-    var cellViewModels: [CustomValidatorCellViewModel]
+    var sections: [CustomValidatorListSectionViewModel]
     var selectedValidatorsCount: Int
     var selectedValidatorsLimit: Int?
     var proceedButtonTitle: String?

@@ -8,6 +8,7 @@ import SSFModels
 protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
     func amountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String>
+    func plainAmountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String>
     func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool, usageCase: NumberFormatterUsageCase)
         -> LocalizableResource<BalanceViewModelProtocol>
     func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<IAmountInputViewModel>
@@ -73,6 +74,15 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
     func amountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String> {
         let localizableFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: usageCase)
+
+        return LocalizableResource { locale in
+            let formatter = localizableFormatter.value(for: locale)
+            return formatter.stringFromDecimal(value) ?? ""
+        }
+    }
+
+    func plainAmountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String> {
+        let localizableFormatter = formatterFactory.createPlainTokenFormatter(for: targetAssetInfo, usageCase: usageCase)
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)

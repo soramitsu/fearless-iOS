@@ -1,19 +1,18 @@
 import Foundation
 
-struct BalancesLocksRequest<T: Encodable>: StorageRequest {
-    typealias K = T
+struct BalancesLocksRequest: StorageRequest {
+    let accountId: AccountIdVariant
 
-    let accountId: T
-
-    var parametersType: StorageRequestParametersType<K> {
-        .encodable(params: { [accountId] })
+    var parametersType: StorageRequestParametersType {
+        switch accountId {
+        case let .accountId(accountId):
+            return .encodable(param: accountId)
+        case let .address(address):
+            return .encodable(param: address)
+        }
     }
 
     var storagePath: StorageCodingPath {
         .balanceLocks
-    }
-
-    var responseType: StorageResponseType {
-        .single
     }
 }

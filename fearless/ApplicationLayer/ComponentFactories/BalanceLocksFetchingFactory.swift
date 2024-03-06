@@ -18,11 +18,9 @@ final class BalanceLocksFetchingFactory {
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
         )
-        let storageRequestPerformer = StorageRequestPerformerImpl(
+        let storageRequestPerformer = StorageRequestPerformerDefault(
             runtimeService: runtimeService,
-            connection: connection,
-            operationManager: operationManager,
-            storageRequestFactory: storageRequestFactory
+            connection: connection
         )
         let crowdloanOperationFactory = CrowdloanOperationFactory(
             requestOperationFactory: storageRequestFactory,

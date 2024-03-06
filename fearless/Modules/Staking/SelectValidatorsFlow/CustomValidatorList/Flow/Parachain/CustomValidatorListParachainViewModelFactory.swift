@@ -141,9 +141,11 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
             searchText: searchText
         )
 
+        let section = CustomValidatorListSectionViewModel(title: "", cells: cellsViewModel, icon: R.image.iconLightPending()!)
+
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
-            cellViewModels: cellsViewModel,
+            sections: [section],
             selectedValidatorsCount: parachainViewModelState.selectedValidatorList.count,
             selectedValidatorsLimit: nil,
             proceedButtonTitle: R.string.localizable

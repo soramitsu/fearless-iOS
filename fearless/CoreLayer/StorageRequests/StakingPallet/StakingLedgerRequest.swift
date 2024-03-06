@@ -1,22 +1,19 @@
 import Foundation
 import SSFModels
 
-struct StakingLedgerRequest<T: Encodable>: StorageRequest {
-    typealias K = T
+struct StakingLedgerRequest: StorageRequest {
+    let accountId: AccountIdVariant
 
-    let accountId: T
-
-    var parametersType: StorageRequestParametersType<K> {
-        .encodable {
-            [accountId]
+    var parametersType: StorageRequestParametersType {
+        switch accountId {
+        case let .accountId(accountId):
+            return .encodable(param: accountId)
+        case let .address(address):
+            return .encodable(param: address)
         }
     }
 
     var storagePath: StorageCodingPath {
         .stakingLedger
-    }
-
-    var responseType: StorageResponseType {
-        .single
     }
 }
