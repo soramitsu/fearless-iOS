@@ -1263,3 +1263,4 @@ Euro cash";
 "verify.phone.number.code.input.field.label" = "SMS-код";
 "verify.phone.number.description" = "Введите SMS-код, который был отправлен\n%@";
 "verify.phone.number.send.code" = "ОТПРАВИТЬ КОД";
+"common.start" = "Start";

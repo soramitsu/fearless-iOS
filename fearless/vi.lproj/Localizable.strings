@@ -1263,3 +1263,4 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "verify.phone.number.code.input.field.label" = "Mã SMS";
 "verify.phone.number.description" = "Nhập mã SMS đã được gửi đến\n%@";
 "verify.phone.number.send.code" = "GỬI MÃ";
+"common.start" = "Start";

@@ -1265,3 +1265,4 @@ To find out more, contact %@";
 "verify.phone.number.code.input.field.label" = "SMS code";
 "verify.phone.number.description" = "Enter SMS code that has been sent to\n%@";
 "verify.phone.number.send.code" = "SEND CODE";
+"common.start" = "Start";

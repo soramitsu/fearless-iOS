@@ -98,7 +98,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let title = R.string.localizable
             .commonExistentialWarningTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
-            .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
+            .commonExistentialErrorMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
 
         presentError(for: title, message: message, view: view, locale: locale)
     }

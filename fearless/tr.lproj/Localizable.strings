@@ -1138,3 +1138,4 @@ ait olduğundan emin olun.";
 "your.validators.stop.nominating.title" = "Aday göstermeyi bırak";
 "your.validators.validator.total.stake" = "Toplam yatırılan miktar:%@";
 "сurrencies.stub.text" = "Para birimleri";
+"common.start" = "Start";

@@ -1261,3 +1261,4 @@
 "verify.phone.number.code.input.field.label" = "短信验证码";
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
+"common.start" = "Start";
