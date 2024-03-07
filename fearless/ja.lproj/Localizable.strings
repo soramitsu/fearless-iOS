@@ -178,6 +178,7 @@
 "common.add" = "追加";
 "common.address" = "アドレス";
 "common.advanced" = "高度な";
+"common.and.others.placeholder" = "%s & others";
 "common.applied" = "適用されました";
 "common.apply" = "適用する";
 "common.approve" = "承認";
@@ -204,6 +205,7 @@
 "common.confirmation.title" = "本当によいですか？";
 "common.confirmed" = "確認済み";
 "common.connections" = "接続";
+"common.contacts" = "Contacts";
 "common.continue" = "続行";
 "common.copied" = "クリップボードにコピーしました";
 "common.copy" = "コピー";
@@ -223,8 +225,9 @@
 "common.error.no.data.retrieved" = "データが取得されていません";
 "common.error.password.mismatch" = "パスワードが一致しません";
 "common.events" = "イベント";
+"common.existential.error.message" = "このトランザクションにより、アカウント存続預金を下回るため(%@)、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。";
 "common.existential.warning.max.amount" = "Set max amount";
-"common.existential.warning.message" = "このトランザクションにより、アカウント存続預金を下回るため、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。継続を選択した場合、ネットワークによって設定された存続預金額を下回る資金を失うことになります。詳細な情報については、ネットワークの公式ドキュメント(例：Polkadot Wiki)を参照してください。フィアレス・ウォレットは完全な非管理的なアプリであり、ネットワークでのあなたの行動については一切判らないし制御もできません。あなたが、その意味を理解して完全に同意した場合のみ、続行してください";
+"common.existential.warning.message" = "このトランザクションにより、アカウント存続預金を下回るため (%@)、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。継続を選択した場合、ネットワークによって設定された存続預金額を下回る資金を失うことになります。詳細な情報については、ネットワークの公式ドキュメント(例：Polkadot Wiki)を参照してください。フィアレス・ウォレットは完全な非管理的なアプリであり、ネットワークでのあなたの行動については一切判らないし制御もできません。あなたが、その意味を理解して完全に同意した場合のみ、続行してください";
 "common.existential.warning.title" = "操作によりアカウントが削除されます";
 "common.expiry" = "有効期限";
 "common.export" = "アカウントをエクスポート";
@@ -326,6 +329,7 @@
 "contacts.contact.address" = "連絡先住所";
 "contacts.contact.name" = "連絡先";
 "contacts.create.contact" = "連絡先を作成";
+"contacts.empty.message" = "No contacts found";
 "contacts.recent" = "最近";
 "contacts.scan" = "QRコードをスキャン";
 "contacts.undefined" = "未定義";
@@ -519,6 +523,7 @@
 "onboarding.preinstalled.wallet.button.text" = "プリインストールされたウォレットを取得";
 "onboarding.restore.account" = "アカウントをインポート";
 "onboarding.restore.wallet" = "すでにウォレットを持っている";
+"onboarding.start.title" = "未来から来たDeFiウォレット";
 "onboarding.terms.and.conditions.1" = "私は規約と条件、個人情報保護方針を読み、同意します";
 "operation.error.message" = "後でもう一度お試しください";
 "operation.error.title" = "操作できません";
@@ -696,6 +701,7 @@
 "select.save.type" = "保存形式を選択";
 "select.suggested.validators.warning" = "アルゴリズム・バリデーターの提案は、金融に関する相談や助言に該当するものではありません。ステーキングはハイリスクな活動であり、アルゴリズムによるバリデーターの提案は、必ずしもこのリスクを軽減するものではありません。アルゴリズムによって提案されたバリデーターは、候補から外れる可能性があります。アルゴリズムによって提案されたバリデーターは、提案および/または選択された後、いつでもパラメーター(例：手数料率など)を変更することができます。これらの理由や他の理由で報酬を失う可能性があります。関連するリスクを注意して慎重に検討した上で、ご自身の判断でトークンをステークし、バリデーターの提案を使用するようにしてください";
 "select.validators.disclaimer" = "免責事項：アルゴリズム・バリデーターの提案は、金融に関する相談や助言に該当するものではありません。ステーキングはハイリスクな活動であり、アルゴリズムによるバリデーターの提案は、必ずしもこのリスクを軽減するものではありません。アルゴリズムによって提案されたバリデーターは、切り取られる可能性があります。アルゴリズムによって提案されたバリデーターは、提案および/または選択された後、いつでもパラメーター(例：手数料率など)を変更することができます。これらの理由や他の理由でトークンや報酬を失う可能性があります。関連するリスクを注意して慎重に検討した上で、ご自身の判断でトークンをステークし、バリデーターの提案を使用するようにしてください";
+"send.all.title" = "Send all tokens and reap the account";
 "send.confirm.amount.title" = "送信中\n%@";
 "send.fund.title" = "資金を送る";
 "settings.add.wallet" = "ウォレットを追加";
@@ -1033,6 +1039,7 @@
 "username.setup.title.2.0" = "新しいウォレットを作成";
 "validator.info.comission.title" = "コミッション";
 "validators.list.empty.message" = "バリデーターが見つかりません";
+"verify.phone.number.title" = "Verify your phone number";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
 "vesting.locked.title" = "Vesting Locked";
@@ -1126,17 +1133,4 @@
 "your.validators.change.validators.title" = "バリデーターの変更";
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
-"send.all.title" = "Send all tokens and reap the account";
-"balance.locks.screen.title" = "Locked details";
-"balance.locks.nomination.pools.row.title" = "Nomination Pools";
-"balance.locks.governance.row.title" = "Governance";
-"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
 "сurrencies.stub.text" = "通貨";
-"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
-"vesting.locked.title" = "Vesting Locked";
-"vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
-"vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
-"tranaction.history.others.tab.title" = "Others";
-"common.and.others.placeholder" = "%s & others";
-"common.start" = "Start";
-"onboarding.start.title" = "The DeFi Wallet For The Future";

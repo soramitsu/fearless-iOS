@@ -90,7 +90,7 @@ final class CrossChainPresenter {
             for: selectedAmountChainAsset
         )
         let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero))
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired())
         let inputViewModel = balanceViewModelFactory?
             .createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
@@ -106,7 +106,7 @@ final class CrossChainPresenter {
         )
 
         let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance)
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired())
 
         let priceData = prices.first(where: { $0.priceId == selectedAmountChainAsset.asset.priceId })
         let assetBalanceViewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
@@ -233,7 +233,7 @@ final class CrossChainPresenter {
 
     private func continueWithValidation() {
         let inputAmountDecimal = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()) ?? .zero
 
         guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
             return
@@ -241,7 +241,7 @@ final class CrossChainPresenter {
         let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
         let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
         let edParameters: ExistentialDepositValidationParameters = .utility(
-            spendingAmount: originNetworkFee,
+            spendingAmount: originNetworkFeeIfRequired() + inputAmountDecimal,
             totalAmount: utilityBalance,
             minimumBalance: minimumBalance
         )
@@ -261,14 +261,12 @@ final class CrossChainPresenter {
             }
         )
 
-        let sendAmount: Decimal
+        let sendAmount = inputAmountDecimal
         let balanceType: BalanceType
 
         if selectedAmountChainAsset.chainAssetId == utilityChainAsset.chainAssetId {
-            sendAmount = inputAmountDecimal + (originNetworkFee ?? .zero)
             balanceType = .utility(balance: utilityBalance)
         } else {
-            sendAmount = inputAmountDecimal
             balanceType = .orml(balance: originNetworkSelectedAssetBalance, utilityBalance: utilityBalance)
         }
 
@@ -282,7 +280,8 @@ final class CrossChainPresenter {
         let exsitentialDepositIsNotViolated = dataValidatingFactory.exsitentialDepositIsNotViolated(
             parameters: edParameters,
             locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset
+            chainAsset: selectedAmountChainAsset,
+            canProceedIfViolated: false
         )
 
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
@@ -319,7 +318,8 @@ final class CrossChainPresenter {
               let inputViewModel = inputViewModel,
               let originChainFee = originNetworkFeeViewModel,
               let destChainFee = destNetworkFeeViewModel,
-              let inputAmount = amountInputResult?.absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)),
+              let inputAmount = amountInputResult?
+              .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()),
               let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
               let xcmServices = interactor.deps?.xcmServices,
               let recipientAddress = recipientAddress,
@@ -353,7 +353,7 @@ final class CrossChainPresenter {
             return
         }
         let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance) ?? 1
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()) ?? 1
 
         interactor.estimateFee(
             originChainAsset: selectedAmountChainAsset,
@@ -389,6 +389,15 @@ final class CrossChainPresenter {
             from: view,
             actions: []
         )
+    }
+
+    private func originNetworkFeeIfRequired() -> Decimal {
+        if let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
+           selectedAmountChainAsset.chainAssetId == utilityChainAsset.chainAssetId,
+           let fee = originNetworkFee {
+            return fee
+        }
+        return .zero
     }
 }
 

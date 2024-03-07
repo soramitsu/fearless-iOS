@@ -180,6 +180,7 @@
 "common.add" = "添加";
 "common.address" = "地址";
 "common.advanced" = "高级";
+"common.and.others.placeholder" = "%s和其他";
 "common.applied" = "已应用";
 "common.apply" = "应用";
 "common.approve" = "批准";
@@ -199,13 +200,14 @@
 "common.choose.action" = "选择操作";
 "common.choose.network" = "选择网络";
 "common.close" = "关闭";
-"common.commission" = "Commission";
+"common.commission" = "佣金";
 "common.confirm" = "确认";
 "common.confirm.password" = "确认密码";
 "common.confirm.title" = "确认";
 "common.confirmation.title" = "您确定吗？";
 "common.confirmed" = "已确认";
 "common.connections" = "连接";
+"common.contacts" = "联系人";
 "common.continue" = "继续";
 "common.copied" = "复制到剪贴板";
 "common.copy" = "复制";
@@ -225,6 +227,7 @@
 "common.error.no.data.retrieved" = "未检索到数据。";
 "common.error.password.mismatch" = "密码不匹配";
 "common.events" = "活动";
+"common.existential.error.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。";
 "common.existential.warning.max.amount" = "设置最大金额";
 "common.existential.warning.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对网络上的任何操作都没有控制权或知识。只有在您完全同意并理解相关影响后才能继续。";
 "common.existential.warning.title" = "此操作将删除账户";
@@ -328,6 +331,7 @@
 "contacts.contact.address" = "联系地址";
 "contacts.contact.name" = "联系人姓名";
 "contacts.create.contact" = "创建联系人";
+"contacts.empty.message" = "未找到联系人";
 "contacts.recent" = "最近的";
 "contacts.scan" = "扫描一个二维码";
 "contacts.undefined" = "未定义";
@@ -520,6 +524,7 @@
 "onboarding.preinstalled.wallet.button.text" = "获取预装钱包";
 "onboarding.restore.account" = "导入账户";
 "onboarding.restore.wallet" = "我已经有一个钱包了";
+"onboarding.start.title" = "未来的 DeFi 钱包";
 "onboarding.terms.and.conditions.1" = "我已阅读并同意\
 条款和隐私政策";
 "operation.error.message" = "请稍后再试";
@@ -698,6 +703,7 @@
 "select.save.type" = "选择保存类型";
 "select.suggested.validators.warning" = "算法验证人建议并不构成金融咨询或建议。质押是一项高风险活动，算法验证人的建议并不能完全减轻这种风险。由算法推荐的验证人仍然有可能离开候选池。由算法推荐的验证人也可以在被推荐和/或选择后随时更改其参数（例如佣金率等）。您可能因此或其他原因而失去奖励。只有在进行尽职调查并慎重考虑所涉及风险后，根据自己的判断决定质押代币和采用验证人建议。";
 "select.validators.disclaimer" = "免责声明：算法验证人建议并不构成金融咨询或建议。质押是一项高风险活动，算法验证人的建议并不能完全消除这种风险。由算法提供的验证人仍然可能被惩罚。由算法提供的验证人也可以在被推荐和/或选择后随时更改其参数（例如佣金率等）。您可能因为这些原因或其他原因而失去代币或奖励。请在进行尽职调查并慎重考虑所涉及风险后，根据自己的判断谨慎质押代币和使用验证人建议。";
+"send.all.title" = "发送所有代币并收获账户";
 "send.confirm.amount.title" = "正在发送\n%@";
 "send.fund.title" = "发送资金";
 "settings.add.wallet" = "添加钱包";
@@ -1036,6 +1042,7 @@
 "username.setup.title.2.0" = "创建一个新的钱包";
 "validator.info.comission.title" = "佣金";
 "validators.list.empty.message" = "未找到验证人";
+"verify.phone.number.title" = "验证您的电话号码";
 "vesting.claim.disclaimer.text" = "由于每个平行链的独特归属计划，我们的应用无法显示可认领的锁定代币数量。请注意，如果预计金额微不足道且与涉及的交易费用相当，发起认领可能是不切实际的。要全面了解您的锁定余额，请咨询Subscan区块浏览器。我们敦促您仔细评估信息，并根据自己的判断继续操作。";
 "vesting.claim.disclaimer.title" = "关于代币申领的重要通知：";
 "vesting.locked.title" = "归属锁定";
@@ -1134,6 +1141,9 @@
 "сurrencies.stub.text" = "货币";
 "cant.fetch.refresh" = "无法获取数据，请点击刷新。";
 "card.attention.text" = "注意";
+"card.hub.manage.card" = "管理 SORA 卡";
+"card.hub.manage.card.alert.message" = "请安装官方的 SORA 卡应用程序来管理您的 SORA 卡。点击“确定”以前往 App Store。";
+"card.hub.manage.card.alert.title" = "下载 SORA 卡应用";
 "card.hub.settings.logout.button" = "退出登录";
 "card.hub.settings.logout.description" = "您即将退出 SORA 卡。您仍然可以使用 SORA 卡独立应用程序，但余额将不再在 SORA 钱包中可用。";
 "card.hub.settings.logout.title" = "退出 SORA 卡";
@@ -1251,17 +1261,3 @@
 "verify.phone.number.code.input.field.label" = "短信验证码";
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
-"send.all.title" = "Send all tokens and reap the account";
-"balance.locks.screen.title" = "Locked details";
-"balance.locks.nomination.pools.row.title" = "Nomination Pools";
-"balance.locks.governance.row.title" = "Governance";
-"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
-"verify.phone.number.title" = "验证您的电话号码";
-"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
-"vesting.locked.title" = "Vesting Locked";
-"vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
-"vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
-"tranaction.history.others.tab.title" = "Others";
-"common.and.others.placeholder" = "%s & others";
-"common.start" = "Start";
-"onboarding.start.title" = "The DeFi Wallet For The Future";
