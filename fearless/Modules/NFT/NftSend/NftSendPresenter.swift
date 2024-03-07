@@ -146,6 +146,14 @@ extension NftSendPresenter: NftSendViewOutput {
         }
     }
 
+    func didTapMyWalletsButton() {
+        router.showWalletManagment(
+            selectedWalletId: wallet.metaId,
+            from: view,
+            moduleOutput: self
+        )
+    }
+
     func searchTextDidChanged(_ text: String) {
         handle(newAddress: text)
     }
@@ -219,6 +227,19 @@ extension NftSendPresenter: ScanQRModuleOutput {
 
 extension NftSendPresenter: ContactsModuleOutput {
     func didSelect(address: String) {
+        handle(newAddress: address)
+    }
+}
+
+extension NftSendPresenter: WalletsManagmentModuleOutput {
+    func selectedWallet(_ wallet: MetaAccountModel, for _: Int) {
+        guard
+            let accountId = wallet.fetch(for: nft.chain.accountRequest())?.accountId,
+            let address = try? AddressFactory.address(for: accountId, chain: nft.chain)
+        else {
+            return
+        }
+
         handle(newAddress: address)
     }
 }

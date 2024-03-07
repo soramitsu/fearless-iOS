@@ -150,12 +150,12 @@ final class WalletSendConfirmViewLayout: UIView {
         symbolView.bind(viewModel: confirmViewModel.symbolViewModel)
 
         confirmViewModel.feeAmountString.isEmpty
-            ? feeView.activityIndicator.startAnimating()
-            : feeView.activityIndicator.stopAnimating()
+            ? feeView.startLoadingIfNeeded()
+            : feeView.stopLoadingIfNeeded()
 
         confirmViewModel.tipAmountString.isEmpty
-            ? tipView.activityIndicator.startAnimating()
-            : tipView.activityIndicator.stopAnimating()
+            ? tipView.startLoadingIfNeeded()
+            : tipView.stopLoadingIfNeeded()
     }
 
     private func configure() {

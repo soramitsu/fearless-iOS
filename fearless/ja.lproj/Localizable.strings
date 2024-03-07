@@ -152,6 +152,10 @@
 "backup.wallet.replace.several.alert" = "あなたは現在、メインのキー・ペアを置き換えて追加した複数のチェーンアカウントを持っており、それぞれに特定のキー・ペアを所有しています。しかし、現在のウォレットのバックアップ(エクスポート)機能は、複数のキー・ペアの保存をサポートしていないのでご注意ください。現状、保存できるのはメインのキー・ペアのみとなります。 \n \n チェーンアカウントの安全性を確保するため、現在のフローを進める前に、まず別個にバックアップすることをお勧めします。置き換えたチェーンアカウントのバックアップに成功したら、何の心配もなくフローを進むことができます。";
 "backup.wallet.seed" = "シードを表示";
 "backup.wallet.title" = "ウォレットのバックアップ";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.screen.title" = "Locked details";
 "banners.view.factory.backup.action.title" = "今すぐバックアップ";
 "banners.view.factory.backup.subtitle" = "デバイスを失くすと、永久に資金も失います";
 "banners.view.factory.backup.title" = "ウォレットのバックアップ";
@@ -193,6 +197,7 @@
 "common.choose.action" = "アクションを選択";
 "common.choose.network" = "ネットワークを選択";
 "common.close" = "閉じる";
+"common.commission" = "Commission";
 "common.confirm" = "確認";
 "common.confirm.password" = "パスワードの確認";
 "common.confirm.title" = "確認";
@@ -488,6 +493,7 @@
 "network.status.connected" = "接続済み";
 "network.status.connecting" = "接続しています...";
 "network.url.address" = "URLアドレス";
+"nft.choose.recipient.title" = "Choose recipient";
 "nft.collection.available.nfts" = "%sコレクションで利用可能なNFT";
 "nft.collection.my.nfts" = "私のNFT";
 "nft.collection.title" = "コレクション";
@@ -696,7 +702,7 @@
 "settings.hide.zero.balances" = "残高ゼロを隠す";
 "share.referral.code" = "紹介コードを共有";
 "sign.this.message" = "メッセージに署名しますか？";
-"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %@ network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %s network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "現在、SORAネットワークの安定性と安全性を確保するため、ブリッジングには最低0.05 KSMが設定されています。ご理解のほどよろしくお願いいたします。";
 "sora.card.status.failure.text" = "本人確認(KYC)処理が終了したか、そうでなければ失敗しました";
@@ -1001,6 +1007,7 @@
 "terms.and.conditions.sora.community.alert.main" = "SORAコミュニティはあなたの個人データを収集しません";
 "terms.and.conditions.sora.community.alert.secondary" = "ただし、SORAカードと IBANアカウントを取得するには、カード発行会社との本人確認(KYC)の処理を通過する必要があります";
 "terms.and.conditions.title" = "規約と条件";
+"tranaction.history.others.tab.title" = "Others";
 "transaction.detail.date" = "日付";
 "transaction.detail.status" = "状態";
 "transaction.details.copy.hash" = "ハッシュをコピーする";
@@ -1026,6 +1033,9 @@
 "username.setup.title.2.0" = "新しいウォレットを作成";
 "validator.info.comission.title" = "コミッション";
 "validators.list.empty.message" = "バリデーターが見つかりません";
+"vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
+"vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
+"vesting.locked.title" = "Vesting Locked";
 "view.in" = "%sで見る";
 "view.wallet" = "ウォレットを見る";
 "wallet.account.locks.democracy" = "民主主義";
@@ -1116,10 +1126,18 @@
 "your.validators.change.validators.title" = "バリデーターの変更";
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
-"сurrencies.stub.text" = "通貨";
 "send.all.title" = "Send all tokens and reap the account";
+"balance.locks.screen.title" = "Locked details";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
+"сurrencies.stub.text" = "通貨";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "vesting.locked.title" = "Vesting Locked";
 "vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
 "vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
+"tranaction.history.others.tab.title" = "Others";
+"common.and.others.placeholder" = "%s & others";
+"common.start" = "Start";
+"onboarding.start.title" = "The DeFi Wallet For The Future";
 "common.existential.warning.max.amount" = "Set max amount";

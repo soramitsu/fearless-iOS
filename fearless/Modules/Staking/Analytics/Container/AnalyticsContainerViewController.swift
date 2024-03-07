@@ -41,7 +41,7 @@ final class AnalyticsContainerViewController: UIViewController, ViewHolder, Anal
     @objc
     private func segmentedControlChanged() {
         let selectedSegmentIndex = rootView.segmentedControl.selectedSegmentIndex
-        rootView.horizontalScrollView.scrollTo(horizontalPage: selectedSegmentIndex, animated: true)
+        rootView.horizontalScrollView.scrollTo(horizontalPage: UIScrollView.Page(intValue: 0, direction: .horizontal(offset: 0)), animated: true)
     }
 
     private func setupEmbeddedModules() {

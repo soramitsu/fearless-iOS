@@ -267,7 +267,7 @@ final class StorageConstantOperation<T: Decodable>: BaseOperation<T>, ConstantDe
     }
 }
 
-final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable>: BaseOperation<T>, ConstantDecodable {
+final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable & Hashable>: BaseOperation<T>, ConstantDecodable {
     var codingFactory: RuntimeCoderFactoryProtocol?
 
     let path: ConstantCodingPath

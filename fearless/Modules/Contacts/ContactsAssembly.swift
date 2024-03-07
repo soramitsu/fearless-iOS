@@ -3,10 +3,24 @@ import SoraFoundation
 import RobinHood
 import SSFModels
 
-final class ContactsAssembly {
+enum ContactSource {
+    case token(chainAsset: ChainAsset)
+    case nft(chain: ChainModel)
+
+    var chain: ChainModel {
+        switch self {
+        case let .token(chainAsset):
+            return chainAsset.chain
+        case let .nft(chain):
+            return chain
+        }
+    }
+}
+
+enum ContactsAssembly {
     static func configureModule(
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
+        source: ContactSource,
         moduleOutput: ContactsModuleOutput
     ) -> ContactsModuleCreationResult? {
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
@@ -14,7 +28,7 @@ final class ContactsAssembly {
 
         guard
             let historyOperationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
-                chainAsset: chainAsset,
+                chain: source.chain,
                 txStorage: AnyDataProviderRepository(txStorage)
             )
         else {
@@ -39,7 +53,7 @@ final class ContactsAssembly {
             operationQueue: OperationQueue(),
             historyOperationFactory: historyOperationFactory,
             wallet: wallet,
-            chainAsset: chainAsset
+            source: source
         )
         let router = ContactsRouter()
 
@@ -49,7 +63,7 @@ final class ContactsAssembly {
             localizationManager: localizationManager,
             viewModelFactory: AddressBookViewModelFactory(),
             moduleOutput: moduleOutput,
-            chain: chainAsset.chain,
+            source: source,
             wallet: wallet
         )
 

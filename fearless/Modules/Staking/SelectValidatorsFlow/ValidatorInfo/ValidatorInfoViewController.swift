@@ -79,6 +79,13 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
         )
         rootView.addStakingStatusView(viewModel.staking, locale: selectedLocale)
 
+        if case let .unelected(commission) = viewModel.staking.status, let commission = commission {
+            rootView.addTitleValueView(
+                for: R.string.localizable.validatorInfoComissionTitle(preferredLanguages: selectedLocale.rLanguages),
+                value: commission
+            )
+        }
+
         if case let .elected(exposure) = viewModel.staking.status {
             rootView.addNominatorsView(exposure, locale: selectedLocale)
 

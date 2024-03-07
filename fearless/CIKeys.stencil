@@ -61,3 +61,7 @@ enum BlockExplorerApiKeys {
 enum ThirdPartyServicesApiKeys {
     static var alchemyApiKey: String = "{{ argument.alchemyApiKey }}"
 }
+
+enum DwellirNodeApiKey {
+    static var dwellirApiKey: String = "{{ argument.dwellirApiKey }}"
+}

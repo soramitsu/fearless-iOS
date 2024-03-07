@@ -13,7 +13,7 @@ protocol ChainStakingSettings {
     var type: ChainStakingSettingsType { get }
 
     func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg
-    func accountIdParam(accountId: AccountId) -> MultiAddress
+    func multiAddress(accountId: AccountId) -> MultiAddress
 
     func queryItems<T>(
         engine: JSONRPCEngine,
@@ -39,7 +39,7 @@ struct DefaultRelaychainChainStakingSettings: ChainStakingSettings {
         nil
     }
 
-    func accountIdParam(accountId: AccountId) -> MultiAddress {
+    func multiAddress(accountId: AccountId) -> MultiAddress {
         .accoundId(accountId)
     }
 
@@ -67,7 +67,7 @@ struct SoraChainStakingSettings: ChainStakingSettings {
         "val"
     }
 
-    func accountIdParam(accountId: AccountId) -> MultiAddress {
+    func multiAddress(accountId: AccountId) -> MultiAddress {
         .accountTo(accountId)
     }
 
@@ -96,7 +96,7 @@ struct ReefChainStakingSettings: ChainStakingSettings {
         nil
     }
 
-    func accountIdParam(accountId: AccountId) -> MultiAddress {
+    func multiAddress(accountId: AccountId) -> MultiAddress {
         .indexedString(accountId)
     }
 

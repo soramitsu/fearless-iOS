@@ -6,7 +6,7 @@ enum StartView {
     case pinSetup
     case login
     case broken
-    case educationStories
+    case onboarding
 }
 
 protocol StartViewHelperProtocol {
@@ -18,9 +18,9 @@ final class StartViewHelper: StartViewHelperProtocol {
     private let selectedWalletSettings: SelectedWalletSettings
     private let userDefaultsStorage: SettingsManagerProtocol
 
-    private lazy var isNeedShowStories: Bool = {
+    private lazy var isNeedShowOnboarding: Bool = {
         userDefaultsStorage.bool(
-            for: EducationStoriesKeys.isNeedShowNewsVersion2.rawValue
+            for: OnboardingKeys.shouldShowOnboarding.rawValue
         ) ?? true
     }()
 
@@ -36,8 +36,8 @@ final class StartViewHelper: StartViewHelperProtocol {
 
     func startView() -> StartView {
         do {
-            if isNeedShowStories, !selectedWalletSettings.hasValue {
-                return StartView.educationStories
+            if isNeedShowOnboarding, !selectedWalletSettings.hasValue {
+                return StartView.onboarding
             }
 
             if !selectedWalletSettings.hasValue {
