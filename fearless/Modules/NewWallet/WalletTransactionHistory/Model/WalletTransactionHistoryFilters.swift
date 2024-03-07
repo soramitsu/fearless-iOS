@@ -27,6 +27,8 @@ struct WalletTransactionHistoryFilter: SwitchFilterItem {
                 return .transfer
             case 1:
                 return .reward
+            case 2:
+                return .other
             default:
                 return nil
             }

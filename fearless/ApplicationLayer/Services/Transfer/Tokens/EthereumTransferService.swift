@@ -221,7 +221,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
         let senderAddress = try EthereumAddress(rawAddress: self.senderAddress.hexToBytes())
         let quantity = EthereumQuantity(quantity: transfer.amount)
 
-        let call = EthereumCall(to: receiverAddress, value: quantity)
+        let call = EthereumCall(from: senderAddress, to: receiverAddress, value: quantity)
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
         let gasPrice = try await queryGasPrice()
         let gasLimit = try await queryGasLimit(call: call)

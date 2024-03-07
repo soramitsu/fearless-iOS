@@ -64,6 +64,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
                 else {
                     return
                 }
+
                 listener.handlePrice(result: .success(finalValue), chainAsset: chainAsset)
             }
             self?.clearListenersIfNeeded()

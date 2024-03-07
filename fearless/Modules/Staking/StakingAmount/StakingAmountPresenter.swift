@@ -14,7 +14,7 @@ final class StakingAmountPresenter {
     let logger: LoggerProtocol
     let applicationConfig: ApplicationConfigProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let viewModelState: StakingAmountViewModelState?
+    var viewModelState: StakingAmountViewModelState?
     let viewModelFactory: StakingAmountViewModelFactoryProtocol?
     private var balance: Decimal?
     private var calculator: RewardCalculatorEngineProtocol?
@@ -313,6 +313,7 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
 
 extension StakingAmountPresenter: StakingAmountModelStateListener {
     func modelStateDidChanged(viewModelState: StakingAmountViewModelState) {
+        self.viewModelState = viewModelState
         view?.didStopLoading()
 
         if let viewModel = viewModelFactory?.buildViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) {

@@ -60,7 +60,7 @@ extension EducationStoriesPresenter: EducationStoriesPresenterProtocol {
             router.showPincodeSetup()
         case .login:
             router.showOnboarding()
-        case .educationStories, .broken:
+        case .onboarding, .broken:
             break
         }
     }

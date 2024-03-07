@@ -55,7 +55,6 @@ enum WalletTransactionHistoryViewFactory {
         )
 
         presenter.view = view
-        interactor.presenter = presenter
 
         return WalletTransactionHistoryModule(view: view, moduleInput: presenter)
     }
@@ -64,7 +63,7 @@ enum WalletTransactionHistoryViewFactory {
         var filters: [WalletTransactionHistoryFilter] = [
             WalletTransactionHistoryFilter(type: .transfer, selected: true)
         ]
-        if chain.externalApi?.history?.type != .giantsquid && !chain.isReef {
+        if chain.externalApi?.history?.type != .giantsquid {
             filters.insert(WalletTransactionHistoryFilter(type: .other, selected: true), at: 1)
         }
         if chain.hasStakingRewardHistory || chain.isSora {
@@ -84,16 +83,15 @@ enum WalletTransactionHistoryViewFactory {
     }
 
     private static func createHistoryDeps(
-        for chainAsset: ChainAsset
+        for chain: ChainModel
     ) -> (HistoryServiceProtocol, HistoryDataProviderFactoryProtocol)? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
-        let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
 
         guard
             let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
-                chainAsset: chainAsset,
+                chain: chain,
                 txStorage: AnyDataProviderRepository(txStorage)
             )
         else {

@@ -41,7 +41,7 @@ struct ValidatorInfoViewModel {
     enum StakingStatus {
         case electedParachain(exposure: ParachainExposure)
         case elected(exposure: Exposure)
-        case unelected
+        case unelected(commission: String?)
     }
 
     enum IdentityTag {

@@ -21,14 +21,16 @@ final class ReefSubsquidHistoryOperationFactory {
         filters: [WalletTransactionHistoryFilter],
         count: Int,
         transfersCursor: String?,
-        stakingsCursor: String?
+        stakingsCursor: String?,
+        extrinsicCursor: String?
     ) -> BaseOperation<ReefResponseData> {
         let queryString = prepareQueryForAddress(
             address,
             filters: filters,
             count: count,
             transfersCursor: transfersCursor,
-            stakingsCursor: stakingsCursor
+            stakingsCursor: stakingsCursor,
+            extrinsicCursor: extrinsicCursor
         )
 
         let requestFactory = BlockNetworkRequestFactory {
@@ -102,11 +104,13 @@ final class ReefSubsquidHistoryOperationFactory {
         address: String,
         count: Int,
         transfersCursor: String?,
-        stakingsCursor: String?
+        stakingsCursor: String?,
+        extrinsicCursor: String?
     ) -> String {
         var filterStrings: [String] = []
         let transfersAfter = transfersCursor.map { "after: \"\($0)\"" } ?? ""
         let stakingsAfter = stakingsCursor.map { "after: \"\($0)\"" } ?? ""
+        let extrinsicAfter = extrinsicCursor.map { "after: \"\($0)\"" } ?? ""
 
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
@@ -156,6 +160,31 @@ final class ReefSubsquidHistoryOperationFactory {
             """)
         }
 
+        if filters.contains(where: { $0.type == .other && $0.selected }) {
+            filterStrings.append("""
+                                  extrinsicsConnection(\(extrinsicAfter),
+                 first: \(count), orderBy: timestamp_DESC, where: {AND: {signer_eq: "\(address)", section_not_eq: "Balances"}}) {
+                                edges {
+                                                                  node {
+                                                                    timestamp
+                                                                            signedData
+                                                                            section
+                                                                            method
+                                                                            id
+                                                                            hash
+                                                                            status
+                                                                            type
+                                                                            signer
+                                                                  }
+                                                                }
+                                                                pageInfo {
+            endCursor
+                                                                  hasNextPage
+                                                                }
+                            }
+            """)
+        }
+
         return filterStrings.joined(separator: "\n")
     }
 
@@ -164,14 +193,16 @@ final class ReefSubsquidHistoryOperationFactory {
         filters: [WalletTransactionHistoryFilter],
         count: Int,
         transfersCursor: String?,
-        stakingsCursor: String?
+        stakingsCursor: String?,
+        extrinsicCursor: String?
     ) -> String {
         let filterString = prepareFilter(
             filters: filters,
             address: address,
             count: count,
             transfersCursor: transfersCursor,
-            stakingsCursor: stakingsCursor
+            stakingsCursor: stakingsCursor,
+            extrinsicCursor: extrinsicCursor
         )
         return """
         query MyQuery {
@@ -275,6 +306,10 @@ final class ReefSubsquidHistoryOperationFactory {
                 context["stakingsCursor"] = stakingsCursor
             }
 
+            if let extrinsicCursor = response.extrinsicsConnection?.pageInfo?.endCursor {
+                context["extrinsicCursor"] = extrinsicCursor
+            }
+
             let hasNextPage = (response.transfersConnection?.pageInfo?.hasNextPage).or(false) || (response.stakingsConnection?.pageInfo?.hasNextPage).or(false)
 
             return AssetTransactionPageData(
@@ -333,10 +368,11 @@ extension ReefSubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters,
                 count: 20,
                 transfersCursor: pagination.context?["transfersCursor"],
-                stakingsCursor: pagination.context?["stakingsCursor"]
+                stakingsCursor: pagination.context?["stakingsCursor"],
+                extrinsicCursor: pagination.context?["extrinsicCursor"]
             )
         } else {
-            let result = ReefResponseData(transfersConnection: nil, stakingsConnection: nil)
+            let result = ReefResponseData(transfersConnection: nil, stakingsConnection: nil, extrinsicsConnection: nil)
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 

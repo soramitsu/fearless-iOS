@@ -46,11 +46,9 @@ final class ClaimCrowdloanRewardsAssembly {
             storageRequestFactory: storageRequestFactory,
             operationManager: operationManager
         )
-        let storageRequestPerformer = StorageRequestPerformerImpl(
+        let storageRequestPerformer = StorageRequestPerformerDefault(
             runtimeService: runtimeService,
-            connection: connection,
-            operationManager: operationManager,
-            storageRequestFactory: storageRequestFactory
+            connection: connection
         )
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared

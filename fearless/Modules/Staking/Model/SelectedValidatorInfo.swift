@@ -9,6 +9,7 @@ struct SelectedValidatorInfo: ValidatorInfoProtocol, Equatable, Recommendable {
     let commission: Decimal
     let hasSlashes: Bool
     let blocked: Bool
+    var elected: Bool
 
     var oversubscribed: Bool {
         stakeInfo?.oversubscribed ?? false
@@ -46,7 +47,8 @@ struct SelectedValidatorInfo: ValidatorInfoProtocol, Equatable, Recommendable {
         myNomination: ValidatorMyNominationStatus? = nil,
         commission: Decimal = 0.0,
         hasSlashes: Bool = false,
-        blocked: Bool = false
+        blocked: Bool = false,
+        elected: Bool = true
     ) {
         self.address = address
         self.identity = identity
@@ -55,6 +57,7 @@ struct SelectedValidatorInfo: ValidatorInfoProtocol, Equatable, Recommendable {
         self.commission = commission
         self.hasSlashes = hasSlashes
         self.blocked = blocked
+        self.elected = elected
     }
 
     static func == (lhs: SelectedValidatorInfo, rhs: SelectedValidatorInfo) -> Bool {
