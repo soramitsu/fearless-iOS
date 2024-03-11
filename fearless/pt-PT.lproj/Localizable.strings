@@ -289,6 +289,7 @@
 "common.sign" = "Assinar";
 "common.skip" = "Saltar";
 "common.staking" = "Staking";
+"common.start" = "Start";
 "common.terms.and.conditions" = "Termos e Condições";
 "common.till.date" = "até %s";
 "common.time.left" = "Tempo restante";
@@ -1270,4 +1271,3 @@ To find out more, contact %@";
 "verify.phone.number.code.input.field.label" = "Código SMS";
 "verify.phone.number.description" = "Introduzir o código SMS que foi enviado para\n%@";
 "verify.phone.number.send.code" = "ENVIAR CÓDIGO";
-"common.start" = "Start";

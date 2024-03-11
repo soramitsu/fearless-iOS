@@ -291,6 +291,7 @@
 "common.sign" = "签署";
 "common.skip" = "跳过";
 "common.staking" = "质押";
+"common.start" = "Start";
 "common.terms.and.conditions" = "条款和条件";
 "common.till.date" = "截止到 %s";
 "common.time.left" = "剩余时间";
@@ -1261,6 +1262,3 @@
 "verify.phone.number.code.input.field.label" = "短信验证码";
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
-"common.start" = "Start";
-"onboarding.start.title" = "The DeFi Wallet For The Future";
-"common.existential.warning.max.amount" = "Set max amount";
