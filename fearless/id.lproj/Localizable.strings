@@ -362,7 +362,7 @@
 "crowdloan.learn" = "Pelajari crowdloan %@";
 "crowdloan.learn.bonuses" = "Pelajari tentang bonus %@";
 "crowdloan.leasing.period" = "Jangka waktu sewa";
-"crowdloan.list.section.format" = "Pilih terjun payung untuk menyumbangkan %@. Anda akan menerima hadiah jika parachain memperoleh slot pada akhir lelang.";
+"crowdloan.list.section.format" = "Pilih terjun payung untuk menyumbangkan. Anda akan menerima hadiah jika parachain memperoleh slot pada akhir lelang.";
 "crowdloan.placeholder" = "Crowdfloans aktif \n akan muncul di sini";
 "crowdloan.privacy.policy" = "Saya sudah membaca dan setuju atas Ketentuan dan Kebijakan Privasi";
 "crowdloan.private.crowdloan.message" = "Crowdloans pribadi belum didukung.";
@@ -789,7 +789,7 @@ Syarat dan Ketentuan serta Kebijakan Privasi";
 "staking.hint.unstake.format" = "Jika Anda ingin melepas token, Anda harus menunggu periode unstaking (%@).";
 "staking.history.title" = "Riwayat staking";
 "staking.inactive.bond" = "Obligasi tidak aktif";
-"staking.inactive.current.minimal.stake" = "Staking saat ini tidak aktif. \n Taruhan minimal saat ini adalah %s.";
+"staking.inactive.current.minimal.stake" = "Staking saat ini tidak aktif. \n Taruhan minimal saat ini adalah %@.";
 "staking.main.active.nominators.title" = "Nominator aktif";
 "staking.main.lockup.period.title_v1.9.0" = "Periode unstaking";
 "staking.main.minimum.stake.title" = "Taruhan minimal";
