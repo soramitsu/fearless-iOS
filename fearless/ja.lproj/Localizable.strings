@@ -289,6 +289,7 @@
 "common.sign" = "署名";
 "common.skip" = "スキップ";
 "common.staking" = "ステーキング";
+"common.start" = "Start";
 "common.terms.and.conditions" = "利用規約";
 "common.till.date" = "%sまで";
 "common.time.left" = "残り時間";
@@ -1134,6 +1135,3 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
-"common.start" = "Start";
-"onboarding.start.title" = "The DeFi Wallet For The Future";
-"common.existential.warning.max.amount" = "Set max amount";

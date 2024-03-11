@@ -225,6 +225,7 @@
 "common.error.no.data.retrieved" = "Tidak ada data yang diambil.";
 "common.error.password.mismatch" = "Password tidak cocok";
 "common.events" = "Acara";
+"common.existential.error.message" = "Transaksi ini akan mengakibatkan akun berada di bawah Deposit Eksistensial (%@), yang akan menyebabkannya dituai (akun akan dihapus dari status blockchain untuk menghemat ruang).";
 "common.existential.warning.max.amount" = "Atur jumlah maximal";
 "common.existential.warning.message" = "Operasi akan menghapus akun dari blockstore karena akan membuat saldo total lebih rendah dari saldo minimal.";
 "common.existential.warning.title" = "Operasi akan menghapus akun";
@@ -288,6 +289,7 @@
 "common.sign" = "Tanda";
 "common.skip" = "Lewati";
 "common.staking" = "Staking";
+"common.start" = "Start";
 "common.terms.and.conditions" = "Syarat dan ketentuan";
 "common.till.date" = "sampai %s";
 "common.time.left" = "Waktu tersisa";
