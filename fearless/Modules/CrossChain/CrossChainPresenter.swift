@@ -281,7 +281,10 @@ final class CrossChainPresenter {
             parameters: edParameters,
             locale: selectedLocale,
             chainAsset: selectedAmountChainAsset,
-            canProceedIfViolated: false
+            canProceedIfViolated: false,
+            proceedAction: {},
+            setMaxAction: {},
+            cancelAction: {}
         )
 
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(

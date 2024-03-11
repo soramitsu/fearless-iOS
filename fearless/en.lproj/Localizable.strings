@@ -1266,3 +1266,5 @@ To find out more, contact %@";
 "verify.phone.number.description" = "Enter SMS code that has been sent to\n%@";
 "verify.phone.number.send.code" = "SEND CODE";
 "common.start" = "Start";
+"onboarding.start.title" = "The DeFi Wallet For The Future";
+"common.existential.warning.max.amount" = "Set max amount";

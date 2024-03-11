@@ -1264,3 +1264,5 @@ Euro cash";
 "verify.phone.number.description" = "Введите SMS-код, который был отправлен\n%@";
 "verify.phone.number.send.code" = "ОТПРАВИТЬ КОД";
 "common.start" = "Start";
+"onboarding.start.title" = "The DeFi Wallet For The Future";
+"common.existential.warning.max.amount" = "Set max amount";
