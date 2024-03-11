@@ -90,9 +90,11 @@ class SendDataValidatingFactory: NSObject {
         chainAsset: ChainAsset,
         canProceedIfViolated: Bool = true,
         sendAllEnabled: Bool = false,
-        warningHandler: (() -> Void)? = nil
+        proceedAction: @escaping () -> Void,
+        setMaxAction: @escaping () -> Void,
+        cancelAction: @escaping () -> Void
     ) -> DataValidating {
-        WarningConditionViolation(onWarning: { [weak self] delegate in
+        WarningConditionViolation(onWarning: { [weak self] _ in
             guard let view = self?.view else {
                 return
             }
@@ -109,10 +111,9 @@ class SendDataValidatingFactory: NSObject {
             self?.basePresentable.presentExistentialDepositWarning(
                 existentianDepositValue: existentianDepositValue,
                 from: view,
-                action: {
-                    delegate.didCompleteWarningHandling()
-                    warningHandler?()
-                },
+                proceedHandler: proceedAction,
+                setMaxHandler: setMaxAction,
+                cancelHandler: cancelAction,
                 locale: locale
             )
         }, preservesCondition: {

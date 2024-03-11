@@ -282,7 +282,11 @@ final class CrossChainPresenter {
         let exsitentialDepositIsNotViolated = dataValidatingFactory.exsitentialDepositIsNotViolated(
             parameters: edParameters,
             locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset
+            chainAsset: selectedAmountChainAsset,
+            canProceedIfViolated: false,
+            proceedAction: {},
+            setMaxAction: {},
+            cancelAction: {}
         )
 
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(

@@ -1269,3 +1269,4 @@ To find out more, contact %@";
 "verify.phone.number.title" = "Verify your phone number";
 "common.start" = "Start";
 "onboarding.start.title" = "The DeFi Wallet For The Future";
+"common.existential.warning.max.amount" = "Set max amount";

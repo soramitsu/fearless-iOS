@@ -1267,3 +1267,4 @@ Euro cash";
 "common.and.others.placeholder" = "%s & others";
 "common.start" = "Start";
 "onboarding.start.title" = "The DeFi Wallet For The Future";
+"common.existential.warning.max.amount" = "Set max amount";
