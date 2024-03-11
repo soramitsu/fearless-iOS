@@ -225,6 +225,7 @@
 "common.error.no.data.retrieved" = "データが取得されていません";
 "common.error.password.mismatch" = "パスワードが一致しません";
 "common.events" = "イベント";
+"common.existential.error.message" = "このトランザクションにより、アカウント存続預金を下回るため(%@)、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。";
 "common.existential.warning.max.amount" = "Set max amount";
 "common.existential.warning.message" = "このトランザクションにより、アカウント存続預金を下回るため (%@)、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。継続を選択した場合、ネットワークによって設定された存続預金額を下回る資金を失うことになります。詳細な情報については、ネットワークの公式ドキュメント(例：Polkadot Wiki)を参照してください。フィアレス・ウォレットは完全な非管理的なアプリであり、ネットワークでのあなたの行動については一切判らないし制御もできません。あなたが、その意味を理解して完全に同意した場合のみ、続行してください";
 "common.existential.warning.title" = "操作によりアカウントが削除されます";
@@ -1133,3 +1134,6 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
+"common.start" = "Start";
+"onboarding.start.title" = "The DeFi Wallet For The Future";
+"common.existential.warning.max.amount" = "Set max amount";

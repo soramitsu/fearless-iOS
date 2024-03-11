@@ -227,6 +227,7 @@
 "common.error.no.data.retrieved" = "未检索到数据。";
 "common.error.password.mismatch" = "密码不匹配";
 "common.events" = "活动";
+"common.existential.error.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。";
 "common.existential.warning.max.amount" = "设置最大金额";
 "common.existential.warning.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对网络上的任何操作都没有控制权或知识。只有在您完全同意并理解相关影响后才能继续。";
 "common.existential.warning.title" = "此操作将删除账户";
@@ -1260,3 +1261,6 @@
 "verify.phone.number.code.input.field.label" = "短信验证码";
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
+"common.start" = "Start";
+"onboarding.start.title" = "The DeFi Wallet For The Future";
+"common.existential.warning.max.amount" = "Set max amount";

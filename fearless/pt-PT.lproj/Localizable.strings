@@ -225,6 +225,7 @@
 "common.error.no.data.retrieved" = "Nenhuns dados recuperados.";
 "common.error.password.mismatch" = "A senha não corresponde";
 "common.events" = "Eventos";
+"common.existential.error.message" = "Esta transação terá como resultado que a conta passe abaixo do Depósito Existencial(%@), o que fará com que ela seja colhida (a conta será apagada da blockchain para conservar espaço).";
 "common.existential.warning.max.amount" = "Set max amount";
 "common.existential.warning.message" = "Esta transação terá como resultado que a conta passe abaixo do Depósito Existencial(%@), o que fará com que ela seja colhida (a conta será apagada da blockchain para conservar espaço). Se optar por continuar, perderá quaisquer fundos que estejam abaixo do montante do depósito existencial estabelecido pela rede. Para informações detalhadas, consulte a documentação oficial da rede (por exemplo, a Polkadot Wiki). A Fearless Wallet é uma aplicação totalmente não custodial, e não tem nenhum controlo ou conhecimento de qualquer das suas ações na própria rede. CONTINUE SÓ SE CONCORDAR PLENAMENTE E COMPREENDER AS IMPLICAÇÕES.";
 "common.existential.warning.title" = "A operação irá remover a conta";
@@ -1269,3 +1270,4 @@ To find out more, contact %@";
 "verify.phone.number.code.input.field.label" = "Código SMS";
 "verify.phone.number.description" = "Introduzir o código SMS que foi enviado para\n%@";
 "verify.phone.number.send.code" = "ENVIAR CÓDIGO";
+"common.start" = "Start";

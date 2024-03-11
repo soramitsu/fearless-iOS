@@ -10,6 +10,11 @@ final class SendPresenter {
         case normal
     }
 
+    enum ValidationCase {
+        case validateAmount(completionHandler: () -> Void)
+        case validateAll
+    }
+
     // MARK: Private properties
 
     private weak var view: SendViewInput?
@@ -435,7 +440,11 @@ final class SendPresenter {
         }
     }
 
-    private func validateInputData(with address: String, chainAsset: ChainAsset) {
+    private func validateInputData(
+        with address: String,
+        chainAsset: ChainAsset,
+        validationCase: ValidationCase
+    ) {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let spendingValue = (sendAmountDecimal ?? 0) + (fee ?? 0) + (tip ?? 0)
 
@@ -472,51 +481,91 @@ final class SendPresenter {
                 totalBalance: eqUilibriumTotalBalance
             )
         }
-
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-                self?.refreshFee(for: chainAsset, address: address)
-            }),
-            dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: balanceType,
-                feeAndTip: (fee ?? 0) + (tip ?? 0),
-                sendAmount: sendAmountDecimal,
-                locale: selectedLocale
-            ),
-            dataValidatingFactory.exsitentialDepositIsNotViolated(
+        var validators: [DataValidating]
+        switch validationCase {
+        case let .validateAmount(handler):
+            validators = [dataValidatingFactory.exsitentialDepositIsNotViolated(
                 parameters: edParameters,
                 locale: selectedLocale,
                 chainAsset: chainAsset,
                 sendAllEnabled: sendAllEnabled,
-                warningHandler: { [weak self] in
+                proceedAction: { [weak self] in
                     guard let self else {
                         return
                     }
 
                     self.sendAllEnabled = true
                     self.view?.switchEnableSendAllState(enabled: self.sendAllEnabled)
-                    self.selectAmountPercentage(1)
+                    handler()
+                },
+                setMaxAction: { [weak self] in
+                    self?.sendAllEnabled = true
+                    self?.view?.switchEnableSendAllState(enabled: true)
+                    self?.selectAmountPercentage(1)
+                },
+                cancelAction: { [weak self] in
+                    self?.sendAllEnabled = false
+                    self?.view?.switchEnableSendAllState(enabled: false)
+                    self?.selectAmountPercentage(0)
                 }
-            )
-        ]).runValidation { [weak self] in
-            guard
-                let strongSelf = self,
-                let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
-            else { return }
-            let transfer = Transfer(
-                chainAsset: chainAsset,
-                amount: amount,
-                receiver: address,
-                tip: strongSelf.tipValue
-            )
-            strongSelf.router.presentConfirm(
-                from: strongSelf.view,
-                wallet: strongSelf.wallet,
-                chainAsset: chainAsset,
-                call: .transfer(transfer),
-                scamInfo: strongSelf.scamInfo,
-                feeViewModel: nil
-            )
+            )]
+        case .validateAll:
+            validators = [
+                dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                    self?.refreshFee(for: chainAsset, address: address)
+                }),
+                dataValidatingFactory.canPayFeeAndAmount(
+                    balanceType: balanceType,
+                    feeAndTip: (fee ?? 0) + (tip ?? 0),
+                    sendAmount: sendAmountDecimal,
+                    locale: selectedLocale
+                ),
+                dataValidatingFactory.exsitentialDepositIsNotViolated(
+                    parameters: edParameters,
+                    locale: selectedLocale,
+                    chainAsset: chainAsset,
+                    sendAllEnabled: sendAllEnabled,
+                    proceedAction: { [weak self] in
+                        self?.sendAllEnabled = true
+                        self?.view?.switchEnableSendAllState(enabled: true)
+                    },
+                    setMaxAction: { [weak self] in
+                        self?.sendAllEnabled = true
+                        self?.view?.switchEnableSendAllState(enabled: true)
+                        self?.selectAmountPercentage(1)
+                    },
+                    cancelAction: { [weak self] in
+                        self?.sendAllEnabled = false
+                        self?.view?.switchEnableSendAllState(enabled: false)
+                        self?.selectAmountPercentage(0)
+                    }
+                )
+            ]
+        }
+        DataValidationRunner(validators: validators).runValidation { [weak self] in
+            switch validationCase {
+            case let .validateAmount(handler):
+                handler()
+            case .validateAll:
+                guard
+                    let strongSelf = self,
+                    let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+                else { return }
+                let transfer = Transfer(
+                    chainAsset: chainAsset,
+                    amount: amount,
+                    receiver: address,
+                    tip: strongSelf.tipValue
+                )
+                strongSelf.router.presentConfirm(
+                    from: strongSelf.view,
+                    wallet: strongSelf.wallet,
+                    chainAsset: chainAsset,
+                    call: .transfer(transfer),
+                    scamInfo: strongSelf.scamInfo,
+                    feeViewModel: nil
+                )
+            }
         }
     }
 
@@ -817,6 +866,19 @@ extension SendPresenter: SendViewOutput {
 
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
+        if let chainAsset = selectedChainAsset {
+            validateInputData(
+                with: "",
+                chainAsset: chainAsset,
+                validationCase: .validateAmount(completionHandler: { [weak self] in
+                    self?.inputResult = .rate(Decimal(Double(percentage)))
+                    self?.provideAssetVewModel()
+                    self?.provideInputViewModel()
+                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
+                })
+            )
+        }
+
         provideAssetVewModel()
         provideInputViewModel()
         guard let chainAsset = selectedChainAsset else { return }
@@ -825,6 +887,17 @@ extension SendPresenter: SendViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
+        if let chainAsset = selectedChainAsset {
+            validateInputData(
+                with: "",
+                chainAsset: chainAsset,
+                validationCase: .validateAmount(completionHandler: { [weak self] in
+                    self?.provideAssetVewModel()
+                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
+                })
+            )
+        }
+
         provideAssetVewModel()
         guard let chainAsset = selectedChainAsset else { return }
         refreshFee(for: chainAsset, address: recipientAddress)
@@ -840,7 +913,11 @@ extension SendPresenter: SendViewOutput {
             validateXorlessTransfer()
         } else {
             validateAddress(with: chainAsset) { [weak self] address in
-                self?.validateInputData(with: address, chainAsset: chainAsset)
+                self?.validateInputData(
+                    with: address,
+                    chainAsset: chainAsset,
+                    validationCase: .validateAll
+                )
             }
         }
     }
@@ -939,7 +1016,7 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
-            view?.switchEnableSendAllVisibility(isVisible: true)
+            view?.switchEnableSendAllVisibility(isVisible: minimumBalance > BigUInt.zero)
             logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
             view?.switchEnableSendAllVisibility(isVisible: false)

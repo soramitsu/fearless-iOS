@@ -257,7 +257,7 @@ final class SoraRewardCalculatorService {
                 validators: eraStakersInfo.validators,
                 chainAsset: self.chainAsset,
                 eraDurationInSeconds: stakingDuration.era,
-                rewardAssetRate: rewardAssetRate.or(1.0)
+                rewardAssetRate: self.rewardAssetRate.or(1.0)
             )
         }
 

@@ -227,6 +227,7 @@ tiền Euro";
 "common.error.no.data.retrieved" = "Không có dữ liệu nào được truy xuất.";
 "common.error.password.mismatch" = "Mật khẩu không khớp";
 "common.events" = "Sự kiện";
+"common.existential.error.message" = "Giao dịch này sẽ dẫn đến việc tài khoản sẽ xuống thâp hơn Khoản tiền gửi tối thiểu để duy trì tài khoản(%@), điều này sẽ khiến tài khoản bị thu hồi (tài khoản sẽ bị xóa khỏi trạng thái của blockchain để bảo toàn không gian).";
 "common.existential.warning.max.amount" = "Số tiền tối đa";
 "common.existential.warning.message" = "Giao dịch này sẽ dẫn đến việc tài khoản sẽ xuống thâp hơn Khoản tiền gửi tối thiểu để duy trì tài khoản (%@), điều này sẽ khiến tài khoản bị thu hồi (tài khoản sẽ bị xóa khỏi trạng thái của blockchain để bảo toàn không gian). Nếu bạn chọn tiếp tục, bạn sẽ mất bất kỳ khoản tiền nào thấp hơn số tiền ký quỹ hiện có do mạng đặt ra. Để biết thông tin chi tiết, vui lòng tham khảo tài liệu mạng chính thức (ví dụ: Polkadot Wiki). Fearless Wallet là một ứng dụng hoàn toàn không bị quản lý và không có quyền kiểm soát hoặc không biết về bất kỳ hành động nào của bạn trên chính mạng đó. CHỈ TIẾP TỤC NẾU BẠN HOÀN TOÀN ĐỒNG Ý VÀ HIỂU Ý.";
 "common.existential.warning.title" = "Thao tác này sẽ xóa tài khoản";
@@ -1262,3 +1263,6 @@ Giữ, stake hoặc cung cấp thanh khoản cho XOR trị giá ít nhất €%@
 "verify.phone.number.code.input.field.label" = "Mã SMS";
 "verify.phone.number.description" = "Nhập mã SMS đã được gửi đến\n%@";
 "verify.phone.number.send.code" = "GỬI MÃ";
+"common.start" = "Start";
+"onboarding.start.title" = "The DeFi Wallet For The Future";
+"common.existential.warning.max.amount" = "Set max amount";

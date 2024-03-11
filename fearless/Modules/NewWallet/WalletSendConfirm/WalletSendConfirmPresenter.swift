@@ -172,39 +172,8 @@ final class WalletSendConfirmPresenter {
         let tipPaymentPrecision = tipPaymentChainAsset?.asset.precision ?? chainAsset.asset.precision
         let tip = Decimal.fromSubstrateAmount(call.tip ?? .zero, precision: Int16(tipPaymentPrecision)) ?? .zero
 
-        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0
-
         let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
-
-        var minimumBalanceDecimal: Decimal?
-        if let minBalance = minimumBalance {
-            minimumBalanceDecimal = Decimal.fromSubstrateAmount(
-                minBalance,
-                precision: Int16(chainAsset.asset.precision)
-            )
-        } else if chainAsset.chain.isEthereum {
-            minimumBalanceDecimal = .zero
-        }
-
-        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
-        var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
-            .orml(
-                minimumBalance: minimumBalanceDecimal,
-                feeAndTip: (fee ?? 0) + tip,
-                utilityBalance: utilityBalance
-            ) :
-            .utility(
-                spendingAmount: amount + (fee ?? .zero),
-                totalAmount: balance,
-                minimumBalance: minimumBalanceDecimal
-            )
-        if chainAsset.chain.isEquilibrium {
-            edParameters = .equilibrium(
-                minimumBalance: minimumBalanceDecimal,
-                totalBalance: eqUilibriumTotalBalance
-            )
-        }
 
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -215,14 +184,7 @@ final class WalletSendConfirmPresenter {
                 feeAndTip: (fee ?? 0) + tip,
                 sendAmount: amount,
                 locale: selectedLocale
-            ),
-
-            dataValidatingFactory.exsitentialDepositIsNotViolated(
-                parameters: edParameters,
-                locale: selectedLocale,
-                chainAsset: chainAsset
             )
-
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.view?.didStartLoading()
