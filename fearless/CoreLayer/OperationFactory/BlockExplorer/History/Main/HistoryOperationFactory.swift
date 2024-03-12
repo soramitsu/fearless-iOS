@@ -13,7 +13,11 @@ final class HistoryOperationFactoriesAssembly {
         case .subquery:
             return SubqueryHistoryOperationFactory(txStorage: txStorage, chainRegistry: ChainRegistryFacade.sharedRegistry)
         case .subsquid:
-            return SubsquidHistoryOperationFactory(txStorage: txStorage)
+            if chain.isPolkadotOrKusama {
+                return ArrowsquidHistoryOperationFactory(txStorage: txStorage)
+            } else {
+                return SubsquidHistoryOperationFactory(txStorage: txStorage)
+            }
         case .giantsquid:
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         case .sora:
