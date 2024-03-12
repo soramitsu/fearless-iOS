@@ -2463,6 +2463,9 @@
 		FA7A4C7E2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */; };
 		FA7A4C7F2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */; };
 		FA7A4C802A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */; };
+		FA7C9A6C2BA004E80031580A /* ArrowsquidHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7C9A6B2BA004E80031580A /* ArrowsquidHistoryOperationFactory.swift */; };
+		FA7C9A6E2BA007420031580A /* AssetTransactionData+ArrowsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7C9A6D2BA007420031580A /* AssetTransactionData+ArrowsquidHistory.swift */; };
+		FA7C9A702BA007AE0031580A /* ArrowsquidHistoryResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7C9A6F2BA007AE0031580A /* ArrowsquidHistoryResponse.swift */; };
 		FA7D46CD2AF24191005D681B /* SoraRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7D46CC2AF24191005D681B /* SoraRewardOperationFactory.swift */; };
 		FA7D46CF2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */; };
 		FA80391528DC2DA2007365E8 /* StakingPoolPalletID.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */; };
@@ -5563,6 +5566,9 @@
 		FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaychainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
+		FA7C9A6B2BA004E80031580A /* ArrowsquidHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrowsquidHistoryOperationFactory.swift; sourceTree = "<group>"; };
+		FA7C9A6D2BA007420031580A /* AssetTransactionData+ArrowsquidHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+ArrowsquidHistory.swift"; sourceTree = "<group>"; };
+		FA7C9A6F2BA007AE0031580A /* ArrowsquidHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArrowsquidHistoryResponse.swift; sourceTree = "<group>"; };
 		FA7D46CC2AF24191005D681B /* SoraRewardOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardOperationFactory.swift; sourceTree = "<group>"; };
 		FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraSubsquidPayoutValidatorForNominatorFactory.swift; sourceTree = "<group>"; };
 		FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolPalletID.swift; sourceTree = "<group>"; };
@@ -9888,6 +9894,7 @@
 				07BF3DA02B3D98BD0046ABF4 /* AssetTransactionData+Zeta.swift */,
 				FA9A8F082A6FB8F9008FA99F /* AssetTransactionData+EtherscanHistory.swift */,
 				FA14AE8A2B0788D20066CADF /* AssetTransactionData+SoraSubsquidHistory.swift */,
+				FA7C9A6D2BA007420031580A /* AssetTransactionData+ArrowsquidHistory.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -13365,6 +13372,7 @@
 				FA9A8F012A6F91BA008FA99F /* EtherscanHistoryOperationFactory.swift */,
 				FAE5858E2B0764EC00240FE1 /* SoraSubsquidHistoryOperationFactory.swift */,
 				FA8800532B2C5D91000AE5EB /* ReefSubsquidHistoryOperationFactory.swift */,
+				FA7C9A6B2BA004E80031580A /* ArrowsquidHistoryOperationFactory.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -15431,6 +15439,7 @@
 				FAFFAE7029AC84B10074AF1F /* ParachainSubsquidRewardResponse.swift */,
 				FA14AE882B0785670066CADF /* SoraSubsquidHistoryResponse.swift */,
 				FA8800552B2C610E000AE5EB /* ReefSubsquidHistory.swift */,
+				FA7C9A6F2BA007AE0031580A /* ArrowsquidHistoryResponse.swift */,
 			);
 			path = Subsquid;
 			sourceTree = "<group>";
@@ -16440,6 +16449,7 @@
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
 				FA7741E42B6A350200358315 /* GiantsquidStakingRewardsFetcher.swift in Sources */,
+				FA7C9A702BA007AE0031580A /* ArrowsquidHistoryResponse.swift in Sources */,
 				845BB8D125E45F1300E5FCDC /* NominateCall.swift in Sources */,
 				FAD429162A86567F001D6A16 /* BackupSelectWalletRouter.swift in Sources */,
 				840689FC26321F2700A017B1 /* StorageQuery.swift in Sources */,
@@ -16537,6 +16547,7 @@
 				FA6262672AC2E35A005D3D95 /* WalletConnectProposalRouter.swift in Sources */,
 				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				84F98D8A25E3DD3F0040418E /* StorageCodingPath.swift in Sources */,
+				FA7C9A6E2BA007420031580A /* AssetTransactionData+ArrowsquidHistory.swift in Sources */,
 				F4D6FF4D26B3EB65002313AF /* AnalyticsHistoryCell.swift in Sources */,
 				84F43C0F25DF016600AEDA56 /* DispatchQueueHelper.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
@@ -17101,6 +17112,7 @@
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,
 				07D05E6628EF0BE500B66C70 /* SelectValidatorsConfirmPoolStrategy.swift in Sources */,
 				FA7336C32A0E3B7F0096A291 /* RequestSignerFactory.swift in Sources */,
+				FA7C9A6C2BA004E80031580A /* ArrowsquidHistoryOperationFactory.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
 				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
