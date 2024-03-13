@@ -12,7 +12,7 @@ enum AlchemyNFTOperationFactoryError: Error {
 final class AlchemyNFTOperationFactory {
     // MARK: Collections for owner
 
-    private var alchemyApiKey: String {
+    var alchemyApiKey: String {
         #if DEBUG
             return ThirdPartyServicesApiKeysDebug.alchemyApiKey
         #else
@@ -283,6 +283,7 @@ final class AlchemyNFTOperationFactory {
         nextId: String?
     ) -> BaseOperation<AlchemyNftsResponse> {
         let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
+        print(alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTsForCollection")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [

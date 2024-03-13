@@ -12,8 +12,10 @@ final class MainNftContainerAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
+        let operationFactory = AlchemyNFTOperationFactory()
+
         let nftFetchingService = AlchemyNftFetchingService(
-            operationFactory: AlchemyNFTOperationFactory(),
+            operationFactory: operationFactory,
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationQueue(),
             logger: Logger.shared
@@ -43,7 +45,8 @@ final class MainNftContainerAssembly {
             viewModelFactory: NftListViewModelFactory(),
             wallet: wallet,
             eventCenter: EventCenter.shared,
-            stateHolder: stateHolder
+            stateHolder: stateHolder,
+            alchemyApiKey: operationFactory.alchemyApiKey
         )
 
         let view = MainNftContainerViewController(

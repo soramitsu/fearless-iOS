@@ -112,7 +112,10 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let message = R.string.localizable
             .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
 
-        let proceedHandler = SheetAlertPresentableAction(title: title, style: .pinkBackgroundWhiteText) {
+        let proceedHandler = SheetAlertPresentableAction(
+            title: R.string.localizable.commonProceed(preferredLanguages: locale?.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) {
             proceedHandler()
         }
         let setMaxTitle = R.string.localizable.commonExistentialWarningMaxAmount(preferredLanguages: locale?.rLanguages)
