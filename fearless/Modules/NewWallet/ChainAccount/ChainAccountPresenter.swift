@@ -258,11 +258,11 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
-        var items: [ChainAction] = [.export, .switchNode, .replace]
-
-        if interactor.checkIsClaimAvailable() {
-            items.append(.claimCrowdloanRewards)
-        }
+        var items: [ChainAction] = []
+        items.append(.export)
+        if !chainAsset.chain.isEthereum { items.append(.switchNode) }
+        items.append(.replace)
+        if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self else { return }
