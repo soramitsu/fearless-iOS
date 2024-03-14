@@ -141,6 +141,7 @@ final class ArrowsquidHistoryOperationFactory {
                                           amount
                                           era
                                           stash
+                                          validator
                                         }
                   }
         }
