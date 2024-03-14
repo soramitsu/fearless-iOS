@@ -16,7 +16,6 @@ final class MainNftContainerPresenter {
     private var wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
     private let stateHolder: MainNftContainerStateHolder
-    private let alchemyApiKey: String
 
     // MARK: - Constructors
 
@@ -27,8 +26,7 @@ final class MainNftContainerPresenter {
         viewModelFactory: NftListViewModelFactoryProtocol,
         wallet: MetaAccountModel,
         eventCenter: EventCenterProtocol,
-        stateHolder: MainNftContainerStateHolder,
-        alchemyApiKey: String
+        stateHolder: MainNftContainerStateHolder
     ) {
         self.interactor = interactor
         self.router = router
@@ -36,7 +34,6 @@ final class MainNftContainerPresenter {
         self.wallet = wallet
         self.eventCenter = eventCenter
         self.stateHolder = stateHolder
-        self.alchemyApiKey = alchemyApiKey
         self.localizationManager = localizationManager
 
         eventCenter.add(observer: self)
@@ -60,11 +57,6 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
     func viewAppeared() {
         interactor.initialSetup()
         setupAppearance()
-        router.presentInfo(
-            message: alchemyApiKey,
-            title: "api key",
-            from: view
-        )
     }
 
     func didSelect(collection: NFTCollection) {

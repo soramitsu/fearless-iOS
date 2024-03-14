@@ -45,8 +45,7 @@ final class MainNftContainerAssembly {
             viewModelFactory: NftListViewModelFactory(),
             wallet: wallet,
             eventCenter: EventCenter.shared,
-            stateHolder: stateHolder,
-            alchemyApiKey: operationFactory.alchemyApiKey
+            stateHolder: stateHolder
         )
 
         let view = MainNftContainerViewController(

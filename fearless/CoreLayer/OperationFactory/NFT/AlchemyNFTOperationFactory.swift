@@ -12,7 +12,7 @@ enum AlchemyNFTOperationFactoryError: Error {
 final class AlchemyNFTOperationFactory {
     // MARK: Collections for owner
 
-    var alchemyApiKey: String {
+    private var alchemyApiKey: String {
         #if DEBUG
             return ThirdPartyServicesApiKeysDebug.alchemyApiKey
         #else
