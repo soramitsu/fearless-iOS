@@ -567,7 +567,8 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                     if let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first {
                         minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
                     }
-                    return totalBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired() - minimumBalance
+// set aside a reserve 10% to avoid account cancellation as a result of a jump in commission
+                    return totalBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired() - (minimumBalance * 1.1)
                 } ?? .zero
                 provideAssetViewModel()
             }
