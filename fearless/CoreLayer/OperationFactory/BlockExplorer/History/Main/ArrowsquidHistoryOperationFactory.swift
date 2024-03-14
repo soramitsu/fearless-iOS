@@ -99,10 +99,6 @@ final class ArrowsquidHistoryOperationFactory {
     ) -> String {
         var filterStrings: [String] = []
 
-        if !filters.contains(where: { $0.type == .other && $0.selected }) {
-            filterStrings.append("extrinsic_isNull: true")
-        }
-
         if !filters.contains(where: { $0.type == .reward && $0.selected }) {
             filterStrings.append("reward_isNull: true")
         }
