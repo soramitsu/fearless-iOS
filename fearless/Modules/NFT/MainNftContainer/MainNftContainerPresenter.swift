@@ -89,7 +89,9 @@ extension MainNftContainerPresenter: MainNftContainerViewOutput {
 extension MainNftContainerPresenter: MainNftContainerInteractorOutput {
     func didReceive(collections: [NFTCollection]) {
         let viewModels = viewModelFactory.buildViewModel(from: collections, locale: localizationManager?.selectedLocale ?? Locale.current)
-        view?.didReceive(viewModels: viewModels)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(viewModels: viewModels)
+        }
     }
 
     func didReceive(alert: String) {
