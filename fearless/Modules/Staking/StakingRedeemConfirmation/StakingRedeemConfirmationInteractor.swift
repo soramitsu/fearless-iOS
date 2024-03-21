@@ -39,7 +39,7 @@ extension StakingRedeemConfirmationInteractor: StakingRedeemConfirmationInteract
     }
 
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
     }

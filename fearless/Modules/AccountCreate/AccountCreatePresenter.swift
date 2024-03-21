@@ -2,6 +2,7 @@ import UIKit
 import IrohaCrypto
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class AccountCreatePresenter {
     static let maxEthereumDerivationPathLength: Int = 15

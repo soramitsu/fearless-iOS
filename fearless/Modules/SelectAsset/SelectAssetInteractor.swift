@@ -105,7 +105,7 @@ private extension SelectAssetInteractor {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
+        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {

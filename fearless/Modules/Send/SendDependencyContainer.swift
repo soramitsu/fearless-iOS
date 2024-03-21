@@ -8,6 +8,7 @@ import SSFExtrinsicKit
 import Web3
 import SSFSigner
 import SSFCrypto
+import Foundation
 
 struct SendDependencies {
     let wallet: MetaAccountModel
@@ -127,7 +128,7 @@ final class SendDepencyContainer {
                 chainsTypesSyncService: chainsTypesSyncService,
                 runtimeSyncService: runtimeSyncService
             )
-            let connection = try chainRegistry.getConnection(for: chainAsset.chain)
+            let connection = try await chainRegistry.getSubstrateConnection(for: chainAsset.chain)
 
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,

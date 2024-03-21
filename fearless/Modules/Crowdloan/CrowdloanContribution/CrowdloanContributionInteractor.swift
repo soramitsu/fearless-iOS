@@ -100,7 +100,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
 
     private func subscribeToDisplayInfo() {
         if let displayInfoUrl = chainAsset.chain.externalApi?.crowdloans?.url {
-            displayInfoProvider = subscribeToCrowdloanDisplayInfo(
+            displayInfoProvider = try? subscribeToCrowdloanDisplayInfo(
                 for: displayInfoUrl,
                 chainId: chainAsset.chain.chainId
             )
@@ -123,7 +123,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     private func subscribeToPrice() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 
     func setup() {

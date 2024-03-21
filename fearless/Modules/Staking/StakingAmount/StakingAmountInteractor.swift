@@ -68,7 +68,7 @@ final class StakingAmountInteractor {
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching,
     AccountFetching {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)

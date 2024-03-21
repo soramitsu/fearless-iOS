@@ -1,6 +1,5 @@
 import Foundation
 import SSFUtils
-import CommonWallet
 import RobinHood
 import SoraFoundation
 import SSFModels

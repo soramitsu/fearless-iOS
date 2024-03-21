@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
+
 import SnapKit
 
 final class SendViewController: UIViewController, ViewHolder {

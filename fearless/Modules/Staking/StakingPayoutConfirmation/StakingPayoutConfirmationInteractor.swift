@@ -1,6 +1,6 @@
 import Foundation
 import SoraKeystore
-import CommonWallet
+
 import RobinHood
 import IrohaCrypto
 import BigInt
@@ -30,7 +30,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     }
 
     private func subscribeForPrices() {
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset.chain.utilityChainAssets().first, chainAsset].compactMap { $0 }, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrices(for: [chainAsset.chain.utilityChainAssets().first, chainAsset].compactMap { $0 }, listener: self)
     }
 }
 

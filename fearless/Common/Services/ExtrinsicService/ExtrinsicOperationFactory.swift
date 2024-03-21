@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 typealias ExtrinsicBuilderClosure = (ExtrinsicBuilderProtocol) throws -> (ExtrinsicBuilderProtocol)
 typealias ExtrinsicBuilderIndexedClosure = (ExtrinsicBuilderProtocol, Int) throws -> (ExtrinsicBuilderProtocol)

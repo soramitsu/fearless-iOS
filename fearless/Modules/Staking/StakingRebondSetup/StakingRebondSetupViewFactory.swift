@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFModels
+import SSFAccountManagmentStorage
 
 final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol {
     static func createView(

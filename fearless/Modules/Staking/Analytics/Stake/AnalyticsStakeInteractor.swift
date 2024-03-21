@@ -1,6 +1,7 @@
 import RobinHood
 import BigInt
 import SSFModels
+import Foundation
 
 final class AnalyticsStakeInteractor {
     weak var presenter: AnalyticsStakeInteractorOutputProtocol!
@@ -32,7 +33,7 @@ final class AnalyticsStakeInteractor {
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         stashItemProvider = subscribeStashItemProvider(for: selectedAccountAddress)
     }

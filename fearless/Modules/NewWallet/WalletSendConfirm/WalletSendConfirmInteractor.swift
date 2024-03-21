@@ -70,10 +70,10 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         if chainAsset.chain.isSora, !chainAsset.isUtility,
            let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            utilityPriceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
+            utilityPriceProvider = try? priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         }
     }
 

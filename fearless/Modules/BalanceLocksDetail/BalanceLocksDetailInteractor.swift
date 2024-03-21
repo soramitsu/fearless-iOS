@@ -104,7 +104,7 @@ extension BalanceLocksDetailInteractor: BalanceLocksDetailInteractorInput {
             await fetchVestings()
         }
 
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }
 

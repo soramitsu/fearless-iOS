@@ -35,12 +35,12 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         let signer: WalletConnectPayloadSigner
         switch method {
         case .polkadotSignTransaction:
-            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType.utilsType
+            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType
             let transactionSigner = try createSigner(for: chain, cryptoType: SFCryptoType(cryptoType ?? .sr25519))
             let signType: WalletConnectPolkadorSigner.SignType = .signTransaction(transactionSigner: transactionSigner)
             signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)
         case .polkadotSignMessage:
-            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType.utilsType
+            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType
             let transactionSigner = try createSigner(for: chain, cryptoType: SFCryptoType(cryptoType ?? .sr25519))
             let signType: WalletConnectPolkadorSigner.SignType = .signMessage(transactionSigner: transactionSigner)
             signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)

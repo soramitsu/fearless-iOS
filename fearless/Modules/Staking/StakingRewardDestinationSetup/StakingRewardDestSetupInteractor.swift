@@ -139,7 +139,7 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
         if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
 
         provideRewardCalculator()
 

@@ -1,13 +1,6 @@
 import Foundation
 import SSFModels
 
-struct ChainAccountRequest {
-    let chainId: ChainModel.Id
-    let addressPrefix: UInt16
-    let isEthereumBased: Bool
-    let accountId: AccountId?
-}
-
 struct ChainAccountResponse: Equatable {
     let chainId: ChainModel.Id
     let accountId: AccountId
@@ -94,17 +87,6 @@ extension MetaAccountModel {
             isEthereumBased: false,
             isChainAccount: false,
             walletId: metaId
-        )
-    }
-}
-
-extension ChainModel {
-    func accountRequest(_ accountId: AccountId? = nil) -> ChainAccountRequest {
-        ChainAccountRequest(
-            chainId: chainId,
-            addressPrefix: addressPrefix,
-            isEthereumBased: isEthereumBased,
-            accountId: accountId
         )
     }
 }

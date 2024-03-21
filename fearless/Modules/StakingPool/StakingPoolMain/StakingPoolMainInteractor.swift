@@ -471,7 +471,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
         output?.didReceive(chainAsset: chainAsset)
 
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchRewardCalculator()
         fetchNetworkInfo()

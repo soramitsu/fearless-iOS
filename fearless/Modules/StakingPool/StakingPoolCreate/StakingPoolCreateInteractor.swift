@@ -145,7 +145,7 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
 
         fetchPoolMembers()
         fetchLastPoolId()
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(

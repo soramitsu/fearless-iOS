@@ -30,9 +30,9 @@ final class NftSendConfirmInteractor {
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
         if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            priceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
+            priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         } else {
-            priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+            priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         }
     }
 

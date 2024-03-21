@@ -1,6 +1,15 @@
 {
   "pins" : [
     {
+      "identity" : "appauth-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/openid/AppAuth-iOS.git",
+      "state" : {
+        "revision" : "7e2c09cbeb3bb799f26c268dbedb26325ea722a9",
+        "version" : "1.7.3"
+      }
+    },
+    {
       "identity" : "bigint",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/attaswift/BigInt.git",
@@ -16,6 +25,51 @@
       "state" : {
         "revision" : "7892a123f7e8d0fe62f9f03728b17bbd4f94df5c",
         "version" : "1.8.1"
+      }
+    },
+    {
+      "identity" : "fearless-starscream",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soramitsu/fearless-starscream",
+      "state" : {
+        "revision" : "9b31c94e94d81dd5df144f368ce90e18062b3f21",
+        "version" : "4.0.9"
+      }
+    },
+    {
+      "identity" : "google-api-objectivec-client-for-rest",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/google-api-objectivec-client-for-rest.git",
+      "state" : {
+        "revision" : "8b200e6e447c04140ac027cba4f368402766965f",
+        "version" : "3.5.1"
+      }
+    },
+    {
+      "identity" : "googlesignin-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleSignIn-iOS",
+      "state" : {
+        "revision" : "7932d33686c1dc4d7df7a919aae47361d1cdfda4",
+        "version" : "7.0.0"
+      }
+    },
+    {
+      "identity" : "gtm-session-fetcher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/gtm-session-fetcher.git",
+      "state" : {
+        "revision" : "76135c9f4e1ac85459d5fec61b6f76ac47ab3a4c",
+        "version" : "3.3.1"
+      }
+    },
+    {
+      "identity" : "gtmappauth",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GTMAppAuth.git",
+      "state" : {
+        "revision" : "cee3c709307912d040bd1e06ca919875a92339c6",
+        "version" : "2.0.0"
       }
     },
     {
@@ -52,6 +106,24 @@
       "state" : {
         "revision" : "f2b5a06440ea87eba1a167cab37bf6496646c52e",
         "version" : "1.3.4"
+      }
+    },
+    {
+      "identity" : "reachability.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/ashleymills/Reachability.swift",
+      "state" : {
+        "revision" : "c01127cb51f591045696128effe43c16840d08bf",
+        "version" : "5.2.0"
+      }
+    },
+    {
+      "identity" : "scrypt.c",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/v57/scrypt.c.git",
+      "state" : {
+        "revision" : "0a1ac944808cd667a0c2e2457a4729dcdd447085",
+        "version" : "0.1.1"
       }
     },
     {
@@ -145,6 +217,15 @@
       }
     },
     {
+      "identity" : "swiftformat",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nicklockwood/SwiftFormat",
+      "state" : {
+        "revision" : "a03119407c4773322d9e3c6cb5279bb597b68317",
+        "version" : "0.53.4"
+      }
+    },
+    {
       "identity" : "swiftimagereadwrite",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/SwiftImageReadWrite",
@@ -154,12 +235,30 @@
       }
     },
     {
+      "identity" : "swiftybeaver",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
+      "state" : {
+        "revision" : "1080914828ef1c9ca9cd2bad50667b3d847dabff",
+        "version" : "2.0.0"
+      }
+    },
+    {
       "identity" : "swime",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sendyhalim/Swime",
       "state" : {
         "revision" : "4e538834483059ceefaaad8cdb3abe0d7d1c5146",
         "version" : "3.1.0"
+      }
+    },
+    {
+      "identity" : "tweetnacl-swiftwrap",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/bitmark-inc/tweetnacl-swiftwrap",
+      "state" : {
+        "revision" : "f8fd111642bf2336b11ef9ea828510693106e954",
+        "version" : "1.1.0"
       }
     },
     {
@@ -187,6 +286,15 @@
       "state" : {
         "revision" : "53fe0639a98903858d0196b699720decb42aee7b",
         "version" : "2.14.0"
+      }
+    },
+    {
+      "identity" : "xxhash-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/daisuke-t-jp/xxHash-Swift",
+      "state" : {
+        "revision" : "e86a07ab4867f81481d430e1370a5ec97b6e3359",
+        "version" : "1.1.1"
       }
     }
   ],

@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
-import CommonWallet
+
 import SSFUtils
 import SSFModels
 
@@ -49,7 +49,7 @@ extension StakingMainInteractor {
             return
         }
 
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
     }
 
     func performAccountInfoSubscription() {
@@ -155,7 +155,7 @@ extension StakingMainInteractor {
         if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url,
            selectedChainAsset?.stakingType?.isParachain == true,
            let chainAsset = selectedChainAsset {
-            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(chainAsset: chainAsset, for: address, url: analyticsURL)
+            rewardAnalyticsProvider = try? subscribeWeaklyRewardAnalytics(chainAsset: chainAsset, for: address, url: analyticsURL)
         } else {
             presenter?.didReceieve(
                 subqueryRewards: .success(nil),

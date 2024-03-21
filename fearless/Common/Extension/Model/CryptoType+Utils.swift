@@ -1,8 +1,8 @@
 import Foundation
-import SSFUtils
+import SSFModels
 
 extension CryptoType {
-    init(_ utilsType: SSFUtils.CryptoType) {
+    init(_ utilsType: CryptoType) {
         switch utilsType {
         case .sr25519:
             self = .sr25519
@@ -13,7 +13,7 @@ extension CryptoType {
         }
     }
 
-    var utilsType: SSFUtils.CryptoType {
+    var utilsType: CryptoType {
         switch self {
         case .sr25519:
             return .sr25519

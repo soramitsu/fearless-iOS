@@ -322,7 +322,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         if let currencies = currencies {
             uniqueQurrencies = Array(Set(currencies))
         }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, currencies: uniqueQurrencies, listener: self)
+        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, currencies: uniqueQurrencies, listener: self)
     }
 
     private func fetchChainsOperation() -> BaseOperation<[ChainAsset]> {

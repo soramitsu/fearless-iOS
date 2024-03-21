@@ -99,7 +99,7 @@ extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
         }
 
         if let chainAsset = rewardChainAsset {
-            priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+            priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         }
     }
 

@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import RobinHood
 import IrohaCrypto
+import SSFModels
 
 typealias FeeExtrinsicResult = Result<RuntimeDispatchInfo, Error>
 typealias EstimateFeeClosure = (FeeExtrinsicResult) -> Void

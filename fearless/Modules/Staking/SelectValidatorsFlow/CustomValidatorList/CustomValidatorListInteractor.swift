@@ -20,7 +20,7 @@ final class CustomValidatorListInteractor {
 
 extension CustomValidatorListInteractor: CustomValidatorListInteractorInputProtocol {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }
 

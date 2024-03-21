@@ -1,4 +1,4 @@
-import CommonWallet
+import UIKit
 
 extension NetworkFeeFooterView: AccessoryViewProtocol {
     var extendsUnderSafeArea: Bool { true }

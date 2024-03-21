@@ -1,5 +1,5 @@
 import UIKit
-import CommonWallet
+
 import SSFUtils
 
 final class WalletTransactionDetailsViewLayout: UIView {

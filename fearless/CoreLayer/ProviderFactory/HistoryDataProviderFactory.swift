@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import SSFModels
 
 protocol HistoryDataProviderFactoryProtocol {
@@ -21,12 +21,12 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
     let operationFactory: HistoryOperationFactoryProtocol
 
     init(
-        cacheFacade: StorageFacadeProtocol,
+        cacheFacade _: StorageFacadeProtocol,
         operationFactory: HistoryOperationFactoryProtocol
     ) {
         self.operationFactory = operationFactory
 
-        super.init(cacheFacade: cacheFacade)
+        super.init()
     }
 
     enum Constants {
@@ -57,7 +57,7 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
                 return operation
             }
 
-        let cache = createSingleValueCache()
+        let cache = try createSingleValueCache()
 
         let updateTrigger = DataProviderEventTrigger.onAddObserver
 

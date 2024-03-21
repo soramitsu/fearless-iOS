@@ -1,9 +1,10 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFSingleValueCache
 
 protocol PriceProviderFactoryProtocol {
-    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
+    func getPricesProvider(currencies: [Currency]?) throws -> AnySingleValueProvider<[PriceData]>
 }
 
 class PriceProviderFactory {
@@ -29,7 +30,7 @@ class PriceProviderFactory {
 }
 
 extension PriceProviderFactory: PriceProviderFactoryProtocol {
-    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[SSFModels.PriceData]> {
+    func getPricesProvider(currencies: [Currency]?) throws -> AnySingleValueProvider<[SSFModels.PriceData]> {
         let identifier = currencies?.compactMap { $0.id }.sorted().joined(separator: ".") ?? PriceDataSource.defaultIdentifier
 
         if let provider = providers[identifier]?.target as? SingleValueProvider<[PriceData]> {
@@ -45,7 +46,7 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
             return AnySingleValueProvider(provider)
         }
 
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = storageFacade.createRepository()
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = try SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
         let source = PriceDataSource(currencies: currencies)
         let trigger: DataProviderEventTrigger = [.onInitialization, .onFetchPage]
         let provider = SingleValueProvider(

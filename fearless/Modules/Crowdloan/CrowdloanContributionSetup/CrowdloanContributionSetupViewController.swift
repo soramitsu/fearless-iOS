@@ -1,5 +1,5 @@
 import UIKit
-import CommonWallet
+
 import SoraFoundation
 
 final class CrowdloanContributionSetupViewController: UIViewController, ViewHolder {

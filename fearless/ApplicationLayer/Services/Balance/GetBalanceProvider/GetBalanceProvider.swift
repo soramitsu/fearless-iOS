@@ -226,7 +226,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
 
     private func subscribeToPrices(for chains: [ChainModel]) {
         let chainAssets = chains.compactMap { $0.chainAssets }.reduce([], +)
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
+        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func subscribeToAccountInfo(chains: [ChainModel]) {

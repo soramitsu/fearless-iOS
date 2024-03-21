@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 extension SwitchAccount {
     final class AccountCreateWireframe: AccountCreateWireframeProtocol {

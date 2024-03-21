@@ -1,5 +1,4 @@
 import UIKit
-import CommonWallet
 
 final class ScanQRInteractor {
     // MARK: - Private properties

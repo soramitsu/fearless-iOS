@@ -70,7 +70,7 @@ final class StakingRewardPayoutsInteractor {
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 

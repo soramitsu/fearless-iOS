@@ -71,7 +71,7 @@ extension PoolRolesConfirmInteractor: PoolRolesConfirmInteractorInput {
 
         feeProxy.delegate = self
 
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchAllAccounts()
     }

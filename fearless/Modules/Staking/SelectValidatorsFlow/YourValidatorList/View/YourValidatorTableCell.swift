@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import UIKit
 
 class YourValidatorTableCell: UITableViewCell {
     private enum LayoutConstants {

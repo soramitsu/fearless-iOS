@@ -6,13 +6,13 @@ final class OnboardingMainInteractor {
     weak var presenter: OnboardingMainInteractorOutputProtocol?
 
     private let keystoreImportService: KeystoreImportServiceProtocol
-    private let cloudStorage: FearlessCompatibilityProtocol
+    private let cloudStorage: CloudStorageServiceProtocol
     private let featureToggleService: FeatureToggleProviderProtocol
     private let operationQueue: OperationQueue
 
     init(
         keystoreImportService: KeystoreImportServiceProtocol,
-        cloudStorage: FearlessCompatibilityProtocol,
+        cloudStorage: CloudStorageServiceProtocol,
         featureToggleService: FeatureToggleProviderProtocol,
         operationQueue: OperationQueue
     ) {
@@ -54,7 +54,7 @@ extension OnboardingMainInteractor: OnboardingMainInteractorInputProtocol {
         Task {
             do {
                 cloudStorage.disconnect()
-                let accounts = try await cloudStorage.getFearlessBackupAccounts()
+                let accounts = try await cloudStorage.getBackupAccounts()
                 await MainActor.run {
                     presenter?.didReceiveBackupAccounts(result: .success(accounts))
                 }

@@ -88,7 +88,7 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         feeProxy.delegate = self
     }

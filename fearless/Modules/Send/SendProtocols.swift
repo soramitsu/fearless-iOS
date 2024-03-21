@@ -1,4 +1,4 @@
-import CommonWallet
+import Foundation
 import BigInt
 import SSFModels
 

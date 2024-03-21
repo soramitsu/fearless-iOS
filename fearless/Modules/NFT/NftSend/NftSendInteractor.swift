@@ -57,9 +57,9 @@ extension NftSendInteractor: NftSendInteractorInput {
            let accountId = wallet.fetch(for: chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
             if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-                priceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
+                priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
             } else {
-                priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+                priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
             }
         }
     }

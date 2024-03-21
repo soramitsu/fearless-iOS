@@ -108,7 +108,7 @@ final class CrossChainInteractor {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
+        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {

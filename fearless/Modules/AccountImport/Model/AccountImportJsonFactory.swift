@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 protocol AccountImportJsonFactoryProtocol {
     func createInfo(from definition: KeystoreDefinition) throws -> MetaAccountImportPreferredInfo

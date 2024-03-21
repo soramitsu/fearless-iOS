@@ -1,6 +1,5 @@
 import UIKit
 import SoraUI
-import CommonWallet
 
 final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolder {
     typealias RootViewType = AboutViewLayout

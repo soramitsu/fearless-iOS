@@ -3,10 +3,10 @@ import RobinHood
 import SSFModels
 
 protocol PriceLocalStorageSubscriber where Self: AnyObject {
-    func subscribeToPrice(for chainAsset: ChainAsset, listener: PriceLocalSubscriptionHandler) -> AnySingleValueProvider<[PriceData]>
-    func subscribeToPrice(for chainAsset: ChainAsset, currencies: [Currency]?, listener: PriceLocalSubscriptionHandler) -> AnySingleValueProvider<[PriceData]>
-    func subscribeToPrices(for chainAssets: [ChainAsset], listener: PriceLocalSubscriptionHandler) -> AnySingleValueProvider<[PriceData]>
-    func subscribeToPrices(for chainAssets: [ChainAsset], currencies: [Currency]?, listener: PriceLocalSubscriptionHandler) -> AnySingleValueProvider<[PriceData]>
+    func subscribeToPrice(for chainAsset: ChainAsset, listener: PriceLocalSubscriptionHandler) throws -> AnySingleValueProvider<[PriceData]>
+    func subscribeToPrice(for chainAsset: ChainAsset, currencies: [Currency]?, listener: PriceLocalSubscriptionHandler) throws -> AnySingleValueProvider<[PriceData]>
+    func subscribeToPrices(for chainAssets: [ChainAsset], listener: PriceLocalSubscriptionHandler) throws -> AnySingleValueProvider<[PriceData]>
+    func subscribeToPrices(for chainAssets: [ChainAsset], currencies: [Currency]?, listener: PriceLocalSubscriptionHandler) throws -> AnySingleValueProvider<[PriceData]>
 }
 
 struct PriceLocalStorageSubscriberListener {
@@ -31,25 +31,25 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     func subscribeToPrice(
         for chainAsset: ChainAsset,
         listener: PriceLocalSubscriptionHandler
-    ) -> AnySingleValueProvider<[PriceData]> {
-        subscribeToPrice(for: chainAsset, currencies: nil, listener: listener)
+    ) throws -> AnySingleValueProvider<[PriceData]> {
+        try subscribeToPrice(for: chainAsset, currencies: nil, listener: listener)
     }
 
     func subscribeToPrices(
         for chainAssets: [ChainAsset],
         listener: PriceLocalSubscriptionHandler
-    ) -> AnySingleValueProvider<[PriceData]> {
-        subscribeToPrices(for: chainAssets, currencies: nil, listener: listener)
+    ) throws -> AnySingleValueProvider<[PriceData]> {
+        try subscribeToPrices(for: chainAssets, currencies: nil, listener: listener)
     }
 
     func subscribeToPrice(
         for chainAsset: ChainAsset,
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
-    ) -> AnySingleValueProvider<[PriceData]> {
+    ) throws -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: [chainAsset], currencies: currencies)
         let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
-        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
+        let priceProvider = try priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
 
@@ -105,10 +105,10 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         for chainAssets: [ChainAsset],
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
-    ) -> AnySingleValueProvider<[PriceData]> {
+    ) throws -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: chainAssets, currencies: currencies)
         let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
-        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
+        let priceProvider = try priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
             self?.listeners.forEach { wrapper in

@@ -1,7 +1,7 @@
 import Foundation
 import XNetworking
 import BigInt
-import CommonWallet
+
 import IrohaCrypto
 import SSFUtils
 import SSFModels

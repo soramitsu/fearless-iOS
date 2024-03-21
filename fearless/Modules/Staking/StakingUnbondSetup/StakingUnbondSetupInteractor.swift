@@ -29,7 +29,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
 
 extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtocol {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
     }

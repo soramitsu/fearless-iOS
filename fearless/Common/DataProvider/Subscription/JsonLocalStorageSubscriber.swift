@@ -10,16 +10,16 @@ protocol JsonLocalStorageSubscriber where Self: AnyObject {
     func subscribeToCrowdloanDisplayInfo(
         for url: URL,
         chainId: ChainModel.Id
-    ) -> AnySingleValueProvider<CrowdloanDisplayInfoList>?
+    ) throws -> AnySingleValueProvider<CrowdloanDisplayInfoList>?
 }
 
 extension JsonLocalStorageSubscriber {
     func subscribeToCrowdloanDisplayInfo(
         for url: URL,
         chainId: ChainModel.Id
-    ) -> AnySingleValueProvider<CrowdloanDisplayInfoList>? {
+    ) throws -> AnySingleValueProvider<CrowdloanDisplayInfoList>? {
         let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList> =
-            jsonLocalSubscriptionFactory.getJson(for: url)
+            try jsonLocalSubscriptionFactory.getJson(for: url)
 
         let updateClosure: ([DataProviderChange<CrowdloanDisplayInfoList>]) -> Void = { [weak self] changes in
             let result = changes.reduceToLastChange()

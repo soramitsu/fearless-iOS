@@ -78,9 +78,9 @@ final class SendInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            utilityPriceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
+            utilityPriceProvider = try? priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         }
     }
 

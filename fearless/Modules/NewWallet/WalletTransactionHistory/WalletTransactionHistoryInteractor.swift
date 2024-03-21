@@ -1,5 +1,5 @@
 import UIKit
-import CommonWallet
+
 import RobinHood
 import SoraFoundation
 import SSFModels
