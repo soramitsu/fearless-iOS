@@ -219,6 +219,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
     private func applyLocalization() {
         typeSwitcher.setSegmentItems([R.string.localizable.walletFiltersTransfers(preferredLanguages: locale.rLanguages),
-                                      R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages)])
+                                      R.string.localizable.stakingRewardsTitle(preferredLanguages: locale.rLanguages),
+                                      R.string.localizable.tranactionHistoryOthersTabTitle(preferredLanguages: locale.rLanguages)])
     }
 }

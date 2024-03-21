@@ -11,6 +11,8 @@ protocol RuntimeCodingServiceProtocol {
         with timeout: TimeInterval,
         closure: RuntimeMetadataClosure?
     ) -> BaseOperation<RuntimeCoderFactoryProtocol>
+
+    func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol
 }
 
 extension RuntimeCodingServiceProtocol {

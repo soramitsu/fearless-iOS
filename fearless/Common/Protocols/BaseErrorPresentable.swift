@@ -14,6 +14,15 @@ protocol BaseErrorPresentable {
         action: @escaping () -> Void,
         locale: Locale?
     )
+
+    func presentExistentialDepositWarning(
+        existentianDepositValue: String,
+        from view: ControllerBackedProtocol,
+        proceedHandler: @escaping () -> Void,
+        setMaxHandler: @escaping () -> Void,
+        cancelHandler: @escaping () -> Void,
+        locale: Locale?
+    )
     func presentExistentialDepositError(
         existentianDepositValue: String,
         from view: ControllerBackedProtocol,
@@ -90,6 +99,51 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         )
     }
 
+    func presentExistentialDepositWarning(
+        existentianDepositValue: String,
+        from view: ControllerBackedProtocol,
+        proceedHandler: @escaping () -> Void,
+        setMaxHandler: @escaping () -> Void,
+        cancelHandler: @escaping () -> Void,
+        locale: Locale?
+    ) {
+        let title = R.string.localizable
+            .commonExistentialWarningTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
+
+        let proceedHandler = SheetAlertPresentableAction(
+            title: R.string.localizable.commonProceed(preferredLanguages: locale?.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) {
+            proceedHandler()
+        }
+        let setMaxTitle = R.string.localizable.commonExistentialWarningMaxAmount(preferredLanguages: locale?.rLanguages)
+        let setMaxHandler = SheetAlertPresentableAction(title: setMaxTitle, style: .grayBackgroundWhiteText) {
+            setMaxHandler()
+        }
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let cancelHandler = SheetAlertPresentableAction(
+            title: cancelTitle,
+            style: .grayBackgroundWhiteText
+        ) {
+            cancelHandler()
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [proceedHandler, setMaxHandler, cancelHandler],
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
+        )
+
+        present(
+            viewModel: viewModel,
+            from: view
+        )
+    }
+
     func presentExistentialDepositError(
         existentianDepositValue: String,
         from view: ControllerBackedProtocol,
@@ -98,7 +152,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let title = R.string.localizable
             .commonExistentialWarningTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
-            .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
+            .commonExistentialErrorMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
 
         presentError(for: title, message: message, view: view, locale: locale)
     }
@@ -112,7 +166,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
     ) {
         let proceedTitle = R.string.localizable
             .commonProceed(preferredLanguages: locale?.rLanguages)
-        let proceedAction = SheetAlertPresentableAction(title: proceedTitle, style: .pinkBackgroundWhiteText) {
+        let proceedHandler = SheetAlertPresentableAction(title: proceedTitle, style: .pinkBackgroundWhiteText) {
             action()
         }
 
@@ -122,7 +176,7 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [proceedAction],
+            actions: [proceedHandler],
             closeAction: closeTitle,
             icon: R.image.iconWarningBig()
         )

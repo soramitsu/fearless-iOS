@@ -17,8 +17,6 @@ final class ClaimCrowdloanRewardsPresenter {
 
     private var tokenLocks: [LockProtocol]?
     private var balanceLocks: [LockProtocol]?
-    private var vestingSchedule: VestingSchedule?
-    private var vesting: VestingVesting?
     private var priceData: PriceData?
     private var fee: RuntimeDispatchInfo?
     private var currentBlock: UInt32?
@@ -158,10 +156,10 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsInteractorOutput 
         logger?.error("Vesting claim fee error: \(error.localizedDescription)")
     }
 
-    func didReceiveTxHash(_: String) {
+    func didReceiveTxHash(_ txHash: String) {
         router.complete(
             on: view,
-            title: "hash",
+            title: txHash,
             chainAsset: chainAsset
         )
     }

@@ -99,6 +99,13 @@ final class WalletTransactionDetailsViewLayout: UIView {
         amountView.valueLabel.text = viewModel.amount
         feeView.valueLabel.text = viewModel.fee
 
+        switch viewModel.transaction.status {
+        case .commited:
+            amountView.valueLabel.textColor = viewModel.transactionType == .incoming ? R.color.colorGreen() : R.color.colorWhite()
+        case .pending, .rejected:
+            amountView.valueLabel.textColor = R.color.colorWhite16()
+        }
+
         if let from = viewModel.from {
             if let icon = try? UniversalIconGenerator().generateFromAddress(from) {
                 senderView.iconImage = icon.imageWithFillColor(

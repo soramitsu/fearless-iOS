@@ -165,7 +165,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 8)
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
         let address: String
@@ -238,7 +238,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 8)
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
 
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
@@ -292,7 +292,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
+        let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 8)
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
@@ -323,10 +323,12 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             imageViewModel = RemoteImageViewModel(url: assetIconURL)
         }
 
+        let image: UIImage? = data.peerFirstName?.lowercased() == "staking" ? R.image.iconRewardAndSlashes() : nil
+
         let viewModel = WalletTransactionHistoryCellViewModel(
             transaction: data,
             address: moduleName,
-            icon: nil,
+            icon: image,
             transactionType: callName,
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,
@@ -350,7 +352,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             $0.asset.currencyId == data.assetId
         }
         if let receiveAsset = receiveAsset {
-            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 3, maximumFractionDigits: 8)
+            let usageCase: NumberFormatterUsageCase = .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 8)
             let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: receiveAsset.asset.displayInfo, usageCase: usageCase)
             receiveAmountString = amountFormatter.value(for: locale).stringFromDecimal(amountValue) ?? ""
         }

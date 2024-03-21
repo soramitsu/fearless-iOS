@@ -51,9 +51,7 @@ final class ContactsViewController: UIViewController, ViewHolder, HiddableBarWhe
 
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        if sections.isEmpty {
-            didStopLoading()
-        }
+        didStopLoading()
     }
 
     // MARK: - Private methods
@@ -101,6 +99,19 @@ extension ContactsViewController: ContactsViewInput {
         rootView.tableView.isHidden = false
         self.sections = sections
         rootView.tableView.reloadData()
+    }
+
+    func didReceive(source: ContactSource) {
+        switch source {
+        case .token:
+            rootView.navigationBar.setTitle(R.string.localizable.walletHistoryTitle_v190(
+                preferredLanguages: selectedLocale.rLanguages
+            ))
+        case .nft:
+            rootView.navigationBar.setTitle(R.string.localizable.walletSearchContacts(
+                preferredLanguages: selectedLocale.rLanguages
+            ))
+        }
     }
 }
 

@@ -23,6 +23,7 @@ protocol ValidatorInfoProtocol {
     var hasSlashes: Bool { get }
     var blocked: Bool { get }
     var commission: Decimal { get }
+    var elected: Bool { get }
 }
 
 // MARK: - View

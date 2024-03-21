@@ -6,14 +6,18 @@ import SSFModels
 
 final class HistoryOperationFactoriesAssembly {
     static func createOperationFactory(
-        chainAsset: ChainAsset,
+        chain: ChainModel,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     ) -> HistoryOperationFactoryProtocol? {
-        switch chainAsset.chain.externalApi?.history?.type {
+        switch chain.externalApi?.history?.type {
         case .subquery:
             return SubqueryHistoryOperationFactory(txStorage: txStorage, chainRegistry: ChainRegistryFacade.sharedRegistry)
         case .subsquid:
-            return SubsquidHistoryOperationFactory(txStorage: txStorage)
+            if chain.isPolkadotOrKusama {
+                return ArrowsquidHistoryOperationFactory(txStorage: txStorage)
+            } else {
+                return SubsquidHistoryOperationFactory(txStorage: txStorage)
+            }
         case .giantsquid:
             return GiantsquidHistoryOperationFactory(txStorage: txStorage)
         case .sora:

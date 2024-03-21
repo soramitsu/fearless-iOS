@@ -125,9 +125,7 @@ final class SendViewController: UIViewController, ViewHolder {
 
     @objc private func sendAllToggleSwitched() {
         output.didSwitchSendAll(rootView.sendAllSwitch.isOn)
-        if rootView.sendAllSwitch.isOn {
-            output.selectAmountPercentage(1)
-        }
+        output.selectAmountPercentage(Float(rootView.sendAllSwitch.isOn.intValue))
     }
 }
 
@@ -216,8 +214,8 @@ extension SendViewController: SendViewInput {
         rootView.historyButton.isHidden = !isVisible
     }
 
-    func enableSendAll() {
-        rootView.sendAllSwitch.isOn = true
+    func switchEnableSendAllState(enabled: Bool) {
+        rootView.sendAllSwitch.isOn = enabled
     }
 
     func switchEnableSendAllVisibility(isVisible: Bool) {

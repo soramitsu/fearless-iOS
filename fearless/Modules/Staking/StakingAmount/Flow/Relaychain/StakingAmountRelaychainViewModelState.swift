@@ -26,13 +26,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var rewardAssetPrice: PriceData?
     var payoutAccount: ChainAccountResponse?
     var fee: Decimal?
-    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFeeAndED) }
+    var amount: Decimal? {
+        let balanceMinusFeeAndED = (balance ?? 0) - (fee ?? 0) - (minimalBalance ?? 0)
+        return inputResult?.absoluteValue(from: balanceMinusFeeAndED)
+    }
+
     private var balance: Decimal?
     private var inputResult: AmountInputResult?
-
-    private lazy var balanceMinusFeeAndED: Decimal = {
-        (balance ?? 0) - (fee ?? 0) - (minimalBalance ?? 0)
-    }()
 
     var continueAvailable: Bool {
         minStake != nil && minimumBond != nil && fee != nil && balance != nil && counterForNominators != nil

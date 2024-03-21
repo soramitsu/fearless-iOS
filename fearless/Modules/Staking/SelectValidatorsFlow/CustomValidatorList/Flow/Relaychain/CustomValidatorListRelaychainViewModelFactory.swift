@@ -43,64 +43,123 @@ final class CustomValidatorListRelaychainViewModelFactory {
         return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
     }
 
-    private func createCellsViewModel(
+    private func createCellViewModel(
+        validator: SelectedValidatorInfo,
+        selectedValidatorList: [SelectedValidatorInfo],
+        priceData: PriceData?,
+        locale: Locale
+    ) -> CustomValidatorCellViewModel {
+        let icon = try? iconGenerator.generateFromAddress(validator.address)
+        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+
+        let apy: NSAttributedString? = validator.stakeInfo.map { info in
+            let stakeReturnString = apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
+            let apyString = "APY \(stakeReturnString)"
+
+            let apyStringAttributed = NSMutableAttributedString(string: apyString)
+            apyStringAttributed.addAttribute(
+                .foregroundColor,
+                value: R.color.colorColdGreen() as Any,
+                range: (apyString as NSString).range(of: stakeReturnString)
+            )
+            return apyStringAttributed
+        }
+
+        let comissionPercent = NumberFormatter.percent.stringFromDecimal(validator.commission)
+        let comission: NSAttributedString? = comissionPercent.map { comission in
+            let apyString = "\(R.string.localizable.validatorInfoComissionTitle(preferredLanguages: locale.rLanguages)) \(comission)"
+
+            let apyStringAttributed = NSMutableAttributedString(string: apyString)
+            apyStringAttributed.addAttribute(
+                .foregroundColor,
+                value: R.color.colorColdGreen() as Any,
+                range: (apyString as NSString).range(of: comission)
+            )
+            return apyStringAttributed
+        }
+
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+            validator.totalStake,
+            priceData: priceData,
+            usageCase: .listCrypto
+        ).value(for: locale)
+
+        let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
+            "\(balanceViewModel.amount)",
+            preferredLanguages: locale.rLanguages
+        )
+
+        let detailsAttributedString = validator.elected ? apy : comission
+        let auxDetails = validator.elected ? stakedString : nil
+        let showWarning = validator.elected ? validator.oversubscribed : validator.blocked
+
+        return CustomValidatorCellViewModel(
+            icon: icon,
+            name: validator.identity?.displayName,
+            address: validator.address,
+            detailsAttributedString: detailsAttributedString,
+            auxDetails: auxDetails,
+            shouldShowWarning: showWarning,
+            shouldShowError: validator.hasSlashes,
+            isSelected: selectedValidatorList.contains(validator)
+        )
+    }
+
+    private func createSectionViewModels(
         from validatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
         priceData: PriceData?,
         locale: Locale,
         searchText: String?
-    ) -> [CustomValidatorCellViewModel] {
-        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+    ) -> [CustomValidatorListSectionViewModel] {
+        let filteredValidatorList = validatorList
+            .filter {
+                guard let searchText = searchText, searchText.isNotEmpty else {
+                    return true
+                }
 
-        return validatorList.filter {
-            guard let searchText = searchText, searchText.isNotEmpty else {
-                return true
+                let foundByName = $0.identity?.displayName.lowercased().contains(searchText.lowercased()) == true
+                let foundByAddress = $0.address.lowercased().contains(searchText.lowercased())
+
+                return foundByName || foundByAddress
             }
 
-            let foundByName = $0.identity?.displayName.lowercased().contains(searchText.lowercased()) == true
-            let foundByAddress = $0.address.lowercased().contains(searchText.lowercased())
+        let electedViewModels = filteredValidatorList
+            .filter { $0.elected }
+            .map { validator in
+                createCellViewModel(validator: validator, selectedValidatorList: selectedValidatorList, priceData: priceData, locale: locale)
+            }.sorted(by: { viewModel1, viewModel2 in
+                viewModel1.isSelected.intValue > viewModel2.isSelected.intValue
+            })
 
-            return foundByName || foundByAddress
-        }.map { validator in
-            let icon = try? self.iconGenerator.generateFromAddress(validator.address)
+        let notElectedViewModels = filteredValidatorList
+            .filter { !$0.elected }
+            .map { validator in
+                createCellViewModel(validator: validator, selectedValidatorList: selectedValidatorList, priceData: priceData, locale: locale)
+            }.sorted(by: { viewModel1, viewModel2 in
+                viewModel1.isSelected.intValue > viewModel2.isSelected.intValue
+            })
 
-            let apy: NSAttributedString? = validator.stakeInfo.map { info in
-                let stakeReturnString = apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
-                let apyString = "APY \(stakeReturnString)"
+        var sections: [CustomValidatorListSectionViewModel] = []
 
-                let apyStringAttributed = NSMutableAttributedString(string: apyString)
-                apyStringAttributed.addAttribute(
-                    .foregroundColor,
-                    value: R.color.colorColdGreen() as Any,
-                    range: (apyString as NSString).range(of: stakeReturnString)
-                )
-                return apyStringAttributed
-            }
-
-            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
-                validator.totalStake,
-                priceData: priceData,
-                usageCase: .listCrypto
-            ).value(for: locale)
-
-            let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
-                "\(balanceViewModel.amount)",
-                preferredLanguages: locale.rLanguages
+        if electedViewModels.isNotEmpty {
+            let section = CustomValidatorListSectionViewModel(
+                title: R.string.localizable.stakingYourElectedFormat("\(electedViewModels.count)", preferredLanguages: locale.rLanguages),
+                cells: electedViewModels,
+                icon: R.image.iconAlgoItem()!
             )
+            sections.append(section)
+        }
 
-            return CustomValidatorCellViewModel(
-                icon: icon,
-                name: validator.identity?.displayName,
-                address: validator.address,
-                detailsAttributedString: apy,
-                auxDetails: stakedString,
-                shouldShowWarning: validator.oversubscribed,
-                shouldShowError: validator.hasSlashes,
-                isSelected: selectedValidatorList.contains(validator)
+        if notElectedViewModels.isNotEmpty {
+            let section = CustomValidatorListSectionViewModel(
+                title: R.string.localizable.stakingYourNotElectedFormat("\(notElectedViewModels.count)", preferredLanguages: locale.rLanguages),
+                cells: notElectedViewModels,
+                icon: R.image.iconLightPending()!
             )
-        }.sorted(by: { viewModel1, viewModel2 in
-            viewModel1.isSelected.intValue > viewModel2.isSelected.intValue
-        })
+            sections.append(section)
+        }
+        return sections
     }
 }
 
@@ -122,7 +181,7 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
             locale: locale
         )
 
-        let cellsViewModel = createCellsViewModel(
+        let sections = createSectionViewModels(
             from: relaychainViewModelState.filteredValidatorList,
             selectedValidatorList: relaychainViewModelState.selectedValidatorList.items,
             priceData: priceData,
@@ -144,7 +203,7 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
 
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
-            cellViewModels: cellsViewModel,
+            sections: sections,
             selectedValidatorsCount: relaychainViewModelState.selectedValidatorList.count,
             selectedValidatorsLimit: relaychainViewModelState.maxTargets,
             proceedButtonTitle: proceedButtonTitle,

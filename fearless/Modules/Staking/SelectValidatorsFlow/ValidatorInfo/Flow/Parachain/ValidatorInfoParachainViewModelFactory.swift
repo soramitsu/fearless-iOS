@@ -208,7 +208,7 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
             )
             status = .electedParachain(exposure: exposure)
         } else {
-            status = .unelected
+            status = .unelected(commission: nil)
         }
 
         // TODO: Has slashes real value

@@ -3,11 +3,11 @@ import RobinHood
 import SSFUtils
 import SoraFoundation
 
-enum SubsquidRewardOperationFactoryError: Error {
+enum ArrosquidRewardOperationFactoryError: Error {
     case urlMissing
 }
 
-final class SubsquidRewardOperationFactory {
+final class ArrowsquidRewardOperationFactory {
     private let url: URL?
 
     init(url: URL?) {
@@ -111,8 +111,6 @@ final class SubsquidRewardOperationFactory {
                 reward {
                   amount
                   era
-                  eventIdx
-                  isReward
                   stash
                   validator
                 }
@@ -122,7 +120,7 @@ final class SubsquidRewardOperationFactory {
     }
 }
 
-extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
+extension ArrowsquidRewardOperationFactory: RewardOperationFactoryProtocol {
     func createLastRoundOperation() -> BaseOperation<String> {
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
             guard let url = self?.url else {
@@ -308,7 +306,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
 
         let resultFactory = AnyNetworkResultFactory<RewardOrSlashResponse> { data in
             let response = try JSONDecoder().decode(
-                GraphQLResponse<SubsquidHistoryResponse>.self,
+                GraphQLResponse<ArrowsquidHistoryResponse>.self,
                 from: data
             )
 

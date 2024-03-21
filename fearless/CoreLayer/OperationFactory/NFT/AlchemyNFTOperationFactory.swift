@@ -283,6 +283,7 @@ final class AlchemyNFTOperationFactory {
         nextId: String?
     ) -> BaseOperation<AlchemyNftsResponse> {
         let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
+        print(alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTsForCollection")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [
@@ -332,6 +333,67 @@ final class AlchemyNFTOperationFactory {
 
         return operation
     }
+
+    private func createFetchOwnersForNftOperation(
+        address: String,
+        tokenId: String,
+        url: URL
+    ) -> BaseOperation<AlchemyOwnersResponse?> {
+        let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
+        let endpointUrl = authorizedUrl.appendingPathComponent("getOwnersForToken")
+        var urlComponents = URLComponents(string: endpointUrl.absoluteString)
+        urlComponents?.queryItems = [
+            URLQueryItem(name: "contractAddress", value: address),
+            URLQueryItem(name: "tokenId", value: tokenId),
+        ]
+
+        guard let urlWithParameters = urlComponents?.url else {
+            return BaseOperation.createWithError(AlchemyNFTOperationFactoryError.wrongUrl)
+        }
+
+        let requestFactory = BlockNetworkRequestFactory {
+            var request = URLRequest(url: urlWithParameters)
+            request.httpMethod = HttpMethod.get.rawValue
+
+            return request
+        }
+
+        let resultFactory = AnyNetworkResultFactory<AlchemyOwnersResponse?> { data, response, error in
+            do {
+                if let data = data {
+                    let response = try JSONDecoder().decode(
+                        AlchemyOwnersResponse.self,
+                        from: data
+                    )
+
+                    return .success(response)
+                } else if let error = error {
+                    return .failure(error)
+                } else {
+                    return .failure(AlchemyNFTOperationFactoryError.incorrectInputData)
+                }
+            } catch {
+                return .failure(error)
+            }
+        }
+
+        let operation = NetworkOperation(
+            requestFactory: requestFactory,
+            resultFactory: resultFactory
+        )
+
+        return operation
+    }
+
+    private func createMapOwnersOperation(
+        dependingOn remoteOperation: BaseOperation<AlchemyOwnersResponse?>,
+        chain _: ChainModel
+    ) -> BaseOperation<[String]?> {
+        ClosureOperation {
+            let owners = try remoteOperation.extractNoCancellableResultData()?.owners
+            return owners
+        }
+    }
 }
 
 extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
@@ -339,7 +401,7 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         chain: SSFModels.ChainModel,
         address: String,
         excludeFilters: [NftCollectionFilter]
-    ) -> RobinHood.CompoundOperationWrapper<[NFT]?> {
+    ) -> CompoundOperationWrapper<[NFT]?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
@@ -385,7 +447,7 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [fetchOperation])
     }
 
-    func fetchCollectionNfts(chain: ChainModel, address: String, nextId: String?) -> RobinHood.CompoundOperationWrapper<NFTBatch?> {
+    func fetchCollectionNfts(chain: ChainModel, address: String, nextId: String?) -> CompoundOperationWrapper<NFTBatch?> {
         guard
             let ethereumChain = EthereumChain(rawValue: chain.chainId),
             let identifier = ethereumChain.alchemyChainIdentifier,
@@ -401,6 +463,27 @@ extension AlchemyNFTOperationFactory: NFTOperationFactoryProtocol {
         )
 
         let mapOperation = createMapNftsOperation(dependingOn: fetchOperation, chain: chain)
+        mapOperation.addDependency(fetchOperation)
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [fetchOperation])
+    }
+
+    func fetchOwners(for chain: ChainModel, address: String, tokenId: String) -> CompoundOperationWrapper<[String]?> {
+        guard
+            let ethereumChain = EthereumChain(rawValue: chain.chainId),
+            let identifier = ethereumChain.alchemyChainIdentifier,
+            let url = URL(string: "https://\(identifier).g.alchemy.com/nft/v2/")
+        else {
+            return CompoundOperationWrapper.createWithError(AlchemyNFTOperationFactoryError.chainUnsupported(name: chain.name))
+        }
+
+        let fetchOperation = createFetchOwnersForNftOperation(
+            address: address,
+            tokenId: tokenId,
+            url: url
+        )
+
+        let mapOperation = createMapOwnersOperation(dependingOn: fetchOperation, chain: chain)
         mapOperation.addDependency(fetchOperation)
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [fetchOperation])

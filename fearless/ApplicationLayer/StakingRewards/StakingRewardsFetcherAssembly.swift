@@ -1,8 +1,12 @@
 import Foundation
 import SSFModels
 
+enum StakingRewardsFetcherAssemblyError: Error {
+    case noBlockExplorer(chainName: String)
+}
+
 final class StakingRewardsFetcherAssembly {
-    func fetcher(for chain: ChainModel) -> StakingRewardsFetcher {
+    func fetcher(for chain: ChainModel) throws -> StakingRewardsFetcher {
         let blockExplorer = chain.externalApi?.staking
         let type = blockExplorer?.type ?? .subsquid
 
@@ -18,7 +22,7 @@ final class StakingRewardsFetcherAssembly {
         case .reef:
             return ReefStakingRewardsFetcher(chain: chain)
         case .alchemy, .etherscan, .oklink, .zeta:
-            return GiantsquidStakingRewardsFetcher(chain: chain)
+            throw StakingRewardsFetcherError.missingBlockExplorer(chain: chain.name)
         }
     }
 }

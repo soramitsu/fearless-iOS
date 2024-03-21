@@ -30,8 +30,11 @@ extension SlashesOperationFactory: SlashesOperationFactoryProtocol {
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         chainAsset: ChainAsset
-    )
-        -> CompoundOperationWrapper<SlashingSpans?> {
+    ) -> CompoundOperationWrapper<SlashingSpans?> {
+        guard let stakingSettings = chainAsset.chain.stakingSettings else {
+            return CompoundOperationWrapper.createWithError(StakingServiceFactoryError.stakingUnavailable)
+        }
+
         let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
 
         let keyParams: () throws -> [AccountId] = {
@@ -39,14 +42,13 @@ extension SlashesOperationFactory: SlashesOperationFactoryProtocol {
             return [accountId]
         }
 
-        let fetchOperation: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
-            storageRequestFactory.queryItems(
-                engine: engine,
-                keyParams: keyParams,
-                factory: {
-                    try runtimeFetchOperation.extractNoCancellableResultData()
-                }, storagePath: .slashingSpans
-            )
+        let fetchOperation: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> = stakingSettings.queryItems(
+            engine: engine,
+            keyParams: keyParams,
+            factory: { try runtimeFetchOperation.extractNoCancellableResultData() },
+            storagePath: .slashingSpans,
+            using: storageRequestFactory
+        )
 
         fetchOperation.allOperations.forEach { $0.addDependency(runtimeFetchOperation) }
 

@@ -154,9 +154,13 @@
 为了确保替换后的链账户的安全性，在继续当前流程之前，我们建议您先单独备份它。一旦成功备份了替换后的链账户，就可以放心地进行当前流程。";
 "backup.wallet.seed" = "显示原始种子";
 "backup.wallet.title" = "备份钱包";
+"balance.locks.governance.row.title" = "治理";
+"balance.locks.liquidity.pools.row.title" = "流动性池";
+"balance.locks.nomination.pools.row.title" = "提名池";
+"balance.locks.screen.title" = "锁定的详细信息";
 "banners.view.factory.backup.action.title" = "立即备份";
-"banners.view.factory.backup.subtitle" = "如果你丢失了设备，你将永远失去你的资金";
-"banners.view.factory.backup.title" = "备份你的钱包";
+"banners.view.factory.backup.subtitle" = "保护自己避免失去对资金的访问权限。";
+"banners.view.factory.backup.title" = "钱包备份";
 "banners.view.factory.xor.action.title" = "购买XOR";
 "banners.view.factory.xor.subtitle" = "使用欧元现金购买或出售XOR代币";
 "banners.view.factory.xor.title" = "购买XOR代币";
@@ -176,6 +180,7 @@
 "common.add" = "添加";
 "common.address" = "地址";
 "common.advanced" = "高级";
+"common.and.others.placeholder" = "%s和其他";
 "common.applied" = "已应用";
 "common.apply" = "应用";
 "common.approve" = "批准";
@@ -195,12 +200,14 @@
 "common.choose.action" = "选择操作";
 "common.choose.network" = "选择网络";
 "common.close" = "关闭";
+"common.commission" = "佣金";
 "common.confirm" = "确认";
 "common.confirm.password" = "确认密码";
 "common.confirm.title" = "确认";
 "common.confirmation.title" = "您确定吗？";
 "common.confirmed" = "已确认";
 "common.connections" = "连接";
+"common.contacts" = "联系人";
 "common.continue" = "继续";
 "common.copied" = "复制到剪贴板";
 "common.copy" = "复制";
@@ -220,6 +227,8 @@
 "common.error.no.data.retrieved" = "未检索到数据。";
 "common.error.password.mismatch" = "密码不匹配";
 "common.events" = "活动";
+"common.existential.error.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。";
+"common.existential.warning.max.amount" = "设置最大金额";
 "common.existential.warning.message" = "此交易将导致账户余额低于存在性存款（%@），从而使其被清除（账户将从区块链状态中删除以节省空间）。如果您选择继续，您将失去低于网络设置的存在性存款金额的任何资金。有关详细信息，请参阅官方网络文档（例如 Polkadot Wiki）。Fearless 钱包是一个完全非托管的应用程序，对网络上的任何操作都没有控制权或知识。只有在您完全同意并理解相关影响后才能继续。";
 "common.existential.warning.title" = "此操作将删除账户";
 "common.expiry" = "到期";
@@ -282,6 +291,7 @@
 "common.sign" = "签署";
 "common.skip" = "跳过";
 "common.staking" = "质押";
+"common.start" = "Start";
 "common.terms.and.conditions" = "条款和条件";
 "common.till.date" = "截止到 %s";
 "common.time.left" = "剩余时间";
@@ -322,6 +332,7 @@
 "contacts.contact.address" = "联系地址";
 "contacts.contact.name" = "联系人姓名";
 "contacts.create.contact" = "创建联系人";
+"contacts.empty.message" = "未找到联系人";
 "contacts.recent" = "最近的";
 "contacts.scan" = "扫描一个二维码";
 "contacts.undefined" = "未定义";
@@ -488,20 +499,21 @@
 "network.status.connected" = "已连接";
 "network.status.connecting" = "正在连接...";
 "network.url.address" = "URL地址";
+"nft.choose.recipient.title" = "选择接收人";
 "nft.collection.available.nfts" = "%s 集合中可用的 NFT";
 "nft.collection.my.nfts" = "我的 NFT";
 "nft.collection.title" = "收藏品";
 "nft.creator.title" = "创作者";
-"nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";
+"nft.list.empty.message" = "目前还没有任何NFT。购买或铸造NFT以在此处查看。";
 "nft.owner.title" = "拥有";
 "nft.share.address" = "我要接收的公共地址：%s";
 "nft.stub.text" = "NFT即将到来";
 "nft.stub.title" = "对不起！";
 "nft.tokenid.title" = "代币ID";
 "nfts.collection.count" = "数量：%d/%d";
-"nfts.filters.airdrop" = "AirDrop";
-"nfts.filters.spam" = "SPAM";
-"nfts.filters.title" = "Hide NFTs";
+"nfts.filters.airdrop" = "空投";
+"nfts.filters.spam" = "垃圾邮件";
+"nfts.filters.title" = "隐藏NFTs";
 "nfts.stub" = "NFTs";
 "no.access.to.google" = "无法访问谷歌";
 "no.account.found" = "未找到账户";
@@ -513,6 +525,7 @@
 "onboarding.preinstalled.wallet.button.text" = "获取预装钱包";
 "onboarding.restore.account" = "导入账户";
 "onboarding.restore.wallet" = "我已经有一个钱包了";
+"onboarding.start.title" = "未来的 DeFi 钱包";
 "onboarding.terms.and.conditions.1" = "我已阅读并同意\
 条款和隐私政策";
 "operation.error.message" = "请稍后再试";
@@ -691,13 +704,15 @@
 "select.save.type" = "选择保存类型";
 "select.suggested.validators.warning" = "算法验证人建议并不构成金融咨询或建议。质押是一项高风险活动，算法验证人的建议并不能完全减轻这种风险。由算法推荐的验证人仍然有可能离开候选池。由算法推荐的验证人也可以在被推荐和/或选择后随时更改其参数（例如佣金率等）。您可能因此或其他原因而失去奖励。只有在进行尽职调查并慎重考虑所涉及风险后，根据自己的判断决定质押代币和采用验证人建议。";
 "select.validators.disclaimer" = "免责声明：算法验证人建议并不构成金融咨询或建议。质押是一项高风险活动，算法验证人的建议并不能完全消除这种风险。由算法提供的验证人仍然可能被惩罚。由算法提供的验证人也可以在被推荐和/或选择后随时更改其参数（例如佣金率等）。您可能因为这些原因或其他原因而失去代币或奖励。请在进行尽职调查并慎重考虑所涉及风险后，根据自己的判断谨慎质押代币和使用验证人建议。";
+"send.all.title" = "发送所有代币并收获账户";
 "send.confirm.amount.title" = "正在发送\n%@";
 "send.fund.title" = "发送资金";
 "settings.add.wallet" = "添加钱包";
 "settings.hide.zero.balances" = "隐藏零余额";
 "share.referral.code" = "分享推荐码";
 "sign.this.message" = "签署此消息？";
-"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the Kusama network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.amount.less.fee" = "您尝试转账的金额不足以支付%s网络上的交易费用。尽管交易无法完成，您仍将在Sora网络上被收取费用。";
+"sora.bridge.low.amaunt.polkadot.alert" = "目前，为了确保稳定性和安全性，跨链最低金额为1.1 DOT。感谢您的理解。";
 "sora.bridge.low.amount.alert" = "目前，为了确保SORA网络的稳定性和安全性，跨链桥转账的最低金额为0.05 KSM。感谢您的理解。";
 "sora.card.status.failure.text" = "KYC已终止或以其他方式失败。";
 "sora.card.status.failure.title" = "验证失败";
@@ -1002,6 +1017,7 @@
 "terms.and.conditions.sora.community.alert.main" = "SORA社区不会收集您的任何个人数据，";
 "terms.and.conditions.sora.community.alert.secondary" = "但是要获得SORA卡和IBAN账户，您需要通过一家发卡机构进行KYC验证。";
 "terms.and.conditions.title" = "条款与条件";
+"tranaction.history.others.tab.title" = "其他";
 "transaction.detail.date" = "日期";
 "transaction.detail.status" = "状态";
 "transaction.details.copy.hash" = "复制哈希";
@@ -1010,7 +1026,7 @@
 "transaction.details.hash.title" = "外部哈希";
 "transaction.details.view.etherscan" = "在Etherscan上查看";
 "transaction.details.view.polkascan" = "在Polkascan中查看";
-"transaction.details.view.reefscan" = "View in Reefscan";
+"transaction.details.view.reefscan" = "在Reefscan中查看";
 "transaction.details.view.subscan" = "在Subscan中查看";
 "transaction.list.header" = "所有交易";
 "transaction.status.completed" = "已完成";
@@ -1027,6 +1043,10 @@
 "username.setup.title.2.0" = "创建一个新的钱包";
 "validator.info.comission.title" = "佣金";
 "validators.list.empty.message" = "未找到验证人";
+"verify.phone.number.title" = "验证您的电话号码";
+"vesting.claim.disclaimer.text" = "由于每个平行链的独特归属计划，我们的应用无法显示可认领的锁定代币数量。请注意，如果预计金额微不足道且与涉及的交易费用相当，发起认领可能是不切实际的。要全面了解您的锁定余额，请咨询Subscan区块浏览器。我们敦促您仔细评估信息，并根据自己的判断继续操作。";
+"vesting.claim.disclaimer.title" = "关于代币申领的重要通知：";
+"vesting.locked.title" = "归属锁定";
 "view.in" = "在%s中查看";
 "view.wallet" = "查看钱包";
 "wallet.account.locks.democracy" = "民主";
@@ -1045,8 +1065,8 @@
 "wallet.balance.redeemable" = "可赎回";
 "wallet.balance.reserved" = "保留";
 "wallet.balance.unbonding_v1.9.0" = "解除质押";
-"wallet.connect.connection.complete" = "已成功完成从%@到以太坊的连接";
-"wallet.connect.connection.dissconnected" = "已成功断开与%@以太坊的连接";
+"wallet.connect.connection.complete" = "来自%@的连接已成功完成";
+"wallet.connect.connection.dissconnected" = "成功完成与%@的断开连接。";
 "wallet.connect.invalid.url.message" = "我们的应用程序仅支持Wallet Connect SDK v2，不支持已弃用的SDK v1。请使用适当的版本以确保成功连接。";
 "wallet.connect.invalid.url.title" = "警告：不支持 Wallet Connect SDK v1";
 "wallet.connect.sign.warning.message" = "警告：签署此消息可能会产生危险的副作用。只有在您完全信任的网站上，才使用您的整个账户签署消息。";
@@ -1122,6 +1142,9 @@
 "сurrencies.stub.text" = "货币";
 "cant.fetch.refresh" = "无法获取数据，请点击刷新。";
 "card.attention.text" = "注意";
+"card.hub.manage.card" = "管理 SORA 卡";
+"card.hub.manage.card.alert.message" = "请安装官方的 SORA 卡应用程序来管理您的 SORA 卡。点击“确定”以前往 App Store。";
+"card.hub.manage.card.alert.title" = "下载 SORA 卡应用";
 "card.hub.settings.logout.button" = "退出登录";
 "card.hub.settings.logout.description" = "您即将退出 SORA 卡。您仍然可以使用 SORA 卡独立应用程序，但余额将不再在 SORA 钱包中可用。";
 "card.hub.settings.logout.title" = "退出 SORA 卡";
@@ -1194,8 +1217,12 @@
 "get.prepared.take.selfie.description" = "在过程中将提供指导";
 "get.prepared.take.selfie.title" = "自拍";
 "get.prepared.title" = "做好准备";
+"iban.frozen.description" = "您的国际银行账号(IBAN)已被冻结。\
+欲了解更多信息，请联系%@。";
 "iban.pending.description" = "您的 IBAN 正在等待签发。\
 如果等待时间超过 72 小时，请通过%@联系我们";
+"iban.suspended.description" = "您的IBAN已被暂停使用。\
+如需了解更多信息，请联系%@。";
 "kyc.result.verification.in.progress" = "正在进行验证";
 "kyc.result.verification.in.progress.description" = "您已成功完成KYC申请。审核正在进行中，您可以很快收到决定。\n\n通常情况下，决定会在同一天做出，在某些情况下可能需要最多3天时间。";
 "log.out" = "退出登录";
@@ -1235,9 +1262,3 @@
 "verify.phone.number.code.input.field.label" = "短信验证码";
 "verify.phone.number.description" = "输入已发送到\n%@的短信验证码";
 "verify.phone.number.send.code" = "发送验证码";
-"verify.phone.number.title" = "验证您的电话号码";
-"send.all.title" = "Send all tokens and reap the account";
-"sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
-"vesting.locked.title" = "Vesting Locked";
-"vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
-"vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";

@@ -67,8 +67,9 @@ final class ClaimCrowdloanRewardsInteractor {
 
         Task {
             do {
-                let tokensLocksRequest = TokensLocksRequest(accountId: accountId, currencyId: currencyId)
-                let locks: TokenLocks? = try await storageRequestPerformer.performRequest(tokensLocksRequest)
+                let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
+                let tokensLocksRequest = TokensLocksRequest(accountId: accountIdVariant, currencyId: currencyId)
+                let locks: TokenLocks? = try await storageRequestPerformer.performSingle(tokensLocksRequest)
 
                 await MainActor.run {
                     output?.didReceiveTokenLocks(locks)
@@ -89,8 +90,9 @@ final class ClaimCrowdloanRewardsInteractor {
 
         Task {
             do {
+                let accountId = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
                 let balancesLocksRequest = BalancesLocksRequest(accountId: accountId)
-                let locks: BalanceLocks? = try await storageRequestPerformer.performRequest(balancesLocksRequest)
+                let locks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest)
 
                 await MainActor.run {
                     output?.didReceiveBalanceLocks(locks)
@@ -156,9 +158,9 @@ extension ClaimCrowdloanRewardsInteractor: ClaimCrowdloanRewardsInteractorInput 
                 guard let self else { return }
                 switch result {
                 case let .success(txHash):
-                    output?.didReceiveTxHash(txHash)
+                    self.output?.didReceiveTxHash(txHash)
                 case let .failure(error):
-                    output?.didReceiveTxError(error)
+                    self.output?.didReceiveTxError(error)
                 }
             }
         )

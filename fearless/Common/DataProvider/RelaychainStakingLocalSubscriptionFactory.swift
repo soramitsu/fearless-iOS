@@ -221,7 +221,7 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
 
         let trigger = DataProviderProxyTrigger()
 
-        let fetcher = StakingRewardsFetcherAssembly().fetcher(for: chain)
+        let fetcher = try StakingRewardsFetcherAssembly().fetcher(for: chain)
         let source = SubqueryRewardSource(
             address: address,
             assetPrecision: assetPrecision,
