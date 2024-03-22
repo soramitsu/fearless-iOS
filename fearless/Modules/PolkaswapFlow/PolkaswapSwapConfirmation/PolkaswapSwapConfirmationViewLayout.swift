@@ -58,13 +58,11 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
     let minMaxReceivedView = UIFactory.default.createConfirmationMultiView()
     let swapRouteView: TitleMultiValueView = {
         let view = UIFactory.default.createMultiView()
-        view.isHidden = true
         return view
     }()
 
     let fromPerToPriceView = UIFactory.default.createConfirmationMultiView()
     let toPerFromPriceView = UIFactory.default.createConfirmationMultiView()
-    let liquidityProviderFeeView = UIFactory.default.createConfirmationMultiView()
     let networkFeeView = UIFactory.default.createConfirmationMultiView()
 
     private lazy var multiViews = [
@@ -72,7 +70,6 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
         swapRouteView,
         fromPerToPriceView,
         toPerFromPriceView,
-        liquidityProviderFeeView,
         networkFeeView
     ]
 
@@ -116,7 +113,6 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
         minMaxReceivedView.titleLabel.text = viewModel.minMaxTitle
         minMaxReceivedView.bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.minMaxReceiveVieModel)
         swapRouteView.valueTop.text = viewModel.adjustmentDetailsViewModel.route
-        liquidityProviderFeeView.bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.liqudityProviderFeeVieModel)
         networkFeeView.bindBalance(viewModel: viewModel.networkFee)
     }
 
@@ -127,8 +123,6 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
             .commonPreview(preferredLanguages: locale.rLanguages)
         swapRouteView.titleLabel.text = R.string.localizable
             .polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
-        liquidityProviderFeeView.titleLabel.text = R.string.localizable
-            .polkaswapLiquidityProviderFee(preferredLanguages: locale.rLanguages)
         networkFeeView.titleLabel.text = R.string.localizable
             .commonNetworkFee(preferredLanguages: locale.rLanguages)
         confirmButton.imageWithTitleView?.title = R.string.localizable
