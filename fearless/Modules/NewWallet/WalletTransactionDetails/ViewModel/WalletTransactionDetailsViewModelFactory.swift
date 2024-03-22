@@ -62,7 +62,6 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
 
         switch transactionType {
         case .incoming, .outgoing:
-
             let from = transactionType == .outgoing ? accountAddress : transaction.peerName
             let to = transactionType == .incoming ? accountAddress : transaction.peerName
             let amountString = tokenFormatter.stringFromDecimal(transaction.amount.decimalValue)
@@ -71,6 +70,8 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
 
             let total = transaction.amount.decimalValue + fee
             let totalString = tokenFormatter.stringFromDecimal(total)
+            let signString = transactionType == .incoming ? "+" : "-"
+            let signedAmountString = amountString.map { signString.appending($0) }
 
             return TransferTransactionDetailsViewModel(
                 transaction: transaction,
@@ -80,7 +81,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 dateString: dateString,
                 from: from,
                 to: to,
-                amount: amountString,
+                amount: signedAmountString,
                 fee: feeString,
                 total: totalString,
                 statusIcon: statusIcon

@@ -89,8 +89,7 @@ final class CrossChainPresenter {
             wallet: wallet,
             for: selectedAmountChainAsset
         )
-        let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired())
+        let inputAmount = calculateAbsoluteValue()
         let inputViewModel = balanceViewModelFactory?
             .createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
@@ -105,8 +104,7 @@ final class CrossChainPresenter {
             for: selectedAmountChainAsset
         )
 
-        let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired())
+        let inputAmount = calculateAbsoluteValue()
 
         let priceData = prices.first(where: { $0.priceId == selectedAmountChainAsset.asset.priceId })
         let assetBalanceViewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
@@ -231,15 +229,19 @@ final class CrossChainPresenter {
         }
     }
 
-    private func continueWithValidation() {
-        let inputAmountDecimal = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()) ?? .zero
+    private func calculateAbsoluteValue() -> Decimal? {
+        amountInputResult?
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired())
+    }
 
+    private func continueWithValidation() {
         guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
             return
         }
         let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
-        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
+        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
+        let inputAmountDecimal = amountInputResult?
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()) ?? .zero
         let edParameters: ExistentialDepositValidationParameters = .utility(
             spendingAmount: originNetworkFeeIfRequired() + inputAmountDecimal,
             totalAmount: utilityBalance,
@@ -321,8 +323,7 @@ final class CrossChainPresenter {
               let inputViewModel = inputViewModel,
               let originChainFee = originNetworkFeeViewModel,
               let destChainFee = destNetworkFeeViewModel,
-              let inputAmount = amountInputResult?
-              .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()),
+              let inputAmount = calculateAbsoluteValue(),
               let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
               let xcmServices = interactor.deps?.xcmServices,
               let recipientAddress = recipientAddress,
@@ -355,8 +356,7 @@ final class CrossChainPresenter {
         guard let selectedDestChainModel = selectedDestChainModel else {
             return
         }
-        let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()) ?? 1
+        let inputAmount = calculateAbsoluteValue() ?? 1
 
         interactor.estimateFee(
             originChainAsset: selectedAmountChainAsset,
@@ -559,10 +559,16 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             originNetworkBalanceValue = success?.data.sendAvailable ?? .zero
             if receiveUniqueKey == selectedAmountChainAsset.uniqueKey(accountId: accountId) {
                 originNetworkSelectedAssetBalance = success.map {
-                    Decimal.fromSubstrateAmount(
+                    let totalBalance = Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
                         precision: Int16(chainAsset.asset.precision)
                     ) ?? .zero
+                    var minimumBalance: Decimal = .zero
+                    if let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first {
+                        minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
+                    }
+                    // set aside a reserve 10% to avoid account cancellation as a result of a jump in commission
+                    return totalBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired() - (minimumBalance * 1.1)
                 } ?? .zero
                 provideAssetViewModel()
             }

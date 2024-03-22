@@ -41,11 +41,10 @@ final class SubsquidStakingRewardsFetcher {
             timestamp
                 id
                 address
+                success
                 reward {
                   amount
                   era
-                  eventIdx
-                  isReward
                   stash
                   validator
                 }
@@ -76,7 +75,7 @@ extension SubsquidStakingRewardsFetcher: StakingRewardsFetcher {
             query: queryString
         )
         let worker = NetworkWorker()
-        let response: GraphQLResponse<SubsquidHistoryResponse> = try await worker.performRequest(with: request)
+        let response: GraphQLResponse<ArrowsquidHistoryResponse> = try await worker.performRequest(with: request)
 
         switch response {
         case let .data(data):

@@ -679,6 +679,7 @@ final class UIFactory: UIFactoryProtocol {
 
     func createSearchTextField() -> SearchTextField {
         let searchTextField = SearchTextField()
+        searchTextField.textField.autocorrectionType = .no
         searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
         searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
         searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray

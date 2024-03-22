@@ -22,7 +22,6 @@ final class SendInteractor: RuntimeConstantFetching {
 
     let dependencyContainer: SendDepencyContainer
 
-    private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var utilityPriceProvider: AnySingleValueProvider<[PriceData]>?
 
