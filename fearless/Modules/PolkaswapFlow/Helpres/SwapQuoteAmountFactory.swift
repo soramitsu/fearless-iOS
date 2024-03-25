@@ -15,7 +15,6 @@ struct PolkaswapAdjustmentDetailsViewModel {
 
 protocol PolkaswapAdjustmentViewModelFactoryProtocol {
     func createAmounts(
-        xorChainAsset: ChainAsset,
         fromAsset: AssetModel?,
         toAsset: AssetModel?,
         params: PolkaswapQuoteParams,
@@ -72,7 +71,6 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
     }
 
     func createAmounts(
-        xorChainAsset _: ChainAsset,
         fromAsset: AssetModel?,
         toAsset: AssetModel?,
         params: PolkaswapQuoteParams,

@@ -256,7 +256,6 @@ final class PolkaswapAdjustmentPresenter {
         quotes: [SwapValues]
     ) {
         guard let amounts = viewModelFactory.createAmounts(
-            xorChainAsset: xorChainAsset,
             fromAsset: swapFromChainAsset?.asset,
             toAsset: swapToChainAsset?.asset,
             params: params,
