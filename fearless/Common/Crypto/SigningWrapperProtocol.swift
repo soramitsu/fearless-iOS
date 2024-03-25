@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import SSFUtils
+import SSFCrypto
 
 protocol SigningWrapperProtocol: IRSignatureCreatorProtocol {}
 
