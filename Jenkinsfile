@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/DOPS-2956') _
 
 // Job properties
 def jobParams = [
@@ -20,7 +20,15 @@ def appPipeline = new org.ios.AppPipeline(
   sonarProjectKey: 'fearless:fearless-ios',
   dojoProductType: 'fearless',
   effectJiraTasks: true,
-  uploadToNexusFor: ['master','develop','staging']
+  uploadToNexusFor: ['master','develop','staging'],
+  deepSecretScannerExclusion: [
+    'GenerambaTemplates',
+    'docs',
+    'fearless.xcworkspace',
+    'fearless',
+    'fearlessIntegrationTests',
+    'fearlessTests'
+  ]
 )
 
 appPipeline.runPipeline('fearless')
