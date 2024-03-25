@@ -14,7 +14,12 @@ struct CrowdloanContribution: Decodable {
 
 final class CrowdloanContributionMapper: DynamicScaleDecodable {
     func accept(decoder: DynamicScaleDecoding) throws -> JSON {
-        let balance = try decoder.read(type: KnownType.balance.rawValue)
+        let balance: JSON
+        do {
+            balance = try decoder.read(type: GenericType.balance.rawValue)
+        } catch {
+            balance = try decoder.read(type: KnownType.balance.rawValue)
+        }
         let memo = try decoder.read(type: GenericType.bytes.rawValue)
 
         return JSON.dictionaryValue(

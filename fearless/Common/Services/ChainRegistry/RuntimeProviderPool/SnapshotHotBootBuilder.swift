@@ -93,13 +93,10 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         }
 
         result.chains.forEach { chain in
-            guard
-                let runtimeItem = runtimeItemsMap[chain.chainId],
-                let chainTypes = chainsTypesJson[chain.chainId]
-            else {
+            guard let runtimeItem = runtimeItemsMap[chain.chainId] else {
                 return
             }
-
+            let chainTypes = chainsTypesJson[chain.chainId]
             runtimeProviderPool.setupHotRuntimeProvider(
                 for: chain,
                 runtimeItem: runtimeItem,

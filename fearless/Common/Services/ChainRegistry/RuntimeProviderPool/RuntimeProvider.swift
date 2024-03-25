@@ -31,7 +31,6 @@ final class RuntimeProvider {
     internal let chainId: ChainModel.Id
     private let chainName: String
     private let chainModel: ChainModel
-    private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
     private let snapshotHotOperationFactory: RuntimeHotBootSnapshotFactoryProtocol?
@@ -65,7 +64,6 @@ final class RuntimeProvider {
         dataHasher: StorageHasher = .twox256,
         logger: LoggerProtocol? = nil,
         repository: AnyDataProviderRepository<RuntimeMetadataItem>,
-        usedRuntimePaths: [String: [String]],
         chainMetadata: RuntimeMetadataItem?,
         chainTypes: Data?
     ) {
@@ -79,7 +77,6 @@ final class RuntimeProvider {
         self.dataHasher = dataHasher
         self.logger = logger
         self.repository = repository
-        self.usedRuntimePaths = usedRuntimePaths
         initialChainMetadata = chainMetadata
         self.chainTypes = chainTypes
 
@@ -89,10 +86,7 @@ final class RuntimeProvider {
     }
 
     private func buildSnapshot(for metadata: RuntimeMetadataItem?) {
-        guard
-            let chainTypes = chainTypes,
-            let chainMetadata = metadata
-        else {
+        guard let chainMetadata = metadata else {
             return
         }
 
@@ -100,8 +94,7 @@ final class RuntimeProvider {
 
         let wrapper = snapshotOperationFactory.createRuntimeSnapshotWrapper(
             chainTypes: chainTypes,
-            chainMetadata: chainMetadata,
-            usedRuntimePaths: usedRuntimePaths
+            chainMetadata: chainMetadata
         )
 
         wrapper.completionBlock = { [weak self] in
@@ -118,14 +111,11 @@ final class RuntimeProvider {
     private func buildHotSnapshot() {
         logger?.debug("Will start building hot snapshot for \(chainName)")
 
-        guard let snapshotHotOperationFactory = snapshotHotOperationFactory,
-              let chainTypes = chainTypes
-        else {
+        guard let snapshotHotOperationFactory = snapshotHotOperationFactory else {
             return
         }
 
         let wrapper = snapshotHotOperationFactory.createRuntimeSnapshotWrapper(
-            usedRuntimePaths: usedRuntimePaths,
             chainTypes: chainTypes
         )
 

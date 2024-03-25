@@ -5,8 +5,7 @@ import SSFModels
 
 protocol RuntimeHotBootSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
-        usedRuntimePaths: [String: [String]],
-        chainTypes: Data
+        chainTypes: Data?
     ) -> ClosureOperation<RuntimeSnapshot?>
 }
 
@@ -26,8 +25,7 @@ final class RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol
     }
 
     func createRuntimeSnapshotWrapper(
-        usedRuntimePaths: [String: [String]],
-        chainTypes: Data
+        chainTypes: Data?
     ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> { [weak self] in
             guard let strongSelf = self else { return nil }
@@ -35,13 +33,17 @@ final class RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
             let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
-            // TODO: think about it
-            let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
+            var definitionJson: JSON?
+            if let data = chainTypes {
+                let jsonDecoder = JSONDecoder()
+                let json = try jsonDecoder.decode(JSON.self, from: data)
+                definitionJson = json.types
+            }
+
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-                try JSONEncoder().encode(json),
+                definitionJson: definitionJson,
                 versioningData: chainTypes,
-                runtimeMetadata: runtimeMetadata,
-                usedRuntimePaths: usedRuntimePaths
+                runtimeMetadata: runtimeMetadata
             )
 
             return RuntimeSnapshot(

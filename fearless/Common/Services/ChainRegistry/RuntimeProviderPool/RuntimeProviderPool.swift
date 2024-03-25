@@ -11,7 +11,7 @@ protocol RuntimeProviderPoolProtocol {
     func setupHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        chainTypes: Data
+        chainTypes: Data?
     ) -> RuntimeProviderProtocol
     func destroyRuntimeProvider(for chainId: ChainModel.Id)
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
@@ -20,7 +20,6 @@ protocol RuntimeProviderPoolProtocol {
 final class RuntimeProviderPool {
     private let runtimeProviderFactory: RuntimeProviderFactoryProtocol
 
-    private var usedRuntimeModules = UsedRuntimePaths()
     private(set) var runtimeProviders: [ChainModel.Id: RuntimeProviderProtocol] = [:]
 
     private let lock = ReaderWriterLock()
@@ -35,13 +34,12 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
     func setupHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        chainTypes: Data
+        chainTypes: Data?
     ) -> RuntimeProviderProtocol {
         let runtimeProvider = runtimeProviderFactory.createHotRuntimeProvider(
             for: chain,
             runtimeItem: runtimeItem,
-            chainTypes: chainTypes,
-            usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
+            chainTypes: chainTypes
         )
 
         lock.exclusivelyWrite { [weak self] in
@@ -63,8 +61,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         } else {
             let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(
                 for: chain,
-                chainTypes: chainTypes,
-                usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
+                chainTypes: chainTypes
             )
 
             lock.exclusivelyWrite { [weak self] in

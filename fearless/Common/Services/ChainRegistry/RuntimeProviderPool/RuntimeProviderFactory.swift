@@ -5,14 +5,12 @@ import SSFModels
 protocol RuntimeProviderFactoryProtocol {
     func createRuntimeProvider(
         for chain: ChainModel,
-        chainTypes: Data?,
-        usedRuntimePaths: [String: [String]]
+        chainTypes: Data?
     ) -> RuntimeProviderProtocol
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        chainTypes: Data,
-        usedRuntimePaths: [String: [String]]
+        chainTypes: Data?
     ) -> RuntimeProviderProtocol
 }
 
@@ -44,8 +42,7 @@ final class RuntimeProviderFactory {
 extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
     func createRuntimeProvider(
         for chain: ChainModel,
-        chainTypes: Data?,
-        usedRuntimePaths: [String: [String]]
+        chainTypes: Data?
     ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
             chainId: chain.chainId,
@@ -61,7 +58,6 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             operationQueue: operationQueue,
             logger: logger,
             repository: repository,
-            usedRuntimePaths: usedRuntimePaths,
             chainMetadata: nil,
             chainTypes: chainTypes
         )
@@ -70,8 +66,7 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        chainTypes: Data,
-        usedRuntimePaths: [String: [String]]
+        chainTypes: Data?
     ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
             chainId: chain.chainId,
@@ -93,7 +88,6 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             operationQueue: operationQueue,
             logger: logger,
             repository: repository,
-            usedRuntimePaths: usedRuntimePaths,
             chainMetadata: runtimeItem,
             chainTypes: chainTypes
         )
