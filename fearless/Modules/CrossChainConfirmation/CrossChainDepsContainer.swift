@@ -51,7 +51,8 @@ final class CrossChainDepsContainer {
         let storageRequestPerformer: StorageRequestPerformer? = (destChainModel?.chainId).flatMap {
             guard
                 let runtimeService = chainRegistry.getRuntimeProvider(for: $0),
-                let connection = chainRegistry.getConnection(for: $0) else {
+                let connection = chainRegistry.getConnection(for: $0) 
+                else {
                 return nil
             }
 
