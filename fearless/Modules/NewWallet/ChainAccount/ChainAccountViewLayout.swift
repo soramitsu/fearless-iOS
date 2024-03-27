@@ -186,7 +186,7 @@ final class ChainAccountViewLayout: UIView {
     }
 
     func bind(balanceViewModel: ChainAccountBalanceViewModel?) {
-        balanceInfoStackView.isHidden = balanceViewModel == nil
+//        balanceInfoStackView.isHidden = balanceViewModel == nil
 
         transferableBalanceView.bindBalance(viewModel: balanceViewModel?.transferrableValue.value(for: locale))
         balanceLocksView.bindBalance(viewModel: balanceViewModel?.lockedValue.value(for: locale))

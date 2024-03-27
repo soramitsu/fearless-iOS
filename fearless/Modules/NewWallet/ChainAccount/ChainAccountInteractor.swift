@@ -123,6 +123,17 @@ final class ChainAccountInteractor {
                     self.presenter?.didReceiveBalanceLocksError(error)
                 })
             }
+
+            do {
+                let assetLocks = try await balanceLocksFetcher.fetchAssetLocks(for: accountId, currencyId: chainAsset.currencyId)
+                await MainActor.run(body: {
+                    presenter?.didReceiveAssetFrozen(assetLocks)
+                })
+            } catch {
+                await MainActor.run(body: {
+                    self.presenter?.didReceiveAssetFrozenError(error)
+                })
+            }
         }
     }
 

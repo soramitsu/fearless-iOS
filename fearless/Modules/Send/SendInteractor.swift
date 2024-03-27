@@ -123,6 +123,8 @@ final class SendInteractor: RuntimeConstantFetching {
             let dependencies = try await dependencyContainer.prepareDepencies(chainAsset: chainAsset, runtimeItem: runtimeItem)
             self.dependencies = dependencies
 
+            getTokensStatus(for: chainAsset)
+
             if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
                let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
                 subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
@@ -133,6 +135,34 @@ final class SendInteractor: RuntimeConstantFetching {
             }
 
             output?.didReceiveDependencies(for: chainAsset)
+        }
+    }
+
+    private func getTokensStatus(for chainAsset: ChainAsset) {
+        guard
+            let currencyId = chainAsset.currencyId,
+            let accountId = dependencies?.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        else {
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveAssetAccountInfo(assetAccountInfo: nil)
+            }
+            return
+        }
+
+        Task {
+            do {
+                let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
+                let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+                let assetAccountInfo: AssetAccountInfo? = try await dependencies?.storageRequestPerformer?.performSingle(request)
+
+                await MainActor.run {
+                    output?.didReceiveAssetAccountInfo(assetAccountInfo: assetAccountInfo)
+                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceiveAssetAccountInfoError(error: error)
+                }
+            }
         }
     }
 }

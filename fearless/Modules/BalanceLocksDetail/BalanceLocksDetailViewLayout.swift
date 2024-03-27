@@ -53,6 +53,8 @@ final class BalanceLocksDetailViewLayout: UIView {
         return RowView(contentView: label)
     }()
 
+    let frozenView = makeSectionView()
+    let blockedView = makeSectionView()
     let stakingStackView = UIFactory.default.createVerticalStackView()
     let stakingStakedRowView = makeRowView()
     let stakingUnstakingRowView = makeRowView()
@@ -114,6 +116,8 @@ final class BalanceLocksDetailViewLayout: UIView {
         contentView.addArrangedSubview(liquidityPoolsView)
         contentView.addArrangedSubview(crowdloansView)
         contentView.addArrangedSubview(governanceView)
+        contentView.addArrangedSubview(frozenView)
+        contentView.addArrangedSubview(blockedView)
         contentView.addArrangedSubview(totalView)
 
         liquidityPoolsView.isHidden = true
@@ -182,7 +186,9 @@ final class BalanceLocksDetailViewLayout: UIView {
             liquidityPoolsView,
             crowdloansView,
             governanceView,
-            totalView
+            totalView,
+            frozenView,
+            blockedView
         ].forEach { view in
             setupDefaultSectionConstraints(for: view)
         }
@@ -216,6 +222,8 @@ final class BalanceLocksDetailViewLayout: UIView {
         totalView.titleLabel.text = R.string.localizable.commonTotal(preferredLanguages: locale.rLanguages)
         poolsTitleRowView.rowContentView.text = R.string.localizable.balanceLocksNominationPoolsRowTitle(preferredLanguages: locale.rLanguages)
         stakingTitleRowView.rowContentView.text = R.string.localizable.commonStaking(preferredLanguages: locale.rLanguages)
+        frozenView.titleLabel.text = R.string.localizable.walletBalanceFrozen(preferredLanguages: locale.rLanguages)
+        blockedView.titleLabel.text = R.string.localizable.balanceLocksBlockedRowTitle(preferredLanguages: locale.rLanguages)
         navigationBar.setTitle(R.string.localizable.balanceLocksScreenTitle(preferredLanguages: locale.rLanguages))
     }
 
