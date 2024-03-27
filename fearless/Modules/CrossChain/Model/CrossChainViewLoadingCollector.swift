@@ -20,6 +20,14 @@ struct CrossChainViewLoadingCollector {
     }
 
     var isReady: Bool {
-        originFeeReady && destinationFeeReady && balanceReady && existentialDepositReady && destinationBalanceReady && destinationExistentialDepositReady && assetAccountInfoReady
+                 [
+            originFeeReady,
+            destinationFeeReady,
+            balanceReady,
+            existentialDepositReady,
+            destinationBalanceReady,
+            destinationExistentialDepositReady,
+            assetAccountInfoReady
+         ].allSatisfy { $0 }
     }
 }
