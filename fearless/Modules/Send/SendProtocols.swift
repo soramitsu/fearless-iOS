@@ -32,7 +32,7 @@ protocol SendViewOutput: AnyObject {
     func didTapSelectAsset()
     func didTapSelectNetwork()
     func searchTextDidChanged(_ text: String)
-    func selectAmountPercentage(_ percentage: Float)
+    func selectAmountPercentage(_ percentage: Float, validate: Bool)
     func updateAmount(_ newValue: Decimal)
     func didSwitchSendAll(_ enabled: Bool)
 }

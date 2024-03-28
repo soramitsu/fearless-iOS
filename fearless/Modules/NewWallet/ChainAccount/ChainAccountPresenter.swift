@@ -77,8 +77,8 @@ final class ChainAccountPresenter {
             case var .value(accountInfoValue) = accountInfo,
             case let .value(frozenValue) = frozen,
             case let .value(balanceValue) = balance,
-            case let .value(balanceLocksValue) = balanceLocks 
-            else {
+            case let .value(balanceLocksValue) = balanceLocks
+        else {
             DispatchQueue.main.async { [weak self] in
                 self?.view?.didReceive(balanceViewModel: nil)
             }
