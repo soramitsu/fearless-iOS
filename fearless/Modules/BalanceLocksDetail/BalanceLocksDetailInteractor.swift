@@ -88,6 +88,34 @@ final class BalanceLocksDetailInteractor {
             await output?.didReceiveVestingLocksError(error)
         }
     }
+
+    private func fetchAssetFrozen() async {
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            await output?.didReceiveAssetFrozenError(ChainAccountFetchingError.accountNotExists)
+            return
+        }
+
+        do {
+            let frozen = try await balanceLocksFetching.fetchAssetFrozen(for: accountId, currencyId: chainAsset.currencyId)
+            await output?.didReceiveAssetFrozen(frozen)
+        } catch {
+            await output?.didReceiveAssetFrozenError(error)
+        }
+    }
+
+    private func fetchAssetBlocked() async {
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            await output?.didReceiveAssetBlockedError(ChainAccountFetchingError.accountNotExists)
+            return
+        }
+
+        do {
+            let blocked = try await balanceLocksFetching.fetchAssetBlocked(for: accountId, currencyId: chainAsset.currencyId)
+            await output?.didReceiveAssetBlocked(blocked)
+        } catch {
+            await output?.didReceiveAssetBlockedError(error)
+        }
+    }
 }
 
 // MARK: - BalanceLocksDetailInteractorInput
@@ -102,6 +130,8 @@ extension BalanceLocksDetailInteractor: BalanceLocksDetailInteractorInput {
             await fetchGovernanceLocks()
             await fetchCrowdloansInfo()
             await fetchVestings()
+            await fetchAssetFrozen()
+            await fetchAssetBlocked()
         }
 
         priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)

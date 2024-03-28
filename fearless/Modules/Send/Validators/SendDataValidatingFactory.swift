@@ -166,6 +166,66 @@ class SendDataValidatingFactory: NSObject {
         })
     }
 
+    func destinationExistentialDepositIsNotViolated(
+        parameters: ExistentialDepositValidationParameters,
+        locale: Locale,
+        chainAsset: ChainAsset
+    ) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] _ in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentDestinationExistentialDepositError(from: view, locale: locale)
+
+        }, preservesCondition: {
+            guard !chainAsset.chain.isEthereum else {
+                return true
+            }
+
+            switch parameters {
+            case let .utility(spendingAmount, totalAmount, minimumBalance):
+                guard let spendingAmount = spendingAmount else {
+                    return true
+                }
+
+                if case .ormlChain = chainAsset.chainAssetType {
+                    return true
+                }
+
+                if
+                    let totalAmount = totalAmount,
+                    let minimumBalance = minimumBalance,
+                    totalAmount >= spendingAmount {
+                    return totalAmount - spendingAmount >= minimumBalance
+                } else {
+                    return false
+                }
+            case let .orml(minimumBalance, feeAndTip, utilityBalance):
+                guard minimumBalance ?? 0 > 0 else {
+                    return true
+                }
+                guard let feeAndTip = feeAndTip else {
+                    return true
+                }
+
+                if let utilityBalance = utilityBalance, let minimumBalance = minimumBalance {
+                    return utilityBalance - feeAndTip >= minimumBalance
+                } else {
+                    return false
+                }
+            case let .equilibrium(minimumBalance, totalBalance):
+                guard let minimumBalance = minimumBalance,
+                      let totalBalance = totalBalance
+                else {
+                    return false
+                }
+
+                return totalBalance > minimumBalance
+            }
+        })
+    }
+
     func soraBridgeViolated(
         originCHainId: ChainModel.Id,
         destChainId: ChainModel.Id?,

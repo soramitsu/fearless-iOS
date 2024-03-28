@@ -20,6 +20,11 @@ protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveOrigin(chainAssets: [ChainAsset])
     func didSetup()
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
+    func didReceiveDestinationAccountInfo(accountInfo: AccountInfo?)
+    func didReceiveDestinationAccountInfoError(error: Error)
+    func didReceiveDestinationExistentialDeposit(result: Result<BigUInt, Error>)
+    func didReceiveAssetAccountInfo(assetAccountInfo: AssetAccountInfo?)
+    func didReceiveAssetAccountInfoError(error: Error)
 }
 
 final class CrossChainInteractor {
@@ -38,7 +43,9 @@ final class CrossChainInteractor {
     private let addressChainDefiner: AddressChainDefiner
     private let existentialDepositService: ExistentialDepositServiceProtocol
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
-
+    private var destinationChain: ChainModel?
+    private var originalChainAsset: ChainAsset?
+    private let storageRequestPerformer: StorageRequestPerformer?
     private var runtimeItems: [RuntimeMetadataItem] = []
 
     var deps: CrossChainDepsContainer.CrossChainConfirmationDeps?
@@ -53,7 +60,8 @@ final class CrossChainInteractor {
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
         addressChainDefiner: AddressChainDefiner,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        storageRequestPerformer: StorageRequestPerformer?
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -65,6 +73,7 @@ final class CrossChainInteractor {
         self.wallet = wallet
         self.addressChainDefiner = addressChainDefiner
         self.existentialDepositService = existentialDepositService
+        self.storageRequestPerformer = storageRequestPerformer
     }
 
     // MARK: - Private methods
@@ -85,13 +94,18 @@ final class CrossChainInteractor {
         operationQueue.addOperation(runtimeItemsOperation)
     }
 
-    private func refreshDeps(originalChainAsset: ChainAsset) throws {
+    private func refreshDeps(originalChainAsset: ChainAsset?) throws {
+        guard let originalChainAsset else {
+            return
+        }
+
         guard let originalRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == originalChainAsset.chain.chainId }) else {
             throw ConvenienceError(error: "missing runtime item")
         }
         deps = try depsContainer.prepareDepsFor(
             originalChainAsset: originalChainAsset,
-            originalRuntimeMetadataItem: originalRuntimeMetadataItem
+            originalRuntimeMetadataItem: originalRuntimeMetadataItem,
+            destChainModel: destinationChain
         )
     }
 
@@ -172,13 +186,42 @@ final class CrossChainInteractor {
             self?.output?.didReceiveExistentialDeposit(result: result)
         }
     }
+
+    private func getTokensStatus(for chainAsset: ChainAsset) {
+        guard
+            let currencyId = chainAsset.currencyId,
+            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        else {
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveAssetAccountInfo(assetAccountInfo: nil)
+            }
+            return
+        }
+
+        Task {
+            do {
+                let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
+                let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+                let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer?.performSingle(request)
+
+                await MainActor.run {
+                    output?.didReceiveAssetAccountInfo(assetAccountInfo: assetAccountInfo)
+                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceiveAssetAccountInfoError(error: error)
+                }
+            }
+        }
+    }
 }
 
 // MARK: - CrossChainInteractorInput
 
 extension CrossChainInteractor: CrossChainInteractorInput {
     func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?) {
-        let inputAmount = amount ?? 1
+        let unwrappedAmount = amount.or(0)
+        let inputAmount = (unwrappedAmount > 0) ? unwrappedAmount : 1
         let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt.zero
 
         try? refreshDeps(originalChainAsset: originChainAsset)
@@ -224,6 +267,7 @@ extension CrossChainInteractor: CrossChainInteractorInput {
     }
 
     func didReceive(originChainAsset: ChainAsset?) {
+        originalChainAsset = originChainAsset
         let originalUtilityChainAsset = originChainAsset?.chain.utilityChainAssets().first
         let chainAssets: [ChainAsset] = [originalUtilityChainAsset, originChainAsset].compactMap { $0 }
         fetchPrices(for: chainAssets)
@@ -236,10 +280,50 @@ extension CrossChainInteractor: CrossChainInteractorInput {
             return
         }
         getExistentialDeposit(for: edChainAsset)
+        getTokensStatus(for: originChainAsset)
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
         addressChainDefiner.validate(address: address, for: chain)
+    }
+
+    func didReceive(destinationChain: ChainModel) {
+        self.destinationChain = destinationChain
+        try? refreshDeps(originalChainAsset: originalChainAsset)
+
+        guard let originalChainAsset else {
+            return
+        }
+        let chainAsset = ChainAsset(chain: destinationChain, asset: originalChainAsset.asset)
+
+        deps?.destinationExistentialDepositService?.fetchExistentialDeposit(chainAsset: chainAsset, completion: { [weak self] result in
+            self?.output?.didReceiveDestinationExistentialDeposit(result: result)
+        })
+    }
+
+    func fetchDestinationAccountInfo(address: String) {
+        guard
+            let destinationChain,
+            let originalChainAsset
+        else {
+            return
+        }
+
+        Task {
+            do {
+                let accountId = try AddressFactory.accountId(from: address, chain: destinationChain)
+                let chainAsset = ChainAsset(chain: destinationChain, asset: originalChainAsset.asset)
+                let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
+                let request = SystemAccountRequest(accountId: accountIdVariant, chainAsset: chainAsset)
+                let accountInfo: AccountInfo? = try await deps?.destinationStorageRequestPerformer?.performSingle(request)
+
+                await MainActor.run {
+                    output?.didReceiveDestinationAccountInfo(accountInfo: accountInfo)
+                }
+            } catch {
+                output?.didReceiveDestinationAccountInfoError(error: error)
+            }
+        }
     }
 }
 

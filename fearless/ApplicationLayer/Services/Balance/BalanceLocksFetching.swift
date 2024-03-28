@@ -16,6 +16,9 @@ protocol BalanceLocksFetching {
     func fetchCrowdloanLocks(for accountId: AccountId) async throws -> Decimal
     func fetchVestingLocks(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal
     func fetchTotalLocks(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal
+    func fetchAssetLocks(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal
+    func fetchAssetFrozen(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal
+    func fetchAssetBlocked(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal
 }
 
 final class BalanceLocksFetchingDefault {
@@ -64,6 +67,17 @@ final class BalanceLocksFetchingDefault {
                 }
             }
         }
+    }
+
+    private func fetchAssetAccountInfo(for accountId: AccountId, currencyId: CurrencyId?) async throws -> AssetAccountInfo? {
+        guard let currencyId else {
+            return nil
+        }
+
+        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
+        let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+        let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request)
+        return assetAccountInfo
     }
 }
 
@@ -221,5 +235,35 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
         } ?? .zero
 
         return [balanceLockedRewardsValue, tokenLockedRewardsValue].reduce(0, +)
+    }
+
+    func fetchAssetLocks(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal {
+        guard let currencyId else {
+            return .zero
+        }
+
+        let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
+        let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
+        let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request)
+        let locked = assetAccountInfo.flatMap {
+            Decimal.fromSubstrateAmount($0.locked, precision: Int16(chainAsset.asset.precision))
+        }
+        return locked.or(.zero)
+    }
+
+    func fetchAssetFrozen(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal {
+        let assetAccountInfo = try await fetchAssetAccountInfo(for: accountId, currencyId: currencyId)
+        let frozen = assetAccountInfo.flatMap {
+            Decimal.fromSubstrateAmount($0.frozen, precision: Int16(chainAsset.asset.precision))
+        }
+        return frozen.or(.zero)
+    }
+
+    func fetchAssetBlocked(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal {
+        let assetAccountInfo = try await fetchAssetAccountInfo(for: accountId, currencyId: currencyId)
+        let blocked = assetAccountInfo.flatMap {
+            Decimal.fromSubstrateAmount($0.blocked, precision: Int16(chainAsset.asset.precision))
+        }
+        return blocked.or(.zero)
     }
 }
