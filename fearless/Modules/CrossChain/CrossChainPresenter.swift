@@ -244,7 +244,7 @@ final class CrossChainPresenter {
         guard let destChain = selectedDestChainModel else {
             return
         }
-        loadingCollector.destinationBalanceReady = newAddress.isEmpty
+        loadingCollector.addressExists = !newAddress.isEmpty
         checkLoadingState()
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
@@ -822,5 +822,8 @@ extension CrossChainPresenter: WalletsManagmentModuleOutput {
         view?.didReceive(recipientViewModel: viewModel)
         destWallet = wallet
         recipientAddress = address
+        loadingCollector.addressExists = true
+        checkLoadingState()
+        interactor.fetchDestinationAccountInfo(address: address)
     }
 }
