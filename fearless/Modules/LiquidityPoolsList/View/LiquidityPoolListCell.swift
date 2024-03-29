@@ -1,0 +1,69 @@
+import UIKit
+
+class LiquidityPoolListCell: UITableViewCell {
+    let tokenPairIconsView = TokenPairIconsView()
+    let tokenPairNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .capsTitle
+        label.textColor = .white
+        return label
+    }()
+
+    let rewardTokenNameLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorWhite50()
+        return label
+    }()
+
+    let apyLabel: UILabel = {
+        let label = UILabel()
+        label.font = .capsTitle
+        label.textColor = R.color.colorPink()
+        return label
+    }()
+
+    let stakingStatusLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorColdGreen()
+        return label
+    }()
+
+    let reservesLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorWhite50()
+        return label
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+        drawSubviews()
+        setupConstraints()
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+
+        drawSubviews()
+        setupConstraints()
+    }
+
+    private func drawSubviews() {
+        addSubview(tokenPairIconsView)
+        addSubview(tokenPairNameLabel)
+        addSubview(rewardTokenNameLabel)
+        addSubview(apyLabel)
+        addSubview(stakingStatusLabel)
+        addSubview(reservesLabel)
+    }
+
+    private func setupConstraints() {
+        tokenPairIconsView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(16)
+            make.top.bottom.equalToSuperview().inset(4)
+        }
+    }
+}
