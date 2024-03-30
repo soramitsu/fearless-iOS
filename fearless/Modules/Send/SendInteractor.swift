@@ -60,18 +60,18 @@ final class SendInteractor: RuntimeConstantFetching {
             return
         }
 
-        Task {
-            if let accountId = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-                dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
+        if let accountId = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
 
+                DispatchQueue.main.async {
                     self?.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
-
-                    let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
-                    self?.accountInfoSubscriptionAdapter.subscribe(
-                        chainsAssets: chainAssets,
-                        handler: self
-                    )
                 }
+
+                let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
+                self?.accountInfoSubscriptionAdapter.subscribe(
+                    chainsAssets: chainAssets,
+                    handler: self
+                )
             }
         }
     }
