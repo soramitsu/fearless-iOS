@@ -2858,6 +2858,7 @@
 		FACD42BD2A5BE91E009975AA /* PortionRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42BB2A5BE91D009975AA /* PortionRewardCalculatorService.swift */; };
 		FACD42BF2A5BE93D009975AA /* polkadot-9370metadata in Resources */ = {isa = PBXBuildFile; fileRef = FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */; };
 		FACD42C12A5C10BB009975AA /* TransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42C02A5C10BB009975AA /* TransferService.swift */; };
+		FACE6C232BB6C37900643CEF /* LiquidityPoolListCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE6C222BB6C37900643CEF /* LiquidityPoolListCellModel.swift */; };
 		FAD0068027EA252400C97E09 /* AboutViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */; };
 		FAD0068127EA252400C97E09 /* AboutViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067F27EA252400C97E09 /* AboutViewState.swift */; };
 		FAD0068427EA255900C97E09 /* AboutTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */; };
@@ -5990,6 +5991,7 @@
 		FACD42BB2A5BE91D009975AA /* PortionRewardCalculatorService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortionRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-9370metadata"; sourceTree = "<group>"; };
 		FACD42C02A5C10BB009975AA /* TransferService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferService.swift; sourceTree = "<group>"; };
+		FACE6C222BB6C37900643CEF /* LiquidityPoolListCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolListCellModel.swift; sourceTree = "<group>"; };
 		FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewModelFactory.swift; sourceTree = "<group>"; };
 		FAD0067F27EA252400C97E09 /* AboutViewState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewState.swift; sourceTree = "<group>"; };
 		FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutTableViewCell.swift; sourceTree = "<group>"; };
@@ -7002,6 +7004,7 @@
 		0D31C32ADE0D58DD072D6AB2 /* LiquidityPoolsList */ = {
 			isa = PBXGroup;
 			children = (
+				FACE6C212BB6C36B00643CEF /* ViewModel */,
 				FAB707C32BB678CB00A1131C /* View */,
 				E137263F032552C463560C91 /* LiquidityPoolsListProtocols.swift */,
 				9BB81B27EBBDD4D246767C4A /* LiquidityPoolsListRouter.swift */,
@@ -14956,6 +14959,14 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		FACE6C212BB6C36B00643CEF /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				FACE6C222BB6C37900643CEF /* LiquidityPoolListCellModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		FAD4289B2A865635001D6A16 /* BackupRiskWarnings */ = {
 			isa = PBXGroup;
 			children = (
@@ -17260,6 +17271,7 @@
 				FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */,
 				F462B35C260C86880005AB01 /* ViewHolder.swift in Sources */,
 				84C515FB26D84F8C000DBA45 /* AccountImportWrapper.swift in Sources */,
+				FACE6C232BB6C37900643CEF /* LiquidityPoolListCellModel.swift in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				849ABE7226280F3800011A2A /* ControllersReducer.swift in Sources */,
 				FAD4290E2A86567F001D6A16 /* BannersViewLayout.swift in Sources */,

@@ -65,5 +65,34 @@ class LiquidityPoolListCell: UITableViewCell {
             make.leading.equalToSuperview().inset(16)
             make.top.bottom.equalToSuperview().inset(4)
         }
+        
+        tokenPairNameLabel.snp.makeConstraints { make in
+            make.leading.equalTo(tokenPairIconsView.snp.trailing).offset(8)
+            make.top.equalToSuperview().inset(4)
+        }
+        
+        rewardTokenNameLabel.snp.makeConstraints { make in
+            make.leading.equalTo(tokenPairIconsView.snp.trailing).offset(8)
+            make.bottom.equalToSuperview().inset(4)
+            make.top.equalTo(tokenPairNameLabel.snp.bottom).offset(4)
+        }
+        
+        apyLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.leading.equalTo(tokenPairNameLabel.snp.trailing).offset(8)
+            make.centerY.equalTo(tokenPairNameLabel.snp.centerY)
+        }
+        
+        stakingStatusLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.leading.equalTo(rewardTokenNameLabel.snp.trailing).offset(8)
+            make.centerY.equalTo(rewardTokenNameLabel.snp.centerY)
+        }
+        
+        reservesLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(16)
+            make.leading.equalTo(rewardTokenNameLabel.snp.trailing).offset(8)
+            make.centerY.equalTo(rewardTokenNameLabel.snp.centerY)
+        }
     }
 }
