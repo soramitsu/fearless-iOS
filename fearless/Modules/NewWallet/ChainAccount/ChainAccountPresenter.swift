@@ -276,6 +276,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
     func didReceiveAssetFrozenError(_ error: Error) {
         frozen = .value(nil)
+        provideBalanceViewModel()
         logger.customError(error)
     }
 

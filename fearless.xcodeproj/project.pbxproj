@@ -2847,6 +2847,7 @@
 		FACD42BD2A5BE91E009975AA /* PortionRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42BB2A5BE91D009975AA /* PortionRewardCalculatorService.swift */; };
 		FACD42BF2A5BE93D009975AA /* polkadot-9370metadata in Resources */ = {isa = PBXBuildFile; fileRef = FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */; };
 		FACD42C12A5C10BB009975AA /* TransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42C02A5C10BB009975AA /* TransferService.swift */; };
+		FACE6C252BBAA9F500643CEF /* InfoTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE6C242BBAA9F500643CEF /* InfoTitleView.swift */; };
 		FAD0068027EA252400C97E09 /* AboutViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */; };
 		FAD0068127EA252400C97E09 /* AboutViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067F27EA252400C97E09 /* AboutViewState.swift */; };
 		FAD0068427EA255900C97E09 /* AboutTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */; };
@@ -5968,6 +5969,7 @@
 		FACD42BB2A5BE91D009975AA /* PortionRewardCalculatorService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortionRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-9370metadata"; sourceTree = "<group>"; };
 		FACD42C02A5C10BB009975AA /* TransferService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferService.swift; sourceTree = "<group>"; };
+		FACE6C242BBAA9F500643CEF /* InfoTitleView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoTitleView.swift; sourceTree = "<group>"; };
 		FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewModelFactory.swift; sourceTree = "<group>"; };
 		FAD0067F27EA252400C97E09 /* AboutViewState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewState.swift; sourceTree = "<group>"; };
 		FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutTableViewCell.swift; sourceTree = "<group>"; };
@@ -9709,7 +9711,6 @@
 				843A2C6E26A8548B00266F53 /* RowView.swift */,
 				843A2C7026A85B5B00266F53 /* GenericTitleValueView.swift */,
 				843A2C7226A8641400266F53 /* MultiValueView.swift */,
-				843A2C7626A86FD000266F53 /* TitleStatusView.swift */,
 				84BAFCD126AF5EE700871E86 /* IconDetailsView.swift */,
 				F40966E326B29919008CD244 /* Stacks.swift */,
 				F43A596926D520E0005E973D /* EmptyStateViewCell.swift */,
@@ -9725,10 +9726,12 @@
 				070B2C60289CFE0000F78F82 /* SelectedNetworkButton.swift */,
 				07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */,
 				C648FFC728DC43A70072951B /* EmptyView.swift */,
+				843A2C7626A86FD000266F53 /* TitleStatusView.swift */,
 				C640415C28F507E900845780 /* TriangularedTextField.swift */,
 				076D9D58294C461E002762E3 /* PolkaswapDoubleSymbolView.swift */,
 				FA584C772AB2BCD500F6F020 /* UniversalMediaView.swift */,
 				C6DC2D592B1458CC00BAA4DB /* CollectionViewSectionHeader.swift */,
+				FACE6C242BBAA9F500643CEF /* InfoTitleView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -17874,6 +17877,7 @@
 				F40966BC26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift in Sources */,
 				C6264C2C2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift in Sources */,
 				FAFFAE8A29AC84B10074AF1F /* SubqueryHistoryElement.swift in Sources */,
+				FACE6C252BBAA9F500643CEF /* InfoTitleView.swift in Sources */,
 				2E57C70B27E9EC0F00AF075A /* ProfileViewState.swift in Sources */,
 				843A2C6F26A8548B00266F53 /* RowView.swift in Sources */,
 				84EBAB06265DC24C0015E446 /* CrowdloanContributionViewModelFactory.swift in Sources */,

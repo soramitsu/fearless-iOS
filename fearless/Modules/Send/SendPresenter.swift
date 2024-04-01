@@ -148,9 +148,6 @@ final class SendPresenter {
 
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
-        let frozenBalance = assetInfo.map {
-            Decimal.fromSubstrateAmount($0.locked, precision: Int16(chainAsset.asset.precision)).or(.zero)
-        }
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
             balance: freeBalance,
@@ -498,10 +495,10 @@ final class SendPresenter {
                 totalBalance: eqUilibriumTotalBalance
             )
         }
-        var validators: [DataValidating]
+        var validators: [DataValidating?]
         switch validationCase {
         case let .validateAmount(handler):
-            validators = [dataValidatingFactory.exsitentialDepositIsNotViolated(
+            validators = [minimumBalance != nil ? dataValidatingFactory.exsitentialDepositIsNotViolated(
                 parameters: edParameters,
                 locale: selectedLocale,
                 chainAsset: chainAsset,
@@ -525,7 +522,7 @@ final class SendPresenter {
                     self?.view?.switchEnableSendAllState(enabled: false)
                     self?.selectAmountPercentage(0, validate: false)
                 }
-            )]
+            ) : nil]
         case .validateAll:
             validators = [
                 dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -559,7 +556,7 @@ final class SendPresenter {
                 )
             ]
         }
-        DataValidationRunner(validators: validators).runValidation { [weak self] in
+        DataValidationRunner(validators: validators.compactMap { $0 }).runValidation { [weak self] in
             switch validationCase {
             case let .validateAmount(handler):
                 handler()

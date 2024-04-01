@@ -32,6 +32,7 @@ struct ValidatorInfoViewModel {
         let estimatedReward: String
         let oversubscribed: Bool
         let comission: String
+        let minStakeToGetRewards: BalanceViewModelProtocol?
     }
 
     struct MyNomination {

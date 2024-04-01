@@ -27,6 +27,14 @@ extension AssetModel: Identifiable {
             icon: icon ?? chainIcon
         )
     }
+
+    public func normalizedSymbol() -> String {
+        guard symbol.hasPrefix("xc") else {
+            return symbol
+        }
+
+        return String(symbol.dropFirst(2))
+    }
 }
 
 public struct AssetBalanceDisplayInfo: Equatable {

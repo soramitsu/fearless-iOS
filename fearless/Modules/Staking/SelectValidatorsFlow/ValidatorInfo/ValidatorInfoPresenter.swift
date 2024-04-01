@@ -11,6 +11,7 @@ final class ValidatorInfoPresenter {
     private let viewModelState: ValidatorInfoViewModelState
     private let chainAsset: ChainAsset
     private let logger: LoggerProtocol?
+    private var viewModel: ValidatorInfoViewModel?
 
     private(set) var priceDataResult: Result<PriceData?, Error>?
 
@@ -67,6 +68,7 @@ final class ValidatorInfoPresenter {
             priceData: priceData,
             locale: selectedLocale
         ) {
+            self.viewModel = viewModel
             view?.didRecieve(state: .validatorInfo(viewModel))
         } else {
             view?.didRecieve(state: .empty)
@@ -110,6 +112,13 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
             from: view,
             items: viewModel
         )
+    }
+
+    func presentMinStake() {
+        if case let .elected(exposure) = viewModel?.staking.status, let amount = exposure.minStakeToGetRewards?.amount {
+            let text = R.string.localizable.validatorInfoMinStakeAlertText(amount, preferredLanguages: selectedLocale.rLanguages)
+            wireframe.presentInfo(message: text, title: "", from: view)
+        }
     }
 
     func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue) {
