@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/gtm-session-fetcher.git",
       "state" : {
-        "revision" : "76135c9f4e1ac85459d5fec61b6f76ac47ab3a4c",
-        "version" : "3.3.1"
+        "revision" : "9534039303015a84837090d20fa21cae6e5eadb6",
+        "version" : "3.3.2"
       }
     },
     {
@@ -113,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ashleymills/Reachability.swift",
       "state" : {
-        "revision" : "c01127cb51f591045696128effe43c16840d08bf",
-        "version" : "5.2.0"
+        "revision" : "7b7018a69c84ea94ac2a38dff626e16ea81d1db9",
+        "version" : "5.2.1"
       }
     },
     {
@@ -221,8 +221,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "a03119407c4773322d9e3c6cb5279bb597b68317",
-        "version" : "0.53.4"
+        "revision" : "9e5d0d588ab6e271fe9887ec3dde21d544d4b080",
+        "version" : "0.53.5"
       }
     },
     {
