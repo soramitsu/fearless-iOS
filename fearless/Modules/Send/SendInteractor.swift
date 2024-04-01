@@ -301,29 +301,31 @@ extension SendInteractor: SendInteractorInput {
             return
         }
 
-        Task {
-            guard let runtimeService = dependencies.runtimeService else {
-                return
-            }
+        guard let runtimeService = dependencies.runtimeService else {
+            return
+        }
 
-            dependencies.existentialDepositService.fetchExistentialDeposit(
-                chainAsset: chainAsset
-            ) { [weak self] result in
+        dependencies.existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
+            DispatchQueue.main.async {
                 self?.output?.didReceiveMinimumBalance(result: result)
             }
+        }
 
-            if chainAsset.chain.isTipRequired {
-                fetchConstant(
-                    for: .defaultTip,
-                    runtimeCodingService: runtimeService,
-                    operationManager: operationManager
-                ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
+        if chainAsset.chain.isTipRequired {
+            fetchConstant(
+                for: .defaultTip,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
+                DispatchQueue.main.async {
                     self?.output?.didReceiveTip(result: result)
                 }
             }
-            if chainAsset.chain.isEquilibrium {
-                equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
-            }
+        }
+        if chainAsset.chain.isEquilibrium {
+            equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
         }
     }
 }
