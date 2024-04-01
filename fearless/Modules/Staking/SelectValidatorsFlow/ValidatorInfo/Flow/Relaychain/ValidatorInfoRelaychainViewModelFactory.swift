@@ -92,14 +92,22 @@ final class ValidatorInfoRelaychainViewModelFactory {
             .value(for: locale).stringFromDecimal(estimatedRewardDecimal) ?? ""
         let comission = NumberFormatter.percentBase.localizableResource()
             .value(for: locale).stringFromDecimal(validatorInfo.commission) ?? ""
-
+        let minStake = validatorInfo.stakeInfo?.nominators
+            .compactMap { $0.stake }
+            .sorted()
+            .suffix(validatorInfo.stakeInfo.map { Int($0.maxNominatorsRewarded) } ?? 0)
+            .first
+        let minStakeViewModel = minStake.map {
+            balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto).value(for: locale)
+        }
         return ValidatorInfoViewModel.Exposure(
             nominators: nominators,
             myNomination: myNomination,
             totalStake: totalStake,
             estimatedReward: estimatedReward,
             oversubscribed: validatorInfo.stakeInfo?.oversubscribed ?? false,
-            comission: comission
+            comission: comission,
+            minStakeToGetRewards: minStakeViewModel
         )
     }
 
