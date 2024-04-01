@@ -1270,4 +1270,3 @@ To find out more, contact %@";
 "wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
 "validator.info.min.stake.among.active.nominators.text" = "Minimum stake among active nominators";
 "validator.info.min.stake.alert.text" = "Minimum stake among active nominators is %s. To get rewards you have to stake more.";
-/var/folders/jr/kx5vgqz948v_8bxp73lb6kc40000gn/T/simulator_screenshot_1455191E-585B-4C36-B18A-1448FBEB59C6.png
