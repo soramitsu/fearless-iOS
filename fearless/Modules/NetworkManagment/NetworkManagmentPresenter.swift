@@ -9,6 +9,7 @@ protocol NetworkManagmentViewInput: ControllerBackedProtocol {
 protocol NetworkManagmentInteractorInput: AnyObject {
     func setup(with output: NetworkManagmentInteractorOutput)
     func didTapFavoutite(with identifire: String)
+    func didSelect(_ identifire: String)
 }
 
 final class NetworkManagmentPresenter {
@@ -100,6 +101,7 @@ extension NetworkManagmentPresenter: NetworkManagmentViewOutput {
             return
         }
         moduleOutput?.did(select: selectedViewModel.networkSelectType, contextTag: contextTag)
+        interactor.didSelect(selectedViewModel.networkSelectType.identifier)
         router.dismiss(view: view)
     }
 

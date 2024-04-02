@@ -13,7 +13,6 @@ final class NetworkManagmentInteractor {
     private weak var output: NetworkManagmentInteractorOutput?
 
     private var wallet: MetaAccountModel
-    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
     private let chainModels: [ChainModel]?
@@ -21,14 +20,12 @@ final class NetworkManagmentInteractor {
 
     init(
         wallet: MetaAccountModel,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainRepository: AnyDataProviderRepository<ChainModel>,
         operationQueue: OperationQueue,
         chainModels: [ChainModel]?,
         eventCenter: EventCenterProtocol
     ) {
         self.wallet = wallet
-        self.accountRepository = accountRepository
         self.chainRepository = chainRepository
         self.operationQueue = operationQueue
         self.chainModels = chainModels
@@ -66,28 +63,18 @@ final class NetworkManagmentInteractor {
         guard let updatedAccount = updatedAccount else {
             return
         }
-        let saveOperation = accountRepository.saveOperation {
-            [updatedAccount]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [weak self] in
-            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                switch result {
-                case let .success(wallet):
-                    self?.wallet = wallet
-                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: wallet))
-                    DispatchQueue.main.async {
-                        self?.output?.didReceiveUpdated(wallet: wallet)
-                    }
-                case .failure:
-                    break
+        SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+            switch result {
+            case let .success(wallet):
+                self.wallet = wallet
+                self.eventCenter.notify(with: MetaAccountModelChangedEvent(account: wallet))
+                DispatchQueue.main.async {
+                    self.output?.didReceiveUpdated(wallet: wallet)
                 }
+            case .failure:
+                break
             }
         }
-
-        operationQueue.addOperation(saveOperation)
     }
 }
 
@@ -104,6 +91,13 @@ extension NetworkManagmentInteractor: NetworkManagmentInteractorInput {
             updatedWallet = wallet.replacingFavoutites(updatedFavourites)
         }
         save(updatedWallet)
+    }
+
+    func didSelect(_ identifire: String) {
+        if wallet.networkManagmentFilter != identifire {
+            let updatedWallet = wallet.replacingNetworkManagmentFilter(identifire)
+            save(updatedWallet)
+        }
     }
 
     func setup(with output: NetworkManagmentInteractorOutput) {

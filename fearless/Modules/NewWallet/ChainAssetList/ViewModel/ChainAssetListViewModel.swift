@@ -1,13 +1,8 @@
-enum ChainAssetListTableSection: Int {
-    case active
-    case hidden
-}
+import Foundation
 
 struct ChainAssetListViewModel {
-    let sections: [ChainAssetListTableSection]
-    let cellsForSections: [ChainAssetListTableSection: [ChainAccountBalanceCellViewModel]]
-    let isColdBoot: Bool
-    let hiddenSectionState: HiddenSectionState
+    let cells: [ChainAccountBalanceCellViewModel]
     let emptyStateIsActive: Bool
-    let bannerIsHidden: Bool
+    let isSearch: Bool
+    let shouldRunManageAssetAnimate: Bool
 }

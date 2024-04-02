@@ -12,21 +12,20 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
-    func didTapExpandSections(state: HiddenSectionState)
     func didPullToRefresh()
+    func didTapManageAsset()
+    func didFinishManageAssetAnimate()
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
+    var shouldRunManageAssetAnimate: Bool { get set }
     func setup(with output: ChainAssetListInteractorOutput)
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor],
         useCashe: Bool
     )
-    func hideChainAsset(_ chainAsset: ChainAsset)
-    func showChainAsset(_ chainAsset: ChainAsset)
     func markUnused(chain: ChainModel)
-    func saveHiddenSection(state: HiddenSectionState)
     func reload()
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void))
 }
@@ -79,12 +78,18 @@ protocol ChainAssetListRouterInput:
         uniqueChainModel: UniqueChainModel,
         from view: ControllerBackedProtocol?
     )
+    func showManageAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        filter: NetworkManagmentFilter?
+    )
 }
 
 protocol ChainAssetListModuleInput: AnyObject {
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        networkFilter: NetworkManagmentFilter?
     )
 }
 

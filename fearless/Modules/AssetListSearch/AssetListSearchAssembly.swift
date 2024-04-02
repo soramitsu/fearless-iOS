@@ -32,7 +32,8 @@ final class AssetListSearchAssembly {
         wallet: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
         ChainAssetListAssembly.configureModule(
-            wallet: wallet
+            wallet: wallet,
+            isSearch: true
         )
     }
 }

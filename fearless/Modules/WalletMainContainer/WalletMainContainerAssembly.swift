@@ -116,7 +116,8 @@ final class WalletMainContainerAssembly {
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
         let chainAssetListModule = ChainAssetListAssembly.configureModule(
-            wallet: metaAccount
+            wallet: metaAccount,
+            isSearch: false
         )
 
         return chainAssetListModule

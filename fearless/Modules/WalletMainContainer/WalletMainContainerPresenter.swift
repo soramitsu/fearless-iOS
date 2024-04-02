@@ -110,7 +110,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         router.showSelectNetwork(
             from: view,
             wallet: wallet,
-            delegate: self
+            delegate: nil
         )
     }
 
@@ -165,7 +165,11 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             return
         }
 
-        assetListModuleInput?.updateChainAssets(using: filters, sorts: [])
+        assetListModuleInput?.updateChainAssets(
+            using: filters,
+            sorts: [],
+            networkFilter: tuple.select
+        )
         nftModuleInput?.didSelect(chains: selectedChains)
 
         onceLoaded = true
@@ -272,14 +276,6 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
 
     func showGetPreinstalledWallet() {
         router.showGetPreinstalledWallet(from: view)
-    }
-}
-
-// MARK: - NetworkManagmentModuleOutput
-
-extension WalletMainContainerPresenter: NetworkManagmentModuleOutput {
-    func did(select: NetworkManagmentFilter, contextTag _: Int?) {
-        interactor.saveNetworkManagment(select)
     }
 }
 

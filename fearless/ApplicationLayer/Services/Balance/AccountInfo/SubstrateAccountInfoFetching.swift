@@ -18,6 +18,57 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
     }
 
     func fetch(
+        for chainAsset: ChainAsset,
+        accountId: AccountId
+    ) async -> (ChainAsset, AccountInfo?) {
+        await withCheckedContinuation { continuation in
+            fetch(
+                for: chainAsset,
+                accountId: accountId
+            ) { chainAsset, accountInfo in
+                continuation.resume(returning: (chainAsset, accountInfo))
+            }
+        }
+    }
+
+    func fetch(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) async -> [ChainAsset: AccountInfo?] {
+        await withCheckedContinuation { continuation in
+            fetch(
+                for: chainAssets,
+                wallet: wallet
+            ) { result in
+                continuation.resume(returning: result)
+            }
+        }
+    }
+
+    func fetchByUniqKey(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) async throws -> [ChainAssetKey: AccountInfo?] {
+        let accountInfos = await withCheckedContinuation { continuation in
+            fetch(
+                for: chainAssets,
+                wallet: wallet
+            ) { result in
+                continuation.resume(returning: result)
+            }
+        }
+        let mapped: [(ChainAssetKey, AccountInfo?)] = accountInfos.compactMap { chainAsset, accountInfo in
+            let request = chainAsset.chain.accountRequest()
+            guard let accountId = wallet.fetch(for: request)?.accountId else {
+                return nil
+            }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            return (key, accountInfo)
+        }
+        return Dictionary(uniqueKeysWithValues: mapped)
+    }
+
+    func fetch(
         for chainAssets: [ChainAsset],
         wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void

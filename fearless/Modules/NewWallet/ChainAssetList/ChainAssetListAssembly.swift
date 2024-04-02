@@ -5,7 +5,8 @@ import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        isSearch: Bool
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
@@ -23,11 +24,6 @@ final class ChainAssetListAssembly {
         )
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
-            mapper: AnyCoreDataMapper(AssetModelMapper())
-        )
-
         let dependencyContainer = ChainAssetListDependencyContainer()
 
         let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
@@ -49,19 +45,18 @@ final class ChainAssetListAssembly {
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriber: priceLocalSubscriber,
-            assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            chainAssetFetching: chainAssetFetching
+            chainAssetFetching: chainAssetFetching,
+            userDefaultsStorage: SettingsManager.shared
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
-            settings: SettingsManager.shared
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         )
 
         let presenter = ChainAssetListPresenter(
@@ -69,7 +64,8 @@ final class ChainAssetListAssembly {
             router: router,
             localizationManager: localizationManager,
             wallet: wallet,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            isSearch: isSearch
         )
 
         let bannersModule = Self.configureBannersModule(moduleOutput: presenter)

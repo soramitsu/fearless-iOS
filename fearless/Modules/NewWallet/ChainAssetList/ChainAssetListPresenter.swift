@@ -19,6 +19,7 @@ final class ChainAssetListPresenter {
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
 
+    private let isSearch: Bool
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
     private var chainAssets: [ChainAsset]?
@@ -28,7 +29,7 @@ final class ChainAssetListPresenter {
     private var displayType: AssetListDisplayType = .assetChains
     private var chainsWithMissingAccounts: [ChainModel.Id] = []
 
-    private var activeFilters: [ChainAssetsFetching.Filter] = []
+    private var networkFilter: NetworkManagmentFilter?
 
     // MARK: - Constructors
 
@@ -37,12 +38,14 @@ final class ChainAssetListPresenter {
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
-        viewModelFactory: ChainAssetListViewModelFactoryProtocol
+        viewModelFactory: ChainAssetListViewModelFactoryProtocol,
+        isSearch: Bool
     ) {
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
+        self.isSearch = isSearch
         self.localizationManager = localizationManager
     }
 
@@ -57,6 +60,7 @@ final class ChainAssetListPresenter {
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
             let chainsWithMissingAccounts = self.chainsWithMissingAccounts
+            let shouldRunManageAssetAnimate = self.interactor.shouldRunManageAssetAnimate
 
             let viewModel = self.viewModelFactory.buildViewModel(
                 wallet: self.wallet,
@@ -65,7 +69,8 @@ final class ChainAssetListPresenter {
                 accountInfos: accountInfosCopy,
                 prices: prices,
                 chainsWithMissingAccounts: chainsWithMissingAccounts,
-                activeFilters: self.activeFilters
+                shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
+                isSearch: self.isSearch
             )
 
             DispatchQueue.main.async {
@@ -165,21 +170,25 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 chainAsset: viewModel.chainAsset,
                 wallet: wallet
             )
-        case .teleport:
+        case .teleport, .hide, .show:
             break
-        case .hide:
-            interactor.hideChainAsset(viewModel.chainAsset)
-        case .show:
-            interactor.showChainAsset(viewModel.chainAsset)
         }
-    }
-
-    func didTapExpandSections(state: HiddenSectionState) {
-        interactor.saveHiddenSection(state: state)
     }
 
     func didPullToRefresh() {
         interactor.reload()
+    }
+
+    func didTapManageAsset() {
+        router.showManageAsset(
+            from: view,
+            wallet: wallet,
+            filter: networkFilter
+        )
+    }
+
+    func didFinishManageAssetAnimate() {
+        interactor.shouldRunManageAssetAnimate = false
     }
 }
 
@@ -311,9 +320,10 @@ extension ChainAssetListPresenter: Localizable {
 extension ChainAssetListPresenter: ChainAssetListModuleInput {
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        networkFilter: NetworkManagmentFilter?
     ) {
-        activeFilters = filters
+        self.networkFilter = networkFilter
 
         let filteredByChain = filters.contains(where: { filter in
             if case ChainAssetsFetching.Filter.chainId = filter {

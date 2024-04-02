@@ -89,8 +89,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
         case .biometry:
             break
-        case .zeroBalances:
-            break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
         }
@@ -101,8 +99,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .biometry:
             settings.biometryEnabled = isOn
-        case .zeroBalances:
-            interactor.update(zeroBalanceAssetsHidden: isOn)
         default:
             break
         }

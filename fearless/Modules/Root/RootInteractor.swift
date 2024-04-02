@@ -57,12 +57,11 @@ extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
 
-        if runMigrations {
-            runMigrators()
-        }
+        settings.setup(runningCompletionIn: .global()) { result in
+            if runMigrations {
+                self.runMigrators()
+            }
 
-        // TODO: Move to loading screen
-        settings.setup(runningCompletionIn: .main) { result in
             switch result {
             case let .success(maybeMetaAccount):
                 if let metaAccount = maybeMetaAccount {

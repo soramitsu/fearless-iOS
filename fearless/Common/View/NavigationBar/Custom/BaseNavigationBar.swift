@@ -13,6 +13,7 @@ class BaseNavigationBar: BaseTopBar {
     enum BackButtonAlignment {
         case left
         case right
+        case none
     }
 
     let indicator: UIView = {
@@ -37,9 +38,9 @@ class BaseNavigationBar: BaseTopBar {
 
     var backButtonAlignment: BackButtonAlignment = .left
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
+    init(backButtonAlignment: BackButtonAlignment = .left) {
+        self.backButtonAlignment = backButtonAlignment
+        super.init(frame: .zero)
         backgroundColor = R.color.colorBlack19()
     }
 
@@ -51,6 +52,8 @@ class BaseNavigationBar: BaseTopBar {
             setLeftViews([backButton])
         case .right:
             setRightViews([backButton])
+        case .none:
+            break
         }
 
         backButton.snp.makeConstraints { make in

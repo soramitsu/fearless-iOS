@@ -25,7 +25,6 @@ enum ProfileOption: UInt, CaseIterable {
     case changePincode
     case biometry
     case about
-    case zeroBalances
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -67,7 +66,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             language: language,
             currency: currency,
             locale: locale,
-            wallet: wallet,
             missingAccountIssue: missingAccountIssue
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
@@ -118,7 +116,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         language: Language,
         currency: Currency,
         locale: Locale,
-        wallet: MetaAccountModel,
         missingAccountIssue: [ChainIssue]
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
@@ -142,8 +139,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
-            case .zeroBalances:
-                return createZeroBalancesViewModel(for: locale, wallet: wallet)
             }
         }
 
@@ -268,19 +263,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .about
-        )
-    }
-
-    private func createZeroBalancesViewModel(for locale: Locale, wallet: MetaAccountModel) -> ProfileOptionViewModel {
-        let title = R.string.localizable
-            .settingsHideZeroBalances(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(
-            title: title,
-            icon: R.image.iconZeroBalances()!,
-            accessoryTitle: nil,
-            accessoryImage: nil,
-            accessoryType: .switcher(wallet.zeroBalanceAssetsHidden),
-            option: .zeroBalances
         )
     }
 

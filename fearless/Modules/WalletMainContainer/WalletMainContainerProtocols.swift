@@ -23,7 +23,6 @@ protocol WalletMainContainerViewOutput: AnyObject {
 
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
-    func saveNetworkManagment(_ select: NetworkManagmentFilter)
     func walletConnect(uri: String) async throws
 }
 

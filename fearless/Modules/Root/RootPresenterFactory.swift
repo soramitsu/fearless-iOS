@@ -1,6 +1,7 @@
 import UIKit
 import SoraKeystore
 import SoraFoundation
+import RobinHood
 
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol {
@@ -38,12 +39,21 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             startViewHelper: startViewHelper
         )
 
+        let assetManagementMigrator = AssetManagementMigratorAssembly.createDefaultMigrator()
+
+        let migrators: [Migrating] = [
+            languageMigrator,
+            dbMigrator,
+            substrateDbMigrator,
+            assetManagementMigrator
+        ]
+
         let interactor = RootInteractor(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             settings: SelectedWalletSettings.shared,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [languageMigrator, dbMigrator, substrateDbMigrator],
+            migrators: migrators,
             logger: Logger.shared
         )
 

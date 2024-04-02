@@ -114,27 +114,6 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         currentCurrency = currency
         provideSelectedCurrency()
     }
-
-    func update(zeroBalanceAssetsHidden: Bool) {
-        let updatedWallet = selectedMetaAccount.replacingZeroBalanceAssetsHidden(zeroBalanceAssetsHidden)
-
-        let saveOperation = walletRepository.saveOperation {
-            [updatedWallet]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [weak self] in
-            let event = MetaAccountModelChangedEvent(account: updatedWallet)
-            self?.eventCenter.notify(with: event)
-
-            DispatchQueue.main.async {
-                self?.presenter?.didReceive(wallet: updatedWallet)
-            }
-        }
-
-        operationQueue.addOperation(saveOperation)
-    }
 }
 
 // MARK: - EventVisitorProtocol

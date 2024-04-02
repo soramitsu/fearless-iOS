@@ -139,18 +139,6 @@ final class WalletMainContainerInteractor {
 // MARK: - WalletMainContainerInteractorInput
 
 extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
-    func saveNetworkManagment(_ select: NetworkManagmentFilter) {
-        var updatedAccount: MetaAccountModel?
-
-        if select.identifier != wallet.networkManagmentFilter {
-            updatedAccount = wallet.replacingNetworkManagmentFilter(select.identifier)
-        }
-
-        if let updatedAccount = updatedAccount {
-            save(updatedAccount)
-        }
-    }
-
     func setup(with output: WalletMainContainerInteractorOutput) {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
@@ -177,6 +165,7 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         wallet = event.account
         output?.didReceiveAccount(event.account)
+        fetchNetworkManagmentFilter()
     }
 
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
