@@ -217,9 +217,10 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             return !(chainAsset.chain.rank != nil && chainAsset.asset.isUtility)
         }
 
-        return wallet.assetsVisibility.contains(where: {
+        let isHidden = wallet.assetsVisibility.contains(where: {
             $0.assetId == chainAsset.asset.id && $0.hidden
         })
+        return isHidden
     }
 
     private func createFilterButtonTitle(

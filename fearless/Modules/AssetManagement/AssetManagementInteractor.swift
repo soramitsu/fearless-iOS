@@ -70,9 +70,10 @@ actor AssetManagementInteractor {
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset]
     ) async {
-        let defaultVisibilityChainAssets = chainAssets.filter { $0.chain.rank != nil && $0.asset.isUtility }
-        let defaultVisibility = defaultVisibilityChainAssets.map {
-            AssetVisibility(assetId: $0.asset.id, hidden: false)
+        let defaultVisibility = chainAssets.map {
+            let isVisible = $0.chain.rank != nil && $0.asset.isUtility
+            let visibility = AssetVisibility(assetId: $0.asset.id, hidden: !isVisible)
+            return visibility
         }
         let updatedWallet = wallet.replacingAssetsVisibility(defaultVisibility)
         await updateVisibility(wallet: updatedWallet, assetId: assetId, hidden: hidden)
