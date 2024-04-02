@@ -46,6 +46,14 @@ final class CrossChainAssembly {
             chainRegistry: chainRegistry,
             chainId: chainAsset.chain.chainId
         )
+        let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        let storageRequestPerformer: StorageRequestPerformer? = runtimeService.flatMap {
+            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+                return nil
+            }
+
+            return StorageRequestPerformerDefault(runtimeService: $0, connection: connection)
+        }
 
         let interactor = CrossChainInteractor(
             chainAssetFetching: chainAssetFetching,
@@ -57,7 +65,8 @@ final class CrossChainAssembly {
             logger: Logger.shared,
             wallet: wallet,
             addressChainDefiner: addressChainDefiner,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            storageRequestPerformer: storageRequestPerformer
         )
         let router = CrossChainRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)

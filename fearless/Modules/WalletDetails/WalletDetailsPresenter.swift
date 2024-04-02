@@ -215,7 +215,7 @@ private extension WalletDetailsPresenter {
                         return .polkascan(url: url)
                     }
                 case .etherscan:
-                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                    if $0.types.contains(.address), let url = $0.explorerUrl(for: address, type: .address) {
                         return .etherscan(url: url)
                     }
                 case .reef:

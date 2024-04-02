@@ -10,6 +10,8 @@ protocol BalanceLocksDetailViewInput: ControllerBackedProtocol {
     func didReceiveGovernanceLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveCrowdloanLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
     func didReceiveTotalLocksViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
+    func didReceiveAssetFrozenViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
+    func didReceiveAssetBlockedViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async
 }
 
 protocol BalanceLocksDetailViewOutput: AnyObject {
@@ -27,6 +29,8 @@ protocol BalanceLocksDetailInteractorOutput: AnyObject {
     func didReceiveGovernanceLocks(_ balanceLocks: Decimal?) async
     func didReceiveCrowdloanLocks(_ crowdloanLocks: Decimal?) async
     func didReceiveVestingLocks(_ vestingLocks: Decimal?) async
+    func didReceiveAssetFrozen(_ frozen: Decimal?) async
+    func didReceiveAssetBlocked(_ blocked: Decimal?) async
     func didReceivePrice(_ price: PriceData?)
 
     func didReceiveStakingLocksError(_ error: Error) async
@@ -34,6 +38,8 @@ protocol BalanceLocksDetailInteractorOutput: AnyObject {
     func didReceiveGovernanceLocksError(_ error: Error) async
     func didReceiveCrowdloanLocksError(_ error: Error) async
     func didReceiveVestingLocksError(_ error: Error) async
+    func didReceiveAssetFrozenError(_ error: Error) async
+    func didReceiveAssetBlockedError(_ error: Error) async
     func didReceivePriceError(_ error: Error)
 }
 

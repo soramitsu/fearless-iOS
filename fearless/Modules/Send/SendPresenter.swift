@@ -33,12 +33,16 @@ final class SendPresenter {
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset? {
         didSet {
+            checkSendAllVisibility()
+
             DispatchQueue.main.async {
                 self.view?.setInputAccessoryView(visible: self.selectedChainAsset?.isBokolo == false)
             }
         }
     }
 
+    private var assetAccountInfo: NoneStateOptional<AssetAccountInfo?> = .none
+    private var frozenBalance: Decimal?
     private var selectedAsset: AssetModel?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
@@ -55,9 +59,13 @@ final class SendPresenter {
     private var balanceMinusFeeAndTip: Decimal {
         let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
         if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
-            return (balance ?? 0)
+            return (balance ?? 0) - (frozenBalance ?? 0)
         }
-        return (balance ?? 0) - (fee ?? 0) - (tip ?? 0)
+        return (balance ?? 0) - (fee ?? 0) - (tip ?? 0) - (frozenBalance ?? 0)
+    }
+
+    private var freeBalance: Decimal {
+        (balance ?? 0) - (frozenBalance ?? 0)
     }
 
     private var fullAmount: Decimal {
@@ -103,6 +111,11 @@ final class SendPresenter {
 
     // MARK: - Private methods
 
+    private func checkSendAllVisibility() {
+        let visible = minimumBalance.map { $0 > BigUInt.zero && freeBalance > 0 && selectedChainAsset?.isUtility == true }
+        view?.switchEnableSendAllVisibility(isVisible: visible == true)
+    }
+
     private func buildBalanceViewModelFactory(
         wallet: MetaAccountModel,
         for chainAsset: ChainAsset?
@@ -127,16 +140,20 @@ final class SendPresenter {
     }
 
     private func provideAssetVewModel() {
-        guard let chainAsset = selectedChainAsset else { return }
+        guard let chainAsset = selectedChainAsset, case let .value(assetInfo) = assetAccountInfo else { return }
+
         let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
 
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
 
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
+        let frozenBalance = assetInfo.map {
+            Decimal.fromSubstrateAmount($0.locked, precision: Int16(chainAsset.asset.precision)).or(.zero)
+        }
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
-            balance: balance,
+            balance: freeBalance,
             priceData: priceData,
             selectable: initialData.selectableAsset
         ).value(for: selectedLocale)
@@ -501,12 +518,12 @@ final class SendPresenter {
                 setMaxAction: { [weak self] in
                     self?.sendAllEnabled = true
                     self?.view?.switchEnableSendAllState(enabled: true)
-                    self?.selectAmountPercentage(1)
+                    self?.selectAmountPercentage(1, validate: false)
                 },
                 cancelAction: { [weak self] in
                     self?.sendAllEnabled = false
                     self?.view?.switchEnableSendAllState(enabled: false)
-                    self?.selectAmountPercentage(0)
+                    self?.selectAmountPercentage(0, validate: false)
                 }
             )]
         case .validateAll:
@@ -864,9 +881,9 @@ extension SendPresenter: SendViewOutput {
         }
     }
 
-    func selectAmountPercentage(_ percentage: Float) {
+    func selectAmountPercentage(_ percentage: Float, validate: Bool = true) {
         inputResult = .rate(Decimal(Double(percentage)))
-        if let chainAsset = selectedChainAsset {
+        if let chainAsset = selectedChainAsset, validate {
             validateInputData(
                 with: "",
                 chainAsset: chainAsset,
@@ -967,12 +984,25 @@ extension SendPresenter: SendViewOutput {
 
     func didSwitchSendAll(_ enabled: Bool) {
         sendAllEnabled = enabled
+        selectAmountPercentage(Float(enabled.intValue), validate: false)
     }
 }
 
 // MARK: - SendInteractorOutput
 
 extension SendPresenter: SendInteractorOutput {
+    func didReceiveAssetAccountInfo(assetAccountInfo: AssetAccountInfo?) {
+        self.assetAccountInfo = .value(assetAccountInfo)
+        frozenBalance = selectedChainAsset.flatMap { Decimal.fromSubstrateAmount((assetAccountInfo?.locked).or(.zero), precision: Int16($0.asset.precision)) }
+        provideAssetVewModel()
+    }
+
+    func didReceiveAssetAccountInfoError(error: Error) {
+        assetAccountInfo = .value(nil)
+        provideAssetVewModel()
+        logger?.customError(error)
+    }
+
     func didReceive(scamInfo: ScamInfo?) {
         self.scamInfo = scamInfo
         view?.didReceive(scamInfo: scamInfo)
@@ -992,6 +1022,7 @@ extension SendPresenter: SendInteractorOutput {
                 if chainAsset.isUtility {
                     utilityBalance = balance
                 }
+                checkSendAllVisibility()
             } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
                       utilityAsset == chainAsset {
                 utilityBalance = accountInfo.map {
@@ -1016,10 +1047,10 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
-            view?.switchEnableSendAllVisibility(isVisible: minimumBalance > BigUInt.zero)
+            checkSendAllVisibility()
             logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
-            view?.switchEnableSendAllVisibility(isVisible: false)
+            checkSendAllVisibility()
             logger?.error("Did receive minimum balance error: \(error)")
         }
     }

@@ -40,6 +40,10 @@ protocol BaseErrorPresentable {
         view: ControllerBackedProtocol,
         locale: Locale?
     )
+    func presentDestinationExistentialDepositError(
+        from view: ControllerBackedProtocol,
+        locale: Locale?
+    )
 }
 
 extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
@@ -112,7 +116,10 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let message = R.string.localizable
             .commonExistentialWarningMessage(existentianDepositValue, preferredLanguages: locale?.rLanguages)
 
-        let proceedHandler = SheetAlertPresentableAction(title: title, style: .pinkBackgroundWhiteText) {
+        let proceedHandler = SheetAlertPresentableAction(
+            title: R.string.localizable.commonProceed(preferredLanguages: locale?.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) {
             proceedHandler()
         }
         let setMaxTitle = R.string.localizable.commonExistentialWarningMaxAmount(preferredLanguages: locale?.rLanguages)
@@ -234,5 +241,17 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
         let title = R.string.localizable.commonAttention(preferredLanguages: locale.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
         present(message: message, title: title, closeAction: closeTitle, from: view, actions: [])
+    }
+
+    func presentDestinationExistentialDepositError(
+        from view: ControllerBackedProtocol,
+        locale: Locale?
+    ) {
+        let title = R.string.localizable
+            .walletSendDeadRecipientTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .walletSendDeadRecipientMessage(preferredLanguages: locale?.rLanguages)
+
+        presentError(for: title, message: message, view: view, locale: locale)
     }
 }

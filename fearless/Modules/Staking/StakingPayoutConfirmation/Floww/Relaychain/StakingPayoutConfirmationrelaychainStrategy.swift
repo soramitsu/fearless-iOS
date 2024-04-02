@@ -121,7 +121,6 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
             switch rewardDestination {
             case .restake:
                 output?.didReceiveRewardDestination(result: .success(.restake))
-
             case let .payout(payoutAddress):
                 fetchChainAccount(
                     chain: chainAsset.chain,
@@ -264,7 +263,8 @@ extension StakingPayoutConfirmationRelayachainStrategy: RelaychainStakingLocalSt
 
             if let stashItem = stashItem,
                let accountId = try? AddressFactory.accountId(from: stashItem.stash, chain: chainAsset.chain) {
-                payeeProvider = subscribePayee(for: accountId, chainAsset: chainAsset)
+                let utilityChainAsset = chainAsset.chain.utilityChainAssets().first.or(chainAsset)
+                payeeProvider = subscribePayee(for: accountId, chainAsset: utilityChainAsset)
             } else {
                 output?.didReceiveRewardDestination(result: .success(nil))
             }
