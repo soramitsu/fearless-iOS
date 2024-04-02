@@ -2859,6 +2859,7 @@
 		FACD42BF2A5BE93D009975AA /* polkadot-9370metadata in Resources */ = {isa = PBXBuildFile; fileRef = FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */; };
 		FACD42C12A5C10BB009975AA /* TransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42C02A5C10BB009975AA /* TransferService.swift */; };
 		FACE6C232BB6C37900643CEF /* LiquidityPoolListCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE6C222BB6C37900643CEF /* LiquidityPoolListCellModel.swift */; };
+		FACE6C652BBBBC8C00643CEF /* LiquidityPoolListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACE6C642BBBBC8C00643CEF /* LiquidityPoolListViewModel.swift */; };
 		FAD0068027EA252400C97E09 /* AboutViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */; };
 		FAD0068127EA252400C97E09 /* AboutViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067F27EA252400C97E09 /* AboutViewState.swift */; };
 		FAD0068427EA255900C97E09 /* AboutTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */; };
@@ -5992,6 +5993,7 @@
 		FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-9370metadata"; sourceTree = "<group>"; };
 		FACD42C02A5C10BB009975AA /* TransferService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferService.swift; sourceTree = "<group>"; };
 		FACE6C222BB6C37900643CEF /* LiquidityPoolListCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolListCellModel.swift; sourceTree = "<group>"; };
+		FACE6C642BBBBC8C00643CEF /* LiquidityPoolListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolListViewModel.swift; sourceTree = "<group>"; };
 		FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewModelFactory.swift; sourceTree = "<group>"; };
 		FAD0067F27EA252400C97E09 /* AboutViewState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewState.swift; sourceTree = "<group>"; };
 		FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutTableViewCell.swift; sourceTree = "<group>"; };
@@ -14963,6 +14965,7 @@
 			isa = PBXGroup;
 			children = (
 				FACE6C222BB6C37900643CEF /* LiquidityPoolListCellModel.swift */,
+				FACE6C642BBBBC8C00643CEF /* LiquidityPoolListViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -18733,6 +18736,7 @@
 				982BB3FA25BA6AD5443B24C6 /* NetworkIssuesNotificationPresenter.swift in Sources */,
 				BF3753B93B3E94BE1ECB9E81 /* NetworkIssuesNotificationInteractor.swift in Sources */,
 				445F1F1FB3ECC47D8DD2FBEA /* NetworkIssuesNotificationViewController.swift in Sources */,
+				FACE6C652BBBBC8C00643CEF /* LiquidityPoolListViewModel.swift in Sources */,
 				737F71CCDF39E7A400EBB7C0 /* NetworkIssuesNotificationViewLayout.swift in Sources */,
 				38BFEDD4B9F31EF2532962BD /* NetworkIssuesNotificationAssembly.swift in Sources */,
 				A4FE32D50E4B7CB5B53E0067 /* StakingPoolInfoProtocols.swift in Sources */,

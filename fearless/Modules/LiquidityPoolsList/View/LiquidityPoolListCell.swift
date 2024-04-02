@@ -50,6 +50,18 @@ class LiquidityPoolListCell: UITableViewCell {
         drawSubviews()
         setupConstraints()
     }
+    
+    func bind(viewModel: LiquidityPoolListCellModel) {
+        tokenPairIconsView.bind(viewModel: viewModel.tokenPairIconsVieWModel)
+        tokenPairNameLabel.text = viewModel.tokenPairNameLabelText
+        rewardTokenNameLabel.text = viewModel.rewardTokenNameLabelText
+        apyLabel.text = viewModel.apyLabelText
+        stakingStatusLabel.text = viewModel.stakingStatusLabelText
+        reservesLabel.text = viewModel.reservesLabelText
+        
+        stakingStatusLabel.isHidden = viewModel.stakingStatusLabelText == nil
+        reservesLabel.isHidden = viewModel.reservesLabelText == nil
+    }
 
     private func drawSubviews() {
         addSubview(tokenPairIconsView)

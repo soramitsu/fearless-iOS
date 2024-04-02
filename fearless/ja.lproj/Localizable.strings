@@ -1137,3 +1137,4 @@
 "сurrencies.stub.text" = "通貨";
 "balance.locks.blocked.row.title" = "Blocked";
 "wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
+"common.more" = "more";
