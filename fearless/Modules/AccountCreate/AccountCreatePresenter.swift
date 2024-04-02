@@ -122,7 +122,7 @@ final class AccountCreatePresenter {
                 locale: locale
             )
         } else {
-            switch cryptoType.utilsType {
+            switch cryptoType {
             case .sr25519:
                 _ = wireframe.present(
                     error: AccountCreationError.invalidDerivationHardSoftPassword,

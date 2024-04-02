@@ -33,7 +33,7 @@ final class AnalyticsStakeInteractor {
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         stashItemProvider = subscribeStashItemProvider(for: selectedAccountAddress)
     }

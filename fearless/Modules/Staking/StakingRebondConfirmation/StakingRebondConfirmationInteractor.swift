@@ -32,7 +32,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
 extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteractorInputProtocol {
     func setup() {
         strategy.setup()
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 
     func submit(builderClosure: ExtrinsicBuilderClosure?) {

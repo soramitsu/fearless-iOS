@@ -184,7 +184,7 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
             self?.output?.didReceive(palletIdResult: result)
         }
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchPoolInfo(poolId: poolId)
 

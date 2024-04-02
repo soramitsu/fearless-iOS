@@ -9,7 +9,6 @@ protocol HistoryDataProviderFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         targetIdentifier: String,
-        using _: DispatchQueue,
         filters: [WalletTransactionHistoryFilter]
     ) throws
         -> SingleValueProvider<AssetTransactionPageData>
@@ -20,10 +19,7 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
     let executionQueue = OperationQueue()
     let operationFactory: HistoryOperationFactoryProtocol
 
-    init(
-        cacheFacade _: StorageFacadeProtocol,
-        operationFactory: HistoryOperationFactoryProtocol
-    ) {
+    init(operationFactory: HistoryOperationFactoryProtocol) {
         self.operationFactory = operationFactory
 
         super.init()
@@ -38,7 +34,6 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
         asset: AssetModel,
         chain: ChainModel,
         targetIdentifier: String,
-        using _: DispatchQueue,
         filters: [WalletTransactionHistoryFilter]
     ) throws
         -> SingleValueProvider<AssetTransactionPageData> {

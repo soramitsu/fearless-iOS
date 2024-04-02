@@ -91,7 +91,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         estimateFee()
         feeProxy.delegate = self

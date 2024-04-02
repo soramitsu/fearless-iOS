@@ -135,7 +135,7 @@ extension ClaimCrowdloanRewardsInteractor: ClaimCrowdloanRewardsInteractorInput 
     func setup(with output: ClaimCrowdloanRewardsInteractorOutput) {
         self.output = output
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         fetchBalanceLocks()
         fetchTokenLocks()
         fetchAccountInfo()

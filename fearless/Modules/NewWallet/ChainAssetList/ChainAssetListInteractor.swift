@@ -240,7 +240,7 @@ private extension ChainAssetListInteractor {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     func resetAccountInfoSubscription() {

@@ -17,7 +17,7 @@ final class StakingRewardDetailsInteractor {
 
 extension StakingRewardDetailsInteractor: StakingRewardDetailsInteractorInputProtocol {
     func setup() {
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }
 

@@ -68,7 +68,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
             output?.didReceivePricesData(result: .success([]))
             return
         }
-        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func fetchIsPairAvailableAndMarkets(
@@ -156,7 +156,7 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
 
     func didReceive(_ fromChainAsset: ChainAsset?, _ toChainAsset: ChainAsset?) {
         let chainAssets = [xorChainAsset, fromChainAsset, toChainAsset].compactMap { $0 }
-        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
         subscribeToAccountInfo(for: chainAssets)
 
         guard let fromAssetId = fromChainAsset?.asset.currencyId,

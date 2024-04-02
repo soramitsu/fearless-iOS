@@ -49,7 +49,7 @@ extension StakingMainInteractor {
             return
         }
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
     }
 
     func performAccountInfoSubscription() {

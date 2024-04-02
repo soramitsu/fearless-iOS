@@ -404,7 +404,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrices(for: [chainAsset, stakingSettings.value].compactMap { $0 }, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, stakingSettings.value].compactMap { $0 }, listener: self)
     }
 
 //    Parachain

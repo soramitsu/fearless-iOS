@@ -59,7 +59,7 @@ extension AssetNetworksInteractor: AssetNetworksInteractorInput {
             handler: self,
             deliveryOn: .main
         )
-        pricesProvider = try? priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
+        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 }
 

@@ -30,7 +30,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     }
 
     private func subscribeForPrices() {
-        priceProvider = try? priceLocalSubscriber.subscribeToPrices(for: [chainAsset.chain.utilityChainAssets().first, chainAsset].compactMap { $0 }, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset.chain.utilityChainAssets().first, chainAsset].compactMap { $0 }, listener: self)
     }
 }
 

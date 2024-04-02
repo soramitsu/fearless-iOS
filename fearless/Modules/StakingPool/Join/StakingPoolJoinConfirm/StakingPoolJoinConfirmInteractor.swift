@@ -78,7 +78,7 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
         self.output = output
         feeProxy.delegate = self
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         fetchCompoundConstant(
             for: .nominationPoolsPalletId,

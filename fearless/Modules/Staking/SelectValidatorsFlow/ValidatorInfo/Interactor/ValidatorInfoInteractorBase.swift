@@ -22,7 +22,7 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
 
     func setup() {
         strategy.setup()
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 
     func reload() {

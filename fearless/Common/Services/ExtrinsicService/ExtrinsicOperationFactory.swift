@@ -214,7 +214,7 @@ final class ExtrinsicOperationFactory {
 
                 builder = try customClosure(builder, index).signing(
                     by: signingClosure,
-                    of: currentCryptoType.utilsType,
+                    of: currentCryptoType,
                     using: codingFactory.createEncoder(),
                     metadata: codingFactory.metadata
                 )

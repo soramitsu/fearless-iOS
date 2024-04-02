@@ -35,7 +35,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     func setup() {
         accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: balanceAccountId, handler: self)
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         strategy.setup()
         strategy.subscribeToBalance()

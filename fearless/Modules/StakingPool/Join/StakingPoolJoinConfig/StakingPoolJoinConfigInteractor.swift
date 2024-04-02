@@ -88,7 +88,7 @@ extension StakingPoolJoinConfigInteractor: StakingPoolJoinConfigInteractorInput 
         self.output = output
         feeProxy.delegate = self
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(

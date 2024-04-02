@@ -198,12 +198,12 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     private func saveBackupAccountToCloudStorage(
         account: OpenBackupAccount,
         password: String,
-        wallet _: MetaAccountModel
+        wallet: MetaAccountModel
     ) {
         Task {
             do {
                 try await cloudStorage?.saveBackup(account: account, password: password)
-
+                didBackuped(wallet: wallet)
                 await MainActor.run {
                     self.output?.didComplete()
                 }

@@ -98,7 +98,6 @@ enum WalletTransactionHistoryViewFactory {
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
-            cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory
         )
 

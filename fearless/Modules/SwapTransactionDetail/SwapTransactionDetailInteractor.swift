@@ -24,7 +24,7 @@ final class SwapTransactionDetailInteractor {
     // MARK: - Private methods
 
     private func subscribeToPrice(for chainAsset: ChainAsset) {
-        pricesProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        pricesProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
     }
 }
 

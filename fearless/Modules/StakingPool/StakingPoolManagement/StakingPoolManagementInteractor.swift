@@ -186,7 +186,7 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
         }
 
-        priceProvider = try? priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
