@@ -141,16 +141,16 @@ final class SendDepencyContainer {
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
                 accountId: accountResponse.accountId,
                 chainFormat: chainAsset.chain.chainFormat.asSfCrypto(),
-                cryptoType: SFCryptoType(accountResponse.cryptoType),
+                cryptoType: accountResponse.cryptoType,
                 runtimeRegistry: runtimeService,
                 engine: connection,
                 operationManager: operationManager
             )
             let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
-            let signer = TransactionSigner(
+            let signer = SubstrateTransactionSigner(
                 publicKeyData: accountResponse.publicKey,
                 secretKeyData: secretKey,
-                cryptoType: SFCryptoType(utilsType: accountResponse.cryptoType, isEthereum: chainAsset.chain.isEthereumBased)
+                cryptoType: accountResponse.cryptoType
             )
 
             let callFactory = SubstrateCallFactoryDefault(runtimeService: nativeRuntimeService)

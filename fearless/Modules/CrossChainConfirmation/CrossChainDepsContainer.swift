@@ -77,10 +77,11 @@ final class CrossChainDepsContainer {
 
         let fromChainData = XcmAssembly.FromChainData(
             chainId: originalChainAsset.chain.chainId,
-            cryptoType: SFCryptoType(utilsType: cryptoType, isEthereum: response.isEthereumBased),
+            cryptoType: cryptoType,
             chainMetadata: originalRuntimeMetadataItem,
             accountId: accountId,
-            signingWrapperData: signingWrapperData
+            signingWrapperData: signingWrapperData,
+            chainType: originalChainAsset.chain.chainBaseType
         )
 
         let sourceConfig = ApplicationConfig.shared
