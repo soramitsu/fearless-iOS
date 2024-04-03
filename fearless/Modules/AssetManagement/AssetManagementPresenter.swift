@@ -38,6 +38,7 @@ final class AssetManagementPresenter {
     private let logger: LoggerProtocol
     private let wallet: MetaAccountModel
     private let viewModelFactory: AssetManagementViewModelFactory
+    private let networkFilter: NetworkManagmentFilter?
 
     private var currentNetworkFilter: NetworkManagmentFilter?
     private var chainAssets: [ChainAsset] = []
@@ -55,7 +56,7 @@ final class AssetManagementPresenter {
         router: AssetManagementRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
-        currentNetworkFilter = networkFilter
+        self.networkFilter = networkFilter
         self.wallet = wallet
         self.interactor = interactor
         self.router = router
@@ -66,7 +67,10 @@ final class AssetManagementPresenter {
 
     // MARK: - Private methods
 
-    private func provideViewModel(with search: String? = nil) {
+    private func provideViewModel(
+        with search: String? = nil,
+        networkFilter: NetworkManagmentFilter? = nil
+    ) {
         Task {
             let viewModel = viewModelFactory.buildViewModel(
                 chainAssets: chainAssets,
@@ -74,7 +78,7 @@ final class AssetManagementPresenter {
                 prices: prices,
                 wallet: wallet,
                 locale: selectedLocale,
-                filter: currentNetworkFilter,
+                filter: networkFilter ?? self.networkFilter,
                 search: search
             )
             await view?.didReceive(viewModel: viewModel, for: nil)
@@ -123,6 +127,11 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
     }
 
     func doneButtonDidTapped() {
+        guard currentNetworkFilter == nil else {
+            currentNetworkFilter = nil
+            provideViewModel()
+            return
+        }
         router.dismiss(view: view)
     }
 
@@ -155,6 +164,9 @@ extension AssetManagementPresenter: AssetManagementInteractorOutput {
     ) {
         switch result {
         case let .success(priceDataResult):
+            guard prices.isEmpty else {
+                return
+            }
             prices = priceDataResult
             provideViewModel()
         case let .failure(error):
@@ -176,6 +188,6 @@ extension AssetManagementPresenter: AssetManagementModuleInput {}
 extension AssetManagementPresenter: NetworkManagmentModuleOutput {
     func did(select: NetworkManagmentFilter, contextTag _: Int?) {
         currentNetworkFilter = select
-        getInitialData()
+        provideViewModel(networkFilter: currentNetworkFilter)
     }
 }
