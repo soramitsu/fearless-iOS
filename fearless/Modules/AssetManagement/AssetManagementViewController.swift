@@ -93,6 +93,7 @@ extension AssetManagementViewController: AssetManagementViewInput {
         rootView.setFilter(title: viewModel.filterButtonTitle)
         rootView.setAddAssetButton(visible: viewModel.addAssetButtonIsHidden)
         if let indexPath {
+            rootView.tableView.beginUpdates()
             if
                 let oldViewModel = self.viewModel,
                 oldViewModel.list[indexPath.section].isAllDisabled != viewModel.list[indexPath.section].isAllDisabled {
@@ -103,6 +104,7 @@ extension AssetManagementViewController: AssetManagementViewInput {
                 self.viewModel = viewModel
                 rootView.tableView.reloadRows(at: [indexPath], with: .none)
             }
+            rootView.tableView.endUpdates()
         } else {
             self.viewModel = viewModel
             rootView.tableView.reloadData()

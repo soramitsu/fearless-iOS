@@ -99,10 +99,12 @@ final class AssetManagementTableCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        let containerView = UIView()
+        contentView.addSubview(containerView)
         let assetTextsContainer = UIFactory.default.createVerticalStackView()
         let balanceTextsContainer = UIFactory.default.createVerticalStackView()
 
-        contentView.snp.makeConstraints { make in
+        containerView.snp.makeConstraints { make in
             make.height.equalTo(55)
             make.width.equalToSuperview()
         }
@@ -122,7 +124,7 @@ final class AssetManagementTableCell: UITableViewCell {
             assetTextsContainer,
             balanceTextsContainer,
             switchView
-        ].forEach { contentView.addSubview($0) }
+        ].forEach { containerView.addSubview($0) }
 
         iconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
