@@ -163,13 +163,6 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
             context: nil
         )
 
-        let lpFeeDecimal = Decimal(string: swap.liquidityProviderFee) ?? .zero
-        let lpFee = AssetTransactionFee(
-            identifier: swap.baseAssetId,
-            assetId: swap.baseAssetId,
-            amount: AmountDecimal(value: lpFeeDecimal),
-            context: ["type": TransactionType.swap.rawValue]
-        )
         // Selected market: empty: smart; else first?
         return AssetTransactionData(
             transactionId: identifier,
@@ -181,7 +174,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
             peerName: swap.selectedMarket,
             details: swap.baseAssetAmount,
             amount: AmountDecimal(value: amountDecimal),
-            fees: [fee, lpFee],
+            fees: [fee],
             timestamp: itemTimestamp,
             type: TransactionType.swap.rawValue,
             reason: nil,

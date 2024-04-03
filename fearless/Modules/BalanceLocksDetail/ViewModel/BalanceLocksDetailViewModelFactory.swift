@@ -33,6 +33,16 @@ protocol BalanceLockDetailViewModelFactory {
         vestingLocks: Decimal?,
         priceData: PriceData?
     ) -> LocalizableResource<BalanceViewModelProtocol>?
+
+    func buildAssetFrozenViewModel(
+        assetFrozen: Decimal?,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>?
+
+    func buildAssetBlockedViewModel(
+        assetBlocked: Decimal?,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>?
 }
 
 final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModelFactory {
@@ -167,6 +177,28 @@ final class BalanceLockDetailViewModelFactoryDefault: BalanceLockDetailViewModel
 
         return balanceViewModelFactory.balanceFromPrice(
             totalLocks,
+            priceData: priceData,
+            usageCase: .detailsCrypto
+        )
+    }
+
+    func buildAssetFrozenViewModel(
+        assetFrozen: Decimal?,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        balanceViewModelFactory.balanceFromPrice(
+            assetFrozen.or(.zero),
+            priceData: priceData,
+            usageCase: .detailsCrypto
+        )
+    }
+
+    func buildAssetBlockedViewModel(
+        assetBlocked: Decimal?,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        balanceViewModelFactory.balanceFromPrice(
+            assetBlocked.or(.zero),
             priceData: priceData,
             usageCase: .detailsCrypto
         )

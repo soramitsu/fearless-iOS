@@ -125,7 +125,6 @@ final class SendViewController: UIViewController, ViewHolder {
 
     @objc private func sendAllToggleSwitched() {
         output.didSwitchSendAll(rootView.sendAllSwitch.isOn)
-        output.selectAmountPercentage(Float(rootView.sendAllSwitch.isOn.intValue))
     }
 }
 
@@ -286,7 +285,7 @@ extension SendViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         rootView.amountView.textField.resignFirstResponder()
 
-        output.selectAmountPercentage(percentage)
+        output.selectAmountPercentage(percentage, validate: true)
     }
 
     func didSelectDone(on _: AmountInputAccessoryView) {

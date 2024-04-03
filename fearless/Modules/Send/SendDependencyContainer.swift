@@ -19,6 +19,7 @@ struct SendDependencies {
     let transferService: TransferServiceProtocol
     let accountInfoFetching: AccountInfoFetchingProtocol
     let polkaswapService: PolkaswapService?
+    let storageRequestPerformer: StorageRequestPerformer?
 }
 
 final class SendDepencyContainer {
@@ -61,6 +62,14 @@ final class SendDepencyContainer {
         let transferService = try await createTransferService(for: chainAsset, runtimeItem: runtimeItem)
         let polkaswapService = createPolkaswapService(chainAsset: chainAsset, chainRegistry: chainRegistry)
         let accountInfoFetching = createAccountInfoFetching(for: chainAsset)
+
+        let storageRequestPerformer: StorageRequestPerformer? = runtimeService.flatMap {
+            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+                return nil
+            }
+
+            return StorageRequestPerformerDefault(runtimeService: $0, connection: connection)
+        }
         let dependencies = SendDependencies(
             wallet: wallet,
             chainAsset: chainAsset,
@@ -69,7 +78,8 @@ final class SendDepencyContainer {
             equilibruimTotalBalanceService: equilibruimTotalBalanceService,
             transferService: transferService,
             accountInfoFetching: accountInfoFetching,
-            polkaswapService: polkaswapService
+            polkaswapService: polkaswapService,
+            storageRequestPerformer: storageRequestPerformer
         )
 
         cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies

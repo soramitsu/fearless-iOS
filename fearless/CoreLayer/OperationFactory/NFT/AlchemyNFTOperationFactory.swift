@@ -283,7 +283,6 @@ final class AlchemyNFTOperationFactory {
         nextId: String?
     ) -> BaseOperation<AlchemyNftsResponse> {
         let authorizedUrl = url.appendingPathComponent(alchemyApiKey)
-        print(alchemyApiKey)
         let endpointUrl = authorizedUrl.appendingPathComponent("getNFTsForCollection")
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [
