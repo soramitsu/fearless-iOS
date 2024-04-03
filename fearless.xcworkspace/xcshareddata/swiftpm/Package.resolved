@@ -50,8 +50,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GoogleSignIn-iOS",
       "state" : {
-        "revision" : "7932d33686c1dc4d7df7a919aae47361d1cdfda4",
-        "version" : "7.0.0"
+        "revision" : "a7965d134c5d3567026c523e0a8a583f73b62b0d",
+        "version" : "7.1.0"
       }
     },
     {
@@ -68,8 +68,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/GTMAppAuth.git",
       "state" : {
-        "revision" : "cee3c709307912d040bd1e06ca919875a92339c6",
-        "version" : "2.0.0"
+        "revision" : "5d7d66f647400952b1758b230e019b07c0b4b22a",
+        "version" : "4.1.1"
       }
     },
     {
@@ -133,6 +133,15 @@
       "state" : {
         "revision" : "cd187c632fb812fd93711a9f7e644adb7e5f97f0",
         "version" : "0.1.7"
+      }
+    },
+    {
+      "identity" : "shared-features-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soramitsu/shared-features-spm.git",
+      "state" : {
+        "branch" : "fw-adoption",
+        "revision" : "8a9ab098368b62aa94258193fb28128be4defc3e"
       }
     },
     {
@@ -214,15 +223,6 @@
       "state" : {
         "revision" : "5ca09b6a2ad190f94aa3d6ddef45b187f8c0343b",
         "version" : "1.0.3"
-      }
-    },
-    {
-      "identity" : "swiftformat",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nicklockwood/SwiftFormat",
-      "state" : {
-        "revision" : "9e5d0d588ab6e271fe9887ec3dde21d544d4b080",
-        "version" : "0.53.5"
       }
     },
     {
