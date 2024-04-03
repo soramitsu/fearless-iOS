@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 protocol AssetManagementViewOutput: AnyObject {
     func didLoad(view: AssetManagementViewInput)
@@ -10,7 +11,7 @@ protocol AssetManagementViewOutput: AnyObject {
     func didTap(on section: Int, viewModel: AssetManagementViewModel)
 }
 
-final class AssetManagementViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+final class AssetManagementViewController: UIViewController, ViewHolder, HiddableBarWhenPushed, KeyboardViewAdoptable {
     typealias RootViewType = AssetManagementViewLayout
 
     // MARK: Private properties
@@ -46,6 +47,19 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
         output.didLoad(view: self)
         configureTableView()
         bindActions()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -84,6 +98,13 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
         }
         output.didTap(on: section, viewModel: viewModel)
     }
+
+    // MARK: - KeyboardViewAdoptable
+
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
 // MARK: - AssetManagementViewInput

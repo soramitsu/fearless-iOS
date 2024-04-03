@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class AssetManagementViewLayout: UIView {
     var locale: Locale = .current {
@@ -6,6 +7,8 @@ final class AssetManagementViewLayout: UIView {
             applyLocalization()
         }
     }
+
+    var keyboardAdoptableConstraint: Constraint?
 
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar(backButtonAlignment: .none)
@@ -110,7 +113,8 @@ final class AssetManagementViewLayout: UIView {
 
         tableView.snp.makeConstraints { make in
             make.top.equalTo(manageAssetStubLabel.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
 
         addAssetButton.snp.makeConstraints { make in
