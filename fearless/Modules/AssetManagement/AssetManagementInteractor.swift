@@ -4,6 +4,7 @@ import RobinHood
 
 protocol AssetManagementInteractorOutput: AnyObject {
     func didReceivePricesData(result: Result<[PriceData], Error>)
+    func didReceiveUpdated(wallet: MetaAccountModel)
 }
 
 actor AssetManagementInteractor {
@@ -29,6 +30,8 @@ actor AssetManagementInteractor {
         self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.eventCenter = eventCenter
+
+        self.eventCenter.add(observer: self)
     }
 
     deinit {
@@ -137,6 +140,16 @@ extension AssetManagementInteractor: PriceLocalSubscriptionHandler {
     nonisolated func handlePrices(result: Result<[PriceData], Error>) {
         Task {
             await output?.didReceivePricesData(result: result)
+        }
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension AssetManagementInteractor: EventVisitorProtocol {
+    nonisolated func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        Task {
+            await output?.didReceiveUpdated(wallet: event.account)
         }
     }
 }

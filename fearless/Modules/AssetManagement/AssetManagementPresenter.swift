@@ -36,7 +36,7 @@ final class AssetManagementPresenter {
     private let router: AssetManagementRouterInput
     private let interactor: AssetManagementInteractorInput
     private let logger: LoggerProtocol
-    private let wallet: MetaAccountModel
+    private var wallet: MetaAccountModel
     private let viewModelFactory: AssetManagementViewModelFactory
     private let networkFilter: NetworkManagmentFilter?
 
@@ -71,6 +71,9 @@ final class AssetManagementPresenter {
         with search: String? = nil,
         networkFilter: NetworkManagmentFilter? = nil
     ) {
+        guard chainAssets.isNotEmpty else {
+            return
+        }
         Task {
             let viewModel = viewModelFactory.buildViewModel(
                 chainAssets: chainAssets,
@@ -172,6 +175,10 @@ extension AssetManagementPresenter: AssetManagementInteractorOutput {
         case let .failure(error):
             logger.customError(error)
         }
+    }
+
+    func didReceiveUpdated(wallet: MetaAccountModel) {
+        self.wallet = wallet
     }
 }
 
