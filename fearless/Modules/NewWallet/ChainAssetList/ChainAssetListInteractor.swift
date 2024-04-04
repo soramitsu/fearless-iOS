@@ -10,7 +10,7 @@ final class ChainAssetListInteractor {
 
     enum Constants {
         static let remoteFetchTimerTimeInterval: TimeInterval = 30
-        static let shouldPlayAssetManagementAnimateKey = UUID().uuidString
+        static let shouldPlayAssetManagementAnimateKey = "asset.manage.button.animation"
     }
 
     private weak var output: ChainAssetListInteractorOutput?
