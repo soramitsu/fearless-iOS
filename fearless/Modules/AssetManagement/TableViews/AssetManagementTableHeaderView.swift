@@ -73,23 +73,16 @@ final class AssetManagementTableHeaderView: UITableViewHeaderFooterView {
     // MARK: - Private methods
 
     private func setupLayout() {
-        let containerView = UIView()
-        contentView.addSubview(containerView)
         [
             assetImageView,
             textContainer,
             imageView
-        ].forEach { containerView.addSubview($0) }
+        ].forEach { contentView.addSubview($0) }
 
         [
             symbolLabel,
             countLabel
         ].forEach { textContainer.addArrangedSubview($0) }
-
-        containerView.snp.makeConstraints { make in
-            make.height.equalTo(55)
-            make.width.equalToSuperview()
-        }
 
         assetImageView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
@@ -102,16 +95,8 @@ final class AssetManagementTableHeaderView: UITableViewHeaderFooterView {
             make.centerY.equalToSuperview()
         }
 
-        symbolLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-        }
-
-        countLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-        }
-
         imageView.snp.makeConstraints { make in
-            make.leading.equalTo(textContainer.snp.trailing)
+            make.leading.greaterThanOrEqualTo(textContainer.snp.trailing).offset(12).priority(.low)
             make.trailing.equalToSuperview().inset(16)
             make.centerY.equalToSuperview()
             make.size.equalTo(16)

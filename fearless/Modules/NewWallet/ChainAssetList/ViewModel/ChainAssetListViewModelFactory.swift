@@ -67,12 +67,18 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         }
 
         let isColdBoot = chainAssetCellModels.filter { !$0.priceDataWasUpdated }.isNotEmpty
-        let emptyStateIsActive = chainAssetCellModels.isEmpty && isSearch
         let shouldRunManageAssetAnimate = shouldRunManageAssetAnimate && !isColdBoot
+
+        var emptyState: ChainAssetListViewModelEmptyState?
+        if chainAssetCellModels.isEmpty, isSearch {
+            emptyState = .search
+        } else if chainAssetCellModels.isEmpty {
+            emptyState = .hidden
+        }
 
         return ChainAssetListViewModel(
             cells: chainAssetCellModels,
-            emptyStateIsActive: emptyStateIsActive,
+            emptyState: emptyState,
             isSearch: isSearch,
             shouldRunManageAssetAnimate: shouldRunManageAssetAnimate
         )

@@ -12,6 +12,12 @@ final class ChainAssetListViewLayout: UIView {
         )
     }
 
+    var locale: Locale? {
+        didSet {
+            applyLocalization()
+        }
+    }
+
     enum ViewState {
         case normal
         case empty
@@ -45,7 +51,6 @@ final class ChainAssetListViewLayout: UIView {
         button.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
         button.imageWithTitleView?.titleColor = R.color.colorWhite()!
         button.imageWithTitleView?.titleFont = .h4Title
-        button.imageWithTitleView?.title = "Manage assets"
         return button
     }()
 
@@ -72,12 +77,17 @@ final class ChainAssetListViewLayout: UIView {
         let size = CGSize(width: tableView.bounds.width, height: UIConstants.actionHeight)
         let footerContainer = UIView(frame: CGRect(origin: .zero, size: size))
         footerContainer.addSubview(assetManagementButton)
-        assetManagementButton.snp.makeConstraints { make in
+        assetManagementButton.snp.remakeConstraints { make in
             make.top.bottom.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
         tableView.tableFooterView = footerContainer
+    }
+
+    func removeFooterView() {
+        assetManagementButton.removeFromSuperview()
+        tableView.tableFooterView = nil
     }
 
     func runManageAssetAnimate(finish: @escaping (() -> Void)) {
@@ -122,5 +132,9 @@ final class ChainAssetListViewLayout: UIView {
             make.leading.top.trailing.equalToSuperview()
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
+    }
+
+    private func applyLocalization() {
+        assetManagementButton.imageWithTitleView?.title = R.string.localizable.walletManageAssets(preferredLanguages: locale?.rLanguages)
     }
 }

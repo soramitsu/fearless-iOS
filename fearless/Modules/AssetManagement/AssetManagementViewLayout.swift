@@ -47,6 +47,7 @@ final class AssetManagementViewLayout: UIView {
         return label
     }()
 
+    let container = UIView()
     let tableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .grouped)
         tableView.separatorStyle = .none
@@ -91,9 +92,10 @@ final class AssetManagementViewLayout: UIView {
             navigationBar,
             searchTextField,
             manageAssetStubLabel,
-            tableView,
+            container,
             addAssetButton
         ].forEach { addSubview($0) }
+        container.addSubview(tableView)
 
         navigationBar.snp.makeConstraints { make in
             make.top.equalToSuperview()
@@ -111,10 +113,14 @@ final class AssetManagementViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
-        tableView.snp.makeConstraints { make in
+        container.snp.makeConstraints { make in
             make.top.equalTo(manageAssetStubLabel.snp.bottom).offset(UIConstants.bigOffset)
             make.leading.trailing.equalToSuperview()
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+        }
+
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
         addAssetButton.snp.makeConstraints { make in

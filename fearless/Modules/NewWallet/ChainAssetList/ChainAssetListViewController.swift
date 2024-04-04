@@ -158,8 +158,11 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
                 return
             }
 
-            rootView.tableView.reloadData()
             reloadEmptyState(animated: false)
+            rootView.tableView.reloadData()
+            if viewModel.emptyStateIsActive {
+                return
+            }
 
             if viewModel.shouldRunManageAssetAnimate {
                 rootView.runManageAssetAnimate(finish: { [weak self] in
@@ -174,7 +177,9 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
 // MARK: - Localizable
 
 extension ChainAssetListViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
 
 extension ChainAssetListViewController: SwipableTableViewCellDelegate {
@@ -243,12 +248,26 @@ extension ChainAssetListViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         let emptyView = EmptyView()
         emptyView.image = R.image.iconWarningGray()
-        emptyView.title = R.string.localizable
-            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.text = R.string.localizable.emptyViewDescription(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.title = R.string.localizable.emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = viewModel?.emptyState?.text.value(for: selectedLocale)
         emptyView.iconMode = .smallFilled
         emptyView.contentAlignment = ContentAlignment(vertical: .top, horizontal: .center)
-        return emptyView
+
+        let container = UIFactory.default.createVerticalStackView(spacing: 16)
+        container.addArrangedSubview(emptyView)
+        container.addArrangedSubview(rootView.assetManagementButton)
+        container.addArrangedSubview(UIView())
+
+        emptyView.snp.makeConstraints { make in
+            make.height.equalTo(170)
+        }
+
+        rootView.assetManagementButton.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        return container
     }
 
     var contentViewForEmptyState: UIView {
@@ -261,6 +280,7 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let viewModel = viewModel else { return false }
+        viewModel.emptyStateIsActive ? rootView.removeFooterView() : rootView.setFooterView()
         return viewModel.emptyStateIsActive
     }
 }

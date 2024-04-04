@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 import SoraFoundation
 import SnapKit
 
@@ -110,26 +111,12 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
 // MARK: - AssetManagementViewInput
 
 extension AssetManagementViewController: AssetManagementViewInput {
-    func didReceive(viewModel: AssetManagementViewModel, for indexPath: IndexPath?) {
+    func didReceive(viewModel: AssetManagementViewModel, for _: IndexPath?) {
+        self.viewModel = viewModel
         rootView.setFilter(title: viewModel.filterButtonTitle)
         rootView.setAddAssetButton(visible: viewModel.addAssetButtonIsHidden)
-        if let indexPath {
-            rootView.tableView.beginUpdates()
-            if
-                let oldViewModel = self.viewModel,
-                oldViewModel.list[indexPath.section].isAllDisabled != viewModel.list[indexPath.section].isAllDisabled {
-                let indexSet = IndexSet(integer: indexPath.section)
-                self.viewModel = viewModel
-                rootView.tableView.reloadSections(indexSet, with: .none)
-            } else {
-                self.viewModel = viewModel
-                rootView.tableView.reloadRows(at: [indexPath], with: .none)
-            }
-            rootView.tableView.endUpdates()
-        } else {
-            self.viewModel = viewModel
-            rootView.tableView.reloadData()
-        }
+        rootView.tableView.reloadData()
+        reloadEmptyState(animated: false)
     }
 
     func didReceive(viewModel: AssetManagementViewModel, on section: Int) {
@@ -200,7 +187,8 @@ extension AssetManagementViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension AssetManagementViewController: UITableViewDelegate {
-    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: false)
         guard let viewModel else {
             return
         }
@@ -240,5 +228,40 @@ extension AssetManagementViewController: UITableViewDelegate {
         tapGesture.numberOfTouchesRequired = 1
         view.addGestureRecognizer(tapGesture)
         tapGesture.view?.tag = section
+    }
+}
+
+// MARK: - EmptyStateViewOwnerProtocol
+
+extension AssetManagementViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+// MARK: - EmptyStateDataSource
+
+extension AssetManagementViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarningGray()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable.emptyViewDescription(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .smallFilled
+        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView.container
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension AssetManagementViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let viewModel = viewModel else { return false }
+        return viewModel.list.isEmpty
     }
 }

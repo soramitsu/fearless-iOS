@@ -40,6 +40,10 @@ final class AssetManagementTableCell: UITableViewCell {
         return switchView
     }()
 
+    let textContainer = UIFactory.default.createHorizontalStackView()
+    let assetTextsContainer = UIFactory.default.createVerticalStackView()
+    let balanceTextsContainer = UIFactory.default.createVerticalStackView()
+
     private var viewModel: AssetManagementTableCellViewModel?
 
     override func prepareForReuse() {
@@ -52,6 +56,7 @@ final class AssetManagementTableCell: UITableViewCell {
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
+        selectionStyle = .none
         setupLayout()
     }
 
@@ -96,19 +101,10 @@ final class AssetManagementTableCell: UITableViewCell {
         } else {
             symbolLabel.textColor = R.color.colorStrokeGray()
         }
+        balanceTextsContainer.isHidden = !isOn
     }
 
     private func setupLayout() {
-        let containerView = UIView()
-        contentView.addSubview(containerView)
-        let assetTextsContainer = UIFactory.default.createVerticalStackView()
-        let balanceTextsContainer = UIFactory.default.createVerticalStackView()
-
-        containerView.snp.makeConstraints { make in
-            make.height.equalTo(55)
-            make.width.equalToSuperview()
-        }
-
         [
             symbolLabel,
             chainNameLabel
@@ -120,11 +116,15 @@ final class AssetManagementTableCell: UITableViewCell {
         ].forEach { balanceTextsContainer.addArrangedSubview($0) }
 
         [
-            iconImageView,
             assetTextsContainer,
-            balanceTextsContainer,
+            balanceTextsContainer
+        ].forEach { textContainer.addArrangedSubview($0) }
+
+        [
+            iconImageView,
+            textContainer,
             switchView
-        ].forEach { containerView.addSubview($0) }
+        ].forEach { contentView.addSubview($0) }
 
         iconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
@@ -132,19 +132,23 @@ final class AssetManagementTableCell: UITableViewCell {
             make.size.equalTo(32)
         }
 
-        assetTextsContainer.snp.makeConstraints { make in
+//        assetTextsContainer.snp.makeConstraints { make in
+//            make.leading.equalTo(iconImageView.snp.trailing).offset(12)
+//            make.trailing.greaterThanOrEqualTo(balanceTextsContainer).priority(.low)
+//            make.centerY.equalToSuperview()
+//        }
+//
+//        balanceTextsContainer.snp.makeConstraints { make in
+//            make.centerY.equalToSuperview()
+//        }
+        textContainer.snp.makeConstraints { make in
             make.leading.equalTo(iconImageView.snp.trailing).offset(12)
-            make.trailing.equalTo(balanceTextsContainer)
-            make.centerY.equalToSuperview()
-        }
-
-        balanceTextsContainer.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
         }
 
         switchView.set(width: 36, height: 21)
         switchView.snp.makeConstraints { make in
-            make.leading.equalTo(balanceTextsContainer.snp.trailing).offset(12)
+            make.leading.equalTo(textContainer.snp.trailing).offset(12)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
         }
