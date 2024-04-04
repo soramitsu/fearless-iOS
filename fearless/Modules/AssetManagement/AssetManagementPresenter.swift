@@ -38,9 +38,8 @@ final class AssetManagementPresenter {
     private let logger: LoggerProtocol
     private var wallet: MetaAccountModel
     private let viewModelFactory: AssetManagementViewModelFactory
-    private let networkFilter: NetworkManagmentFilter?
+    private var networkFilter: NetworkManagmentFilter?
 
-    private var currentNetworkFilter: NetworkManagmentFilter?
     private var chainAssets: [ChainAsset] = []
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: [PriceData] = []
@@ -67,10 +66,7 @@ final class AssetManagementPresenter {
 
     // MARK: - Private methods
 
-    private func provideViewModel(
-        with search: String? = nil,
-        networkFilter: NetworkManagmentFilter? = nil
-    ) {
+    private func provideViewModel(with search: String? = nil) {
         guard chainAssets.isNotEmpty else {
             return
         }
@@ -81,7 +77,7 @@ final class AssetManagementPresenter {
                 prices: prices,
                 wallet: wallet,
                 locale: selectedLocale,
-                filter: networkFilter ?? self.networkFilter,
+                filter: networkFilter,
                 search: search
             )
             await view?.didReceive(viewModel: viewModel, for: nil)
@@ -130,11 +126,6 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
     }
 
     func doneButtonDidTapped() {
-        guard currentNetworkFilter == nil else {
-            currentNetworkFilter = nil
-            provideViewModel()
-            return
-        }
         router.dismiss(view: view)
     }
 
@@ -194,7 +185,7 @@ extension AssetManagementPresenter: AssetManagementModuleInput {}
 
 extension AssetManagementPresenter: NetworkManagmentModuleOutput {
     func did(select: NetworkManagmentFilter, contextTag _: Int?) {
-        currentNetworkFilter = select
-        provideViewModel(networkFilter: currentNetworkFilter)
+        networkFilter = select
+        provideViewModel()
     }
 }
