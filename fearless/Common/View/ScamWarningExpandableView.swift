@@ -6,7 +6,7 @@ final class ScamWarningExpandableView: UIView {
     private enum Constants {
         static let warningIconSize = CGSize(width: 20, height: 18)
         static let expandableIconSize = CGSize(width: 12, height: 6)
-        static let expandViewHeight: CGFloat = 68.0
+        static let expandViewHeight: CGFloat = 69.0
     }
 
     // MARK: - Private properties
@@ -51,7 +51,11 @@ final class ScamWarningExpandableView: UIView {
     }()
 
     private let mainCloudView = UIView()
-    private let expandableCloudView = UIView()
+    private let expandableCloudView: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        return view
+    }()
 
     private let nameLabel: UILabel = {
         let label = UILabel()
@@ -99,6 +103,14 @@ final class ScamWarningExpandableView: UIView {
         additionalLabel.text = scamInfo.subtype
 
         applyStyle(for: scamInfo.type, assetName: assetName)
+    }
+
+    func bind(nftName: String?) {
+        nameLabel.text = nftName
+        reasonLabel.text = "Spam"
+        additionalLabel.text = "-"
+
+        applyStyle(for: .nftSpam, assetName: "")
     }
 
     // MARK: - Private methods
@@ -165,12 +177,13 @@ final class ScamWarningExpandableView: UIView {
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(hStackView.snp.bottom).offset(UIConstants.verticalInset)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview().inset(UIConstants.verticalInset)
+            make.bottom.equalToSuperview()
         }
 
         backgroundView.insertSubview(expandableCloudView, belowSubview: mainCloudView)
         expandableCloudView.snp.makeConstraints { make in
-            make.top.equalTo(mainCloudView.snp.bottom).offset(-Constants.expandViewHeight)
+            make.top.equalTo(mainCloudView.snp.bottom)
+                .offset(-(Constants.expandViewHeight + UIConstants.bigOffset))
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().offset(-UIConstants.verticalInset)
         }
@@ -178,7 +191,7 @@ final class ScamWarningExpandableView: UIView {
         let expandableStack = UIFactory.default.createVerticalStackView(spacing: 8)
         expandableCloudView.addSubview(expandableStack)
         expandableStack.snp.makeConstraints { make in
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().inset(UIConstants.verticalInset)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
         }
@@ -221,7 +234,8 @@ final class ScamWarningExpandableView: UIView {
 
     @objc private func handleTapGesture() {
         let isOpen = indicator.isActivated
-        let offset = isOpen ? -Constants.expandViewHeight : 0
+        let offset = isOpen ? -(Constants.expandViewHeight + UIConstants.bigOffset) : 0
+        expandableCloudView.isHidden = isOpen
         expandableCloudView.snp.updateConstraints { make in
             make.top.equalTo(mainCloudView.snp.bottom).offset(offset)
         }
