@@ -52,7 +52,9 @@ final class ChainAssetListAssembly {
             dependencyContainer: dependencyContainer,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
             chainAssetFetching: chainAssetFetching,
-            userDefaultsStorage: SettingsManager.shared
+            userDefaultsStorage: SettingsManager.shared,
+            applicationHandler: ApplicationHandler(),
+            walletAssetManagementHelper: WalletAssetManagementHelperImpl()
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

@@ -223,9 +223,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset, wallet: MetaAccountModel) {
         switch result {
         case let .success(accountInfo):
+            self.wallet = wallet
             guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                 return
             }

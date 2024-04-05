@@ -22,7 +22,6 @@ final class WalletMainContainerPresenter {
     private var selectedChains: [ChainModel]?
     private var selectedNetworkManagmentFilter: NetworkManagmentFilter?
     private var issues: [ChainIssue] = []
-    private var onceLoaded: Bool = false
 
     // MARK: - Constructors
 
@@ -134,7 +133,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [SSFModels.ChainModel])) {
-        let needsReloadAssetsList: Bool = (tuple.select.identifier != selectedNetworkManagmentFilter?.identifier) || !onceLoaded
         selectedNetworkManagmentFilter = tuple.select
 
         let chains = tuple.chains
@@ -161,18 +159,12 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 
         provideViewModel()
 
-        guard needsReloadAssetsList else {
-            return
-        }
-
         assetListModuleInput?.updateChainAssets(
             using: filters,
             sorts: [],
             networkFilter: tuple.select
         )
         nftModuleInput?.didSelect(chains: selectedChains)
-
-        onceLoaded = true
     }
 
     func didReceiveError(_ error: Error) {

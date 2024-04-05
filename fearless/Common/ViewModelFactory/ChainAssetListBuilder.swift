@@ -337,11 +337,12 @@ extension ChainAssetListBuilder {
         }
     }
 
-    func enabled(
+    func enabledOrDefault(
         chainAssets: [ChainAsset],
         for wallet: MetaAccountModel
     ) -> [ChainAsset] {
-        guard wallet.assetsVisibility.isNotEmpty else {
+        let allIsHidden = wallet.assetsVisibility.filter { !$0.hidden }.isEmpty
+        guard !allIsHidden else {
             return defaultByPopular(chainAssets: chainAssets)
         }
         let enabledAssetIds = wallet.assetsVisibility

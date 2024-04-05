@@ -213,7 +213,8 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         wallet: MetaAccountModel,
         chainAsset: ChainAsset
     ) -> Bool {
-        guard wallet.assetsVisibility.isNotEmpty else {
+        let allIsHidden = wallet.assetsVisibility.filter { !$0.hidden }.isEmpty
+        guard wallet.assetsVisibility.isNotEmpty, !allIsHidden else {
             return !(chainAsset.chain.rank != nil && chainAsset.asset.isUtility)
         }
 
