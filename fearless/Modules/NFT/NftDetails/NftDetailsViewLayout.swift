@@ -89,7 +89,9 @@ final class NftDetailsViewLayout: UIView {
     }()
 
     lazy var scamWarningView: ScamWarningExpandableView = {
-        createScamWarningView()
+        let view = ScamWarningExpandableView()
+        view.isHidden = true
+        return view
     }()
 
     var locale: Locale = .current {
@@ -107,12 +109,6 @@ final class NftDetailsViewLayout: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func createScamWarningView() -> ScamWarningExpandableView {
-        let view = ScamWarningExpandableView()
-        view.isHidden = true
-        return view
     }
 
     private func createTitleValueView() -> TitleValueView {
