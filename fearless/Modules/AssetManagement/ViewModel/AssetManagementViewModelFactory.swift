@@ -188,11 +188,11 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 section1.rank,
                 section1.assetName ?? section1.cells.first?.assetName ?? ""
             ) > (
-                section1.isAllDisabled.invert().intValue,
+                section2.isAllDisabled.invert().intValue,
                 section2.totalFiatBalance,
                 section2.totalBalance,
-                section1.rank,
-                section1.assetName ?? section2.cells.first?.assetName ?? ""
+                section2.rank,
+                section2.assetName ?? section2.cells.first?.assetName ?? ""
             )
         }
     }
