@@ -28,7 +28,9 @@ final class ChainAssetListViewLayout: UIView {
     weak var bannersView: UIView?
 
     var headerViewContainer: UIStackView = {
-        UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+        let view = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+        view.alignment = .center
+        return view
     }()
 
     let tableView: UITableView = {
@@ -69,8 +71,21 @@ final class ChainAssetListViewLayout: UIView {
         bannersView?.isHidden = true
         headerViewContainer.addArrangedSubview(view)
         view.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.width.equalToSuperview().inset(UIConstants.bigOffset)
         }
+    }
+
+    func setHeaderView() {
+        tableView.tableHeaderView = headerViewContainer
+        headerViewContainer.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+    }
+
+    func removeHeaderView() {
+        headerViewContainer.removeFromSuperview()
+        tableView.tableHeaderView = nil
     }
 
     func setFooterView() {
@@ -121,12 +136,6 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        tableView.tableHeaderView = headerViewContainer
-        headerViewContainer.snp.makeConstraints { make in
-            make.width.equalToSuperview().inset(UIConstants.bigOffset)
-            make.centerX.equalToSuperview()
-        }
-
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()

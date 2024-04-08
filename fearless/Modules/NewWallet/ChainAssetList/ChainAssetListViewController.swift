@@ -150,6 +150,9 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
 
         self.viewModel = viewModel
 
+        viewModel.emptyStateIsActive ? rootView.removeFooterView() : rootView.setFooterView()
+        viewModel.emptyStateIsActive ? rootView.removeHeaderView() : rootView.setHeaderView()
+
         if isInitialReload {
             rootView.tableView.reloadData()
             rootView.setFooterView()
@@ -253,10 +256,16 @@ extension ChainAssetListViewController: EmptyStateDataSource {
         emptyView.iconMode = .smallFilled
         emptyView.contentAlignment = ContentAlignment(vertical: .top, horizontal: .center)
 
-        let container = UIFactory.default.createVerticalStackView(spacing: 16)
+        let container = ScrollableContainerView()
+        container.addArrangedSubview(rootView.headerViewContainer)
         container.addArrangedSubview(emptyView)
         container.addArrangedSubview(rootView.assetManagementButton)
         container.addArrangedSubview(UIView())
+
+        rootView.headerViewContainer.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.width.equalToSuperview()
+        }
 
         emptyView.snp.makeConstraints { make in
             make.height.equalTo(170)
@@ -280,7 +289,6 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let viewModel = viewModel else { return false }
-        viewModel.emptyStateIsActive ? rootView.removeFooterView() : rootView.setFooterView()
         return viewModel.emptyStateIsActive
     }
 }
