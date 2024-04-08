@@ -13,4 +13,5 @@ struct NftDetailViewModel {
     let nftType: NftType
     let creator: String?
     let priceString: String?
+    let isScam: Bool
 }

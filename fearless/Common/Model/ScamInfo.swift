@@ -24,6 +24,7 @@ struct ScamInfo: Identifiable, Codable, Equatable {
         case donation
         case exchange
         case sanctions
+        case nftSpam
 
         init?(from string: String) {
             self.init(rawValue: string.lowercased())
@@ -54,6 +55,8 @@ struct ScamInfo: Identifiable, Codable, Equatable {
             case .sanctions:
                 return R.string.localizable
                     .scamDescriptionSanctionsStub(assetName, preferredLanguages: locale.rLanguages)
+            case .nftSpam:
+                return R.string.localizable.nftSpamWarning(preferredLanguages: locale.rLanguages)
             }
         }
     }
