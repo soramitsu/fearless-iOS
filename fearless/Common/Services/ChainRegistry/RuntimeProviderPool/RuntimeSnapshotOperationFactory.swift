@@ -5,9 +5,8 @@ import SSFModels
 
 protocol RuntimeSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
-        chainTypes: Data,
-        chainMetadata: RuntimeMetadataItem,
-        usedRuntimePaths: [String: [String]]
+        chainTypes: Data?,
+        chainMetadata: RuntimeMetadataItem
     ) -> ClosureOperation<RuntimeSnapshot?>
 }
 
@@ -27,21 +26,24 @@ final class RuntimeSnapshotFactory {
     }
 
     private func createWrapperForChainTypes(
-        ownTypes: Data,
-        runtimeMetadataItem: RuntimeMetadataItem,
-        usedRuntimePaths: [String: [String]]
+        ownTypes: Data?,
+        runtimeMetadataItem: RuntimeMetadataItem
     ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> {
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
             let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
-            // TODO: think about it
-            let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
+            var definitionJson: JSON?
+            if let data = ownTypes {
+                let jsonDecoder = JSONDecoder()
+                let json = try jsonDecoder.decode(JSON.self, from: data)
+                definitionJson = json.types
+            }
+
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
-                try JSONEncoder().encode(json),
+                definitionJson: definitionJson,
                 versioningData: ownTypes,
-                runtimeMetadata: runtimeMetadata,
-                usedRuntimePaths: usedRuntimePaths
+                runtimeMetadata: runtimeMetadata
             )
 
             return RuntimeSnapshot(
@@ -60,14 +62,12 @@ final class RuntimeSnapshotFactory {
 
 extension RuntimeSnapshotFactory: RuntimeSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
-        chainTypes: Data,
-        chainMetadata: RuntimeMetadataItem,
-        usedRuntimePaths: [String: [String]]
+        chainTypes: Data?,
+        chainMetadata: RuntimeMetadataItem
     ) -> ClosureOperation<RuntimeSnapshot?> {
         createWrapperForChainTypes(
             ownTypes: chainTypes,
-            runtimeMetadataItem: chainMetadata,
-            usedRuntimePaths: usedRuntimePaths
+            runtimeMetadataItem: chainMetadata
         )
     }
 }
