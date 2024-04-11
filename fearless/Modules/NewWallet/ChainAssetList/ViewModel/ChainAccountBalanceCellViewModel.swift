@@ -18,6 +18,7 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let isMissingAccount: Bool
     let isUnused: Bool
     let locale: Locale
+    let hideButtonIsVisible: Bool
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(chainAsset.chainAssetId)

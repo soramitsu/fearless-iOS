@@ -2,12 +2,6 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
-enum AssetListDisplayType {
-    case chain
-    case assetChains
-    case search
-}
-
 typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
 
 final class ChainAssetListPresenter {
@@ -19,7 +13,6 @@ final class ChainAssetListPresenter {
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
 
-    private let isSearch: Bool
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
     private var chainAssets: [ChainAsset]?
@@ -38,14 +31,12 @@ final class ChainAssetListPresenter {
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
-        viewModelFactory: ChainAssetListViewModelFactoryProtocol,
-        isSearch: Bool
+        viewModelFactory: ChainAssetListViewModelFactoryProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
-        self.isSearch = isSearch
         self.localizationManager = localizationManager
     }
 
@@ -70,7 +61,7 @@ final class ChainAssetListPresenter {
                 prices: prices,
                 chainsWithMissingAccounts: chainsWithMissingAccounts,
                 shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
-                isSearch: self.isSearch
+                displayType: self.displayType
             )
 
             DispatchQueue.main.async {
@@ -170,7 +161,9 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 chainAsset: viewModel.chainAsset,
                 wallet: wallet
             )
-        case .teleport, .hide, .show:
+        case .hide:
+            interactor.hideChainAsset(viewModel.chainAsset)
+        case .teleport, .show:
             break
         }
     }

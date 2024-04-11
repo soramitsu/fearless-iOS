@@ -106,7 +106,7 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
                let viewModel = section.cells[safe: indexPath.row] {
                 await interactor.change(
                     hidden: viewModel.hidden,
-                    assetId: viewModel.assetId,
+                    assetId: viewModel.chainAssetId,
                     wallet: wallet,
                     chainAssets: chainAssets
                 )

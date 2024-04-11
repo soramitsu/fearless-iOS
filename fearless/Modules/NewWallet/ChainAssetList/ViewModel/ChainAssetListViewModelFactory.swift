@@ -13,7 +13,7 @@ protocol ChainAssetListViewModelFactoryProtocol {
         prices: PriceDataUpdated,
         chainsWithMissingAccounts: [ChainModel.Id],
         shouldRunManageAssetAnimate: Bool,
-        isSearch: Bool
+        displayType: AssetListDisplayType
     ) -> ChainAssetListViewModel
 }
 
@@ -34,9 +34,9 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         prices: PriceDataUpdated,
         chainsWithMissingAccounts: [ChainModel.Id],
         shouldRunManageAssetAnimate: Bool,
-        isSearch: Bool
+        displayType: AssetListDisplayType
     ) -> ChainAssetListViewModel {
-        let enabledChainAssets = enabledOrDefault(chainAssets: chainAssets, for: wallet)
+        let enabledChainAssets = enabled(chainAssets: chainAssets, for: wallet)
 
         let assetChainAssetsArray = createAssetChainAssets(
             from: enabledChainAssets,
@@ -62,25 +62,19 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 accountInfos: accountInfos,
                 locale: locale,
                 wallet: wallet,
-                chainsWithMissingAccounts: chainsWithMissingAccounts
+                chainsWithMissingAccounts: chainsWithMissingAccounts,
+                displayType: displayType
             )
         }
 
         let isColdBoot = wallet.assetsVisibility.isEmpty
         let shouldRunManageAssetAnimate = shouldRunManageAssetAnimate && !isColdBoot
 
-        var emptyState: ChainAssetListViewModelEmptyState?
-        if chainAssetCellModels.isEmpty, isSearch {
-            emptyState = .search
-        } else if chainAssetCellModels.isEmpty {
-            emptyState = .hidden
-        }
-
         return ChainAssetListViewModel(
             cells: chainAssetCellModels,
-            emptyState: emptyState,
-            isSearch: isSearch,
-            shouldRunManageAssetAnimate: shouldRunManageAssetAnimate
+            displayType: displayType,
+            shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
+            emptyStateIsActive: chainAssetCellModels.isEmpty
         )
     }
 
@@ -94,7 +88,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         wallet: MetaAccountModel,
-        chainsWithMissingAccounts: [ChainModel.Id]
+        chainsWithMissingAccounts: [ChainModel.Id],
+        displayType: AssetListDisplayType
     ) -> ChainAccountBalanceCellViewModel? {
         let priceAttributedString = getPriceAttributedString(
             priceData: priceData,
@@ -185,7 +180,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             priceDataWasUpdated: priceDataUpdated,
             isMissingAccount: isMissingAccount,
             isUnused: isUnused,
-            locale: locale
+            locale: locale,
+            hideButtonIsVisible: displayType == AssetListDisplayType.chain
         )
 
         return viewModel

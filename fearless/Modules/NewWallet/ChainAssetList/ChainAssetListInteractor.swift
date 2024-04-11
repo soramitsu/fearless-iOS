@@ -217,6 +217,15 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             }
         }
     }
+
+    func hideChainAsset(_ chainAsset: ChainAsset) {
+        var assetsVisibility = wallet.assetsVisibility.filter { $0.assetId != chainAsset.identifier }
+        let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: true)
+        assetsVisibility.append(assetVisibility)
+
+        let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
+        save(updatedWallet, shouldNotify: true)
+    }
 }
 
 extension ChainAssetListInteractor: PriceLocalSubscriptionHandler {

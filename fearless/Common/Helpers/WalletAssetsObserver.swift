@@ -85,7 +85,6 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         self.wallet = wallet
         workItem.cancel()
         workItem = DispatchWorkItem(block: { [weak self] in
-            print("self?.accountInfoSubscriptionAdapter.reset()")
             SelectedWalletSettings.shared.performSave(value: wallet) { _ in
                 let event = MetaAccountModelChangedEvent(account: wallet)
                 self?.eventCenter.notify(with: event)
@@ -101,22 +100,22 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     ) -> MetaAccountModel {
         let existAssetVisibility = wallet.assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })
         let accountInfo = try? accountInfoResult.get()
-        let isZero = accountInfo?.zero() ?? true
 
-        guard existAssetVisibility == nil || existAssetVisibility?.hidden != isZero else {
+        var isHidden = true
+        let isDefaultVisibleChainAsset = chainAsset.chain.rank != nil && chainAsset.asset.isUtility
+        if let accountInfo, accountInfo.zero() {
+            isHidden = !isDefaultVisibleChainAsset
+        } else {
+            isHidden = !isDefaultVisibleChainAsset
+        }
+
+        guard existAssetVisibility == nil || existAssetVisibility?.hidden != isHidden else {
             return wallet
         }
 
-        let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: isZero)
+        let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: isHidden)
         let updatedWallet = update(wallet, with: assetVisibility)
         return updatedWallet
-//        guard let accountInfo = try? accountInfoResult.get() else {
-//            return wallet
-//        }
-//        let isHidden = accountInfo.zero()
-//        let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: isHidden)
-//        let updatedWallet = update(wallet, with: assetVisibility)
-//        return updatedWallet
     }
 
     private func update(
@@ -133,11 +132,6 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
 extension WalletAssetsObserverImpl: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: SSFModels.ChainAsset) {
         let updatedWallet = update(wallet, with: result, chainAsset: chainAsset)
-//        wallet = updatedWallet
         performSaveAndNitify(wallet: updatedWallet)
-//        accountInfoSubscriptionAdapter.unsubscribe(chainAsset: chainAsset)
-        let balance = try? result.get()?.data.total
-        let debug = "\(chainAsset.debugName) balance: \(balance)"
-        print("WalletAssetsObserverImpl", debug)
     }
 }

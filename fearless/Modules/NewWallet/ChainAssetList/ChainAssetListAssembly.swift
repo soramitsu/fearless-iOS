@@ -5,8 +5,7 @@ import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(
-        wallet: MetaAccountModel,
-        isSearch: Bool
+        wallet: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
@@ -63,8 +62,7 @@ final class ChainAssetListAssembly {
             router: router,
             localizationManager: localizationManager,
             wallet: wallet,
-            viewModelFactory: viewModelFactory,
-            isSearch: isSearch
+            viewModelFactory: viewModelFactory
         )
 
         let bannersModule = Self.configureBannersModule(moduleOutput: presenter)

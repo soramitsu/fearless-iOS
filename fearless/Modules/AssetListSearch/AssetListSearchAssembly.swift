@@ -8,7 +8,7 @@ final class AssetListSearchAssembly {
         let interactor = AssetListSearchInteractor()
         let router = AssetListSearchRouter()
 
-        guard let assetListModule = Self.configureAssetListModule(wallet: wallet) else {
+        guard let assetListModule = ChainAssetListAssembly.configureModule(wallet: wallet) else {
             return nil
         }
 
@@ -26,14 +26,5 @@ final class AssetListSearchAssembly {
         )
 
         return (view, presenter)
-    }
-
-    private static func configureAssetListModule(
-        wallet: MetaAccountModel
-    ) -> ChainAssetListModuleCreationResult? {
-        ChainAssetListAssembly.configureModule(
-            wallet: wallet,
-            isSearch: true
-        )
     }
 }

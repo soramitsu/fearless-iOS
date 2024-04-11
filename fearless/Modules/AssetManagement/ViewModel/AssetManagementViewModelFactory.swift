@@ -164,7 +164,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 chainAsset: chainAsset
             )
             let cell = AssetManagementTableCellViewModel(
-                assetId: chainAsset.asset.id,
+                chainAssetId: chainAsset.identifier,
                 assetImage: chainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
                 assetName: chainAsset.asset.symbolUppercased,
                 chainName: chainAsset.chain.name,

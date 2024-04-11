@@ -59,7 +59,7 @@ final class AssetManagementMigrator: Migrating {
                         wallet: wallet
                     )
                     let visibility = AssetVisibility(
-                        assetId: $0.asset.id,
+                        assetId: $0.identifier,
                         hidden: !isOn
                     )
                     return visibility

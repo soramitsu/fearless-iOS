@@ -75,7 +75,7 @@ actor AssetManagementInteractor {
     ) async {
         let defaultVisibility = chainAssets.map {
             let isVisible = $0.chain.rank != nil && $0.asset.isUtility
-            let visibility = AssetVisibility(assetId: $0.asset.id, hidden: !isVisible)
+            let visibility = AssetVisibility(assetId: $0.identifier, hidden: !isVisible)
             return visibility
         }
         let updatedWallet = wallet.replacingAssetsVisibility(defaultVisibility)

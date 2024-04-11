@@ -77,9 +77,7 @@ final class WalletMainContainerAssembly {
 
         guard
             let balanceInfoModule = Self.configureBalanceInfoModule(wallet: wallet),
-            let assetListModule = Self.configureAssetListModule(
-                metaAccount: wallet
-            ),
+            let assetListModule = Self.configureAssetListModule(metaAccount: wallet),
             let nftModule = Self.configureNftModule(wallet: wallet)
         else {
             return nil
@@ -106,6 +104,8 @@ final class WalletMainContainerAssembly {
         return (view, presenter)
     }
 
+    // MARK: - Cofigure Modules
+
     private static func configureBalanceInfoModule(
         wallet: MetaAccountModel
     ) -> BalanceInfoModuleCreationResult? {
@@ -115,12 +115,7 @@ final class WalletMainContainerAssembly {
     private static func configureAssetListModule(
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        let chainAssetListModule = ChainAssetListAssembly.configureModule(
-            wallet: metaAccount,
-            isSearch: false
-        )
-
-        return chainAssetListModule
+        ChainAssetListAssembly.configureModule(wallet: metaAccount)
     }
 
     private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {

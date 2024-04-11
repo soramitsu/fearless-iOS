@@ -198,10 +198,16 @@ class SwipableTableViewCell: UITableViewCell {
         case .ended:
             break
         case .rightToLeft:
+            guard rightMenuButtons.isNotEmpty else {
+                return
+            }
             isLeftMenuOpen
                 ? tryOpenLeftMenu(with: -diff)
                 : tryOpenRightMenu(with: diff)
         case .leftToRight:
+            guard leftMenuButtons.isNotEmpty else {
+                return
+            }
             isRightMenuOpen
                 ? tryOpenRightMenu(with: diff)
                 : tryOpenLeftMenu(with: -diff)
@@ -261,12 +267,18 @@ class SwipableTableViewCell: UITableViewCell {
         case .ended:
             break
         case .rightToLeft:
+            guard rightMenuButtons.isNotEmpty else {
+                return
+            }
             if isLeftMenuOpen {
                 handleLeftToRight(with: -diff)
             } else {
                 handleRightToLeft(with: diff)
             }
         case .leftToRight:
+            guard leftMenuButtons.isNotEmpty else {
+                return
+            }
             if isRightMenuOpen {
                 handleRightToLeft(with: diff)
             } else {

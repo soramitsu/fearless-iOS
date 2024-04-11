@@ -143,10 +143,10 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
 
     func didReceive(viewModel: ChainAssetListViewModel) {
         UIView.animate(withDuration: 0.3) {
-            self.rootView.bannersView?.isHidden = viewModel.isSearch
+            self.rootView.bannersView?.isHidden = viewModel.displayType.isSearch
         }
         let isInitialReload = self.viewModel == nil
-        rootView.assetManagementButton.isHidden = viewModel.isSearch
+        rootView.assetManagementButton.isHidden = viewModel.displayType.isSearch
 
         self.viewModel = viewModel
 
@@ -252,7 +252,7 @@ extension ChainAssetListViewController: EmptyStateDataSource {
         let emptyView = EmptyView()
         emptyView.image = R.image.iconWarningGray()
         emptyView.title = R.string.localizable.emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.text = viewModel?.emptyState?.text.value(for: selectedLocale)
+        emptyView.text = viewModel?.displayType.emptyStateText.value(for: selectedLocale)
         emptyView.iconMode = .smallFilled
         emptyView.contentAlignment = ContentAlignment(vertical: .top, horizontal: .center)
 

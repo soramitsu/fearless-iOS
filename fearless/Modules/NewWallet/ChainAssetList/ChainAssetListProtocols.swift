@@ -28,6 +28,7 @@ protocol ChainAssetListInteractorInput: AnyObject {
     func markUnused(chain: ChainModel)
     func reload()
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void))
+    func hideChainAsset(_ chainAsset: ChainAsset)
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {

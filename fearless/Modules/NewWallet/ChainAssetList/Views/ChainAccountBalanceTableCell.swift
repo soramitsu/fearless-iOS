@@ -132,6 +132,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
         chainIconsView.bind(viewModel: viewModel.chainIconViewViewModel)
+        rightMenuButtons = viewModel.hideButtonIsVisible ? [hideButton] : []
 
         locale = viewModel.locale
     }

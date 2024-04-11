@@ -21,7 +21,7 @@ struct AssetManagementTableSection {
 }
 
 struct AssetManagementTableCellViewModel {
-    let assetId: String
+    let chainAssetId: String
     let assetImage: ImageViewModelProtocol?
     let assetName: String
     let chainName: String
