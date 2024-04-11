@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/cbdc-ios') _
 
 // Job properties
 def jobParams = [
