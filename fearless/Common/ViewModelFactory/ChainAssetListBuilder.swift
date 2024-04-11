@@ -345,11 +345,11 @@ extension ChainAssetListBuilder {
         guard !allIsHidden else {
             return defaultByPopular(chainAssets: chainAssets)
         }
-        let enabledAssetIds = wallet.assetsVisibility
+        let enabledAssetIds: [String] = wallet.assetsVisibility
             .filter { !$0.hidden }
             .map { $0.assetId }
         let enabled = chainAssets.filter {
-            enabledAssetIds.contains($0.asset.id)
+            enabledAssetIds.contains($0.identifier)
         }
         return enabled
     }

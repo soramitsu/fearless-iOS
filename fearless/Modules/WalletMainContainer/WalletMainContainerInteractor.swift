@@ -163,9 +163,12 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
     }
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
+            wallet = event.account
+            fetchNetworkManagmentFilter()
+        }
         wallet = event.account
         output?.didReceiveAccount(event.account)
-        fetchNetworkManagmentFilter()
     }
 
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {

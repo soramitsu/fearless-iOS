@@ -111,7 +111,7 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
 // MARK: - AssetManagementViewInput
 
 extension AssetManagementViewController: AssetManagementViewInput {
-    func didReceive(viewModel: AssetManagementViewModel, for _: IndexPath?) {
+    func didReceive(viewModel: AssetManagementViewModel) {
         self.viewModel = viewModel
         rootView.setFilter(title: viewModel.filterButtonTitle)
         rootView.setAddAssetButton(visible: viewModel.addAssetButtonIsHidden)
@@ -121,21 +121,10 @@ extension AssetManagementViewController: AssetManagementViewInput {
 
     func didReceive(viewModel: AssetManagementViewModel, on section: Int) {
         self.viewModel = viewModel
-        let sectionViewModel = viewModel.list[section]
 
-        func indexPathsForSection() -> [IndexPath] {
-            viewModel.list[section].cells.enumerated().map {
-                IndexPath(row: $0.offset, section: section)
-            }
-        }
-
-        let indexPaths = indexPathsForSection()
         rootView.tableView.beginUpdates()
-        if sectionViewModel.isExpanded {
-            rootView.tableView.insertRows(at: indexPaths, with: .fade)
-        } else {
-            rootView.tableView.deleteRows(at: indexPaths, with: .fade)
-        }
+        let indexSet = IndexSet(integer: section)
+        rootView.tableView.reloadSections(indexSet, with: .automatic)
         rootView.tableView.endUpdates()
     }
 }

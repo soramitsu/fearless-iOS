@@ -121,7 +121,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
     ) -> AssetManagementViewModel {
         var viewModel = viewModel
         viewModel.list[section].isExpanded.toggle()
-        viewModel.list = sort(viewModel.list)
         return viewModel
     }
 
@@ -185,13 +184,13 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 section1.isAllDisabled.invert().intValue,
                 section1.totalFiatBalance,
                 section1.totalBalance,
-                section1.rank,
+                section2.rank,
                 section1.assetName ?? section1.cells.first?.assetName ?? ""
             ) > (
                 section2.isAllDisabled.invert().intValue,
                 section2.totalFiatBalance,
                 section2.totalBalance,
-                section2.rank,
+                section1.rank,
                 section2.assetName ?? section2.cells.first?.assetName ?? ""
             )
         }
@@ -219,7 +218,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         }
 
         let isHidden = wallet.assetsVisibility.contains(where: {
-            $0.assetId == chainAsset.asset.id && $0.hidden
+            $0.assetId == chainAsset.identifier && $0.hidden
         })
         return isHidden
     }

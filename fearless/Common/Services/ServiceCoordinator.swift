@@ -15,6 +15,7 @@ final class ServiceCoordinator {
     private let scamSyncService: ScamSyncServiceProtocol
     private let polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
     private let walletConnect: WalletConnectService
+    private let walletAssetsObserver: WalletAssetsObserver
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -22,7 +23,8 @@ final class ServiceCoordinator {
         githubPhishingService: ApplicationServiceProtocol,
         scamSyncService: ScamSyncServiceProtocol,
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
-        walletConnect: WalletConnectService
+        walletConnect: WalletConnectService,
+        walletAssetsObserver: WalletAssetsObserver
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -30,6 +32,7 @@ final class ServiceCoordinator {
         self.scamSyncService = scamSyncService
         self.polkaswapSettingsService = polkaswapSettingsService
         self.walletConnect = walletConnect
+        self.walletAssetsObserver = walletAssetsObserver
     }
 }
 
@@ -37,6 +40,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func updateOnAccountChange() {
         if let seletedMetaAccount = walletSettings.value {
             accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
+            walletAssetsObserver.update(wallet: seletedMetaAccount)
         }
     }
 
@@ -49,12 +53,14 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         scamSyncService.syncUp()
         polkaswapSettingsService.syncUp()
         walletConnect.setup()
+        walletAssetsObserver.setup()
     }
 
     func throttle() {
         githubPhishingService.throttle()
         accountInfoService.throttle()
         walletConnect.throttle()
+        walletAssetsObserver.throttle()
     }
 }
 
@@ -102,13 +108,26 @@ extension ServiceCoordinator {
             eventCenter: EventCenter.shared
         )
 
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            selectedMetaAccount: selectedMetaAccount
+        )
+
+        let walletAssetsObserver = WalletAssetsObserverImpl(
+            wallet: selectedMetaAccount,
+            chainRegistry: chainRegistry,
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+            eventCenter: EventCenter.shared
+        )
+
         return ServiceCoordinator(
             walletSettings: walletSettings,
             accountInfoService: accountInfoService,
             githubPhishingService: githubPhishingAPIService,
             scamSyncService: scamSyncService,
             polkaswapSettingsService: polkaswapSettingsService,
-            walletConnect: walletConnect
+            walletConnect: walletConnect,
+            walletAssetsObserver: walletAssetsObserver
         )
     }
 }

@@ -45,16 +45,13 @@ final class ChainAssetListAssembly {
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriber: priceLocalSubscriber,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
             chainAssetFetching: chainAssetFetching,
-            userDefaultsStorage: SettingsManager.shared,
-            applicationHandler: ApplicationHandler(),
-            walletAssetManagementHelper: WalletAssetManagementHelperImpl()
+            userDefaultsStorage: SettingsManager.shared
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

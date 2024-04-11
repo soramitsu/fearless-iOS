@@ -143,7 +143,7 @@
 		07BF3DA12B3D98BD0046ABF4 /* AssetTransactionData+Zeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3DA02B3D98BD0046ABF4 /* AssetTransactionData+Zeta.swift */; };
 		07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */; };
 		07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */; };
-		07CA42BD2BC017B0002F5F66 /* WalletAssetManagementHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07CA42BC2BC017B0002F5F66 /* WalletAssetManagementHelper.swift */; };
+		07CA42BD2BC017B0002F5F66 /* WalletAssetsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07CA42BC2BC017B0002F5F66 /* WalletAssetsObserver.swift */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
 		07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */; };
 		07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */; };
@@ -3232,7 +3232,7 @@
 		07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AutoNamespacesError+Extension.swift"; sourceTree = "<group>"; };
 		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
 		07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncService.swift; sourceTree = "<group>"; };
-		07CA42BC2BC017B0002F5F66 /* WalletAssetManagementHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetManagementHelper.swift; sourceTree = "<group>"; };
+		07CA42BC2BC017B0002F5F66 /* WalletAssetsObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetsObserver.swift; sourceTree = "<group>"; };
 		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
 		07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolStrategy.swift; sourceTree = "<group>"; };
 		07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolViewModelState.swift; sourceTree = "<group>"; };
@@ -9579,7 +9579,7 @@
 				FAD428932A834A8E001D6A16 /* TopViewControllerHelper.swift */,
 				FAD428972A860C9B001D6A16 /* EthereumNodeFetching.swift */,
 				FA584C792AB2BFE300F6F020 /* MediaType.swift */,
-				07CA42BC2BC017B0002F5F66 /* WalletAssetManagementHelper.swift */,
+				07CA42BC2BC017B0002F5F66 /* WalletAssetsObserver.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -17872,7 +17872,7 @@
 				07D05E5828EF083500B66C70 /* ValidatorInfoPoolViewModelState.swift in Sources */,
 				07DFA468289B8D8E0035A8AB /* EducationStoriesRouter.swift in Sources */,
 				FA4B92972844D0100003BCEF /* UIImageView+Shimmered.swift in Sources */,
-				07CA42BD2BC017B0002F5F66 /* WalletAssetManagementHelper.swift in Sources */,
+				07CA42BD2BC017B0002F5F66 /* WalletAssetsObserver.swift in Sources */,
 				074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */,
 				FAD428FD2A86567F001D6A16 /* BackupRiskWarningsProtocols.swift in Sources */,
 				8448221C26B1850D007F4492 /* TitleIconViewModel.swift in Sources */,

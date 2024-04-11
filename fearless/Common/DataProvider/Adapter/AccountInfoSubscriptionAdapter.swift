@@ -22,8 +22,9 @@ protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     )
-
     func reset()
+    func unsubscribe(chainAsset: ChainAsset)
+    func update(wallet: MetaAccountModel)
 }
 
 extension AccountInfoSubscriptionAdapterProtocol {
@@ -84,6 +85,23 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         }
 
         subscriptions = [:]
+    }
+
+    func update(wallet: MetaAccountModel) {
+        lock.exclusivelyWrite { [weak self] in
+            self?.wallet = wallet
+        }
+    }
+
+    func unsubscribe(chainAsset: ChainAsset) {
+        lock.exclusivelyWrite { [weak self] in
+            guard let self else {
+                return
+            }
+            let subscription = self.subscriptions[chainAsset.chainAssetId]
+            subscription?.removeObserver(self.wrapper)
+            self.subscriptions[chainAsset.chainAssetId] = nil
+        }
     }
 
     func subscribe(

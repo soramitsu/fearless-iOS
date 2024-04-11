@@ -4,7 +4,6 @@ import SoraKeystore
 import SSFModels
 import Web3
 import Web3ContractABI
-import SoraFoundation
 
 final class ChainAssetListInteractor {
     // MARK: - Private properties
@@ -16,7 +15,6 @@ final class ChainAssetListInteractor {
 
     private weak var output: ChainAssetListInteractorOutput?
 
-    private let operationQueue: OperationQueue
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
     private var wallet: MetaAccountModel
@@ -30,8 +28,6 @@ final class ChainAssetListInteractor {
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let userDefaultsStorage: SettingsManagerProtocol
-    private let applicationHandler: ApplicationHandler
-    private let walletAssetManagementHelper: WalletAssetManagementHelper
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -45,20 +41,16 @@ final class ChainAssetListInteractor {
     init(
         wallet: MetaAccountModel,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
-        operationQueue: OperationQueue,
         eventCenter: EventCenter,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoFetchingProvider: AccountInfoFetching,
         dependencyContainer: ChainAssetListDependencyContainer,
         ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
         chainAssetFetching: ChainAssetFetchingProtocol,
-        userDefaultsStorage: SettingsManagerProtocol,
-        applicationHandler: ApplicationHandler,
-        walletAssetManagementHelper: WalletAssetManagementHelper
+        userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.wallet = wallet
         self.priceLocalSubscriber = priceLocalSubscriber
-        self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.accountRepository = accountRepository
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
@@ -66,32 +58,20 @@ final class ChainAssetListInteractor {
         self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
         self.chainAssetFetching = chainAssetFetching
         self.userDefaultsStorage = userDefaultsStorage
-        self.applicationHandler = applicationHandler
-        self.walletAssetManagementHelper = walletAssetManagementHelper
-        self.applicationHandler.delegate = self
     }
 
     // MARK: - Private methods
 
-    private func saveCurrent(_ current: MetaAccountModel, shouldNotify: Bool) {
-        SelectedWalletSettings.shared.performSave(value: current) { [weak self] result in
+    private func save(_ updatedAccount: MetaAccountModel, shouldNotify: Bool) {
+        SelectedWalletSettings.shared.performSave(value: updatedAccount) { [weak self] result in
             switch result {
             case .success:
                 guard shouldNotify else { return }
-                self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: current))
+                self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: updatedAccount))
             case .failure:
                 break
             }
         }
-    }
-
-    private func save(_ updatedWallet: MetaAccountModel) {
-        let saveOperation = accountRepository.saveOperation {
-            [updatedWallet]
-        } _: {
-            []
-        }
-        operationQueue.addOperation(saveOperation)
     }
 
     private func subscribeToPrice(for chainAssets: [ChainAsset]) {
@@ -122,23 +102,6 @@ final class ChainAssetListInteractor {
             handler: self,
             deliveryOn: accountInfosDeliveryQueue
         )
-    }
-
-    private func checkAssetVisibilityAndSave(wallet: MetaAccountModel) {
-        let allIsHidden = wallet.assetsVisibility.filter { !$0.hidden }.isEmpty
-
-        guard allIsHidden, let chainAssets else {
-            save(wallet)
-            return
-        }
-
-        let defaultVisibility = chainAssets.map {
-            let isVisible = $0.chain.rank != nil && $0.asset.isUtility
-            let visibility = AssetVisibility(assetId: $0.asset.id, hidden: !isVisible)
-            return visibility
-        }
-        let updatedWallet = wallet.replacingAssetsVisibility(defaultVisibility)
-        save(updatedWallet)
     }
 }
 
@@ -212,7 +175,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         unusedChainIds.append(chain.chainId)
         let updatedAccount = wallet.replacingUnusedChainIds(unusedChainIds)
 
-        saveCurrent(updatedAccount, shouldNotify: true)
+        save(updatedAccount, shouldNotify: true)
     }
 
     func reload() {
@@ -267,13 +230,8 @@ extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
         guard let selectedAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, selectedAccountId == accountId else {
             return
         }
-        let updatedWallet = walletAssetManagementHelper.update(
-            wallet,
-            with: result,
-            chainAsset: chainAsset
-        )
-        wallet = updatedWallet
-        output?.didReceiveAccountInfo(result: result, for: chainAsset, wallet: updatedWallet)
+
+        output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }
 
@@ -313,7 +271,6 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        checkAssetVisibilityAndSave(wallet: wallet)
         output?.handleWalletChanged(wallet: event.account)
         resetAccountInfoSubscription()
         wallet = event.account
@@ -328,11 +285,5 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 extension ChainAssetListInteractor: ChainsIssuesCenterListener {
     func handleChainsIssues(_ issues: [ChainIssue]) {
         output?.didReceiveChainsWithIssues(issues)
-    }
-}
-
-extension ChainAssetListInteractor: ApplicationHandlerDelegate {
-    func didReceiveDidEnterBackground(notification _: Notification) {
-        saveCurrent(wallet, shouldNotify: false)
     }
 }

@@ -66,7 +66,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        let isColdBoot = chainAssetCellModels.filter { !$0.priceDataWasUpdated }.isNotEmpty
+        let isColdBoot = wallet.assetsVisibility.isEmpty
         let shouldRunManageAssetAnimate = shouldRunManageAssetAnimate && !isColdBoot
 
         var emptyState: ChainAssetListViewModelEmptyState?
@@ -127,6 +127,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             || wallet.unusedChainIds.or([]).contains(chainAsset.chain.chainId) {
             isColdBoot = !isMissingAccount
         }
+        isColdBoot = wallet.assetsVisibility.isEmpty
 
         let totalAssetBalance = getBalanceString(
             for: chainAssets,

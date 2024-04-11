@@ -426,15 +426,12 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         if let index = metaAccounts.firstIndex(where: { $0.metaId == event.account.metaId }),
            let wallet = metaAccounts[safe: index] {
             if wallet.selectedCurrency != event.account.selectedCurrency {
-                metaAccounts[index] = event.account
-            } else {
-                return
+                let cas = chainAssets.map { $0.value }
+                let currencies = metaAccounts.map { $0.selectedCurrency }
+                subscribeToPrices(for: cas, currencies: currencies)
             }
+            metaAccounts[index] = event.account
         }
-
-        let cas = chainAssets.map { $0.value }
-        let currencies = metaAccounts.map { $0.selectedCurrency }
-        subscribeToPrices(for: cas, currencies: currencies)
     }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {

@@ -4,10 +4,7 @@ import SSFModels
 
 @MainActor
 protocol AssetManagementViewInput: ControllerBackedProtocol {
-    func didReceive(
-        viewModel: AssetManagementViewModel,
-        for indexPath: IndexPath?
-    )
+    func didReceive(viewModel: AssetManagementViewModel)
     func didReceive(
         viewModel: AssetManagementViewModel,
         on section: Int
@@ -80,7 +77,7 @@ final class AssetManagementPresenter {
                 filter: networkFilter,
                 search: search
             )
-            await view?.didReceive(viewModel: viewModel, for: nil)
+            await view?.didReceive(viewModel: viewModel)
         }
     }
 
@@ -114,7 +111,7 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
                     chainAssets: chainAssets
                 )
             }
-            await view?.didReceive(viewModel: viewModel, for: indexPath)
+            await view?.didReceive(viewModel: viewModel)
         }
     }
 
