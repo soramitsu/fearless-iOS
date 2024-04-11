@@ -822,5 +822,6 @@ extension CrossChainPresenter: WalletsManagmentModuleOutput {
         view?.didReceive(recipientViewModel: viewModel)
         destWallet = wallet
         recipientAddress = address
+        handle(newAddress: address)
     }
 }
