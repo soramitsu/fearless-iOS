@@ -2,6 +2,7 @@ import UIKit
 import IrohaCrypto
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class AccountCreatePresenter {
     static let maxEthereumDerivationPathLength: Int = 15
@@ -121,7 +122,7 @@ final class AccountCreatePresenter {
                 locale: locale
             )
         } else {
-            switch cryptoType.utilsType {
+            switch cryptoType {
             case .sr25519:
                 _ = wireframe.present(
                     error: AccountCreationError.invalidDerivationHardSoftPassword,

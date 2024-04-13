@@ -1,6 +1,6 @@
 // swiftlint:disable file_length
 import Foundation
-import CommonWallet
+
 import BigInt
 import SwiftUI
 import SoraFoundation

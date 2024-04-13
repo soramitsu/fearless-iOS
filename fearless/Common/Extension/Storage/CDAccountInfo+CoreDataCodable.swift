@@ -2,6 +2,7 @@ import Foundation
 import CoreData
 import RobinHood
 import IrohaCrypto
+import SSFAccountManagmentStorage
 
 extension CDAccountInfo: CoreDataCodable {
     public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {

@@ -3,6 +3,7 @@ import SoraUI
 import SoraFoundation
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 enum AccountHeaderType {
     case title(_ title: LocalizableResource<String>)

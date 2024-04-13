@@ -10,7 +10,7 @@ protocol BackupPasswordInteractorOutput: AnyObject {
 }
 
 final class BackupPasswordInteractor: BaseAccountImportInteractor {
-    var cloudStorage: FearlessCompatibilityProtocol?
+    var cloudStorage: CloudStorageServiceProtocol?
 
     // MARK: - Private properties
 
@@ -126,8 +126,8 @@ extension BackupPasswordInteractor: BackupPasswordInteractorInput {
     }
 
     func signInIfNeeded() {
-        DispatchQueue.main.async { [weak self] in
-            self?.cloudStorage?.signInIfNeeded(completion: nil)
+        Task {
+            try await cloudStorage?.signInIfNeeded()
         }
     }
 }

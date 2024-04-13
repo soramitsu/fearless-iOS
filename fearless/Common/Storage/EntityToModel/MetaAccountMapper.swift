@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import CoreData
+import SSFAccountManagmentStorage
 
 final class MetaAccountMapper {
     var entityIdentifierFieldName: String { #keyPath(CDMetaAccount.metaId) }

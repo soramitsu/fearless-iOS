@@ -2,6 +2,7 @@ import Foundation
 import IrohaCrypto
 import SoraKeystore
 import SSFUtils
+import SSFModels
 
 enum SigningWrapperError: Error {
     case missingSelectedAccount

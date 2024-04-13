@@ -4,6 +4,7 @@ import IrohaCrypto
 import RobinHood
 import SoraKeystore
 import SSFModels
+import SSFCrypto
 
 protocol MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(request: MetaAccountImportMnemonicRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>

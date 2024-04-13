@@ -1,5 +1,4 @@
 import Foundation
-import CommonWallet
 
 final class WalletCopyCommand: WalletCommandProtocol {
     weak var commandFactory: WalletCommandFactoryProtocol?

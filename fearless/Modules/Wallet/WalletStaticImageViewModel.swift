@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import Kingfisher
 
 final class WalletStaticImageViewModel: WalletImageViewModelProtocol {

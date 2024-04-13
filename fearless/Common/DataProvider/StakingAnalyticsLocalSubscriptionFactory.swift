@@ -7,7 +7,7 @@ protocol StakingAnalyticsLocalSubscriptionFactoryProtocol {
         chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>?
+    ) throws -> AnySingleValueProvider<[SubqueryRewardItemData]>?
 }
 
 final class ParachainAnalyticsLocalSubscriptionFactory {
@@ -35,7 +35,7 @@ extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubsc
         chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
+    ) throws -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
         clearIfNeeded()
 
         let identifier = "weaklyAnalytics" + address + url.absoluteString
@@ -44,7 +44,7 @@ extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubsc
             return AnySingleValueProvider(provider)
         }
 
-        let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
+        let repository = try SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
         let operationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
@@ -91,7 +91,7 @@ extension RelaychainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubs
         chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
+    ) throws -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
         clearIfNeeded()
 
         let identifier = "weaklyAnalytics" + address + url.absoluteString
@@ -100,7 +100,7 @@ extension RelaychainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubs
             return AnySingleValueProvider(provider)
         }
 
-        let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
+        let repository = try SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
         let operationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)

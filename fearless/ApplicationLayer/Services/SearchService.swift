@@ -1,4 +1,4 @@
-import CommonWallet
+
 import RobinHood
 import IrohaCrypto
 import SSFModels

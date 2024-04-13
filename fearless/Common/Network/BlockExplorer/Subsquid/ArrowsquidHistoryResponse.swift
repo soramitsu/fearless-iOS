@@ -1,6 +1,5 @@
 import Foundation
 import SSFModels
-import CommonWallet
 
 struct ArrowsquidHistoryResponse: Decodable {
     let historyElements: [ArrowsquidHistoryElement]

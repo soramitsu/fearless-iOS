@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import CoreData
 import IrohaCrypto
+import SSFAccountManagmentStorage
 
 enum ChainSettingsMapperError: Error {
     case missedRequiredFields

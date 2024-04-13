@@ -1,4 +1,4 @@
-import CommonWallet
+
 import Foundation
 import RobinHood
 import SoraFoundation

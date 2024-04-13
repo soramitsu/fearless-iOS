@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFAccountManagmentStorage
 
 final class ChainSettingsRepositoryFactory {
     let storageFacade: StorageFacadeProtocol

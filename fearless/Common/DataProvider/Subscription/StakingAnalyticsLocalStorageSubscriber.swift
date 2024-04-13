@@ -11,7 +11,7 @@ protocol StakingAnalyticsLocalStorageSubscriber where Self: AnyObject {
         chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>?
+    ) throws -> AnySingleValueProvider<[SubqueryRewardItemData]>?
 }
 
 extension StakingAnalyticsLocalStorageSubscriber {
@@ -19,8 +19,8 @@ extension StakingAnalyticsLocalStorageSubscriber {
         chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
-        let provider = stakingAnalyticsLocalSubscriptionFactory
+    ) throws -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
+        let provider = try stakingAnalyticsLocalSubscriptionFactory
             .getWeaklyAnalyticsProvider(chainAsset: chainAsset, for: address, url: url)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[SubqueryRewardItemData]>]) in

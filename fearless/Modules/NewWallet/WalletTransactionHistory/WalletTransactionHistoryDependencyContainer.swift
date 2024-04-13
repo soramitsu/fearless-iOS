@@ -1,5 +1,5 @@
 import RobinHood
-import CommonWallet
+
 import SSFModels
 import SoraFoundation
 
@@ -30,7 +30,6 @@ final class WalletTransactionHistoryDependencyContainer {
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
-            cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory
         )
 
@@ -46,7 +45,6 @@ final class WalletTransactionHistoryDependencyContainer {
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 targetIdentifier: "wallet.transaction.history.\(address).\(chainAsset.chainAssetId)",
-                using: .main,
                 filters: filters
             )
         }

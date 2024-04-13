@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import SSFModels
 
 extension AddAccount {
     final class AccountImportWireframe: AccountImportWireframeProtocol {

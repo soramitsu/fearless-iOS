@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 extension CryptoType {
     func titleForLocale(_ locale: Locale) -> String {
