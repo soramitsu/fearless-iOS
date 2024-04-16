@@ -3,6 +3,7 @@ import RobinHood
 import SSFUtils
 import SoraKeystore
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol StakingBondMoreConfirmationParachainStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

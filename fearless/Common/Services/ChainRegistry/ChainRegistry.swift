@@ -3,6 +3,9 @@ import RobinHood
 import SSFUtils
 import SSFModels
 import Web3
+import SSFChainRegistry
+import SSFRuntimeCodingService
+import SSFChainConnection
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
@@ -414,5 +417,67 @@ extension ChainRegistry: ConnectionPoolDelegate {
 extension ChainRegistry: EventVisitorProtocol {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
         chainsTypesMap = event.versioningMap
+    }
+}
+
+extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
+    func getRuntimeProvider(
+        chainId: SSFModels.ChainModel.Id,
+        usedRuntimePaths _: [String: [String]],
+        runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
+    ) async throws -> SSFRuntimeCodingService.RuntimeProviderProtocol {
+        let runtimeProvider = readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
+        guard let runtimeProvider else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+        return runtimeProvider
+    }
+
+//    func getRuntimeProvider(for chainId: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
+//        let runtimeProvider = readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
+//        return runtimeProvider
+//    }
+
+    func getSubstrateConnection(for chain: SSFModels.ChainModel) throws -> SSFChainConnection.SubstrateConnection {
+        let connection = getConnection(for: chain.chainId)
+        guard let connection else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+
+        return connection
+    }
+
+    func getEthereumConnection(for chain: SSFModels.ChainModel) throws -> SSFChainConnection.Web3EthConnection {
+        let connection = getEthereumConnection(for: chain.chainId)
+        guard let connection else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+        return connection
+    }
+
+    func getChain(for chainId: SSFModels.ChainModel.Id) async throws -> SSFModels.ChainModel {
+        let chain = readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
+
+        guard let chain else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+
+        return chain
+    }
+
+    func getChains() async throws -> [SSFModels.ChainModel] {
+        availableChains
+    }
+
+    func getReadySnapshot(
+        chainId: SSFModels.ChainModel.Id,
+        usedRuntimePaths _: [String: [String]],
+        runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
+    ) async throws -> SSFRuntimeCodingService.RuntimeSnapshot {
+        let runtimeService = try await getRuntimeProvider(chainId: chainId, usedRuntimePaths: [:], runtimeItem: nil)
+        guard let runtimeSnapshot = runtimeService.snapshot else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+        return runtimeSnapshot
     }
 }

@@ -3,6 +3,8 @@ import SoraKeystore
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFChainRegistry
+import SSFNetwork
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -15,6 +17,7 @@ final class ServiceCoordinator {
     private let scamSyncService: ScamSyncServiceProtocol
     private let polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
     private let walletConnect: WalletConnectService
+    private let walletAssetsObserver: WalletAssetsObserver
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -22,7 +25,8 @@ final class ServiceCoordinator {
         githubPhishingService: ApplicationServiceProtocol,
         scamSyncService: ScamSyncServiceProtocol,
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
-        walletConnect: WalletConnectService
+        walletConnect: WalletConnectService,
+        walletAssetsObserver: WalletAssetsObserver
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -30,6 +34,7 @@ final class ServiceCoordinator {
         self.scamSyncService = scamSyncService
         self.polkaswapSettingsService = polkaswapSettingsService
         self.walletConnect = walletConnect
+        self.walletAssetsObserver = walletAssetsObserver
     }
 }
 
@@ -37,6 +42,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func updateOnAccountChange() {
         if let seletedMetaAccount = walletSettings.value {
             accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
+            walletAssetsObserver.update(wallet: seletedMetaAccount)
         }
     }
 
@@ -49,12 +55,14 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         scamSyncService.syncUp()
         polkaswapSettingsService.syncUp()
         walletConnect.setup()
+        walletAssetsObserver.setup()
     }
 
     func throttle() {
         githubPhishingService.throttle()
         accountInfoService.throttle()
         walletConnect.throttle()
+        walletAssetsObserver.throttle()
     }
 }
 
@@ -102,13 +110,60 @@ extension ServiceCoordinator {
             eventCenter: EventCenter.shared
         )
 
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createAsyncRepository()
+
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryWrapper
+        )
+
+        let accountInfoRemote = AccountInfoRemoteServiceDefault(
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            chainRegistry: createPackageChainRegistry()
+        )
+
+        let walletAssetsObserver = WalletAssetsObserverImpl(
+            wallet: selectedMetaAccount,
+            chainRegistry: chainRegistry,
+            accountInfoRemote: accountInfoRemote,
+            eventCenter: EventCenter.shared
+        )
+
         return ServiceCoordinator(
             walletSettings: walletSettings,
             accountInfoService: accountInfoService,
             githubPhishingService: githubPhishingAPIService,
             scamSyncService: scamSyncService,
             polkaswapSettingsService: polkaswapSettingsService,
-            walletConnect: walletConnect
+            walletConnect: walletConnect,
+            walletAssetsObserver: walletAssetsObserver
         )
+    }
+
+    private static func createPackageChainRegistry() -> SSFChainRegistry.ChainRegistryProtocol {
+        let chainSyncService = SSFChainRegistry.ChainSyncService(
+            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
+            operationQueue: OperationQueue(),
+            dataFetchFactory: SSFNetwork.NetworkOperationFactory()
+        )
+
+        let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
+            url: ApplicationConfig.shared.chainTypesSourceUrl,
+            dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
+            operationQueue: OperationQueue()
+        )
+
+        let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
+
+        let chainRegistry = SSFChainRegistry.ChainRegistry(
+            runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
+            connectionPool: SSFChainRegistry.ConnectionPool(),
+            chainSyncService: chainSyncService,
+            chainsTypesSyncService: chainsTypesSyncService,
+            runtimeSyncService: runtimeSyncService
+        )
+        return chainRegistry
     }
 }

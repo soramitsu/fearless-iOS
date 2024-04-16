@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol StakingPoolOperationFactoryProtocol {
     func fetchBondedPoolsOperation() -> CompoundOperationWrapper<[StakingPool]>

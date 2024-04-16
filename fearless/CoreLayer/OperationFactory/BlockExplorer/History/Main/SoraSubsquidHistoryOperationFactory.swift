@@ -4,6 +4,7 @@ import CommonWallet
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 class SoraSubsquidHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>

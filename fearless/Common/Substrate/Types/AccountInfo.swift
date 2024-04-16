@@ -218,6 +218,13 @@ enum EquilibriumAccountData: Decodable {
             )
         }
     }
+
+    var info: EquilibriumV0AccountData? {
+        switch self {
+        case let .v0data(info):
+            return info
+        }
+    }
 }
 
 struct EquilibriumV0AccountData: Decodable {

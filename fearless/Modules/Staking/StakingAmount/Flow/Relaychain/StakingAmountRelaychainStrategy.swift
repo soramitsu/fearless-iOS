@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import RobinHood
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol StakingAmountRelaychainStrategyOutput: AnyObject {
     func didReceive(error: Error)

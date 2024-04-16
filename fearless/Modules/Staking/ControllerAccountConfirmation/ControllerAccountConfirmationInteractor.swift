@@ -3,6 +3,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class ControllerAccountConfirmationInteractor {
     weak var presenter: ControllerAccountConfirmationInteractorOutputProtocol!
