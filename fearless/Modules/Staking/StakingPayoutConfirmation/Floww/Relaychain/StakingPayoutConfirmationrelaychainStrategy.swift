@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol StakingPayoutConfirmationrelaychainStrategyOutput {
     func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal)

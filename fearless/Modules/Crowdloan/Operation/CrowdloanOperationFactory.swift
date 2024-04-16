@@ -4,6 +4,7 @@ import SSFUtils
 import IrohaCrypto
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol CrowdloanOperationFactoryProtocol {
     func fetchCrowdloansOperation(

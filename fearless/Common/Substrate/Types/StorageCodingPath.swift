@@ -1,4 +1,7 @@
 import Foundation
+import SSFModels
+
+extension StorageCodingPath: StorageCodingPathProtocol {}
 
 enum StorageCodingPath: Equatable, CaseIterable {
     var moduleName: String {

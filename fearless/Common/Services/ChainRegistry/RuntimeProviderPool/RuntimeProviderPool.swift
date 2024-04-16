@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol RuntimeProviderPoolProtocol {
     @discardableResult

@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol SelectValidatorsConfirmRelaychainInitiatedStrategyOutput: SelectValidatorsConfirmStrategyOutput {
     func didReceiveMinBond(result: Result<BigUInt?, Error>)

@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol YourValidatorListRelaychainStrategyOutput {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)

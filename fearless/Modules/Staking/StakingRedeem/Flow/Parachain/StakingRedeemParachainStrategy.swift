@@ -4,6 +4,7 @@ import SoraKeystore
 import SSFUtils
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol StakingRedeemParachainStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

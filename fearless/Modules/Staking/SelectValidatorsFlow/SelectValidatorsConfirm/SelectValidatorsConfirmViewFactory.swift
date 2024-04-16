@@ -4,6 +4,7 @@ import SoraFoundation
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 // swiftlint:disable type_body_length function_body_length
 final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFactoryProtocol {

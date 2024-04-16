@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFRuntimeCodingService
 
 typealias WebSocketProviderKeyClosure = (@escaping () throws -> RuntimeCoderFactoryProtocol) throws
     -> BaseOperation<[Data]>
