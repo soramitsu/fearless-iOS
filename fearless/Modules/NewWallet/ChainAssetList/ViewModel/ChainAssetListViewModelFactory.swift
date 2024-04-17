@@ -36,7 +36,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         shouldRunManageAssetAnimate: Bool,
         displayType: AssetListDisplayType
     ) -> ChainAssetListViewModel {
-        let enabledChainAssets = enabled(chainAssets: chainAssets, for: wallet)
+        let enabledChainAssets = enabledOrDefault(chainAssets: chainAssets, for: wallet)
 
         let assetChainAssetsArray = createAssetChainAssets(
             from: enabledChainAssets,

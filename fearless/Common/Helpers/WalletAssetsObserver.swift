@@ -17,6 +17,8 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         DispatchQueue(label: "co.jp.soramitsu.asset.observer.deliveryQueue")
     }()
 
+    private var currentTask: Task<Void, Error>?
+
     init(
         wallet: MetaAccountModel,
         chainRegistry: ChainRegistryProtocol,
@@ -34,6 +36,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - WalletAssetsObserver
 
     func update(wallet: MetaAccountModel) {
+        currentTask?.cancel()
         self.wallet = wallet
         throttle()
         setup()
@@ -54,13 +57,14 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     }
 
     func throttle() {
+        currentTask?.cancel()
         chainRegistry.chainsUnsubscribe(self)
     }
 
     // MARK: - Private methods
 
     private func handleChains(changes: [DataProviderChange<ChainModel>]) {
-        Task {
+        currentTask = Task {
             let result = await withTaskGroup(
                 of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
                 returning: [ChainModel: [ChainAssetId: AccountInfo?]].self,
@@ -122,11 +126,8 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                 }
 
                 var isHidden = true
-                let isDefaultVisibleChainAsset = chainAsset.chain.rank != nil && chainAsset.asset.isUtility
-                if let accountInfo = value, accountInfo.zero() {
-                    isHidden = !isDefaultVisibleChainAsset
-                } else {
-                    isHidden = !isDefaultVisibleChainAsset
+                if let accountInfo = value {
+                    isHidden = accountInfo.zero()
                 }
 
                 let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: isHidden)
@@ -134,6 +135,24 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                 wallet = updatedWallet
             }
         }
+        let chains = resultMap.keys.map { $0 }
+        setDefaultVisibilitiesIfNeeded(chains: chains)
+    }
+
+    private func setDefaultVisibilitiesIfNeeded(chains: [ChainModel]) {
+        let isNewWallet = wallet.assetsVisibility.filter { !$0.hidden }.isEmpty
+        guard isNewWallet else {
+            return
+        }
+        let chainAssets: [ChainAsset] = chains
+            .map { $0.chainAssets }
+            .reduce([], +)
+        let defaultVisibilities = chainAssets.map {
+            let isHidden = !($0.chain.rank != nil && $0.asset.isUtility)
+            let visibility = AssetVisibility(assetId: $0.identifier, hidden: isHidden)
+            return visibility
+        }
+        wallet = wallet.replacingAssetsVisibility(defaultVisibilities)
     }
 
     private func update(
