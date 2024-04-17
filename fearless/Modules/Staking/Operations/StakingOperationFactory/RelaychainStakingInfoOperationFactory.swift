@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFRuntimeCodingService
 
 final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFactory {
     private func deriveTotalStake(from eraStakersInfo: EraStakersInfo) -> BigUInt {

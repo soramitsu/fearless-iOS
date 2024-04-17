@@ -9,34 +9,32 @@ protocol WalletAssetsObserver: ApplicationServiceProtocol {
 final class WalletAssetsObserverImpl: WalletAssetsObserver {
     private var wallet: MetaAccountModel
     private let chainRegistry: ChainRegistryProtocol
-    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let eventCenter: EventCenterProtocol
+    private let accountInfoRemote: AccountInfoRemoteService
+    private let logger: LoggerProtocol
 
     private lazy var walletAssetsObserverQueue: DispatchQueue = {
         DispatchQueue(label: "co.jp.soramitsu.asset.observer.deliveryQueue")
     }()
 
-    private lazy var workItem: DispatchWorkItem = {
-        DispatchWorkItem(block: {})
-    }()
-
     init(
         wallet: MetaAccountModel,
         chainRegistry: ChainRegistryProtocol,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        eventCenter: EventCenterProtocol
+        accountInfoRemote: AccountInfoRemoteService,
+        eventCenter: EventCenterProtocol,
+        logger: LoggerProtocol
     ) {
         self.wallet = wallet
         self.chainRegistry = chainRegistry
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.accountInfoRemote = accountInfoRemote
         self.eventCenter = eventCenter
+        self.logger = logger
     }
 
     // MARK: - WalletAssetsObserver
 
     func update(wallet: MetaAccountModel) {
         self.wallet = wallet
-        accountInfoSubscriptionAdapter.update(wallet: wallet)
         throttle()
         setup()
     }
@@ -51,71 +49,91 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             self,
             runningInQueue: walletAssetsObserverQueue
         ) { [weak self] changes in
-            self?.handle(changes: changes)
+            self?.handleChains(changes: changes)
         }
     }
 
     func throttle() {
-        accountInfoSubscriptionAdapter.reset()
         chainRegistry.chainsUnsubscribe(self)
     }
 
     // MARK: - Private methods
 
-    private func handle(changes: [DataProviderChange<ChainModel>]) {
-        let chainAssets: [ChainAsset] = changes
-            .compactMap { $0.item }
-            .map { $0.chainAssets }
-            .reduce([], +)
-        addSubscription(for: chainAssets)
-    }
+    private func handleChains(changes: [DataProviderChange<ChainModel>]) {
+        Task {
+            let result = await withTaskGroup(
+                of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
+                returning: [ChainModel: [ChainAssetId: AccountInfo?]].self,
+                body: { [wallet] group in
+                    changes.forEach { change in
+                        switch change {
+                        case let .insert(chain):
+                            group.addTask {
+                                do {
+                                    let accountInfos = try await self.accountInfoRemote.fetchAccountInfos(for: chain, wallet: wallet)
+                                    return (chain, accountInfos)
+                                } catch {
+                                    self.logger.customError(error)
+                                    let empty = self.emptyAccountInfos(for: chain)
+                                    return (chain, empty)
+                                }
+                            }
+                        case .update, .delete:
+                            break
+                        }
+                    }
 
-    private func addSubscription(for chainAssets: [ChainAsset]) {
-        accountInfoSubscriptionAdapter.subscribe(
-            chainsAssets: chainAssets,
-            handler: self,
-            deliveryOn: walletAssetsObserverQueue
-        )
-    }
-
-    private func performSaveAndNitify(wallet: MetaAccountModel) {
-        guard self.wallet.assetsVisibility != wallet.assetsVisibility else {
-            return
-        }
-        self.wallet = wallet
-        workItem.cancel()
-        workItem = DispatchWorkItem(block: { [weak self] in
-            SelectedWalletSettings.shared.performSave(value: wallet) { _ in
-                let event = MetaAccountModelChangedEvent(account: wallet)
-                self?.eventCenter.notify(with: event)
+                    var taskResults = [ChainModel: [ChainAssetId: AccountInfo?]]()
+                    for await result in group {
+                        taskResults[result.0] = result.1
+                    }
+                    return taskResults
+                }
+            )
+            guard result.isNotEmpty else {
+                return
             }
-        })
-        walletAssetsObserverQueue.asyncAfter(deadline: .now() + 1, execute: workItem)
+            updateCurrentWallet(with: result)
+            performSaveAndNitify()
+        }
     }
 
-    private func update(
-        _ wallet: MetaAccountModel,
-        with accountInfoResult: Result<AccountInfo?, Error>,
-        chainAsset: ChainAsset
-    ) -> MetaAccountModel {
-        let existAssetVisibility = wallet.assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })
-        let accountInfo = try? accountInfoResult.get()
+    private func emptyAccountInfos(for chain: ChainModel) -> [ChainAssetId: AccountInfo?] {
+        Dictionary(uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, nil) })
+    }
 
-        var isHidden = true
-        let isDefaultVisibleChainAsset = chainAsset.chain.rank != nil && chainAsset.asset.isUtility
-        if let accountInfo, accountInfo.zero() {
-            isHidden = !isDefaultVisibleChainAsset
-        } else {
-            isHidden = !isDefaultVisibleChainAsset
+    private func performSaveAndNitify() {
+        SelectedWalletSettings.shared.performSave(value: wallet) { [weak self] _ in
+            guard let self else {
+                return
+            }
+            let event = MetaAccountModelChangedEvent(account: self.wallet)
+            self.eventCenter.notify(with: event)
         }
+    }
 
-        guard existAssetVisibility == nil || existAssetVisibility?.hidden != isHidden else {
-            return wallet
+    private func updateCurrentWallet(
+        with resultMap: [ChainModel: [ChainAssetId: AccountInfo?]]
+    ) {
+        resultMap.forEach { chain, accountInfos in
+            accountInfos.forEach { key, value in
+                guard let chainAsset = chain.chainAssets.first(where: { $0.chainAssetId == key }) else {
+                    return
+                }
+
+                var isHidden = true
+                let isDefaultVisibleChainAsset = chainAsset.chain.rank != nil && chainAsset.asset.isUtility
+                if let accountInfo = value, accountInfo.zero() {
+                    isHidden = !isDefaultVisibleChainAsset
+                } else {
+                    isHidden = !isDefaultVisibleChainAsset
+                }
+
+                let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: isHidden)
+                let updatedWallet = update(wallet, with: assetVisibility)
+                wallet = updatedWallet
+            }
         }
-
-        let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: isHidden)
-        let updatedWallet = update(wallet, with: assetVisibility)
-        return updatedWallet
     }
 
     private func update(
@@ -126,12 +144,5 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         assetVivibilities.append(assetVisibility)
         let updatedWallet = wallet.replacingAssetsVisibility(assetVivibilities)
         return updatedWallet
-    }
-}
-
-extension WalletAssetsObserverImpl: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: SSFModels.ChainAsset) {
-        let updatedWallet = update(wallet, with: result, chainAsset: chainAsset)
-        performSaveAndNitify(wallet: updatedWallet)
     }
 }

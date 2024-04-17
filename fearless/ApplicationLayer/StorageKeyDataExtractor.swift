@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFRuntimeCodingService
 
 final class StorageKeyDataExtractor {
     private let runtimeService: RuntimeCodingServiceProtocol

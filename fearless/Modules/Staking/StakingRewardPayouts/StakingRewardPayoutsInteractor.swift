@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingRewardPayoutsInteractor {
     weak var presenter: StakingRewardPayoutsInteractorOutputProtocol!

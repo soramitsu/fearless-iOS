@@ -22,7 +22,7 @@ final class ChainRegistryFactory {
      *  - Returns: new instance conforming to `ChainRegistryProtocol`.
      */
 
-    static func createDefaultRegistry() -> ChainRegistryProtocol {
+    static func createDefaultRegistry() -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
         let repositoryFacade = SubstrateDataStorageFacade.shared
         return createDefaultRegistry(from: repositoryFacade)
     }
@@ -41,7 +41,7 @@ final class ChainRegistryFactory {
      */
     static func createDefaultRegistry(
         from repositoryFacade: StorageFacadeProtocol
-    ) -> ChainRegistryProtocol {
+    ) -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
         let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             repositoryFacade.createRepository()
 

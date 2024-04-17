@@ -5,6 +5,7 @@ import IrohaCrypto
 import BigInt
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol?

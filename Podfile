@@ -12,7 +12,6 @@ abstract_target 'fearlessAll' do
   pod 'SoraUI', '~> 1.10.3'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
-  pod 'Starscream', :git => 'https://github.com/soramitsu/fearless-starscream.git' , :tag => '4.0.8'
   pod 'ReachabilitySwift'
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'

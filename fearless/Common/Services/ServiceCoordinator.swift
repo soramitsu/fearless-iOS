@@ -3,6 +3,9 @@ import SoraKeystore
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFChainRegistry
+import SSFNetwork
+import SSFStorageQueryKit
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -108,16 +111,30 @@ extension ServiceCoordinator {
             eventCenter: EventCenter.shared
         )
 
-        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            selectedMetaAccount: selectedMetaAccount
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createAsyncRepository()
+
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryWrapper
+        )
+
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
+        )
+
+        let accountInfoRemote = AccountInfoRemoteServiceDefault(
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            storagePerformer: storagePerformer
         )
 
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: selectedMetaAccount,
             chainRegistry: chainRegistry,
-            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            eventCenter: EventCenter.shared
+            accountInfoRemote: accountInfoRemote,
+            eventCenter: EventCenter.shared,
+            logger: logger
         )
 
         return ServiceCoordinator(

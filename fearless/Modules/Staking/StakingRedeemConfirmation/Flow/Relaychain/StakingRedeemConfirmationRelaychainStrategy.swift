@@ -4,6 +4,7 @@ import SoraKeystore
 import SSFUtils
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol StakingRedeemConfirmationRelaychainStrategyOutput: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)

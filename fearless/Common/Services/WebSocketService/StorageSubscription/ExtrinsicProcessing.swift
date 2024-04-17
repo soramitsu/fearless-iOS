@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import BigInt
+import SSFRuntimeCodingService
 
 struct ExtrinsicProcessingResult {
     let extrinsic: Extrinsic

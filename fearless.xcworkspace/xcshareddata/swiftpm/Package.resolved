@@ -32,8 +32,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/fearless-starscream",
       "state" : {
-        "revision" : "9b31c94e94d81dd5df144f368ce90e18062b3f21",
-        "version" : "4.0.9"
+        "revision" : "3e1de9baeab87de379e0cb01c64d5db18fbf130f",
+        "version" : "4.0.12"
       }
     },
     {
@@ -284,8 +284,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bnsports/Web3.swift.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "f721578737afd87b704e00a913ed4566cfeb2895"
+        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
+        "version" : "7.7.7"
       }
     },
     {

@@ -3,6 +3,7 @@ import Commons
 import SSFSigner
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
     enum SignType {

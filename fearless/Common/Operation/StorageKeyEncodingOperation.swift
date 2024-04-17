@@ -1,12 +1,14 @@
 import Foundation
 import SSFUtils
 import RobinHood
+import SSFStorageQueryKit
+import SSFRuntimeCodingService
 
 protocol NMapKeyParamProtocol {
     func encode(encoder: DynamicScaleEncoding, type: String) throws -> Data
 }
 
-struct NMapKeyParam<T: Encodable>: NMapKeyParamProtocol {
+struct NMapKeyParam<T: Encodable>: NMapKeyParamProtocol, SSFStorageQueryKit.NMapKeyParamProtocol {
     var value: T
 
     func encode(encoder: DynamicScaleEncoding, type: String) throws -> Data {
