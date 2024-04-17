@@ -250,13 +250,14 @@ extension ChainAssetListViewController: EmptyStateViewOwnerProtocol {
 extension ChainAssetListViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         let emptyView = EmptyView()
-        emptyView.image = R.image.iconWarningGray()
+        emptyView.image = R.image.iconWarning()
         emptyView.title = R.string.localizable.emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
         emptyView.text = viewModel?.displayType.emptyStateText.value(for: selectedLocale)
-        emptyView.iconMode = .smallFilled
+        emptyView.iconMode = .bigFilledShadow
         emptyView.contentAlignment = ContentAlignment(vertical: .top, horizontal: .center)
 
         let container = ScrollableContainerView()
+        container.stackView.spacing = 16
         container.addArrangedSubview(rootView.headerViewContainer)
         container.addArrangedSubview(emptyView)
         container.addArrangedSubview(rootView.assetManagementButton)
