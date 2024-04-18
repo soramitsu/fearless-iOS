@@ -23,8 +23,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "7892a123f7e8d0fe62f9f03728b17bbd4f94df5c",
-        "version" : "1.8.1"
+        "revision" : "c9c3df6ab812de32bae61fc0cd1bf6d45170ebf0",
+        "version" : "1.8.2"
       }
     },
     {
@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/google-api-objectivec-client-for-rest.git",
       "state" : {
-        "revision" : "8b200e6e447c04140ac027cba4f368402766965f",
-        "version" : "3.5.1"
+        "revision" : "11941123a0d9c2641197fa83d57e6ff9f088b907",
+        "version" : "3.5.2"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/gtm-session-fetcher.git",
       "state" : {
-        "revision" : "9534039303015a84837090d20fa21cae6e5eadb6",
-        "version" : "3.3.2"
+        "revision" : "bc8972686f8797713af26b8eb24e85e2a6b972a3",
+        "version" : "3.4.0"
       }
     },
     {
@@ -113,8 +113,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ashleymills/Reachability.swift",
       "state" : {
-        "revision" : "7b7018a69c84ea94ac2a38dff626e16ea81d1db9",
-        "version" : "5.2.1"
+        "revision" : "57da4b1270cab7c2228919eabc0e4e1bf93e48ea",
+        "version" : "5.2.2"
       }
     },
     {
@@ -133,6 +133,15 @@
       "state" : {
         "revision" : "cd187c632fb812fd93711a9f7e644adb7e5f97f0",
         "version" : "0.1.7"
+      }
+    },
+    {
+      "identity" : "shared-features-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:soramitsu/shared-features-spm.git",
+      "state" : {
+        "branch" : "storage-requests-update",
+        "revision" : "eb4f7be2309d40e946e9176bb635cb831d73859d"
       }
     },
     {
@@ -226,15 +235,6 @@
       }
     },
     {
-      "identity" : "swiftformat",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nicklockwood/SwiftFormat",
-      "state" : {
-        "revision" : "9df3b01f477163b33d5e63c5e2e5b9f946a49c56",
-        "version" : "0.53.6"
-      }
-    },
-    {
       "identity" : "swiftimagereadwrite",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/SwiftImageReadWrite",
@@ -248,8 +248,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
       "state" : {
-        "revision" : "1080914828ef1c9ca9cd2bad50667b3d847dabff",
-        "version" : "2.0.0"
+        "revision" : "9a83a973f5169062701cc9f11dd2b2042ecaa8b5",
+        "version" : "2.0.1"
       }
     },
     {
