@@ -141,7 +141,7 @@
       "location" : "git@github.com:soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "storage-requests-update",
-        "revision" : "eb4f7be2309d40e946e9176bb635cb831d73859d"
+        "revision" : "cff4cb7a8ab78560d011505b44a3580119925cff"
       }
     },
     {

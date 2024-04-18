@@ -132,6 +132,9 @@
 		076B7B2E2BD0EB0F00CAA791 /* SSFXCM in Frameworks */ = {isa = PBXBuildFile; productRef = 076B7B2D2BD0EB0F00CAA791 /* SSFXCM */; };
 		076B7B302BD0EB0F00CAA791 /* SoraKeystore in Frameworks */ = {isa = PBXBuildFile; productRef = 076B7B2F2BD0EB0F00CAA791 /* SoraKeystore */; };
 		076B7B322BD0EB0F00CAA791 /* keccak in Frameworks */ = {isa = PBXBuildFile; productRef = 076B7B312BD0EB0F00CAA791 /* keccak */; };
+		076B7B352BD102B200CAA791 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = 076B7B342BD102B200CAA791 /* Web3 */; };
+		076B7B372BD102B200CAA791 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = 076B7B362BD102B200CAA791 /* Web3ContractABI */; };
+		076B7B392BD102B200CAA791 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = 076B7B382BD102B200CAA791 /* Web3PromiseKit */; };
 		076D9D2C29370C33002762E3 /* MarketButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D2B29370C33002762E3 /* MarketButton.swift */; };
 		076D9D2E2939B780002762E3 /* PolkaswapOperationFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D2D2939B77F002762E3 /* PolkaswapOperationFactoryProtocol.swift */; };
 		076D9D312939F72A002762E3 /* PolkaswapQuoteParams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D302939F72A002762E3 /* PolkaswapQuoteParams.swift */; };
@@ -6154,12 +6157,15 @@
 				076B7B082BD0EB0F00CAA791 /* SSFCloudStorage in Frameworks */,
 				076B7B2A2BD0EB0F00CAA791 /* SSFTransferService in Frameworks */,
 				FA7254692AC2F12D00EC47A6 /* WalletConnectAuth in Frameworks */,
+				076B7B372BD102B200CAA791 /* Web3ContractABI in Frameworks */,
 				076B7B262BD0EB0F00CAA791 /* SSFSingleValueCache in Frameworks */,
 				076B7B042BD0EB0F00CAA791 /* SSFChainConnection in Frameworks */,
+				076B7B352BD102B200CAA791 /* Web3 in Frameworks */,
 				076B7B222BD0EB0F00CAA791 /* SSFRuntimeCodingService in Frameworks */,
 				076B7B202BD0EB0F00CAA791 /* SSFQRService in Frameworks */,
 				C5AFED6C37C2C29E9903D136 /* Pods_fearlessAll_fearless.framework in Frameworks */,
 				076B7B002BD0EB0F00CAA791 /* SSFAccountManagmentStorage in Frameworks */,
+				076B7B392BD102B200CAA791 /* Web3PromiseKit in Frameworks */,
 				076B7AFE2BD0EB0F00CAA791 /* SSFAccountManagment in Frameworks */,
 				076B7AFA2BD0EB0F00CAA791 /* IrohaCrypto in Frameworks */,
 				076B7B122BD0EB0F00CAA791 /* SSFKeyPair in Frameworks */,
@@ -15415,6 +15421,9 @@
 				076B7B2D2BD0EB0F00CAA791 /* SSFXCM */,
 				076B7B2F2BD0EB0F00CAA791 /* SoraKeystore */,
 				076B7B312BD0EB0F00CAA791 /* keccak */,
+				076B7B342BD102B200CAA791 /* Web3 */,
+				076B7B362BD102B200CAA791 /* Web3ContractABI */,
+				076B7B382BD102B200CAA791 /* Web3PromiseKit */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15485,6 +15494,7 @@
 				FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
 				FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */,
 				076B7AF82BD0EB0F00CAA791 /* XCRemoteSwiftPackageReference "shared-features-spm" */,
+				076B7B332BD102B200CAA791 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -19338,6 +19348,14 @@
 				kind = branch;
 			};
 		};
+		076B7B332BD102B200CAA791 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 7.7.7;
+			};
+		};
 		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/WalletConnect/WalletConnectSwiftV2";
@@ -19501,6 +19519,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 076B7AF82BD0EB0F00CAA791 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = keccak;
+		};
+		076B7B342BD102B200CAA791 /* Web3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 076B7B332BD102B200CAA791 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3;
+		};
+		076B7B362BD102B200CAA791 /* Web3ContractABI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 076B7B332BD102B200CAA791 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3ContractABI;
+		};
+		076B7B382BD102B200CAA791 /* Web3PromiseKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 076B7B332BD102B200CAA791 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3PromiseKit;
 		};
 		FA7254662AC2F12D00EC47A6 /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;
