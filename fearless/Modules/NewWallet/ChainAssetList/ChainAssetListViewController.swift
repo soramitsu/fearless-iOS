@@ -120,8 +120,20 @@ private extension ChainAssetListViewController {
     }
 
     func bindActions() {
-        rootView.assetManagementButton.addAction { [weak self] in
-            self?.output.didTapManageAsset()
+        rootView.footerButton.addAction { [weak self] in
+            guard let self, let viewModel = self.viewModel else {
+                return
+            }
+            switch viewModel.displayState {
+            case .defaultList, .allIsHidden:
+                self.output.didTapManageAsset()
+            case let .chainHasNetworkIssue(chain):
+                self.output.didTapResolveNetworkIssue(for: chain)
+            case let .chainHasAccountIssue(chain):
+                self.output.didTapResolveAccountIssue(for: chain)
+            case .search:
+                break
+            }
         }
     }
 
@@ -144,7 +156,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     func didReceive(viewModel: ChainAssetListViewModel) {
         self.viewModel = viewModel
         rootView.setFooterButtonTitle(for: viewModel.displayState)
-        rootView.assetManagementButton.isHidden = viewModel.displayState.isSearch
+        rootView.footerButton.isHidden = viewModel.displayState.isSearch
         UIView.animate(withDuration: 0.3) {
             self.rootView.bannersView?.isHidden = viewModel.displayState.isSearch
         }

@@ -42,7 +42,7 @@ final class ChainAssetListViewLayout: UIView {
 
     // MARK: - Manage button
 
-    let assetManagementButton: TriangularedButton = {
+    let footerButton: TriangularedButton = {
         let button = TriangularedButton()
         button.triangularedView?.shadowOpacity = 0
         button.triangularedView?.fillColor = R.color.colorWhite8()!
@@ -87,8 +87,8 @@ final class ChainAssetListViewLayout: UIView {
     func setFooterView() {
         let size = CGSize(width: tableView.bounds.width, height: UIConstants.actionHeight)
         let footerContainer = UIView(frame: CGRect(origin: .zero, size: size))
-        footerContainer.addSubview(assetManagementButton)
-        assetManagementButton.snp.remakeConstraints { make in
+        footerContainer.addSubview(footerButton)
+        footerButton.snp.remakeConstraints { make in
             make.top.bottom.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
@@ -97,7 +97,7 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     func removeFooterView() {
-        assetManagementButton.removeFromSuperview()
+        footerButton.removeFromSuperview()
         tableView.tableFooterView = nil
     }
 
@@ -112,14 +112,14 @@ final class ChainAssetListViewLayout: UIView {
         container.stackView.spacing = 16
         container.addArrangedSubview(headerViewContainer)
         container.addArrangedSubview(emptyView)
-        container.addArrangedSubview(assetManagementButton)
+        container.addArrangedSubview(footerButton)
 
         headerViewContainer.snp.remakeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.width.equalToSuperview()
         }
 
-        assetManagementButton.snp.remakeConstraints { make in
+        footerButton.snp.remakeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(UIConstants.actionHeight)
         }
@@ -132,7 +132,7 @@ final class ChainAssetListViewLayout: UIView {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             let rect = self.tableView.convert(
-                self.assetManagementButton.bounds,
+                self.footerButton.bounds,
                 from: self.tableView.tableFooterView
             )
             self.tableView.scrollRectToVisible(
@@ -144,11 +144,11 @@ final class ChainAssetListViewLayout: UIView {
                 withDuration: 0.6,
                 delay: 0.2,
                 animations: {
-                    self.assetManagementButton.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+                    self.footerButton.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
                 },
                 completion: { _ in
                     UIView.animate(withDuration: 0.6) {
-                        self.assetManagementButton.transform = CGAffineTransform.identity
+                        self.footerButton.transform = CGAffineTransform.identity
                         finish()
                         self.isAnimating = false
                     }
@@ -169,7 +169,7 @@ final class ChainAssetListViewLayout: UIView {
         case .search:
             title = nil
         }
-        assetManagementButton.imageWithTitleView?.title = title
+        footerButton.imageWithTitleView?.title = title
     }
 
     private func setupLayout() {

@@ -119,9 +119,9 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 }
             }
             if hasMissingAccount {
-                return .chainHasAccountIssue
+                return .chainHasAccountIssue(chain: chain)
             } else if hasNetworkIssues {
-                return .chainHasNetworkIssue
+                return .chainHasNetworkIssue(chain: chain)
             } else {
                 return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
             }

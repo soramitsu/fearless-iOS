@@ -129,4 +129,19 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
 
         view?.controller.present(controller, animated: true)
     }
+
+    func showIssueNotification(
+        from view: ControllerBackedProtocol?,
+        issues: [ChainIssue],
+        wallet: MetaAccountModel
+    ) {
+        guard let module = NetworkIssuesNotificationAssembly.configureModule(
+            wallet: wallet,
+            issues: issues
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
 }

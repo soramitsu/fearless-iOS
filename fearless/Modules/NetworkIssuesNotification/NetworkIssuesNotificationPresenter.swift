@@ -146,7 +146,36 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationViewOutpu
 
 extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteractorOutput {
     func didReceiveChainsIssues(issues: [ChainIssue]) {
-        self.issues = issues
+        self.issues = issues.compactMap { issue in
+            guard self.issues.isNotEmpty else {
+                return issue
+            }
+            switch issue {
+            case let .network(chains):
+                let filtred = chains.filter { chain in
+                    self.issues.contains(where: { issue in
+                        if case let .network(chains) = issue {
+                            return chains.contains(where: { $0.chainId == chain.chainId })
+                        } else {
+                            return false
+                        }
+                    })
+                }
+                return .network(chains: filtred)
+
+            case let .missingAccount(chains):
+                let filtred = chains.filter { chain in
+                    self.issues.contains(where: { issue in
+                        if case let .missingAccount(chains) = issue {
+                            return chains.contains(where: { $0.chainId == chain.chainId })
+                        } else {
+                            return false
+                        }
+                    })
+                }
+                return .missingAccount(chains: filtred)
+            }
+        }
         provideViewModel()
     }
 

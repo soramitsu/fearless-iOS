@@ -15,6 +15,8 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didPullToRefresh()
     func didTapManageAsset()
     func didFinishManageAssetAnimate()
+    func didTapResolveNetworkIssue(for chain: ChainModel)
+    func didTapResolveAccountIssue(for chain: ChainModel)
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
@@ -84,6 +86,11 @@ protocol ChainAssetListRouterInput:
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         filter: NetworkManagmentFilter?
+    )
+    func showIssueNotification(
+        from view: ControllerBackedProtocol?,
+        issues: [ChainIssue],
+        wallet: MetaAccountModel
     )
 }
 

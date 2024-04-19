@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 struct ChainAssetListViewModel {
     let displayState: AssetListState
@@ -14,8 +15,8 @@ enum AssetListDisplayType {
 enum AssetListState {
     case defaultList(cells: [ChainAccountBalanceCellViewModel], withAnimate: Bool)
     case allIsHidden
-    case chainHasNetworkIssue
-    case chainHasAccountIssue
+    case chainHasNetworkIssue(chain: ChainModel)
+    case chainHasAccountIssue(chain: ChainModel)
     case search
 
     var rows: [ChainAccountBalanceCellViewModel] {
