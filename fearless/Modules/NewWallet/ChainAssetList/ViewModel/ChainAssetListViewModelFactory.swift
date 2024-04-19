@@ -11,9 +11,10 @@ protocol ChainAssetListViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithMissingAccounts: [ChainModel.Id],
+        chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
-        displayType: AssetListDisplayType
+        displayType: AssetListDisplayType,
+        chainSettings: [ChainSettings]
     ) -> ChainAssetListViewModel
 }
 
@@ -32,9 +33,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithMissingAccounts: [ChainModel.Id],
+        chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
-        displayType: AssetListDisplayType
+        displayType: AssetListDisplayType,
+        chainSettings: [ChainSettings]
     ) -> ChainAssetListViewModel {
         let enabledChainAssets = enabledOrDefault(chainAssets: chainAssets, for: wallet)
 
@@ -62,7 +64,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 accountInfos: accountInfos,
                 locale: locale,
                 wallet: wallet,
-                chainsWithMissingAccounts: chainsWithMissingAccounts,
+                chainsWithIssue: chainsWithIssue,
                 displayType: displayType
             )
         }
@@ -70,15 +72,65 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         let isColdBoot = wallet.assetsVisibility.isEmpty
         let shouldRunManageAssetAnimate = shouldRunManageAssetAnimate && !isColdBoot
 
-        return ChainAssetListViewModel(
-            cells: chainAssetCellModels,
+        let displayState: AssetListState = createDisplayState(
+            wallet: wallet,
             displayType: displayType,
+            chainAssets: chainAssets,
+            chainsWithIssue: chainsWithIssue,
+            chainSettings: chainSettings,
             shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
-            emptyStateIsActive: chainAssetCellModels.isEmpty
+            cells: chainAssetCellModels
         )
+        let viewModel = ChainAssetListViewModel(
+            displayState: displayState
+        )
+        return viewModel
     }
 
     // MARK: - Private methods
+
+    private func createDisplayState(
+        wallet: MetaAccountModel,
+        displayType: AssetListDisplayType,
+        chainAssets: [ChainAsset],
+        chainsWithIssue: [ChainIssue],
+        chainSettings: [ChainSettings],
+        shouldRunManageAssetAnimate: Bool,
+        cells: [ChainAccountBalanceCellViewModel]
+    ) -> AssetListState {
+        switch displayType {
+        case .chain:
+            if cells.isEmpty {
+                return .allIsHidden
+            }
+            guard chainAssets.count == 1, let chain = chainAssets.first?.chain else {
+                return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
+            }
+            var hasNetworkIssues: Bool = false
+            var hasMissingAccount: Bool = false
+            chainsWithIssue.forEach { issue in
+                switch issue {
+                case let .network(chains):
+                    let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
+                    hasNetworkIssues = chains.first(where: { !mutedIssuesChainIds.contains($0.chainId) && $0.chainId == chain.chainId }) != nil
+                case let .missingAccount(chains):
+                    let unusedChains = wallet.unusedChainIds ?? []
+                    hasMissingAccount = chains.first(where: { !unusedChains.contains($0.chainId) && $0.chainId == chain.chainId }) != nil
+                }
+            }
+            if hasMissingAccount {
+                return .chainHasAccountIssue
+            } else if hasNetworkIssues {
+                return .chainHasNetworkIssue
+            } else {
+                return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
+            }
+        case .assetChains:
+            return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
+        case .search:
+            return .search
+        }
+    }
 
     private func buildChainAccountBalanceCellViewModel(
         chainAssets: [ChainAsset],
@@ -88,7 +140,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         wallet: MetaAccountModel,
-        chainsWithMissingAccounts: [ChainModel.Id],
+        chainsWithIssue: [ChainIssue],
         displayType: AssetListDisplayType
     ) -> ChainAccountBalanceCellViewModel? {
         let priceAttributedString = getPriceAttributedString(
@@ -98,11 +150,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         )
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
-        var isColdBoot = true
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            let key = chainAsset.uniqueKey(accountId: accountId)
-            isColdBoot = !accountInfos.keys.contains(key)
-        }
         let chainsAssetsWithBalance = chainAssets.filter { chainAsset in
             if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
                let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
@@ -110,19 +157,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             }
             return false
         }
-
-        let notUtilityChainsWithBalance = chainsAssetsWithBalance.filter { $0 != chainAsset }
-        let isMissingAccount = chainAssets.first(where: {
-            chainsWithMissingAccounts.contains($0.chain.chainId)
-                || wallet.unusedChainIds.or([]).contains($0.chain.chainId)
-        }) != nil
-
-        if
-            chainsWithMissingAccounts.contains(chainAsset.chain.chainId)
-            || wallet.unusedChainIds.or([]).contains(chainAsset.chain.chainId) {
-            isColdBoot = !isMissingAccount
-        }
-        isColdBoot = wallet.assetsVisibility.isEmpty
 
         let totalAssetBalance = getBalanceString(
             for: chainAssets,
@@ -140,11 +174,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             shouldShowZero: false
         )
 
-        var isUnused = false
-        if let unusedChainIds = wallet.unusedChainIds {
-            isUnused = unusedChainIds.contains(chainAsset.chain.chainId)
-        }
-
+        let notUtilityChainsWithBalance = chainsAssetsWithBalance.filter { $0 != chainAsset }
         let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }.filter { $0 != chainAsset.chain.icon }
         let chainImages = Array(Set(shownChainAssetsIconsArray))
             .map { $0.map { RemoteImageViewModel(url: $0) }}
@@ -155,6 +185,18 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             maxImagesCount: 5,
             chainImages: chainImages.sorted(by: { $0.url.absoluteString > $1.url.absoluteString }) + [mainChainImageUrl]
         )
+
+        var isColdBoot = wallet.assetsVisibility.isEmpty
+        chainsWithIssue.forEach { issue in
+            switch issue {
+            case .network:
+                break
+            case let .missingAccount(chains):
+                let unusedChains = wallet.unusedChainIds ?? []
+                let isMissingAccount = chains.first(where: { !unusedChains.contains($0.chainId) }) != nil
+                isColdBoot = !isMissingAccount
+            }
+        }
 
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: chainAssets,
@@ -178,8 +220,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             options: options,
             isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated,
-            isMissingAccount: isMissingAccount,
-            isUnused: isUnused,
             locale: locale,
             hideButtonIsVisible: displayType == AssetListDisplayType.chain
         )

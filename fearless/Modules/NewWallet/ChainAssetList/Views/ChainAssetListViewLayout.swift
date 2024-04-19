@@ -12,11 +12,7 @@ final class ChainAssetListViewLayout: UIView {
         )
     }
 
-    var locale: Locale? {
-        didSet {
-            applyLocalization()
-        }
-    }
+    var locale: Locale?
 
     enum ViewState {
         case normal
@@ -105,6 +101,32 @@ final class ChainAssetListViewLayout: UIView {
         tableView.tableFooterView = nil
     }
 
+    func viewForEmptyState(for state: AssetListState) -> UIView {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarning()
+        emptyView.title = R.string.localizable.emptyViewTitle(preferredLanguages: locale?.rLanguages)
+        emptyView.text = emptyViewText(for: state)
+        emptyView.iconMode = .bigFilledShadow
+
+        let container = ScrollableContainerView()
+        container.stackView.spacing = 16
+        container.addArrangedSubview(headerViewContainer)
+        container.addArrangedSubview(emptyView)
+        container.addArrangedSubview(assetManagementButton)
+
+        headerViewContainer.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+
+        assetManagementButton.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        return container
+    }
+
     func runManageAssetAnimate(finish: @escaping (() -> Void)) {
         isAnimating = true
 
@@ -135,6 +157,21 @@ final class ChainAssetListViewLayout: UIView {
         }
     }
 
+    func setFooterButtonTitle(for state: AssetListState) {
+        let title: String?
+        switch state {
+        case .defaultList, .allIsHidden:
+            title = R.string.localizable.walletManageAssets(preferredLanguages: locale?.rLanguages)
+        case .chainHasNetworkIssue:
+            title = R.string.localizable.tryAgain(preferredLanguages: locale?.rLanguages)
+        case .chainHasAccountIssue:
+            title = R.string.localizable.accountsAddAccount(preferredLanguages: locale?.rLanguages)
+        case .search:
+            title = nil
+        }
+        assetManagementButton.imageWithTitleView?.title = title
+    }
+
     private func setupLayout() {
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
@@ -143,7 +180,18 @@ final class ChainAssetListViewLayout: UIView {
         }
     }
 
-    private func applyLocalization() {
-        assetManagementButton.imageWithTitleView?.title = R.string.localizable.walletManageAssets(preferredLanguages: locale?.rLanguages)
+    private func emptyViewText(for state: AssetListState) -> String? {
+        switch state {
+        case .defaultList:
+            return nil
+        case .allIsHidden:
+            return R.string.localizable.walletAllAssetsHidden(preferredLanguages: locale?.rLanguages)
+        case .chainHasNetworkIssue:
+            return "Connection Error: Unable to connect to the network. Please try again."
+        case .chainHasAccountIssue:
+            return R.string.localizable.accountNeededMessage(preferredLanguages: locale?.rLanguages)
+        case .search:
+            return R.string.localizable.emptyViewDescription(preferredLanguages: locale?.rLanguages)
+        }
     }
 }

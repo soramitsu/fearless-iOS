@@ -13,8 +13,6 @@ final class WalletMainContainerInteractor {
     private var wallet: MetaAccountModel
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
-    private let chainsIssuesCenter: ChainsIssuesCenter
-    private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
     private let applicationHandler: ApplicationHandler
     private let walletConnectService: WalletConnectService
@@ -27,8 +25,6 @@ final class WalletMainContainerInteractor {
         wallet: MetaAccountModel,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
-        chainsIssuesCenter: ChainsIssuesCenter,
-        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
         deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
         applicationHandler: ApplicationHandler,
         walletConnectService: WalletConnectService
@@ -38,8 +34,6 @@ final class WalletMainContainerInteractor {
         self.accountRepository = accountRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
-        self.chainsIssuesCenter = chainsIssuesCenter
-        self.chainSettingsRepository = chainSettingsRepository
         self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
         self.applicationHandler = applicationHandler
         self.walletConnectService = walletConnectService
@@ -104,19 +98,6 @@ final class WalletMainContainerInteractor {
         operationQueue.addOperation(saveOperation)
     }
 
-    private func fetchChainSettings() {
-        let fetchChainSettingsOperation = chainSettingsRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchChainSettingsOperation.completionBlock = { [weak self] in
-            let chainSettings = (try? fetchChainSettingsOperation.extractNoCancellableResultData()) ?? []
-            DispatchQueue.main.async {
-                self?.output?.didReceive(chainSettings: chainSettings)
-            }
-        }
-
-        operationQueue.addOperation(fetchChainSettingsOperation)
-    }
-
     private func checkDeprecatedAccountIssues() {
         Task {
             if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations(wallet: wallet) {
@@ -142,9 +123,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
     func setup(with output: WalletMainContainerInteractorOutput) {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
-        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchNetworkManagmentFilter()
-        fetchChainSettings()
     }
 
     func walletConnect(uri: String) async throws {
@@ -184,16 +163,6 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
         checkDeprecatedAccountIssues()
-    }
-}
-
-// MARK: - ChainsIssuesCenterListener
-
-extension WalletMainContainerInteractor: ChainsIssuesCenterListener {
-    func handleChainsIssues(_ issues: [ChainIssue]) {
-        DispatchQueue.main.async {
-            self.output?.didReceiveChainsIssues(chainsIssues: issues)
-        }
     }
 }
 

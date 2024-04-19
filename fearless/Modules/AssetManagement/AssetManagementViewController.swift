@@ -237,7 +237,6 @@ extension AssetManagementViewController: EmptyStateDataSource {
             .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
         emptyView.text = R.string.localizable.emptyViewDescription(preferredLanguages: selectedLocale.rLanguages)
         emptyView.iconMode = .smallFilled
-        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
         return emptyView
     }
 

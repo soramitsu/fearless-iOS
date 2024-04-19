@@ -41,6 +41,25 @@ final class ChainAssetListAssembly {
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
+        let missingAccountHelper = MissingAccountFetcher(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let accountInfoFetcher = AccountInfoFetching(
+            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+            chainRegistry: chainRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let chainsIssuesCenter = ChainsIssuesCenter(
+            wallet: wallet,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetcher
+        )
+
+        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriber: priceLocalSubscriber,
@@ -50,7 +69,9 @@ final class ChainAssetListAssembly {
             dependencyContainer: dependencyContainer,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
             chainAssetFetching: chainAssetFetching,
-            userDefaultsStorage: SettingsManager.shared
+            userDefaultsStorage: SettingsManager.shared,
+            chainsIssuesCenter: chainsIssuesCenter,
+            chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry)
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

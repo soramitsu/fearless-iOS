@@ -1,5 +1,4 @@
 import SSFModels
-// import WalletConnectSwiftV2
 
 typealias WalletMainContainerModuleCreationResult = (
     view: WalletMainContainerViewInput,
@@ -17,7 +16,6 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapSearch()
     func didTapSelectNetwork()
     func didTapOnBalance()
-    func didTapIssueButton()
     func addressDidCopied()
 }
 
@@ -30,8 +28,6 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveAccount(_ account: MetaAccountModel)
     func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [ChainModel]))
     func didReceiveError(_ error: Error)
-    func didReceiveChainsIssues(chainsIssues: [ChainIssue])
-    func didReceive(chainSettings: [ChainSettings])
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool)
     func didReceiveStashAccountIssue(address: String)
 }
@@ -50,11 +46,6 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
     )
     func showSelectCurrency(
         from view: WalletMainContainerViewInput?,
-        wallet: MetaAccountModel
-    )
-    func showIssueNotification(
-        from view: WalletMainContainerViewInput?,
-        issues: [ChainIssue],
         wallet: MetaAccountModel
     )
 

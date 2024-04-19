@@ -2,34 +2,35 @@ import Foundation
 import SoraFoundation
 
 struct ChainAssetListViewModel {
-    let cells: [ChainAccountBalanceCellViewModel]
-    let displayType: AssetListDisplayType
-    let shouldRunManageAssetAnimate: Bool
-    let emptyStateIsActive: Bool
+    let displayState: AssetListState
 }
 
 enum AssetListDisplayType {
     case chain
     case assetChains
     case search
+}
 
-    var isSearch: Bool {
+enum AssetListState {
+    case defaultList(cells: [ChainAccountBalanceCellViewModel], withAnimate: Bool)
+    case allIsHidden
+    case chainHasNetworkIssue
+    case chainHasAccountIssue
+    case search
+
+    var rows: [ChainAccountBalanceCellViewModel] {
         switch self {
-        case .chain, .assetChains:
-            return false
-        case .search:
-            return true
+        case let .defaultList(cells, _):
+            return cells
+        default:
+            return []
         }
     }
 
-    var emptyStateText: LocalizableResource<String> {
-        LocalizableResource { locale in
-            switch self {
-            case .chain, .assetChains:
-                return R.string.localizable.walletAllAssetsHidden(preferredLanguages: locale.rLanguages)
-            case .search:
-                return R.string.localizable.emptyViewTitle(preferredLanguages: locale.rLanguages)
-            }
+    var isSearch: Bool {
+        switch self {
+        case .search: return true
+        default: return false
         }
     }
 }

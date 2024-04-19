@@ -15,8 +15,6 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let options: [ChainOptionsViewModel]?
     var isColdBoot: Bool
     var priceDataWasUpdated: Bool
-    let isMissingAccount: Bool
-    let isUnused: Bool
     let locale: Locale
     let hideButtonIsVisible: Bool
 

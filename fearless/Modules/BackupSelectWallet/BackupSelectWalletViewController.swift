@@ -146,7 +146,6 @@ extension BackupSelectWalletViewController: EmptyStateDataSource {
             .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
         emptyView.text = R.string.localizable.importWalletsNotFound(preferredLanguages: selectedLocale.rLanguages)
         emptyView.iconMode = .bigFilledShadow
-        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
         return emptyView
     }
 

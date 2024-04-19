@@ -15,13 +15,11 @@ final class WalletMainContainerPresenter {
 
     private var wallet: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
-    private var chainSettings: [ChainSettings]?
 
     // MARK: - State
 
     private var selectedChains: [ChainModel]?
     private var selectedNetworkManagmentFilter: NetworkManagmentFilter?
-    private var issues: [ChainIssue] = []
 
     // MARK: - Constructors
 
@@ -53,9 +51,7 @@ final class WalletMainContainerPresenter {
             selectedFilter: selectedNetworkManagmentFilter ?? .all,
             selectedChains: selectedChains ?? [],
             selectedMetaAccount: wallet,
-            chainsIssues: issues,
-            locale: selectedLocale,
-            chainSettings: chainSettings ?? []
+            locale: selectedLocale
         )
 
         view?.didReceiveViewModel(viewModel)
@@ -103,9 +99,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapSelectNetwork() {
-        guard let select = selectedNetworkManagmentFilter else {
-            return
-        }
         router.showSelectNetwork(
             from: view,
             wallet: wallet,
@@ -116,14 +109,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     func didTapOnBalance() {
         router.showSelectCurrency(
             from: view,
-            wallet: wallet
-        )
-    }
-
-    func didTapIssueButton() {
-        router.showIssueNotification(
-            from: view,
-            issues: issues,
             wallet: wallet
         )
     }
@@ -176,16 +161,6 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         provideViewModel()
 
         balanceInfoModuleInput?.replace(infoType: .wallet(wallet: account))
-    }
-
-    func didReceiveChainsIssues(chainsIssues: [ChainIssue]) {
-        issues = chainsIssues
-        provideViewModel()
-    }
-
-    func didReceive(chainSettings: [ChainSettings]) {
-        self.chainSettings = chainSettings
-        provideViewModel()
     }
 
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {

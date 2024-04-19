@@ -28,6 +28,8 @@ final class ChainAssetListInteractor {
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let userDefaultsStorage: SettingsManagerProtocol
+    private let chainsIssuesCenter: ChainsIssuesCenter
+    private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -47,7 +49,9 @@ final class ChainAssetListInteractor {
         dependencyContainer: ChainAssetListDependencyContainer,
         ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
         chainAssetFetching: ChainAssetFetchingProtocol,
-        userDefaultsStorage: SettingsManagerProtocol
+        userDefaultsStorage: SettingsManagerProtocol,
+        chainsIssuesCenter: ChainsIssuesCenter,
+        chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     ) {
         self.wallet = wallet
         self.priceLocalSubscriber = priceLocalSubscriber
@@ -58,6 +62,8 @@ final class ChainAssetListInteractor {
         self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
         self.chainAssetFetching = chainAssetFetching
         self.userDefaultsStorage = userDefaultsStorage
+        self.chainsIssuesCenter = chainsIssuesCenter
+        self.chainSettingsRepository = chainSettingsRepository
     }
 
     // MARK: - Private methods
@@ -103,6 +109,13 @@ final class ChainAssetListInteractor {
             deliveryOn: accountInfosDeliveryQueue
         )
     }
+
+    private func getChainSettings() {
+        Task {
+            let settings = try await chainSettingsRepository.fetchAll()
+            output?.didReceive(chainSettings: settings)
+        }
+    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -124,6 +137,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         self.output = output
 
         eventCenter.add(observer: self, dispatchIn: .main)
+        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
     }
 
     func updateChainAssets(

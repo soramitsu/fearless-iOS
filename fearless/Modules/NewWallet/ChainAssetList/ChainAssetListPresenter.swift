@@ -20,7 +20,8 @@ final class ChainAssetListPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
-    private var chainsWithMissingAccounts: [ChainModel.Id] = []
+    private var chainsWithIssue: [ChainIssue] = []
+    private var chainSettings: [ChainSettings] = []
 
     private var networkFilter: NetworkManagmentFilter?
 
@@ -50,8 +51,9 @@ final class ChainAssetListPresenter {
 
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
-            let chainsWithMissingAccounts = self.chainsWithMissingAccounts
+            let chainsWithIssue = self.chainsWithIssue
             let shouldRunManageAssetAnimate = self.interactor.shouldRunManageAssetAnimate
+            let chainSettings = self.chainSettings
 
             let viewModel = self.viewModelFactory.buildViewModel(
                 wallet: self.wallet,
@@ -59,9 +61,10 @@ final class ChainAssetListPresenter {
                 locale: self.selectedLocale,
                 accountInfos: accountInfosCopy,
                 prices: prices,
-                chainsWithMissingAccounts: chainsWithMissingAccounts,
+                chainsWithIssue: chainsWithIssue,
                 shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
-                displayType: self.displayType
+                displayType: self.displayType,
+                chainSettings: chainSettings
             )
 
             DispatchQueue.main.async {
@@ -266,17 +269,12 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
     func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
         guard issues.isNotEmpty else {
-            chainsWithMissingAccounts = []
+            chainsWithIssue = []
             provideViewModel()
             return
         }
         lock.exclusivelyWrite { [weak self] in
-            guard let self = self else { return }
-            issues.forEach { chainIssue in
-                if case let .missingAccount(chains) = chainIssue {
-                    self.chainsWithMissingAccounts = chains.map { $0.chainId }
-                }
-            }
+            self?.chainsWithIssue = issues
         }
         provideViewModel()
     }
@@ -297,6 +295,13 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             self.accountInfos = balances.merging(self.accountInfos, uniquingKeysWith: { old, _ in
                 old
             })
+        }
+        provideViewModel()
+    }
+
+    func didReceive(chainSettings: [ChainSettings]) {
+        lock.exclusivelyWrite { [weak self] in
+            self?.chainSettings = chainSettings
         }
         provideViewModel()
     }

@@ -102,7 +102,7 @@ private extension ChainAssetListViewController {
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
-        guard let cellModel = viewModel?.cells[safe: indexPath.row] else {
+        guard let cellModel = viewModel?.displayState.rows[safe: indexPath.row] else {
             return nil
         }
         return cellModel
@@ -142,38 +142,40 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     }
 
     func didReceive(viewModel: ChainAssetListViewModel) {
-        UIView.animate(withDuration: 0.3) {
-            self.rootView.bannersView?.isHidden = viewModel.displayType.isSearch
-        }
-        let isInitialReload = self.viewModel == nil
-        rootView.assetManagementButton.isHidden = viewModel.displayType.isSearch
-
         self.viewModel = viewModel
+        rootView.setFooterButtonTitle(for: viewModel.displayState)
+        rootView.assetManagementButton.isHidden = viewModel.displayState.isSearch
+        UIView.animate(withDuration: 0.3) {
+            self.rootView.bannersView?.isHidden = viewModel.displayState.isSearch
+        }
 
-        viewModel.emptyStateIsActive ? rootView.removeFooterView() : rootView.setFooterView()
-        viewModel.emptyStateIsActive ? rootView.removeHeaderView() : rootView.setHeaderView()
-
-        if isInitialReload {
-            rootView.tableView.reloadData()
+        switch viewModel.displayState {
+        case let .defaultList(_, withAnimate):
+            rootView.setHeaderView()
             rootView.setFooterView()
-        } else {
             guard rootView.isAnimating == false else {
                 return
             }
 
-            reloadEmptyState(animated: false)
             rootView.tableView.reloadData()
-            if viewModel.emptyStateIsActive {
-                return
-            }
 
-            if viewModel.shouldRunManageAssetAnimate {
+            if withAnimate {
                 rootView.runManageAssetAnimate(finish: { [weak self] in
                     self?.output.didFinishManageAssetAnimate()
                     self?.rootView.tableView.reloadData()
                 })
             }
+        case .chainHasNetworkIssue, .chainHasAccountIssue, .allIsHidden:
+            rootView.removeHeaderView()
+            rootView.removeFooterView()
+            rootView.tableView.reloadData()
+        case .search:
+            let isEmpty = viewModel.displayState.rows.isEmpty
+            isEmpty ? rootView.removeFooterView() : rootView.setFooterView()
+            isEmpty ? rootView.removeHeaderView() : rootView.setHeaderView()
+            rootView.tableView.reloadData()
         }
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -208,7 +210,7 @@ extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if
             let assetCell = cell as? ChainAccountBalanceTableCell,
-            let viewModel = viewModel?.cells[safe: indexPath.row] {
+            let viewModel = viewModel?.displayState.rows[safe: indexPath.row] {
             assetCell.bind(to: viewModel)
         }
     }
@@ -226,7 +228,7 @@ extension ChainAssetListViewController: UITableViewDelegate {
 
 extension ChainAssetListViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        viewModel?.cells.count ?? .zero
+        viewModel?.displayState.rows.count ?? .zero
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
@@ -249,35 +251,11 @@ extension ChainAssetListViewController: EmptyStateViewOwnerProtocol {
 
 extension ChainAssetListViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        let emptyView = EmptyView()
-        emptyView.image = R.image.iconWarning()
-        emptyView.title = R.string.localizable.emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.text = viewModel?.displayType.emptyStateText.value(for: selectedLocale)
-        emptyView.iconMode = .bigFilledShadow
-        emptyView.contentAlignment = ContentAlignment(vertical: .top, horizontal: .center)
-
-        let container = ScrollableContainerView()
-        container.stackView.spacing = 16
-        container.addArrangedSubview(rootView.headerViewContainer)
-        container.addArrangedSubview(emptyView)
-        container.addArrangedSubview(rootView.assetManagementButton)
-        container.addArrangedSubview(UIView())
-
-        rootView.headerViewContainer.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.width.equalToSuperview()
+        guard let viewModel else {
+            return nil
         }
-
-        emptyView.snp.makeConstraints { make in
-            make.height.equalTo(170)
-        }
-
-        rootView.assetManagementButton.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-
-        return container
+        let view = rootView.viewForEmptyState(for: viewModel.displayState)
+        return view
     }
 
     var contentViewForEmptyState: UIView {
@@ -290,6 +268,6 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let viewModel = viewModel else { return false }
-        return viewModel.emptyStateIsActive
+        return viewModel.displayState.rows.isEmpty
     }
 }
