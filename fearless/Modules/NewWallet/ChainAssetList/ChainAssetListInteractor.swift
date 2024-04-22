@@ -30,6 +30,7 @@ final class ChainAssetListInteractor {
     private let userDefaultsStorage: SettingsManagerProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
+    private let chainRegistry: ChainRegistryProtocol
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -51,7 +52,8 @@ final class ChainAssetListInteractor {
         chainAssetFetching: ChainAssetFetchingProtocol,
         userDefaultsStorage: SettingsManagerProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
-        chainSettingsRepository: AsyncAnyRepository<ChainSettings>
+        chainSettingsRepository: AsyncAnyRepository<ChainSettings>,
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.wallet = wallet
         self.priceLocalSubscriber = priceLocalSubscriber
@@ -64,6 +66,7 @@ final class ChainAssetListInteractor {
         self.userDefaultsStorage = userDefaultsStorage
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
+        self.chainRegistry = chainRegistry
     }
 
     // MARK: - Private methods
@@ -239,6 +242,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
         save(updatedWallet, shouldNotify: true)
+    }
+
+    func retryConnection(for chainId: ChainModel.Id) {
+        chainRegistry.retryConnection(for: chainId)
     }
 }
 

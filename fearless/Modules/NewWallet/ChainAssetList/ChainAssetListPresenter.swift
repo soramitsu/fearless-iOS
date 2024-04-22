@@ -192,20 +192,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didTapResolveNetworkIssue(for chain: ChainModel) {
-        let issues: [ChainIssue] = chainsWithIssue.compactMap {
-            switch $0 {
-            case let .network(chains):
-                let chain = chains.filter { $0.chainId == chain.chainId }
-                return .network(chains: chain)
-            default:
-                return nil
-            }
-        }
-        router.showIssueNotification(
-            from: view,
-            issues: issues,
-            wallet: wallet
-        )
+        interactor.retryConnection(for: chain.chainId)
     }
 }
 

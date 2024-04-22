@@ -128,6 +128,7 @@ private extension ChainAssetListViewController {
             case .defaultList, .allIsHidden:
                 self.output.didTapManageAsset()
             case let .chainHasNetworkIssue(chain):
+                self.rootView.footerButton.set(loading: true)
                 self.output.didTapResolveNetworkIssue(for: chain)
             case let .chainHasAccountIssue(chain):
                 self.output.didTapResolveAccountIssue(for: chain)
@@ -157,6 +158,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
         self.viewModel = viewModel
         rootView.setFooterButtonTitle(for: viewModel.displayState)
         rootView.footerButton.isHidden = viewModel.displayState.isSearch
+        rootView.footerButton.set(loading: false)
         UIView.animate(withDuration: 0.3) {
             self.rootView.bannersView?.isHidden = viewModel.displayState.isSearch
         }

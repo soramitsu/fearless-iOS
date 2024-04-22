@@ -13,6 +13,7 @@ protocol ChainRegistryProtocol: AnyObject {
     var chainsTypesMap: [String: Data] { get }
 
     func resetConnection(for chainId: ChainModel.Id)
+    func retryConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
@@ -215,21 +216,15 @@ final class ChainRegistry {
         chains = chains.filter { $0.chainId != chainId }
     }
 
-    func resetSubstrateConnection(for chain: ChainModel) {
-        guard let chain = chains.first(where: { $0.chainId == chain.chainId }),
-              let substrateConnectionPool = self.substrateConnectionPool
-        else {
+    private func resetSubstrateConnection(for chainId: ChainModel.Id) {
+        guard let substrateConnectionPool = self.substrateConnectionPool else {
             return
         }
 
-        substrateConnectionPool.resetConnection(for: chain.chainId)
+        substrateConnectionPool.resetConnection(for: chainId)
     }
 
-    func resetEthereumConnection(for chain: ChainModel) {
-        guard let chain = chains.first(where: { $0.chainId == chain.chainId }) else {
-            return
-        }
-
+    private func resetEthereumConnection(for _: ChainModel.Id) {
         // TODO: Reset eth connection
     }
 }
@@ -356,10 +351,21 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
 
         if chain.isEthereum {
-            resetEthereumConnection(for: chain)
+            resetEthereumConnection(for: chain.chainId)
         } else {
-            resetSubstrateConnection(for: chain)
+            resetSubstrateConnection(for: chain.chainId)
         }
+    }
+
+    func retryConnection(for chainId: ChainModel.Id) {
+        guard
+            let chain = chains.first(where: { $0.chainId == chainId }),
+            let currentConnection = getConnection(for: chainId),
+            let currentURL = currentConnection.url
+        else {
+            return
+        }
+        connectionNeedsReconnect(for: chain, previusUrl: currentURL)
     }
 }
 
@@ -383,16 +389,16 @@ extension ChainRegistry: ConnectionPoolDelegate {
         switch state {
         case let .waitingReconnection(attempt: attempt):
             if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
-                connectionNeedsReconnect(for: changedStateChain, previusUrl: url, state: state)
+                connectionNeedsReconnect(for: changedStateChain, previusUrl: url)
             }
         case .notConnected:
-            connectionNeedsReconnect(for: changedStateChain, previusUrl: url, state: state)
+            connectionNeedsReconnect(for: changedStateChain, previusUrl: url)
         default:
             break
         }
     }
 
-    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL, state _: WebSocketEngine.State) {
+    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
         guard chain.selectedNode == nil else {
             return
         }

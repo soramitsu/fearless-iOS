@@ -71,7 +71,8 @@ final class ChainAssetListAssembly {
             chainAssetFetching: chainAssetFetching,
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
-            chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry)
+            chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
+            chainRegistry: ChainRegistryFacade.sharedRegistry
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
