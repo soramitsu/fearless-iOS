@@ -7,4 +7,5 @@ struct AssetNetworksTableCellModel {
     let cryptoBalanceLabelText: String?
     let fiatBalanceLabelText: String?
     let chainAsset: ChainAsset
+    let hasIssues: Bool
 }

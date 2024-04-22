@@ -384,4 +384,26 @@ extension ChainAssetListBuilder {
         }
         return bySearch
     }
+
+    func checkHasIssue(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        chainsWithIssue: [ChainIssue],
+        chainSettings: [ChainSettings]
+    ) -> (hasNetworkIssue: Bool, hasAccountIssue: Bool) {
+        var hasNetworkIssues: Bool = false
+        var hasMissingAccount: Bool = false
+        chainsWithIssue.forEach { issue in
+            switch issue {
+            case let .network(chains):
+                let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
+                hasNetworkIssues = chains.first(where: { !mutedIssuesChainIds.contains($0.chainId) && $0.chainId == chain.chainId }) != nil
+            case let .missingAccount(chains):
+                let unusedChains = wallet.unusedChainIds ?? []
+                hasMissingAccount = chains.first(where: { !unusedChains.contains($0.chainId) && $0.chainId == chain.chainId }) != nil
+            }
+        }
+
+        return (hasNetworkIssues, hasMissingAccount)
+    }
 }

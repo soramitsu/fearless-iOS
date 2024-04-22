@@ -11,6 +11,7 @@ protocol AssetNetworksViewOutput: AnyObject {
     func didSelect(chainAsset: ChainAsset)
     func didChangeNetworkSwitcher(segmentIndex: Int)
     func didTapSortButton()
+    func didTabResolveIssue(for chainAsset: ChainAsset)
 }
 
 protocol AssetNetworksInteractorInput: AnyObject {
@@ -21,6 +22,8 @@ protocol AssetNetworksInteractorOutput: AnyObject {
     func didReceiveChainAssets(_ chainAssets: [ChainAsset])
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceivePricesData(result: Result<[PriceData], Error>)
+    func didReceive(chainSettings: [ChainSettings])
+    func didReceiveChainsWithIssues(_ issues: [ChainIssue])
 }
 
 protocol AssetNetworksRouterInput: AnyObject {
@@ -28,12 +31,16 @@ protocol AssetNetworksRouterInput: AnyObject {
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset
     )
-
     func showFilters(
         title: String?,
         filters: [FilterSet],
         moduleOutput: FiltersModuleOutput?,
         from view: ControllerBackedProtocol?
+    )
+    func showIssueNotification(
+        from view: ControllerBackedProtocol?,
+        issues: [ChainIssue],
+        wallet: MetaAccountModel
     )
 }
 

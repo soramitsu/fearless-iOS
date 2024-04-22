@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 final class AssetNetworksViewController: UIViewController, ViewHolder {
     typealias RootViewType = AssetNetworksViewLayout
@@ -94,6 +95,7 @@ extension AssetNetworksViewController: UITableViewDelegate, UITableViewDataSourc
         let cell = tableView.dequeueReusableCellWithType(AssetNetworksTableCell.self, forIndexPath: indexPath)
         if let viewModel = cellViewModels[safe: indexPath.row] {
             cell.bind(viewModel: viewModel)
+            cell.delegate = self
         }
         return cell
     }
@@ -116,5 +118,11 @@ extension AssetNetworksViewController: UITableViewDelegate, UITableViewDataSourc
 extension AssetNetworksViewController: FWSegmentedControlDelegate {
     func didSelect(_ segmentIndex: Int) {
         output.didChangeNetworkSwitcher(segmentIndex: segmentIndex)
+    }
+}
+
+extension AssetNetworksViewController: AssetNetworksTableCellDelegate {
+    func resolveIssue(for chainAsset: ChainAsset) {
+        output.didTabResolveIssue(for: chainAsset)
     }
 }

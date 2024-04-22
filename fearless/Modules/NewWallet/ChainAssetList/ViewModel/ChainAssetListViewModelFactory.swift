@@ -106,21 +106,16 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             guard chainAssets.count == 1, let chain = chainAssets.first?.chain else {
                 return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
             }
-            var hasNetworkIssues: Bool = false
-            var hasMissingAccount: Bool = false
-            chainsWithIssue.forEach { issue in
-                switch issue {
-                case let .network(chains):
-                    let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
-                    hasNetworkIssues = chains.first(where: { !mutedIssuesChainIds.contains($0.chainId) && $0.chainId == chain.chainId }) != nil
-                case let .missingAccount(chains):
-                    let unusedChains = wallet.unusedChainIds ?? []
-                    hasMissingAccount = chains.first(where: { !unusedChains.contains($0.chainId) && $0.chainId == chain.chainId }) != nil
-                }
-            }
-            if hasMissingAccount {
+
+            let hasIssuesCkeckResult = checkHasIssue(
+                chain: chain,
+                wallet: wallet,
+                chainsWithIssue: chainsWithIssue,
+                chainSettings: chainSettings
+            )
+            if hasIssuesCkeckResult.hasAccountIssue {
                 return .chainHasAccountIssue(chain: chain)
-            } else if hasNetworkIssues {
+            } else if hasIssuesCkeckResult.hasNetworkIssue {
                 return .chainHasNetworkIssue(chain: chain)
             } else {
                 return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
