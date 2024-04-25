@@ -28,7 +28,6 @@ protocol PolkaswapAdjustmentViewOutput: AnyObject {
     func didTapSelectToAsset()
     func didTapSwitchInputsButton()
     func didTapMinReceiveInfo()
-    func didTapLiquidityProviderFeeInfo()
     func didTapNetworkFeeInfo()
     func didTapPreviewButton()
     func selectFromAmountPercentage(_ percentage: Float)

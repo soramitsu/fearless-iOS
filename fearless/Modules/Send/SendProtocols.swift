@@ -32,7 +32,7 @@ protocol SendViewOutput: AnyObject {
     func didTapSelectAsset()
     func didTapSelectNetwork()
     func searchTextDidChanged(_ text: String)
-    func selectAmountPercentage(_ percentage: Float)
+    func selectAmountPercentage(_ percentage: Float, validate: Bool)
     func updateAmount(_ newValue: Decimal)
     func didSwitchSendAll(_ enabled: Bool)
 }
@@ -67,6 +67,8 @@ protocol SendInteractorOutput: AnyObject {
     func didReceive(possibleChains: [ChainModel]?)
     func didReceive(eqTotalBalance: Decimal)
     func didReceiveDependencies(for chainAsset: ChainAsset)
+    func didReceiveAssetAccountInfo(assetAccountInfo: AssetAccountInfo?)
+    func didReceiveAssetAccountInfoError(error: Error)
 }
 
 protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {

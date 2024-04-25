@@ -14,6 +14,8 @@ final class BalanceLocksDetailViewController: UIViewController, ViewHolder {
     private var governanceViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var crowdloanViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var totalViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var assetFrozenViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var assetBlockedViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
     // MARK: - Constructor
 
@@ -95,6 +97,18 @@ extension BalanceLocksDetailViewController: BalanceLocksDetailViewInput {
 
         rootView.totalView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
     }
+
+    @MainActor func didReceiveAssetFrozenViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async {
+        assetFrozenViewModel = viewModel
+
+        rootView.frozenView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
+    }
+
+    @MainActor func didReceiveAssetBlockedViewModel(_ viewModel: LocalizableResource<BalanceViewModelProtocol>?) async {
+        assetBlockedViewModel = viewModel
+
+        rootView.blockedView.bindBalance(viewModel: viewModel?.value(for: selectedLocale))
+    }
 }
 
 // MARK: - Localizable
@@ -107,6 +121,8 @@ extension BalanceLocksDetailViewController: Localizable {
             await didReceiveStakingLocksViewModel(stakingViewModel)
             await didReceivePoolLocksViewModel(poolViewModel)
             await didReceiveLiquidityPoolLocksViewModel(liquidityPoolsViewModel)
+            await didReceiveAssetFrozenViewModel(assetFrozenViewModel)
+            await didReceiveAssetBlockedViewModel(assetBlockedViewModel)
         }
     }
 }

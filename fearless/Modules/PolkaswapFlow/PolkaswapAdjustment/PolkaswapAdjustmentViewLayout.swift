@@ -54,20 +54,18 @@ final class PolkaswapAdjustmentViewLayout: UIView {
     let minMaxReceivedView = UIFactory.default.createMultiView()
     let swapRouteView: TitleMultiValueView = {
         let view = UIFactory.default.createMultiView()
-        view.isHidden = true
         return view
     }()
 
     let fromPerToPriceView = UIFactory.default.createMultiView()
     let toPerFromPriceView = UIFactory.default.createMultiView()
-    let liquidityProviderFeeView = UIFactory.default.createMultiView()
     let networkFeeView = UIFactory.default.createMultiView()
 
     private lazy var multiViews = [
         minMaxReceivedView,
+        swapRouteView,
         fromPerToPriceView,
         toPerFromPriceView,
-        liquidityProviderFeeView,
         networkFeeView
     ]
 
@@ -127,7 +125,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         fromPerToPriceView.valueTop.text = viewModel.fromPerToValue
         toPerFromPriceView.titleLabel.text = viewModel.toPerFromTitle
         toPerFromPriceView.valueTop.text = viewModel.toPerFromValue
-        liquidityProviderFeeView.bindBalance(viewModel: viewModel.liqudityProviderFeeVieModel)
         multiViews.forEach { $0.isHidden = false }
     }
 
@@ -276,13 +273,10 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
         let texts = [
             R.string.localizable
-                .polkaswapLiquidityProviderFee(preferredLanguages: locale.rLanguages),
-            R.string.localizable
                 .polkaswapNetworkFee(preferredLanguages: locale.rLanguages)
         ]
 
         [
-            liquidityProviderFeeView.titleLabel,
             networkFeeView.titleLabel
         ].enumerated().forEach { index, label in
             setInfoImage(for: label, text: texts[index])

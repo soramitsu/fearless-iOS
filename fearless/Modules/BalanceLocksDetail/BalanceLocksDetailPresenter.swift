@@ -18,6 +18,8 @@ final class BalanceLocksDetailPresenter {
     private var crowdloanLocks: NoneStateOptional<Decimal?> = .none
     private var vestingLocks: NoneStateOptional<Decimal?> = .none
     private var totalLocks: NoneStateOptional<Decimal?> = .none
+    private var assetFrozen: NoneStateOptional<Decimal?> = .none
+    private var assetBlocked: NoneStateOptional<Decimal?> = .none
     private var priceData: PriceData?
 
     // MARK: - Constructors
@@ -147,7 +149,39 @@ final class BalanceLocksDetailPresenter {
             await view?.didReceiveCrowdloanLocksViewModel(nil)
             await view?.didReceiveGovernanceLocksViewModel(nil)
             await view?.didReceiveTotalLocksViewModel(nil)
+            await view?.didReceiveAssetFrozenViewModel(nil)
+            await view?.didReceiveAssetBlockedViewModel(nil)
         }
+    }
+
+    private func provideAssetFrozenViewModel() async {
+        guard
+            let assetFrozen = assetFrozen.value
+        else {
+            return
+        }
+
+        let viewModel = viewModelFactory.buildAssetFrozenViewModel(
+            assetFrozen: assetFrozen,
+            priceData: priceData
+        )
+
+        await view?.didReceiveAssetFrozenViewModel(viewModel)
+    }
+
+    private func provideAssetBlockedViewModel() async {
+        guard
+            let assetBlocked = assetBlocked.value
+        else {
+            return
+        }
+
+        let viewModel = viewModelFactory.buildAssetBlockedViewModel(
+            assetBlocked: assetBlocked,
+            priceData: priceData
+        )
+
+        await view?.didReceiveAssetBlockedViewModel(viewModel)
     }
 }
 
@@ -215,6 +249,16 @@ extension BalanceLocksDetailPresenter: BalanceLocksDetailInteractorOutput {
         await provideTotalViewModel()
     }
 
+    func didReceiveAssetFrozen(_ frozen: Decimal?) async {
+        assetFrozen = .value(frozen)
+        await provideAssetFrozenViewModel()
+    }
+
+    func didReceiveAssetBlocked(_ blocked: Decimal?) async {
+        assetBlocked = .value(blocked)
+        await provideAssetBlockedViewModel()
+    }
+
     func didReceiveStakingLocksError(_ error: Error) async {
         stakingLocks = .value(nil)
         await provideStakingViewModel()
@@ -253,6 +297,20 @@ extension BalanceLocksDetailPresenter: BalanceLocksDetailInteractorOutput {
         await provideTotalViewModel()
 
         logger?.error(error.localizedDescription)
+    }
+
+    func didReceiveAssetFrozenError(_ error: Error) async {
+        assetFrozen = .value(nil)
+        await provideAssetFrozenViewModel()
+
+        logger?.customError(error)
+    }
+
+    func didReceiveAssetBlockedError(_ error: Error) async {
+        assetBlocked = .value(nil)
+        await provideAssetBlockedViewModel()
+
+        logger?.customError(error)
     }
 }
 
