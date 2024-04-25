@@ -698,6 +698,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             checkLoadingState()
         case let .failure(error):
             logger.customError(error)
+            loadingCollector.destinationExistentialDepositReady = true
         }
     }
 
