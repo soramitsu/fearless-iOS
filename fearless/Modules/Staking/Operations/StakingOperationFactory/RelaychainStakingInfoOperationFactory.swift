@@ -78,7 +78,6 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
                 limitedBy: maxNominators,
                 runtimeService: runtimeService
             )
-
             let activeNominatorsCount = self.deriveActiveNominatorsCount(
                 from: eraStakersInfo,
                 limitedBy: maxNominators

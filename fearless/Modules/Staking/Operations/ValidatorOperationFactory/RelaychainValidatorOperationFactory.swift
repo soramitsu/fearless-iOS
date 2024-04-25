@@ -629,6 +629,32 @@ final class RelaychainValidatorOperationFactory {
 
         return validatorPrefsWrapper
     }
+
+    private func createPrefsWrapper(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> BaseOperation<[StorageResponse<ValidatorPrefs>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return BaseOperation.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        let requestFactory = AsyncStorageRequestDefault()
+
+        let operation = AwaitOperation<[StorageResponse<ValidatorPrefs>]> {
+            let pathKey = try StorageKeyFactory().key(from: .validatorPrefs)
+
+            let response: [StorageResponse<ValidatorPrefs>] = try await requestFactory.queryItemsByPrefix(
+                engine: connection,
+                keys: [pathKey],
+                factory: try runtimeOperation.extractNoCancellableResultData(),
+                storagePath: .validatorPrefs
+            )
+
+            return response
+        }
+
+        operation.addDependency(runtimeOperation)
+        return operation
+    }
 }
 
 extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol {
@@ -668,7 +694,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         slashDeferOperation.addDependency(runtimeOperation)
         maxNominatorsOperation.addDependency(runtimeOperation)
 
-        let allValidatorPrefsOperation = createAllValidatorsOperation(dependingOn: runtimeOperation)
+        let allValidatorPrefsOperation = createPrefsWrapper(dependingOn: runtimeOperation)
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
         let allValidatorsOperation: AwaitOperation<[EraValidatorInfo]> = AwaitOperation { [weak self] in
@@ -676,7 +702,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 return []
             }
 
-            let allValidators: [EraValidatorInfo] = try await allValidatorPrefsOperation.targetOperation.extractNoCancellableResultData().asyncMap {
+            let allValidators: [EraValidatorInfo] = try await allValidatorPrefsOperation.extractNoCancellableResultData().asyncMap {
                 guard let prefs = $0.value else {
                     return nil
                 }
@@ -713,7 +739,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             return allValidators
         }
 
-        allValidatorsOperation.addDependency(allValidatorPrefsOperation.targetOperation)
+        allValidatorsOperation.addDependency(allValidatorPrefsOperation)
 
         let accountIdsClosure: () throws -> [AccountId] = {
             try allValidatorsOperation.extractNoCancellableResultData().compactMap { $0.accountId }
@@ -753,7 +779,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         mergeOperation.addDependency(slashingsWrapper.targetOperation)
         mergeOperation.addDependency(identityWrapper.targetOperation)
-        mergeOperation.addDependency(allValidatorPrefsOperation.targetOperation)
+        mergeOperation.addDependency(allValidatorPrefsOperation)
         mergeOperation.addDependency(eraValidatorsOperation)
         mergeOperation.addDependency(allValidatorsOperation)
         mergeOperation.addDependency(maxNominatorsOperation)
@@ -767,7 +793,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             eraValidatorsOperation,
         ]
 
-        let dependencies = baseOperations + allValidatorPrefsOperation.allOperations + [allValidatorsOperation] + identityWrapper.allOperations + slashingsWrapper.allOperations
+        let dependencies = baseOperations + [allValidatorPrefsOperation] + [allValidatorsOperation] + identityWrapper.allOperations + slashingsWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }

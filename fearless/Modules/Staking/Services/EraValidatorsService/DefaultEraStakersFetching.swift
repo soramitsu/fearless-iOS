@@ -6,34 +6,6 @@ import RobinHood
 private typealias IdentifiableExposureMetadata = (Data, ValidatorExposureMetadata)
 
 extension EraValidatorService {
-//    private let syncQueue = DispatchQueue(
-//        label: "jp.co.fearless.defvalidators.\(UUID().uuidString)",
-//        qos: .userInitiated
-//    )
-//
-//    private let chainRegistry: ChainRegistryProtocol
-//    private let chainId: ChainModel.Id
-//    private let operationManager: OperationManagerProtocol
-//    private let logger: LoggerProtocol?
-//    private let storageFacade: StorageFacadeProtocol
-//    private let chain: ChainModel
-//
-//    init(
-//        chainRegistry: ChainRegistryProtocol,
-//        chainId: ChainModel.Id,
-//        operationManager: OperationManagerProtocol,
-//        logger: LoggerProtocol?,
-//        storageFacade: StorageFacadeProtocol,
-//        chain: ChainModel
-//    ) {
-//        self.chainRegistry = chainRegistry
-//        self.chainId = chainId
-//        self.operationManager = operationManager
-//        self.logger = logger
-//        self.storageFacade = storageFacade
-//        self.chain = chain
-//    }
-
     private func updateValidators(
         activeEra: UInt32,
         exposures: [Data: ValidatorExposureMetadata],
@@ -42,14 +14,16 @@ extension EraValidatorService {
         completion: @escaping ((EraStakersInfo) -> Void)
     ) {
         let validators: [EraValidatorInfo] = exposures.compactMap { item in
-            guard let pref = prefs[item.0], let others = others[item.0] else {
+            guard let pref = prefs[item.0] else {
                 return nil
             }
+
+            let nominators: [IndividualExposure] = others[item.0]?.others ?? []
 
             let exposure = ValidatorExposure(
                 total: item.1.total,
                 own: item.1.own,
-                others: others.others
+                others: nominators
             )
 
             return EraValidatorInfo(
@@ -68,7 +42,6 @@ extension EraValidatorService {
     }
 
     private func createPrefsWrapper(
-        activeEra: EraIndex,
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> BaseOperation<[Data: StorageResponse<ValidatorPrefs>]> {
         guard let connection = chainRegistry.getConnection(for: chainId) else {
@@ -82,23 +55,20 @@ extension EraValidatorService {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
 
-            let pathKey = try StorageKeyFactory().createStorageKey(moduleName: StorageCodingPath.erasPrefs.moduleName, storageName: StorageCodingPath.erasPrefs.itemName)
-            let era = try NMapKeyParam(value: StringScaleMapper(value: activeEra)).encode(encoder: codingFactory.createEncoder(), type: "u32")
-            let eraKey = try StorageHasher.twox64Concat.hash(data: era)
-            let key = pathKey + eraKey
+            let pathKey = try StorageKeyFactory().key(from: .validatorPrefs)
             let response: [StorageResponse<ValidatorPrefs>] = try await requestFactory.queryItemsByPrefix(
                 engine: connection,
-                keys: [key],
+                keys: [pathKey],
                 factory: codingFactory,
-                storagePath: .erasPrefs
+                storagePath: .validatorPrefs
             )
 
             let keyExtractor = StorageKeyDataExtractor(runtimeService: runtimeService)
 
             let metadataByAccountId = try await response.asyncReduce([Data: StorageResponse<ValidatorPrefs>]()) { result, item in
                 var map = result
-                let key: ErasStakersOverviewKey = try await keyExtractor.extractKey(storageKey: item.key, storagePath: .erasPrefs, type: .erasStakersOverviewKey)
-                map[key.accountId] = item
+                let key: AccountId = try await keyExtractor.extractKey(storageKey: item.key, storagePath: .validatorPrefs, type: .accountId)
+                map[key] = item
 
                 return map
             }
@@ -299,7 +269,6 @@ extension EraValidatorService {
         let othersWrapper = createValidatorOthersWrapper(activeEra: activeEra, codingFactory: codingFactory)
 
         let prefsWrapper = createPrefsWrapper(
-            activeEra: activeEra,
             codingFactory: codingFactory
         )
 
@@ -376,7 +345,6 @@ extension EraValidatorService {
         let localDecoder = decodeLocalValidators(validators, codingFactory: codingFactory)
 
         let prefs = createPrefsWrapper(
-            activeEra: activeEra,
             codingFactory: codingFactory
         )
         let others = createValidatorOthersWrapper(
