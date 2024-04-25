@@ -2847,6 +2847,11 @@
 		FACD42BD2A5BE91E009975AA /* PortionRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42BB2A5BE91D009975AA /* PortionRewardCalculatorService.swift */; };
 		FACD42BF2A5BE93D009975AA /* polkadot-9370metadata in Resources */ = {isa = PBXBuildFile; fileRef = FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */; };
 		FACD42C12A5C10BB009975AA /* TransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACD42C02A5C10BB009975AA /* TransferService.swift */; };
+		FACFC1622BD8F2C6001A64F9 /* ErasStakersPagedKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACFC1612BD8F2C6001A64F9 /* ErasStakersPagedKey.swift */; };
+		FACFC1642BD8F2E7001A64F9 /* ErasStakersOverviewKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACFC1632BD8F2E7001A64F9 /* ErasStakersOverviewKey.swift */; };
+		FACFC1662BD8F66D001A64F9 /* EraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACFC1652BD8F66D001A64F9 /* EraStakersFetching.swift */; };
+		FACFC1682BD94BA5001A64F9 /* LegacyEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACFC1672BD94BA5001A64F9 /* LegacyEraStakersFetching.swift */; };
+		FACFC16A2BD94BD9001A64F9 /* DefaultEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACFC1692BD94BD9001A64F9 /* DefaultEraStakersFetching.swift */; };
 		FAD0068027EA252400C97E09 /* AboutViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */; };
 		FAD0068127EA252400C97E09 /* AboutViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0067F27EA252400C97E09 /* AboutViewState.swift */; };
 		FAD0068427EA255900C97E09 /* AboutTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */; };
@@ -5968,6 +5973,11 @@
 		FACD42BB2A5BE91D009975AA /* PortionRewardCalculatorService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PortionRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FACD42BE2A5BE93D009975AA /* polkadot-9370metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-9370metadata"; sourceTree = "<group>"; };
 		FACD42C02A5C10BB009975AA /* TransferService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferService.swift; sourceTree = "<group>"; };
+		FACFC1612BD8F2C6001A64F9 /* ErasStakersPagedKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErasStakersPagedKey.swift; sourceTree = "<group>"; };
+		FACFC1632BD8F2E7001A64F9 /* ErasStakersOverviewKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErasStakersOverviewKey.swift; sourceTree = "<group>"; };
+		FACFC1652BD8F66D001A64F9 /* EraStakersFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraStakersFetching.swift; sourceTree = "<group>"; };
+		FACFC1672BD94BA5001A64F9 /* LegacyEraStakersFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetching.swift; sourceTree = "<group>"; };
+		FACFC1692BD94BD9001A64F9 /* DefaultEraStakersFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultEraStakersFetching.swift; sourceTree = "<group>"; };
 		FAD0067E27EA252400C97E09 /* AboutViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewModelFactory.swift; sourceTree = "<group>"; };
 		FAD0067F27EA252400C97E09 /* AboutViewState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutViewState.swift; sourceTree = "<group>"; };
 		FAD0068227EA255900C97E09 /* AboutTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutTableViewCell.swift; sourceTree = "<group>"; };
@@ -9032,6 +9042,9 @@
 				848FFE6525E6742400652AA5 /* EraValidatorService.swift */,
 				848FFE8A25E69A6000652AA5 /* EraValidatorServiceProtocol.swift */,
 				84786DA725F9F58E0089DFF7 /* EraValidatorService+Fetch.swift */,
+				FACFC1652BD8F66D001A64F9 /* EraStakersFetching.swift */,
+				FACFC1672BD94BA5001A64F9 /* LegacyEraStakersFetching.swift */,
+				FACFC1692BD94BD9001A64F9 /* DefaultEraStakersFetching.swift */,
 			);
 			path = EraValidatorsService;
 			sourceTree = "<group>";
@@ -12902,6 +12915,7 @@
 		FA3067292B6246BD006A0BA5 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				FACFC1602BD8F2BA001A64F9 /* Keys */,
 				FAD9AAC22B8DFE0200AA603B /* PrefixRequest.swift */,
 				FAAA29352B8DCE930089AFE6 /* MultipleRequest.swift */,
 				FAAA29342B8DCE930089AFE6 /* StorageRequest.swift */,
@@ -14899,6 +14913,15 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		FACFC1602BD8F2BA001A64F9 /* Keys */ = {
+			isa = PBXGroup;
+			children = (
+				FACFC1612BD8F2C6001A64F9 /* ErasStakersPagedKey.swift */,
+				FACFC1632BD8F2E7001A64F9 /* ErasStakersOverviewKey.swift */,
+			);
+			path = Keys;
+			sourceTree = "<group>";
+		};
 		FAD4289B2A865635001D6A16 /* BackupRiskWarnings */ = {
 			isa = PBXGroup;
 			children = (
@@ -16883,6 +16906,7 @@
 				FAA0133A28DA12B6000A5230 /* StakingPoolManagementViewController.swift in Sources */,
 				8468B86A24F63CBA00B76BC6 /* AddAccount+AccountImportInteractor.swift in Sources */,
 				84B66A0B26FDB70F0038B963 /* CrowdloansListInteractor+Protocols.swift in Sources */,
+				FACFC1682BD94BA5001A64F9 /* LegacyEraStakersFetching.swift in Sources */,
 				FAAA29092B8C77AF0089AFE6 /* ReefRewardCalculatorService.swift in Sources */,
 				FA93A2DD28323CD90021330F /* CustomValidatorListRelaychainViewModelState.swift in Sources */,
 				F40966BE26B297D6008CD244 /* AnalyticsRewardsItemView.swift in Sources */,
@@ -17344,6 +17368,7 @@
 				F41C728326428A9400E8BB41 /* ControllerAccountViewLayout.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				FA8EE743294C4E3E0052C888 /* AllDoneViewModel.swift in Sources */,
+				FACFC1662BD8F66D001A64F9 /* EraStakersFetching.swift in Sources */,
 				FAB0EDE027AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
 				8498430326592D29006BBB9F /* CrowdloanStatusSectionView.swift in Sources */,
@@ -17655,6 +17680,7 @@
 				C6CA20372B05E953001503C2 /* NftFiltersProtocols.swift in Sources */,
 				84963D6C26F91810003FE8E4 /* RemoteSubscriptionService.swift in Sources */,
 				C6264C342799DBFB00FCA0DB /* WalletDetailsProtocols.swift in Sources */,
+				FACFC1642BD8F2E7001A64F9 /* ErasStakersOverviewKey.swift in Sources */,
 				FA46D2C7283DDD07005A112B /* ParachainStakingCandidateMetadata.swift in Sources */,
 				FA2FC80228B3807C00CC0A42 /* StakingPoolJoinChoosePoolProtocols.swift in Sources */,
 				FAA0133028DA12B6000A5230 /* StakingPoolMainInteractor.swift in Sources */,
@@ -18691,6 +18717,7 @@
 				FA6262532AC2E35A005D3D95 /* MultiSelectNetworksPresenter.swift in Sources */,
 				FA2DF99E2A8C9AB10047F440 /* EtherscanNftsResponse.swift in Sources */,
 				8C3A576CEF21F0A68C8A129F /* StakingPoolCreateConfirmInteractor.swift in Sources */,
+				FACFC16A2BD94BD9001A64F9 /* DefaultEraStakersFetching.swift in Sources */,
 				D22D29F8EC4C7522345C8772 /* StakingPoolCreateConfirmViewController.swift in Sources */,
 				257AF452E202DC6B8A576559 /* StakingPoolCreateConfirmViewLayout.swift in Sources */,
 				159A8702C30A21988AD76805 /* StakingPoolCreateConfirmAssembly.swift in Sources */,
@@ -18737,6 +18764,7 @@
 				357946E87E1F8D0563286D0F /* PolkaswapTransaktionSettingsViewLayout.swift in Sources */,
 				A64E3CA61C6CEE74F2FD9825 /* PolkaswapTransaktionSettingsAssembly.swift in Sources */,
 				54C8E20A8D7DD92AC92B8041 /* SelectMarketProtocols.swift in Sources */,
+				FACFC1622BD8F2C6001A64F9 /* ErasStakersPagedKey.swift in Sources */,
 				9F664DA212363F5F2C2B530B /* SelectMarketRouter.swift in Sources */,
 				A29F1452BF0AEB885E6460E2 /* SelectMarketPresenter.swift in Sources */,
 				FADBA5F12B5FD0C200CFCF30 /* ClaimCrowdloanRewardViewModelFactory.swift in Sources */,

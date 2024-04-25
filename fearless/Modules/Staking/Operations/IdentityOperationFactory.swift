@@ -62,7 +62,7 @@ final class IdentityOperationFactory {
                             chainFormat: chain.chainFormat
                         )
 
-                        result[address] = value
+                        result[address] = value.identity
                     }
                 }
 

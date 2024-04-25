@@ -29,7 +29,7 @@ final class PrefixStorageRequestWorker<P: Decodable>: StorageRequestWorker {
         )
         let response: [StorageResponse<T>] = try await storageRequestFactory.queryItemsByPrefix(
             engine: connection,
-            key: key,
+            keys: [key],
             factory: coderFactoryOperation,
             storagePath: storagePath
         )
