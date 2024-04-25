@@ -313,7 +313,8 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         guard
             let destinationChain,
             let originalChainAsset,
-            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() })
+            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() }),
+            address.isNotEmpty
         else {
             return
         }
@@ -330,7 +331,9 @@ extension CrossChainInteractor: CrossChainInteractorInput {
                     output?.didReceiveDestinationAccountInfo(accountInfo: accountInfo)
                 }
             } catch {
-                output?.didReceiveDestinationAccountInfoError(error: error)
+                await MainActor.run {
+                    output?.didReceiveDestinationAccountInfoError(error: error)
+                }
             }
         }
     }

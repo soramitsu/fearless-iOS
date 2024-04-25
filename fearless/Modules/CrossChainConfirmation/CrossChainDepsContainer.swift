@@ -65,7 +65,7 @@ final class CrossChainDepsContainer {
             destinationStorageRequestPerformer: storageRequestPerformer
         )
 
-        cachedDependencies[originalChainAsset.chain.chainId] = deps
+//        cachedDependencies[originalChainAsset.chain.chainId] = deps
 
         return deps
     }
