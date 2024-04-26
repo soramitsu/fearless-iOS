@@ -63,11 +63,11 @@ extension RootInteractor: RootInteractorInputProtocol {
             }
 
             switch result {
-            case let .success(maybeMetaAccount):
-                if let metaAccount = maybeMetaAccount {
+            case let .success(wallet):
+                if let wallet = wallet {
                     self.chainRegistry.performHotBoot()
-                    self.chainRegistry.subscribeToChians()
-                    self.logger?.debug("Selected account: \(metaAccount.metaId)")
+                    self.chainRegistry.subscribeToWallets()
+                    self.logger?.debug("Selected account: \(wallet.metaId)")
                 } else {
                     self.chainRegistry.performColdBoot()
                     self.logger?.debug("No selected account")

@@ -134,7 +134,8 @@ extension ServiceCoordinator {
             chainRegistry: chainRegistry,
             accountInfoRemote: accountInfoRemote,
             eventCenter: EventCenter.shared,
-            logger: logger
+            logger: logger,
+            userDefaultsStorage: SettingsManager.shared
         )
 
         return ServiceCoordinator(

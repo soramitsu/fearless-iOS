@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SoraKeystore
 
 protocol WalletAssetsObserver: ApplicationServiceProtocol {
     func update(wallet: MetaAccountModel)
@@ -12,6 +13,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     private let eventCenter: EventCenterProtocol
     private let accountInfoRemote: AccountInfoRemoteService
     private let logger: LoggerProtocol
+    private let userDefaultsStorage: SettingsManagerProtocol
 
     private lazy var walletAssetsObserverQueue: DispatchQueue = {
         DispatchQueue(label: "co.jp.soramitsu.asset.observer.deliveryQueue")
@@ -24,21 +26,22 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         chainRegistry: ChainRegistryProtocol,
         accountInfoRemote: AccountInfoRemoteService,
         eventCenter: EventCenterProtocol,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.wallet = wallet
         self.chainRegistry = chainRegistry
         self.accountInfoRemote = accountInfoRemote
         self.eventCenter = eventCenter
         self.logger = logger
+        self.userDefaultsStorage = userDefaultsStorage
     }
 
     // MARK: - WalletAssetsObserver
 
     func update(wallet: MetaAccountModel) {
-        currentTask?.cancel()
-        self.wallet = wallet
         throttle()
+        self.wallet = wallet
         setup()
     }
 
@@ -107,12 +110,18 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     }
 
     private func performSaveAndNitify() {
-        SelectedWalletSettings.shared.performSave(value: wallet) { [weak self] _ in
+        SelectedWalletSettings.shared.performSave(value: wallet) { [weak self] result in
             guard let self else {
                 return
             }
-            let event = MetaAccountModelChangedEvent(account: self.wallet)
-            self.eventCenter.notify(with: event)
+            switch result {
+            case let .success(wallet):
+                let event = MetaAccountModelChangedEvent(account: wallet)
+                self.eventCenter.notify(with: event)
+                self.markAsMigrated(wallet)
+            case let .failure(failure):
+                self.logger.customError(failure)
+            }
         }
     }
 
@@ -163,5 +172,19 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         assetVivibilities.append(assetVisibility)
         let updatedWallet = wallet.replacingAssetsVisibility(assetVivibilities)
         return updatedWallet
+    }
+
+    private func markAsMigrated(_ wallet: MetaAccountModel) {
+        let isFirstRunKey = createKeyForMigrated(wallet: wallet)
+        userDefaultsStorage.set(value: true, for: isFirstRunKey)
+    }
+
+    private func createKeyForMigrated(
+        wallet: MetaAccountModel
+    ) -> String {
+        [
+            "asset.management.should.migrate.wallet",
+            wallet.metaId
+        ].joined(separator: ":")
     }
 }

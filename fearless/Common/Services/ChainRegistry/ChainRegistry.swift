@@ -28,9 +28,12 @@ protocol ChainRegistryProtocol: AnyObject {
     func performHotBoot()
     func performColdBoot()
     func subscribeToChians()
+    func subscribeToWallets()
 }
 
 final class ChainRegistry {
+    private var currentWallet: MetaAccountModel?
+
     private let snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol
     private let runtimeProviderPool: RuntimeProviderPoolProtocol
     private let connectionPools: [any ConnectionPoolProtocol]
@@ -43,6 +46,7 @@ final class ChainRegistry {
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
+    private let walletStreamableProvider: StreamableProvider<ManagedMetaAccountModel>
 
     private var chains: [ChainModel] = []
     var chainsTypesMap: [String: Data] = [:]
@@ -70,7 +74,8 @@ final class ChainRegistry {
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
         networkIssuesCenter: NetworkIssuesCenterProtocol,
         logger: LoggerProtocol? = nil,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        walletStreamableProvider: StreamableProvider<ManagedMetaAccountModel>
     ) {
         self.snapshotHotBootBuilder = snapshotHotBootBuilder
         self.runtimeProviderPool = runtimeProviderPool
@@ -83,18 +88,19 @@ final class ChainRegistry {
         self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
+        self.walletStreamableProvider = walletStreamableProvider
         self.eventCenter.add(observer: self, dispatchIn: .global())
 
         connectionPools.forEach { $0.setDelegate(self) }
     }
 
-    private func handle(changes: [DataProviderChange<ChainModel>]) {
+    private func handleChainModel(_ changes: [DataProviderChange<ChainModel>]) {
         guard !changes.isEmpty else {
             return
         }
 
         readLock.exclusivelyWrite { [weak self] in
-            guard let strongSelf = self else {
+            guard let self else {
                 return
             }
 
@@ -102,31 +108,108 @@ final class ChainRegistry {
                 do {
                     switch change {
                     case let .insert(newChain):
+                        guard self.shouldSetConnetion(newChain) else {
+                            self.resetConnection(for: newChain.chainId)
+                            return
+                        }
+
                         if newChain.isEthereum {
-                            try strongSelf.handleNewEthereumChain(newChain: newChain)
+                            try self.handleNewEthereumChain(newChain: newChain)
                         } else {
-                            try strongSelf.handleNewSubstrateChain(newChain: newChain)
+                            try self.handleNewSubstrateChain(newChain: newChain)
                         }
                     case let .update(updatedChain):
+                        guard self.shouldSetConnetion(updatedChain) else {
+                            self.resetConnection(for: updatedChain.chainId)
+                            return
+                        }
+
                         if updatedChain.isEthereum {
-                            try strongSelf.handleUpdatedEthereumChain(updatedChain: updatedChain)
+                            try self.handleUpdatedEthereumChain(updatedChain: updatedChain)
                         } else {
-                            try strongSelf.handleUpdatedSubstrateChain(updatedChain: updatedChain)
+                            try self.handleUpdatedSubstrateChain(updatedChain: updatedChain)
                         }
                     case let .delete(chainId):
-                        strongSelf.runtimeProviderPool.destroyRuntimeProvider(for: chainId)
-                        strongSelf.clearRuntimeSubscription(for: chainId)
+                        self.runtimeProviderPool.destroyRuntimeProvider(for: chainId)
+                        self.clearRuntimeSubscription(for: chainId)
 
-                        strongSelf.runtimeSyncService.unregister(chainId: chainId)
+                        self.runtimeSyncService.unregister(chainId: chainId)
 
-                        strongSelf.chains = strongSelf.chains.filter { $0.chainId != chainId }
+                        self.chains = self.chains.filter { $0.chainId != chainId }
                     }
                 } catch {
-                    strongSelf.logger?.error("Unexpected error on handling chains update: \(error)")
+                    self.logger?.error("Unexpected error on handling chains update: \(error)")
                 }
             }
 
-            strongSelf.eventCenter.notify(with: ChainsSetupCompleted())
+            self.eventCenter.notify(with: ChainsSetupCompleted())
+        }
+    }
+
+    private func handleWallet(_ changes: [DataProviderChange<ManagedMetaAccountModel>]) {
+        guard changes.isNotEmpty else {
+            subscribeToChians()
+            return
+        }
+
+        changes.forEach { change in
+            switch change {
+            case let .insert(newWallet):
+                updateCurrentWallet(newWallet.info)
+            case let .update(updatedWallet):
+                guard updatedWallet.isSelected else {
+                    return
+                }
+                updateCurrentWallet(updatedWallet.info)
+            case .delete:
+                break
+            }
+        }
+    }
+
+    private func shouldSetConnetion(_ chain: ChainModel) -> Bool {
+        let hasVisibleAsset = hasVisibleAsset(chain, wallet: currentWallet)
+        let isRequaredConnection = isChainWithRequaredConnection(chain)
+
+        let shouldSetConnection = [
+            hasVisibleAsset,
+            isRequaredConnection
+        ].contains(true)
+        return shouldSetConnection
+    }
+
+    private func isChainWithRequaredConnection(_ chain: ChainModel) -> Bool {
+        let isChainlinkProvider = chain.options?.contains(.chainlinkProvider)
+        let hasPoolStaking = chain.options?.contains(.poolStaking)
+        let hasRelaychainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isRelaychain })
+        let hasParachainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isParachain })
+
+        let isRequared = [
+            isChainlinkProvider,
+            hasPoolStaking,
+            hasRelaychainStaking,
+            hasParachainStaking
+        ]
+        .compactMap { $0 }
+        .contains(true)
+
+        return isRequared
+    }
+
+    private func hasVisibleAsset(_ chain: ChainModel, wallet: MetaAccountModel?) -> Bool {
+        guard let wallet, wallet.assetsVisibility.isNotEmpty else {
+            return true
+        }
+        let chainAssetIds = chain.chainAssets.map { $0.identifier }
+        let hasVisible = wallet.assetsVisibility.contains(where: { chainAssetIds.contains($0.assetId) && !$0.hidden })
+        return hasVisible
+    }
+
+    private func updateCurrentWallet(_ wallet: MetaAccountModel) {
+        if currentWallet?.assetsVisibility != wallet.assetsVisibility {
+            currentWallet = wallet
+            chainProvider.removeObserver(self)
+            subscribeToChians()
         }
     }
 
@@ -243,7 +326,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func performColdBoot() {
-        subscribeToChians()
+        subscribeToWallets()
         syncUpServices()
     }
 
@@ -254,7 +337,7 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func subscribeToChians() {
         let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
-            self?.handle(changes: changes)
+            self?.handleChainModel(changes)
         }
 
         let failureClosure: (Error) -> Void = { [weak self] error in
@@ -329,6 +412,30 @@ extension ChainRegistry: ChainRegistryProtocol {
         chainProvider.addObserver(
             target,
             deliverOn: processingQueue,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    func subscribeToWallets() {
+        let updateClosure: ([DataProviderChange<ManagedMetaAccountModel>]) -> Void = { [weak self] changes in
+            self?.handleWallet(changes)
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.logger?.error("Unexpected error chains listener setup: \(error)")
+        }
+
+        let options = StreamableProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false,
+            refreshWhenEmpty: false
+        )
+
+        walletStreamableProvider.addObserver(
+            self,
+            deliverOn: DispatchQueue.global(),
             executing: updateClosure,
             failing: failureClosure,
             options: options
@@ -427,6 +534,8 @@ extension ChainRegistry: EventVisitorProtocol {
         chainsTypesMap = event.versioningMap
     }
 }
+
+// MARK: - SSF ChainRegistryProtocol adoptation
 
 extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
     func getRuntimeProvider(

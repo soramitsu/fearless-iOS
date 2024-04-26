@@ -115,6 +115,7 @@ final class ChainRegistryFactory {
             operationQueue: queue
         )
         let ethereumConnectionPool = EthereumConnectionPool()
+        let walletStreamableProvider = createWalletProvider()
 
         return ChainRegistry(
             snapshotHotBootBuilder: snapshotHotBootBuilder,
@@ -127,11 +128,20 @@ final class ChainRegistryFactory {
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             logger: Logger.shared,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            walletStreamableProvider: walletStreamableProvider
         )
     }
 
-    // swiftlint:enable function_body_length
+    private static func createWalletProvider() -> StreamableProvider<ManagedMetaAccountModel> {
+        let userStorageFacade = UserDataStorageFacade.shared
+        let provider = userStorageFacade.createStreamableProvider(
+            filter: NSPredicate.selectedMetaAccount(),
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(ManagedMetaAccountMapper())
+        )
+        return provider
+    }
 
     private static func createFilesOperationFactory() -> RuntimeFilesOperationFactoryProtocol {
         let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??

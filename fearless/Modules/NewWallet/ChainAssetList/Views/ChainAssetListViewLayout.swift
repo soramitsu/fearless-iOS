@@ -30,7 +30,7 @@ final class ChainAssetListViewLayout: UIView {
     }()
 
     let tableView: UITableView = {
-        let view = UITableView(frame: .zero, style: .grouped)
+        let view = UITableView()
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = Constants.tableViewContentInset
@@ -72,15 +72,10 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     func setHeaderView() {
-        tableView.tableHeaderView = headerViewContainer
-        headerViewContainer.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.width.equalToSuperview()
-        }
+        tableView.setAndLayoutTableHeaderView(header: headerViewContainer)
     }
 
     func removeHeaderView() {
-        headerViewContainer.removeFromSuperview()
         tableView.tableHeaderView = nil
     }
 
