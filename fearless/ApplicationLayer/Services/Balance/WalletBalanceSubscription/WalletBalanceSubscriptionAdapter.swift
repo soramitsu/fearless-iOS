@@ -360,20 +360,20 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                         notify(listener: listener, result: .success(balances))
                     }
                 case let .wallet(wallet):
-                    if updatedWallets.contains(wallet) {
+                    if updatedWallets.contains(where: { $0.metaId == wallet.metaId }) {
                         if let balances = buildBalance(for: [wallet], chainAssets: cas) {
                             notify(listener: listener, result: .success(balances))
                         }
                     }
                 case let .chainAsset(wallet, chainAsset):
-                    if updatedWallets.contains(wallet), updatedChainAssets.contains(chainAsset) {
+                    if updatedWallets.contains(where: { $0.metaId == wallet.metaId }), updatedChainAssets.contains(chainAsset) {
                         if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
                             notify(listener: listener, result: .success(balances))
                         }
                     }
 
                 case let .chainAssets(chainAssets, wallet):
-                    if updatedWallets.contains(wallet), Set(chainAssets).intersection(Set(updatedChainAssets)).isNotEmpty {
+                    if updatedWallets.contains(where: { $0.metaId == wallet.metaId }), Set(chainAssets).intersection(Set(updatedChainAssets)).isNotEmpty {
                         if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
                             notify(listener: listener, result: .success(balances))
                         }
