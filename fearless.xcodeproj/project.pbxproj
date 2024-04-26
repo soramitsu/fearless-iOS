@@ -19327,7 +19327,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "fw-adoption";
+				branch = "storage-requests-update";
 				kind = branch;
 			};
 		};
