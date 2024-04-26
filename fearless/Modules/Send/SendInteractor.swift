@@ -203,12 +203,13 @@ extension SendInteractor: SendInteractorInput {
         Task {
             do {
                 let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
-
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
                 let transfer = Transfer(
                     chainAsset: chainAsset,
                     amount: amount,
                     receiver: address,
-                    tip: tip
+                    tip: tip,
+                    appId: appId
                 )
 
                 let fee = try await dependencies.transferService.estimateFee(for: transfer)

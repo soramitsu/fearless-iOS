@@ -565,11 +565,14 @@ final class SendPresenter {
                     let strongSelf = self,
                     let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
                 else { return }
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+
                 let transfer = Transfer(
                     chainAsset: chainAsset,
                     amount: amount,
                     receiver: address,
-                    tip: strongSelf.tipValue
+                    tip: strongSelf.tipValue,
+                    appId: appId
                 )
                 strongSelf.router.presentConfirm(
                     from: strongSelf.view,
