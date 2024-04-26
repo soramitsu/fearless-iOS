@@ -57,6 +57,46 @@ struct NFT: Codable, Equatable, Hashable {
 
         return nil
     }
+
+    init(
+        chain: ChainModel,
+        tokenId: String?,
+        title: String?,
+        description: String?,
+        smartContract: String?,
+        metadata: NFTMetadata?,
+        mediaThumbnail: String?,
+        media: [NFTMedia]?,
+        tokenType: NFTTokenType?,
+        collectionName: String?,
+        collection: NFTCollection?
+    ) {
+        self.chain = chain
+        self.tokenId = tokenId
+        self.title = title
+        self.description = description
+        self.smartContract = smartContract
+        self.metadata = metadata
+        self.mediaThumbnail = mediaThumbnail
+        self.media = media
+        self.tokenType = tokenType
+        self.collectionName = collectionName
+        self.collection = collection
+    }
+
+    init(nft: NFT, collection: NFTCollection) {
+        chain = nft.chain
+        tokenId = nft.tokenId
+        title = nft.title
+        description = nft.description
+        smartContract = nft.smartContract
+        metadata = nft.metadata
+        mediaThumbnail = nft.mediaThumbnail
+        media = nft.media
+        tokenType = nft.tokenType
+        collectionName = nft.collectionName
+        self.collection = collection
+    }
 }
 
 enum NFTTokenType: String, Codable {

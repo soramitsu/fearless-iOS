@@ -105,8 +105,14 @@ extension FeatureToggleProvider: FeatureToggleProviderProtocol {
     func fetchConfigOperation() -> BaseOperation<FeatureToggleConfig> {
         AwaitOperation { [weak self] in
             try await withCheckedThrowingContinuation { continuation in
+                var nillableContinuation: CheckedContinuation<FeatureToggleConfig, Error>? = continuation
+
                 self?.fetchConfig(runCompletionIn: nil) { factory in
-                    continuation.resume(with: .success(factory))
+                    guard let unwrapedContinuation = nillableContinuation else {
+                        return
+                    }
+                    unwrapedContinuation.resume(with: .success(factory))
+                    nillableContinuation = nil
                 }
             }
         }
