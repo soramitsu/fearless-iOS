@@ -355,12 +355,6 @@ final class CrossChainPresenter {
             cancelAction: {}
         )
 
-        let destExsitentialDepositIsNotViolated = dataValidatingFactory.destinationExistentialDepositIsNotViolated(
-            parameters: destEdParameters,
-            locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset
-        )
-
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
             originCHainId: selectedOriginChainModel.chainId,
             destChainId: selectedDestChainModel?.chainId,
@@ -382,8 +376,7 @@ final class CrossChainPresenter {
             exsitentialDepositIsNotViolated,
             destFeeValidating,
             soraBridgeViolated,
-            soraBridgeAmountLessFeeViolated,
-            destExsitentialDepositIsNotViolated
+            soraBridgeAmountLessFeeViolated
         ]
         DataValidationRunner(validators: validators)
             .runValidation { [weak self] in
