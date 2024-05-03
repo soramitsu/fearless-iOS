@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import SoraFoundation
 
 @available(*, deprecated, message: "Use AssetBalanceFormatterFactory instead")

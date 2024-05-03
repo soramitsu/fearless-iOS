@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+import UIKit
 
 struct ExtrinisicConfirmViewModel: AccessoryViewModelProtocol {
     let title: String

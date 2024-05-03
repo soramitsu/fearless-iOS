@@ -38,6 +38,8 @@
         <attribute name="name" attributeType="String"/>
         <attribute name="options" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
+        <attribute name="pricingApiType" optional="YES" attributeType="String"/>
+        <attribute name="pricingApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="rank" optional="YES" attributeType="String"/>
         <attribute name="stakingApiType" optional="YES" attributeType="String"/>
         <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
@@ -131,10 +133,6 @@
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="subtype" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
-    </entity>
-    <entity name="CDSingleValue" representedClassName="CDSingleValue" syncable="YES" codeGenerationType="class">
-        <attribute name="identifier" attributeType="String"/>
-        <attribute name="payload" attributeType="Binary"/>
     </entity>
     <entity name="CDStashItem" representedClassName="CDStashItem" syncable="YES" codeGenerationType="class">
         <attribute name="controller" optional="YES" attributeType="String"/>

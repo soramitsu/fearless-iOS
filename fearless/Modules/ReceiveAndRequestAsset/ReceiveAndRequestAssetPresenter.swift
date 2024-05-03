@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFModels
 import SSFUtils
+import SSFQRService
 
 protocol ReceiveAndRequestAssetViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ReceiveAssetViewModel)
@@ -149,7 +150,7 @@ final class ReceiveAndRequestAssetPresenter {
                 inputAmount = input.stringWithPointSeparator
             }
             let addressInfo = SoraQRInfo(
-                prefix: SubstrateQR.prefix,
+                prefix: SubstrateQRConstants.prefix,
                 address: address,
                 rawPublicKey: account.publicKey,
                 username: wallet.name,

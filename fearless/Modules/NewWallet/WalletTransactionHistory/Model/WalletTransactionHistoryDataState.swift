@@ -1,4 +1,4 @@
-import CommonWallet
+
 
 enum WalletTransactionHistoryDataState {
     case waitingCached

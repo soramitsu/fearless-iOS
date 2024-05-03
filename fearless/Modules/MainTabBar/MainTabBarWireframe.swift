@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+import UIKit
 import WalletConnectSign
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {

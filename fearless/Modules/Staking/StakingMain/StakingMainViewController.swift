@@ -2,7 +2,7 @@ import UIKit
 import SSFUtils
 import SoraFoundation
 import SoraUI
-import CommonWallet
+
 import SnapKit
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {

@@ -23,7 +23,7 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
             storageKeyFactory: storageKeyFactory,
             keyParams: keyParams
         )
-        let keys = try keysWorker.performEncoding()
+        let keys = try await keysWorker.performEncoding()
 
         let queryItems: [StorageResponse<T>] = try await queryItems(
             engine: engine,
@@ -105,7 +105,7 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
             storageKeyFactory: storageKeyFactory,
             keyParams: keyParams
         )
-        let keys = try keysWorker.performEncoding()
+        let keys = try await keysWorker.performEncoding()
 
         let queryItems: [StorageResponse<T>] = try await queryItems(
             engine: engine,

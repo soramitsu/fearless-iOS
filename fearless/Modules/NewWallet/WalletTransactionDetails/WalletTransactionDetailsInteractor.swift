@@ -1,5 +1,4 @@
 import UIKit
-import CommonWallet
 
 final class WalletTransactionDetailsInteractor {
     let transaction: AssetTransactionData

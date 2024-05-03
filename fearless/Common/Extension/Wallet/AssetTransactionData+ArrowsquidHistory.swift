@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import BigInt
 import IrohaCrypto
 import SSFUtils

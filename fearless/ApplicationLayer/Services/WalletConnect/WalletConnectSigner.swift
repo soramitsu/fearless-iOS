@@ -35,17 +35,17 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         let signer: WalletConnectPayloadSigner
         switch method {
         case .polkadotSignTransaction:
-            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType.utilsType
-            let transactionSigner = try createSigner(for: chain, cryptoType: SFCryptoType(cryptoType ?? .sr25519))
+            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType
+            let transactionSigner = try createSigner(for: chain, cryptoType: cryptoType ?? .sr25519)
             let signType: WalletConnectPolkadorSigner.SignType = .signTransaction(transactionSigner: transactionSigner)
             signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)
         case .polkadotSignMessage:
-            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType.utilsType
-            let transactionSigner = try createSigner(for: chain, cryptoType: SFCryptoType(cryptoType ?? .sr25519))
+            let cryptoType = wallet.fetch(for: chain.accountRequest())?.cryptoType
+            let transactionSigner = try createSigner(for: chain, cryptoType: cryptoType ?? .sr25519)
             let signType: WalletConnectPolkadorSigner.SignType = .signMessage(transactionSigner: transactionSigner)
             signer = WalletConnectPolkadorSigner(signType: signType, chain: chain, wallet: wallet)
         case .ethereumPersonalSign:
-            let transactionSigner = try createSigner(for: chain, cryptoType: .ethereumEcdsa)
+            let transactionSigner = try createSigner(for: chain, cryptoType: .ecdsa)
             let signType: WalletConnectEthereumSignerImpl.SignType = .bytes(transactionSigner: transactionSigner)
             signer = WalletConnectEthereumSignerImpl(signType: signType)
         case .ethereumSignTransaction:
@@ -63,7 +63,7 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
             )
             signer = WalletConnectEthereumSignerImpl(signType: signType)
         case .ethereumSignTypeData, .ethereumSignTypeDataV4:
-            let transactionSigner = try createSigner(for: chain, cryptoType: .ethereumEcdsa)
+            let transactionSigner = try createSigner(for: chain, cryptoType: .ecdsa)
             let signType: WalletConnectEthereumSignerImpl.SignType = .bytes(transactionSigner: transactionSigner)
             signer = WalletConnectEthereumSignerImpl(signType: signType)
         }
@@ -75,12 +75,13 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
 
     private func createSigner(
         for chain: ChainModel,
-        cryptoType: SFCryptoType
+        cryptoType: CryptoType
     ) throws -> TransactionSignerProtocol {
         let publicKeyData = try extractPublicKey(for: chain)
         let secretKeyData = try extractPrivateKey(for: chain)
 
-        return TransactionSigner(
+        return TransactionSignerAssembly.signer(
+            for: chain.chainBaseType,
             publicKeyData: publicKeyData,
             secretKeyData: secretKeyData,
             cryptoType: cryptoType

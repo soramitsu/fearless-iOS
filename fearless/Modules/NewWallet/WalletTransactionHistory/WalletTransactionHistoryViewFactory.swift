@@ -1,6 +1,5 @@
 import Foundation
 import SSFUtils
-import CommonWallet
 import RobinHood
 import SoraFoundation
 import SSFModels
@@ -99,7 +98,6 @@ enum WalletTransactionHistoryViewFactory {
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
-            cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory
         )
 

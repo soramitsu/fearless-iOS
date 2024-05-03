@@ -1,4 +1,6 @@
 import Rswift
+import SSFModels
+
 enum AccountCreateChainType {
     case substrate
     case ethereum

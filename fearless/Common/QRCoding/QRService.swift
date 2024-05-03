@@ -1,5 +1,5 @@
 import RobinHood
-import Foundation
+import UIKit
 
 protocol QROperationFactoryProtocol: AnyObject {
     func createCreationOperation(for payload: Data, qrSize: CGSize) -> QRCreationOperation

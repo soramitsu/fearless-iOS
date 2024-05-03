@@ -3,7 +3,7 @@ import SSFRuntimeCodingService
 import SSFModels
 import SSFUtils
 
-final class NMapKeyEncodingWorker {
+actor NMapKeyEncodingWorker {
     private let keyParams: [[any NMapKeyParamProtocol]]
     private let codingFactory: RuntimeCoderFactoryProtocol
     private let path: StorageCodingPath

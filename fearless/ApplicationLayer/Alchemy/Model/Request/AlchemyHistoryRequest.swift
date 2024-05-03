@@ -4,7 +4,7 @@ enum AlchemyConstants {
     static let firstBlockHex = "0x0"
 }
 
-enum AlchemyHistoryBlockFilter: Encodable {
+enum AlchemyHistoryBlockFilter: Codable {
     case hex(value: String)
     case int(value: UInt64)
     case latest
@@ -39,7 +39,7 @@ enum AlchemyHistoryBlockFilter: Encodable {
     }
 }
 
-struct AlchemyHistoryRequest: Encodable {
+struct AlchemyHistoryRequest: Codable {
     let fromBlock: AlchemyHistoryBlockFilter?
     let toBlock: AlchemyHistoryBlockFilter?
     let category: [AlchemyTokenCategory]

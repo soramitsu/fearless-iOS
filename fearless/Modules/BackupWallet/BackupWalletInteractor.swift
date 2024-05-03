@@ -15,7 +15,7 @@ protocol BackupWalletInteractorOutput: AnyObject {
 }
 
 final class BackupWalletInteractor {
-    var cloudStorage: FearlessCompatibilityProtocol?
+    var cloudStorage: CloudStorageServiceProtocol?
 
     // MARK: - Private properties
 
@@ -85,7 +85,7 @@ final class BackupWalletInteractor {
         Task {
             do {
                 if let cloudStorage = cloudStorage {
-                    let accounts = try await cloudStorage.getFearlessBackupAccounts()
+                    let accounts = try await cloudStorage.getBackupAccounts()
                     await MainActor.run {
                         output?.didReceiveBackupAccounts(result: .success(accounts))
                     }

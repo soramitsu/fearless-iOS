@@ -217,6 +217,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     var onboardingConfig: URL? {
         GitHubUrl.url(suffix: "appConfigs/onboarding/mobile.json", branch: .developFree)
     }
+
+    var soraSubqueryUrl: URL {
+        URL(string: "https://api.subquery.network/sq/sora-xor/sora-prod")!
+    }
 }
 
 private enum GitHubUrl {

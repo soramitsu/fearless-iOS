@@ -27,8 +27,8 @@ class TokenPairIconsView: UIView {
     func bind(viewModel: TokenPairsIconViewModel) {
         let iconSize = CGSize(width: frame.size.height / 1.5, height: frame.size.height / 1.5)
 
-        viewModel.firstTokenIconViewModel.loadImage(on: firstTokenIconView, targetSize: iconSize, animated: false)
-        viewModel.secondTokenIconViewModel.loadImage(on: secondTokenIconView, targetSize: iconSize, animated: false)
+        viewModel.firstTokenIconViewModel?.loadImage(on: firstTokenIconView, targetSize: iconSize, animated: false)
+        viewModel.secondTokenIconViewModel?.loadImage(on: secondTokenIconView, targetSize: iconSize, animated: false)
     }
 
     private func drawSubviews() {

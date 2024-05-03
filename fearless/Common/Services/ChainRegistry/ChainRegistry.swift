@@ -433,11 +433,6 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         return runtimeProvider
     }
 
-//    func getRuntimeProvider(for chainId: SSFModels.ChainModel.Id) -> SSFRuntimeCodingService.RuntimeProviderProtocol? {
-//        let runtimeProvider = readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
-//        return runtimeProvider
-//    }
-
     func getSubstrateConnection(for chain: SSFModels.ChainModel) throws -> SSFChainConnection.SubstrateConnection {
         let connection = getConnection(for: chain.chainId)
         guard let connection else {

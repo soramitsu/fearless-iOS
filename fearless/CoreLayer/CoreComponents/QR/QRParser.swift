@@ -1,13 +1,13 @@
 import Foundation
-import SSFUtils
+import SSFQRService
 
 protocol QRParser {
     func extractAddress(from code: String) throws -> String
 }
 
 final class SubstrateQRParser: QRParser {
-    private let prefix: String = SubstrateQR.prefix
-    private let separator: String = SubstrateQR.fieldsSeparator
+    private let prefix: String = SubstrateQRConstants.prefix
+    private let separator: String = SubstrateQRConstants.fieldsSeparator
 
     func extractAddress(from code: String) throws -> String {
         let fields = code

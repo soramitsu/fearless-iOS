@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import SSFModels
 
 @available(*, deprecated, message: "Use MetaAccount instead")
 struct ManagedAccountItem: Equatable {

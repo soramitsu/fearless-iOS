@@ -1,5 +1,6 @@
 import IrohaCrypto
 import SoraFoundation
+import SSFModels
 
 protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func show(chainType: AccountCreateChainType)

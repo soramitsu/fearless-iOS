@@ -1,5 +1,5 @@
 import SoraFoundation
-import CommonWallet
+
 import BigInt
 import SSFModels
 

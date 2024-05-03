@@ -1,6 +1,6 @@
 import Foundation
 
-struct StorageQuery: Encodable {
+struct StorageQuery: Codable {
     let keys: [Data]
     let blockHash: Data?
 
