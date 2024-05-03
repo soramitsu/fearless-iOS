@@ -17,6 +17,7 @@ actor AssetManagementInteractor {
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let eventCenter: EventCenterProtocol
+    private let accountInfoRemoteService: AccountInfoRemoteService
 
     private var bufferWallet: MetaAccountModel?
 
@@ -24,12 +25,14 @@ actor AssetManagementInteractor {
         chainAssetFetching: ChainAssetFetchingProtocol,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoFetchingProvider: AccountInfoFetching,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        accountInfoRemoteService: AccountInfoRemoteService
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.eventCenter = eventCenter
+        self.accountInfoRemoteService = accountInfoRemoteService
 
         self.eventCenter.add(observer: self)
     }
@@ -58,28 +61,14 @@ actor AssetManagementInteractor {
         wallet: MetaAccountModel,
         assetId: String,
         hidden: Bool
-    ) async {
+    ) async -> MetaAccountModel {
         var visibilities = wallet.assetsVisibility.filter { $0.assetId != assetId }
         let assetVisibility = AssetVisibility(assetId: assetId, hidden: hidden)
         visibilities.append(assetVisibility)
 
         let updatedWallet = wallet.replacingAssetsVisibility(visibilities)
         bufferWallet = updatedWallet
-    }
-
-    private func setDefaultAndUpdateVisibility(
-        hidden: Bool,
-        assetId: String,
-        wallet: MetaAccountModel,
-        chainAssets: [ChainAsset]
-    ) async {
-        let defaultVisibility = chainAssets.map {
-            let isVisible = $0.chain.rank != nil && $0.asset.isUtility
-            let visibility = AssetVisibility(assetId: $0.identifier, hidden: !isVisible)
-            return visibility
-        }
-        let updatedWallet = wallet.replacingAssetsVisibility(defaultVisibility)
-        await updateVisibility(wallet: updatedWallet, assetId: assetId, hidden: hidden)
+        return updatedWallet
     }
 }
 
@@ -89,24 +78,15 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
     func change(
         hidden: Bool,
         assetId: String,
-        wallet: MetaAccountModel,
-        chainAssets: [ChainAsset]
-    ) async {
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel {
         let wallet = bufferWallet ?? wallet
-        if wallet.assetsVisibility.isEmpty {
-            await setDefaultAndUpdateVisibility(
-                hidden: hidden,
-                assetId: assetId,
-                wallet: wallet,
-                chainAssets: chainAssets
-            )
-        } else {
-            await updateVisibility(
-                wallet: wallet,
-                assetId: assetId,
-                hidden: hidden
-            )
-        }
+        let updatedWallet = await updateVisibility(
+            wallet: wallet,
+            assetId: assetId,
+            hidden: hidden
+        )
+        return updatedWallet
     }
 
     func setup(with output: AssetManagementInteractorOutput) async {
@@ -131,6 +111,17 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
             for: chainAssets,
             wallet: wallet
         )
+    }
+
+    func fetchAccountInfo(
+        for chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) async throws -> AccountInfo? {
+        let accountInfo = try await accountInfoRemoteService.fetchAccountInfo(
+            for: chainAsset,
+            wallet: wallet
+        )
+        return accountInfo
     }
 }
 

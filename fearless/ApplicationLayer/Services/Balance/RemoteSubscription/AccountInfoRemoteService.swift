@@ -11,6 +11,11 @@ protocol AccountInfoRemoteService {
         for chain: ChainModel,
         wallet: MetaAccountModel
     ) async throws -> [ChainAssetId: AccountInfo?]
+
+    func fetchAccountInfo(
+        for chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) async throws -> AccountInfo?
 }
 
 final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
@@ -44,6 +49,28 @@ final class AccountInfoRemoteServiceDefault: AccountInfoRemoteService {
         } else {
             let accountInfos = try await fetchSubstrate(for: chain, accountId: accountId)
             return accountInfos
+        }
+    }
+
+    func fetchAccountInfo(
+        for chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) async throws -> AccountInfo? {
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            throw ConvenienceError(error: "Missing account id for \(chainAsset.debugName)")
+        }
+        if chainAsset.chain.isEthereum {
+            let response = try await ethereumRemoteBalanceFetching.fetch(
+                for: chainAsset,
+                accountId: accountId
+            )
+            return response.1
+        } else {
+            let request = createSubstrateRequest(for: chainAsset, accountId: accountId)
+            let response = try await storagePerformer.perform([request], chain: chainAsset.chain)
+            let map = try createSubstrateMap(from: response, chain: chainAsset.chain)
+            let accountInfo = map[chainAsset.chainAssetId] ?? nil
+            return accountInfo
         }
     }
 

@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 struct AssetManagementViewModel {
     var list: [AssetManagementTableSection]
@@ -21,12 +22,13 @@ struct AssetManagementTableSection {
 }
 
 struct AssetManagementTableCellViewModel {
-    let chainAssetId: String
+    let chainAsset: ChainAsset
     let assetImage: ImageViewModelProtocol?
     let assetName: String
     let chainName: String
-    let balance: BalanceViewModelProtocol
-    let decimalPrice: Decimal
+    var balance: BalanceViewModelProtocol
+    var decimalPrice: Decimal
     var hidden: Bool
     let hasGroup: Bool
+    var isLoadingBalance: Bool
 }

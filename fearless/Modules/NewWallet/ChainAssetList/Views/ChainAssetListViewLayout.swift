@@ -80,11 +80,11 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     func setFooterView() {
-        let size = CGSize(width: tableView.bounds.width, height: UIConstants.actionHeight)
+        let size = CGSize(width: tableView.bounds.width, height: UIConstants.actionHeight + 32)
         let footerContainer = UIView(frame: CGRect(origin: .zero, size: size))
         footerContainer.addSubview(footerButton)
         footerButton.snp.remakeConstraints { make in
-            make.top.bottom.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(16)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }

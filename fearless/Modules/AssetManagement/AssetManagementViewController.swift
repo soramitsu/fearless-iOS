@@ -160,15 +160,10 @@ extension AssetManagementViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard
-            let cell = tableView.dequeueReusableCellWithType(AssetManagementTableCell.self),
-            let section = viewModel?.list[safe: indexPath.section],
-            let viewModel = section.cells[safe: indexPath.row]
-        else {
+    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCellWithType(AssetManagementTableCell.self) else {
             return UITableViewCell()
         }
-        cell.bind(viewModel: viewModel)
         return cell
     }
 }
@@ -176,6 +171,17 @@ extension AssetManagementViewController: UITableViewDataSource {
 // MARK: - UITableViewDelegate
 
 extension AssetManagementViewController: UITableViewDelegate {
+    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard
+            let cell = cell as? AssetManagementTableCell,
+            let section = viewModel?.list[safe: indexPath.section],
+            let viewModel = section.cells[safe: indexPath.row]
+        else {
+            return
+        }
+        cell.bind(viewModel: viewModel)
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         guard let viewModel else {

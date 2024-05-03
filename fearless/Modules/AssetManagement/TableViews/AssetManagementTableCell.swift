@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 
 final class AssetManagementTableCell: UITableViewCell {
     let iconImageView = UIImageView()
@@ -43,6 +44,7 @@ final class AssetManagementTableCell: UITableViewCell {
     let textContainer = UIFactory.default.createHorizontalStackView()
     let assetTextsContainer = UIFactory.default.createVerticalStackView()
     let balanceTextsContainer = UIFactory.default.createVerticalStackView()
+    private var skeletonView: SkrullableView?
 
     private var viewModel: AssetManagementTableCellViewModel?
 
@@ -87,6 +89,77 @@ final class AssetManagementTableCell: UITableViewCell {
         switchView.isOn = !viewModel.hidden
 
         applyStyle(isOn: !viewModel.hidden, hasGroup: viewModel.hasGroup)
+        viewModel.isLoadingBalance ? startLoadingIfNeeded() : stopLoadingIfNeeded()
+    }
+
+    private func startLoadingIfNeeded() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        balanceLabel.alpha = 0.0
+        fiatBalanceLabel.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    private func stopLoadingIfNeeded() {
+        balanceLabel.alpha = 1.0
+        fiatBalanceLabel.alpha = 1.0
+
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+    }
+
+    private func setupSkeleton() {
+        setNeedsLayout()
+        layoutIfNeeded()
+        let spaceSize = contentView.frame.size
+
+        guard spaceSize != .zero else {
+            self.skeletonView = Skrull(size: .zero, decorations: [], skeletons: []).build()
+            return
+        }
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        self.skeletonView = skeletonView
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: contentView)
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let balanceSize = CGSize(width: 72, height: 14)
+        let priceSize = CGSize(width: 52, height: 10)
+
+        return [
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: textContainer.frame.maxX - 72, y: textContainer.frame.midY - 7),
+                size: balanceSize
+            ),
+            SingleSkeleton.createRow(
+                spaceSize: spaceSize,
+                position: CGPoint(x: textContainer.frame.maxX - 52, y: textContainer.frame.midY + 10),
+                size: priceSize
+            )
+        ]
     }
 
     private func applyStyle(isOn: Bool, hasGroup: Bool) {
@@ -132,15 +205,6 @@ final class AssetManagementTableCell: UITableViewCell {
             make.size.equalTo(32)
         }
 
-//        assetTextsContainer.snp.makeConstraints { make in
-//            make.leading.equalTo(iconImageView.snp.trailing).offset(12)
-//            make.trailing.greaterThanOrEqualTo(balanceTextsContainer).priority(.low)
-//            make.centerY.equalToSuperview()
-//        }
-//
-//        balanceTextsContainer.snp.makeConstraints { make in
-//            make.centerY.equalToSuperview()
-//        }
         textContainer.snp.makeConstraints { make in
             make.leading.equalTo(iconImageView.snp.trailing).offset(12)
             make.centerY.equalToSuperview()

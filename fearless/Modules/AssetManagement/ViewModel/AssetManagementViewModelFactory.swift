@@ -10,12 +10,18 @@ protocol AssetManagementViewModelFactory: ChainAssetListBuilder {
         wallet: MetaAccountModel,
         locale: Locale,
         filter: NetworkManagmentFilter?,
-        search: String?
+        search: String?,
+        pendingAccountInfoChainAssets: [ChainAssetId]
     ) -> AssetManagementViewModel
 
     func update(
         viewModel: AssetManagementViewModel,
-        at indexPath: IndexPath
+        at indexPath: IndexPath,
+        pendingAccountInfoChainAssets: [ChainAssetId],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        prices: [PriceData],
+        locale: Locale,
+        wallet: MetaAccountModel
     ) -> AssetManagementViewModel
 
     func update(
@@ -40,7 +46,8 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         wallet: MetaAccountModel,
         locale: Locale,
         filter: NetworkManagmentFilter?,
-        search: String?
+        search: String?,
+        pendingAccountInfoChainAssets: [ChainAssetId]
     ) -> AssetManagementViewModel {
         let filtredChainAssets = filterChainAssets(
             with: filter,
@@ -64,7 +71,8 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 accountInfos: accountInfos,
                 locale: locale,
                 prices: prices,
-                hasGroup: hasView
+                hasGroup: hasView,
+                pendingAccountInfoChainAssets: pendingAccountInfoChainAssets
             )
 
             let assetImage = junk.mainChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) }
@@ -105,13 +113,33 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
 
     func update(
         viewModel: AssetManagementViewModel,
-        at indexPath: IndexPath
+        at indexPath: IndexPath,
+        pendingAccountInfoChainAssets: [ChainAssetId],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        prices: [PriceData],
+        locale: Locale,
+        wallet: MetaAccountModel
     ) -> AssetManagementViewModel {
         var viewModel = viewModel
         viewModel.list[indexPath.section].cells[indexPath.row].hidden.toggle()
+
         let section = viewModel.list[indexPath.section]
         let isAllDisabled = section.cells.filter { $0.hidden }.count == section.cells.count
         viewModel.list[indexPath.section].isAllDisabled = isAllDisabled
+
+        if let cell = section.cells[safe: indexPath.row] {
+            let isLoadingBalance = pendingAccountInfoChainAssets.contains(cell.chainAsset.chainAssetId)
+            let updatedCell = update(
+                accountInfos: accountInfos,
+                in: cell,
+                locale: locale,
+                wallet: wallet,
+                prices: prices,
+                isLoadingBalance: isLoadingBalance
+            )
+            viewModel.list[indexPath.section].cells[indexPath.row] = updatedCell
+        }
+
         return viewModel
     }
 
@@ -126,13 +154,54 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
 
     // MARK: - Private methods
 
+    private func update(
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        in cell: AssetManagementTableCellViewModel,
+        locale: Locale,
+        wallet: MetaAccountModel,
+        prices: [PriceData],
+        isLoadingBalance: Bool
+    ) -> AssetManagementTableCellViewModel {
+        let amount = getBalanceString(
+            for: [cell.chainAsset],
+            accountInfos: accountInfos,
+            locale: locale,
+            wallet: wallet
+        ) ?? "0"
+        let price = getFiatBalanceString(
+            for: [cell.chainAsset],
+            accountInfos: accountInfos,
+            priceData: prices.first(where: { $0.priceId == cell.chainAsset.asset.priceId }),
+            locale: locale,
+            wallet: wallet,
+            shouldShowZero: true
+        )
+        let decimalPrice = getTotalFiatBalance(
+            for: [cell.chainAsset],
+            accountInfos: accountInfos,
+            priceData: prices.first(where: { $0.priceId == cell.chainAsset.asset.priceId }),
+            wallet: wallet
+        )
+        let balance = BalanceViewModel(
+            amount: amount,
+            price: price
+        )
+
+        var cell = cell
+        cell.balance = balance
+        cell.decimalPrice = decimalPrice
+        cell.isLoadingBalance = isLoadingBalance
+        return cell
+    }
+
     private func createCells(
         for junk: AssetChainAssets,
         wallet: MetaAccountModel,
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         prices: [PriceData],
-        hasGroup: Bool
+        hasGroup: Bool,
+        pendingAccountInfoChainAssets: [ChainAssetId]
     ) -> [AssetManagementTableCellViewModel] {
         let cells = junk.chainAssets.map { chainAsset in
             let amount = getBalanceString(
@@ -163,15 +232,17 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 wallet: wallet,
                 chainAsset: chainAsset
             )
+            let isLoadingBalance = pendingAccountInfoChainAssets.contains(chainAsset.chainAssetId)
             let cell = AssetManagementTableCellViewModel(
-                chainAssetId: chainAsset.identifier,
+                chainAsset: chainAsset,
                 assetImage: chainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
                 assetName: chainAsset.asset.symbolUppercased,
                 chainName: chainAsset.chain.name,
                 balance: balance,
                 decimalPrice: decimalPrice,
                 hidden: hidden,
-                hasGroup: hasGroup
+                hasGroup: hasGroup,
+                isLoadingBalance: isLoadingBalance
             )
             return cell
         }
@@ -212,11 +283,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         wallet: MetaAccountModel,
         chainAsset: ChainAsset
     ) -> Bool {
-        let allIsHidden = wallet.assetsVisibility.filter { !$0.hidden }.isEmpty
-        guard wallet.assetsVisibility.isNotEmpty, !allIsHidden else {
-            return !(chainAsset.chain.rank != nil && chainAsset.asset.isUtility)
-        }
-
         let isHidden = wallet.assetsVisibility.contains(where: {
             $0.assetId == chainAsset.identifier && $0.hidden
         })

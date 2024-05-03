@@ -21,9 +21,12 @@ protocol AssetManagementInteractorInput: AnyObject {
     func change(
         hidden: Bool,
         assetId: String,
-        wallet: MetaAccountModel,
-        chainAssets: [ChainAsset]
-    ) async
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel
+    func fetchAccountInfo(
+        for chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) async throws -> AccountInfo?
 }
 
 final class AssetManagementPresenter {
@@ -40,6 +43,7 @@ final class AssetManagementPresenter {
     private var chainAssets: [ChainAsset] = []
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: [PriceData] = []
+    private var pendingAccountInfoChainAssets: [ChainAssetId] = []
 
     // MARK: - Constructors
 
@@ -75,7 +79,8 @@ final class AssetManagementPresenter {
                 wallet: wallet,
                 locale: selectedLocale,
                 filter: networkFilter,
-                search: search
+                search: search,
+                pendingAccountInfoChainAssets: pendingAccountInfoChainAssets
             )
             await view?.didReceive(viewModel: viewModel)
         }
@@ -94,6 +99,52 @@ final class AssetManagementPresenter {
             }
         }
     }
+
+    private func handleOnSwitch(viewModel: AssetManagementTableCellViewModel) {
+        if viewModel.hidden.invert() {
+            pendingAccountInfoChainAssets.removeAll(where: { $0 == viewModel.chainAsset.chainAssetId })
+        } else {
+            pendingAccountInfoChainAssets.append(viewModel.chainAsset.chainAssetId)
+        }
+    }
+
+    private func fetchAccountInfo(
+        chainAsset: ChainAsset,
+        viewModel: AssetManagementViewModel,
+        indexPath: IndexPath
+    ) async {
+        pendingAccountInfoChainAssets.removeAll(where: { $0 == chainAsset.chainAssetId })
+        do {
+            let accountInfo = try await interactor.fetchAccountInfo(
+                for: chainAsset,
+                wallet: wallet
+            )
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            accountInfos[key] = accountInfo
+            await update(at: indexPath, viewModel: viewModel)
+        } catch {
+            await _ = MainActor.run {
+                router.present(error: error, from: view, locale: selectedLocale)
+            }
+            await update(at: indexPath, viewModel: viewModel)
+        }
+    }
+
+    private func update(at indexPath: IndexPath, viewModel: AssetManagementViewModel) async {
+        let viewModel = viewModelFactory.update(
+            viewModel: viewModel,
+            at: indexPath,
+            pendingAccountInfoChainAssets: pendingAccountInfoChainAssets,
+            accountInfos: accountInfos,
+            prices: prices,
+            locale: selectedLocale,
+            wallet: wallet
+        )
+        await view?.didReceive(viewModel: viewModel)
+    }
 }
 
 // MARK: - AssetManagementViewOutput
@@ -101,17 +152,25 @@ final class AssetManagementPresenter {
 extension AssetManagementPresenter: AssetManagementViewOutput {
     func didSelectRow(at indexPath: IndexPath, viewModel: AssetManagementViewModel) {
         Task {
-            let viewModel = viewModelFactory.update(viewModel: viewModel, at: indexPath)
             if let section = viewModel.list[safe: indexPath.section],
-               let viewModel = section.cells[safe: indexPath.row] {
-                await interactor.change(
-                    hidden: viewModel.hidden,
-                    assetId: viewModel.chainAssetId,
-                    wallet: wallet,
-                    chainAssets: chainAssets
+               let cellViewModel = section.cells[safe: indexPath.row] {
+                let updatedWallet = await interactor.change(
+                    hidden: cellViewModel.hidden.invert(),
+                    assetId: cellViewModel.chainAsset.identifier,
+                    wallet: wallet
+                )
+                wallet = updatedWallet
+                handleOnSwitch(viewModel: cellViewModel)
+                await update(at: indexPath, viewModel: viewModel)
+                guard !cellViewModel.hidden.invert() else {
+                    return
+                }
+                await fetchAccountInfo(
+                    chainAsset: cellViewModel.chainAsset,
+                    viewModel: viewModel,
+                    indexPath: indexPath
                 )
             }
-            await view?.didReceive(viewModel: viewModel)
         }
     }
 

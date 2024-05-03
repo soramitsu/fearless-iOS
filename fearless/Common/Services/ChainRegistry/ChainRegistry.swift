@@ -47,12 +47,6 @@ final class ChainRegistry {
     private let eventCenter: EventCenterProtocol
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
     private let walletStreamableProvider: StreamableProvider<ManagedMetaAccountModel>
-
-    private var chains: [ChainModel] = []
-    var chainsTypesMap: [String: Data] = [:]
-
-    private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
-
     private lazy var readLock = ReaderWriterLock()
 
     private var substrateConnectionPool: ConnectionPool? {
@@ -62,6 +56,18 @@ final class ChainRegistry {
     private var ethereumConnectionPool: EthereumConnectionPool? {
         connectionPools.first(where: { $0 is EthereumConnectionPool }) as? EthereumConnectionPool
     }
+
+    private lazy var chainConnectionVisibilityHelper = {
+        ChainConnectionVisibilityHelper()
+    }()
+
+    // MARK: - State
+
+    private var chains: [ChainModel] = []
+    private(set) var chainsTypesMap: [String: Data] = [:]
+    private var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
+
+    // MARK: - Constructor
 
     init(
         snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol,
@@ -94,6 +100,8 @@ final class ChainRegistry {
         connectionPools.forEach { $0.setDelegate(self) }
     }
 
+    // MARK: - Private handle subscription methods
+
     private func handleChainModel(_ changes: [DataProviderChange<ChainModel>]) {
         guard !changes.isEmpty else {
             return
@@ -108,34 +116,11 @@ final class ChainRegistry {
                 do {
                     switch change {
                     case let .insert(newChain):
-                        guard self.shouldSetConnetion(newChain) else {
-                            self.resetConnection(for: newChain.chainId)
-                            return
-                        }
-
-                        if newChain.isEthereum {
-                            try self.handleNewEthereumChain(newChain: newChain)
-                        } else {
-                            try self.handleNewSubstrateChain(newChain: newChain)
-                        }
+                        try self.handleInsert(newChain)
                     case let .update(updatedChain):
-                        guard self.shouldSetConnetion(updatedChain) else {
-                            self.resetConnection(for: updatedChain.chainId)
-                            return
-                        }
-
-                        if updatedChain.isEthereum {
-                            try self.handleUpdatedEthereumChain(updatedChain: updatedChain)
-                        } else {
-                            try self.handleUpdatedSubstrateChain(updatedChain: updatedChain)
-                        }
+                        try self.handleUpdate(updatedChain)
                     case let .delete(chainId):
-                        self.runtimeProviderPool.destroyRuntimeProvider(for: chainId)
-                        self.clearRuntimeSubscription(for: chainId)
-
-                        self.runtimeSyncService.unregister(chainId: chainId)
-
-                        self.chains = self.chains.filter { $0.chainId != chainId }
+                        self.handleDelete(chainId)
                     }
                 } catch {
                     self.logger?.error("Unexpected error on handling chains update: \(error)")
@@ -167,51 +152,47 @@ final class ChainRegistry {
         }
     }
 
-    private func shouldSetConnetion(_ chain: ChainModel) -> Bool {
-        let hasVisibleAsset = hasVisibleAsset(chain, wallet: currentWallet)
-        let isRequaredConnection = isChainWithRequaredConnection(chain)
+    // MARK: - Private DataProviderChange handle methods
 
-        let shouldSetConnection = [
-            hasVisibleAsset,
-            isRequaredConnection
-        ].contains(true)
-        return shouldSetConnection
-    }
-
-    private func isChainWithRequaredConnection(_ chain: ChainModel) -> Bool {
-        let isChainlinkProvider = chain.options?.contains(.chainlinkProvider)
-        let hasPoolStaking = chain.options?.contains(.poolStaking)
-        let hasRelaychainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isRelaychain })
-        let hasParachainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isParachain })
-
-        let isRequared = [
-            isChainlinkProvider,
-            hasPoolStaking,
-            hasRelaychainStaking,
-            hasParachainStaking
-        ]
-        .compactMap { $0 }
-        .contains(true)
-
-        return isRequared
-    }
-
-    private func hasVisibleAsset(_ chain: ChainModel, wallet: MetaAccountModel?) -> Bool {
-        guard let wallet, wallet.assetsVisibility.isNotEmpty else {
-            return true
+    private func handleInsert(_ chain: ChainModel) throws {
+        guard chainConnectionVisibilityHelper.shouldHaveConnetion(chain, wallet: currentWallet) else {
+            resetConnection(for: chain.chainId)
+            return
         }
-        let chainAssetIds = chain.chainAssets.map { $0.identifier }
-        let hasVisible = wallet.assetsVisibility.contains(where: { chainAssetIds.contains($0.assetId) && !$0.hidden })
-        return hasVisible
-    }
 
-    private func updateCurrentWallet(_ wallet: MetaAccountModel) {
-        if currentWallet?.assetsVisibility != wallet.assetsVisibility {
-            currentWallet = wallet
-            chainProvider.removeObserver(self)
-            subscribeToChians()
+        if chain.isEthereum {
+            try handleNewEthereumChain(newChain: chain)
+        } else {
+            try handleNewSubstrateChain(newChain: chain)
         }
     }
+
+    private func handleUpdate(_ chain: ChainModel) throws {
+        guard chainConnectionVisibilityHelper.shouldHaveConnetion(chain, wallet: currentWallet) else {
+            resetConnection(for: chain.chainId)
+            return
+        }
+
+        if chain.isEthereum {
+            try handleUpdatedEthereumChain(updatedChain: chain)
+        } else {
+            try handleUpdatedSubstrateChain(updatedChain: chain)
+        }
+    }
+
+    private func handleDelete(_ chainId: ChainModel.Id) {
+        guard let removedChain = chains.first(where: { $0.chainId == chainId }) else {
+            return
+        }
+
+        if removedChain.isEthereum {
+            handleDeletedEthereumChain(chainId: chainId)
+        } else {
+            handleDeletedSubstrateChain(chainId: chainId)
+        }
+    }
+
+    // MARK: - Private substrate methods
 
     private func setupRuntimeVersionSubscription(for chain: ChainModel, connection: ChainConnection) {
         let subscription = specVersionSubscriptionFactory.createSubscription(
@@ -232,11 +213,6 @@ final class ChainRegistry {
         runtimeVersionSubscriptions[chainId] = nil
     }
 
-    private func syncUpServices() {
-        chainSyncService.syncUp()
-        chainsTypesSyncService.syncUp()
-    }
-
     private func handleNewSubstrateChain(newChain: ChainModel) throws {
         guard let substrateConnectionPool = self.substrateConnectionPool else {
             return
@@ -250,14 +226,6 @@ final class ChainRegistry {
         setupRuntimeVersionSubscription(for: newChain, connection: connection)
 
         chains.append(newChain)
-    }
-
-    private func handleNewEthereumChain(newChain: ChainModel) throws {
-        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
-            return
-        }
-        chains.append(newChain)
-        _ = try ethereumConnectionPool.setupConnection(for: newChain)
     }
 
     private func handleUpdatedSubstrateChain(updatedChain: ChainModel) throws {
@@ -277,25 +245,10 @@ final class ChainRegistry {
         chains.append(updatedChain)
     }
 
-    private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
-        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
-            return
-        }
-        _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
-        chains = chains.filter { $0.chainId != updatedChain.chainId }
-        chains.append(updatedChain)
-    }
-
-    private func handleDeletedSubstrateChain(chainId: ChainModel.Id) throws {
+    private func handleDeletedSubstrateChain(chainId: ChainModel.Id) {
         runtimeProviderPool.destroyRuntimeProvider(for: chainId)
         clearRuntimeSubscription(for: chainId)
-
         runtimeSyncService.unregister(chainId: chainId)
-
-        chains = chains.filter { $0.chainId != chainId }
-    }
-
-    private func handleDeletedEthereumChain(chainId: ChainModel.Id) throws {
         chains = chains.filter { $0.chainId != chainId }
     }
 
@@ -307,8 +260,46 @@ final class ChainRegistry {
         substrateConnectionPool.resetConnection(for: chainId)
     }
 
+    // MARK: - Private ethereum methods
+
+    private func handleNewEthereumChain(newChain: ChainModel) throws {
+        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
+            return
+        }
+        chains.append(newChain)
+        _ = try ethereumConnectionPool.setupConnection(for: newChain)
+    }
+
+    private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
+        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
+            return
+        }
+        _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
+        chains = chains.filter { $0.chainId != updatedChain.chainId }
+        chains.append(updatedChain)
+    }
+
+    private func handleDeletedEthereumChain(chainId: ChainModel.Id) {
+        chains = chains.filter { $0.chainId != chainId }
+    }
+
     private func resetEthereumConnection(for _: ChainModel.Id) {
         // TODO: Reset eth connection
+    }
+
+    // MARK: - Private others methods
+
+    private func updateCurrentWallet(_ wallet: MetaAccountModel) {
+        if currentWallet?.assetsVisibility != wallet.assetsVisibility {
+            currentWallet = wallet
+            chainProvider.removeObserver(self)
+            subscribeToChians()
+        }
+    }
+
+    private func syncUpServices() {
+        chainSyncService.syncUp()
+        chainsTypesSyncService.syncUp()
     }
 }
 
@@ -385,7 +376,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
-        readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
+        runtimeProviderPool.getRuntimeProvider(for: chainId)
     }
 
     func chainsSubscribe(
@@ -506,7 +497,10 @@ extension ChainRegistry: ConnectionPoolDelegate {
     }
 
     func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
-        guard chain.selectedNode == nil else {
+        guard
+            chain.selectedNode == nil,
+            chainConnectionVisibilityHelper.shouldHaveConnetion(chain, wallet: currentWallet)
+        else {
             return
         }
 
@@ -551,19 +545,18 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
     }
 
     func getSubstrateConnection(for chain: SSFModels.ChainModel) throws -> SSFChainConnection.SubstrateConnection {
-        let connection = getConnection(for: chain.chainId)
-        guard let connection else {
+        guard let substrateConnectionPool = self.substrateConnectionPool else {
             throw ChainRegistryError.connectionUnavailable
         }
-
+        let connection = try substrateConnectionPool.setupConnection(for: chain)
         return connection
     }
 
     func getEthereumConnection(for chain: SSFModels.ChainModel) throws -> SSFChainConnection.Web3EthConnection {
-        let connection = getEthereumConnection(for: chain.chainId)
-        guard let connection else {
+        guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             throw ChainRegistryError.connectionUnavailable
         }
+        let connection = try ethereumConnectionPool.setupConnection(for: chain)
         return connection
     }
 

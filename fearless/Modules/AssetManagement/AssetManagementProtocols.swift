@@ -3,7 +3,7 @@ typealias AssetManagementModuleCreationResult = (
     input: AssetManagementModuleInput
 )
 
-protocol AssetManagementRouterInput: PresentDismissable {
+protocol AssetManagementRouterInput: PresentDismissable, ErrorPresentable, SheetAlertPresentable {
     func showSelectNetwork(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
