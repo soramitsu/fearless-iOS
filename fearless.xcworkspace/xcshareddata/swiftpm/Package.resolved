@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/google-api-objectivec-client-for-rest.git",
       "state" : {
-        "revision" : "11941123a0d9c2641197fa83d57e6ff9f088b907",
-        "version" : "3.5.2"
+        "revision" : "d46fb27cf61e08285a727c18a2ae0dbc20d91b2f",
+        "version" : "3.5.4"
       }
     },
     {
@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "storage-requests-update",
-        "revision" : "517a5b8df24f08c96a009768de1b3ece86e01560"
+        "branch" : "extrinsics-appid",
+        "revision" : "8b4d27547e6052053aba913fa20abda0adfd7e78"
       }
     },
     {

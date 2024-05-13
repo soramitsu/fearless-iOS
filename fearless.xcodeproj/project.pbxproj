@@ -1887,35 +1887,6 @@
 		FA004899282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA004898282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift */; };
 		FA00489B282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA00489A282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift */; };
 		FA0066E92935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0066E82935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift */; };
-		FA006FF22BBD2382006DE1B5 /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FF12BBD2382006DE1B5 /* IrohaCrypto */; };
-		FA006FF42BBD2382006DE1B5 /* RobinHood in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FF32BBD2382006DE1B5 /* RobinHood */; };
-		FA006FF62BBD2382006DE1B5 /* SSFAccountManagment in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FF52BBD2382006DE1B5 /* SSFAccountManagment */; };
-		FA006FF82BBD2382006DE1B5 /* SSFAccountManagmentStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FF72BBD2382006DE1B5 /* SSFAccountManagmentStorage */; };
-		FA006FFA2BBD2382006DE1B5 /* SSFAssetManagment in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FF92BBD2382006DE1B5 /* SSFAssetManagment */; };
-		FA006FFC2BBD2382006DE1B5 /* SSFChainConnection in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FFB2BBD2382006DE1B5 /* SSFChainConnection */; };
-		FA006FFE2BBD2382006DE1B5 /* SSFChainRegistry in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FFD2BBD2382006DE1B5 /* SSFChainRegistry */; };
-		FA0070002BBD2382006DE1B5 /* SSFCloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA006FFF2BBD2382006DE1B5 /* SSFCloudStorage */; };
-		FA0070022BBD2382006DE1B5 /* SSFCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070012BBD2382006DE1B5 /* SSFCrypto */; };
-		FA0070042BBD2382006DE1B5 /* SSFEraKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070032BBD2382006DE1B5 /* SSFEraKit */; };
-		FA0070062BBD2382006DE1B5 /* SSFExtrinsicKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070052BBD2382006DE1B5 /* SSFExtrinsicKit */; };
-		FA0070082BBD2382006DE1B5 /* SSFHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070072BBD2382006DE1B5 /* SSFHelpers */; };
-		FA00700A2BBD2382006DE1B5 /* SSFKeyPair in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070092BBD2382006DE1B5 /* SSFKeyPair */; };
-		FA00700C2BBD2382006DE1B5 /* SSFLogger in Frameworks */ = {isa = PBXBuildFile; productRef = FA00700B2BBD2382006DE1B5 /* SSFLogger */; };
-		FA00700E2BBD2382006DE1B5 /* SSFModels in Frameworks */ = {isa = PBXBuildFile; productRef = FA00700D2BBD2382006DE1B5 /* SSFModels */; };
-		FA0070102BBD2382006DE1B5 /* SSFNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = FA00700F2BBD2382006DE1B5 /* SSFNetwork */; };
-		FA0070122BBD2382006DE1B5 /* SSFPolkaswap in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070112BBD2382006DE1B5 /* SSFPolkaswap */; };
-		FA0070142BBD2382006DE1B5 /* SSFPools in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070132BBD2382006DE1B5 /* SSFPools */; };
-		FA0070162BBD2382006DE1B5 /* SSFPoolsStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070152BBD2382006DE1B5 /* SSFPoolsStorage */; };
-		FA0070182BBD2382006DE1B5 /* SSFQRService in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070172BBD2382006DE1B5 /* SSFQRService */; };
-		FA00701A2BBD2382006DE1B5 /* SSFRuntimeCodingService in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070192BBD2382006DE1B5 /* SSFRuntimeCodingService */; };
-		FA00701C2BBD2382006DE1B5 /* SSFSigner in Frameworks */ = {isa = PBXBuildFile; productRef = FA00701B2BBD2382006DE1B5 /* SSFSigner */; };
-		FA00701E2BBD2382006DE1B5 /* SSFSingleValueCache in Frameworks */ = {isa = PBXBuildFile; productRef = FA00701D2BBD2382006DE1B5 /* SSFSingleValueCache */; };
-		FA0070202BBD2382006DE1B5 /* SSFStorageQueryKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA00701F2BBD2382006DE1B5 /* SSFStorageQueryKit */; };
-		FA0070222BBD2382006DE1B5 /* SSFTransferService in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070212BBD2382006DE1B5 /* SSFTransferService */; };
-		FA0070242BBD2382006DE1B5 /* SSFUtils in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070232BBD2382006DE1B5 /* SSFUtils */; };
-		FA0070262BBD2382006DE1B5 /* SSFXCM in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070252BBD2382006DE1B5 /* SSFXCM */; };
-		FA0070282BBD2382006DE1B5 /* SoraKeystore in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070272BBD2382006DE1B5 /* SoraKeystore */; };
-		FA00702A2BBD2382006DE1B5 /* keccak in Frameworks */ = {isa = PBXBuildFile; productRef = FA0070292BBD2382006DE1B5 /* keccak */; };
 		FA072C14277AE2FE00731718 /* QRCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C13277AE2FE00731718 /* QRCaptureService.swift */; };
 		FA072C16277B023D00731718 /* QRExtractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C15277B023D00731718 /* QRExtractionService.swift */; };
 		FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */; };
@@ -2338,6 +2309,35 @@
 		FA6DB7C62757C9B000233FBA /* ChainAccountWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BF2757C9AF00233FBA /* ChainAccountWireframe.swift */; };
 		FA6DB7C82757C9B000233FBA /* ChainAccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C12757C9AF00233FBA /* ChainAccountInteractor.swift */; };
 		FA6DB7C92757C9B000233FBA /* ChainAccountProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C22757C9AF00233FBA /* ChainAccountProtocols.swift */; };
+		FA6ECDFA2BF1E3ED00481B2B /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECDF92BF1E3ED00481B2B /* IrohaCrypto */; };
+		FA6ECDFC2BF1E3ED00481B2B /* RobinHood in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECDFB2BF1E3ED00481B2B /* RobinHood */; };
+		FA6ECDFE2BF1E3ED00481B2B /* SSFAccountManagment in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECDFD2BF1E3ED00481B2B /* SSFAccountManagment */; };
+		FA6ECE002BF1E3ED00481B2B /* SSFAccountManagmentStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECDFF2BF1E3ED00481B2B /* SSFAccountManagmentStorage */; };
+		FA6ECE022BF1E3ED00481B2B /* SSFAssetManagment in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE012BF1E3ED00481B2B /* SSFAssetManagment */; };
+		FA6ECE042BF1E3ED00481B2B /* SSFChainConnection in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE032BF1E3ED00481B2B /* SSFChainConnection */; };
+		FA6ECE062BF1E3ED00481B2B /* SSFChainRegistry in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE052BF1E3ED00481B2B /* SSFChainRegistry */; };
+		FA6ECE082BF1E3ED00481B2B /* SSFCloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE072BF1E3ED00481B2B /* SSFCloudStorage */; };
+		FA6ECE0A2BF1E3ED00481B2B /* SSFCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE092BF1E3ED00481B2B /* SSFCrypto */; };
+		FA6ECE0C2BF1E3ED00481B2B /* SSFEraKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE0B2BF1E3ED00481B2B /* SSFEraKit */; };
+		FA6ECE0E2BF1E3ED00481B2B /* SSFExtrinsicKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE0D2BF1E3ED00481B2B /* SSFExtrinsicKit */; };
+		FA6ECE102BF1E3ED00481B2B /* SSFHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE0F2BF1E3ED00481B2B /* SSFHelpers */; };
+		FA6ECE122BF1E3ED00481B2B /* SSFKeyPair in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE112BF1E3ED00481B2B /* SSFKeyPair */; };
+		FA6ECE142BF1E3ED00481B2B /* SSFLogger in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE132BF1E3ED00481B2B /* SSFLogger */; };
+		FA6ECE162BF1E3ED00481B2B /* SSFModels in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE152BF1E3ED00481B2B /* SSFModels */; };
+		FA6ECE182BF1E3ED00481B2B /* SSFNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE172BF1E3ED00481B2B /* SSFNetwork */; };
+		FA6ECE1A2BF1E3ED00481B2B /* SSFPolkaswap in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE192BF1E3ED00481B2B /* SSFPolkaswap */; };
+		FA6ECE1C2BF1E3ED00481B2B /* SSFPools in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE1B2BF1E3ED00481B2B /* SSFPools */; };
+		FA6ECE1E2BF1E3ED00481B2B /* SSFPoolsStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE1D2BF1E3ED00481B2B /* SSFPoolsStorage */; };
+		FA6ECE202BF1E3ED00481B2B /* SSFQRService in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE1F2BF1E3ED00481B2B /* SSFQRService */; };
+		FA6ECE222BF1E3ED00481B2B /* SSFRuntimeCodingService in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE212BF1E3ED00481B2B /* SSFRuntimeCodingService */; };
+		FA6ECE242BF1E3EE00481B2B /* SSFSigner in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE232BF1E3EE00481B2B /* SSFSigner */; };
+		FA6ECE262BF1E3EE00481B2B /* SSFSingleValueCache in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE252BF1E3EE00481B2B /* SSFSingleValueCache */; };
+		FA6ECE282BF1E3EE00481B2B /* SSFStorageQueryKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE272BF1E3EE00481B2B /* SSFStorageQueryKit */; };
+		FA6ECE2A2BF1E3EE00481B2B /* SSFTransferService in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE292BF1E3EE00481B2B /* SSFTransferService */; };
+		FA6ECE2C2BF1E3EE00481B2B /* SSFUtils in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE2B2BF1E3EE00481B2B /* SSFUtils */; };
+		FA6ECE2E2BF1E3EE00481B2B /* SSFXCM in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE2D2BF1E3EE00481B2B /* SSFXCM */; };
+		FA6ECE302BF1E3EE00481B2B /* SoraKeystore in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE2F2BF1E3EE00481B2B /* SoraKeystore */; };
+		FA6ECE322BF1E3EE00481B2B /* keccak in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE312BF1E3EE00481B2B /* keccak */; };
 		FA7154C4286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */; };
 		FA7254202AC2E48500EC47A6 /* CryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7253F32AC2E48400EC47A6 /* CryptoProvider.swift */; };
 		FA7254212AC2E48500EC47A6 /* WalletConnectPayloadSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7253F42AC2E48400EC47A6 /* WalletConnectPayloadSigner.swift */; };
@@ -2947,6 +2947,11 @@
 		FAE9EBA5288ABBE6009390B6 /* AnalyticsRewardsRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EBA4288ABBE6009390B6 /* AnalyticsRewardsRelaychainStrategy.swift */; };
 		FAE9EBA7288ABBFC009390B6 /* AnalyticsRewardsRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EBA6288ABBFC009390B6 /* AnalyticsRewardsRelaychainViewModelState.swift */; };
 		FAE9EBA9288ABC0C009390B6 /* AnalyticsRewardsRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EBA8288ABC0C009390B6 /* AnalyticsRewardsRelaychainViewModelFactory.swift */; };
+		FAECB9C72BF1CD170064F3B0 /* ErasStakersPagedKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAECB9C52BF1CD170064F3B0 /* ErasStakersPagedKey.swift */; };
+		FAECB9C82BF1CD170064F3B0 /* ErasStakersOverviewKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAECB9C62BF1CD170064F3B0 /* ErasStakersOverviewKey.swift */; };
+		FAECB9CC2BF1CD3F0064F3B0 /* EraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAECB9C92BF1CD3E0064F3B0 /* EraStakersFetching.swift */; };
+		FAECB9CD2BF1CD3F0064F3B0 /* DefaultEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAECB9CA2BF1CD3F0064F3B0 /* DefaultEraStakersFetching.swift */; };
+		FAECB9CE2BF1CD3F0064F3B0 /* LegacyEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAECB9CB2BF1CD3F0064F3B0 /* LegacyEraStakersFetching.swift */; };
 		FAED6F4427DA19C70051B337 /* AccountInfoSubscriptionAdapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAED6F4327DA19C70051B337 /* AccountInfoSubscriptionAdapter.swift */; };
 		FAEDC1392820E62F00E6582C /* StakingAmountRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDC1382820E62F00E6582C /* StakingAmountRelaychainViewModelState.swift */; };
 		FAEDC13D2820F59100E6582C /* StakingAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDC13C2820F59100E6582C /* StakingAmountViewModel.swift */; };
@@ -6004,6 +6009,11 @@
 		FAE9EBA4288ABBE6009390B6 /* AnalyticsRewardsRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsRelaychainStrategy.swift; sourceTree = "<group>"; };
 		FAE9EBA6288ABBFC009390B6 /* AnalyticsRewardsRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FAE9EBA8288ABC0C009390B6 /* AnalyticsRewardsRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
+		FAECB9C52BF1CD170064F3B0 /* ErasStakersPagedKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErasStakersPagedKey.swift; sourceTree = "<group>"; };
+		FAECB9C62BF1CD170064F3B0 /* ErasStakersOverviewKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErasStakersOverviewKey.swift; sourceTree = "<group>"; };
+		FAECB9C92BF1CD3E0064F3B0 /* EraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EraStakersFetching.swift; sourceTree = "<group>"; };
+		FAECB9CA2BF1CD3F0064F3B0 /* DefaultEraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultEraStakersFetching.swift; sourceTree = "<group>"; };
+		FAECB9CB2BF1CD3F0064F3B0 /* LegacyEraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetching.swift; sourceTree = "<group>"; };
 		FAED6F4327DA19C70051B337 /* AccountInfoSubscriptionAdapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoSubscriptionAdapter.swift; sourceTree = "<group>"; };
 		FAEDC1382820E62F00E6582C /* StakingAmountRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FAEDC13C2820F59100E6582C /* StakingAmountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountViewModel.swift; sourceTree = "<group>"; };
@@ -6127,44 +6137,44 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA0070102BBD2382006DE1B5 /* SSFNetwork in Frameworks */,
+				FA6ECE182BF1E3ED00481B2B /* SSFNetwork in Frameworks */,
 				FA72546F2AC2F12D00EC47A6 /* Web3Wallet in Frameworks */,
-				FA00700A2BBD2382006DE1B5 /* SSFKeyPair in Frameworks */,
-				FA0070082BBD2382006DE1B5 /* SSFHelpers in Frameworks */,
-				FA006FFC2BBD2382006DE1B5 /* SSFChainConnection in Frameworks */,
-				FA006FFA2BBD2382006DE1B5 /* SSFAssetManagment in Frameworks */,
-				FA006FF42BBD2382006DE1B5 /* RobinHood in Frameworks */,
-				FA0070222BBD2382006DE1B5 /* SSFTransferService in Frameworks */,
+				FA6ECE122BF1E3ED00481B2B /* SSFKeyPair in Frameworks */,
+				FA6ECE102BF1E3ED00481B2B /* SSFHelpers in Frameworks */,
+				FA6ECE042BF1E3ED00481B2B /* SSFChainConnection in Frameworks */,
+				FA6ECE022BF1E3ED00481B2B /* SSFAssetManagment in Frameworks */,
+				FA6ECDFC2BF1E3ED00481B2B /* RobinHood in Frameworks */,
+				FA6ECE2A2BF1E3EE00481B2B /* SSFTransferService in Frameworks */,
 				FA72546B2AC2F12D00EC47A6 /* WalletConnectNetworking in Frameworks */,
-				FA0070242BBD2382006DE1B5 /* SSFUtils in Frameworks */,
+				FA6ECE2C2BF1E3EE00481B2B /* SSFUtils in Frameworks */,
 				FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */,
-				FA0070142BBD2382006DE1B5 /* SSFPools in Frameworks */,
-				FA006FFE2BBD2382006DE1B5 /* SSFChainRegistry in Frameworks */,
+				FA6ECE1C2BF1E3ED00481B2B /* SSFPools in Frameworks */,
+				FA6ECE062BF1E3ED00481B2B /* SSFChainRegistry in Frameworks */,
 				FA8FD1832AF4B55100354482 /* Web3ContractABI in Frameworks */,
-				FA0070122BBD2382006DE1B5 /* SSFPolkaswap in Frameworks */,
+				FA6ECE1A2BF1E3ED00481B2B /* SSFPolkaswap in Frameworks */,
 				FA8FD1812AF4B55100354482 /* Web3 in Frameworks */,
-				FA0070182BBD2382006DE1B5 /* SSFQRService in Frameworks */,
-				FA0070282BBD2382006DE1B5 /* SoraKeystore in Frameworks */,
-				FA006FF82BBD2382006DE1B5 /* SSFAccountManagmentStorage in Frameworks */,
-				FA0070062BBD2382006DE1B5 /* SSFExtrinsicKit in Frameworks */,
-				FA006FF62BBD2382006DE1B5 /* SSFAccountManagment in Frameworks */,
-				FA0070002BBD2382006DE1B5 /* SSFCloudStorage in Frameworks */,
-				FA0070022BBD2382006DE1B5 /* SSFCrypto in Frameworks */,
-				FA00701E2BBD2382006DE1B5 /* SSFSingleValueCache in Frameworks */,
-				FA0070042BBD2382006DE1B5 /* SSFEraKit in Frameworks */,
+				FA6ECE202BF1E3ED00481B2B /* SSFQRService in Frameworks */,
+				FA6ECE302BF1E3EE00481B2B /* SoraKeystore in Frameworks */,
+				FA6ECE002BF1E3ED00481B2B /* SSFAccountManagmentStorage in Frameworks */,
+				FA6ECE0E2BF1E3ED00481B2B /* SSFExtrinsicKit in Frameworks */,
+				FA6ECDFE2BF1E3ED00481B2B /* SSFAccountManagment in Frameworks */,
+				FA6ECE082BF1E3ED00481B2B /* SSFCloudStorage in Frameworks */,
+				FA6ECE0A2BF1E3ED00481B2B /* SSFCrypto in Frameworks */,
+				FA6ECE262BF1E3EE00481B2B /* SSFSingleValueCache in Frameworks */,
+				FA6ECE0C2BF1E3ED00481B2B /* SSFEraKit in Frameworks */,
 				FA8FD1852AF4B55100354482 /* Web3PromiseKit in Frameworks */,
-				FA00702A2BBD2382006DE1B5 /* keccak in Frameworks */,
-				FA0070202BBD2382006DE1B5 /* SSFStorageQueryKit in Frameworks */,
-				FA00700E2BBD2382006DE1B5 /* SSFModels in Frameworks */,
+				FA6ECE322BF1E3EE00481B2B /* keccak in Frameworks */,
+				FA6ECE282BF1E3EE00481B2B /* SSFStorageQueryKit in Frameworks */,
+				FA6ECE162BF1E3ED00481B2B /* SSFModels in Frameworks */,
 				FA7254672AC2F12D00EC47A6 /* WalletConnect in Frameworks */,
 				FA72546D2AC2F12D00EC47A6 /* WalletConnectPairing in Frameworks */,
 				FA7254692AC2F12D00EC47A6 /* WalletConnectAuth in Frameworks */,
-				FA00701A2BBD2382006DE1B5 /* SSFRuntimeCodingService in Frameworks */,
-				FA0070162BBD2382006DE1B5 /* SSFPoolsStorage in Frameworks */,
-				FA00700C2BBD2382006DE1B5 /* SSFLogger in Frameworks */,
-				FA00701C2BBD2382006DE1B5 /* SSFSigner in Frameworks */,
-				FA006FF22BBD2382006DE1B5 /* IrohaCrypto in Frameworks */,
-				FA0070262BBD2382006DE1B5 /* SSFXCM in Frameworks */,
+				FA6ECE222BF1E3ED00481B2B /* SSFRuntimeCodingService in Frameworks */,
+				FA6ECE1E2BF1E3ED00481B2B /* SSFPoolsStorage in Frameworks */,
+				FA6ECE142BF1E3ED00481B2B /* SSFLogger in Frameworks */,
+				FA6ECE242BF1E3EE00481B2B /* SSFSigner in Frameworks */,
+				FA6ECDFA2BF1E3ED00481B2B /* IrohaCrypto in Frameworks */,
+				FA6ECE2E2BF1E3EE00481B2B /* SSFXCM in Frameworks */,
 				C5AFED6C37C2C29E9903D136 /* Pods_fearlessAll_fearless.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -8936,6 +8946,9 @@
 		848FFE6425E670CE00652AA5 /* EraValidatorsService */ = {
 			isa = PBXGroup;
 			children = (
+				FAECB9CA2BF1CD3F0064F3B0 /* DefaultEraStakersFetching.swift */,
+				FAECB9C92BF1CD3E0064F3B0 /* EraStakersFetching.swift */,
+				FAECB9CB2BF1CD3F0064F3B0 /* LegacyEraStakersFetching.swift */,
 				848FFE6525E6742400652AA5 /* EraValidatorService.swift */,
 				848FFE8A25E69A6000652AA5 /* EraValidatorServiceProtocol.swift */,
 				84786DA725F9F58E0089DFF7 /* EraValidatorService+Fetch.swift */,
@@ -12707,6 +12720,7 @@
 		FA3067292B6246BD006A0BA5 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				FAECB9C42BF1CD170064F3B0 /* Keys */,
 				FAD9AAC22B8DFE0200AA603B /* PrefixRequest.swift */,
 				FAAA29352B8DCE930089AFE6 /* MultipleRequest.swift */,
 				FAAA29342B8DCE930089AFE6 /* StorageRequest.swift */,
@@ -15082,6 +15096,15 @@
 			path = Parachain;
 			sourceTree = "<group>";
 		};
+		FAECB9C42BF1CD170064F3B0 /* Keys */ = {
+			isa = PBXGroup;
+			children = (
+				FAECB9C52BF1CD170064F3B0 /* ErasStakersPagedKey.swift */,
+				FAECB9C62BF1CD170064F3B0 /* ErasStakersOverviewKey.swift */,
+			);
+			path = Keys;
+			sourceTree = "<group>";
+		};
 		FAED6F4227DA197F0051B337 /* Adapter */ = {
 			isa = PBXGroup;
 			children = (
@@ -15379,35 +15402,35 @@
 				FA8FD1822AF4B55100354482 /* Web3ContractABI */,
 				FA8FD1842AF4B55100354482 /* Web3PromiseKit */,
 				FA8FD1872AF4BEDD00354482 /* Swime */,
-				FA006FF12BBD2382006DE1B5 /* IrohaCrypto */,
-				FA006FF32BBD2382006DE1B5 /* RobinHood */,
-				FA006FF52BBD2382006DE1B5 /* SSFAccountManagment */,
-				FA006FF72BBD2382006DE1B5 /* SSFAccountManagmentStorage */,
-				FA006FF92BBD2382006DE1B5 /* SSFAssetManagment */,
-				FA006FFB2BBD2382006DE1B5 /* SSFChainConnection */,
-				FA006FFD2BBD2382006DE1B5 /* SSFChainRegistry */,
-				FA006FFF2BBD2382006DE1B5 /* SSFCloudStorage */,
-				FA0070012BBD2382006DE1B5 /* SSFCrypto */,
-				FA0070032BBD2382006DE1B5 /* SSFEraKit */,
-				FA0070052BBD2382006DE1B5 /* SSFExtrinsicKit */,
-				FA0070072BBD2382006DE1B5 /* SSFHelpers */,
-				FA0070092BBD2382006DE1B5 /* SSFKeyPair */,
-				FA00700B2BBD2382006DE1B5 /* SSFLogger */,
-				FA00700D2BBD2382006DE1B5 /* SSFModels */,
-				FA00700F2BBD2382006DE1B5 /* SSFNetwork */,
-				FA0070112BBD2382006DE1B5 /* SSFPolkaswap */,
-				FA0070132BBD2382006DE1B5 /* SSFPools */,
-				FA0070152BBD2382006DE1B5 /* SSFPoolsStorage */,
-				FA0070172BBD2382006DE1B5 /* SSFQRService */,
-				FA0070192BBD2382006DE1B5 /* SSFRuntimeCodingService */,
-				FA00701B2BBD2382006DE1B5 /* SSFSigner */,
-				FA00701D2BBD2382006DE1B5 /* SSFSingleValueCache */,
-				FA00701F2BBD2382006DE1B5 /* SSFStorageQueryKit */,
-				FA0070212BBD2382006DE1B5 /* SSFTransferService */,
-				FA0070232BBD2382006DE1B5 /* SSFUtils */,
-				FA0070252BBD2382006DE1B5 /* SSFXCM */,
-				FA0070272BBD2382006DE1B5 /* SoraKeystore */,
-				FA0070292BBD2382006DE1B5 /* keccak */,
+				FA6ECDF92BF1E3ED00481B2B /* IrohaCrypto */,
+				FA6ECDFB2BF1E3ED00481B2B /* RobinHood */,
+				FA6ECDFD2BF1E3ED00481B2B /* SSFAccountManagment */,
+				FA6ECDFF2BF1E3ED00481B2B /* SSFAccountManagmentStorage */,
+				FA6ECE012BF1E3ED00481B2B /* SSFAssetManagment */,
+				FA6ECE032BF1E3ED00481B2B /* SSFChainConnection */,
+				FA6ECE052BF1E3ED00481B2B /* SSFChainRegistry */,
+				FA6ECE072BF1E3ED00481B2B /* SSFCloudStorage */,
+				FA6ECE092BF1E3ED00481B2B /* SSFCrypto */,
+				FA6ECE0B2BF1E3ED00481B2B /* SSFEraKit */,
+				FA6ECE0D2BF1E3ED00481B2B /* SSFExtrinsicKit */,
+				FA6ECE0F2BF1E3ED00481B2B /* SSFHelpers */,
+				FA6ECE112BF1E3ED00481B2B /* SSFKeyPair */,
+				FA6ECE132BF1E3ED00481B2B /* SSFLogger */,
+				FA6ECE152BF1E3ED00481B2B /* SSFModels */,
+				FA6ECE172BF1E3ED00481B2B /* SSFNetwork */,
+				FA6ECE192BF1E3ED00481B2B /* SSFPolkaswap */,
+				FA6ECE1B2BF1E3ED00481B2B /* SSFPools */,
+				FA6ECE1D2BF1E3ED00481B2B /* SSFPoolsStorage */,
+				FA6ECE1F2BF1E3ED00481B2B /* SSFQRService */,
+				FA6ECE212BF1E3ED00481B2B /* SSFRuntimeCodingService */,
+				FA6ECE232BF1E3EE00481B2B /* SSFSigner */,
+				FA6ECE252BF1E3EE00481B2B /* SSFSingleValueCache */,
+				FA6ECE272BF1E3EE00481B2B /* SSFStorageQueryKit */,
+				FA6ECE292BF1E3EE00481B2B /* SSFTransferService */,
+				FA6ECE2B2BF1E3EE00481B2B /* SSFUtils */,
+				FA6ECE2D2BF1E3EE00481B2B /* SSFXCM */,
+				FA6ECE2F2BF1E3EE00481B2B /* SoraKeystore */,
+				FA6ECE312BF1E3EE00481B2B /* keccak */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15478,7 +15501,7 @@
 				FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
 				FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */,
-				FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */,
+				FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -16346,6 +16369,7 @@
 				FA99425C28053C8800D771E5 /* SelectExportAccountRouter.swift in Sources */,
 				070B2C57289CE43A00F78F82 /* SelectNetworkInteractor.swift in Sources */,
 				84F2FEFF25E7ADE7008338D5 /* ValidatorPrefs.swift in Sources */,
+				FAECB9CC2BF1CD3F0064F3B0 /* EraStakersFetching.swift in Sources */,
 				FA2FC80E28B3807D00CC0A42 /* StakingPoolJoinConfirmProtocols.swift in Sources */,
 				84A259F82555C8C9001E91BC /* CryptoType+Keystore.swift in Sources */,
 				84BE209E25E85CCA00B4748C /* ServiceCoordinator.swift in Sources */,
@@ -17133,6 +17157,7 @@
 				F40966E426B29919008CD244 /* Stacks.swift in Sources */,
 				F40966CB26B297D6008CD244 /* AnalyticsStakeViewController.swift in Sources */,
 				FAA013B028DA134B000A5230 /* PoolBondMoreCall.swift in Sources */,
+				FAECB9CD2BF1CD3F0064F3B0 /* DefaultEraStakersFetching.swift in Sources */,
 				FA2E9B93279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift in Sources */,
 				072EB84A28E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift in Sources */,
 				FA00489B282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift in Sources */,
@@ -17497,6 +17522,7 @@
 				0716C83C28853ACA004C8CB1 /* WalletBalanceSubscriptionAdapter.swift in Sources */,
 				FAD429112A86567F001D6A16 /* CollectionViewDataSource.swift in Sources */,
 				FA93A2FF2834AF9E0021330F /* ValidatorInfoParachainViewModelState.swift in Sources */,
+				FAECB9CE2BF1CD3F0064F3B0 /* LegacyEraStakersFetching.swift in Sources */,
 				FA72543D2AC2E48500EC47A6 /* ABI.swift in Sources */,
 				AEA0C8BC2681140700F9666F /* YourValidatorList+CustomList.swift in Sources */,
 				94B0F0C84AF74B3CD7223C3A /* AccountConfirmPresenter.swift in Sources */,
@@ -17662,6 +17688,7 @@
 				84DED3F726662CF200A153BB /* TitleValueSelectionControl.swift in Sources */,
 				FAADC1BC2926597400DA9903 /* ScanQRRouter.swift in Sources */,
 				076D9D6629507B39002762E3 /* PolkaswapSettingsFactory.swift in Sources */,
+				FAECB9C72BF1CD170064F3B0 /* ErasStakersPagedKey.swift in Sources */,
 				07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */,
 				FAAA29372B8DCE930089AFE6 /* MultipleRequest.swift in Sources */,
 				07E346D4288E616E00A8FAEC /* WalletBalanceBuilder.swift in Sources */,
@@ -18541,6 +18568,7 @@
 				2510425D74B7318818B57B0F /* PolkaswapTransaktionSettingsProtocols.swift in Sources */,
 				B7E42D9E7CA509D7BE723357 /* PolkaswapTransaktionSettingsRouter.swift in Sources */,
 				F765ED40BB9F3CE45EA8795D /* PolkaswapTransaktionSettingsPresenter.swift in Sources */,
+				FAECB9C82BF1CD170064F3B0 /* ErasStakersOverviewKey.swift in Sources */,
 				1BC06B323C5E5DE1B5A62CB4 /* PolkaswapTransaktionSettingsInteractor.swift in Sources */,
 				1870655BC8B762AA57717EC6 /* PolkaswapTransaktionSettingsViewController.swift in Sources */,
 				357946E87E1F8D0563286D0F /* PolkaswapTransaktionSettingsViewLayout.swift in Sources */,
@@ -19323,11 +19351,11 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */ = {
+		FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "storage-requests-update";
+				branch = "extrinsics-appid";
 				kind = branch;
 			};
 		};
@@ -19358,149 +19386,149 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		FA006FF12BBD2382006DE1B5 /* IrohaCrypto */ = {
+		FA6ECDF92BF1E3ED00481B2B /* IrohaCrypto */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = IrohaCrypto;
 		};
-		FA006FF32BBD2382006DE1B5 /* RobinHood */ = {
+		FA6ECDFB2BF1E3ED00481B2B /* RobinHood */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = RobinHood;
 		};
-		FA006FF52BBD2382006DE1B5 /* SSFAccountManagment */ = {
+		FA6ECDFD2BF1E3ED00481B2B /* SSFAccountManagment */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFAccountManagment;
 		};
-		FA006FF72BBD2382006DE1B5 /* SSFAccountManagmentStorage */ = {
+		FA6ECDFF2BF1E3ED00481B2B /* SSFAccountManagmentStorage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFAccountManagmentStorage;
 		};
-		FA006FF92BBD2382006DE1B5 /* SSFAssetManagment */ = {
+		FA6ECE012BF1E3ED00481B2B /* SSFAssetManagment */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFAssetManagment;
 		};
-		FA006FFB2BBD2382006DE1B5 /* SSFChainConnection */ = {
+		FA6ECE032BF1E3ED00481B2B /* SSFChainConnection */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFChainConnection;
 		};
-		FA006FFD2BBD2382006DE1B5 /* SSFChainRegistry */ = {
+		FA6ECE052BF1E3ED00481B2B /* SSFChainRegistry */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFChainRegistry;
 		};
-		FA006FFF2BBD2382006DE1B5 /* SSFCloudStorage */ = {
+		FA6ECE072BF1E3ED00481B2B /* SSFCloudStorage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFCloudStorage;
 		};
-		FA0070012BBD2382006DE1B5 /* SSFCrypto */ = {
+		FA6ECE092BF1E3ED00481B2B /* SSFCrypto */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFCrypto;
 		};
-		FA0070032BBD2382006DE1B5 /* SSFEraKit */ = {
+		FA6ECE0B2BF1E3ED00481B2B /* SSFEraKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFEraKit;
 		};
-		FA0070052BBD2382006DE1B5 /* SSFExtrinsicKit */ = {
+		FA6ECE0D2BF1E3ED00481B2B /* SSFExtrinsicKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFExtrinsicKit;
 		};
-		FA0070072BBD2382006DE1B5 /* SSFHelpers */ = {
+		FA6ECE0F2BF1E3ED00481B2B /* SSFHelpers */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFHelpers;
 		};
-		FA0070092BBD2382006DE1B5 /* SSFKeyPair */ = {
+		FA6ECE112BF1E3ED00481B2B /* SSFKeyPair */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFKeyPair;
 		};
-		FA00700B2BBD2382006DE1B5 /* SSFLogger */ = {
+		FA6ECE132BF1E3ED00481B2B /* SSFLogger */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFLogger;
 		};
-		FA00700D2BBD2382006DE1B5 /* SSFModels */ = {
+		FA6ECE152BF1E3ED00481B2B /* SSFModels */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFModels;
 		};
-		FA00700F2BBD2382006DE1B5 /* SSFNetwork */ = {
+		FA6ECE172BF1E3ED00481B2B /* SSFNetwork */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFNetwork;
 		};
-		FA0070112BBD2382006DE1B5 /* SSFPolkaswap */ = {
+		FA6ECE192BF1E3ED00481B2B /* SSFPolkaswap */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFPolkaswap;
 		};
-		FA0070132BBD2382006DE1B5 /* SSFPools */ = {
+		FA6ECE1B2BF1E3ED00481B2B /* SSFPools */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFPools;
 		};
-		FA0070152BBD2382006DE1B5 /* SSFPoolsStorage */ = {
+		FA6ECE1D2BF1E3ED00481B2B /* SSFPoolsStorage */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFPoolsStorage;
 		};
-		FA0070172BBD2382006DE1B5 /* SSFQRService */ = {
+		FA6ECE1F2BF1E3ED00481B2B /* SSFQRService */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFQRService;
 		};
-		FA0070192BBD2382006DE1B5 /* SSFRuntimeCodingService */ = {
+		FA6ECE212BF1E3ED00481B2B /* SSFRuntimeCodingService */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFRuntimeCodingService;
 		};
-		FA00701B2BBD2382006DE1B5 /* SSFSigner */ = {
+		FA6ECE232BF1E3EE00481B2B /* SSFSigner */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFSigner;
 		};
-		FA00701D2BBD2382006DE1B5 /* SSFSingleValueCache */ = {
+		FA6ECE252BF1E3EE00481B2B /* SSFSingleValueCache */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFSingleValueCache;
 		};
-		FA00701F2BBD2382006DE1B5 /* SSFStorageQueryKit */ = {
+		FA6ECE272BF1E3EE00481B2B /* SSFStorageQueryKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFStorageQueryKit;
 		};
-		FA0070212BBD2382006DE1B5 /* SSFTransferService */ = {
+		FA6ECE292BF1E3EE00481B2B /* SSFTransferService */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFTransferService;
 		};
-		FA0070232BBD2382006DE1B5 /* SSFUtils */ = {
+		FA6ECE2B2BF1E3EE00481B2B /* SSFUtils */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFUtils;
 		};
-		FA0070252BBD2382006DE1B5 /* SSFXCM */ = {
+		FA6ECE2D2BF1E3EE00481B2B /* SSFXCM */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SSFXCM;
 		};
-		FA0070272BBD2382006DE1B5 /* SoraKeystore */ = {
+		FA6ECE2F2BF1E3EE00481B2B /* SoraKeystore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = SoraKeystore;
 		};
-		FA0070292BBD2382006DE1B5 /* keccak */ = {
+		FA6ECE312BF1E3EE00481B2B /* keccak */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = FA006FF02BBD2381006DE1B5 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			package = FA6ECDF82BF1E3ED00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = keccak;
 		};
 		FA7254662AC2F12D00EC47A6 /* WalletConnect */ = {

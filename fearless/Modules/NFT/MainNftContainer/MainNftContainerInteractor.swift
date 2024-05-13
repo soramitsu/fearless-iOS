@@ -93,18 +93,9 @@ extension MainNftContainerInteractor: MainNftContainerInteractorInput {
                     chains: stateHolder.selectedChains
                 )
 
-                let nftsWithFilledCollections: [NFT] = nfts.compactMap { nft in
-                    if let nftCollection = ownedCollections.first(where: { collection in
-                        collection.address == nft.smartContract
-                    }) {
-                        return NFT(nft: nft, collection: nftCollection)
-                    }
-                    return nft
-                }
-
                 let collections = ownedCollections.map { collection in
                     var ownedCollection = collection
-                    ownedCollection.nfts = nftsWithFilledCollections.filter { $0.smartContract == collection.address }
+                    ownedCollection.nfts = nfts.filter { $0.smartContract == collection.address }
                     return ownedCollection
                 }.filter { $0.nfts?.isEmpty == false }
 
