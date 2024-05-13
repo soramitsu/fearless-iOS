@@ -28,12 +28,9 @@ protocol ChainRegistryProtocol: AnyObject {
     func performHotBoot()
     func performColdBoot()
     func subscribeToChians()
-    func subscribeToWallets()
 }
 
 final class ChainRegistry {
-    private var currentWallet: MetaAccountModel?
-
     private let snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol
     private let runtimeProviderPool: RuntimeProviderPoolProtocol
     private let connectionPools: [any ConnectionPoolProtocol]
@@ -46,7 +43,6 @@ final class ChainRegistry {
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
-    private let walletStreamableProvider: StreamableProvider<ManagedMetaAccountModel>
     private lazy var readLock = ReaderWriterLock()
 
     private var substrateConnectionPool: ConnectionPool? {
@@ -56,10 +52,6 @@ final class ChainRegistry {
     private var ethereumConnectionPool: EthereumConnectionPool? {
         connectionPools.first(where: { $0 is EthereumConnectionPool }) as? EthereumConnectionPool
     }
-
-    private lazy var chainConnectionVisibilityHelper = {
-        ChainConnectionVisibilityHelper()
-    }()
 
     // MARK: - State
 
@@ -80,8 +72,7 @@ final class ChainRegistry {
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
         networkIssuesCenter: NetworkIssuesCenterProtocol,
         logger: LoggerProtocol? = nil,
-        eventCenter: EventCenterProtocol,
-        walletStreamableProvider: StreamableProvider<ManagedMetaAccountModel>
+        eventCenter: EventCenterProtocol
     ) {
         self.snapshotHotBootBuilder = snapshotHotBootBuilder
         self.runtimeProviderPool = runtimeProviderPool
@@ -94,7 +85,6 @@ final class ChainRegistry {
         self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
-        self.walletStreamableProvider = walletStreamableProvider
         self.eventCenter.add(observer: self, dispatchIn: .global())
 
         connectionPools.forEach { $0.setDelegate(self) }
@@ -131,35 +121,9 @@ final class ChainRegistry {
         }
     }
 
-    private func handleWallet(_ changes: [DataProviderChange<ManagedMetaAccountModel>]) {
-        guard changes.isNotEmpty else {
-            subscribeToChians()
-            return
-        }
-
-        changes.forEach { change in
-            switch change {
-            case let .insert(newWallet):
-                updateCurrentWallet(newWallet.info)
-            case let .update(updatedWallet):
-                guard updatedWallet.isSelected else {
-                    return
-                }
-                updateCurrentWallet(updatedWallet.info)
-            case .delete:
-                break
-            }
-        }
-    }
-
     // MARK: - Private DataProviderChange handle methods
 
     private func handleInsert(_ chain: ChainModel) throws {
-        guard chainConnectionVisibilityHelper.shouldHaveConnetion(chain, wallet: currentWallet) else {
-            resetConnection(for: chain.chainId)
-            return
-        }
-
         if chain.isEthereum {
             try handleNewEthereumChain(newChain: chain)
         } else {
@@ -168,11 +132,6 @@ final class ChainRegistry {
     }
 
     private func handleUpdate(_ chain: ChainModel) throws {
-        guard chainConnectionVisibilityHelper.shouldHaveConnetion(chain, wallet: currentWallet) else {
-            resetConnection(for: chain.chainId)
-            return
-        }
-
         if chain.isEthereum {
             try handleUpdatedEthereumChain(updatedChain: chain)
         } else {
@@ -289,14 +248,6 @@ final class ChainRegistry {
 
     // MARK: - Private others methods
 
-    private func updateCurrentWallet(_ wallet: MetaAccountModel) {
-        if currentWallet?.assetsVisibility != wallet.assetsVisibility {
-            currentWallet = wallet
-            chainProvider.removeObserver(self)
-            subscribeToChians()
-        }
-    }
-
     private func syncUpServices() {
         chainSyncService.syncUp()
         chainsTypesSyncService.syncUp()
@@ -317,7 +268,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func performColdBoot() {
-        subscribeToWallets()
+        subscribeToChians()
         syncUpServices()
     }
 
@@ -409,30 +360,6 @@ extension ChainRegistry: ChainRegistryProtocol {
         )
     }
 
-    func subscribeToWallets() {
-        let updateClosure: ([DataProviderChange<ManagedMetaAccountModel>]) -> Void = { [weak self] changes in
-            self?.handleWallet(changes)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.logger?.error("Unexpected error chains listener setup: \(error)")
-        }
-
-        let options = StreamableProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false,
-            refreshWhenEmpty: false
-        )
-
-        walletStreamableProvider.addObserver(
-            self,
-            deliverOn: DispatchQueue.global(),
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
     func chainsUnsubscribe(_ target: AnyObject) {
         chainProvider.removeObserver(target)
     }
@@ -497,10 +424,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
     }
 
     func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
-        guard
-            chain.selectedNode == nil,
-            chainConnectionVisibilityHelper.shouldHaveConnetion(chain, wallet: currentWallet)
-        else {
+        guard chain.selectedNode == nil else {
             return
         }
 

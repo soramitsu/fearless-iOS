@@ -3,7 +3,6 @@ import SSFModels
 
 final class ChainConnectionVisibilityHelper {
     func shouldHaveConnetion(_ chain: ChainModel, wallet: MetaAccountModel?) -> Bool {
-        return true
         let hasVisibleAsset = hasVisibleAsset(chain, wallet: wallet)
         let isRequaredConnection = isChainWithRequaredConnection(chain)
 
