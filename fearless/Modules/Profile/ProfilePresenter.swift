@@ -184,7 +184,9 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
         case let .success(balances):
             if let wallet = selectedWallet {
                 balance = balances[wallet.metaId]
-                receiveState()
+                DispatchQueue.main.async {
+                    self.receiveState()
+                }
             }
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")

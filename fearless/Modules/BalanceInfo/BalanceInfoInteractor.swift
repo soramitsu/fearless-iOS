@@ -66,21 +66,18 @@ private extension BalanceInfoInteractor {
         case let .wallet(metaAccount):
             walletBalanceSubscriptionAdapter.subscribeWalletBalance(
                 wallet: metaAccount,
-                deliverOn: .main,
                 listener: self
             )
         case let .chainAsset(metaAccount, chainAsset):
             walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
                 wallet: metaAccount,
                 chainAsset: chainAsset,
-                deliverOn: .main,
                 listener: self
             )
         case let .chainAssets(chainAssets, wallet):
             walletBalanceSubscriptionAdapter.subscribeChainAssetsBalance(
                 chainAssets: chainAssets,
                 wallet: wallet,
-                deliverOn: .main,
                 listener: self
             )
         }

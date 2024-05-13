@@ -104,7 +104,7 @@ extension BalanceInfoPresenter: BalanceInfoInteractorOutput {
             self.balances = balances
             buildBalance()
         case let .failure(error):
-            print(error)
+            logger.error(error.localizedDescription)
         }
     }
 

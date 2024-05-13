@@ -73,7 +73,6 @@ final class ProfileInteractor {
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletBalance(
             wallet: selectedMetaAccount,
-            deliverOn: .main,
             listener: self
         )
     }

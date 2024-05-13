@@ -97,7 +97,6 @@ final class ChainAccountInteractor {
                 strongSelf.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
                     wallet: strongSelf.wallet,
                     chainAsset: chainAsset,
-                    deliverOn: .main,
                     listener: strongSelf
                 )
             }

@@ -1,13 +1,13 @@
 {
-  "originHash" : "895d961dc348612657788ea33418a7f4809d62eb51fa6d9f393ad1ff8936253e",
+  "originHash" : "cab80f840d2d971534b24086bf3f10c272087acb68efbbde5b11fb08e6766845",
   "pins" : [
     {
       "identity" : "appauth-ios",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/openid/AppAuth-iOS.git",
       "state" : {
-        "revision" : "c89ed571ae140f8eb1142735e6e23d7bb8c34cb2",
-        "version" : "1.7.5"
+        "revision" : "8c0b028aedf617d6d780d448dc836f7048166d0f",
+        "version" : "1.7.4"
       }
     },
     {
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "359c461e5561d22c6334828806cc25d759ca7aa6",
-        "version" : "2.65.0"
+        "revision" : "fc63f0cf4e55a4597407a9fc95b16a2bc44b4982",
+        "version" : "2.64.0"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-http2.git",
       "state" : {
-        "revision" : "c6afe04165c865faaa687b42c32ed76dfcc91076",
-        "version" : "1.31.0"
+        "revision" : "0904bf0feb5122b7e5c3f15db7df0eabe623dd87",
+        "version" : "1.30.0"
       }
     },
     {
@@ -249,8 +249,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
       "state" : {
-        "revision" : "1ae1f8fe06ce9e3bd84d1e821dcca5054dc6fb3c",
-        "version" : "2.1.0"
+        "revision" : "9a83a973f5169062701cc9f11dd2b2042ecaa8b5",
+        "version" : "2.0.1"
       }
     },
     {
