@@ -394,16 +394,17 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
         case let .success(accountInfo):
             accountInfoWorkQueue.async(flags: .barrier) {
                 self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
-            }
-            let key = chainAsset.uniqueKey(accountId: accountId)
 
-            let previousAccountInfo = accountInfos[key] ?? nil
-            let bothNil = (previousAccountInfo == nil && accountInfo == nil)
+                let key = chainAsset.uniqueKey(accountId: accountId)
 
-            guard previousAccountInfo != accountInfo, !bothNil else {
-                return
+                let previousAccountInfo = self.accountInfos[key] ?? nil
+                let bothNil = (previousAccountInfo == nil && accountInfo == nil)
+
+                guard previousAccountInfo != accountInfo, !bothNil else {
+                    return
+                }
+                self.buildAndNotifyIfNeeded(with: self.wallets.map { $0.metaId }, updatedChainAssets: self.chainAssets)
             }
-            buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
         case let .failure(error):
             logger.error("""
                 WalletBalanceFetcher error: \(error.localizedDescription)
