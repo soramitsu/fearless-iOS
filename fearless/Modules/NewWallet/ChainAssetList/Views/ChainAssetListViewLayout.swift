@@ -104,7 +104,10 @@ final class ChainAssetListViewLayout: UIView {
         emptyView.iconMode = .bigFilledShadow
 
         let container = ScrollableContainerView()
-        container.stackView.spacing = 16
+        container.stackView.spacing = 0
+        container.stackView.alignment = .fill
+        container.stackView.distribution = .equalSpacing
+        container.scrollBottomOffset = 116
         container.addArrangedSubview(headerViewContainer)
         container.addArrangedSubview(emptyView)
         container.addArrangedSubview(footerButton)
@@ -112,6 +115,12 @@ final class ChainAssetListViewLayout: UIView {
         headerViewContainer.snp.remakeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.width.equalToSuperview()
+        }
+
+        container.stackView.snp.remakeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+            make.height.equalToSuperview()
         }
 
         footerButton.snp.remakeConstraints { make in

@@ -6,7 +6,7 @@ extension UITableView {
         tableHeaderView = header
         tableHeaderView?.translatesAutoresizingMaskIntoConstraints = false
         tableHeaderView?.snp.makeConstraints { make in
-            make.width.equalToSuperview()
+            make.width.equalTo(self.frame.width)
         }
         header.setNeedsLayout()
         header.layoutIfNeeded()
