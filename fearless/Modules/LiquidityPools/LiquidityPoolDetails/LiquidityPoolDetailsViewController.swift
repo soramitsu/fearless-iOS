@@ -5,9 +5,11 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder {
     typealias RootViewType = LiquidityPoolDetailsViewLayout
 
     // MARK: Private properties
+
     private let output: LiquidityPoolDetailsViewOutput
 
     // MARK: - Constructor
+
     init(
         output: LiquidityPoolDetailsViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = LiquidityPoolDetailsViewLayout()
     }
@@ -31,14 +34,16 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - LiquidityPoolDetailsViewInput
+
 extension LiquidityPoolDetailsViewController: LiquidityPoolDetailsViewInput {}
 
 // MARK: - Localizable
+
 extension LiquidityPoolDetailsViewController: Localizable {
     func applyLocalization() {}
 }

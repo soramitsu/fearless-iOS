@@ -67,7 +67,7 @@ extension LiquidityPoolsListViewController: UITableViewDataSource, UITableViewDe
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         44
     }
-    
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }

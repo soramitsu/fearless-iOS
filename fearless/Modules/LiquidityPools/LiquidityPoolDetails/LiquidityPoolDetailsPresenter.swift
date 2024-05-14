@@ -3,11 +3,13 @@ import SoraFoundation
 
 final class LiquidityPoolDetailsPresenter {
     // MARK: Private properties
+
     private weak var view: LiquidityPoolDetailsViewInput?
     private let router: LiquidityPoolDetailsRouterInput
     private let interactor: LiquidityPoolDetailsInteractorInput
 
     // MARK: - Constructors
+
     init(
         interactor: LiquidityPoolDetailsInteractorInput,
         router: LiquidityPoolDetailsRouterInput,
@@ -17,11 +19,12 @@ final class LiquidityPoolDetailsPresenter {
         self.router = router
         self.localizationManager = localizationManager
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - LiquidityPoolDetailsViewOutput
+
 extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
     func didLoad(view: LiquidityPoolDetailsViewInput) {
         self.view = view
@@ -30,9 +33,11 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
 }
 
 // MARK: - LiquidityPoolDetailsInteractorOutput
+
 extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsInteractorOutput {}
 
 // MARK: - Localizable
+
 extension LiquidityPoolDetailsPresenter: Localizable {
     func applyLocalization() {}
 }

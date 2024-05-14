@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/google-api-objectivec-client-for-rest.git",
       "state" : {
-        "revision" : "11941123a0d9c2641197fa83d57e6ff9f088b907",
-        "version" : "3.5.2"
+        "revision" : "d46fb27cf61e08285a727c18a2ae0dbc20d91b2f",
+        "version" : "3.5.4"
       }
     },
     {
@@ -221,8 +221,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/nicklockwood/SwiftFormat",
       "state" : {
-        "revision" : "ab238886b8b50f8b678b251f3c28c0c887305407",
-        "version" : "0.53.8"
+        "revision" : "05cb325003a673b3d177c711b3bc909cfee07622",
+        "version" : "0.53.9"
       }
     },
     {
