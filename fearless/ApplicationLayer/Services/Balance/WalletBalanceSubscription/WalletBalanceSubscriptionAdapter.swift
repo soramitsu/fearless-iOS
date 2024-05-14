@@ -397,15 +397,12 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
 
-            let previousAccountInfo = concurrentlyAccountInfoRead {
-                accountInfos[key] ?? nil
-            }
+            let previousAccountInfo = accountInfos[key] ?? nil
             let bothNil = (previousAccountInfo == nil && accountInfo == nil)
 
             guard previousAccountInfo != accountInfo, !bothNil else {
                 return
             }
-            accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
         case let .failure(error):
             logger.error("""
