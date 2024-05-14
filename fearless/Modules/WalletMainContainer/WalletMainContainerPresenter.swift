@@ -53,8 +53,9 @@ final class WalletMainContainerPresenter {
             selectedMetaAccount: wallet,
             locale: selectedLocale
         )
-
-        view?.didReceiveViewModel(viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceiveViewModel(viewModel)
+        }
     }
 
     private func walletConnect(with uri: String) {

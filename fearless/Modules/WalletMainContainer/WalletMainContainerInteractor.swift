@@ -44,9 +44,7 @@ final class WalletMainContainerInteractor {
 
     private func fetchNetworkManagmentFilter() {
         guard let identifier = wallet.networkManagmentFilter else {
-            DispatchQueue.main.async {
-                self.output?.didReceiveSelected(tuple: (select: .all, chains: []))
-            }
+            output?.didReceiveSelected(tuple: (select: .all, chains: []))
             return
         }
 
@@ -54,17 +52,13 @@ final class WalletMainContainerInteractor {
 
         operation.completionBlock = { [weak self] in
             guard let result = operation.result else {
-                DispatchQueue.main.async {
-                    self?.output?.didReceiveError(BaseOperationError.unexpectedDependentResult)
-                }
+                self?.output?.didReceiveError(BaseOperationError.unexpectedDependentResult)
                 return
             }
 
             switch result {
             case let .success(chains):
-                DispatchQueue.main.async {
-                    self?.output?.didReceiveSelected(tuple: (select: NetworkManagmentFilter(identifier: identifier), chains))
-                }
+                self?.output?.didReceiveSelected(tuple: (select: NetworkManagmentFilter(identifier: identifier), chains))
             case let .failure(error):
                 self?.output?.didReceiveError(error)
             }
@@ -76,26 +70,16 @@ final class WalletMainContainerInteractor {
     private func save(
         _ updatedAccount: MetaAccountModel
     ) {
-        let saveOperation = accountRepository.saveOperation {
-            [updatedAccount]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [weak self] in
-            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                switch result {
-                case let .success(account):
-                    self?.wallet = account
-                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                    self?.fetchNetworkManagmentFilter()
-                case .failure:
-                    break
-                }
+        SelectedWalletSettings.shared.performSave(value: updatedAccount) { [weak self] result in
+            switch result {
+            case let .success(account):
+                self?.wallet = account
+                self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                self?.fetchNetworkManagmentFilter()
+            case .failure:
+                break
             }
         }
-
-        operationQueue.addOperation(saveOperation)
     }
 
     private func checkDeprecatedAccountIssues() {

@@ -124,15 +124,6 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         var disabledChainAssets: [ChainAsset] = []
 
         chainAssets.forEach { chainAsset in
-            if let chainIdForFilter = metaAccount.networkManagmentFilter {
-                if chainAsset.chain.chainId == chainIdForFilter {
-                    enabledChainAssets.append(chainAsset)
-                } else {
-                    disabledChainAssets.append(chainAsset)
-                }
-                return
-            }
-
             let assetsVisibility = metaAccount.assetsVisibility
             if assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })?.hidden == true {
                 disabledChainAssets.append(chainAsset)

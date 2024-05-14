@@ -80,8 +80,11 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     private lazy var wallets: [MetaAccountModel] = []
     private lazy var prices: [PriceData] = []
 
-    private let accountInfosLock = ReaderWriterLock()
     private let listenersLock = ReaderWriterLock()
+    private let accountInfoWorkQueue = DispatchQueue(
+        label: "co.jp.soramitsu.wallet.balance.work.queue",
+        attributes: .concurrent
+    )
 
     // MARK: - Constructor
 
@@ -179,10 +182,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     // MARK: - Private methods
 
     private func buildBalance(for wallets: [MetaAccountModel], chainAssets: [ChainAsset]) -> WalletBalanceInfos? {
-        let accountInfos = accountInfosLock.concurrentlyRead {
-            self.accountInfos
-        }
-
         let walletBalances = walletBalanceBuilder.buildBalance(
             for: accountInfos,
             wallets,
@@ -261,7 +260,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             accountInfoSubscriptionAdapter.subscribe(
                 chainsAssets: chainAssets,
                 handler: self,
-                deliveryOn: .global(),
+                deliveryOn: accountInfoWorkQueue,
                 notifyJustWhenUpdated: true
             )
         }
@@ -337,6 +336,12 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             handle([wallet], chainAssets)
         }
     }
+
+    private func concurrentlyAccountInfoRead<T>(_ block: () throws -> T) rethrows -> T {
+        try accountInfoWorkQueue.sync {
+            try block()
+        }
+    }
 }
 
 // MARK: - EventVisitorProtocol
@@ -387,12 +392,12 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            accountInfosLock.exclusivelyWrite {
+            accountInfoWorkQueue.async(flags: .barrier) {
                 self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
 
-            let previousAccountInfo = accountInfosLock.concurrentlyRead {
+            let previousAccountInfo = concurrentlyAccountInfoRead {
                 accountInfos[key] ?? nil
             }
             let bothNil = (previousAccountInfo == nil && accountInfo == nil)
@@ -400,6 +405,7 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
             guard previousAccountInfo != accountInfo, !bothNil else {
                 return
             }
+            accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
         case let .failure(error):
             logger.error("""
