@@ -29,6 +29,7 @@ final class ChainAssetListViewLayout: UIView {
         return view
     }()
 
+    let containerView = UIView()
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
@@ -177,10 +178,15 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(tableView)
-        tableView.snp.makeConstraints { make in
+        addSubview(containerView)
+        containerView.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+        }
+
+        containerView.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
 

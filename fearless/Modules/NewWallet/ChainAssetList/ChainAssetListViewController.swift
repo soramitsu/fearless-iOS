@@ -273,7 +273,7 @@ extension ChainAssetListViewController: EmptyStateDataSource {
     }
 
     var contentViewForEmptyState: UIView {
-        rootView
+        rootView.containerView
     }
 }
 
