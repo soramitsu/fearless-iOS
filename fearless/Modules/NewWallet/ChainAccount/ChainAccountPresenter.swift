@@ -276,6 +276,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
     func didReceiveAssetFrozenError(_ error: Error) {
         frozen = .value(nil)
+        provideBalanceViewModel()
         logger.customError(error)
     }
 
@@ -352,6 +353,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
     func didReceiveBalanceLocksError(_ error: Error) {
         balanceLocks = .value(nil)
+        provideBalanceViewModel()
         logger.error("Did receive balance locks error: \(error)")
     }
 
@@ -362,6 +364,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             provideBalanceViewModel()
         case let .failure(error):
             balance = .value(nil)
+            provideBalanceViewModel()
             logger.error(error.localizedDescription)
         }
     }

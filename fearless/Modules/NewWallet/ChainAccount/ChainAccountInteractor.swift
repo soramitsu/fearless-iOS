@@ -108,6 +108,9 @@ final class ChainAccountInteractor {
             let balanceLocksFetcher = currentDependencies?.balanceLocksFetcher,
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
         else {
+            presenter?.didReceiveBalanceLocksError(ChainRegistryError.runtimeMetadaUnavailable)
+            presenter?.didReceiveAssetFrozenError(ChainRegistryError.runtimeMetadaUnavailable)
+
             return
         }
 
