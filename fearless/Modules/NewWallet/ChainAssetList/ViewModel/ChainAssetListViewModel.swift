@@ -17,11 +17,13 @@ enum AssetListState {
     case allIsHidden
     case chainHasNetworkIssue(chain: ChainModel)
     case chainHasAccountIssue(chain: ChainModel)
-    case search
+    case search(cells: [ChainAccountBalanceCellViewModel])
 
     var rows: [ChainAccountBalanceCellViewModel] {
         switch self {
         case let .defaultList(cells, _):
+            return cells
+        case let .search(cells):
             return cells
         default:
             return []

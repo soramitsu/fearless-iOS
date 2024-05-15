@@ -123,7 +123,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         case .assetChains:
             return .defaultList(cells: cells, withAnimate: shouldRunManageAssetAnimate)
         case .search:
-            return .search
+            return .search(cells: cells)
         }
     }
 
