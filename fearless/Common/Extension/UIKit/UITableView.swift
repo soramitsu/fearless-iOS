@@ -5,7 +5,7 @@ extension UITableView {
     func setAndLayoutTableHeaderView(header: UIView) {
         tableHeaderView = header
         tableHeaderView?.translatesAutoresizingMaskIntoConstraints = false
-        tableHeaderView?.snp.makeConstraints { make in
+        tableHeaderView?.snp.updateConstraints { make in
             make.width.equalTo(self.frame.width)
         }
         header.setNeedsLayout()
