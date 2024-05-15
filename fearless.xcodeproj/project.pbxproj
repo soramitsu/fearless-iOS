@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -218,35 +218,6 @@
 		07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75E28AA183C00280C38 /* PrintTimer.swift */; };
 		07F2B76128AB806400280C38 /* SnapshotHotBootBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B76028AB806400280C38 /* SnapshotHotBootBuilder.swift */; };
 		07F2B76328ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B76228ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift */; };
-		07F44EC82BE4C4B100570143 /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EC72BE4C4B100570143 /* IrohaCrypto */; };
-		07F44ECA2BE4C4B100570143 /* RobinHood in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EC92BE4C4B100570143 /* RobinHood */; };
-		07F44ECC2BE4C4B100570143 /* SSFAccountManagment in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ECB2BE4C4B100570143 /* SSFAccountManagment */; };
-		07F44ECE2BE4C4B100570143 /* SSFAccountManagmentStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ECD2BE4C4B100570143 /* SSFAccountManagmentStorage */; };
-		07F44ED02BE4C4B100570143 /* SSFAssetManagment in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ECF2BE4C4B100570143 /* SSFAssetManagment */; };
-		07F44ED22BE4C4B100570143 /* SSFChainConnection in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ED12BE4C4B100570143 /* SSFChainConnection */; };
-		07F44ED42BE4C4B100570143 /* SSFChainRegistry in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ED32BE4C4B100570143 /* SSFChainRegistry */; };
-		07F44ED62BE4C4B100570143 /* SSFCloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ED52BE4C4B100570143 /* SSFCloudStorage */; };
-		07F44ED82BE4C4B100570143 /* SSFCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ED72BE4C4B100570143 /* SSFCrypto */; };
-		07F44EDA2BE4C4B100570143 /* SSFEraKit in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44ED92BE4C4B100570143 /* SSFEraKit */; };
-		07F44EDC2BE4C4B100570143 /* SSFExtrinsicKit in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EDB2BE4C4B100570143 /* SSFExtrinsicKit */; };
-		07F44EDE2BE4C4B100570143 /* SSFHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EDD2BE4C4B100570143 /* SSFHelpers */; };
-		07F44EE02BE4C4B100570143 /* SSFKeyPair in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EDF2BE4C4B100570143 /* SSFKeyPair */; };
-		07F44EE22BE4C4B100570143 /* SSFLogger in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EE12BE4C4B100570143 /* SSFLogger */; };
-		07F44EE42BE4C4B100570143 /* SSFModels in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EE32BE4C4B100570143 /* SSFModels */; };
-		07F44EE62BE4C4B100570143 /* SSFNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EE52BE4C4B100570143 /* SSFNetwork */; };
-		07F44EE82BE4C4B100570143 /* SSFPolkaswap in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EE72BE4C4B100570143 /* SSFPolkaswap */; };
-		07F44EEA2BE4C4B100570143 /* SSFPools in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EE92BE4C4B100570143 /* SSFPools */; };
-		07F44EEC2BE4C4B100570143 /* SSFPoolsStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EEB2BE4C4B100570143 /* SSFPoolsStorage */; };
-		07F44EEE2BE4C4B100570143 /* SSFQRService in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EED2BE4C4B100570143 /* SSFQRService */; };
-		07F44EF02BE4C4B100570143 /* SSFRuntimeCodingService in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EEF2BE4C4B100570143 /* SSFRuntimeCodingService */; };
-		07F44EF22BE4C4B100570143 /* SSFSigner in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EF12BE4C4B100570143 /* SSFSigner */; };
-		07F44EF42BE4C4B200570143 /* SSFSingleValueCache in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EF32BE4C4B100570143 /* SSFSingleValueCache */; };
-		07F44EF62BE4C4B200570143 /* SSFStorageQueryKit in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EF52BE4C4B200570143 /* SSFStorageQueryKit */; };
-		07F44EF82BE4C4B200570143 /* SSFTransferService in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EF72BE4C4B200570143 /* SSFTransferService */; };
-		07F44EFA2BE4C4B200570143 /* SSFUtils in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EF92BE4C4B200570143 /* SSFUtils */; };
-		07F44EFC2BE4C4B200570143 /* SSFXCM in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EFB2BE4C4B200570143 /* SSFXCM */; };
-		07F44EFE2BE4C4B200570143 /* SoraKeystore in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EFD2BE4C4B200570143 /* SoraKeystore */; };
-		07F44F002BE4C4B200570143 /* keccak in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44EFF2BE4C4B200570143 /* keccak */; };
 		07F44F032BE4C7FF00570143 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44F022BE4C7FF00570143 /* Web3 */; };
 		07F44F052BE4C7FF00570143 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44F042BE4C7FF00570143 /* Web3ContractABI */; };
 		07F44F072BE4C7FF00570143 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = 07F44F062BE4C7FF00570143 /* Web3PromiseKit */; };
@@ -2373,6 +2344,35 @@
 		FA6DB7C62757C9B000233FBA /* ChainAccountWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BF2757C9AF00233FBA /* ChainAccountWireframe.swift */; };
 		FA6DB7C82757C9B000233FBA /* ChainAccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C12757C9AF00233FBA /* ChainAccountInteractor.swift */; };
 		FA6DB7C92757C9B000233FBA /* ChainAccountProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C22757C9AF00233FBA /* ChainAccountProtocols.swift */; };
+		FA6ECE372BF3625E00481B2B /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE362BF3625E00481B2B /* IrohaCrypto */; };
+		FA6ECE392BF3625E00481B2B /* RobinHood in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE382BF3625E00481B2B /* RobinHood */; };
+		FA6ECE3B2BF3625E00481B2B /* SSFAccountManagment in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE3A2BF3625E00481B2B /* SSFAccountManagment */; };
+		FA6ECE3D2BF3625E00481B2B /* SSFAccountManagmentStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE3C2BF3625E00481B2B /* SSFAccountManagmentStorage */; };
+		FA6ECE3F2BF3625E00481B2B /* SSFAssetManagment in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE3E2BF3625E00481B2B /* SSFAssetManagment */; };
+		FA6ECE412BF3625E00481B2B /* SSFChainConnection in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE402BF3625E00481B2B /* SSFChainConnection */; };
+		FA6ECE432BF3625E00481B2B /* SSFChainRegistry in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE422BF3625E00481B2B /* SSFChainRegistry */; };
+		FA6ECE452BF3625E00481B2B /* SSFCloudStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE442BF3625E00481B2B /* SSFCloudStorage */; };
+		FA6ECE472BF3625E00481B2B /* SSFCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE462BF3625E00481B2B /* SSFCrypto */; };
+		FA6ECE492BF3625E00481B2B /* SSFEraKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE482BF3625E00481B2B /* SSFEraKit */; };
+		FA6ECE4B2BF3625E00481B2B /* SSFExtrinsicKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE4A2BF3625E00481B2B /* SSFExtrinsicKit */; };
+		FA6ECE4D2BF3625E00481B2B /* SSFHelpers in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE4C2BF3625E00481B2B /* SSFHelpers */; };
+		FA6ECE4F2BF3625E00481B2B /* SSFKeyPair in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE4E2BF3625E00481B2B /* SSFKeyPair */; };
+		FA6ECE512BF3625E00481B2B /* SSFLogger in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE502BF3625E00481B2B /* SSFLogger */; };
+		FA6ECE532BF3625E00481B2B /* SSFModels in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE522BF3625E00481B2B /* SSFModels */; };
+		FA6ECE552BF3625E00481B2B /* SSFNetwork in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE542BF3625E00481B2B /* SSFNetwork */; };
+		FA6ECE572BF3625E00481B2B /* SSFPolkaswap in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE562BF3625E00481B2B /* SSFPolkaswap */; };
+		FA6ECE592BF3625E00481B2B /* SSFPools in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE582BF3625E00481B2B /* SSFPools */; };
+		FA6ECE5B2BF3625E00481B2B /* SSFPoolsStorage in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE5A2BF3625E00481B2B /* SSFPoolsStorage */; };
+		FA6ECE5D2BF3625E00481B2B /* SSFQRService in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE5C2BF3625E00481B2B /* SSFQRService */; };
+		FA6ECE5F2BF3625E00481B2B /* SSFRuntimeCodingService in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE5E2BF3625E00481B2B /* SSFRuntimeCodingService */; };
+		FA6ECE612BF3625E00481B2B /* SSFSigner in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE602BF3625E00481B2B /* SSFSigner */; };
+		FA6ECE632BF3625E00481B2B /* SSFSingleValueCache in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE622BF3625E00481B2B /* SSFSingleValueCache */; };
+		FA6ECE652BF3625E00481B2B /* SSFStorageQueryKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE642BF3625E00481B2B /* SSFStorageQueryKit */; };
+		FA6ECE672BF3625E00481B2B /* SSFTransferService in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE662BF3625E00481B2B /* SSFTransferService */; };
+		FA6ECE692BF3625E00481B2B /* SSFUtils in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE682BF3625E00481B2B /* SSFUtils */; };
+		FA6ECE6B2BF3625E00481B2B /* SSFXCM in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE6A2BF3625E00481B2B /* SSFXCM */; };
+		FA6ECE6D2BF3625E00481B2B /* SoraKeystore in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE6C2BF3625E00481B2B /* SoraKeystore */; };
+		FA6ECE6F2BF3625E00481B2B /* keccak in Frameworks */ = {isa = PBXBuildFile; productRef = FA6ECE6E2BF3625E00481B2B /* keccak */; };
 		FA7154C4286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */; };
 		FA7254202AC2E48500EC47A6 /* CryptoProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7253F32AC2E48400EC47A6 /* CryptoProvider.swift */; };
 		FA7254212AC2E48500EC47A6 /* WalletConnectPayloadSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7253F42AC2E48400EC47A6 /* WalletConnectPayloadSigner.swift */; };
@@ -6162,74 +6162,74 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07F44F002BE4C4B200570143 /* keccak in Frameworks */,
-				07F44EE62BE4C4B100570143 /* SSFNetwork in Frameworks */,
-				07F44EEA2BE4C4B100570143 /* SSFPools in Frameworks */,
 				07F6C4D22BDA3E5C00E4C7B4 /* SSFCrypto in Frameworks */,
+				FA6ECE452BF3625E00481B2B /* SSFCloudStorage in Frameworks */,
+				FA6ECE612BF3625E00481B2B /* SSFSigner in Frameworks */,
+				FA6ECE512BF3625E00481B2B /* SSFLogger in Frameworks */,
 				07F6C4D82BDA3E5C00E4C7B4 /* SSFHelpers in Frameworks */,
+				FA6ECE592BF3625E00481B2B /* SSFPools in Frameworks */,
+				FA6ECE412BF3625E00481B2B /* SSFChainConnection in Frameworks */,
+				FA6ECE692BF3625E00481B2B /* SSFUtils in Frameworks */,
+				FA6ECE5D2BF3625E00481B2B /* SSFQRService in Frameworks */,
 				07F6C4C82BDA3E5C00E4C7B4 /* SSFAccountManagmentStorage in Frameworks */,
-				07F44EFA2BE4C4B200570143 /* SSFUtils in Frameworks */,
+				FA6ECE652BF3625E00481B2B /* SSFStorageQueryKit in Frameworks */,
 				07F6C4EC2BDA3E5C00E4C7B4 /* SSFSigner in Frameworks */,
+				FA6ECE472BF3625E00481B2B /* SSFCrypto in Frameworks */,
+				FA6ECE3B2BF3625E00481B2B /* SSFAccountManagment in Frameworks */,
+				FA6ECE3F2BF3625E00481B2B /* SSFAssetManagment in Frameworks */,
 				07F6C4DC2BDA3E5C00E4C7B4 /* SSFLogger in Frameworks */,
 				07F6C4E02BDA3E5C00E4C7B4 /* SSFNetwork in Frameworks */,
 				FA72546F2AC2F12D00EC47A6 /* Web3Wallet in Frameworks */,
-				07F44ED62BE4C4B100570143 /* SSFCloudStorage in Frameworks */,
-				07F44EF82BE4C4B200570143 /* SSFTransferService in Frameworks */,
-				07F44ED02BE4C4B100570143 /* SSFAssetManagment in Frameworks */,
+				FA6ECE372BF3625E00481B2B /* IrohaCrypto in Frameworks */,
 				07F6C4DA2BDA3E5C00E4C7B4 /* SSFKeyPair in Frameworks */,
 				07F6C4DE2BDA3E5C00E4C7B4 /* SSFModels in Frameworks */,
-				07F44EE02BE4C4B100570143 /* SSFKeyPair in Frameworks */,
+				FA6ECE672BF3625E00481B2B /* SSFTransferService in Frameworks */,
 				07F6C4F02BDA3E5D00E4C7B4 /* SSFStorageQueryKit in Frameworks */,
-				07F44EDC2BE4C4B100570143 /* SSFExtrinsicKit in Frameworks */,
 				07F6C4E22BDA3E5C00E4C7B4 /* SSFPolkaswap in Frameworks */,
+				FA6ECE572BF3625E00481B2B /* SSFPolkaswap in Frameworks */,
 				07F6C4EE2BDA3E5C00E4C7B4 /* SSFSingleValueCache in Frameworks */,
 				07F6C4C42BDA3E5C00E4C7B4 /* SoraKeystore in Frameworks */,
 				07F44F072BE4C7FF00570143 /* Web3PromiseKit in Frameworks */,
 				07F6C4D02BDA3E5C00E4C7B4 /* SSFCloudStorage in Frameworks */,
 				07F6C4D42BDA3E5C00E4C7B4 /* SSFEraKit in Frameworks */,
-				07F44EF62BE4C4B200570143 /* SSFStorageQueryKit in Frameworks */,
+				FA6ECE5B2BF3625E00481B2B /* SSFPoolsStorage in Frameworks */,
 				07F6C4E82BDA3E5C00E4C7B4 /* SSFQRService in Frameworks */,
-				07F44EF42BE4C4B200570143 /* SSFSingleValueCache in Frameworks */,
+				FA6ECE6B2BF3625E00481B2B /* SSFXCM in Frameworks */,
 				07F6C4E62BDA3E5C00E4C7B4 /* SSFPoolsStorage in Frameworks */,
-				07F44EDA2BE4C4B100570143 /* SSFEraKit in Frameworks */,
-				07F44ECA2BE4C4B100570143 /* RobinHood in Frameworks */,
+				FA6ECE432BF3625E00481B2B /* SSFChainRegistry in Frameworks */,
 				FA72546B2AC2F12D00EC47A6 /* WalletConnectNetworking in Frameworks */,
-				07F44EE42BE4C4B100570143 /* SSFModels in Frameworks */,
-				07F44ECC2BE4C4B100570143 /* SSFAccountManagment in Frameworks */,
 				07F44F032BE4C7FF00570143 /* Web3 in Frameworks */,
 				07F6C4CE2BDA3E5C00E4C7B4 /* SSFChainRegistry in Frameworks */,
-				07F44EF22BE4C4B100570143 /* SSFSigner in Frameworks */,
-				07F44EDE2BE4C4B100570143 /* SSFHelpers in Frameworks */,
+				FA6ECE6D2BF3625E00481B2B /* SoraKeystore in Frameworks */,
 				07F6C4F42BDA3E5D00E4C7B4 /* SSFUtils in Frameworks */,
-				07F44ED82BE4C4B100570143 /* SSFCrypto in Frameworks */,
-				07F44ED22BE4C4B100570143 /* SSFChainConnection in Frameworks */,
 				FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */,
 				07F6C4F22BDA3E5D00E4C7B4 /* SSFTransferService in Frameworks */,
+				FA6ECE5F2BF3625E00481B2B /* SSFRuntimeCodingService in Frameworks */,
 				FA7254672AC2F12D00EC47A6 /* WalletConnect in Frameworks */,
-				07F44EE82BE4C4B100570143 /* SSFPolkaswap in Frameworks */,
+				FA6ECE532BF3625E00481B2B /* SSFModels in Frameworks */,
+				FA6ECE552BF3625E00481B2B /* SSFNetwork in Frameworks */,
 				FA72546D2AC2F12D00EC47A6 /* WalletConnectPairing in Frameworks */,
 				FA7254692AC2F12D00EC47A6 /* WalletConnectAuth in Frameworks */,
-				07F44EF02BE4C4B100570143 /* SSFRuntimeCodingService in Frameworks */,
-				07F44EEC2BE4C4B100570143 /* SSFPoolsStorage in Frameworks */,
 				07F6C4F62BDA3E5D00E4C7B4 /* SSFXCM in Frameworks */,
-				07F44ED42BE4C4B100570143 /* SSFChainRegistry in Frameworks */,
 				07F6C4C22BDA3E5C00E4C7B4 /* RobinHood in Frameworks */,
 				07F6C4CC2BDA3E5C00E4C7B4 /* SSFChainConnection in Frameworks */,
+				FA6ECE632BF3625E00481B2B /* SSFSingleValueCache in Frameworks */,
 				07F44F052BE4C7FF00570143 /* Web3ContractABI in Frameworks */,
-				07F44EFC2BE4C4B200570143 /* SSFXCM in Frameworks */,
-				07F44EEE2BE4C4B100570143 /* SSFQRService in Frameworks */,
-				07F44EE22BE4C4B100570143 /* SSFLogger in Frameworks */,
+				FA6ECE4B2BF3625E00481B2B /* SSFExtrinsicKit in Frameworks */,
+				FA6ECE392BF3625E00481B2B /* RobinHood in Frameworks */,
 				07F6C4C02BDA3E5C00E4C7B4 /* keccak in Frameworks */,
+				FA6ECE6F2BF3625E00481B2B /* keccak in Frameworks */,
+				FA6ECE3D2BF3625E00481B2B /* SSFAccountManagmentStorage in Frameworks */,
 				C5AFED6C37C2C29E9903D136 /* Pods_fearlessAll_fearless.framework in Frameworks */,
-				07F44EFE2BE4C4B200570143 /* SoraKeystore in Frameworks */,
-				07F44ECE2BE4C4B100570143 /* SSFAccountManagmentStorage in Frameworks */,
 				07F6C4BE2BDA3E5C00E4C7B4 /* IrohaCrypto in Frameworks */,
 				07F6C4EA2BDA3E5C00E4C7B4 /* SSFRuntimeCodingService in Frameworks */,
-				07F44EC82BE4C4B100570143 /* IrohaCrypto in Frameworks */,
 				07F6C4E42BDA3E5C00E4C7B4 /* SSFPools in Frameworks */,
 				07F6C4CA2BDA3E5C00E4C7B4 /* SSFAssetManagment in Frameworks */,
+				FA6ECE492BF3625E00481B2B /* SSFEraKit in Frameworks */,
 				07F6C4C62BDA3E5C00E4C7B4 /* SSFAccountManagment in Frameworks */,
+				FA6ECE4D2BF3625E00481B2B /* SSFHelpers in Frameworks */,
 				07F6C4D62BDA3E5C00E4C7B4 /* SSFExtrinsicKit in Frameworks */,
+				FA6ECE4F2BF3625E00481B2B /* SSFKeyPair in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -15482,38 +15482,38 @@
 				07F6C4F12BDA3E5D00E4C7B4 /* SSFTransferService */,
 				07F6C4F32BDA3E5D00E4C7B4 /* SSFUtils */,
 				07F6C4F52BDA3E5D00E4C7B4 /* SSFXCM */,
-				07F44EC72BE4C4B100570143 /* IrohaCrypto */,
-				07F44EC92BE4C4B100570143 /* RobinHood */,
-				07F44ECB2BE4C4B100570143 /* SSFAccountManagment */,
-				07F44ECD2BE4C4B100570143 /* SSFAccountManagmentStorage */,
-				07F44ECF2BE4C4B100570143 /* SSFAssetManagment */,
-				07F44ED12BE4C4B100570143 /* SSFChainConnection */,
-				07F44ED32BE4C4B100570143 /* SSFChainRegistry */,
-				07F44ED52BE4C4B100570143 /* SSFCloudStorage */,
-				07F44ED72BE4C4B100570143 /* SSFCrypto */,
-				07F44ED92BE4C4B100570143 /* SSFEraKit */,
-				07F44EDB2BE4C4B100570143 /* SSFExtrinsicKit */,
-				07F44EDD2BE4C4B100570143 /* SSFHelpers */,
-				07F44EDF2BE4C4B100570143 /* SSFKeyPair */,
-				07F44EE12BE4C4B100570143 /* SSFLogger */,
-				07F44EE32BE4C4B100570143 /* SSFModels */,
-				07F44EE52BE4C4B100570143 /* SSFNetwork */,
-				07F44EE72BE4C4B100570143 /* SSFPolkaswap */,
-				07F44EE92BE4C4B100570143 /* SSFPools */,
-				07F44EEB2BE4C4B100570143 /* SSFPoolsStorage */,
-				07F44EED2BE4C4B100570143 /* SSFQRService */,
-				07F44EEF2BE4C4B100570143 /* SSFRuntimeCodingService */,
-				07F44EF12BE4C4B100570143 /* SSFSigner */,
-				07F44EF32BE4C4B100570143 /* SSFSingleValueCache */,
-				07F44EF52BE4C4B200570143 /* SSFStorageQueryKit */,
-				07F44EF72BE4C4B200570143 /* SSFTransferService */,
-				07F44EF92BE4C4B200570143 /* SSFUtils */,
-				07F44EFB2BE4C4B200570143 /* SSFXCM */,
-				07F44EFD2BE4C4B200570143 /* SoraKeystore */,
-				07F44EFF2BE4C4B200570143 /* keccak */,
 				07F44F022BE4C7FF00570143 /* Web3 */,
 				07F44F042BE4C7FF00570143 /* Web3ContractABI */,
 				07F44F062BE4C7FF00570143 /* Web3PromiseKit */,
+				FA6ECE362BF3625E00481B2B /* IrohaCrypto */,
+				FA6ECE382BF3625E00481B2B /* RobinHood */,
+				FA6ECE3A2BF3625E00481B2B /* SSFAccountManagment */,
+				FA6ECE3C2BF3625E00481B2B /* SSFAccountManagmentStorage */,
+				FA6ECE3E2BF3625E00481B2B /* SSFAssetManagment */,
+				FA6ECE402BF3625E00481B2B /* SSFChainConnection */,
+				FA6ECE422BF3625E00481B2B /* SSFChainRegistry */,
+				FA6ECE442BF3625E00481B2B /* SSFCloudStorage */,
+				FA6ECE462BF3625E00481B2B /* SSFCrypto */,
+				FA6ECE482BF3625E00481B2B /* SSFEraKit */,
+				FA6ECE4A2BF3625E00481B2B /* SSFExtrinsicKit */,
+				FA6ECE4C2BF3625E00481B2B /* SSFHelpers */,
+				FA6ECE4E2BF3625E00481B2B /* SSFKeyPair */,
+				FA6ECE502BF3625E00481B2B /* SSFLogger */,
+				FA6ECE522BF3625E00481B2B /* SSFModels */,
+				FA6ECE542BF3625E00481B2B /* SSFNetwork */,
+				FA6ECE562BF3625E00481B2B /* SSFPolkaswap */,
+				FA6ECE582BF3625E00481B2B /* SSFPools */,
+				FA6ECE5A2BF3625E00481B2B /* SSFPoolsStorage */,
+				FA6ECE5C2BF3625E00481B2B /* SSFQRService */,
+				FA6ECE5E2BF3625E00481B2B /* SSFRuntimeCodingService */,
+				FA6ECE602BF3625E00481B2B /* SSFSigner */,
+				FA6ECE622BF3625E00481B2B /* SSFSingleValueCache */,
+				FA6ECE642BF3625E00481B2B /* SSFStorageQueryKit */,
+				FA6ECE662BF3625E00481B2B /* SSFTransferService */,
+				FA6ECE682BF3625E00481B2B /* SSFUtils */,
+				FA6ECE6A2BF3625E00481B2B /* SSFXCM */,
+				FA6ECE6C2BF3625E00481B2B /* SoraKeystore */,
+				FA6ECE6E2BF3625E00481B2B /* keccak */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15583,8 +15583,8 @@
 			packageReferences = (
 				FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
 				FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */,
-				07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */,
 				07F44F012BE4C7FF00570143 /* XCRemoteSwiftPackageReference "Web3.swift" */,
+				FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -19431,20 +19431,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "git@github.com:soramitsu/shared-features-spm.git";
-			requirement = {
-				branch = "update-for-fearless-asset-management";
-				kind = branch;
-			};
-		};
 		07F44F012BE4C7FF00570143 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
 			requirement = {
 				kind = exactVersion;
 				version = 7.7.7;
+			};
+		};
+		FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
+			requirement = {
+				branch = "update-for-fearless-asset-management";
+				kind = branch;
 			};
 		};
 		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
@@ -19466,151 +19466,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		07F44EC72BE4C4B100570143 /* IrohaCrypto */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = IrohaCrypto;
-		};
-		07F44EC92BE4C4B100570143 /* RobinHood */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = RobinHood;
-		};
-		07F44ECB2BE4C4B100570143 /* SSFAccountManagment */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFAccountManagment;
-		};
-		07F44ECD2BE4C4B100570143 /* SSFAccountManagmentStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFAccountManagmentStorage;
-		};
-		07F44ECF2BE4C4B100570143 /* SSFAssetManagment */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFAssetManagment;
-		};
-		07F44ED12BE4C4B100570143 /* SSFChainConnection */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFChainConnection;
-		};
-		07F44ED32BE4C4B100570143 /* SSFChainRegistry */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFChainRegistry;
-		};
-		07F44ED52BE4C4B100570143 /* SSFCloudStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFCloudStorage;
-		};
-		07F44ED72BE4C4B100570143 /* SSFCrypto */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFCrypto;
-		};
-		07F44ED92BE4C4B100570143 /* SSFEraKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFEraKit;
-		};
-		07F44EDB2BE4C4B100570143 /* SSFExtrinsicKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFExtrinsicKit;
-		};
-		07F44EDD2BE4C4B100570143 /* SSFHelpers */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFHelpers;
-		};
-		07F44EDF2BE4C4B100570143 /* SSFKeyPair */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFKeyPair;
-		};
-		07F44EE12BE4C4B100570143 /* SSFLogger */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFLogger;
-		};
-		07F44EE32BE4C4B100570143 /* SSFModels */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFModels;
-		};
-		07F44EE52BE4C4B100570143 /* SSFNetwork */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFNetwork;
-		};
-		07F44EE72BE4C4B100570143 /* SSFPolkaswap */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFPolkaswap;
-		};
-		07F44EE92BE4C4B100570143 /* SSFPools */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFPools;
-		};
-		07F44EEB2BE4C4B100570143 /* SSFPoolsStorage */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFPoolsStorage;
-		};
-		07F44EED2BE4C4B100570143 /* SSFQRService */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFQRService;
-		};
-		07F44EEF2BE4C4B100570143 /* SSFRuntimeCodingService */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFRuntimeCodingService;
-		};
-		07F44EF12BE4C4B100570143 /* SSFSigner */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFSigner;
-		};
-		07F44EF32BE4C4B100570143 /* SSFSingleValueCache */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFSingleValueCache;
-		};
-		07F44EF52BE4C4B200570143 /* SSFStorageQueryKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFStorageQueryKit;
-		};
-		07F44EF72BE4C4B200570143 /* SSFTransferService */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFTransferService;
-		};
-		07F44EF92BE4C4B200570143 /* SSFUtils */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFUtils;
-		};
-		07F44EFB2BE4C4B200570143 /* SSFXCM */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SSFXCM;
-		};
-		07F44EFD2BE4C4B200570143 /* SoraKeystore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = SoraKeystore;
-		};
-		07F44EFF2BE4C4B200570143 /* keccak */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 07F44EC62BE4C4B100570143 /* XCRemoteSwiftPackageReference "shared-features-spm" */;
-			productName = keccak;
-		};
 		07F44F022BE4C7FF00570143 /* Web3 */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 07F44F012BE4C7FF00570143 /* XCRemoteSwiftPackageReference "Web3.swift" */;
@@ -19741,6 +19596,151 @@
 		07F6C4F52BDA3E5D00E4C7B4 /* SSFXCM */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = SSFXCM;
+		};
+		FA6ECE362BF3625E00481B2B /* IrohaCrypto */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = IrohaCrypto;
+		};
+		FA6ECE382BF3625E00481B2B /* RobinHood */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = RobinHood;
+		};
+		FA6ECE3A2BF3625E00481B2B /* SSFAccountManagment */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFAccountManagment;
+		};
+		FA6ECE3C2BF3625E00481B2B /* SSFAccountManagmentStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFAccountManagmentStorage;
+		};
+		FA6ECE3E2BF3625E00481B2B /* SSFAssetManagment */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFAssetManagment;
+		};
+		FA6ECE402BF3625E00481B2B /* SSFChainConnection */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFChainConnection;
+		};
+		FA6ECE422BF3625E00481B2B /* SSFChainRegistry */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFChainRegistry;
+		};
+		FA6ECE442BF3625E00481B2B /* SSFCloudStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFCloudStorage;
+		};
+		FA6ECE462BF3625E00481B2B /* SSFCrypto */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFCrypto;
+		};
+		FA6ECE482BF3625E00481B2B /* SSFEraKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFEraKit;
+		};
+		FA6ECE4A2BF3625E00481B2B /* SSFExtrinsicKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFExtrinsicKit;
+		};
+		FA6ECE4C2BF3625E00481B2B /* SSFHelpers */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFHelpers;
+		};
+		FA6ECE4E2BF3625E00481B2B /* SSFKeyPair */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFKeyPair;
+		};
+		FA6ECE502BF3625E00481B2B /* SSFLogger */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFLogger;
+		};
+		FA6ECE522BF3625E00481B2B /* SSFModels */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFModels;
+		};
+		FA6ECE542BF3625E00481B2B /* SSFNetwork */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFNetwork;
+		};
+		FA6ECE562BF3625E00481B2B /* SSFPolkaswap */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFPolkaswap;
+		};
+		FA6ECE582BF3625E00481B2B /* SSFPools */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFPools;
+		};
+		FA6ECE5A2BF3625E00481B2B /* SSFPoolsStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFPoolsStorage;
+		};
+		FA6ECE5C2BF3625E00481B2B /* SSFQRService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFQRService;
+		};
+		FA6ECE5E2BF3625E00481B2B /* SSFRuntimeCodingService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFRuntimeCodingService;
+		};
+		FA6ECE602BF3625E00481B2B /* SSFSigner */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFSigner;
+		};
+		FA6ECE622BF3625E00481B2B /* SSFSingleValueCache */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFSingleValueCache;
+		};
+		FA6ECE642BF3625E00481B2B /* SSFStorageQueryKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFStorageQueryKit;
+		};
+		FA6ECE662BF3625E00481B2B /* SSFTransferService */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFTransferService;
+		};
+		FA6ECE682BF3625E00481B2B /* SSFUtils */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFUtils;
+		};
+		FA6ECE6A2BF3625E00481B2B /* SSFXCM */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SSFXCM;
+		};
+		FA6ECE6C2BF3625E00481B2B /* SoraKeystore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = SoraKeystore;
+		};
+		FA6ECE6E2BF3625E00481B2B /* keccak */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA6ECE352BF3625E00481B2B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
+			productName = keccak;
 		};
 		FA7254662AC2F12D00EC47A6 /* WalletConnect */ = {
 			isa = XCSwiftPackageProductDependency;

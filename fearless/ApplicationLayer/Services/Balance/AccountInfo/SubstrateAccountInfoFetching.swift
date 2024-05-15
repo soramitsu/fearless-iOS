@@ -273,7 +273,20 @@ private extension AccountInfoFetching {
                 return [chainAsset: accountInfo]
             }
         }
-        switch chainAsset.chainAssetType {
+
+        let chainAssetType = chainAsset.chainAssetType.map { type in
+            guard type == .soraAsset else {
+                return type
+            }
+
+            /* Sora assets logic */
+            if chainAsset.isUtility {
+                return .normal
+            } else {
+                return .soraAsset
+            }
+        }
+        switch chainAssetType {
         case .none:
             return ClosureOperation { [chainAsset: nil] }
         case .normal:
