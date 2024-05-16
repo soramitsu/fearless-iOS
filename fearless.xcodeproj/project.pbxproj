@@ -19443,8 +19443,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "feature/signature-test";
-				kind = branch;
+				kind = revision;
+				revision = 0157b70f9b0482827adb59ea1b0fb08c20d99d27;
 			};
 		};
 		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
