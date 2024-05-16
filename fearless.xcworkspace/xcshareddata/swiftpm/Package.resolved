@@ -1,5 +1,4 @@
 {
-  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -119,15 +118,6 @@
       }
     },
     {
-      "identity" : "scrypt.c",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/v57/scrypt.c.git",
-      "state" : {
-        "revision" : "0a1ac944808cd667a0c2e2457a4729dcdd447085",
-        "version" : "0.1.1"
-      }
-    },
-    {
       "identity" : "secp256k1.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Boilertalk/secp256k1.swift.git",
@@ -141,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "update-for-fearless-asset-management",
-        "revision" : "f03a5da6c118019594a25c14fc2f2229d1e0d723"
+        "branch" : "feature/signature-test",
+        "revision" : "0157b70f9b0482827adb59ea1b0fb08c20d99d27"
       }
     },
     {
@@ -308,5 +298,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
