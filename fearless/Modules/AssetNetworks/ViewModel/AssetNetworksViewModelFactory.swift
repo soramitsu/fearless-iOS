@@ -35,7 +35,8 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
         chainsWithIssue: [ChainIssue],
         chainSettings: [ChainSettings]
     ) -> [AssetNetworksTableCellModel] {
-        let viewModels: [AssetNetworksTableCellModel] = chainAssets.sorted(by: { ca1, ca2 in
+        let enabledChainAssets = enabledOrDefault(chainAssets: chainAssets, for: wallet)
+        let viewModels: [AssetNetworksTableCellModel] = enabledChainAssets.sorted(by: { ca1, ca2 in
             switch sort {
             case .fiat:
                 guard
