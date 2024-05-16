@@ -87,6 +87,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         chainAssets.forEach { chainAsset in
             let accountRequest = chainAsset.chain.accountRequest()
             guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
+                accountInfosCount += 1
                 return
             }
             let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
