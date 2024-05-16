@@ -22,7 +22,6 @@ abstract_target 'fearlessAll' do
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   pod 'FearlessKeys', '0.1.3'
-  pod 'MPQRCoreSDK', :configurations => ['Release']
 
   target 'fearlessTests' do
     inherit! :search_paths
