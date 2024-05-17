@@ -41,6 +41,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
 
     func update(wallet: MetaAccountModel) {
         throttle()
+        checkNewAccounts(for: wallet)
         self.wallet = wallet
         setup()
     }
@@ -55,7 +56,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             self,
             runningInQueue: walletAssetsObserverQueue
         ) { [weak self] changes in
-            self?.handleChains(changes: changes)
+            self?.handleChains(changes: changes, accounts: nil)
         }
     }
 
@@ -66,7 +67,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
 
     // MARK: - Private methods
 
-    private func handleChains(changes: [DataProviderChange<ChainModel>]) {
+    private func handleChains(changes: [DataProviderChange<ChainModel>], accounts: [ChainAccountModel]?) {
         currentTask = Task {
             let result = await withTaskGroup(
                 of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
@@ -75,14 +76,17 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                     changes.forEach { change in
                         switch change {
                         case let .insert(chain):
-                            group.addTask {
-                                do {
-                                    let accountInfos = try await self.accountInfoRemote.fetchAccountInfos(for: chain, wallet: wallet)
-                                    return (chain, accountInfos)
-                                } catch {
-                                    self.logger.customError(error)
-                                    let empty = self.emptyAccountInfos(for: chain)
-                                    return (chain, empty)
+                            if let accounts {
+                                if accounts.contains(where: { $0.chainId == chain.chainId }) {
+                                    group.addTask {
+                                        await self.fetchAccountInfos(chain: chain, wallet: wallet)
+                                    }
+                                } else {
+                                    return
+                                }
+                            } else {
+                                group.addTask {
+                                    await self.fetchAccountInfos(chain: chain, wallet: wallet)
                                 }
                             }
                         case .update, .delete:
@@ -102,6 +106,35 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             }
             updateCurrentWallet(with: result)
             performSaveAndNitify()
+        }
+    }
+
+    private func fetchAccountInfos(chain: ChainModel, wallet: MetaAccountModel) async -> (ChainModel, [ChainAssetId: AccountInfo?]) {
+        do {
+            let accountInfos = try await accountInfoRemote.fetchAccountInfos(for: chain, wallet: wallet)
+            return (chain, accountInfos)
+        } catch {
+            logger.customError(error)
+            let empty = emptyAccountInfos(for: chain)
+            return (chain, empty)
+        }
+    }
+
+    private func checkNewAccounts(for wallet: MetaAccountModel) {
+        let newAccounts = wallet.chainAccounts.subtracting(self.wallet.chainAccounts)
+        self.wallet = wallet
+        guard newAccounts.isNotEmpty else {
+            return
+        }
+        scanAccountInfo(for: Array(newAccounts))
+    }
+
+    private func scanAccountInfo(for accounts: [ChainAccountModel]) {
+        chainRegistry.chainsSubscribe(
+            self,
+            runningInQueue: walletAssetsObserverQueue
+        ) { [weak self] changes in
+            self?.handleChains(changes: changes, accounts: accounts)
         }
     }
 
