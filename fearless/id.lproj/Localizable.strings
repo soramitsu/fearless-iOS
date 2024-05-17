@@ -1017,6 +1017,7 @@ Syarat dan Ketentuan serta Kebijakan Privasi";
 "transaction.details.view.etherscan" = "Lihat di Etherscan";
 "transaction.details.view.polkascan" = "Lihat di Polkascan";
 "transaction.details.view.reefscan" = "Lihat di Reefscan";
+"transaction.details.view.oklink" = "View in Oklink";
 "transaction.details.view.subscan" = "Lihat di Subscan";
 "transaction.list.header" = "Semua transaksi";
 "transaction.status.completed" = "Selesai";

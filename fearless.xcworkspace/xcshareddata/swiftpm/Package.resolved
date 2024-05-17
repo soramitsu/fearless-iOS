@@ -119,15 +119,6 @@
       }
     },
     {
-      "identity" : "scrypt.c",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/v57/scrypt.c.git",
-      "state" : {
-        "revision" : "0a1ac944808cd667a0c2e2457a4729dcdd447085",
-        "version" : "0.1.1"
-      }
-    },
-    {
       "identity" : "secp256k1.swift",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/Boilertalk/secp256k1.swift.git",
@@ -142,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "update-for-fearless-asset-management",
-        "revision" : "f03a5da6c118019594a25c14fc2f2229d1e0d723"
+        "revision" : "e8ee432709e0cc39a689e41b2d11d0542709a850"
       }
     },
     {
