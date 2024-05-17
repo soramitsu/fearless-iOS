@@ -242,7 +242,7 @@ private extension ChainAssetsFetching {
             let enabled: [String] = wallet.assetsVisibility
                 .filter { !$0.hidden }
                 .map { $0.assetId }
-            return chainAssets.filter { enabled.contains($0.asset.id) }
+            return chainAssets.filter { enabled.contains($0.identifier) }
         }
     }
 
