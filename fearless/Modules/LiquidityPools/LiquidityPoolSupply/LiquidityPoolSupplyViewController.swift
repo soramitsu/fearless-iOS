@@ -2,25 +2,36 @@ import UIKit
 import SoraFoundation
 import SnapKit
 
-final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
-    typealias RootViewType = PolkaswapAdjustmentViewLayout
-    var keyboardHandler: FearlessKeyboardHandler?
+protocol LiquidityPoolSupplyViewOutput: AnyObject {
+    func didLoad(view: LiquidityPoolSupplyViewInput)
+    func didTapBackButton()
+    func didTapApyInfo()
+    func didTapPreviewButton()
+    func selectFromAmountPercentage(_ percentage: Float)
+    func updateFromAmount(_ newValue: Decimal)
+    func selectToAmountPercentage(_ percentage: Float)
+    func updateToAmount(_ newValue: Decimal)
+    func didTapSelectFromAsset()
+    func didTapSelectToAsset()
+}
 
+final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+    typealias RootViewType = LiquidityPoolSupplyViewLayout
+    var keyboardHandler: FearlessKeyboardHandler?
+    
     private enum Constants {
         static let delay: CGFloat = 0.7
     }
-
+    
     // MARK: Private properties
-
-    private let output: PolkaswapAdjustmentViewOutput
-
+    private let output: LiquidityPoolSupplyViewOutput
+    
     private var amountFromInputViewModel: IAmountInputViewModel?
     private var amountToInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
-
     init(
-        output: PolkaswapAdjustmentViewOutput,
+        output: LiquidityPoolSupplyViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
@@ -34,9 +45,8 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
     }
 
     // MARK: - Life cycle
-
     override func loadView() {
-        view = PolkaswapAdjustmentViewLayout()
+        view = LiquidityPoolSupplyViewLayout()
     }
 
     override func viewDidLoad() {
@@ -46,27 +56,9 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         configure()
         addEndEditingTapGesture(for: rootView.contentView)
     }
-
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-
-        if keyboardHandler == nil {
-            setupKeyboardHandler()
-        }
-    }
-
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        output.viewDidAppear()
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        clearKeyboardHandler()
-    }
-
+    
     // MARK: - Private methods
-
+    
     private func configure() {
         navigationController?.setNavigationBarHidden(true, animated: true)
 
@@ -78,21 +70,16 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
         updatePreviewButton()
     }
-
+    
     private func updatePreviewButton() {
         let isEnabled = amountFromInputViewModel?.isValid == true && amountToInputViewModel?.isValid == true
         rootView.previewButton.set(enabled: isEnabled)
     }
-
+    
     private func setupActions() {
         rootView.backButton.addTarget(
             self,
             action: #selector(handleTapBackButton),
-            for: .touchUpInside
-        )
-        rootView.marketButton.addTarget(
-            self,
-            action: #selector(handleTapMarketButton),
             for: .touchUpInside
         )
         rootView.swapFromInputView.selectHandler = { [weak self] in
@@ -101,24 +88,13 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         rootView.swapToInputView.selectHandler = { [weak self] in
             self?.output.didTapSelectToAsset()
         }
-        rootView.switchSwapButton.addTarget(
-            self,
-            action: #selector(handleTapSwitchInputsButton),
-            for: .touchUpInside
-        )
 
         let tapMinReceiveInfo = UITapGestureRecognizer(
             target: self,
-            action: #selector(handleTapMinReceiveInfo)
-        )
-        let tapNetworkFeeInfo = UITapGestureRecognizer(
-            target: self,
-            action: #selector(handleTapNetworkFeeInfo)
+            action: #selector(handleTapApyInfo)
         )
         rootView.minMaxReceivedView.titleLabel
             .addGestureRecognizer(tapMinReceiveInfo)
-        rootView.networkFeeView.titleLabel
-            .addGestureRecognizer(tapNetworkFeeInfo)
 
         rootView.previewButton.addTarget(
             self,
@@ -126,7 +102,7 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
             for: .touchUpInside
         )
     }
-
+    
     // MARK: - Private actions
 
     @objc private func handleTapBackButton() {
@@ -137,16 +113,8 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         output.didTapMarketButton()
     }
 
-    @objc private func handleTapSwitchInputsButton() {
-        output.didTapSwitchInputsButton()
-    }
-
-    @objc private func handleTapMinReceiveInfo() {
-        output.didTapMinReceiveInfo()
-    }
-
-    @objc private func handleTapNetworkFeeInfo() {
-        output.didTapNetworkFeeInfo()
+    @objc private func handleTapApyInfo() {
+        output.didTapApyInfo()
     }
 
     @objc private func handleTapPreviewButton() {
@@ -154,73 +122,18 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
     }
 }
 
-// MARK: - PolkaswapAdjustmentViewInput
-
-extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
-    func setButtonLoadingState(isLoading: Bool) {
-        rootView.previewButton.set(loading: isLoading)
-    }
-
-    func didReceive(market: LiquiditySourceType) {
-        rootView.marketButton.setTitle(market.name)
-    }
-
-    func didReceiveSwapFrom(viewModel: AssetBalanceViewModelProtocol?) {
-        rootView.bindSwapFrom(assetViewModel: viewModel)
-    }
-
-    func didReceiveSwapTo(viewModel: AssetBalanceViewModelProtocol?) {
-        rootView.bindSwapTo(assetViewModel: viewModel)
-    }
-
-    func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?) {
-        amountFromInputViewModel = amountInputViewModel
-        amountInputViewModel?.observable.remove(observer: self)
-        amountInputViewModel?.observable.add(observer: self)
-        rootView.swapFromInputView.inputFieldText = amountInputViewModel?.displayAmount
-        updatePreviewButton()
-    }
-
-    func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?) {
-        amountToInputViewModel = amountInputViewModel
-        amountInputViewModel?.observable.remove(observer: self)
-        amountInputViewModel?.observable.add(observer: self)
-        rootView.swapToInputView.inputFieldText = amountInputViewModel?.displayAmount
-        updatePreviewButton()
-    }
-
-    func didReceiveNetworkFee(fee: BalanceViewModelProtocol?) {
-        rootView.bind(fee: fee)
-        updatePreviewButton()
-    }
-
-    func didUpdating() {
-        DispatchQueue.main.async {
-            self.rootView.previewButton.set(enabled: false)
-        }
-    }
-
-    func didReceive(variant: SwapVariant) {
-        rootView.bind(swapVariant: variant)
-    }
-
-    func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) {
-        rootView.bindDetails(viewModel: viewModel)
-        updatePreviewButton()
-    }
-}
+// MARK: - LiquidityPoolSupplyViewInput
+extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {}
 
 // MARK: - Localizable
-
-extension PolkaswapAdjustmentViewController: Localizable {
+extension LiquidityPoolSupplyViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
     }
 }
-
 // MARK: - AmountInputAccessoryViewDelegate
 
-extension PolkaswapAdjustmentViewController: AmountInputAccessoryViewDelegate {
+extension LiquidityPoolSupplyViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         if rootView.swapFromInputView.textField.isFirstResponder {
             output.selectFromAmountPercentage(percentage)
@@ -240,7 +153,7 @@ extension PolkaswapAdjustmentViewController: AmountInputAccessoryViewDelegate {
 
 // MARK: - UITextFieldDelegate
 
-extension PolkaswapAdjustmentViewController: UITextFieldDelegate {
+extension LiquidityPoolSupplyViewController: UITextFieldDelegate {
     func textField(
         _ textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
@@ -275,7 +188,7 @@ extension PolkaswapAdjustmentViewController: UITextFieldDelegate {
 
 // MARK: - AmountInputViewModelObserver
 
-extension PolkaswapAdjustmentViewController: AmountInputViewModelObserver {
+extension LiquidityPoolSupplyViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         rootView.swapFromInputView.inputFieldText = amountFromInputViewModel?.displayAmount
         rootView.swapToInputView.inputFieldText = amountToInputViewModel?.displayAmount
@@ -311,7 +224,7 @@ extension PolkaswapAdjustmentViewController: AmountInputViewModelObserver {
 
 // MARK: - KeyboardViewAdoptable
 
-extension PolkaswapAdjustmentViewController: KeyboardViewAdoptable {
+extension LiquidityPoolSupplyViewController: KeyboardViewAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { UIConstants.bigOffset }
