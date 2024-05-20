@@ -351,6 +351,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
            let wallet = wallets[safe: index] {
             if wallet.selectedCurrency != event.account.selectedCurrency {
+                wallets[index] = event.account
                 let currencies = wallets.map { $0.selectedCurrency }
                 subscribeToPrices(for: chainAssets, currencies: currencies)
             }
