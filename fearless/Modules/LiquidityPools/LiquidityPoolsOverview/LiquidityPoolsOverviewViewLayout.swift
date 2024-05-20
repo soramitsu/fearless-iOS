@@ -1,6 +1,18 @@
 import UIKit
 
 final class LiquidityPoolsOverviewViewLayout: UIView {
+    let navigationBar: BaseNavigationBar = {
+        let bar = BaseNavigationBar()
+        bar.backgroundColor = R.color.colorBlack19()
+        return bar
+    }()
+
+    let polkaswapImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.polkaswap()
+        return imageView
+    }()
+
     private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -40,10 +52,13 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
 
     private func drawSubviews() {
         addSubview(backgroundImageView)
+        addSubview(navigationBar)
         addSubview(scrollView)
         scrollView.addSubview(scrollViewBackgroundView)
         scrollViewBackgroundView.addSubview(userPoolsContainerView)
         scrollViewBackgroundView.addSubview(availablePoolsContainerView)
+
+        navigationBar.setLeftViews([polkaswapImageView])
     }
 
     private func setupConstraints() {
@@ -51,8 +66,13 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
             make.edges.equalToSuperview()
         }
 
+        navigationBar.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+        }
+
         scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
         }
 
         scrollViewBackgroundView.snp.makeConstraints { make in
@@ -65,8 +85,9 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         }
 
         availablePoolsContainerView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview().inset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.top.equalTo(userPoolsContainerView.snp.bottom).offset(16)
+            make.bottom.lessThanOrEqualToSuperview().offset(16)
         }
     }
 }

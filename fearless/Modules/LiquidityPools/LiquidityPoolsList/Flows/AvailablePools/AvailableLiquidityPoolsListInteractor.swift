@@ -35,7 +35,7 @@ final class AvailableLiquidityPoolsListInteractor {
     private func fetchReserves(pools: [LiquidityPair]) {
         Task {
             do {
-                let reservesStream = try await liquidityPoolService.subscribePoolReserves(pools: pools)
+                let reservesStream = try await liquidityPoolService.subscribePoolsReserves(pools: pools)
 
                 for try await reserves in reservesStream {
                     await MainActor.run {

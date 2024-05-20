@@ -1,7 +1,12 @@
 import UIKit
 import SoraFoundation
 
-final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder {
+protocol LiquidityPoolDetailsViewOutput: AnyObject {
+    func didLoad(view: LiquidityPoolDetailsViewInput)
+    func backButtonClicked()
+}
+
+final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = LiquidityPoolDetailsViewLayout
 
     // MARK: Private properties
@@ -33,6 +38,10 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+
+        rootView.navigationBar.backButton.addAction { [weak self] in
+            self?.output.backButtonClicked()
+        }
     }
 
     // MARK: - Private methods
@@ -40,10 +49,16 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder {
 
 // MARK: - LiquidityPoolDetailsViewInput
 
-extension LiquidityPoolDetailsViewController: LiquidityPoolDetailsViewInput {}
+extension LiquidityPoolDetailsViewController: LiquidityPoolDetailsViewInput {
+    func bind(viewModel: LiquidityPoolDetailsViewModel?) {
+        rootView.bind(viewModel: viewModel)
+    }
+}
 
 // MARK: - Localizable
 
 extension LiquidityPoolDetailsViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

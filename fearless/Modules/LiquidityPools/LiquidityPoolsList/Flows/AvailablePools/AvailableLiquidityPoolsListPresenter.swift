@@ -19,6 +19,9 @@ final class AvailableLiquidityPoolsListPresenter {
     private let wallet: MetaAccountModel
     private let viewModelFactory: AvailableLiquidityPoolsListViewModelFactory
     private weak var view: LiquidityPoolsListViewInput?
+    private let router: LiquidityPoolsListRouterInput
+    private weak var moduleOutput: LiquidityPoolsListModuleOutput?
+    private let type: LiquidityPoolListType
 
     private var pairs: [LiquidityPair]?
     private var reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?
@@ -28,16 +31,23 @@ final class AvailableLiquidityPoolsListPresenter {
     init(
         logger: Logger,
         interactor: AvailableLiquidityPoolsListInteractorInput,
+        router: LiquidityPoolsListRouterInput,
         chain: ChainModel,
         wallet: MetaAccountModel,
         viewModelFactory: AvailableLiquidityPoolsListViewModelFactory,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        moduleOutput: LiquidityPoolsListModuleOutput?,
+        type: LiquidityPoolListType
     ) {
         self.logger = logger
         self.interactor = interactor
+        self.router = router
         self.chain = chain
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
+        self.moduleOutput = moduleOutput
+        self.type = type
+
         self.localizationManager = localizationManager
     }
 
@@ -49,7 +59,8 @@ final class AvailableLiquidityPoolsListPresenter {
             chain: chain,
             prices: prices,
             locale: selectedLocale,
-            wallet: wallet
+            wallet: wallet,
+            type: type
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -61,6 +72,22 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
         self.view = view
 
         interactor.setup(with: self)
+    }
+
+    func didTapOn(viewModel: LiquidityPoolListCellModel) {
+        let liquidityPair = viewModel.liquidityPair
+        let reserves = reserves?.value?.first(where: { $0.poolId == liquidityPair.pairId })
+        let reservesAddress = liquidityPair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
+        let apyInfo = apy?.first(where: { $0.poolId == reservesAddress })
+
+        let assetIdPair = AssetIdPair(baseAssetIdCode: viewModel.liquidityPair.baseAssetId, targetAssetIdCode: viewModel.liquidityPair.targetAssetId)
+        let input = LiquidityPoolDetailsInput.availablePool(liquidityPair: liquidityPair, reserves: reserves, apyInfo: apyInfo)
+
+        router.showPoolDetails(assetIdPair: assetIdPair, chain: chain, wallet: wallet, input: input, from: view)
+    }
+
+    func didTapMoreButton() {
+        moduleOutput?.didTapMoreAvailablePools()
     }
 }
 

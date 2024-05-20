@@ -6,4 +6,5 @@ enum WalletAssetId: String {
     case westend
     case usd
     case roc
+    case pswap = "0x0200050000000000000000000000000000000000000000000000000000000000"
 }

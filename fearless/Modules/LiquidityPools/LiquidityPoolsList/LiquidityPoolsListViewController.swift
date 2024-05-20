@@ -38,6 +38,10 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder {
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(LiquidityPoolListCell.self)
+
+        rootView.moreButton.addAction { [weak self] in
+            self?.output.didTapMoreButton()
+        }
     }
 
     // MARK: - Private methods
@@ -70,6 +74,9 @@ extension LiquidityPoolsListViewController: UITableViewDataSource, UITableViewDe
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
+        guard let cellModels else { return }
+        output.didTapOn(viewModel: cellModels[indexPath.row])
     }
 }
 

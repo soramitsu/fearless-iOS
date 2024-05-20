@@ -3,7 +3,12 @@ import SoraFoundation
 import SSFModels
 
 final class LiquidityPoolsOverviewAssembly {
-    static func configureModule(chain: ChainModel, wallet: MetaAccountModel) -> LiquidityPoolsOverviewModuleCreationResult? {
+    static func configureModule(wallet: MetaAccountModel) -> LiquidityPoolsOverviewModuleCreationResult? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard let chain = chainRegistry.availableChains.first(where: { $0.chainId == Chain.soraMain.genesisHash }) else {
+            return nil
+        }
+
         let localizationManager = LocalizationManager.shared
 
         let interactor = LiquidityPoolsOverviewInteractor()
@@ -12,11 +17,13 @@ final class LiquidityPoolsOverviewAssembly {
         let presenter = LiquidityPoolsOverviewPresenter(
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            chain: chain,
+            wallet: wallet
         )
 
-        let userPoolsModule = configureUserPoolsModule(chain: chain, wallet: wallet)
-        let availablePoolsModule = configureAvailablePoolsModule(chain: chain, wallet: wallet)
+        let userPoolsModule = configureUserPoolsModule(chain: chain, wallet: wallet, moduleOutput: presenter)
+        let availablePoolsModule = configureAvailablePoolsModule(chain: chain, wallet: wallet, moduleOutput: presenter)
 
         guard let userPoolsModule, let availablePoolsModule else {
             return nil
@@ -34,15 +41,17 @@ final class LiquidityPoolsOverviewAssembly {
 
     private static func configureUserPoolsModule(
         chain: ChainModel,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        moduleOutput: LiquidityPoolsListModuleOutput?
     ) -> LiquidityPoolsListModuleCreationResult? {
-        LiquidityPoolsListAssembly.configureUserPoolsModule(chain: chain, wallet: wallet)
+        LiquidityPoolsListAssembly.configureUserPoolsModule(chain: chain, wallet: wallet, moduleOutput: moduleOutput, type: .embed)
     }
 
     private static func configureAvailablePoolsModule(
         chain: ChainModel,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        moduleOutput: LiquidityPoolsListModuleOutput?
     ) -> LiquidityPoolsListModuleCreationResult? {
-        LiquidityPoolsListAssembly.configureAvailablePoolsModule(chain: chain, wallet: wallet)
+        LiquidityPoolsListAssembly.configureAvailablePoolsModule(chain: chain, wallet: wallet, moduleOutput: moduleOutput, type: .embed)
     }
 }

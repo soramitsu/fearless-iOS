@@ -17,12 +17,13 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
-    
+
     let doubleImageView = PolkaswapDoubleSymbolView()
-    let swapStubTitle: UILabel = {
+    let pairTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = R.color.colorStrokeGray()
+        label.textColor = R.color.colorWhite()
+        label.textAlignment = .center
         return label
     }()
 
@@ -45,14 +46,42 @@ final class LiquidityPoolDetailsViewLayout: UIView {
 
         return view
     }()
-    
-    let infoViewsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
-    
+
+    let supplyButton = UIFactory.default.createMainActionButton()
+    let removeButton: TriangularedButton = {
+        let button = UIFactory.default.createDisabledButton()
+        button.isHidden = true
+        return button
+    }()
+
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
+    let infoViewsStackView: UIStackView = {
+        let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+        stackView.alignment = .center
+        stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        return stackView
+    }()
+
     let reservesView: TitleMultiValueView = makeRowView()
     let apyView: TitleMultiValueView = makeRowView()
     let rewardTokenView: TitleMultiValueView = makeRowView()
-    let baseAssetPooledView: TitleMultiValueView = makeRowView()
-    let targetAssetPooledView: TitleMultiValueView = makeRowView()
+
+    let baseAssetPooledView: TitleMultiValueView = {
+        let view = makeRowView()
+        view.isHidden = true
+        return view
+    }()
+
+    let targetAssetPooledView: TitleMultiValueView = {
+        let view = makeRowView()
+        view.isHidden = true
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -67,22 +96,53 @@ final class LiquidityPoolDetailsViewLayout: UIView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func layoutSubviews() {
         super.layoutSubviews()
 
         navigationBar.backButton.rounded()
     }
 
+    func bind(viewModel: LiquidityPoolDetailsViewModel?) {
+        if let tokenPairIconsViewModel = viewModel?.tokenPairIconsViewModel {
+            doubleImageView.bind(viewModel: tokenPairIconsViewModel)
+        }
+        pairTitleLabel.text = viewModel?.pairTitleLabelText
+        reservesView.bind(viewModel: viewModel?.reservesViewModel)
+        apyView.bind(viewModel: viewModel?.apyViewModel)
+        rewardTokenView.valueTop.text = viewModel?.rewardTokenLabelText
+
+        baseAssetPooledView.isHidden = viewModel?.userPoolFieldsHidden == true
+        targetAssetPooledView.isHidden = viewModel?.userPoolFieldsHidden == true
+        removeButton.isHidden = viewModel?.userPoolFieldsHidden == true
+
+        baseAssetPooledView.bindBalance(viewModel: viewModel?.baseAssetViewModel)
+        targetAssetPooledView.bindBalance(viewModel: viewModel?.targetAssetViewModel)
+
+        if let baseAssetName = viewModel?.baseAssetName.uppercased() {
+            baseAssetPooledView.titleLabel.text = "Your \(baseAssetName) Pooled"
+        }
+
+        if let targetAssetName = viewModel?.targetAssetName.uppercased() {
+            targetAssetPooledView.titleLabel.text = "Your \(targetAssetName) Pooled"
+        }
+    }
+
     private func drawSubviews() {
         addSubview(navigationBar)
         addSubview(contentView)
-        
+
         contentView.stackView.addArrangedSubview(infoBackground)
         infoBackground.addSubview(infoViewsStackView)
         infoViewsStackView.addArrangedSubview(doubleImageView)
-        infoViewsStackView.addArrangedSubview(swapStubTitle)
-
+        infoViewsStackView.addArrangedSubview(pairTitleLabel)
+        infoViewsStackView.addArrangedSubview(reservesView)
+        infoViewsStackView.addArrangedSubview(apyView)
+        infoViewsStackView.addArrangedSubview(rewardTokenView)
+        infoViewsStackView.addArrangedSubview(baseAssetPooledView)
+        infoViewsStackView.addArrangedSubview(targetAssetPooledView)
+        contentView.stackView.addArrangedSubview(supplyButton)
+        contentView.stackView.addArrangedSubview(removeButton)
     }
 
     private func setupConstraints() {
@@ -93,8 +153,39 @@ final class LiquidityPoolDetailsViewLayout: UIView {
             make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
         }
+        infoBackground.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview().inset(16)
+        }
+        infoViewsStackView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview().inset(16)
+        }
+        pairTitleLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        doubleImageView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(24)
+        }
+
+        [
+            reservesView,
+            apyView,
+            rewardTokenView,
+            baseAssetPooledView,
+            targetAssetPooledView
+        ].forEach {
+            setupDefaultRowConstraints(for: $0)
+        }
+
+        [supplyButton, removeButton].forEach {
+            $0.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview().inset(16)
+                make.height.equalTo(UIConstants.actionHeight)
+            }
+        }
     }
-    
+
     private func setupDefaultRowConstraints(for view: UIView) {
         view.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
@@ -107,7 +198,7 @@ final class LiquidityPoolDetailsViewLayout: UIView {
             make.height.equalTo(56)
         }
     }
-    
+
     private static func makeRowView() -> TitleMultiValueView {
         let view = TitleMultiValueView()
         view.titleLabel.font = .p1Paragraph
@@ -122,8 +213,13 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         view.valueBottom.lineBreakMode = .byTruncatingMiddle
         return view
     }
-    
+
     private func applyLocalization() {
-        
+        reservesView.titleLabel.text = "TVL"
+        apyView.titleLabel.text = "Strategic Bonus APY"
+        rewardTokenView.titleLabel.text = "Rewards Payout In"
+        supplyButton.imageWithTitleView?.title = "Supply Liquidity"
+        removeButton.imageWithTitleView?.title = "Remove Liquidity"
+        navigationBar.setTitle("Pool details")
     }
 }

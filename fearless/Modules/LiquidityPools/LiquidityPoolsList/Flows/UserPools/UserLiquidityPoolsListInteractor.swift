@@ -5,14 +5,16 @@ import SSFModels
 import SSFStorageQueryKit
 
 protocol UserLiquidityPoolsListInteractorOutput {
-    func didReceiveUserPools(pools: [LiquidityPair]?)
+    func didReceiveLiquidityPairs(pools: [LiquidityPair]?)
     func didReceivePoolsReserves(reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?)
     func didReceivePoolsAPY(apy: [PoolApyInfo])
+    func didReceiveUserPools(accountPools: [AccountPool]?)
     func didReceivePrices(result: Result<[PriceData], Error>)
 
     func didReceiveLiquidityPairsError(error: Error)
     func didReceivePoolsReservesError(error: Error)
     func didReceivePoolsApyError(error: Error)
+    func didReceiveUserPoolsError(error: Error)
 }
 
 final class UserLiquidityPoolsListInteractor {
@@ -35,6 +37,24 @@ final class UserLiquidityPoolsListInteractor {
         self.wallet = wallet
     }
 
+//    private func fetchReserves(pools: [AccountPool]) {
+//        Task {
+//            do {
+//                let reservesStream = try await liquidityPoolService.subscribePoolsReserves(pools: pools)
+//
+//                for try await reserves in reservesStream {
+//                    await MainActor.run {
+//                        output?.didReceivePoolsReserves(reserves: reserves)
+//                    }
+//                }
+//            } catch {
+//                await MainActor.run {
+//                    output?.didReceivePoolsReservesError(error: error)
+//                }
+//            }
+//        }
+//    }
+
     private func subscribeForPrices() {
         let chainAssets = chain.chainAssets
         priceProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
@@ -50,18 +70,43 @@ extension UserLiquidityPoolsListInteractor: UserLiquidityPoolsListInteractorInpu
         subscribeForPrices()
     }
 
+    func fetchUserPools() {
+        guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
+            output?.didReceiveLiquidityPairsError(error: ChainAccountFetchingError.accountNotExists)
+            return
+        }
+
+        Task {
+            do {
+                let accountPools = try await liquidityPoolService.fetchUserPools(accountId: accountId)
+                await MainActor.run {
+                    output?.didReceiveUserPools(accountPools: accountPools)
+                }
+
+//                if let pools = accountPools {
+//                    fetchReserves(pools: pools)
+//                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceiveUserPoolsError(error: error)
+                }
+            }
+        }
+    }
+
     func fetchPools() {
         guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
             output?.didReceiveLiquidityPairsError(error: ChainAccountFetchingError.accountNotExists)
             return
         }
+
         Task {
             do {
                 let userPoolsStream = try await liquidityPoolService.subscribeUserPools(accountId: accountId)
 
                 for try await userPools in userPoolsStream {
                     await MainActor.run {
-                        output?.didReceiveUserPools(pools: userPools.value)
+                        output?.didReceiveLiquidityPairs(pools: userPools.value)
                     }
                 }
             } catch {

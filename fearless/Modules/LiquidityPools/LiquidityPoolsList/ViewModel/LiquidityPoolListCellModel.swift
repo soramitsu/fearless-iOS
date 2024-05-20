@@ -1,4 +1,6 @@
 import Foundation
+import SSFPools
+import SSFPolkaswap
 
 struct LiquidityPoolListCellModel {
     let tokenPairIconsVieWModel: TokenPairsIconViewModel
@@ -8,4 +10,5 @@ struct LiquidityPoolListCellModel {
     let stakingStatusLabelText: String?
     let reservesLabelValue: ShimmeredLabelState?
     let sortValue: Decimal
+    let liquidityPair: LiquidityPair
 }

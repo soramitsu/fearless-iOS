@@ -1,17 +1,38 @@
 import UIKit
 import SoraFoundation
+import SSFPolkaswap
+import SSFModels
 
 final class LiquidityPoolDetailsAssembly {
-    static func configureModule() -> LiquidityPoolDetailsModuleCreationResult? {
+    static func configureModule(assetIdPair: AssetIdPair, chain: ChainModel, wallet: MetaAccountModel, input: LiquidityPoolDetailsInput) -> LiquidityPoolDetailsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = LiquidityPoolDetailsInteractor()
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let poolService = PolkaswapLiquidityPoolServiceAssembly.buildService(for: chain, chainRegistry: chainRegistry)
+
+        let interactor = LiquidityPoolDetailsInteractor(
+            assetIdPair: assetIdPair,
+            chain: chain,
+            wallet: wallet,
+            liquidityPoolService: poolService,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared
+        )
         let router = LiquidityPoolDetailsRouter()
 
+        let viewModelFactory = LiquidityPoolDetailsViewModelFactoryDefault(
+            modelFactory: LiquidityPoolsModelFactoryDefault(),
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+        )
         let presenter = LiquidityPoolDetailsPresenter(
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            assetIdPair: assetIdPair,
+            logger: Logger.shared,
+            viewModelFactory: viewModelFactory,
+            chain: chain,
+            wallet: wallet,
+            input: input
         )
 
         let view = LiquidityPoolDetailsViewController(

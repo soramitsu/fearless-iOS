@@ -14,7 +14,8 @@ protocol AvailableLiquidityPoolsListViewModelFactory {
         chain: ChainModel,
         prices: [PriceData]?,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        type: LiquidityPoolListType
     ) -> LiquidityPoolListViewModel
 }
 
@@ -34,7 +35,8 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
         chain: ChainModel,
         prices: [PriceData]?,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        type: LiquidityPoolListType
     ) -> LiquidityPoolListViewModel {
         let poolViewModels: [LiquidityPoolListCellModel]? = pairs?.sorted().compactMap { pair in
             let baseAsset = chain.assets.first(where: { $0.currencyId == pair.baseAssetId })
@@ -79,14 +81,18 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
                 apyLabelText: apyLabelText,
                 stakingStatusLabelText: nil,
                 reservesLabelValue: reservesLabelValue,
-                sortValue: reservesValue.or(.zero)
+                sortValue: reservesValue.or(.zero),
+                liquidityPair: pair
             )
         }.sorted(by: { $0.sortValue > $1.sortValue })
 
+        let filteredViewModels = type == .embed ? Array(poolViewModels.or([]).prefix(10)) : poolViewModels.or([])
         return LiquidityPoolListViewModel(
-            poolViewModels: poolViewModels,
+            poolViewModels: filteredViewModels,
             titleLabelText: "Available pools",
-            moreButtonVisible: true
+            moreButtonVisible: type == .embed && (filteredViewModels.count < pairs?.count ?? 0),
+            backgroundVisible: type == .full,
+            refreshAvailable: type == .full
         )
     }
 

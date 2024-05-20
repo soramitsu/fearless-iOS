@@ -14,7 +14,8 @@ protocol UserLiquidityPoolsListViewModelFactory {
         chain: ChainModel,
         prices: [PriceData]?,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        type: LiquidityPoolListType
     ) -> LiquidityPoolListViewModel
 }
 
@@ -34,7 +35,8 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
         chain: ChainModel,
         prices: [PriceData]?,
         locale: Locale,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        type: LiquidityPoolListType
     ) -> LiquidityPoolListViewModel {
         let poolViewModels: [LiquidityPoolListCellModel]? = pools?.sorted().compactMap { pair in
             let baseAsset = chain.assets.first(where: { $0.currencyId == pair.baseAssetId })
@@ -55,8 +57,9 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
 
             let reservesAddress = pair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
             let rewardTokenNameLabelText = "Earn \(rewardAsset.symbol.uppercased())"
-            let apyValue = apyInfos?.first(where: { $0.poolId == reservesAddress })?.apy
-            let apyLabelText = apyValue.flatMap { "\($0)% APY" }
+            let apyInfo = apyInfos?.first(where: { $0.poolId == reservesAddress })
+            let apyValue = apyInfo?.apy
+            let apyLabelText = apyValue.flatMap { NumberFormatter.percentAPY.stringFromDecimal($0) }
 
             let baseAssetPrice = prices?.first(where: { $0.priceId == baseAsset.priceId })
             let targetAssetPrice = prices?.first(where: { $0.priceId == targetAsset.priceId })
@@ -79,14 +82,17 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
                 apyLabelText: apyLabelText,
                 stakingStatusLabelText: nil,
                 reservesLabelValue: reservesLabelValue,
-                sortValue: reservesValue.or(.zero)
+                sortValue: reservesValue.or(.zero),
+                liquidityPair: pair
             )
         }.sorted(by: { $0.sortValue > $1.sortValue })
 
         return LiquidityPoolListViewModel(
             poolViewModels: poolViewModels,
             titleLabelText: "User pools",
-            moreButtonVisible: true
+            moreButtonVisible: type == .embed && (poolViewModels?.count ?? 0 < pools?.count ?? 0),
+            backgroundVisible: type == .full,
+            refreshAvailable: type == .full
         )
     }
 

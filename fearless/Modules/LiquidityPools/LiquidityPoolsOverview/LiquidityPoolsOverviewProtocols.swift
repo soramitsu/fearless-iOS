@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias LiquidityPoolsOverviewModuleCreationResult = (view: LiquidityPoolsOverviewViewInput, input: LiquidityPoolsOverviewModuleInput)
 
 protocol LiquidityPoolsOverviewViewInput: ControllerBackedProtocol {}
@@ -12,7 +14,20 @@ protocol LiquidityPoolsOverviewInteractorInput: AnyObject {
 
 protocol LiquidityPoolsOverviewInteractorOutput: AnyObject {}
 
-protocol LiquidityPoolsOverviewRouterInput: AnyObject {}
+protocol LiquidityPoolsOverviewRouterInput: AnyObject {
+    func showAllAvailablePools(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: LiquidityPoolsListModuleOutput?
+    )
+    func showAllUserPools(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: LiquidityPoolsListModuleOutput?
+    )
+}
 
 protocol LiquidityPoolsOverviewModuleInput: AnyObject {}
 

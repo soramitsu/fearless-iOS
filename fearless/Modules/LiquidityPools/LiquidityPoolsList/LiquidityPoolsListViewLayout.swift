@@ -30,8 +30,14 @@ final class LiquidityPoolsListViewLayout: UIView {
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = .zero
-        view.refreshControl = UIRefreshControl()
         return view
+    }()
+
+    private let backgroundImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFill
+        imageView.image = R.image.backgroundImage()
+        return imageView
     }()
 
     var locale: Locale = .current {
@@ -42,8 +48,6 @@ final class LiquidityPoolsListViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-//        backgroundColor = R.color.colorWhite4()
-
         drawSubviews()
         setupConstraints()
     }
@@ -56,6 +60,10 @@ final class LiquidityPoolsListViewLayout: UIView {
     func bind(viewModel: LiquidityPoolListViewModel) {
         titleLabel.text = viewModel.titleLabelText
         moreButton.isHidden = !viewModel.moreButtonVisible
+        backgroundImageView.isHidden = !viewModel.backgroundVisible
+
+        tableView.refreshControl = viewModel.refreshAvailable ? UIRefreshControl() : nil
+        tableView.isScrollEnabled = viewModel.refreshAvailable
     }
 
     override func layoutSubviews() {
@@ -64,6 +72,7 @@ final class LiquidityPoolsListViewLayout: UIView {
     }
 
     private func drawSubviews() {
+        addSubview(backgroundImageView)
         addSubview(topBar)
         addSubview(tableView)
 
@@ -72,9 +81,14 @@ final class LiquidityPoolsListViewLayout: UIView {
     }
 
     private func setupConstraints() {
+        backgroundImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
         topBar.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(42)
-            make.leading.trailing.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
         }
 
         tableView.snp.makeConstraints { make in

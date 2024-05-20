@@ -8,7 +8,7 @@ import sorawallet
 import SSFRuntimeCodingService
 
 final class LiquidityPoolsListAssembly {
-    static func configureAvailablePoolsModule(chain: ChainModel, wallet: MetaAccountModel) -> LiquidityPoolsListModuleCreationResult? {
+    static func configureAvailablePoolsModule(chain: ChainModel, wallet: MetaAccountModel, moduleOutput: LiquidityPoolsListModuleOutput?, type: LiquidityPoolListType) -> LiquidityPoolsListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -26,10 +26,13 @@ final class LiquidityPoolsListAssembly {
         let presenter = AvailableLiquidityPoolsListPresenter(
             logger: Logger.shared,
             interactor: interactor,
+            router: router,
             chain: chain,
             wallet: wallet,
             viewModelFactory: viewModelFactory,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            moduleOutput: moduleOutput,
+            type: type
         )
 
         let view = LiquidityPoolsListViewController(
@@ -40,7 +43,7 @@ final class LiquidityPoolsListAssembly {
         return (view, presenter)
     }
 
-    static func configureUserPoolsModule(chain: ChainModel, wallet: MetaAccountModel) -> LiquidityPoolsListModuleCreationResult? {
+    static func configureUserPoolsModule(chain: ChainModel, wallet: MetaAccountModel, moduleOutput: LiquidityPoolsListModuleOutput?, type: LiquidityPoolListType) -> LiquidityPoolsListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -59,10 +62,13 @@ final class LiquidityPoolsListAssembly {
         let presenter = UserLiquidityPoolsListPresenter(
             logger: Logger.shared,
             interactor: interactor,
+            router: router,
             chain: chain,
             wallet: wallet,
             viewModelFactory: viewModelFactory,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            moduleOutput: moduleOutput,
+            type: type
         )
 
         let view = LiquidityPoolsListViewController(
