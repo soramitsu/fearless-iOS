@@ -2,6 +2,20 @@ import Foundation
 import SSFUtils
 import BigInt
 
+struct IdentityResponse: Decodable {
+    let identity: Identity
+
+    init(from decoder: Decoder) throws {
+        do {
+            var container = try decoder.unkeyedContainer()
+            identity = try container.decode(Identity.self)
+        } catch {
+            let container = try decoder.singleValueContainer()
+            identity = try container.decode(Identity.self)
+        }
+    }
+}
+
 struct Identity: Decodable {
     let info: IdentityInfo
 }

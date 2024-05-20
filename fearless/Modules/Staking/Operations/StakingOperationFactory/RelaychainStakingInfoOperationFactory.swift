@@ -21,8 +21,15 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
 
     private func deriveMinimalStake(
         from eraStakersInfo: EraStakersInfo,
-        limitedBy maxNominators: Int
+        limitedBy maxNominators: Int,
+        runtimeService: RuntimeCodingServiceProtocol
     ) -> BigUInt {
+        let isNominatorsCountUnlimited = runtimeService.snapshot?.metadata.getStorageMetadata(for: .erasStakersOverview) != nil
+
+        if isNominatorsCountUnlimited {
+            return .zero
+        }
+
         let stakeDistribution = eraStakersInfo.validators
             .flatMap(\.exposure.others)
             .reduce(into: [Data: BigUInt]()) { result, item in
@@ -56,7 +63,8 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
         maxNominatorsOperation: BaseOperation<UInt32>,
         lockUpPeriodOperation: BaseOperation<UInt32>,
         minBalanceOperation: BaseOperation<BigUInt>,
-        durationOperation: BaseOperation<StakingDuration>
+        durationOperation: BaseOperation<StakingDuration>,
+        runtimeService: RuntimeCodingServiceProtocol
     ) -> BaseOperation<NetworkStakingInfo> {
         ClosureOperation<NetworkStakingInfo> {
             let eraStakersInfo = try eraValidatorsOperation.extractNoCancellableResultData()
@@ -68,9 +76,9 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
 
             let minimalStake = self.deriveMinimalStake(
                 from: eraStakersInfo,
-                limitedBy: maxNominators
+                limitedBy: maxNominators,
+                runtimeService: runtimeService
             )
-
             let activeNominatorsCount = self.deriveActiveNominatorsCount(
                 from: eraStakersInfo,
                 limitedBy: maxNominators
@@ -96,6 +104,27 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
             )
         }
     }
+
+    private func createMaxNominatorsOperation(
+        runtimeService: RuntimeCodingServiceProtocol,
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> BaseOperation<UInt32> {
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        if oldArgumentExists {
+            return createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .maxNominatorRewardedPerValidator
+            )
+        } else {
+            return ClosureOperation<UInt32>(closure: {
+                UInt32.max
+            })
+        }
+    }
 }
 
 // MARK: - NetworkStakingInfoOperationFactoryProtocol
@@ -105,20 +134,10 @@ extension RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFact
         for eraValidatorService: EraValidatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> CompoundOperationWrapper<NetworkStakingInfo> {
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
-
-        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
-
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
-            createConstOperation(
-                dependingOn: runtimeOperation,
-                path: maxNominatorsConstantCodingPath
-            )
+            createMaxNominatorsOperation(runtimeService: runtimeService, dependingOn: runtimeOperation)
 
         let lockUpPeriodOperation: BaseOperation<UInt32> =
             createConstOperation(
@@ -144,7 +163,8 @@ extension RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFact
             maxNominatorsOperation: maxNominatorsOperation,
             lockUpPeriodOperation: lockUpPeriodOperation,
             minBalanceOperation: existentialDepositOperation,
-            durationOperation: stakingDurationWrapper.targetOperation
+            durationOperation: stakingDurationWrapper.targetOperation,
+            runtimeService: runtimeService
         )
 
         mapOperation.addDependency(eraValidatorsOperation)

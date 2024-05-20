@@ -85,6 +85,11 @@
 		073417B3298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B0298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift */; };
 		073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
+		0739FD2C2BFB4A71009ADD7C /* EraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0739FD292BFB4A70009ADD7C /* EraStakersFetching.swift */; };
+		0739FD2D2BFB4A71009ADD7C /* DefaultEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0739FD2A2BFB4A70009ADD7C /* DefaultEraStakersFetching.swift */; };
+		0739FD2E2BFB4A71009ADD7C /* LegacyEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0739FD2B2BFB4A70009ADD7C /* LegacyEraStakersFetching.swift */; };
+		0739FD322BFB4B98009ADD7C /* ErasStakersOverviewKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0739FD2F2BFB4B98009ADD7C /* ErasStakersOverviewKey.swift */; };
+		0739FD332BFB4B98009ADD7C /* ErasStakersPagedKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0739FD302BFB4B98009ADD7C /* ErasStakersPagedKey.swift */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
 		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074D832D2BCA490900AD1336 /* UIImage+Monochrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074D832C2BCA490900AD1336 /* UIImage+Monochrome.swift */; };
@@ -3178,6 +3183,11 @@
 		073417B0298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalBalanceServiceFactory.swift; sourceTree = "<group>"; };
 		073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalWalletService.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
+		0739FD292BFB4A70009ADD7C /* EraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EraStakersFetching.swift; sourceTree = "<group>"; };
+		0739FD2A2BFB4A70009ADD7C /* DefaultEraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultEraStakersFetching.swift; sourceTree = "<group>"; };
+		0739FD2B2BFB4A70009ADD7C /* LegacyEraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetching.swift; sourceTree = "<group>"; };
+		0739FD2F2BFB4B98009ADD7C /* ErasStakersOverviewKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErasStakersOverviewKey.swift; sourceTree = "<group>"; };
+		0739FD302BFB4B98009ADD7C /* ErasStakersPagedKey.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErasStakersPagedKey.swift; sourceTree = "<group>"; };
 		073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDisconnectService.swift; sourceTree = "<group>"; };
 		073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalDataValidating.swift; sourceTree = "<group>"; };
 		074D832C2BCA490900AD1336 /* UIImage+Monochrome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Monochrome.swift"; sourceTree = "<group>"; };
@@ -6562,6 +6572,15 @@
 			path = Swipable;
 			sourceTree = "<group>";
 		};
+		0739FD312BFB4B98009ADD7C /* Keys */ = {
+			isa = PBXGroup;
+			children = (
+				0739FD2F2BFB4B98009ADD7C /* ErasStakersOverviewKey.swift */,
+				0739FD302BFB4B98009ADD7C /* ErasStakersPagedKey.swift */,
+			);
+			path = Keys;
+			sourceTree = "<group>";
+		};
 		073B34BD2AE91FC600DC5106 /* Validators */ = {
 			isa = PBXGroup;
 			children = (
@@ -9026,6 +9045,9 @@
 		848FFE6425E670CE00652AA5 /* EraValidatorsService */ = {
 			isa = PBXGroup;
 			children = (
+				0739FD2A2BFB4A70009ADD7C /* DefaultEraStakersFetching.swift */,
+				0739FD292BFB4A70009ADD7C /* EraStakersFetching.swift */,
+				0739FD2B2BFB4A70009ADD7C /* LegacyEraStakersFetching.swift */,
 				848FFE6525E6742400652AA5 /* EraValidatorService.swift */,
 				848FFE8A25E69A6000652AA5 /* EraValidatorServiceProtocol.swift */,
 				84786DA725F9F58E0089DFF7 /* EraValidatorService+Fetch.swift */,
@@ -12784,6 +12806,7 @@
 		FA3067292B6246BD006A0BA5 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				0739FD312BFB4B98009ADD7C /* Keys */,
 				FAD9AAC22B8DFE0200AA603B /* PrefixRequest.swift */,
 				FAAA29352B8DCE930089AFE6 /* MultipleRequest.swift */,
 				FAAA29342B8DCE930089AFE6 /* StorageRequest.swift */,
@@ -16144,6 +16167,7 @@
 				073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */,
 				F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */,
 				AE8B8837267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift in Sources */,
+				0739FD322BFB4B98009ADD7C /* ErasStakersOverviewKey.swift in Sources */,
 				FAE39B042AA0655B0011A9D6 /* BaseEthereumService.swift in Sources */,
 				FA3F5B6B281BAF6600BEF03B /* StakingAmountParachainViewModelState.swift in Sources */,
 				845E49832636C87B002F8C22 /* StakingManageViewModel.swift in Sources */,
@@ -16492,6 +16516,7 @@
 				841AAC2F26F73E0C00F0A25E /* LocalStorageKeyFactory.swift in Sources */,
 				FACD429F2A5BE811009975AA /* StorageMigrator.swift in Sources */,
 				FAFFAE7429AC84B10074AF1F /* SubqueryLiquidity.swift in Sources */,
+				0739FD2C2BFB4A71009ADD7C /* EraStakersFetching.swift in Sources */,
 				C6264C3C279B008600FCA0DB /* WalletDetailsWireframe.swift in Sources */,
 				8461CC8A26BD2F07007460E4 /* RuntimeProviderPool.swift in Sources */,
 				F4AE12A1268DD69B0097D1C7 /* MnemonicTextNormalizer.swift in Sources */,
@@ -16640,6 +16665,7 @@
 				84CFF1F226526FBC00DB7CF7 /* StakingBondMoreConfirmationVC.swift in Sources */,
 				84786E1F25FA6C390089DFF7 /* CDStashItem+CoreDataCodable.swift in Sources */,
 				840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */,
+				0739FD2D2BFB4A71009ADD7C /* DefaultEraStakersFetching.swift in Sources */,
 				84FD3DB72540EF0700A234E3 /* TransactionSubscription.swift in Sources */,
 				FA7741E02B6A350200358315 /* StakingRewardsFetcherAssembly.swift in Sources */,
 				84C3F7832602086100D47501 /* StakingViewState.swift in Sources */,
@@ -17935,6 +17961,7 @@
 				C89D156BA8B690E8E4DE19ED /* ExportSeedProtocols.swift in Sources */,
 				076D9D2E2939B780002762E3 /* PolkaswapOperationFactoryProtocol.swift in Sources */,
 				FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */,
+				0739FD332BFB4B98009ADD7C /* ErasStakersPagedKey.swift in Sources */,
 				84B64E3F2704567700914E88 /* RelaychainStakingLocalStorageSubscriber.swift in Sources */,
 				BD571417BD18C711B76E1D62 /* ExportSeedWireframe.swift in Sources */,
 				8463A73825E3AA47003B8160 /* AccountInfo.swift in Sources */,
@@ -18611,6 +18638,7 @@
 				FA2DF99E2A8C9AB10047F440 /* EtherscanNftsResponse.swift in Sources */,
 				8C3A576CEF21F0A68C8A129F /* StakingPoolCreateConfirmInteractor.swift in Sources */,
 				D22D29F8EC4C7522345C8772 /* StakingPoolCreateConfirmViewController.swift in Sources */,
+				0739FD2E2BFB4A71009ADD7C /* LegacyEraStakersFetching.swift in Sources */,
 				257AF452E202DC6B8A576559 /* StakingPoolCreateConfirmViewLayout.swift in Sources */,
 				159A8702C30A21988AD76805 /* StakingPoolCreateConfirmAssembly.swift in Sources */,
 				DA62812C23210601F4ECF84D /* ContactsProtocols.swift in Sources */,

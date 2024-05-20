@@ -492,10 +492,10 @@ final class SendPresenter {
                 totalBalance: eqUilibriumTotalBalance
             )
         }
-        var validators: [DataValidating]
+        var validators: [DataValidating?]
         switch validationCase {
         case let .validateAmount(handler):
-            validators = [dataValidatingFactory.exsitentialDepositIsNotViolated(
+            validators = [minimumBalance != nil ? dataValidatingFactory.exsitentialDepositIsNotViolated(
                 parameters: edParameters,
                 locale: selectedLocale,
                 chainAsset: chainAsset,
@@ -519,7 +519,7 @@ final class SendPresenter {
                     self?.view?.switchEnableSendAllState(enabled: false)
                     self?.selectAmountPercentage(0, validate: false)
                 }
-            )]
+            ) : nil]
         case .validateAll:
             validators = [
                 dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -553,7 +553,7 @@ final class SendPresenter {
                 )
             ]
         }
-        DataValidationRunner(validators: validators).runValidation { [weak self] in
+        DataValidationRunner(validators: validators.compactMap { $0 }).runValidation { [weak self] in
             switch validationCase {
             case let .validateAmount(handler):
                 handler()
@@ -562,11 +562,14 @@ final class SendPresenter {
                     let strongSelf = self,
                     let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
                 else { return }
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+
                 let transfer = Transfer(
                     chainAsset: chainAsset,
                     amount: amount,
                     receiver: address,
-                    tip: strongSelf.tipValue
+                    tip: strongSelf.tipValue,
+                    appId: appId
                 )
                 strongSelf.router.presentConfirm(
                     from: strongSelf.view,

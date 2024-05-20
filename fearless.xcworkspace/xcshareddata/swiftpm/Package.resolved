@@ -133,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "update-for-fearless-asset-management",
-        "revision" : "e8ee432709e0cc39a689e41b2d11d0542709a850"
+        "revision" : "b7cf75379c97b27ce35d682940e1446bb4ba3e41"
       }
     },
     {
