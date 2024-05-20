@@ -1,5 +1,5 @@
 import Foundation
-import SSFUtils
+import SSFQRService
 
 struct SoraQRInfo: QRInfo, Equatable {
     let prefix: String
@@ -10,7 +10,7 @@ struct SoraQRInfo: QRInfo, Equatable {
     let amount: String?
 
     init(
-        prefix: String = SubstrateQR.prefix,
+        prefix: String = SubstrateQRConstants.prefix,
         address: String,
         rawPublicKey: Data,
         username: String,
@@ -29,7 +29,7 @@ struct SoraQRInfo: QRInfo, Equatable {
 final class SoraQREncoder {
     private let separator: String
 
-    init(separator: String = SubstrateQR.fieldsSeparator) {
+    init(separator: String = SubstrateQRConstants.fieldsSeparator) {
         self.separator = separator
     }
 
@@ -57,7 +57,7 @@ final class SoraQRDecoder: QRDecoderProtocol {
             throw QRDecoderError.brokenFormat
         }
 
-        let fields = decodedString.components(separatedBy: SubstrateQR.fieldsSeparator)
+        let fields = decodedString.components(separatedBy: SubstrateQRConstants.fieldsSeparator)
 
         guard fields.count >= 3 else {
             throw QRDecoderError.unexpectedNumberOfFields

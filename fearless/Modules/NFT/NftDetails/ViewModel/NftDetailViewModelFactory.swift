@@ -29,8 +29,7 @@ final class NftDetailViewModelFactory: NftDetailViewModelFactoryProtocol {
             tokenType: nft.tokenType?.rawValue,
             nftType: nftType,
             creator: nft.collection?.creator,
-            priceString: nil,
-            isScam: nft.collection?.isSpam ?? false
+            priceString: nil
         )
     }
 

@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
-import CommonWallet
+
 import SSFModels
 
 protocol RewardDestinationViewModelFactoryProtocol {

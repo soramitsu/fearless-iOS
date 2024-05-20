@@ -160,7 +160,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             return
         }
 
-        displayInfoProvider = jsonDataProviderFactory.getJson(for: crowdloanUrl)
+        displayInfoProvider = try? jsonDataProviderFactory.getJson(for: crowdloanUrl)
 
         let updateClosure: ([DataProviderChange<CrowdloanDisplayInfoList>]) -> Void = { [weak self] changes in
             if let result = changes.reduceToLastChange() {

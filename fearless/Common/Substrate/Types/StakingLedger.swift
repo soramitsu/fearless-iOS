@@ -9,6 +9,7 @@ struct StakingLedger: Decodable, Equatable {
         case active
         case unlocking
         case claimedRewards
+        case legacyClaimedRewards
     }
 
     let stash: Data
@@ -29,7 +30,11 @@ struct StakingLedger: Decodable, Equatable {
         total = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .total).value
         active = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .active).value
         unlocking = try container.decode([UnlockChunk].self, forKey: .unlocking)
-        claimedRewards = try container.decode([StringScaleMapper<UInt32>].self, forKey: .claimedRewards)
+        do {
+            claimedRewards = try container.decode([StringScaleMapper<UInt32>].self, forKey: .claimedRewards)
+        } catch {
+            claimedRewards = try container.decode([StringScaleMapper<UInt32>].self, forKey: .legacyClaimedRewards)
+        }
     }
 }
 

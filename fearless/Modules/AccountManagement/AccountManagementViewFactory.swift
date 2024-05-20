@@ -4,6 +4,7 @@ import RobinHood
 import SSFUtils
 import IrohaCrypto
 import SoraKeystore
+import SSFAccountManagmentStorage
 
 final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
     static func createViewForSettings() -> AccountManagementViewProtocol? {

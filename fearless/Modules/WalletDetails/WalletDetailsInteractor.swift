@@ -1,5 +1,6 @@
 import RobinHood
 import SSFModels
+import Foundation
 
 final class WalletDetailsInteractor {
     weak var presenter: WalletDetailsInteractorOutputProtocol!

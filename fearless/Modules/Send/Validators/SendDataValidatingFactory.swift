@@ -99,7 +99,8 @@ class SendDataValidatingFactory: NSObject {
                 return
             }
 
-            let existentianDepositValue = "\(parameters.minimumBalance ?? .zero) \(chainAsset.asset.symbolUppercased)"
+            let symbol = chainAsset.chain.utilityAssets().first?.symbolUppercased ?? chainAsset.asset.symbolUppercased
+            let existentianDepositValue = "\(parameters.minimumBalance ?? .zero) \(symbol)"
 
             if !canProceedIfViolated {
                 self?.basePresentable.presentExistentialDepositError(

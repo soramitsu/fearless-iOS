@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 
-class JSONRPCWorker<P: Encodable, T: Decodable> {
+class JSONRPCWorker<P: Codable, T: Decodable> {
     private let engine: JSONRPCEngine
     private let method: String
     private let parameters: P

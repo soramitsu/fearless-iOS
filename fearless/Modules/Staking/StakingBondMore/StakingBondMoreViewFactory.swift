@@ -2,8 +2,8 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFUtils
-import CommonWallet
 import SSFModels
+import SSFAccountManagmentStorage
 
 struct StakingBondMoreViewFactory {
     static func createView(

@@ -88,12 +88,6 @@ final class NftDetailsViewLayout: UIView {
         createTitleValueView()
     }()
 
-    lazy var scamWarningView: ScamWarningExpandableView = {
-        let view = ScamWarningExpandableView()
-        view.isHidden = true
-        return view
-    }()
-
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -137,7 +131,6 @@ final class NftDetailsViewLayout: UIView {
         contentView.stackView.addArrangedSubview(sendButton)
         contentView.stackView.addArrangedSubview(shareButton)
         contentView.stackView.addArrangedSubview(desciptionLabel)
-        contentView.stackView.addArrangedSubview(scamWarningView)
         contentView.stackView.addArrangedSubview(collectionView)
         contentView.stackView.addArrangedSubview(ownerView)
         contentView.stackView.addArrangedSubview(tokenIdView)
@@ -176,10 +169,6 @@ final class NftDetailsViewLayout: UIView {
         }
 
         desciptionLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-        }
-
-        scamWarningView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
@@ -247,11 +236,6 @@ final class NftDetailsViewLayout: UIView {
             sendButton.isHidden = false
         case .available:
             sendButton.isHidden = true
-        }
-
-        if viewModel.isScam {
-            scamWarningView.isHidden = false
-            scamWarningView.bind(nftName: viewModel.nftName)
         }
     }
 }

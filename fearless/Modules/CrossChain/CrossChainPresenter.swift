@@ -244,7 +244,7 @@ final class CrossChainPresenter {
         guard let destChain = selectedDestChainModel else {
             return
         }
-        loadingCollector.destinationBalanceReady = newAddress.isEmpty
+        loadingCollector.addressExists = !newAddress.isEmpty
         checkLoadingState()
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
@@ -355,12 +355,6 @@ final class CrossChainPresenter {
             cancelAction: {}
         )
 
-        let destExsitentialDepositIsNotViolated = dataValidatingFactory.destinationExistentialDepositIsNotViolated(
-            parameters: destEdParameters,
-            locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset
-        )
-
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
             originCHainId: selectedOriginChainModel.chainId,
             destChainId: selectedDestChainModel?.chainId,
@@ -382,8 +376,7 @@ final class CrossChainPresenter {
             exsitentialDepositIsNotViolated,
             destFeeValidating,
             soraBridgeViolated,
-            soraBridgeAmountLessFeeViolated,
-            destExsitentialDepositIsNotViolated
+            soraBridgeAmountLessFeeViolated
         ]
         DataValidationRunner(validators: validators)
             .runValidation { [weak self] in
@@ -698,6 +691,8 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             checkLoadingState()
         case let .failure(error):
             logger.customError(error)
+            loadingCollector.destinationExistentialDepositReady = true
+            checkLoadingState()
         }
     }
 
@@ -709,10 +704,13 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
 
     func didReceiveDestinationAccountInfoError(error: Error) {
         logger.customError(error)
+        loadingCollector.destinationBalanceReady = true
+        checkLoadingState()
     }
 
     func didReceiveAssetAccountInfo(assetAccountInfo: AssetAccountInfo?) {
         loadingCollector.assetAccountInfoReady = true
+        checkLoadingState()
         self.assetAccountInfo = assetAccountInfo
 
         provideAssetViewModel()
@@ -721,6 +719,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
     func didReceiveAssetAccountInfoError(error: Error) {
         loadingCollector.assetAccountInfoReady = true
         logger.customError(error)
+        checkLoadingState()
     }
 }
 
@@ -822,6 +821,8 @@ extension CrossChainPresenter: WalletsManagmentModuleOutput {
         view?.didReceive(recipientViewModel: viewModel)
         destWallet = wallet
         recipientAddress = address
-        handle(newAddress: address)
+        loadingCollector.addressExists = true
+        checkLoadingState()
+        interactor.fetchDestinationAccountInfo(address: address)
     }
 }

@@ -1,4 +1,4 @@
-import CommonWallet
+
 protocol WalletTransactionDetailsViewProtocol: ControllerBackedProtocol {
     func didReceiveState(_ state: WalletTransactionDetailsViewState)
 }

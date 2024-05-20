@@ -1,6 +1,7 @@
 import Foundation
+import SSFModels
 
-enum StorageCodingPath: Equatable, CaseIterable {
+enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
     var moduleName: String {
         path.moduleName
     }
@@ -149,6 +150,10 @@ enum StorageCodingPath: Equatable, CaseIterable {
             return (moduleName: "Staking", itemName: "ErasTotalStake")
         case .erasValidatorReward:
             return (moduleName: "Staking", itemName: "ErasValidatorReward")
+        case .erasStakersPaged:
+            return (moduleName: "Staking", itemName: "ErasStakersPaged")
+        case .erasStakersOverview:
+            return (moduleName: "Staking", itemName: "ErasStakersOverview")
         }
     }
 
@@ -221,4 +226,6 @@ enum StorageCodingPath: Equatable, CaseIterable {
     case erasRewardPoints
     case erasTotalStake
     case erasValidatorReward
+    case erasStakersPaged
+    case erasStakersOverview
 }

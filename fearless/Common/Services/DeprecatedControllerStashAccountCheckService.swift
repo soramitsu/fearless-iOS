@@ -1,6 +1,7 @@
 import SSFModels
 import RobinHood
 import SSFUtils
+import Foundation
 
 enum DeprecatedAccountIssue {
     case controller(issue: ControllerAccountIssue)

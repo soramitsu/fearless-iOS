@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import AVFoundation
-import CommonWallet
+
 import SSFUtils
 
 final class GetPreinstalledWalletPresenter: NSObject {

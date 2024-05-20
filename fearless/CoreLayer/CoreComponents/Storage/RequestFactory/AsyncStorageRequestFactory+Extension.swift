@@ -21,7 +21,7 @@ extension AsyncStorageRequestFactory {
 
     func queryItems<T>(
         engine: JSONRPCEngine,
-        keyParams: [[any NMapKeyParamProtocol]],
+        keyParams: [[[any NMapKeyParamProtocol]]],
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath
     ) async throws -> [StorageResponse<T>] where T: Decodable {
@@ -51,13 +51,13 @@ extension AsyncStorageRequestFactory {
 
     func queryItemsByPrefix<T>(
         engine: JSONRPCEngine,
-        key: Data,
+        keys: [Data],
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath
     ) async throws -> [StorageResponse<T>] where T: Decodable {
         try await queryItemsByPrefix(
             engine: engine,
-            key: key,
+            keys: keys,
             factory: factory,
             storagePath: storagePath,
             at: nil

@@ -109,6 +109,8 @@ final class ChainAccountInteractor {
             let balanceLocksFetcher = currentDependencies?.balanceLocksFetcher,
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
         else {
+            presenter?.didReceiveBalanceLocks(nil)
+            presenter?.didReceiveAssetFrozen(nil)
             return
         }
 

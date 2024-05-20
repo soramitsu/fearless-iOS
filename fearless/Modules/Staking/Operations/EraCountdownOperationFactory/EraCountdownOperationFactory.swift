@@ -1,6 +1,7 @@
 import RobinHood
 import SSFUtils
 import SoraKeystore
+import Foundation
 
 protocol EraCountdownOperationFactoryProtocol {
     func fetchCountdownOperationWrapper(

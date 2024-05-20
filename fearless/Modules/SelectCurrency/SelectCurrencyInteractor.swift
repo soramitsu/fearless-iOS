@@ -33,7 +33,7 @@ final class SelectCurrencyInteractor {
         fiatInfoProvider = nil
 
         guard let fiatUrl = ApplicationConfig.shared.fiatsURL else { return }
-        fiatInfoProvider = jsonDataProviderFactory.getJson(for: fiatUrl)
+        fiatInfoProvider = try? jsonDataProviderFactory.getJson(for: fiatUrl)
 
         let updateClosure: ([DataProviderChange<[Currency]>]) -> Void = { [weak self] changes in
             if let result = changes.reduceToLastChange() {

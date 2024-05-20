@@ -1,5 +1,4 @@
 import Foundation
-import CommonWallet
 
 extension TransactionHistoryItem.Status {
     var walletValue: AssetTransactionStatus {
