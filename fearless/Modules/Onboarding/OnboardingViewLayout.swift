@@ -3,6 +3,12 @@ import UIKit
 final class OnboardingViewLayout: UIView {
     private let pageViewControllerContainer = UIView()
 
+    private let backgroundImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+
     let collectionView: UICollectionView = {
         let view = UICollectionView(frame: .zero, collectionViewLayout: DefaultFlowLayout())
         view.showsVerticalScrollIndicator = false
@@ -53,11 +59,25 @@ final class OnboardingViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func set(backgroundImage: RemoteImageViewModel?) {
+        backgroundImage?.loadImage(
+            on: backgroundImageView,
+            targetSize: CGSize(width: frame.width, height: frame.height),
+            animated: true,
+            cornerRadius: 0
+        )
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {
+        addSubview(backgroundImageView)
         addSubview(nextButton)
         addSubview(skipButton)
+
+        backgroundImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
 
         skipButton.snp.makeConstraints { make in
             make.bottom.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)

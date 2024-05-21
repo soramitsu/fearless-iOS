@@ -64,6 +64,7 @@ extension OnboardingViewController: OnboardingViewInput {
             cell.bind(viewModel: model)
         }
         rootView.collectionView.dataSource = dataSource
+        rootView.set(backgroundImage: viewModel.backgroundImage)
 
         rootView.pageControl.numberOfPages = viewModel.pages.count
     }

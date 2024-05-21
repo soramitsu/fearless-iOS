@@ -6,7 +6,7 @@ enum OnboardingKeys: String {
 }
 
 protocol OnboardingInteractorOutput: AnyObject {
-    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper) async
+    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper?) async
     func didReceiveOnboardingConfig(error: Error) async
 }
 
@@ -17,6 +17,7 @@ final class OnboardingInteractor {
     private let onboardingService: OnboardingServiceProtocol
     private let operationQueue: OperationQueue
     private let userDefaultsStorage: SettingsManagerProtocol
+    private let onboardingConfigResolver = OnboardingConfigVersionResolver()
 
     init(
         onboardingService: OnboardingServiceProtocol,
@@ -30,8 +31,10 @@ final class OnboardingInteractor {
 
     private func loadConfig() async {
         do {
-            let onboardingWrapper = try await onboardingService.fetchConfig()
-            await output?.didReceiveOnboardingConfig(onboardingWrapper)
+            let onboardingConfigPlatform = try await onboardingService.fetchConfigs()
+            let onboardingWrappers = onboardingConfigPlatform.ios
+            let currentConfig = onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
+            await output?.didReceiveOnboardingConfig(currentConfig)
         } catch {
             await output?.didReceiveOnboardingConfig(error: error)
         }
