@@ -67,12 +67,21 @@ extension WalletSendConfirmViewController: WalletSendConfirmViewProtocol {
         applyState(state)
     }
 
+    func didReceive(isLoading: Bool) {
+        rootView.confirmButton.set(loading: isLoading)
+
+        if !isLoading {
+            rootView.confirmButton.set(enabled: true, changeStyle: true)
+        }
+    }
+
     func didStartLoading() {
         rootView.confirmButton.set(loading: true)
     }
 
     func didStopLoading() {
         rootView.confirmButton.set(loading: false)
+        rootView.confirmButton.set(enabled: true, changeStyle: true)
     }
 }
 
