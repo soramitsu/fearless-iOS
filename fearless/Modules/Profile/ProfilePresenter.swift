@@ -55,7 +55,9 @@ final class ProfilePresenter {
             missingAccountIssue: missingAccountIssue
         )
         let state = ProfileViewState.loaded(viewModel)
-        view?.didReceive(state: state)
+        DispatchQueue.main.async {
+            self.view?.didReceive(state: state)
+        }
     }
 }
 
@@ -195,9 +197,7 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
 
     func didReceiveMissingAccount(issues: [ChainIssue]) {
         missingAccountIssue = issues
-        DispatchQueue.main.async {
-            self.receiveState()
-        }
+        receiveState()
     }
 }
 

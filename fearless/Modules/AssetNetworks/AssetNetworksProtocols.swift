@@ -11,7 +11,7 @@ protocol AssetNetworksViewOutput: AnyObject {
     func didSelect(chainAsset: ChainAsset)
     func didChangeNetworkSwitcher(segmentIndex: Int)
     func didTapSortButton()
-    func didTabResolveIssue(for chainAsset: ChainAsset)
+    func didTapResolveIssue(for chainAsset: ChainAsset)
 }
 
 protocol AssetNetworksInteractorInput: AnyObject {

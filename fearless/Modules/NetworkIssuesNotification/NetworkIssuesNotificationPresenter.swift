@@ -152,7 +152,7 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteracto
             }
             switch issue {
             case let .network(chains):
-                let filtred = chains.filter { chain in
+                let filtered = chains.filter { chain in
                     self.issues.contains(where: { issue in
                         if case let .network(chains) = issue {
                             return chains.contains(where: { $0.chainId == chain.chainId })
@@ -161,10 +161,10 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteracto
                         }
                     })
                 }
-                return .network(chains: filtred)
+                return .network(chains: filtered)
 
             case let .missingAccount(chains):
-                let filtred = chains.filter { chain in
+                let filtered = chains.filter { chain in
                     self.issues.contains(where: { issue in
                         if case let .missingAccount(chains) = issue {
                             return chains.contains(where: { $0.chainId == chain.chainId })
@@ -173,7 +173,7 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteracto
                         }
                     })
                 }
-                return .missingAccount(chains: filtred)
+                return .missingAccount(chains: filtered)
             }
         }
         provideViewModel()

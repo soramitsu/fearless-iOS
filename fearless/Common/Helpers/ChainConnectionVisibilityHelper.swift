@@ -19,7 +19,7 @@ final class ChainConnectionVisibilityHelper {
         let hasRelaychainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isRelaychain })
         let hasParachainStaking = chain.assets.compactMap { $0.staking }.contains(where: { $0.isParachain })
 
-        let isRequared = [
+        let isRequired = [
             isChainlinkProvider,
             hasPoolStaking,
             hasRelaychainStaking,
@@ -28,7 +28,7 @@ final class ChainConnectionVisibilityHelper {
         .compactMap { $0 }
         .contains(true)
 
-        return isRequared
+        return isRequired
     }
 
     private func hasVisibleAsset(_ chain: ChainModel, wallet: MetaAccountModel?) -> Bool {

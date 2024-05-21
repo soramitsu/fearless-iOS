@@ -34,13 +34,12 @@ final class AssetManagementMigrator: Migrating {
 
     func migrate() throws {
         Task {
+            async let wallets = getWallets()
             let chainAssets = try await chainAssetFetching.fetchAwait(
                 shouldUseCache: false,
                 filters: [],
                 sortDescriptors: []
             )
-
-            let wallets = try await getWallets()
 
             try await wallets.asyncForEach { wallet in
                 guard shouldMigrate(wallet: wallet) else {
@@ -68,14 +67,14 @@ final class AssetManagementMigrator: Migrating {
                 let updatedWallet = wallet.replacingAssetsVisibility(assetVisibilities)
                 save(wallet: updatedWallet)
 
-                migrated(wallet)
+                markAsMigrated(wallet)
             }
         }
     }
 
     // MARK: - Private methods
 
-    private func migrated(_ wallet: MetaAccountModel) {
+    private func markAsMigrated(_ wallet: MetaAccountModel) {
         let isFirstRunKey = createKeyForFirstRunAssetManagement(wallet: wallet)
         userDefaultsStorage.set(value: true, for: isFirstRunKey)
     }
@@ -92,7 +91,7 @@ final class AssetManagementMigrator: Migrating {
 
     private func shouldMigrate(wallet: MetaAccountModel) -> Bool {
         guard wallet.assetsVisibility.isNotEmpty else {
-            migrated(wallet)
+            markAsMigrated(wallet)
             return false
         }
         let shouldMigrateKey = createKeyForFirstRunAssetManagement(wallet: wallet)

@@ -114,7 +114,7 @@ final class EthereumNodeFetching {
         let finalURL = ethereumChain.apiKeyInjectedURL(baseURL: wssURL)
 
         let provider = try Web3WebSocketProvider(wsUrl: finalURL.absoluteString, timeout: .seconds(10))
-        let web3 = Web3(provider: provider, rpcId: 1)
+        let web3 = Web3(provider: provider, rpcId: Int(chain.chainId) ?? 1)
         return web3.eth
     }
 

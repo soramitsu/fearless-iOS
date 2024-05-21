@@ -123,6 +123,6 @@ extension AssetNetworksViewController: FWSegmentedControlDelegate {
 
 extension AssetNetworksViewController: AssetNetworksTableCellDelegate {
     func resolveIssue(for chainAsset: ChainAsset) {
-        output.didTabResolveIssue(for: chainAsset)
+        output.didTapResolveIssue(for: chainAsset)
     }
 }

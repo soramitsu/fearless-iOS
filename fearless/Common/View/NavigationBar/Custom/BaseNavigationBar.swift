@@ -13,7 +13,7 @@ class BaseNavigationBar: BaseTopBar {
     enum BackButtonAlignment {
         case left
         case right
-        case none
+        case clear
     }
 
     let indicator: UIView = {
@@ -52,7 +52,7 @@ class BaseNavigationBar: BaseTopBar {
             setLeftViews([backButton])
         case .right:
             setRightViews([backButton])
-        case .none:
+        case .clear:
             break
         }
 

@@ -105,7 +105,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                 return
             }
             updateCurrentWallet(with: result)
-            performSaveAndNitify()
+            performSaveAndNotify()
         }
     }
 
@@ -142,7 +142,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         Dictionary(uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, nil) })
     }
 
-    private func performSaveAndNitify() {
+    private func performSaveAndNotify() {
         SelectedWalletSettings.shared.performSave(value: wallet) { [weak self] result in
             guard let self else {
                 return
@@ -169,7 +169,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
 
                 var isHidden = true
                 if let accountInfo = value {
-                    isHidden = accountInfo.zero()
+                    isHidden = accountInfo.isZero()
                 }
 
                 let assetVisibility = AssetVisibility(assetId: chainAsset.identifier, hidden: isHidden)

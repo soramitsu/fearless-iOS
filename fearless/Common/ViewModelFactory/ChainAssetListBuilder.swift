@@ -15,7 +15,7 @@ struct AssetChainAssets {
 }
 
 extension ChainAssetListBuilder {
-    func tokenFormatter(
+    func fiatFormatter(
         for currency: Currency,
         locale: Locale
     ) -> TokenFormatter {
@@ -68,14 +68,14 @@ extension ChainAssetListBuilder {
             (
                 aca1.totalFiatBalance,
                 aca1.totalBalance,
-                aca1.mainChainAsset.chain.isTestnet.invert().intValue,
+                aca1.mainChainAsset.chain.isTestnet.inverted().intValue,
                 aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca1.mainChainAsset.chain.name,
                 aca1.mainChainAsset.asset.symbolUppercased
             ) > (
                 aca2.totalFiatBalance,
                 aca2.totalBalance,
-                aca2.mainChainAsset.chain.isTestnet.invert().intValue,
+                aca2.mainChainAsset.chain.isTestnet.inverted().intValue,
                 aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca2.mainChainAsset.chain.name,
                 aca2.mainChainAsset.asset.symbolUppercased
@@ -193,7 +193,7 @@ extension ChainAssetListBuilder {
             wallet: wallet
         )
 
-        let balanceTokenFormatterValue = tokenFormatter(for: wallet.selectedCurrency, locale: locale)
+        let balanceTokenFormatterValue = fiatFormatter(for: wallet.selectedCurrency, locale: locale)
         let stringFiatBalance = balanceTokenFormatterValue.stringFromDecimal(totalFiatBalance)
 
         if shouldShowZero, totalFiatBalance.isZero {
@@ -235,7 +235,7 @@ extension ChainAssetListBuilder {
         locale: Locale,
         currency: Currency
     ) -> NSAttributedString? {
-        let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
+        let balanceTokenFormatterValue = fiatFormatter(for: currency, locale: locale)
 
         guard let priceData = priceData,
               let priceDecimal = Decimal(string: priceData.price) else {
@@ -274,12 +274,12 @@ extension ChainAssetListBuilder {
     ) -> Bool {
         (
             ca1.chain.isTestnet.intValue,
-            ca1.isParentChain().invert().intValue,
+            ca1.isParentChain().inverted().intValue,
             ca1.defineEcosystem().isKusama.intValue,
             ca1.chain.chainId
         ) < (
             ca2.chain.isTestnet.intValue,
-            ca2.isParentChain().invert().intValue,
+            ca2.isParentChain().inverted().intValue,
             ca2.defineEcosystem().isKusama.intValue,
             ca2.chain.chainId
         )
