@@ -1,5 +1,4 @@
 {
-  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -240,8 +239,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
       "state" : {
-        "revision" : "1ae1f8fe06ce9e3bd84d1e821dcca5054dc6fb3c",
-        "version" : "2.1.0"
+        "revision" : "8cba041db09596183331d123f337d0eb2e6e8e91",
+        "version" : "2.1.1"
       }
     },
     {
@@ -299,5 +298,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

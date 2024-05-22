@@ -304,14 +304,18 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                     notify(listener: listener, result: .success(balances))
                 }
             case let .chainAsset(wallet, chainAsset):
+                let updatedChainAssetsIds = updatedChainAssets.map { $0.identifier }
                 if updatedWalletsIds.contains(wallet.metaId),
-                   updatedChainAssets.contains(chainAsset),
+                   updatedChainAssetsIds.contains(chainAsset.identifier),
                    let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
                     notify(listener: listener, result: .success(balances))
                 }
             case let .chainAssets(chainAssets, wallet):
+                let updatedChainAssetsIds = updatedChainAssets.map { $0.identifier }
+                let chainAssetsIds = chainAssets.map { $0.identifier }
+
                 if updatedWalletsIds.contains(wallet.metaId),
-                   Set(chainAssets).intersection(Set(updatedChainAssets)).isNotEmpty,
+                   Set(chainAssetsIds).intersection(Set(updatedChainAssetsIds)).isNotEmpty,
                    let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
                     notify(listener: listener, result: .success(balances))
                 }
@@ -394,11 +398,11 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
         switch result {
         case let .success(accountInfo):
             accountInfoWorkQueue.async(flags: .barrier) {
+                let key = chainAsset.uniqueKey(accountId: accountId)
+                let previousAccountInfo = self.accountInfos[key] ?? nil
+
                 self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
 
-                let key = chainAsset.uniqueKey(accountId: accountId)
-
-                let previousAccountInfo = self.accountInfos[key] ?? nil
                 let bothNil = (previousAccountInfo == nil && accountInfo == nil)
 
                 guard previousAccountInfo != accountInfo, !bothNil else {
