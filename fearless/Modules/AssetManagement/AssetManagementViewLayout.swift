@@ -11,7 +11,7 @@ final class AssetManagementViewLayout: UIView {
     var keyboardAdoptableConstraint: Constraint?
 
     let navigationBar: BaseNavigationBar = {
-        let bar = BaseNavigationBar(backButtonAlignment: .none)
+        let bar = BaseNavigationBar(backButtonAlignment: .clear)
         bar.backgroundColor = R.color.colorBlack19()
         return bar
     }()

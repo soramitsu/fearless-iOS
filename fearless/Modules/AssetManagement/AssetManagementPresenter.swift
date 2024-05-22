@@ -44,6 +44,7 @@ final class AssetManagementPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: [PriceData] = []
     private var pendingAccountInfoChainAssets: [ChainAssetId] = []
+    private var searchText: String?
 
     // MARK: - Constructors
 
@@ -67,7 +68,7 @@ final class AssetManagementPresenter {
 
     // MARK: - Private methods
 
-    private func provideViewModel(with search: String? = nil) {
+    private func provideViewModel() {
         guard chainAssets.isNotEmpty else {
             return
         }
@@ -79,7 +80,7 @@ final class AssetManagementPresenter {
                 wallet: wallet,
                 locale: selectedLocale,
                 filter: networkFilter,
-                search: search,
+                search: searchText,
                 pendingAccountInfoChainAssets: pendingAccountInfoChainAssets
             )
             await view?.didReceive(viewModel: viewModel)
@@ -101,14 +102,14 @@ final class AssetManagementPresenter {
     }
 
     private func handleOnSwitch(viewModel: AssetManagementTableCellViewModel) {
-        if viewModel.hidden.invert() {
+        if viewModel.hidden.inverted() {
             pendingAccountInfoChainAssets.removeAll(where: { $0 == viewModel.chainAsset.chainAssetId })
         } else {
             pendingAccountInfoChainAssets.append(viewModel.chainAsset.chainAssetId)
         }
     }
 
-    private func fetchAccountInfo(
+    private func fetchAccountInfoAndUpdateViewModel(
         chainAsset: ChainAsset,
         viewModel: AssetManagementViewModel,
         indexPath: IndexPath
@@ -155,17 +156,19 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
             if let section = viewModel.list[safe: indexPath.section],
                let cellViewModel = section.cells[safe: indexPath.row] {
                 let updatedWallet = await interactor.change(
-                    hidden: cellViewModel.hidden.invert(),
+                    hidden: cellViewModel.hidden.inverted(),
                     assetId: cellViewModel.chainAsset.identifier,
                     wallet: wallet
                 )
                 wallet = updatedWallet
                 handleOnSwitch(viewModel: cellViewModel)
                 await update(at: indexPath, viewModel: viewModel)
-                guard !cellViewModel.hidden.invert() else {
+
+                let invertedAssetHidden = cellViewModel.hidden.inverted()
+                guard !invertedAssetHidden else {
                     return
                 }
-                await fetchAccountInfo(
+                await fetchAccountInfoAndUpdateViewModel(
                     chainAsset: cellViewModel.chainAsset,
                     viewModel: viewModel,
                     indexPath: indexPath
@@ -176,7 +179,7 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
 
     func didTap(on section: Int, viewModel: AssetManagementViewModel) {
         Task {
-            let viewModel = viewModelFactory.update(viewModel: viewModel, on: section)
+            let viewModel = viewModelFactory.toggle(viewModel: viewModel, on: section)
             await view?.didReceive(viewModel: viewModel, on: section)
         }
     }
@@ -186,7 +189,8 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
     }
 
     func searchTextDidChanged(_ text: String?) {
-        provideViewModel(with: text)
+        searchText = text
+        provideViewModel()
     }
 
     func allNetworkButtonDidTapped() {

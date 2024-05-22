@@ -8,8 +8,8 @@ protocol NetworkManagmentViewInput: ControllerBackedProtocol {
 
 protocol NetworkManagmentInteractorInput: AnyObject {
     func setup(with output: NetworkManagmentInteractorOutput)
-    func didTapFavoutite(with identifire: String)
-    func didSelect(_ identifire: String)
+    func didTapFavoutite(with identifier: String)
+    func didSelect(_ identifier: String)
 }
 
 final class NetworkManagmentPresenter {

@@ -81,7 +81,7 @@ struct AccountInfo: Codable, Equatable {
         data.total > 0
     }
 
-    func zero() -> Bool {
+    func isZero() -> Bool {
         data.total == BigUInt.zero
     }
 }

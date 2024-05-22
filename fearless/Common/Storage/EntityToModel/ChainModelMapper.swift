@@ -478,7 +478,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             disabled: entity.disabled,
             chainId: entity.chainId!,
             parentId: entity.parentId,
-            paraId: nil,
+            paraId: entity.paraId,
             name: entity.name!,
             xcm: xcm, nodes: Set(nodes),
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
@@ -515,6 +515,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
         entity.disabled = model.disabled
         entity.chainId = model.chainId
+        entity.paraId = model.paraId
         entity.parentId = model.parentId
         entity.name = model.name
         entity.types = model.types?.url

@@ -10,7 +10,6 @@ final class ChainAssetListInteractor {
 
     enum Constants {
         static let remoteFetchTimerTimeInterval: TimeInterval = 30
-        static let shouldPlayAssetManagementAnimateKey = "asset.manage.button.animation"
     }
 
     private weak var output: ChainAssetListInteractorOutput?
@@ -127,13 +126,13 @@ final class ChainAssetListInteractor {
 extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     var shouldRunManageAssetAnimate: Bool {
         get {
-            userDefaultsStorage.bool(for: Constants.shouldPlayAssetManagementAnimateKey) == nil
+            userDefaultsStorage.shouldRunManageAssetAnimate
         }
         set {
-            guard userDefaultsStorage.bool(for: Constants.shouldPlayAssetManagementAnimateKey) == nil else {
+            guard userDefaultsStorage.shouldRunManageAssetAnimate else {
                 return
             }
-            userDefaultsStorage.set(value: true, for: Constants.shouldPlayAssetManagementAnimateKey)
+            userDefaultsStorage.shouldRunManageAssetAnimate = false
         }
     }
 

@@ -81,21 +81,21 @@ final class NetworkManagmentInteractor {
 // MARK: - NetworkManagmentInteractorInput
 
 extension NetworkManagmentInteractor: NetworkManagmentInteractorInput {
-    func didTapFavoutite(with identifire: String) {
+    func didTapFavoutite(with identifier: String) {
         var updatedWallet: MetaAccountModel?
-        if wallet.favouriteChainIds.contains(identifire) {
-            let updatedFavourites = wallet.favouriteChainIds.filter { $0 != identifire }
+        if wallet.favouriteChainIds.contains(identifier) {
+            let updatedFavourites = wallet.favouriteChainIds.filter { $0 != identifier }
             updatedWallet = wallet.replacingFavoutites(updatedFavourites)
         } else {
-            let updatedFavourites = wallet.favouriteChainIds + [identifire]
+            let updatedFavourites = wallet.favouriteChainIds + [identifier]
             updatedWallet = wallet.replacingFavoutites(updatedFavourites)
         }
         save(updatedWallet)
     }
 
-    func didSelect(_ identifire: String) {
-        if wallet.networkManagmentFilter != identifire {
-            let updatedWallet = wallet.replacingNetworkManagmentFilter(identifire)
+    func didSelect(_ identifier: String) {
+        if wallet.networkManagmentFilter != identifier {
+            let updatedWallet = wallet.replacingNetworkManagmentFilter(identifier)
             save(updatedWallet)
         }
     }

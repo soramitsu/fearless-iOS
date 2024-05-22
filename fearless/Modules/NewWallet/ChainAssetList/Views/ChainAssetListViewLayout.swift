@@ -121,7 +121,7 @@ final class ChainAssetListViewLayout: UIView {
         container.stackView.snp.remakeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
-            make.height.equalToSuperview()
+            make.height.greaterThanOrEqualToSuperview()
         }
 
         footerButton.snp.remakeConstraints { make in

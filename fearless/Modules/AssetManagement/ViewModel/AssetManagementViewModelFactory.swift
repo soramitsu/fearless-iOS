@@ -24,7 +24,7 @@ protocol AssetManagementViewModelFactory: ChainAssetListBuilder {
         wallet: MetaAccountModel
     ) -> AssetManagementViewModel
 
-    func update(
+    func toggle(
         viewModel: AssetManagementViewModel,
         on section: Int
     ) -> AssetManagementViewModel
@@ -84,7 +84,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             let section = AssetManagementTableSection(
                 hasView: hasView,
                 assetImage: assetImage,
-                assetName: junk.mainChainAsset.asset.name,
+                assetName: junk.mainChainAsset.asset.name.uppercased(),
                 assetCount: assetCount + networksStub,
                 isExpanded: false,
                 cells: sortedCells,
@@ -143,7 +143,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         return viewModel
     }
 
-    func update(
+    func toggle(
         viewModel: AssetManagementViewModel,
         on section: Int
     ) -> AssetManagementViewModel {
@@ -252,13 +252,13 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
     private func sort(_ sections: [AssetManagementTableSection]) -> [AssetManagementTableSection] {
         sections.sorted { section1, section2 in
             (
-                section1.isAllDisabled.invert().intValue,
+                section1.isAllDisabled.inverted().intValue,
                 section1.totalFiatBalance,
                 section1.totalBalance,
                 section2.rank,
                 section1.assetName ?? section1.cells.first?.assetName ?? ""
             ) > (
-                section2.isAllDisabled.invert().intValue,
+                section2.isAllDisabled.inverted().intValue,
                 section2.totalFiatBalance,
                 section2.totalBalance,
                 section1.rank,
@@ -270,10 +270,10 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
     private func sort(_ cells: [AssetManagementTableCellViewModel]) -> [AssetManagementTableCellViewModel] {
         cells.sorted { cell1, cell2 in
             (
-                cell1.hidden.invert().intValue,
+                cell1.hidden.inverted().intValue,
                 cell1.decimalPrice
             ) > (
-                cell2.hidden.invert().intValue,
+                cell2.hidden.inverted().intValue,
                 cell2.decimalPrice
             )
         }

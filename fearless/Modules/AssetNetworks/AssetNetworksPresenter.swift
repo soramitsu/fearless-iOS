@@ -91,7 +91,7 @@ extension AssetNetworksPresenter: AssetNetworksViewOutput {
         router.showFilters(title: title, filters: [sorts], moduleOutput: self, from: view)
     }
 
-    func didTabResolveIssue(for chainAsset: ChainAsset) {
+    func didTapResolveIssue(for chainAsset: ChainAsset) {
         let issues: [ChainIssue] = chainsWithIssue.compactMap {
             switch $0 {
             case let .network(chains):
