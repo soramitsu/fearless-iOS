@@ -84,7 +84,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             let section = AssetManagementTableSection(
                 hasView: hasView,
                 assetImage: assetImage,
-                assetName: junk.mainChainAsset.asset.name.capitalized,
+                assetName: junk.mainChainAsset.asset.name.uppercased(),
                 assetCount: assetCount + networksStub,
                 isExpanded: false,
                 cells: sortedCells,
