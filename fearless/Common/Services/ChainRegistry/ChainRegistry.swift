@@ -505,6 +505,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
     ) async throws -> SSFRuntimeCodingService.RuntimeSnapshot {
         let runtimeService = try await getRuntimeProvider(chainId: chainId, usedRuntimePaths: [:], runtimeItem: nil)
         runtimeService.setup()
+
         let runtimeSnapshot = try await runtimeService.readySnapshot()
         return runtimeSnapshot
     }
