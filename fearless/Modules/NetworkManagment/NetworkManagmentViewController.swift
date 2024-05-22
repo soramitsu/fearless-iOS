@@ -172,7 +172,6 @@ extension NetworkManagmentViewController: EmptyStateDataSource {
             .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
         emptyView.text = R.string.localizable.selectNetworkSearchEmptySubtitle(preferredLanguages: selectedLocale.rLanguages)
         emptyView.iconMode = .bigFilledShadow
-        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
         return emptyView
     }
 

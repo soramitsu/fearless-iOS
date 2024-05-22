@@ -57,18 +57,17 @@ extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
 
-        if runMigrations {
-            runMigrators()
-        }
+        settings.setup(runningCompletionIn: .global()) { result in
+            if runMigrations {
+                self.runMigrators()
+            }
 
-        // TODO: Move to loading screen
-        settings.setup(runningCompletionIn: .main) { result in
             switch result {
-            case let .success(maybeMetaAccount):
-                if let metaAccount = maybeMetaAccount {
+            case let .success(wallet):
+                if let wallet = wallet {
                     self.chainRegistry.performHotBoot()
                     self.chainRegistry.subscribeToChians()
-                    self.logger?.debug("Selected account: \(metaAccount.metaId)")
+                    self.logger?.debug("Selected account: \(wallet.metaId)")
                 } else {
                     self.chainRegistry.performColdBoot()
                     self.logger?.debug("No selected account")

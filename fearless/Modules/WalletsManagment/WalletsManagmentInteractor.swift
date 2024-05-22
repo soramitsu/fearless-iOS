@@ -60,7 +60,6 @@ final class WalletsManagmentInteractor {
 
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletsBalances(
-            deliverOn: .main,
             listener: self
         )
     }

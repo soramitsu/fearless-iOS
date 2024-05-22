@@ -3,12 +3,6 @@ import SoraFoundation
 import SnapKit
 import SoraUI
 
-enum HiddenSectionState {
-    case hidden
-    case expanded
-    case empty
-}
-
 final class ChainAssetListViewController:
     UIViewController,
     ViewHolder,
@@ -28,7 +22,6 @@ final class ChainAssetListViewController:
     private weak var bannersViewController: UIViewController?
 
     private var viewModel: ChainAssetListViewModel?
-    private var hiddenSectionState: HiddenSectionState = .expanded
     private lazy var locale: Locale = {
         localizationManager?.selectedLocale ?? Locale.current
     }()
@@ -62,6 +55,7 @@ final class ChainAssetListViewController:
         output.didLoad(view: self)
         configureTableView()
         setupEmbededViews()
+        bindActions()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -85,11 +79,15 @@ final class ChainAssetListViewController:
     func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
+// MARK: - Private methods
+
 private extension ChainAssetListViewController {
     func configureTableView() {
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
+        rootView.tableView.estimatedRowHeight = 93
+
         if #available(iOS 15.0, *) {
             rootView.tableView.sectionHeaderTopPadding = 0
         }
@@ -104,25 +102,10 @@ private extension ChainAssetListViewController {
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
-        if
-            let section = viewModel?.sections[safe: indexPath.section],
-            let cellModel = viewModel?.cellsForSections[section]?[safe: indexPath.row] {
-            return cellModel
+        guard let cellModel = viewModel?.displayState.rows[safe: indexPath.row] else {
+            return nil
         }
-        return nil
-    }
-
-    func expandHiddenSection() {
-        switch hiddenSectionState {
-        case .expanded:
-            hiddenSectionState = .hidden
-        case .hidden:
-            hiddenSectionState = .expanded
-        case .empty:
-            hiddenSectionState = .empty
-        }
-        output.didTapExpandSections(state: hiddenSectionState)
-        rootView.tableView.reloadData()
+        return cellModel
     }
 
     func setupEmbededViews() {
@@ -134,6 +117,25 @@ private extension ChainAssetListViewController {
 
         rootView.addBanners(view: bannersViewController.view)
         bannersViewController.didMove(toParent: self)
+    }
+
+    func bindActions() {
+        rootView.footerButton.addAction { [weak self] in
+            guard let self, let viewModel = self.viewModel else {
+                return
+            }
+            switch viewModel.displayState {
+            case .defaultList, .allIsHidden:
+                self.output.didTapManageAsset()
+            case let .chainHasNetworkIssue(chain):
+                self.rootView.footerButton.set(loading: true)
+                self.output.didTapResolveNetworkIssue(for: chain)
+            case let .chainHasAccountIssue(chain):
+                self.output.didTapResolveAccountIssue(for: chain)
+            case .search:
+                break
+            }
+        }
     }
 
     @objc func handlePullToRefresh() {
@@ -153,30 +155,50 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     }
 
     func didReceive(viewModel: ChainAssetListViewModel) {
-        UIView.animate(withDuration: 0.3) {
-            self.rootView.bannersView?.isHidden = viewModel.bannerIsHidden
-        }
-        let isInitialReload = self.viewModel == nil
-
         self.viewModel = viewModel
-        hiddenSectionState = viewModel.hiddenSectionState
-
-        if isInitialReload {
-            rootView.tableView.reloadData()
-        } else {
-            let debounce = debounce(delay: DispatchTimeInterval.milliseconds(250)) { [weak self] in
-                self?.rootView.tableView.reloadData()
-                self?.reloadEmptyState(animated: false)
-            }
-            debounce()
+        rootView.setFooterButtonTitle(for: viewModel.displayState)
+        rootView.footerButton.isHidden = viewModel.displayState.isSearch
+        rootView.footerButton.set(loading: false)
+        UIView.animate(withDuration: 0.3) {
+            self.rootView.bannersView?.isHidden = viewModel.displayState.isSearch
         }
+
+        switch viewModel.displayState {
+        case let .defaultList(_, withAnimate):
+            rootView.setHeaderView()
+            rootView.setFooterView()
+            guard rootView.isAnimating == false else {
+                return
+            }
+
+            rootView.tableView.reloadData()
+
+            if withAnimate {
+                rootView.runManageAssetAnimate(finish: { [weak self] in
+                    self?.output.didFinishManageAssetAnimate()
+                    self?.rootView.tableView.reloadData()
+                })
+            }
+        case .chainHasNetworkIssue, .chainHasAccountIssue, .allIsHidden:
+            rootView.removeHeaderView()
+            rootView.removeFooterView()
+            rootView.tableView.reloadData()
+        case .search:
+            let isEmpty = viewModel.displayState.rows.isEmpty
+            isEmpty ? rootView.removeFooterView() : rootView.setFooterView()
+            isEmpty ? rootView.removeHeaderView() : rootView.setHeaderView()
+            rootView.tableView.reloadData()
+        }
+        reloadEmptyState(animated: false)
     }
 }
 
 // MARK: - Localizable
 
 extension ChainAssetListViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
 
 extension ChainAssetListViewController: SwipableTableViewCellDelegate {
@@ -190,6 +212,8 @@ extension ChainAssetListViewController: SwipableTableViewCellDelegate {
     }
 }
 
+// MARK: - UITableViewDelegate
+
 extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let viewModel = cellViewModel(for: indexPath) else { return }
@@ -197,46 +221,10 @@ extension ChainAssetListViewController: UITableViewDelegate {
         output.didSelectViewModel(viewModel)
     }
 
-    func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        if section == 1 {
-            let view = HiddenSectionHeader()
-            switch hiddenSectionState {
-            case .expanded:
-                view.imageView.image = R.image.iconExpandable()
-            case .hidden:
-                view.imageView.image = R.image.iconExpandableInverted()
-            case .empty:
-                return nil
-            }
-            let sectionViewModel = HiddenSectionViewModel(
-                title: R.string.localizable.hiddenAssets(preferredLanguages: locale.rLanguages),
-                expandTapHandler: { [weak self] in
-                    self?.expandHiddenSection()
-                }
-            )
-            view.bind(viewModel: sectionViewModel)
-            return view
-        }
-        return nil
-    }
-
-    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if section == 1 {
-            switch hiddenSectionState {
-            case .expanded, .hidden:
-                return Constants.sectionHeaderHeight
-            case .empty:
-                return 0
-            }
-        }
-        return 0
-    }
-
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let sect = viewModel?.sections[indexPath.section],
-           let cells = viewModel?.cellsForSections[sect],
-           let assetCell = cell as? ChainAccountBalanceTableCell,
-           let viewModel = cells[safe: indexPath.row] {
+        if
+            let assetCell = cell as? ChainAccountBalanceTableCell,
+            let viewModel = viewModel?.displayState.rows[safe: indexPath.row] {
             assetCell.bind(to: viewModel)
         }
     }
@@ -244,29 +232,21 @@ extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
         ChainAccountBalanceTableCell.LayoutConstants.cellHeight
     }
+
+    func tableView(_: UITableView, estimatedHeightForRowAt _: IndexPath) -> CGFloat {
+        93
+    }
 }
 
+// MARK: - UITableViewDataSource
+
 extension ChainAssetListViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        viewModel?.sections.count ?? 0
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        viewModel?.displayState.rows.count ?? .zero
     }
 
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if let sect = viewModel?.sections[section],
-           let cells = viewModel?.cellsForSections[sect] {
-            if case ChainAssetListTableSection.hidden.rawValue = section, hiddenSectionState == .hidden {
-                return 0
-            }
-            return cells.count
-        }
-        return 0
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(
-            withIdentifier: ChainAccountBalanceTableCell.reuseIdentifier,
-            for: indexPath
-        ) as? ChainAccountBalanceTableCell else {
+    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
             return UITableViewCell()
         }
         cell.delegate = self
@@ -285,18 +265,15 @@ extension ChainAssetListViewController: EmptyStateViewOwnerProtocol {
 
 extension ChainAssetListViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        let emptyView = EmptyView()
-        emptyView.image = R.image.iconWarningGray()
-        emptyView.title = R.string.localizable
-            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.text = R.string.localizable.emptyViewDescription(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.iconMode = .smallFilled
-        emptyView.contentAlignment = ContentAlignment(vertical: .top, horizontal: .center)
-        return emptyView
+        guard let viewModel else {
+            return nil
+        }
+        let view = rootView.viewForEmptyState(for: viewModel.displayState)
+        return view
     }
 
     var contentViewForEmptyState: UIView {
-        rootView
+        rootView.containerView
     }
 }
 
@@ -305,6 +282,6 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let viewModel = viewModel else { return false }
-        return viewModel.emptyStateIsActive
+        return viewModel.displayState.rows.isEmpty
     }
 }

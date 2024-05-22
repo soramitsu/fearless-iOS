@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import RobinHood
+import SSFRuntimeCodingService
 
 enum StorageDecodingOperationError: Error {
     case missingRequiredParams

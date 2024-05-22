@@ -104,7 +104,7 @@ extension BalanceInfoPresenter: BalanceInfoInteractorOutput {
             self.balances = balances
             buildBalance()
         case let .failure(error):
-            print(error)
+            logger.error(error.localizedDescription)
         }
     }
 
@@ -152,7 +152,7 @@ extension BalanceInfoPresenter: EventVisitorProtocol {
             let newType = BalanceInfoType.wallet(wallet: event.account)
             interactor.balanceInfoType = newType
             interactor.fetchBalanceInfo()
-        case let .chainAssets(chainAssets, wallet):
+        case let .chainAssets(chainAssets, _):
             let newType = BalanceInfoType.chainAssets(chainAssets: chainAssets, wallet: event.account)
             interactor.balanceInfoType = newType
             interactor.fetchBalanceInfo()

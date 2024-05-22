@@ -9,6 +9,7 @@ import Web3
 import SSFSigner
 import SSFCrypto
 import Foundation
+import SSFRuntimeCodingService
 
 struct SendDependencies {
     let wallet: MetaAccountModel

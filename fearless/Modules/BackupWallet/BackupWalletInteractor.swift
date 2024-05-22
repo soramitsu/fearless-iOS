@@ -50,7 +50,6 @@ final class BackupWalletInteractor {
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletBalance(
             wallet: wallet,
-            deliverOn: nil,
             listener: self
         )
     }

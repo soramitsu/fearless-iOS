@@ -1024,6 +1024,7 @@
 "transaction.details.view.etherscan" = "イーサスキャン(Etherscan)で見る";
 "transaction.details.view.polkascan" = "ポルカスキャン(Polkascan)で見る";
 "transaction.details.view.reefscan" = "View in Reefscan";
+"transaction.details.view.oklink" = "View in Oklink";
 "transaction.details.view.subscan" = "サブスキャン(Subscan)で見る";
 "transaction.list.header" = "全てのトランザクション";
 "transaction.status.completed" = "完了";
@@ -1137,3 +1138,5 @@
 "сurrencies.stub.text" = "通貨";
 "balance.locks.blocked.row.title" = "Blocked";
 "wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
+"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
+"wallet.all.assets.hidden" = "You have hidden all assets";

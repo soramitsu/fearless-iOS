@@ -11,6 +11,7 @@ final class SelectAssetInteractor {
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let assetRepository: AnyDataProviderRepository<AssetModel>
+    private let wallet: MetaAccountModel
 
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
@@ -27,7 +28,8 @@ final class SelectAssetInteractor {
         priceLocalSubscriber: PriceLocalStorageSubscriber,
         assetRepository: AnyDataProviderRepository<AssetModel>,
         chainAssets: [ChainAsset]?,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        wallet: MetaAccountModel
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -35,6 +37,7 @@ final class SelectAssetInteractor {
         self.assetRepository = assetRepository
         self.chainAssets = chainAssets
         self.operationQueue = operationQueue
+        self.wallet = wallet
     }
 
     private func fetchChainAssets() {
@@ -46,7 +49,7 @@ final class SelectAssetInteractor {
         }
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [],
+            filters: [.enabled(wallet: wallet)],
             sortDescriptors: []
         ) { [weak self] result in
             guard let result = result else {

@@ -180,9 +180,14 @@ extension SendInteractor: SendInteractorInput {
 
     func defineAvailableChains(
         for asset: AssetModel,
+        wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     ) {
-        chainAssetFetching.fetch(shouldUseCache: true, filters: [], sortDescriptors: []) { result in
+        chainAssetFetching.fetch(
+            shouldUseCache: true,
+            filters: [.enabled(wallet: wallet)],
+            sortDescriptors: []
+        ) { result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):

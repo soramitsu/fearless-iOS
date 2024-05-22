@@ -166,7 +166,6 @@ extension MultiSelectNetworksViewController: EmptyStateDataSource {
             .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
         emptyView.text = R.string.localizable.emptyStateMessage(preferredLanguages: selectedLocale.rLanguages)
         emptyView.iconMode = .bigFilledShadow
-        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
         return emptyView
     }
 

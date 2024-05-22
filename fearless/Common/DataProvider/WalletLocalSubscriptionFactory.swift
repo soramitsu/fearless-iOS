@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFModels
 import SSFAccountManagmentStorage
+import SSFRuntimeCodingService
 
 protocol WalletLocalSubscriptionFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }

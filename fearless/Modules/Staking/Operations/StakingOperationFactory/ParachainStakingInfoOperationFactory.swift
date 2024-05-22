@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFRuntimeCodingService
 
 final class ParachainStakingInfoOperationFactory: NetworkStakingInfoOperationFactory {
     private func createMapOperation(
