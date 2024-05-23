@@ -1,13 +1,39 @@
-enum ChainAssetListTableSection: Int {
-    case active
-    case hidden
-}
+import Foundation
+import SoraFoundation
+import SSFModels
 
 struct ChainAssetListViewModel {
-    let sections: [ChainAssetListTableSection]
-    let cellsForSections: [ChainAssetListTableSection: [ChainAccountBalanceCellViewModel]]
-    let isColdBoot: Bool
-    let hiddenSectionState: HiddenSectionState
-    let emptyStateIsActive: Bool
-    let bannerIsHidden: Bool
+    let displayState: AssetListState
+}
+
+enum AssetListDisplayType {
+    case chain
+    case assetChains
+    case search
+}
+
+enum AssetListState {
+    case defaultList(cells: [ChainAccountBalanceCellViewModel], withAnimate: Bool)
+    case allIsHidden
+    case chainHasNetworkIssue(chain: ChainModel)
+    case chainHasAccountIssue(chain: ChainModel)
+    case search(cells: [ChainAccountBalanceCellViewModel])
+
+    var rows: [ChainAccountBalanceCellViewModel] {
+        switch self {
+        case let .defaultList(cells, _):
+            return cells
+        case let .search(cells):
+            return cells
+        default:
+            return []
+        }
+    }
+
+    var isSearch: Bool {
+        switch self {
+        case .search: return true
+        default: return false
+        }
+    }
 }

@@ -1,4 +1,5 @@
 import Foundation
+import SSFRuntimeCodingService
 
 final class StorageKeySuffixMapper<T: Decodable>: Mapping {
     typealias InputType = Data

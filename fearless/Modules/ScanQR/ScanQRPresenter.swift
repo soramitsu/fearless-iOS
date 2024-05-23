@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import CommonWallet
+
 import RobinHood
 import AVFoundation
 import SSFUtils

@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInteractor, AccountFetching {
     var confirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol? {

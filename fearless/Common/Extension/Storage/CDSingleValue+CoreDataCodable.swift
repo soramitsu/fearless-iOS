@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import CoreData
+import SSFSingleValueCache
 
 extension CDSingleValue: CoreDataCodable {
     enum CodingKeys: String, CodingKey {

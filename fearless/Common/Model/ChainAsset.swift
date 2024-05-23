@@ -2,11 +2,11 @@ import Foundation
 import RobinHood
 import SSFModels
 
-extension ChainAsset: Identifiable {
-    public var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
+extension ChainAsset {
+    var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
 
-    public var identifier: String {
-        chain.identifier + asset.identifier
+    var identifier: String {
+        [chain.identifier, asset.identifier].joined(separator: " : ")
     }
 
     var storagePath: StorageCodingPath {

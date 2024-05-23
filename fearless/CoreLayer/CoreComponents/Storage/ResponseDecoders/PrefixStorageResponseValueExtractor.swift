@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFRuntimeCodingService
 
 protocol PrefixResponseValueExtractor {
     func extractValue<T: Decodable, K: Decodable & ScaleCodable>(request: PrefixRequest, storageResponse: [StorageResponse<T>]) async throws -> [K: T]?

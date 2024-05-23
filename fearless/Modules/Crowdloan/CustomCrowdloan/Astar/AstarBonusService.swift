@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import BigInt
-import CommonWallet
+
 import IrohaCrypto
 
 final class AstarBonusService {

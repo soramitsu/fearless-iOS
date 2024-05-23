@@ -81,7 +81,7 @@ struct AccountInfo: Codable, Equatable {
         data.total > 0
     }
 
-    func zero() -> Bool {
+    func isZero() -> Bool {
         data.total == BigUInt.zero
     }
 }
@@ -216,6 +216,13 @@ enum EquilibriumAccountData: Decodable {
                 in: container,
                 debugDescription: "Unexpected EquilibriumAccountData"
             )
+        }
+    }
+
+    var info: EquilibriumV0AccountData? {
+        switch self {
+        case let .v0data(info):
+            return info
         }
     }
 }

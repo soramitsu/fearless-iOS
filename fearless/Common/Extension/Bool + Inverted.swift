@@ -1,5 +1,5 @@
 extension Bool {
-    func invert() -> Bool {
+    func inverted() -> Bool {
         !self
     }
 }

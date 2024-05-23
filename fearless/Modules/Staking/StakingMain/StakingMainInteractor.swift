@@ -4,6 +4,7 @@ import RobinHood
 import SSFUtils
 import SoraFoundation
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol?

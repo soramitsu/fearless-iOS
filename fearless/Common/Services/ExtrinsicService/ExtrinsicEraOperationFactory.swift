@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFRuntimeCodingService
 
 struct ExtrinsicEraParameters {
     let blockNumber: BlockNumber

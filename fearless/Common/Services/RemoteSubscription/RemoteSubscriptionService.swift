@@ -104,7 +104,7 @@ class RemoteSubscriptionService<T: StorageWrapper> {
         wrapper.targetOperation.completionBlock = { [weak self] in
             switch wrapper.targetOperation.result {
             case let .failure(error):
-                self?.logger.error("\(error)")
+                self?.logger.error("chain: \(chainId) has error: \(error)")
             case let .success(container):
                 DispatchQueue.global(qos: .default).async {
                     self?.mutex.lock()

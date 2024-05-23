@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFRuntimeCodingService
 
 protocol SelectValidatorsStartPoolStrategyOutput: AnyObject {
     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)

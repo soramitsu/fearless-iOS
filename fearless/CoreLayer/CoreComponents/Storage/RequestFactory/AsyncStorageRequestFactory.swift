@@ -31,7 +31,7 @@ protocol AsyncStorageRequestFactory {
 
     func queryItems<T>(
         engine: JSONRPCEngine,
-        keyParams: [[any NMapKeyParamProtocol]],
+        keyParams: [[[any NMapKeyParamProtocol]]],
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath,
         at blockHash: Data?
@@ -39,9 +39,23 @@ protocol AsyncStorageRequestFactory {
 
     func queryItemsByPrefix<T>(
         engine: JSONRPCEngine,
-        key: Data,
+        keys: [Data],
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath,
         at blockHash: Data?
     ) async throws -> [StorageResponse<T>] where T: Decodable
+
+    func queryItemsByPrefix<T>(
+        engine: JSONRPCEngine,
+        keyParams: [any Encodable],
+        factory: RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath,
+        at blockHash: Data?
+    ) async throws -> [StorageResponse<T>] where T: Decodable
+
+    func queryWorkersResult(
+        for keys: [Data],
+        at blockHash: Data?,
+        engine: JSONRPCEngine
+    ) async throws -> [[StorageUpdate]]
 }

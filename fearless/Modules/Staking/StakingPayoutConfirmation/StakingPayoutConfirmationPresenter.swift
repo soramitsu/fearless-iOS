@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import CommonWallet
+
 import SSFModels
 
 final class StakingPayoutConfirmationPresenter {

@@ -1,5 +1,5 @@
 import UIKit
-import CommonWallet
+
 import SoraFoundation
 
 final class WalletTransactionDetailsViewController: UIViewController, ViewHolder {

@@ -1,5 +1,6 @@
 import UIKit
 import SSFModels
+import RobinHood
 
 final class AssetNetworksInteractor {
     // MARK: - Private properties
@@ -8,6 +9,8 @@ final class AssetNetworksInteractor {
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter
+    private let chainsIssuesCenter: ChainsIssuesCenter
+    private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
 
     private let chainAsset: ChainAsset
     private let chainAssetFetching: ChainAssetFetchingProtocol
@@ -18,12 +21,23 @@ final class AssetNetworksInteractor {
         chainAsset: ChainAsset,
         chainAssetFetching: ChainAssetFetchingProtocol,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter,
+        chainsIssuesCenter: ChainsIssuesCenter,
+        chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     ) {
         self.chainAsset = chainAsset
         self.chainAssetFetching = chainAssetFetching
         self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.chainsIssuesCenter = chainsIssuesCenter
+        self.chainSettingsRepository = chainSettingsRepository
+    }
+
+    private func getChainSettings() {
+        Task {
+            let settings = try await chainSettingsRepository.fetchAll()
+            output?.didReceive(chainSettings: settings)
+        }
     }
 }
 
@@ -32,7 +46,7 @@ final class AssetNetworksInteractor {
 extension AssetNetworksInteractor: AssetNetworksInteractorInput {
     func setup(with output: AssetNetworksInteractorOutput) {
         self.output = output
-
+        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         getAvailableChainAssets()
     }
 
@@ -76,5 +90,11 @@ extension AssetNetworksInteractor: AccountInfoSubscriptionAdapterHandler {
 extension AssetNetworksInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         output?.didReceivePricesData(result: result)
+    }
+}
+
+extension AssetNetworksInteractor: ChainsIssuesCenterListener {
+    func handleChainsIssues(_ issues: [ChainIssue]) {
+        output?.didReceiveChainsWithIssues(issues)
     }
 }

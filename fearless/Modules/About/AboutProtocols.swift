@@ -1,4 +1,4 @@
-import CommonWallet
+import Foundation
 
 protocol AboutViewProtocol: ControllerBackedProtocol {
     func didReceive(state: AboutViewState)

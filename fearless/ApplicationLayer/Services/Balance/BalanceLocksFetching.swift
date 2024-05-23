@@ -7,6 +7,7 @@ import BigInt
 enum BalanceLocksFetchingError: Error {
     case unknownChainAssetType
     case stakingNotFound
+    case noDataFound
 }
 
 protocol BalanceLocksFetching {
@@ -99,6 +100,10 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchStakingLocks(for accountId: AccountId) async throws -> StakingLocks {
+        guard chainAsset.asset.staking != nil else {
+            throw BalanceLocksFetchingError.stakingNotFound
+        }
+
         let controller = try await fetchStakingController(accountId: accountId)
         guard let controller else {
             throw BalanceLocksFetchingError.stakingNotFound
@@ -151,6 +156,10 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchNominationPoolLocks(for accountId: AccountId) async throws -> StakingLocks {
+        guard chainAsset.asset.staking != nil else {
+            throw BalanceLocksFetchingError.stakingNotFound
+        }
+
         let poolMemberRequest = NominationPoolsPoolMembersRequest(accountId: accountId)
         let eraRequest = StakingCurrentEraRequest()
 
@@ -202,6 +211,10 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchGovernanceLocks(for accountId: AccountId) async throws -> Decimal {
+        guard chainAsset.isUtility else {
+            throw BalanceLocksFetchingError.noDataFound
+        }
+
         let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
         let balancesLocksRequest = BalancesLocksRequest(accountId: accountIdVariant)
         let balanceLocks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest)
@@ -210,6 +223,10 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     }
 
     func fetchCrowdloanLocks(for accountId: AccountId) async throws -> Decimal {
+        guard chainAsset.isUtility else {
+            throw BalanceLocksFetchingError.noDataFound
+        }
+
         let contributions = try await crowdloanService.fetchContributions(accountId: accountId)
         let totalLocked = contributions.map { $0.value }.map { $0.balance }.reduce(0, +)
         return Decimal.fromSubstrateAmount(totalLocked, precision: Int16(chainAsset.asset.precision)).or(.zero)

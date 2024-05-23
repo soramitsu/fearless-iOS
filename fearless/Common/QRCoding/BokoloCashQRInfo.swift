@@ -1,5 +1,5 @@
 import Foundation
-import SSFUtils
+import SSFQRService
 #if F_RELEASE
     import MPQRCoreSDK
 #endif

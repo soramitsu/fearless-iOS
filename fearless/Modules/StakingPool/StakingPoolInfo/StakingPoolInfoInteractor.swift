@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     // MARK: - Private properties

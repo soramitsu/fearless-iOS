@@ -1,6 +1,6 @@
 // swiftlint:disable file_length
 import Foundation
-import CommonWallet
+
 import BigInt
 import SwiftUI
 import SoraFoundation
@@ -635,8 +635,8 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
         self.networkStakingInfo = networkStakingInfo
 
-        let commondData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
-        let minStake = networkStakingInfo.calculateMinimumStake(given: commondData?.minNominatorBond)
+        let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
+        let minStake = networkStakingInfo.calculateMinimumStake(given: commonData?.minNominatorBond)
         stateMachine.state.process(minStake: minStake)
         provideStakingInfo()
     }
@@ -675,10 +675,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
         switch subqueryRewards {
         case let .success(rewards):
-            guard let chainAsset = chainAsset else {
-                return
-            }
-
             stateMachine.state.process(subqueryRewards: (rewards, period))
         case let .failure(error):
             handle(error: error)
