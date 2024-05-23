@@ -1,4 +1,5 @@
 {
+  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -132,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "update-for-fearless-asset-management",
-        "revision" : "e0ee00588bc9beedf09fd7365e8edd6a8980d33e"
+        "revision" : "153f7721ab0739e51913faf80ad66accfc589f86"
       }
     },
     {
@@ -298,5 +299,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
