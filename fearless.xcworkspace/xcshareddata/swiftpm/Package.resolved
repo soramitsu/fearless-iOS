@@ -133,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "update-for-fearless-asset-management",
-        "revision" : "e0ee00588bc9beedf09fd7365e8edd6a8980d33e"
+        "revision" : "7cbfb688de948319dbc5999d73867f21457c1e46"
       }
     },
     {
@@ -240,8 +240,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/SwiftyBeaver/SwiftyBeaver.git",
       "state" : {
-        "revision" : "1ae1f8fe06ce9e3bd84d1e821dcca5054dc6fb3c",
-        "version" : "2.1.0"
+        "revision" : "8cba041db09596183331d123f337d0eb2e6e8e91",
+        "version" : "2.1.1"
       }
     },
     {
