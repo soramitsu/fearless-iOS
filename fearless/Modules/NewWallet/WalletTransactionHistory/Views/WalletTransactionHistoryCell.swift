@@ -95,9 +95,8 @@ class WalletTransactionHistoryCell: UITableViewCell {
 
         firstlineStackView.setCustomSpacing(UIConstants.defaultOffset, after: transactionAmountLabel)
 
-        transactionAmountLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        transactionAmountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
-        transactionTypeLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        transactionAmountLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+        transactionTypeLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
 
         accountIconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
@@ -114,6 +113,10 @@ class WalletTransactionHistoryCell: UITableViewCell {
 
         transactionStatusIconImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.statusImageViewSize)
+        }
+
+        addressLabel.snp.makeConstraints { make in
+            make.width.lessThanOrEqualTo(95)
         }
     }
 
