@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias LiquidityPoolSupplyModuleCreationResult = (
     view: LiquidityPoolSupplyViewInput,
     input: LiquidityPoolSupplyModuleInput

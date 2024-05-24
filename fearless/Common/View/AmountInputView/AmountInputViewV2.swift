@@ -112,6 +112,10 @@ final class AmountInputViewV2: UIView {
 
     // MARK: - Public methods
 
+    func set(highlighted: Bool, animated: Bool) {
+        triangularedBackgroundView.set(highlighted: highlighted, animated: animated)
+    }
+
     func bind(viewModel: AssetBalanceViewModelProtocol) {
         iconView.isHidden = (viewModel.iconViewModel == nil)
         viewModel.iconViewModel?.cancel(on: iconView)

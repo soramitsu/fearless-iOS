@@ -11,25 +11,25 @@ protocol LiquidityPoolSupplyViewOutput: AnyObject {
     func updateFromAmount(_ newValue: Decimal)
     func selectToAmountPercentage(_ percentage: Float)
     func updateToAmount(_ newValue: Decimal)
-    func didTapSelectFromAsset()
-    func didTapSelectToAsset()
 }
 
 final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = LiquidityPoolSupplyViewLayout
     var keyboardHandler: FearlessKeyboardHandler?
-    
+
     private enum Constants {
         static let delay: CGFloat = 0.7
     }
-    
+
     // MARK: Private properties
+
     private let output: LiquidityPoolSupplyViewOutput
-    
+
     private var amountFromInputViewModel: IAmountInputViewModel?
     private var amountToInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
+
     init(
         output: LiquidityPoolSupplyViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -45,6 +45,7 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = LiquidityPoolSupplyViewLayout()
     }
@@ -56,9 +57,9 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         configure()
         addEndEditingTapGesture(for: rootView.contentView)
     }
-    
+
     // MARK: - Private methods
-    
+
     private func configure() {
         navigationController?.setNavigationBarHidden(true, animated: true)
 
@@ -70,25 +71,18 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
         updatePreviewButton()
     }
-    
+
     private func updatePreviewButton() {
         let isEnabled = amountFromInputViewModel?.isValid == true && amountToInputViewModel?.isValid == true
         rootView.previewButton.set(enabled: isEnabled)
     }
-    
+
     private func setupActions() {
         rootView.backButton.addTarget(
             self,
             action: #selector(handleTapBackButton),
             for: .touchUpInside
         )
-        rootView.swapFromInputView.selectHandler = { [weak self] in
-            self?.output.didTapSelectFromAsset()
-        }
-        rootView.swapToInputView.selectHandler = { [weak self] in
-            self?.output.didTapSelectToAsset()
-        }
-
         let tapMinReceiveInfo = UITapGestureRecognizer(
             target: self,
             action: #selector(handleTapApyInfo)
@@ -102,15 +96,11 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
             for: .touchUpInside
         )
     }
-    
+
     // MARK: - Private actions
 
     @objc private func handleTapBackButton() {
         output.didTapBackButton()
-    }
-
-    @objc private func handleTapMarketButton() {
-        output.didTapMarketButton()
     }
 
     @objc private func handleTapApyInfo() {
@@ -123,14 +113,56 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
 }
 
 // MARK: - LiquidityPoolSupplyViewInput
-extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {}
+
+extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
+    func didReceiveSwapFrom(viewModel: AssetBalanceViewModelProtocol?) {
+        rootView.bindSwapFrom(assetViewModel: viewModel)
+    }
+
+    func didReceiveSwapTo(viewModel: AssetBalanceViewModelProtocol?) {
+        rootView.bindSwapTo(assetViewModel: viewModel)
+    }
+
+    func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?) {
+        amountFromInputViewModel = amountInputViewModel
+        amountInputViewModel?.observable.remove(observer: self)
+        amountInputViewModel?.observable.add(observer: self)
+        rootView.swapFromInputView.inputFieldText = amountInputViewModel?.displayAmount
+        updatePreviewButton()
+    }
+
+    func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?) {
+        amountToInputViewModel = amountInputViewModel
+        amountInputViewModel?.observable.remove(observer: self)
+        amountInputViewModel?.observable.add(observer: self)
+        rootView.swapToInputView.inputFieldText = amountInputViewModel?.displayAmount
+        updatePreviewButton()
+    }
+
+    func didReceiveNetworkFee(fee: BalanceViewModelProtocol?) {
+        rootView.bind(fee: fee)
+        updatePreviewButton()
+    }
+
+    func setButtonLoadingState(isLoading: Bool) {
+        rootView.previewButton.set(loading: isLoading)
+    }
+
+    func didUpdating() {
+        DispatchQueue.main.async {
+            self.rootView.previewButton.set(enabled: false)
+        }
+    }
+}
 
 // MARK: - Localizable
+
 extension LiquidityPoolSupplyViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
     }
 }
+
 // MARK: - AmountInputAccessoryViewDelegate
 
 extension LiquidityPoolSupplyViewController: AmountInputAccessoryViewDelegate {
@@ -168,15 +200,8 @@ extension LiquidityPoolSupplyViewController: UITextFieldDelegate {
     }
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        let swapFromIsFirstResponder = textField == rootView.swapFromInputView.textField
-        rootView.swapFromInputView.set(highlighted: swapFromIsFirstResponder, animated: false)
-
-        if textField == rootView.swapToInputView.textField, amountToInputViewModel != nil {
-            let swapToIsFirstResponder = textField == rootView.swapToInputView.textField
-            rootView.swapToInputView.set(highlighted: swapToIsFirstResponder, animated: false)
-        } else if textField == rootView.swapToInputView.textField {
-            rootView.swapToInputView.textField.resignFirstResponder()
-            output.didTapSelectToAsset()
+        if textField == rootView.swapToInputView.textField {
+            rootView.swapFromInputView.textField.resignFirstResponder()
         }
     }
 

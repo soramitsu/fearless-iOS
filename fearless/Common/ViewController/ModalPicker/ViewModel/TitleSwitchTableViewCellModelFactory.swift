@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol TitleSwitchTableViewCellModelFactoryProtocol {
     func createFilters(
@@ -14,10 +15,10 @@ protocol TitleSwitchTableViewCellModelFactoryProtocol {
     ) -> [SortPickerTableViewCellModel]
 }
 
-enum FilterOption: String, Codable {
-    case hideZeroBalance
-    case hiddenSectionOpen
-}
+// enum FilterOption: String, Codable {
+//    case hideZeroBalance
+//    case hiddenSectionOpen
+// }
 
 enum PoolSortOption: Equatable {
     case totalStake(assetSymbol: String)

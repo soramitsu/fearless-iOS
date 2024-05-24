@@ -91,7 +91,7 @@ final class CrossChainDepsContainer {
             accountResponse: response
         )
 
-        let signingWrapperData = XcmAssembly.SigningWrapperData(
+        let signingWrapperData = SigningWrapperData(
             publicKeyData: response.publicKey,
             secretKeyData: secretKeyData
         )

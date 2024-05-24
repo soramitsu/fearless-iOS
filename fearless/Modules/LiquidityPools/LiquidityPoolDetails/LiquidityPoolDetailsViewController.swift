@@ -4,6 +4,8 @@ import SoraFoundation
 protocol LiquidityPoolDetailsViewOutput: AnyObject {
     func didLoad(view: LiquidityPoolDetailsViewInput)
     func backButtonClicked()
+    func supplyButtonClicked()
+    func removeButtonClicked()
 }
 
 final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -41,6 +43,12 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder, Hi
 
         rootView.navigationBar.backButton.addAction { [weak self] in
             self?.output.backButtonClicked()
+        }
+        rootView.supplyButton.addAction { [weak self] in
+            self?.output.supplyButtonClicked()
+        }
+        rootView.removeButton.addAction { [weak self] in
+            self?.output.removeButtonClicked()
         }
     }
 

@@ -155,6 +155,16 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
     func backButtonClicked() {
         router.dismiss(view: view)
     }
+
+    func supplyButtonClicked() {
+        guard let liquidityPair else {
+            return
+        }
+
+        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, from: view)
+    }
+
+    func removeButtonClicked() {}
 }
 
 // MARK: - LiquidityPoolDetailsInteractorOutput

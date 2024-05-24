@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 protocol TitleSwitchTableViewCellModelDelegate: AnyObject {
     func switchOptionChangeState(option: FilterOption, isOn: Bool)

@@ -37,6 +37,7 @@
         <attribute name="minimalAppVersion" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
         <attribute name="options" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
+        <attribute name="paraId" optional="YES" attributeType="String"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
         <attribute name="pricingApiType" optional="YES" attributeType="String"/>
         <attribute name="pricingApiUrl" optional="YES" attributeType="URI"/>

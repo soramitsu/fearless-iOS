@@ -12,17 +12,40 @@ struct MetaAccountModel: Equatable, Codable {
     let substratePublicKey: Data
     let ethereumAddress: Data?
     let ethereumPublicKey: Data?
-    let chainAccounts: Set<ChainAccountModel>
+    let chainAccounts: Set<SSFModels.ChainAccountModel>
     let assetKeysOrder: [String]?
-    let assetFilterOptions: [FilterOption]
+    let assetFilterOptions: [SSFModels.FilterOption]
     let canExportEthereumMnemonic: Bool
     let unusedChainIds: [String]?
-    let selectedCurrency: Currency
+    let selectedCurrency: SSFModels.Currency
     let networkManagmentFilter: String?
-    let assetsVisibility: [AssetVisibility]
+    let assetsVisibility: [SSFModels.AssetVisibility]
     let zeroBalanceAssetsHidden: Bool
     let hasBackup: Bool
     let favouriteChainIds: [ChainModel.Id]
+
+    var utilsModel: SSFModels.MetaAccountModel {
+        SSFModels.MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetFilterOptions: assetFilterOptions,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency,
+            networkManagmentFilter: networkManagmentFilter,
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
+            hasBackup: hasBackup,
+            favouriteChainIds: favouriteChainIds
+        )
+    }
 }
 
 extension MetaAccountModel {

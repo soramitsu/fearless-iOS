@@ -41,8 +41,8 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         return view
     }()
 
-    let swapFromInputView = SelectableAmountInputView(type: .swapSend)
-    let swapToInputView = SelectableAmountInputView(type: .swapReceive)
+    let swapFromInputView = AmountInputViewV2()
+    let swapToInputView = AmountInputViewV2()
     let switchSwapButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconSwitch(), for: .normal)
@@ -105,10 +105,18 @@ final class LiquidityPoolSupplyViewLayout: UIView {
     }
 
     func bindSwapFrom(assetViewModel: AssetBalanceViewModelProtocol?) {
+        guard let assetViewModel else {
+            return
+        }
+
         swapFromInputView.bind(viewModel: assetViewModel)
     }
 
     func bindSwapTo(assetViewModel: AssetBalanceViewModelProtocol?) {
+        guard let assetViewModel else {
+            return
+        }
+
         swapToInputView.bind(viewModel: assetViewModel)
     }
 
