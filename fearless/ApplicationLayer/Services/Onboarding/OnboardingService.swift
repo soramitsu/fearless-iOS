@@ -11,7 +11,7 @@ protocol OnboardingServiceProtocol {
     func fetchConfigs() async throws -> OnboardingConfigPlatform
 }
 
-final class OnboardingService {
+actor OnboardingService {
     private let networkOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
 

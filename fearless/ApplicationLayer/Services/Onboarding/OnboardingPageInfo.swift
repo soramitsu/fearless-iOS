@@ -1,12 +1,12 @@
 import Foundation
 
 struct OnboardingPageInfo: Decodable {
-    let title: PageTitle?
+    let title: OnboardingPageTitle?
     let description: String?
     let image: URL?
 }
 
-struct PageTitle: Decodable {
+struct OnboardingPageTitle: Decodable {
     let text: String
     let color: String
 }
