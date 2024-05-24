@@ -75,9 +75,13 @@ extension OnboardingPresenter: OnboardingViewOutput {
 // MARK: - OnboardingInteractorOutput
 
 extension OnboardingPresenter: OnboardingInteractorOutput {
-    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper) async {
-        let viewModel = pagesFactory.createPageControllers(with: config)
-        await view?.didReceive(viewModel: viewModel)
+    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper?) async {
+        if let config = config {
+            let viewModel = pagesFactory.createPageControllers(with: config)
+            await view?.didReceive(viewModel: viewModel)
+        } else {
+            await close()
+        }
     }
 
     func didReceiveOnboardingConfig(error: Error) async {
