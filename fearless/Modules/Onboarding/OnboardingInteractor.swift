@@ -1,50 +1,30 @@
 import UIKit
 import SoraKeystore
 
-enum OnboardingKeys: String {
-    case shouldShowOnboarding
-}
-
 protocol OnboardingInteractorOutput: AnyObject {
-    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper?) async
-    func didReceiveOnboardingConfig(error: Error) async
+    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper)
 }
 
 final class OnboardingInteractor {
     // MARK: - Private properties
 
     private weak var output: OnboardingInteractorOutput?
-    private let onboardingService: OnboardingServiceProtocol
     private let operationQueue: OperationQueue
     private let userDefaultsStorage: SettingsManagerProtocol
-    private let onboardingConfigResolver = OnboardingConfigVersionResolver()
+    private let config: OnboardingConfigWrapper
 
     init(
-        onboardingService: OnboardingServiceProtocol,
         operationQueue: OperationQueue,
-        userDefaultsStorage: SettingsManagerProtocol
+        userDefaultsStorage: SettingsManagerProtocol,
+        config: OnboardingConfigWrapper
     ) {
-        self.onboardingService = onboardingService
         self.operationQueue = operationQueue
         self.userDefaultsStorage = userDefaultsStorage
-    }
-
-    private func loadConfig() async {
-        do {
-            let onboardingConfigPlatform = try await onboardingService.fetchConfigs()
-            let onboardingWrappers = onboardingConfigPlatform.ios
-            let currentConfig = onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
-            await output?.didReceiveOnboardingConfig(currentConfig)
-        } catch {
-            await output?.didReceiveOnboardingConfig(error: error)
-        }
+        self.config = config
     }
 
     func didClose() {
-        userDefaultsStorage.set(
-            value: false,
-            for: OnboardingKeys.shouldShowOnboarding.rawValue
-        )
+        userDefaultsStorage.set(value: AppVersion.stringValue, for: OnboardingKeys.lastShownOnboardingVersion.rawValue)
     }
 }
 
@@ -53,8 +33,6 @@ final class OnboardingInteractor {
 extension OnboardingInteractor: OnboardingInteractorInput {
     func setup(with output: OnboardingInteractorOutput) {
         self.output = output
-        Task {
-            await loadConfig()
-        }
+        output.didReceiveOnboardingConfig(config)
     }
 }

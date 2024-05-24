@@ -35,8 +35,8 @@ final class RootWireframe: RootWireframeProtocol {
         window.backgroundColor = .clear
     }
 
-    func showOnboarding(on window: UIWindow) {
-        guard let viewController = OnboardingStartAssembly.configureModule()?.view.controller else {
+    func showOnboarding(on window: UIWindow, with config: OnboardingConfigWrapper) {
+        guard let viewController = OnboardingStartAssembly.configureModule(config)?.view.controller else {
             return
         }
 

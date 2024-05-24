@@ -1,20 +1,42 @@
+import SoraKeystore
+
+enum OnboardingKeys: String {
+    case lastShownOnboardingVersion
+}
+
 final class OnboardingConfigVersionResolver {
+    private let userDefaultsStorage: SettingsManagerProtocol
+
+    init(userDefaultsStorage: SettingsManagerProtocol) {
+        self.userDefaultsStorage = userDefaultsStorage
+    }
+
     func resolve(configWrappers: [OnboardingConfigWrapper]) -> OnboardingConfigWrapper? {
-        var versionsForConfigs: [String: OnboardingConfigWrapper] = [:]
-        configWrappers.forEach { versionsForConfigs[$0.minVersion] = $0 }
         guard let currentAppVersion = AppVersion.stringValue else {
             return nil
         }
+
+        var versionsForConfigs: [String: OnboardingConfigWrapper] = [:]
+        configWrappers.forEach { versionsForConfigs[$0.minVersion] = $0 }
+
+        var availableVersion: String
+
         if versionsForConfigs.keys.contains(currentAppVersion) {
-            return versionsForConfigs[currentAppVersion]
+            availableVersion = currentAppVersion
         } else {
             let availableVersions = versionsForConfigs.keys
                 .filter { $0.versionLowerThan(currentAppVersion) }
                 .sorted { $0.versionLowerThan($1) }
-            guard let lastAvailableVersion = availableVersions.last else {
+            guard let lastAvailableVersion = availableVersions.first else {
                 return nil
             }
-            return versionsForConfigs[lastAvailableVersion]
+            availableVersion = lastAvailableVersion
+        }
+
+        if let lastShownVersion = userDefaultsStorage.string(for: OnboardingKeys.lastShownOnboardingVersion.rawValue) {
+            return lastShownVersion.versionLowerThan(availableVersion) ? versionsForConfigs[availableVersion] : nil
+        } else {
+            return versionsForConfigs[availableVersion]
         }
     }
 }

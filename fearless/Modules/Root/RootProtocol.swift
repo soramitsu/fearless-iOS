@@ -15,11 +15,12 @@ protocol RootWireframeProtocol: AnyObject {
     func showMain(on window: UIWindow)
     func showPincodeSetup(on window: UIWindow)
     func showBroken(on window: UIWindow)
-    func showOnboarding(on window: UIWindow)
+    func showOnboarding(on window: UIWindow, with config: OnboardingConfigWrapper)
 }
 
 protocol RootInteractorInputProtocol: AnyObject {
     func setup(runMigrations: Bool)
+    func fetchOnboardingConfig() async -> Result<OnboardingConfigWrapper?, Error>
 }
 
 protocol RootInteractorOutputProtocol: AnyObject {}

@@ -13,6 +13,8 @@ final class RootInteractor {
     private let eventCenter: EventCenterProtocol
     private let migrators: [Migrating]
     private let logger: LoggerProtocol?
+    private let onboardingService: OnboardingServiceProtocol
+    private let onboardingConfigResolver: OnboardingConfigVersionResolver
 
     init(
         chainRegistry: ChainRegistryProtocol,
@@ -20,7 +22,9 @@ final class RootInteractor {
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        onboardingService: OnboardingServiceProtocol,
+        onboardingConfigResolver: OnboardingConfigVersionResolver
     ) {
         self.chainRegistry = chainRegistry
         self.settings = settings
@@ -28,6 +32,8 @@ final class RootInteractor {
         self.eventCenter = eventCenter
         self.migrators = migrators
         self.logger = logger
+        self.onboardingService = onboardingService
+        self.onboardingConfigResolver = onboardingConfigResolver
     }
 
     private func setupURLHandlingService() {
@@ -75,6 +81,17 @@ extension RootInteractor: RootInteractorInputProtocol {
             case let .failure(error):
                 self.logger?.error("Selected account setup failed: \(error)")
             }
+        }
+    }
+
+    func fetchOnboardingConfig() async -> Result<OnboardingConfigWrapper?, Error> {
+        do {
+            let onboardingConfigPlatform = try await onboardingService.fetchConfigs()
+            let onboardingWrappers = onboardingConfigPlatform.ios
+            let currentConfig = onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
+            return .success(currentConfig)
+        } catch {
+            return .failure(error)
         }
     }
 }
