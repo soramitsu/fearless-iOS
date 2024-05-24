@@ -1,6 +1,13 @@
 import UIKit
+import SSFModels
+
+protocol AssetNetworksTableCellDelegate: AnyObject {
+    func resolveIssue(for chainAsset: ChainAsset)
+}
 
 final class AssetNetworksTableCell: UITableViewCell {
+    weak var delegate: AssetNetworksTableCellDelegate?
+
     let networkIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -46,6 +53,14 @@ final class AssetNetworksTableCell: UITableViewCell {
         return label
     }()
 
+    let warningButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconWarning(), for: .normal)
+        return button
+    }()
+
+    private var viewModel: AssetNetworksTableCellModel?
+
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         setup()
@@ -56,17 +71,41 @@ final class AssetNetworksTableCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         setup()
+        bindActions()
         drawSubviews()
         setupConstraints()
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        viewModel = nil
+    }
+
     func bind(viewModel: AssetNetworksTableCellModel) {
+        self.viewModel = viewModel
         viewModel.iconViewModel?.cancel(on: networkIconImageView)
         let imageSize = networkIconImageView.frame.size
         viewModel.iconViewModel?.loadImage(on: networkIconImageView, targetSize: imageSize, animated: true)
         chainNameLabel.text = viewModel.chainNameLabelText
         cryptoBalanceLabel.text = viewModel.cryptoBalanceLabelText
         fiatBalanceLabel.text = viewModel.fiatBalanceLabelText
+
+        set(hasIssue: viewModel.hasIssues)
+    }
+
+    private func set(hasIssue: Bool) {
+        cryptoBalanceLabel.isHidden = hasIssue
+        fiatBalanceLabel.isHidden = hasIssue
+        warningButton.isHidden = !hasIssue
+    }
+
+    private func bindActions() {
+        warningButton.addAction { [weak self] in
+            guard let chainAsset = self?.viewModel?.chainAsset else {
+                return
+            }
+            self?.delegate?.resolveIssue(for: chainAsset)
+        }
     }
 
     private func setup() {
@@ -84,6 +123,7 @@ final class AssetNetworksTableCell: UITableViewCell {
 
         balanceStackView.addArrangedSubview(cryptoBalanceLabel)
         balanceStackView.addArrangedSubview(fiatBalanceLabel)
+        balanceStackView.addArrangedSubview(warningButton)
     }
 
     private func setupConstraints() {

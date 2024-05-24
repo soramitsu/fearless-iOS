@@ -41,7 +41,8 @@ extension AssetListSearchPresenter: AssetListSearchViewOutput {
         let filters: [ChainAssetsFetching.Filter] = text.isNotEmpty ? [.search(text)] : []
         assetListModuleInput?.updateChainAssets(
             using: filters,
-            sorts: []
+            sorts: [],
+            networkFilter: nil
         )
     }
 
@@ -50,7 +51,8 @@ extension AssetListSearchPresenter: AssetListSearchViewOutput {
         interactor.setup(with: self)
         assetListModuleInput?.updateChainAssets(
             using: [],
-            sorts: []
+            sorts: [],
+            networkFilter: nil
         )
     }
 }

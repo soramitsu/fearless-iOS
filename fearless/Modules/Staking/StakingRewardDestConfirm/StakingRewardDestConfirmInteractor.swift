@@ -4,6 +4,7 @@ import IrohaCrypto
 import SoraKeystore
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingRewardDestConfirmInteractor: AccountFetching {
     weak var presenter: StakingRewardDestConfirmInteractorOutputProtocol!

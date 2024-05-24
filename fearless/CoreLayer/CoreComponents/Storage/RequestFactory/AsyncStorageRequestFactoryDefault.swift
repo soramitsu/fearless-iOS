@@ -3,7 +3,7 @@ import SSFModels
 import SSFRuntimeCodingService
 import SSFUtils
 
-final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
+final actor AsyncStorageRequestDefault: AsyncStorageRequestFactory {
     private lazy var storageKeyFactory: StorageKeyFactoryProtocol = {
         StorageKeyFactory()
     }()

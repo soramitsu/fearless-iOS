@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import IrohaCrypto
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol IdentityOperationFactoryProtocol {
     func createIdentityWrapper(

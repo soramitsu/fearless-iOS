@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 extension EraValidatorService {
     private func handleEraDecodingResult(result: Result<ActiveEraInfo, Error>?) {

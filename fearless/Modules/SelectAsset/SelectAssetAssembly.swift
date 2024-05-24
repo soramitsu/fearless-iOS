@@ -44,7 +44,8 @@ final class SelectAssetAssembly {
             priceLocalSubscriber: priceLocalSubscriber,
             assetRepository: AnyDataProviderRepository(assetRepository),
             chainAssets: chainAssets,
-            operationQueue: operationQueue
+            operationQueue: operationQueue,
+            wallet: wallet
         )
         let router = SelectAssetRouter()
 

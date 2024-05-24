@@ -10,14 +10,16 @@ protocol WalletLocalStorageSubscriber where Self: AnyObject {
 
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        notifyJustWhenUpdated: Bool
     ) -> StreamableProvider<AccountInfoStorageWrapper>?
 }
 
 extension WalletLocalStorageSubscriber {
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        notifyJustWhenUpdated: Bool
     ) -> StreamableProvider<AccountInfoStorageWrapper>? {
         guard let accountInfoProvider = try? walletLocalSubscriptionFactory.getAccountProvider(
             for: accountId,
@@ -44,7 +46,8 @@ extension WalletLocalStorageSubscriber {
             alwaysNotifyOnRefresh: false,
             waitsInProgressSyncOnAdd: false,
             initialSize: 0,
-            refreshWhenEmpty: true
+            refreshWhenEmpty: true,
+            notifyJustWhenUpdated: notifyJustWhenUpdated
         )
 
         accountInfoProvider.addObserver(

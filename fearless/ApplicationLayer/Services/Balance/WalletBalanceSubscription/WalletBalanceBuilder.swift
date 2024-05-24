@@ -87,6 +87,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         chainAssets.forEach { chainAsset in
             let accountRequest = chainAsset.chain.accountRequest()
             guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
+                accountInfosCount += 1
                 return
             }
             let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
@@ -124,23 +125,8 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         var disabledChainAssets: [ChainAsset] = []
 
         chainAssets.forEach { chainAsset in
-            let accountRequest = chainAsset.chain.accountRequest()
-            guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
-                return
-            }
-            let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
-
-            if let chainIdForFilter = metaAccount.networkManagmentFilter {
-                if chainAsset.chain.chainId == chainIdForFilter {
-                    enabledChainAssets.append(chainAsset)
-                } else {
-                    disabledChainAssets.append(chainAsset)
-                }
-                return
-            }
-
             let assetsVisibility = metaAccount.assetsVisibility
-            if assetsVisibility.first(where: { $0.assetId == chainAssetKey })?.hidden == true {
+            if assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })?.hidden == true {
                 disabledChainAssets.append(chainAsset)
             } else {
                 enabledChainAssets.append(chainAsset)

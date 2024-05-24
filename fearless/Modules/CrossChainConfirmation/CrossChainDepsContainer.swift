@@ -65,8 +65,6 @@ final class CrossChainDepsContainer {
             destinationStorageRequestPerformer: storageRequestPerformer
         )
 
-//        cachedDependencies[originalChainAsset.chain.chainId] = deps
-
         return deps
     }
 
@@ -108,7 +106,8 @@ final class CrossChainDepsContainer {
         let sourceConfig = ApplicationConfig.shared
         let services = XcmAssembly.createExtrincisServices(
             fromChainData: fromChainData,
-            sourceConfig: sourceConfig
+            sourceConfig: sourceConfig,
+            chainRegistry: ChainRegistryFacade.sharedRegistry
         )
 
         return services

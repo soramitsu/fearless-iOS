@@ -3,6 +3,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 // swiftlint:disable type_body_length
 final class RelaychainValidatorOperationFactory {

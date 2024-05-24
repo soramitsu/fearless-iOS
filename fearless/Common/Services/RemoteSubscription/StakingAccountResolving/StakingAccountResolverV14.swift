@@ -3,6 +3,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingAccountResolverV14: BaseStakingAccountResolver {
     override func resolveKeysAndSubscribe() {
