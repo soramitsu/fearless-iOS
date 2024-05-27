@@ -2,6 +2,7 @@ import RobinHood
 import SSFUtils
 import BigInt
 import IrohaCrypto
+import SSFRuntimeCodingService
 
 extension PayoutRewardsService {
     func createChainHistoryRangeOperationWrapper(

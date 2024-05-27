@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
+
 import SnapKit
 
 final class SendViewController: UIViewController, ViewHolder {
@@ -94,6 +94,8 @@ final class SendViewController: UIViewController, ViewHolder {
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
+
+        rootView.sendAllSwitch.addTarget(self, action: #selector(sendAllToggleSwitched), for: .valueChanged)
     }
 
     private func updateActionButton() {
@@ -119,6 +121,10 @@ final class SendViewController: UIViewController, ViewHolder {
 
     @objc private func selectNetworkClicked() {
         output.didTapSelectNetwork()
+    }
+
+    @objc private func sendAllToggleSwitched() {
+        output.didSwitchSendAll(rootView.sendAllSwitch.isOn)
     }
 }
 
@@ -206,6 +212,14 @@ extension SendViewController: SendViewInput {
     func setHistoryButton(isVisible: Bool) {
         rootView.historyButton.isHidden = !isVisible
     }
+
+    func switchEnableSendAllState(enabled: Bool) {
+        rootView.sendAllSwitch.isOn = enabled
+    }
+
+    func switchEnableSendAllVisibility(isVisible: Bool) {
+        rootView.switchEnableSendAllVisibility(isVisible: isVisible)
+    }
 }
 
 extension SendViewController: HiddableBarWhenPushed {}
@@ -271,7 +285,7 @@ extension SendViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         rootView.amountView.textField.resignFirstResponder()
 
-        output.selectAmountPercentage(percentage)
+        output.selectAmountPercentage(percentage, validate: true)
     }
 
     func didSelectDone(on _: AmountInputAccessoryView) {

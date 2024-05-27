@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import RobinHood
+import SSFRuntimeCodingService
 
 enum StorageDecodingOperationError: Error {
     case missingRequiredParams
@@ -267,7 +268,7 @@ final class StorageConstantOperation<T: Decodable>: BaseOperation<T>, ConstantDe
     }
 }
 
-final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable>: BaseOperation<T>, ConstantDecodable {
+final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable & Hashable>: BaseOperation<T>, ConstantDecodable {
     var codingFactory: RuntimeCoderFactoryProtocol?
 
     let path: ConstantCodingPath

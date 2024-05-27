@@ -12,10 +12,10 @@ protocol RootPresenterProtocol: AnyObject {
 protocol RootWireframeProtocol: AnyObject {
     func showSplash(splashView: ControllerBackedProtocol?, on window: UIWindow)
     func showLocalAuthentication(on window: UIWindow)
-    func showOnboarding(on window: UIWindow)
+    func showMain(on window: UIWindow)
     func showPincodeSetup(on window: UIWindow)
     func showBroken(on window: UIWindow)
-    func showEducationStories(on window: UIWindow)
+    func showOnboarding(on window: UIWindow)
 }
 
 protocol RootInteractorInputProtocol: AnyObject {

@@ -10,6 +10,12 @@ class BaseNavigationBar: BaseTopBar {
         case present
     }
 
+    enum BackButtonAlignment {
+        case left
+        case right
+        case clear
+    }
+
     let indicator: UIView = {
         UIFactory.default.createIndicatorView()
     }()
@@ -30,16 +36,25 @@ class BaseNavigationBar: BaseTopBar {
         return label
     }()
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    var backButtonAlignment: BackButtonAlignment = .left
 
+    init(backButtonAlignment: BackButtonAlignment = .left) {
+        self.backButtonAlignment = backButtonAlignment
+        super.init(frame: .zero)
         backgroundColor = R.color.colorBlack19()
     }
 
     override func setupLayout() {
         super.setupLayout()
 
-        setLeftViews([backButton])
+        switch backButtonAlignment {
+        case .left:
+            setLeftViews([backButton])
+        case .right:
+            setRightViews([backButton])
+        case .clear:
+            break
+        }
 
         backButton.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.backButtonSize)

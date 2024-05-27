@@ -1,6 +1,7 @@
 import RobinHood
-import CommonWallet
+
 import SSFModels
+import SoraFoundation
 
 final class WalletTransactionHistoryDependencyContainer {
     struct WalletTransactionHistoryDependencies {
@@ -21,7 +22,7 @@ final class WalletTransactionHistoryDependencyContainer {
 
         guard
             let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
-                chainAsset: chainAsset,
+                chain: chainAsset.chain,
                 txStorage: AnyDataProviderRepository(txStorage)
             )
         else {
@@ -29,19 +30,22 @@ final class WalletTransactionHistoryDependencyContainer {
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
-            cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory
         )
 
         let service = HistoryService(operationFactory: operationFactory, operationQueue: OperationQueue())
         var dataProvider: SingleValueProvider<AssetTransactionPageData>?
+        let filters = transactionHistoryFilters(for: chainAsset.chain).compactMap {
+            $0.items as? [WalletTransactionHistoryFilter]
+        }.reduce([], +)
+
         if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             dataProvider = try? dataProviderFactory.createDataProvider(
                 for: address,
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 targetIdentifier: "wallet.transaction.history.\(address).\(chainAsset.chainAssetId)",
-                using: .main
+                filters: filters
             )
         }
         dependencies = WalletTransactionHistoryDependencies(dataProvider: dataProvider, historyService: service)
@@ -54,5 +58,28 @@ final class WalletTransactionHistoryDependencyContainer {
             return utilityAsset
         }
         return chainAsset
+    }
+
+    func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
+        var filters: [WalletTransactionHistoryFilter] = [
+            WalletTransactionHistoryFilter(type: .transfer, selected: true)
+        ]
+        if chain.externalApi?.history?.type != .giantsquid && !chain.isReef {
+            filters.insert(WalletTransactionHistoryFilter(type: .other, selected: true), at: 1)
+        }
+        if chain.hasStakingRewardHistory || chain.isSora {
+            filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
+        }
+        if chain.hasPolkaswap {
+            filters.insert(WalletTransactionHistoryFilter(type: .swap, selected: true), at: 0)
+            filters.removeAll(where: { $0.type == .other })
+        }
+
+        return [FilterSet(
+            title: R.string.localizable.commonShow(
+                preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+            ),
+            items: filters
+        )]
     }
 }

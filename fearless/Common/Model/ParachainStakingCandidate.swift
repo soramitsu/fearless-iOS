@@ -1,5 +1,4 @@
 import Foundation
-import CommonWallet
 
 struct ParachainStakingCandidateInfo: Equatable {
     let address: AccountAddress

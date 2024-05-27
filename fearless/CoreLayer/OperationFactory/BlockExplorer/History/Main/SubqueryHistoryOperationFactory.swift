@@ -1,9 +1,10 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 class SubqueryHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
@@ -346,7 +347,7 @@ extension SubqueryHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters
             )
         } else {
-            let result = SubqueryHistoryData(historyElements: SubqueryHistoryData.HistoryElements(pageInfo: SubqueryPageInfo(startCursor: nil, endCursor: nil), nodes: []))
+            let result = SubqueryHistoryData(historyElements: SubqueryHistoryData.HistoryElements(pageInfo: SubqueryPageInfo(startCursor: nil, endCursor: nil, hasNextPage: nil), nodes: []))
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 

@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFRuntimeCodingService
 
 protocol NetworkStakingInfoOperationFactoryProtocol {
     func networkStakingOperation(

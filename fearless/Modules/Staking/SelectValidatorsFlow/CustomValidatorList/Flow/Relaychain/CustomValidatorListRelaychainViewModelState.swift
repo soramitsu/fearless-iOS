@@ -126,7 +126,7 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
             viewModel.selectedValidatorsCount += 1
         }
 
-        if var cellViewModel = viewModel.cellViewModels.first(where: { $0.address == address }) {
+        if var cellViewModel = viewModel.sections.compactMap({ $0.cells }).reduce([], +).first(where: { $0.address == address }) {
             cellViewModel.isSelected.toggle()
         }
         viewModel.selectedValidatorsCount = selectedValidatorList.count

@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
+
 import SnapKit
 
 final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -45,6 +45,7 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         output.didLoad(view: self)
         setupActions()
         configure()
+        addEndEditingTapGesture(for: rootView.contentView)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -111,18 +112,12 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
             target: self,
             action: #selector(handleTapMinReceiveInfo)
         )
-        let tapLiquidityProviderFeeInfo = UITapGestureRecognizer(
-            target: self,
-            action: #selector(handleTapLiquidityProviderFeeInfo)
-        )
         let tapNetworkFeeInfo = UITapGestureRecognizer(
             target: self,
             action: #selector(handleTapNetworkFeeInfo)
         )
         rootView.minMaxReceivedView.titleLabel
             .addGestureRecognizer(tapMinReceiveInfo)
-        rootView.liquidityProviderFeeView.titleLabel
-            .addGestureRecognizer(tapLiquidityProviderFeeInfo)
         rootView.networkFeeView.titleLabel
             .addGestureRecognizer(tapNetworkFeeInfo)
 
@@ -149,10 +144,6 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 
     @objc private func handleTapMinReceiveInfo() {
         output.didTapMinReceiveInfo()
-    }
-
-    @objc private func handleTapLiquidityProviderFeeInfo() {
-        output.didTapLiquidityProviderFeeInfo()
     }
 
     @objc private func handleTapNetworkFeeInfo() {

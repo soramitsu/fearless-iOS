@@ -36,7 +36,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         case .simple:
             preferredContentHeight = 100
         case .extended:
-            preferredContentHeight = 310
+            preferredContentHeight = UIScreen.main.bounds.size.height > 700 ? 300 : 330
         }
     }
 

@@ -152,6 +152,10 @@
 "backup.wallet.replace.several.alert" = "あなたは現在、メインのキー・ペアを置き換えて追加した複数のチェーンアカウントを持っており、それぞれに特定のキー・ペアを所有しています。しかし、現在のウォレットのバックアップ(エクスポート)機能は、複数のキー・ペアの保存をサポートしていないのでご注意ください。現状、保存できるのはメインのキー・ペアのみとなります。 \n \n チェーンアカウントの安全性を確保するため、現在のフローを進める前に、まず別個にバックアップすることをお勧めします。置き換えたチェーンアカウントのバックアップに成功したら、何の心配もなくフローを進むことができます。";
 "backup.wallet.seed" = "シードを表示";
 "backup.wallet.title" = "ウォレットのバックアップ";
+"balance.locks.governance.row.title" = "Governance";
+"balance.locks.liquidity.pools.row.title" = "Liquidity Pools";
+"balance.locks.nomination.pools.row.title" = "Nomination Pools";
+"balance.locks.screen.title" = "Locked details";
 "banners.view.factory.backup.action.title" = "今すぐバックアップ";
 "banners.view.factory.backup.subtitle" = "デバイスを失くすと、永久に資金も失います";
 "banners.view.factory.backup.title" = "ウォレットのバックアップ";
@@ -174,6 +178,7 @@
 "common.add" = "追加";
 "common.address" = "アドレス";
 "common.advanced" = "高度な";
+"common.and.others.placeholder" = "%s & others";
 "common.applied" = "適用されました";
 "common.apply" = "適用する";
 "common.approve" = "承認";
@@ -193,12 +198,14 @@
 "common.choose.action" = "アクションを選択";
 "common.choose.network" = "ネットワークを選択";
 "common.close" = "閉じる";
+"common.commission" = "Commission";
 "common.confirm" = "確認";
 "common.confirm.password" = "パスワードの確認";
 "common.confirm.title" = "確認";
 "common.confirmation.title" = "本当によいですか？";
 "common.confirmed" = "確認済み";
 "common.connections" = "接続";
+"common.contacts" = "Contacts";
 "common.continue" = "続行";
 "common.copied" = "クリップボードにコピーしました";
 "common.copy" = "コピー";
@@ -218,8 +225,9 @@
 "common.error.no.data.retrieved" = "データが取得されていません";
 "common.error.password.mismatch" = "パスワードが一致しません";
 "common.events" = "イベント";
+"common.existential.error.message" = "このトランザクションにより、アカウント存続預金を下回るため(%@)、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。";
 "common.existential.warning.max.amount" = "Set max amount";
-"common.existential.warning.message" = "このトランザクションにより、アカウント存続預金を下回るため、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。継続を選択した場合、ネットワークによって設定された存続預金額を下回る資金を失うことになります。詳細な情報については、ネットワークの公式ドキュメント(例：Polkadot Wiki)を参照してください。フィアレス・ウォレットは完全な非管理的なアプリであり、ネットワークでのあなたの行動については一切判らないし制御もできません。あなたが、その意味を理解して完全に同意した場合のみ、続行してください";
+"common.existential.warning.message" = "このトランザクションにより、アカウント存続預金を下回るため (%@)、「刈り取られる」ことになります(スペースを節約するためにブロックチェーンの状態からアカウントは消去されます)。継続を選択した場合、ネットワークによって設定された存続預金額を下回る資金を失うことになります。詳細な情報については、ネットワークの公式ドキュメント(例：Polkadot Wiki)を参照してください。フィアレス・ウォレットは完全な非管理的なアプリであり、ネットワークでのあなたの行動については一切判らないし制御もできません。あなたが、その意味を理解して完全に同意した場合のみ、続行してください";
 "common.existential.warning.title" = "操作によりアカウントが削除されます";
 "common.expiry" = "有効期限";
 "common.export" = "アカウントをエクスポート";
@@ -281,6 +289,7 @@
 "common.sign" = "署名";
 "common.skip" = "スキップ";
 "common.staking" = "ステーキング";
+"common.start" = "Start";
 "common.terms.and.conditions" = "利用規約";
 "common.till.date" = "%sまで";
 "common.time.left" = "残り時間";
@@ -321,6 +330,7 @@
 "contacts.contact.address" = "連絡先住所";
 "contacts.contact.name" = "連絡先";
 "contacts.create.contact" = "連絡先を作成";
+"contacts.empty.message" = "No contacts found";
 "contacts.recent" = "最近";
 "contacts.scan" = "QRコードをスキャン";
 "contacts.undefined" = "未定義";
@@ -488,6 +498,7 @@
 "network.status.connected" = "接続済み";
 "network.status.connecting" = "接続しています...";
 "network.url.address" = "URLアドレス";
+"nft.choose.recipient.title" = "Choose recipient";
 "nft.collection.available.nfts" = "%sコレクションで利用可能なNFT";
 "nft.collection.my.nfts" = "私のNFT";
 "nft.collection.title" = "コレクション";
@@ -513,6 +524,7 @@
 "onboarding.preinstalled.wallet.button.text" = "プリインストールされたウォレットを取得";
 "onboarding.restore.account" = "アカウントをインポート";
 "onboarding.restore.wallet" = "すでにウォレットを持っている";
+"onboarding.start.title" = "未来から来たDeFiウォレット";
 "onboarding.terms.and.conditions.1" = "私は規約と条件、個人情報保護方針を読み、同意します";
 "operation.error.message" = "後でもう一度お試しください";
 "operation.error.title" = "操作できません";
@@ -690,13 +702,14 @@
 "select.save.type" = "保存形式を選択";
 "select.suggested.validators.warning" = "アルゴリズム・バリデーターの提案は、金融に関する相談や助言に該当するものではありません。ステーキングはハイリスクな活動であり、アルゴリズムによるバリデーターの提案は、必ずしもこのリスクを軽減するものではありません。アルゴリズムによって提案されたバリデーターは、候補から外れる可能性があります。アルゴリズムによって提案されたバリデーターは、提案および/または選択された後、いつでもパラメーター(例：手数料率など)を変更することができます。これらの理由や他の理由で報酬を失う可能性があります。関連するリスクを注意して慎重に検討した上で、ご自身の判断でトークンをステークし、バリデーターの提案を使用するようにしてください";
 "select.validators.disclaimer" = "免責事項：アルゴリズム・バリデーターの提案は、金融に関する相談や助言に該当するものではありません。ステーキングはハイリスクな活動であり、アルゴリズムによるバリデーターの提案は、必ずしもこのリスクを軽減するものではありません。アルゴリズムによって提案されたバリデーターは、切り取られる可能性があります。アルゴリズムによって提案されたバリデーターは、提案および/または選択された後、いつでもパラメーター(例：手数料率など)を変更することができます。これらの理由や他の理由でトークンや報酬を失う可能性があります。関連するリスクを注意して慎重に検討した上で、ご自身の判断でトークンをステークし、バリデーターの提案を使用するようにしてください";
+"send.all.title" = "Send all tokens and reap the account";
 "send.confirm.amount.title" = "送信中\n%@";
 "send.fund.title" = "資金を送る";
 "settings.add.wallet" = "ウォレットを追加";
 "settings.hide.zero.balances" = "残高ゼロを隠す";
 "share.referral.code" = "紹介コードを共有";
 "sign.this.message" = "メッセージに署名しますか？";
-"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %@ network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
+"sora.bridge.amount.less.fee" = "The amount you're trying to transfer is insufficient to cover the transaction fees on the %s network. Although the transaction won't process, you'll still be charged the fees on the Sora network.";
 "sora.bridge.low.amaunt.polkadot.alert" = "Currently, there's a min. amount 1.1 DOT for bridging to ensure the stability and security. We appreciate your understanding.";
 "sora.bridge.low.amount.alert" = "現在、SORAネットワークの安定性と安全性を確保するため、ブリッジングには最低0.05 KSMが設定されています。ご理解のほどよろしくお願いいたします。";
 "sora.card.status.failure.text" = "本人確認(KYC)処理が終了したか、そうでなければ失敗しました";
@@ -1001,6 +1014,7 @@
 "terms.and.conditions.sora.community.alert.main" = "SORAコミュニティはあなたの個人データを収集しません";
 "terms.and.conditions.sora.community.alert.secondary" = "ただし、SORAカードと IBANアカウントを取得するには、カード発行会社との本人確認(KYC)の処理を通過する必要があります";
 "terms.and.conditions.title" = "規約と条件";
+"tranaction.history.others.tab.title" = "Others";
 "transaction.detail.date" = "日付";
 "transaction.detail.status" = "状態";
 "transaction.details.copy.hash" = "ハッシュをコピーする";
@@ -1010,6 +1024,7 @@
 "transaction.details.view.etherscan" = "イーサスキャン(Etherscan)で見る";
 "transaction.details.view.polkascan" = "ポルカスキャン(Polkascan)で見る";
 "transaction.details.view.reefscan" = "View in Reefscan";
+"transaction.details.view.oklink" = "View in Oklink";
 "transaction.details.view.subscan" = "サブスキャン(Subscan)で見る";
 "transaction.list.header" = "全てのトランザクション";
 "transaction.status.completed" = "完了";
@@ -1026,6 +1041,10 @@
 "username.setup.title.2.0" = "新しいウォレットを作成";
 "validator.info.comission.title" = "コミッション";
 "validators.list.empty.message" = "バリデーターが見つかりません";
+"verify.phone.number.title" = "Verify your phone number";
+"vesting.claim.disclaimer.text" = "Due to the unique vesting schedules of each parachain, our app is unable to display the quantity of locked tokens eligible for claiming. Please be advised that initiating a claim may be impractical if the prospective amount is marginal and comparable to the transaction fee involved. For comprehensive insights into your locked balances, consult the Subscan blockexplorer. We urge you to assess the information carefully and proceed at your own discretion.";
+"vesting.claim.disclaimer.title" = "Important Notice Regarding Token Claims:";
+"vesting.locked.title" = "Vesting Locked";
 "view.in" = "%sで見る";
 "view.wallet" = "ウォレットを見る";
 "wallet.account.locks.democracy" = "民主主義";
@@ -1117,3 +1136,7 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
+"balance.locks.blocked.row.title" = "Blocked";
+"wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
+"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
+"wallet.all.assets.hidden" = "You have hidden all assets";

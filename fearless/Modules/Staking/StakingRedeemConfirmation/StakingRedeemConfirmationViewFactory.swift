@@ -4,6 +4,7 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFAccountManagmentStorage
 
 final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewFactoryProtocol {
     static func createView(

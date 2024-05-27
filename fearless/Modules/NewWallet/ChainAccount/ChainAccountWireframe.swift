@@ -234,17 +234,25 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
     func presentLockedInfo(
         from view: ControllerBackedProtocol?,
-        balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo,
-        currency: Currency
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
-        let balanceLocksController = ModalInfoFactory.createFromBalanceContext(
-            balanceContext,
-            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info, usageCase: .detailsCrypto),
-            precision: info.assetPrecision,
-            currency: currency
-        )
-        view?.controller.present(balanceLocksController, animated: true)
+        guard let module = BalanceLocksDetailAssembly.configureModule(chainAsset: chainAsset, wallet: wallet) else {
+            return
+        }
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showClaimCrowdloanRewardsFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let module = ClaimCrowdloanRewardsAssembly.configureModule(wallet: wallet, chainAsset: chainAsset) else {
+            return
+        }
+
+        view?.controller.navigationController?.present(module.view.controller, animated: true)
     }
 }
 

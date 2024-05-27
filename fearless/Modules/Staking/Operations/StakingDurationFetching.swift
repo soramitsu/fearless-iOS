@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFRuntimeCodingService
 
 protocol StakingDurationFetching {
     func fetchStakingDuration(

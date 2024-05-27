@@ -103,29 +103,96 @@ final actor EthereumRemoteBalanceFetching {
 }
 
 extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
+    func fetch(
+        for chainAsset: ChainAsset,
+        accountId: AccountId
+    ) async throws -> (ChainAsset, AccountInfo?) {
+        guard let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) else {
+            return (chainAsset, nil)
+        }
+
+        switch chainAsset.asset.ethereumType {
+        case .normal:
+            let accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
+            try cache(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
+            return (chainAsset, accountInfo)
+        case .erc20, .bep20:
+            let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
+            try cache(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
+            return (chainAsset, accountInfo)
+        case .none:
+            return (chainAsset, nil)
+        }
+    }
+
+    func fetch(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) async throws -> [ChainAsset: AccountInfo?] {
+        let balances = try await withThrowingTaskGroup(of: (ChainAsset, AccountInfo?)?.self, returning: [ChainAsset: AccountInfo?].self) { [weak self] group in
+            guard let strongSelf = self else {
+                return [:]
+            }
+
+            let chainAssets = chainAssets.filter { $0.chain.isEthereum }
+
+            chainAssets.forEach { chainAsset in
+                group.addTask {
+                    guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+                        return (chainAsset, nil)
+                    }
+
+                    switch chainAsset.asset.ethereumType {
+                    case .normal:
+                        do {
+                            let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
+                            return (chainAsset, accountInfo)
+                        } catch {
+                            return (chainAsset, nil)
+                        }
+                    case .erc20, .bep20:
+                        do {
+                            let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
+                            return (chainAsset, accountInfo)
+                        } catch {
+                            return (chainAsset, nil)
+                        }
+                    case .none:
+                        return (chainAsset, nil)
+                    }
+                }
+            }
+
+            var result: [ChainAsset: AccountInfo?] = [:]
+
+            for try await accountInfoByChainAsset in group.compactMap({ $0 }) {
+                let chainAsset = accountInfoByChainAsset.0
+                let accountInfo = accountInfoByChainAsset.1
+                if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+                    try self?.cache(
+                        accountInfo: accountInfo,
+                        chainAsset: chainAsset,
+                        accountId: accountId
+                    )
+                }
+
+                result[chainAsset] = accountInfo
+            }
+
+            return result
+        }
+
+        return balances
+    }
+
     nonisolated func fetch(
         for chainAsset: ChainAsset,
         accountId: AccountId,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
         Task {
-            guard let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) else {
-                completionBlock(chainAsset, nil)
-                return
-            }
-
-            switch chainAsset.asset.ethereumType {
-            case .normal:
-                let accountInfo = try await fetchETHBalance(for: chainAsset, address: address)
-                try cache(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
-                completionBlock(chainAsset, accountInfo)
-            case .erc20, .bep20:
-                let accountInfo = try await fetchERC20Balance(for: chainAsset, address: address)
-                try cache(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
-                completionBlock(chainAsset, accountInfo)
-            case .none:
-                break
-            }
+            let result = try await fetch(for: chainAsset, accountId: accountId)
+            completionBlock(result.0, result.1)
         }
     }
 
@@ -135,60 +202,24 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
         Task {
-            let balances = try await withThrowingTaskGroup(of: (ChainAsset, AccountInfo?)?.self, returning: [ChainAsset: AccountInfo?].self) { [weak self] group in
-                guard let strongSelf = self else {
-                    return [:]
-                }
-
-                let chainAssets = chainAssets.filter { $0.chain.isEthereum }
-
-                chainAssets.forEach { chainAsset in
-                    group.addTask {
-                        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
-                            return (chainAsset, nil)
-                        }
-
-                        switch chainAsset.asset.ethereumType {
-                        case .normal:
-                            do {
-                                let accountInfo = try await strongSelf.fetchETHBalance(for: chainAsset, address: address)
-                                return (chainAsset, accountInfo)
-                            } catch {
-                                return nil
-                            }
-                        case .erc20, .bep20:
-                            do {
-                                let accountInfo = try await strongSelf.fetchERC20Balance(for: chainAsset, address: address)
-                                return (chainAsset, accountInfo)
-                            } catch {
-                                return nil
-                            }
-                        case .none:
-                            return (chainAsset, nil)
-                        }
-                    }
-                }
-
-                var result: [ChainAsset: AccountInfo?] = [:]
-
-                for try await accountInfoByChainAsset in group.compactMap({ $0 }) {
-                    let chainAsset = accountInfoByChainAsset.0
-                    let accountInfo = accountInfoByChainAsset.1
-                    if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-                        try self?.cache(
-                            accountInfo: accountInfo,
-                            chainAsset: chainAsset,
-                            accountId: accountId
-                        )
-                    }
-
-                    result[chainAsset] = accountInfo
-                }
-
-                return result
-            }
-
-            completionBlock(balances)
+            let result = try await fetch(for: chainAssets, wallet: wallet)
+            completionBlock(result)
         }
+    }
+
+    func fetchByUniqKey(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) async throws -> [ChainAssetKey: AccountInfo?] {
+        let accountInfos = try await fetch(for: chainAssets, wallet: wallet)
+        let mapped: [(ChainAssetKey, AccountInfo?)] = accountInfos.compactMap { chainAsset, accountInfo in
+            let request = chainAsset.chain.accountRequest()
+            guard let accountId = wallet.fetch(for: request)?.accountId else {
+                return nil
+            }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            return (key, accountInfo)
+        }
+        return Dictionary(uniqueKeysWithValues: mapped)
     }
 }

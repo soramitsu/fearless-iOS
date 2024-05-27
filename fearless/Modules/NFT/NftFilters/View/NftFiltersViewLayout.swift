@@ -28,7 +28,7 @@ final class NftFiltersViewLayout: UIView {
     }
 
     func applyLocalization() {
-        navigationBar.titleLabel.text = R.string.localizable.nftsFiltersTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(R.string.localizable.nftsFiltersTitle(preferredLanguages: locale.rLanguages))
     }
 
     override init(frame: CGRect) {

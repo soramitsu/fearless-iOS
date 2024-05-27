@@ -10,6 +10,11 @@ final class SendPresenter {
         case normal
     }
 
+    enum ValidationCase {
+        case validateAmount(completionHandler: () -> Void)
+        case validateAll
+    }
+
     // MARK: Private properties
 
     private weak var view: SendViewInput?
@@ -28,12 +33,16 @@ final class SendPresenter {
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset? {
         didSet {
+            checkSendAllVisibility()
+
             DispatchQueue.main.async {
                 self.view?.setInputAccessoryView(visible: self.selectedChainAsset?.isBokolo == false)
             }
         }
     }
 
+    private var assetAccountInfo: NoneStateOptional<AssetAccountInfo?> = .none
+    private var frozenBalance: Decimal?
     private var selectedAsset: AssetModel?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
@@ -46,12 +55,17 @@ final class SendPresenter {
     private var scamInfo: ScamInfo?
     private var state: State = .normal
     private var eqUilibriumTotalBalance: Decimal?
+    private var sendAllEnabled: Bool = false
     private var balanceMinusFeeAndTip: Decimal {
         let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
         if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
-            return (balance ?? 0)
+            return (balance ?? 0) - (frozenBalance ?? 0)
         }
-        return (balance ?? 0) - (fee ?? 0) - (tip ?? 0)
+        return (balance ?? 0) - (fee ?? 0) - (tip ?? 0) - (frozenBalance ?? 0)
+    }
+
+    private var freeBalance: Decimal {
+        (balance ?? 0) - (frozenBalance ?? 0)
     }
 
     private var fullAmount: Decimal {
@@ -97,6 +111,11 @@ final class SendPresenter {
 
     // MARK: - Private methods
 
+    private func checkSendAllVisibility() {
+        let visible = minimumBalance.map { $0 > BigUInt.zero && freeBalance > 0 && selectedChainAsset?.isUtility == true }
+        view?.switchEnableSendAllVisibility(isVisible: visible == true)
+    }
+
     private func buildBalanceViewModelFactory(
         wallet: MetaAccountModel,
         for chainAsset: ChainAsset?
@@ -121,16 +140,14 @@ final class SendPresenter {
     }
 
     private func provideAssetVewModel() {
-        guard let chainAsset = selectedChainAsset else { return }
+        guard let chainAsset = selectedChainAsset, case let .value(assetInfo) = assetAccountInfo else { return }
         let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
-
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
-
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
-            balance: balance,
+            balance: freeBalance,
             priceData: priceData,
             selectable: initialData.selectableAsset
         ).value(for: selectedLocale)
@@ -434,7 +451,11 @@ final class SendPresenter {
         }
     }
 
-    private func validateInputData(with address: String, chainAsset: ChainAsset) {
+    private func validateInputData(
+        with address: String,
+        chainAsset: ChainAsset,
+        validationCase: ValidationCase
+    ) {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let spendingValue = (sendAmountDecimal ?? 0) + (fee ?? 0) + (tip ?? 0)
 
@@ -471,42 +492,94 @@ final class SendPresenter {
                 totalBalance: eqUilibriumTotalBalance
             )
         }
-
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-                self?.refreshFee(for: chainAsset, address: address)
-            }),
-            dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: balanceType,
-                feeAndTip: (fee ?? 0) + (tip ?? 0),
-                sendAmount: sendAmountDecimal,
-                locale: selectedLocale
-            ),
-            dataValidatingFactory.exsitentialDepositIsNotViolated(
+        var validators: [DataValidating?]
+        switch validationCase {
+        case let .validateAmount(handler):
+            validators = [minimumBalance != nil ? dataValidatingFactory.exsitentialDepositIsNotViolated(
                 parameters: edParameters,
                 locale: selectedLocale,
-                chainAsset: chainAsset
-            )
+                chainAsset: chainAsset,
+                sendAllEnabled: sendAllEnabled,
+                proceedAction: { [weak self] in
+                    guard let self else {
+                        return
+                    }
 
-        ]).runValidation { [weak self] in
-            guard
-                let strongSelf = self,
-                let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
-            else { return }
-            let transfer = Transfer(
-                chainAsset: chainAsset,
-                amount: amount,
-                receiver: address,
-                tip: strongSelf.tipValue
-            )
-            strongSelf.router.presentConfirm(
-                from: strongSelf.view,
-                wallet: strongSelf.wallet,
-                chainAsset: chainAsset,
-                call: .transfer(transfer),
-                scamInfo: strongSelf.scamInfo,
-                feeViewModel: nil
-            )
+                    self.sendAllEnabled = true
+                    self.view?.switchEnableSendAllState(enabled: self.sendAllEnabled)
+                    handler()
+                },
+                setMaxAction: { [weak self] in
+                    self?.sendAllEnabled = true
+                    self?.view?.switchEnableSendAllState(enabled: true)
+                    self?.selectAmountPercentage(1, validate: false)
+                },
+                cancelAction: { [weak self] in
+                    self?.sendAllEnabled = false
+                    self?.view?.switchEnableSendAllState(enabled: false)
+                    self?.selectAmountPercentage(0, validate: false)
+                }
+            ) : nil]
+        case .validateAll:
+            validators = [
+                dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                    self?.refreshFee(for: chainAsset, address: address)
+                }),
+                dataValidatingFactory.canPayFeeAndAmount(
+                    balanceType: balanceType,
+                    feeAndTip: (fee ?? 0) + (tip ?? 0),
+                    sendAmount: sendAmountDecimal,
+                    locale: selectedLocale
+                ),
+                dataValidatingFactory.exsitentialDepositIsNotViolated(
+                    parameters: edParameters,
+                    locale: selectedLocale,
+                    chainAsset: chainAsset,
+                    sendAllEnabled: sendAllEnabled,
+                    proceedAction: { [weak self] in
+                        self?.sendAllEnabled = true
+                        self?.view?.switchEnableSendAllState(enabled: true)
+                    },
+                    setMaxAction: { [weak self] in
+                        self?.sendAllEnabled = true
+                        self?.view?.switchEnableSendAllState(enabled: true)
+                        self?.selectAmountPercentage(1)
+                    },
+                    cancelAction: { [weak self] in
+                        self?.sendAllEnabled = false
+                        self?.view?.switchEnableSendAllState(enabled: false)
+                        self?.selectAmountPercentage(0)
+                    }
+                )
+            ]
+        }
+        DataValidationRunner(validators: validators.compactMap { $0 }).runValidation { [weak self] in
+            switch validationCase {
+            case let .validateAmount(handler):
+                handler()
+            case .validateAll:
+                guard
+                    let strongSelf = self,
+                    let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+                else { return }
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+
+                let transfer = Transfer(
+                    chainAsset: chainAsset,
+                    amount: amount,
+                    receiver: address,
+                    tip: strongSelf.tipValue,
+                    appId: appId
+                )
+                strongSelf.router.presentConfirm(
+                    from: strongSelf.view,
+                    wallet: strongSelf.wallet,
+                    chainAsset: chainAsset,
+                    call: .transfer(transfer),
+                    scamInfo: strongSelf.scamInfo,
+                    feeViewModel: nil
+                )
+            }
         }
     }
 
@@ -805,8 +878,21 @@ extension SendPresenter: SendViewOutput {
         }
     }
 
-    func selectAmountPercentage(_ percentage: Float) {
+    func selectAmountPercentage(_ percentage: Float, validate: Bool = true) {
         inputResult = .rate(Decimal(Double(percentage)))
+        if let chainAsset = selectedChainAsset, validate {
+            validateInputData(
+                with: "",
+                chainAsset: chainAsset,
+                validationCase: .validateAmount(completionHandler: { [weak self] in
+                    self?.inputResult = .rate(Decimal(Double(percentage)))
+                    self?.provideAssetVewModel()
+                    self?.provideInputViewModel()
+                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
+                })
+            )
+        }
+
         provideAssetVewModel()
         provideInputViewModel()
         guard let chainAsset = selectedChainAsset else { return }
@@ -815,6 +901,17 @@ extension SendPresenter: SendViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
+        if let chainAsset = selectedChainAsset {
+            validateInputData(
+                with: "",
+                chainAsset: chainAsset,
+                validationCase: .validateAmount(completionHandler: { [weak self] in
+                    self?.provideAssetVewModel()
+                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
+                })
+            )
+        }
+
         provideAssetVewModel()
         guard let chainAsset = selectedChainAsset else { return }
         refreshFee(for: chainAsset, address: recipientAddress)
@@ -830,7 +927,11 @@ extension SendPresenter: SendViewOutput {
             validateXorlessTransfer()
         } else {
             validateAddress(with: chainAsset) { [weak self] address in
-                self?.validateInputData(with: address, chainAsset: chainAsset)
+                self?.validateInputData(
+                    with: address,
+                    chainAsset: chainAsset,
+                    validationCase: .validateAll
+                )
             }
         }
     }
@@ -862,7 +963,7 @@ extension SendPresenter: SendViewOutput {
 
     func didTapSelectNetwork() {
         guard let chainAsset = selectedChainAsset else { return }
-        interactor.defineAvailableChains(for: chainAsset.asset) { [weak self] chains in
+        interactor.defineAvailableChains(for: chainAsset.asset, wallet: wallet) { [weak self] chains in
             guard let strongSelf = self, let availableChains = chains else { return }
             strongSelf.router.showSelectNetwork(
                 from: strongSelf.view,
@@ -877,11 +978,28 @@ extension SendPresenter: SendViewOutput {
     func searchTextDidChanged(_ text: String) {
         handle(newAddress: text)
     }
+
+    func didSwitchSendAll(_ enabled: Bool) {
+        sendAllEnabled = enabled
+        selectAmountPercentage(Float(enabled.intValue), validate: false)
+    }
 }
 
 // MARK: - SendInteractorOutput
 
 extension SendPresenter: SendInteractorOutput {
+    func didReceiveAssetAccountInfo(assetAccountInfo: AssetAccountInfo?) {
+        self.assetAccountInfo = .value(assetAccountInfo)
+        frozenBalance = selectedChainAsset.flatMap { Decimal.fromSubstrateAmount((assetAccountInfo?.locked).or(.zero), precision: Int16($0.asset.precision)) }
+        provideAssetVewModel()
+    }
+
+    func didReceiveAssetAccountInfoError(error: Error) {
+        assetAccountInfo = .value(nil)
+        provideAssetVewModel()
+        logger?.customError(error)
+    }
+
     func didReceive(scamInfo: ScamInfo?) {
         self.scamInfo = scamInfo
         view?.didReceive(scamInfo: scamInfo)
@@ -901,6 +1019,7 @@ extension SendPresenter: SendInteractorOutput {
                 if chainAsset.isUtility {
                     utilityBalance = balance
                 }
+                checkSendAllVisibility()
             } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
                       utilityAsset == chainAsset {
                 utilityBalance = accountInfo.map {
@@ -925,8 +1044,10 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
+            checkSendAllVisibility()
             logger?.info("Did receive minimum balance \(minimumBalance)")
         case let .failure(error):
+            checkSendAllVisibility()
             logger?.error("Did receive minimum balance error: \(error)")
         }
     }
@@ -1061,7 +1182,7 @@ extension SendPresenter: SelectAssetModuleOutput {
                 handle(selectedChain: chain)
             } else {
                 state = .normal
-                interactor.defineAvailableChains(for: asset) { [weak self] chains in
+                interactor.defineAvailableChains(for: asset, wallet: wallet) { [weak self] chains in
                     if let availableChains = chains, let strongSelf = self {
                         if availableChains.count == 1 {
                             self?.handle(selectedChain: availableChains.first)

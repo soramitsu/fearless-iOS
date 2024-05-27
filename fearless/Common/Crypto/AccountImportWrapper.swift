@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import IrohaCrypto
+import SSFCrypto
 
 struct MnemonicImportSecrets {
     let entropy: Data

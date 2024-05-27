@@ -16,7 +16,7 @@ protocol NftCollectionViewOutput: AnyObject {
 protocol NftCollectionInteractorInput: AnyObject {
     func initialSetup()
     func setup(with output: NftCollectionInteractorOutput)
-    func loadNext()
+    func fetchData()
 }
 
 protocol NftCollectionInteractorOutput: AnyObject {

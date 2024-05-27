@@ -14,14 +14,17 @@ protocol CrossChainViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(destinationFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(recipientViewModel: RecipientViewModel)
+    func setButtonLoadingState(isLoading: Bool)
 }
 
 protocol CrossChainInteractorInput: AnyObject {
     var deps: CrossChainDepsContainer.CrossChainConfirmationDeps? { get }
     func setup(with output: CrossChainInteractorOutput)
     func didReceive(originChainAsset: ChainAsset?)
+    func didReceive(destinationChain: ChainModel)
     func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?)
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
+    func fetchDestinationAccountInfo(address: String)
 }
 
 final class CrossChainPresenter {
@@ -45,12 +48,30 @@ final class CrossChainPresenter {
     private var originNetworkSelectedAssetBalance: Decimal = .zero
     private var originNetworkUtilityTokenBalance: BigUInt = .zero
     private var existentialDeposit: BigUInt?
+    private var destExistentialDeposit: BigUInt?
+    private var destAccountInfo: AccountInfo?
+    private var assetAccountInfo: AssetAccountInfo?
 
     private var prices: [PriceData] = []
 
     private var destWallet: MetaAccountModel?
     private var recipientAddress: String?
-    private var selectedDestChainModel: ChainModel?
+    private var selectedDestChainModel: ChainModel? {
+        didSet {
+            guard let selectedDestChainModel else {
+                return
+            }
+
+            interactor.didReceive(destinationChain: selectedDestChainModel)
+
+            if let wallet = destWallet, let address = wallet.fetch(for: selectedDestChainModel.accountRequest())?.toAddress() {
+                interactor.fetchDestinationAccountInfo(address: address)
+            } else if let address = recipientAddress {
+                interactor.fetchDestinationAccountInfo(address: address)
+            }
+        }
+    }
+
     private var availableDestChainModels: [ChainModel] = []
 
     private var originNetworkFee: Decimal?
@@ -58,6 +79,8 @@ final class CrossChainPresenter {
     private var inputViewModel: IAmountInputViewModel?
     private var originNetworkFeeViewModel: BalanceViewModelProtocol?
     private var destNetworkFeeViewModel: BalanceViewModelProtocol?
+
+    private var loadingCollector = CrossChainViewLoadingCollector()
 
     // MARK: - Constructors
 
@@ -84,13 +107,21 @@ final class CrossChainPresenter {
 
     // MARK: - Private methods
 
+    private func runLoadingState() {
+        view?.setButtonLoadingState(isLoading: true)
+        loadingCollector.reset()
+    }
+
+    private func checkLoadingState() {
+        view?.setButtonLoadingState(isLoading: !loadingCollector.isReady)
+    }
+
     private func provideInputViewModel() {
         let balanceViewModelFactory = buildBalanceViewModelFactory(
             wallet: wallet,
             for: selectedAmountChainAsset
         )
-        let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero))
+        let inputAmount = calculateAbsoluteValue()
         let inputViewModel = balanceViewModelFactory?
             .createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
@@ -105,13 +136,13 @@ final class CrossChainPresenter {
             for: selectedAmountChainAsset
         )
 
-        let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance)
-
+        let inputAmount = calculateAbsoluteValue()
+        let locked = assetAccountInfo.map { Decimal.fromSubstrateAmount($0.locked, precision: Int16(selectedAmountChainAsset.asset.precision)) }?.or(.zero)
+        let balance = originNetworkSelectedAssetBalance - locked.or(.zero)
         let priceData = prices.first(where: { $0.priceId == selectedAmountChainAsset.asset.priceId })
         let assetBalanceViewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
-            balance: originNetworkSelectedAssetBalance,
+            balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
 
@@ -127,6 +158,7 @@ final class CrossChainPresenter {
         guard let selectedDestChainModel = selectedDestChainModel else {
             return
         }
+
         let viewModel = viewModelFactory.buildNetworkViewModel(chain: selectedDestChainModel)
         view?.didReceive(destSelectNetworkViewModel: viewModel)
     }
@@ -153,6 +185,9 @@ final class CrossChainPresenter {
 
         originNetworkFeeViewModel = viewModel.value(for: selectedLocale)
         view?.didReceive(originFeeViewModel: viewModel)
+
+        loadingCollector.originFeeReady = true
+        checkLoadingState()
     }
 
     private func provideDestNetworkFeeViewModel() {
@@ -176,6 +211,9 @@ final class CrossChainPresenter {
 
         destNetworkFeeViewModel = viewModel.value(for: selectedLocale)
         view?.didReceive(destinationFeeViewModel: viewModel)
+
+        loadingCollector.destinationFeeReady = true
+        checkLoadingState()
     }
 
     private func buildBalanceViewModelFactory(
@@ -206,6 +244,9 @@ final class CrossChainPresenter {
         guard let destChain = selectedDestChainModel else {
             return
         }
+        loadingCollector.addressExists = !newAddress.isEmpty
+        checkLoadingState()
+        interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
         let isValid = interactor.validate(address: newAddress, for: destChain).isValid
         let viewModel = viewModelFactory.buildRecipientViewModel(
@@ -231,19 +272,46 @@ final class CrossChainPresenter {
         }
     }
 
-    private func continueWithValidation() {
-        let inputAmountDecimal = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
+    private func calculateAbsoluteValue() -> Decimal? {
+        amountInputResult?
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired())
+    }
 
+    private func continueWithValidation() {
         guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
             return
         }
         let utilityBalance = Decimal.fromSubstrateAmount(originNetworkUtilityTokenBalance, precision: Int16(utilityChainAsset.asset.precision))
-        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision))
+        let minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
+        let inputAmountDecimal = amountInputResult?
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired()) ?? .zero
         let edParameters: ExistentialDepositValidationParameters = .utility(
-            spendingAmount: originNetworkFee,
+            spendingAmount: originNetworkFeeIfRequired() + inputAmountDecimal,
             totalAmount: utilityBalance,
             minimumBalance: minimumBalance
+        )
+        let destChainAsset = selectedDestChainModel.map {
+            ChainAsset(chain: $0, asset: selectedAmountChainAsset.asset)
+        }
+
+        let destBalanceDecimal: Decimal? = (destAccountInfo?.data.sendAvailable).flatMap {
+            guard let destChainAsset else {
+                return nil
+            }
+
+            return Decimal.fromSubstrateAmount($0, precision: Int16(destChainAsset.asset.precision))
+        }
+
+        let destMinimumBalance: Decimal? = destExistentialDeposit.flatMap {
+            Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision))
+        }
+
+        let totalDestinationAmount = destBalanceDecimal.map { $0 + inputAmountDecimal }
+
+        let destEdParameters: ExistentialDepositValidationParameters = .utility(
+            spendingAmount: 0,
+            totalAmount: totalDestinationAmount,
+            minimumBalance: destMinimumBalance
         )
 
         let originFeeValidating = dataValidatingFactory.has(
@@ -261,14 +329,12 @@ final class CrossChainPresenter {
             }
         )
 
-        let sendAmount: Decimal
+        let sendAmount = inputAmountDecimal
         let balanceType: BalanceType
 
         if selectedAmountChainAsset.chainAssetId == utilityChainAsset.chainAssetId {
-            sendAmount = inputAmountDecimal + (originNetworkFee ?? .zero)
             balanceType = .utility(balance: utilityBalance)
         } else {
-            sendAmount = inputAmountDecimal
             balanceType = .orml(balance: originNetworkSelectedAssetBalance, utilityBalance: utilityBalance)
         }
 
@@ -282,13 +348,17 @@ final class CrossChainPresenter {
         let exsitentialDepositIsNotViolated = dataValidatingFactory.exsitentialDepositIsNotViolated(
             parameters: edParameters,
             locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset
+            chainAsset: selectedAmountChainAsset,
+            canProceedIfViolated: false,
+            proceedAction: {},
+            setMaxAction: {},
+            cancelAction: {}
         )
 
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
             originCHainId: selectedOriginChainModel.chainId,
             destChainId: selectedDestChainModel?.chainId,
-            amount: sendAmount,
+            amount: inputAmountDecimal,
             locale: selectedLocale
         )
 
@@ -319,7 +389,7 @@ final class CrossChainPresenter {
               let inputViewModel = inputViewModel,
               let originChainFee = originNetworkFeeViewModel,
               let destChainFee = destNetworkFeeViewModel,
-              let inputAmount = amountInputResult?.absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)),
+              let inputAmount = calculateAbsoluteValue(),
               let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
               let xcmServices = interactor.deps?.xcmServices,
               let recipientAddress = recipientAddress,
@@ -352,9 +422,8 @@ final class CrossChainPresenter {
         guard let selectedDestChainModel = selectedDestChainModel else {
             return
         }
-        let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance) ?? 1
-
+        let inputAmount = calculateAbsoluteValue().or(1)
+        view?.setButtonLoadingState(isLoading: true)
         interactor.estimateFee(
             originChainAsset: selectedAmountChainAsset,
             destinationChainModel: selectedDestChainModel,
@@ -390,13 +459,37 @@ final class CrossChainPresenter {
             actions: []
         )
     }
+
+    private func originNetworkFeeIfRequired() -> Decimal {
+        if let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
+           selectedAmountChainAsset.chainAssetId == utilityChainAsset.chainAssetId,
+           let fee = originNetworkFee {
+            return fee
+        }
+        return .zero
+    }
+
+    private func deriveTransferableBalance() {
+        let totalBalance = Decimal.fromSubstrateAmount(
+            originNetworkBalanceValue,
+            precision: Int16(selectedAmountChainAsset.asset.precision)
+        ) ?? .zero
+        var minimumBalance: Decimal = .zero
+        if let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first {
+            minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
+        }
+
+        originNetworkSelectedAssetBalance = totalBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired() - (minimumBalance * 1.1)
+        provideAssetViewModel()
+    }
 }
 
 // MARK: - CrossChainViewOutput
 
 extension CrossChainPresenter: CrossChainViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
-        view?.didStartLoading()
+        loadingCollector.originFeeReady = false
+        view?.setButtonLoadingState(isLoading: true)
         amountInputResult = .rate(Decimal(Double(percentage)))
         provideAssetViewModel()
         provideInputViewModel()
@@ -404,7 +497,8 @@ extension CrossChainPresenter: CrossChainViewOutput {
     }
 
     func updateAmount(_ newValue: Decimal) {
-        view?.didStartLoading()
+        loadingCollector.originFeeReady = false
+        view?.setButtonLoadingState(isLoading: true)
         amountInputResult = .absolute(newValue)
         provideAssetViewModel()
         estimateFee()
@@ -506,7 +600,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
     }
 
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult) {
-        view?.didStopLoading()
         switch result {
         case let .success(response):
             guard
@@ -545,14 +638,11 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         switch result {
         case let .success(success):
             originNetworkBalanceValue = success?.data.sendAvailable ?? .zero
+            loadingCollector.balanceReady = true
+            checkLoadingState()
+
             if receiveUniqueKey == selectedAmountChainAsset.uniqueKey(accountId: accountId) {
-                originNetworkSelectedAssetBalance = success.map {
-                    Decimal.fromSubstrateAmount(
-                        $0.data.sendAvailable,
-                        precision: Int16(chainAsset.asset.precision)
-                    ) ?? .zero
-                } ?? .zero
-                provideAssetViewModel()
+                deriveTransferableBalance()
             }
             if let originUtilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
                receiveUniqueKey == originUtilityChainAsset.uniqueKey(accountId: accountId) {
@@ -589,9 +679,51 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         switch result {
         case let .success(existentialDeposit):
             self.existentialDeposit = existentialDeposit
+            deriveTransferableBalance()
+            loadingCollector.existentialDepositReady = true
+            checkLoadingState()
         case let .failure(error):
             logger.customError(error)
         }
+    }
+
+    func didReceiveDestinationExistentialDeposit(result: Result<BigUInt, Error>) {
+        switch result {
+        case let .success(value):
+            destExistentialDeposit = value
+            loadingCollector.destinationExistentialDepositReady = true
+            checkLoadingState()
+        case let .failure(error):
+            logger.customError(error)
+            loadingCollector.destinationExistentialDepositReady = true
+            checkLoadingState()
+        }
+    }
+
+    func didReceiveDestinationAccountInfo(accountInfo: AccountInfo?) {
+        destAccountInfo = accountInfo
+        loadingCollector.destinationBalanceReady = true
+        checkLoadingState()
+    }
+
+    func didReceiveDestinationAccountInfoError(error: Error) {
+        logger.customError(error)
+        loadingCollector.destinationBalanceReady = true
+        checkLoadingState()
+    }
+
+    func didReceiveAssetAccountInfo(assetAccountInfo: AssetAccountInfo?) {
+        loadingCollector.assetAccountInfoReady = true
+        checkLoadingState()
+        self.assetAccountInfo = assetAccountInfo
+
+        provideAssetViewModel()
+    }
+
+    func didReceiveAssetAccountInfoError(error: Error) {
+        loadingCollector.assetAccountInfoReady = true
+        logger.customError(error)
+        checkLoadingState()
     }
 }
 
@@ -613,8 +745,7 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
         guard let chainAsset = chainAsset else {
             return
         }
-
-        view?.didStartLoading()
+        runLoadingState()
 
         destNetworkFee = nil
         originNetworkFee = nil
@@ -640,8 +771,7 @@ extension CrossChainPresenter: SelectNetworkDelegate {
         guard let chain = chain else {
             return
         }
-
-        view?.didStartLoading()
+        runLoadingState()
 
         destNetworkFee = nil
         originNetworkFee = nil
@@ -695,5 +825,8 @@ extension CrossChainPresenter: WalletsManagmentModuleOutput {
         view?.didReceive(recipientViewModel: viewModel)
         destWallet = wallet
         recipientAddress = address
+        loadingCollector.addressExists = true
+        checkLoadingState()
+        interactor.fetchDestinationAccountInfo(address: address)
     }
 }

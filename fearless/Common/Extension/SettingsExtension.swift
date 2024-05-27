@@ -13,6 +13,7 @@ enum SettingsKey: String {
     case stakingNetworkExpansion
     case referralEthereumAccount
     case selectedCurrency
+    case shouldPlayAssetManagementAnimateKey
 }
 
 extension SettingsManagerProtocol {
@@ -79,6 +80,15 @@ extension SettingsManagerProtocol {
 
         set {
             set(value: newValue, for: SettingsKey.stakingNetworkExpansion.rawValue)
+        }
+    }
+
+    var shouldRunManageAssetAnimate: Bool {
+        get {
+            bool(for: SettingsKey.shouldPlayAssetManagementAnimateKey.rawValue) == nil
+        }
+        set {
+            set(value: newValue, for: SettingsKey.shouldPlayAssetManagementAnimateKey.rawValue)
         }
     }
 }

@@ -4,6 +4,7 @@ import RobinHood
 import SSFUtils
 import SoraFoundation
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol?
@@ -56,7 +57,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     private var chainSubscriptionId: UUID?
     private var accountSubscriptionId: UUID?
 
-    var rewardAssetPriceProvider: AnySingleValueProvider<[PriceData]>?
     var priceProvider: AnySingleValueProvider<[PriceData]>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     var stashControllerProvider: StreamableProvider<StashItem>?
@@ -249,8 +249,15 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
+        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
+            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
+        ) != nil
+
+        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
+
         fetchConstant(
-            for: .maxNominatorRewardedPerValidator,
+            for: maxNominatorsConstantCodingPath,
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] result in
@@ -398,7 +405,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        rewardAssetPriceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
+        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, stakingSettings.value].compactMap { $0 }, listener: self)
     }
 
 //    Parachain

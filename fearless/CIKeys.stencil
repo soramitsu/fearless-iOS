@@ -55,8 +55,13 @@ enum BlockExplorerApiKeys {
     static var polygonscanApiKey: String = "{{ argument.polygonscanApiKey }}"
     static var bscscanApiKey: String = "{{ argument.bscscanApiKey }}"
     static var oklinkApiKey: String = "{{ argument.oklinkApiKey }}"
+    static var opMainnetApiKey: String = "{{ argument.opMainnetApiKey }}"
 }
 
 enum ThirdPartyServicesApiKeys {
     static var alchemyApiKey: String = "{{ argument.alchemyApiKey }}"
+}
+
+enum DwellirNodeApiKey {
+    static var dwellirApiKey: String = "{{ argument.dwellirApiKey }}"
 }

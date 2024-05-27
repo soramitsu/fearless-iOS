@@ -82,7 +82,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             locale: locale
         )
 
-        let totalBalance = balanceTokenFormatterValue.stringFromDecimal(balanceInfo.totalFiatValue) ?? "0"
+        let totalBalance = balanceTokenFormatterValue.stringFromDecimal(balanceInfo.enabledAssetFiatBalance) ?? "0"
         let dayChangeAttributedString = getDayChangeAttributedString(
             currency: balanceInfo.currency,
             dayChange: balanceInfo.dayChangePercent,

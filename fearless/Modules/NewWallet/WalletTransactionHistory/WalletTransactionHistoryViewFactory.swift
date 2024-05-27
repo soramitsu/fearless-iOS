@@ -1,6 +1,5 @@
 import Foundation
 import SSFUtils
-import CommonWallet
 import RobinHood
 import SoraFoundation
 import SSFModels
@@ -55,7 +54,6 @@ enum WalletTransactionHistoryViewFactory {
         )
 
         presenter.view = view
-        interactor.presenter = presenter
 
         return WalletTransactionHistoryModule(view: view, moduleInput: presenter)
     }
@@ -84,16 +82,15 @@ enum WalletTransactionHistoryViewFactory {
     }
 
     private static func createHistoryDeps(
-        for chainAsset: ChainAsset
+        for chain: ChainModel
     ) -> (HistoryServiceProtocol, HistoryDataProviderFactoryProtocol)? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
-        let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
 
         guard
             let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
-                chainAsset: chainAsset,
+                chain: chain,
                 txStorage: AnyDataProviderRepository(txStorage)
             )
         else {
@@ -101,7 +98,6 @@ enum WalletTransactionHistoryViewFactory {
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
-            cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory
         )
 

@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import SSFModels
 
 final class AccountCreateWireframe: AccountCreateWireframeProtocol {
     func confirm(

@@ -1,6 +1,8 @@
 import RobinHood
 import SSFUtils
 import SoraKeystore
+import Foundation
+import SSFRuntimeCodingService
 
 protocol EraCountdownOperationFactoryProtocol {
     func fetchCountdownOperationWrapper(
@@ -165,7 +167,7 @@ final class EraCountdownOperationFactory: EraCountdownOperationFactoryProtocol {
         return wrapper
     }
 
-    private func createFetchConstantWrapper<T: LosslessStringConvertible & Equatable>(
+    private func createFetchConstantWrapper<T: LosslessStringConvertible & Equatable & Hashable>(
         for path: ConstantCodingPath,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<T> {

@@ -12,8 +12,13 @@ final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber
 
     func subscribeAccountProvider(
         for accountId: AccountId,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        notifyJustWhenUpdated: Bool
     ) -> StreamableProvider<AccountInfoStorageWrapper>? {
-        subscribeToAccountInfoProvider(for: accountId, chainAsset: chainAsset)
+        subscribeToAccountInfoProvider(
+            for: accountId,
+            chainAsset: chainAsset,
+            notifyJustWhenUpdated: notifyJustWhenUpdated
+        )
     }
 }

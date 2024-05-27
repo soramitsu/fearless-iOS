@@ -1,5 +1,5 @@
 import UIKit
-import CommonWallet
+
 import RobinHood
 import SoraFoundation
 import SSFModels
@@ -296,7 +296,9 @@ final class WalletTransactionHistoryInteractor {
 }
 
 extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractorInputProtocol {
-    func setup() {
+    func setup(with presenter: WalletTransactionHistoryInteractorOutputProtocol?) {
+        self.presenter = presenter
+
         setupDependencies(for: chainAsset)
         setupReloadTimer()
 

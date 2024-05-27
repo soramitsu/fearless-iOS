@@ -215,20 +215,19 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
             return AnySingleValueProvider(provider)
         }
 
-        let repository = SubstrateRepositoryFactory(
+        let repository = try SubstrateRepositoryFactory(
             storageFacade: storageFacade
         ).createSingleValueRepository()
 
         let trigger = DataProviderProxyTrigger()
 
-        let operationFactory = RewardOperationFactory.factory(chain: chain)
-
+        let fetcher = try StakingRewardsFetcherAssembly().fetcher(for: chain)
         let source = SubqueryRewardSource(
             address: address,
             assetPrecision: assetPrecision,
             targetIdentifier: identifier,
             repository: AnyDataProviderRepository(repository),
-            operationFactory: operationFactory,
+            rewardsFetcher: fetcher,
             trigger: trigger,
             operationManager: operationManager,
             logger: Logger.shared

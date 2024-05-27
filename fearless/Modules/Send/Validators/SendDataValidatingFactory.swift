@@ -88,14 +88,19 @@ class SendDataValidatingFactory: NSObject {
         parameters: ExistentialDepositValidationParameters,
         locale: Locale,
         chainAsset: ChainAsset,
-        canProceedIfViolated: Bool = true
+        canProceedIfViolated: Bool = true,
+        sendAllEnabled: Bool = false,
+        proceedAction: @escaping () -> Void,
+        setMaxAction: @escaping () -> Void,
+        cancelAction: @escaping () -> Void
     ) -> DataValidating {
-        WarningConditionViolation(onWarning: { [weak self] delegate in
+        WarningConditionViolation(onWarning: { [weak self] _ in
             guard let view = self?.view else {
                 return
             }
 
-            let existentianDepositValue = "\(parameters.minimumBalance ?? .zero) \(chainAsset.asset.symbolUppercased)"
+            let symbol = chainAsset.chain.utilityAssets().first?.symbolUppercased ?? chainAsset.asset.symbolUppercased
+            let existentianDepositValue = "\(parameters.minimumBalance ?? .zero) \(symbol)"
 
             if !canProceedIfViolated {
                 self?.basePresentable.presentExistentialDepositError(
@@ -104,20 +109,81 @@ class SendDataValidatingFactory: NSObject {
                     locale: locale
                 )
             }
-
             self?.basePresentable.presentExistentialDepositWarning(
                 existentianDepositValue: existentianDepositValue,
                 from: view,
-                action: {
-                    delegate.didCompleteWarningHandling()
-                },
+                proceedHandler: proceedAction,
+                setMaxHandler: setMaxAction,
+                cancelHandler: cancelAction,
                 locale: locale
             )
+        }, preservesCondition: {
+            guard !chainAsset.chain.isEthereum else {
+                return true
+            }
+            if sendAllEnabled, canProceedIfViolated {
+                return true
+            }
+            switch parameters {
+            case let .utility(spendingAmount, totalAmount, minimumBalance):
+                guard let spendingAmount = spendingAmount else {
+                    return true
+                }
+
+                if case .ormlChain = chainAsset.chainAssetType {
+                    return true
+                }
+
+                if
+                    let totalAmount = totalAmount,
+                    let minimumBalance = minimumBalance,
+                    totalAmount >= spendingAmount {
+                    return totalAmount - spendingAmount >= minimumBalance
+                } else {
+                    return false
+                }
+            case let .orml(minimumBalance, feeAndTip, utilityBalance):
+                guard minimumBalance ?? 0 > 0 else {
+                    return true
+                }
+                guard let feeAndTip = feeAndTip else {
+                    return true
+                }
+
+                if let utilityBalance = utilityBalance, let minimumBalance = minimumBalance {
+                    return utilityBalance - feeAndTip >= minimumBalance
+                } else {
+                    return false
+                }
+            case let .equilibrium(minimumBalance, totalBalance):
+                guard let minimumBalance = minimumBalance,
+                      let totalBalance = totalBalance
+                else {
+                    return false
+                }
+
+                return totalBalance > minimumBalance
+            }
+        })
+    }
+
+    func destinationExistentialDepositIsNotViolated(
+        parameters: ExistentialDepositValidationParameters,
+        locale: Locale,
+        chainAsset: ChainAsset
+    ) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] _ in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentDestinationExistentialDepositError(from: view, locale: locale)
 
         }, preservesCondition: {
             guard !chainAsset.chain.isEthereum else {
                 return true
             }
+
             switch parameters {
             case let .utility(spendingAmount, totalAmount, minimumBalance):
                 guard let spendingAmount = spendingAmount else {
@@ -174,6 +240,7 @@ class SendDataValidatingFactory: NSObject {
 
             self?.basePresentable.presentSoraBridgeLowAmountError(
                 from: view,
+                originChainId: originCHainId,
                 locale: locale
             )
         }, preservesCondition: {
@@ -186,6 +253,8 @@ class SendDataValidatingFactory: NSObject {
             switch (originKnownChain, destKnownChain) {
             case (.kusama, .soraMain):
                 return amount >= 0.05
+            case (.polkadot, .soraMain), (.soraMain, .polkadot):
+                return amount >= 1.1
             default:
                 return true
             }
@@ -222,6 +291,8 @@ class SendDataValidatingFactory: NSObject {
 
             switch (originKnownChain, destKnownChain) {
             case (.soraMain, .kusama):
+                return amount > fee
+            case (.soraMain, .polkadot):
                 return amount > fee
             default:
                 return true

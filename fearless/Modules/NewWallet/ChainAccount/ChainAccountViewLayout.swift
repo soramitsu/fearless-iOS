@@ -160,6 +160,7 @@ final class ChainAccountViewLayout: UIView {
         super.init(frame: frame)
         setupLayout()
         applyLocalization()
+        selectNetworkButton.applySelectableStyle(false)
     }
 
     @available(*, unavailable)
@@ -185,7 +186,7 @@ final class ChainAccountViewLayout: UIView {
     }
 
     func bind(balanceViewModel: ChainAccountBalanceViewModel?) {
-        balanceInfoStackView.isHidden = balanceViewModel == nil
+//        balanceInfoStackView.isHidden = balanceViewModel == nil
 
         transferableBalanceView.bindBalance(viewModel: balanceViewModel?.transferrableValue.value(for: locale))
         balanceLocksView.bindBalance(viewModel: balanceViewModel?.lockedValue.value(for: locale))
@@ -194,8 +195,6 @@ final class ChainAccountViewLayout: UIView {
 
     func bind(viewModel: ChainAccountViewModel) {
         walletNameTitle.text = viewModel.walletName
-        selectNetworkButton.set(text: viewModel.selectedChainName, image: viewModel.selectedChainIcon)
-
         buyButton.isHidden = !viewModel.buyButtonVisible
         polkaswapButton.isHidden = !viewModel.polkaswapButtonVisible
         crossChainButton.isHidden = !viewModel.xcmButtomVisible
@@ -203,10 +202,10 @@ final class ChainAccountViewLayout: UIView {
         optionsButton.isHidden = viewModel.mode == .simple
         switch viewModel.mode {
         case .simple:
-            selectNetworkButton.set(text: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages), image: nil)
+            selectNetworkButton.set(text: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages), image: BundleImageViewModel(image: R.image.iconNetwotkManagmentAll()))
             addressCopyableLabel.isHidden = true
         case .extended:
-            selectNetworkButton.set(text: viewModel.selectedChainName, image: nil)
+            selectNetworkButton.set(text: viewModel.selectedChainName, image: viewModel.selectedChainIcon)
             if let address = viewModel.address {
                 addressCopyableLabel.isHidden = false
                 addressCopyableLabel.bind(title: address)

@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import SoraFoundation
 import SSFModels
 import BigInt
@@ -185,7 +185,7 @@ extension AssetTransactionData {
         fee: AssetTransactionFee,
         status _: AssetTransactionStatus
     ) -> AssetTransactionData {
-        let from = item.data?.from
+        let from = item.address ?? ""
         let to = item.data?.to
         let assetId = item.data?.assetId ?? ""
         let amount = item.data?.amount ?? ""
@@ -195,12 +195,12 @@ extension AssetTransactionData {
             transactionId: item.id,
             status: .commited,
             assetId: assetId,
-            peerId: "",
+            peerId: from,
             peerFirstName: item.module,
             peerLastName: item.method,
             peerName: to,
             details: "",
-            amount: AmountDecimal(string: amount) ?? AmountDecimal(value: 0),
+            amount: fee.amount,
             fees: [fee],
             timestamp: timestamp,
             type: TransactionType.extrinsic.rawValue,

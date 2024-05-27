@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFSingleValueCache
 
 protocol PriceProviderFactoryProtocol {
     func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
@@ -30,12 +31,12 @@ class PriceProviderFactory {
 
 extension PriceProviderFactory: PriceProviderFactoryProtocol {
     func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[SSFModels.PriceData]> {
-        let identifier = currencies?.compactMap { $0.id }.joined(separator: ".") ?? PriceDataSource.defaultIdentifier
+        let identifier = currencies?.compactMap { $0.id }.sorted().joined(separator: ".") ?? PriceDataSource.defaultIdentifier
 
         if let provider = providers[identifier]?.target as? SingleValueProvider<[PriceData]> {
             if remoteFetchTimer == nil {
                 DispatchQueue.main.async {
-                    self.remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: 60, repeats: false, block: { [weak self] timer in
+                    self.remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: 10, repeats: false, block: { [weak self] timer in
                         timer.invalidate()
                         self?.remoteFetchTimer = nil
                     })
@@ -45,7 +46,7 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
             return AnySingleValueProvider(provider)
         }
 
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = storageFacade.createRepository()
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
         let source = PriceDataSource(currencies: currencies)
         let trigger: DataProviderEventTrigger = [.onInitialization, .onFetchPage]
         let provider = SingleValueProvider(

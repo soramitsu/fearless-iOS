@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import IrohaCrypto
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol IdentityOperationFactoryProtocol {
     func createIdentityWrapper(
@@ -62,7 +63,7 @@ final class IdentityOperationFactory {
                             chainFormat: chain.chainFormat
                         )
 
-                        result[address] = value
+                        result[address] = value.identity
                     }
                 }
 

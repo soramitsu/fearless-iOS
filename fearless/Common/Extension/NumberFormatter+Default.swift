@@ -81,11 +81,17 @@ public extension NumberFormatter {
     }
 
     private static func defaultFiatFormatter(locale: Locale) -> NumberFormatter {
-        let formatter = NumberFormatter()
-        formatter.locale = locale
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
-        return formatter
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.minimumIntegerDigits = 1
+        numberFormatter.minimumFractionDigits = 0
+        numberFormatter.maximumFractionDigits = Int.max
+        numberFormatter.usesGroupingSeparator = true
+        numberFormatter.alwaysShowsDecimalSeparator = false
+        numberFormatter.usesSignificantDigits = true
+        numberFormatter.locale = locale
+
+        return numberFormatter
     }
 
     private static func defaultPercentFormatter(locale: Locale) -> NumberFormatter {

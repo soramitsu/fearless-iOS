@@ -15,14 +15,14 @@ class DefaultCoordinator: Coordinator {
 
     // MARK: - Public methods
 
-    func addDependency(_ coordinator: Coordinator) {
+    func addChildCoordinator(_ coordinator: Coordinator) {
         for element in childCoordinators {
             if element === coordinator { return }
         }
         childCoordinators.append(coordinator)
     }
 
-    func removeDependency(_ coordinator: Coordinator?) {
+    func removeChildCoordinator(_ coordinator: Coordinator?) {
         guard childCoordinators.isEmpty == false, let coordinator = coordinator else { return }
 
         for (index, element) in childCoordinators.enumerated() {

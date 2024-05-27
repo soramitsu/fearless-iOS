@@ -6,10 +6,12 @@ enum ChainAction {
     case polkascan(url: URL)
     case subscan(url: URL)
     case etherscan(url: URL)
+    case oklink(url: URL)
     case switchNode
     case export
     case replace
     case reefscan(url: URL)
+    case claimCrowdloanRewards
 
     var icon: UIImage? {
         switch self {
@@ -19,10 +21,12 @@ enum ChainAction {
             return R.image.iconRetry()
         case .copyAddress:
             return R.image.iconCopy()
-        case .polkascan, .subscan, .etherscan, .reefscan:
+        case .polkascan, .subscan, .etherscan, .reefscan, .oklink:
             return R.image.iconOpenWeb()
         case .replace:
             return R.image.iconReplace()
+        case .claimCrowdloanRewards:
+            return R.image.iconInfo()
         }
     }
 
@@ -46,6 +50,10 @@ enum ChainAction {
             return R.string.localizable.transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
         case .reefscan:
             return R.string.localizable.transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
+        case .claimCrowdloanRewards:
+            return R.string.localizable.poolStakingManagementClaimTitle(preferredLanguages: locale.rLanguages)
+        case .oklink:
+            return R.string.localizable.transactionDetailsViewOklink(preferredLanguages: locale.rLanguages)
         }
     }
 }

@@ -1,5 +1,5 @@
 import UIKit
-import CommonWallet
+
 import RobinHood
 import SoraUI
 import SoraFoundation
@@ -81,6 +81,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             for: .touchUpInside
         )
 
+        rootView.typeSwitcher.delegate = self
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(WalletTransactionHistoryCell.self)
@@ -103,14 +104,18 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
         case let .loaded(viewModel):
             handle(changes: viewModel.lastChanges)
             rootView.tableView.isHidden = viewModel.sections.isEmpty
-            rootView.filterButton.isHidden = !viewModel.filtersEnabled
+            rootView.filterButton.isHidden = viewModel.filtering != .multiple
+            rootView.typeSwitcherContainer.isHidden = viewModel.filtering != .single
+            rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
         case let .reloaded(viewModel):
             state = .loaded(viewModel: viewModel)
             reloadContent()
             rootView.tableView.isHidden = viewModel.sections.isEmpty
-            rootView.filterButton.isHidden = !viewModel.filtersEnabled
+            rootView.filterButton.isHidden = viewModel.filtering != .multiple
+            rootView.typeSwitcherContainer.isHidden = viewModel.filtering != .single
+            rootView.separatorView.isHidden = viewModel.filtering != .multiple
 
             handleNextPageOnScroll(scrollView: rootView.tableView)
         case .unsupported:
@@ -619,6 +624,8 @@ extension WalletTransactionHistoryViewController: EmptyStateViewOwnerProtocol {
 
 extension WalletTransactionHistoryViewController: Localizable {
     func applyLocalization() {
+        rootView.locale = selectedLocale
+
         if isViewLoaded {
             reloadEmptyState(animated: false)
 
@@ -630,5 +637,11 @@ extension WalletTransactionHistoryViewController: Localizable {
 
             view.setNeedsLayout()
         }
+    }
+}
+
+extension WalletTransactionHistoryViewController: FWSegmentedControlDelegate {
+    func didSelect(_ segmentIndex: Int) {
+        presenter.didChangeFiltersSliderValue(index: segmentIndex)
     }
 }

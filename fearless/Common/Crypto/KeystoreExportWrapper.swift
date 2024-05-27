@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 protocol KeystoreExportWrapperProtocol {
     func export(
@@ -54,7 +55,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }
 
-        guard let cryptoType = SSFUtils.CryptoType(onChainType: chainAccount.cryptoType.rawValue) else {
+        guard let cryptoType = CryptoType(onChainType: chainAccount.cryptoType.rawValue) else {
             throw KeystoreExportWrapperError.unsupportedCryptoType
         }
 

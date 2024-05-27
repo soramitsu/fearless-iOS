@@ -3,11 +3,6 @@ import SoraFoundation
 import BigInt
 import SSFModels
 
-enum ChainAccountViewMode {
-    case simple
-    case extended
-}
-
 final class ChainAccountPresenter {
     weak var view: ChainAccountViewProtocol?
     let wireframe: ChainAccountWireframeProtocol
@@ -34,10 +29,11 @@ final class ChainAccountPresenter {
         )
     }()
 
-    private var balanceLocks: BalanceLocks?
-    private var balance: WalletBalanceInfo?
-    private var minimumBalance: BigUInt?
-    private var accountInfo: AccountInfo?
+    private var frozen: NoneStateOptional<Decimal?> = .none
+    private var balanceLocks: NoneStateOptional<Decimal?> = .none
+    private var balance: NoneStateOptional<WalletBalanceInfo?> = .none
+    private var minimumBalance: NoneStateOptional<BigUInt?> = .none
+    private var accountInfo: NoneStateOptional<AccountInfo?> = .none
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
@@ -77,36 +73,41 @@ final class ChainAccountPresenter {
     }
 
     private func provideBalanceViewModel() {
-        var accountInfo: AccountInfo? = self.accountInfo
+        guard
+            case var .value(accountInfoValue) = accountInfo,
+            case let .value(frozenValue) = frozen,
+            case let .value(balanceValue) = balance,
+            case let .value(balanceLocksValue) = balanceLocks
+        else {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceive(balanceViewModel: nil)
+            }
+            return
+        }
 
         if
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-            let optionalAccountInfo = balance?.accountInfos[chainAsset.uniqueKey(accountId: accountId)],
+            let optionalAccountInfo = balanceValue?.accountInfos[chainAsset.uniqueKey(accountId: accountId)],
             let wrappedAccountInfo = optionalAccountInfo {
-            accountInfo = wrappedAccountInfo
+            accountInfoValue = wrappedAccountInfo
         }
 
-        let free = accountInfo?.data.sendAvailable ?? BigUInt.zero
-        let locked = accountInfo?.data.locked ?? BigUInt.zero
-
-        let priceData = balance?.prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let free = accountInfoValue?.data.sendAvailable ?? BigUInt.zero
+        let priceData = balanceValue?.prices.first(where: { $0.priceId == chainAsset.asset.priceId })
         let freeBalance = Decimal.fromSubstrateAmount(
             free,
             precision: Int16(chainAsset.asset.precision)
         ) ?? Decimal.zero
-        let lockedBalance = Decimal.fromSubstrateAmount(
-            locked,
-            precision:
-            Int16(chainAsset.asset.precision)
-        ) ?? Decimal.zero
 
-        let transferrableValue = balanceViewModelFactory.balanceFromPrice(freeBalance, priceData: priceData, usageCase: .detailsCrypto)
-        let lockedValue = balanceViewModelFactory.balanceFromPrice(lockedBalance, priceData: priceData, usageCase: .detailsCrypto)
+        let transferrableBalance = freeBalance - frozenValue.or(.zero)
+        let transferrableValue = balanceViewModelFactory.balanceFromPrice(transferrableBalance, priceData: priceData, usageCase: .detailsCrypto)
+        let totalLocked = balanceLocksValue.or(.zero) + frozenValue.or(.zero)
+        let lockedValue = balanceViewModelFactory.balanceFromPrice(totalLocked, priceData: priceData, usageCase: .detailsCrypto)
 
         let balanceViewModel = ChainAccountBalanceViewModel(
             transferrableValue: transferrableValue,
             lockedValue: lockedValue,
-            hasLockedTokens: lockedBalance > Decimal.zero
+            hasLockedTokens: totalLocked > Decimal.zero
         )
 
         DispatchQueue.main.async { [weak self] in
@@ -173,38 +174,6 @@ final class ChainAccountPresenter {
                 }
             }
         )
-    }
-
-    private func createBalanceContext() -> BalanceContext? {
-        guard let balance = balance else {
-            return nil
-        }
-
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-           let accountInfo = balance.accountInfos[chainAsset.uniqueKey(accountId: accountId)],
-           let info = accountInfo,
-           let free = Decimal.fromSubstrateAmount(info.data.free, precision: Int16(chainAsset.asset.precision)),
-           let reserved = Decimal.fromSubstrateAmount(info.data.reserved, precision: Int16(chainAsset.asset.precision)),
-           let frozen = Decimal.fromSubstrateAmount(info.data.frozen, precision: Int16(chainAsset.asset.precision)),
-           let minBalance = minimumBalance,
-           let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance),
-           let locks = balanceLocks {
-            var price: Decimal = 0
-            let priceData = balance.prices.first(where: { $0.priceId == chainAsset.asset.priceId })
-            if let data = priceData, let decimalPrice = Decimal(string: data.price) {
-                price = decimalPrice
-            }
-            return BalanceContext(
-                free: free,
-                reserved: reserved,
-                frozen: frozen,
-                price: price,
-                priceChange: priceData?.fiatDayChange ?? 0,
-                minimalBalance: decimalMinBalance,
-                balanceLocks: locks
-            )
-        }
-        return nil
     }
 }
 
@@ -291,24 +260,33 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapLockedInfoButton() {
-        guard let balance = balance else {
-            return
-        }
-
-        if let balanceContext = createBalanceContext() {
-            wireframe.presentLockedInfo(
-                from: view,
-                balanceContext: balanceContext,
-                info: chainAsset.asset.displayInfo,
-                currency: balance.currency
-            )
-        }
+        wireframe.presentLockedInfo(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
     }
 }
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
+    func didReceiveAssetFrozen(_ frozen: Decimal?) {
+        self.frozen = .value(frozen)
+        provideBalanceViewModel()
+    }
+
+    func didReceiveAssetFrozenError(_ error: Error) {
+        frozen = .value(nil)
+        provideBalanceViewModel()
+        logger.customError(error)
+    }
+
     func didReceiveExportOptions(options: [ExportOption]) {
-        let items: [ChainAction] = [.export, .switchNode, .replace]
+        var items: [ChainAction] = []
+        items.append(.export)
+        if !chainAsset.chain.isEthereum { items.append(.switchNode) }
+        items.append(.replace)
+        if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
+
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
             guard let self = self else { return }
             let action = items[selectedIndex]
@@ -332,6 +310,8 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                 )
             case .replace:
                 self.startReplaceAccountFlow()
+            case .claimCrowdloanRewards:
+                self.wireframe.showClaimCrowdloanRewardsFlow(from: self.view, chainAsset: self.chainAsset, wallet: self.wallet)
             default:
                 break
             }
@@ -366,22 +346,25 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         moduleOutput?.updateTransactionHistory(for: chainAsset)
     }
 
-    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>) {
-        switch result {
-        case let .success(balanceLocks):
-            self.balanceLocks = balanceLocks
-            provideBalanceViewModel()
-        case let .failure(error):
-            logger.error("Did receive balance locks error: \(error)")
-        }
+    func didReceiveBalanceLocks(_ balanceLocks: Decimal?) {
+        self.balanceLocks = .value(balanceLocks)
+        provideBalanceViewModel()
+    }
+
+    func didReceiveBalanceLocksError(_ error: Error) {
+        balanceLocks = .value(nil)
+        provideBalanceViewModel()
+        logger.error("Did receive balance locks error: \(error)")
     }
 
     func didReceiveWalletBalancesResult(_ result: WalletBalancesResult) {
         switch result {
         case let .success(balances):
-            balance = balances[wallet.metaId]
+            balance = .value(balances[wallet.metaId])
             provideBalanceViewModel()
         case let .failure(error):
+            balance = .value(nil)
+            provideBalanceViewModel()
             logger.error(error.localizedDescription)
         }
     }
@@ -389,14 +372,15 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(minimumBalance):
-            self.minimumBalance = minimumBalance
+            self.minimumBalance = .value(minimumBalance)
         case let .failure(error):
+            minimumBalance = .value(nil)
             logger.error("Did receive minimum balance error: \(error)")
         }
     }
 
     func didReceive(accountInfo: AccountInfo?, for _: ChainAsset, accountId _: AccountId) {
-        self.accountInfo = accountInfo
+        self.accountInfo = .value(accountInfo)
         provideBalanceViewModel()
     }
 

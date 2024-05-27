@@ -2,6 +2,22 @@ import Foundation
 import SSFUtils
 import BigInt
 
+struct ValidatorExposurePage: Codable {
+    let others: [IndividualExposure]
+    @StringCodable var pageTotal: BigUInt
+
+    static func + (lhs: ValidatorExposurePage, rhs: ValidatorExposurePage) -> ValidatorExposurePage {
+        ValidatorExposurePage(others: lhs.others + rhs.others, pageTotal: lhs.pageTotal + rhs.pageTotal)
+    }
+}
+
+struct ValidatorExposureMetadata: Codable {
+    @StringCodable var total: BigUInt
+    @StringCodable var own: BigUInt
+    @StringCodable var nominatorCount: UInt32
+    @StringCodable var pageCount: UInt32
+}
+
 struct ValidatorExposure: Codable {
     @StringCodable var total: BigUInt
     @StringCodable var own: BigUInt

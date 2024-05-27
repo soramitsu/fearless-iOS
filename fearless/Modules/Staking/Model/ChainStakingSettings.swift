@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import RobinHood
+import SSFRuntimeCodingService
 
 enum ChainStakingSettingsType {
     case `default`
@@ -13,7 +14,7 @@ protocol ChainStakingSettings {
     var type: ChainStakingSettingsType { get }
 
     func rewardDestinationArg(accountId: AccountId) -> RewardDestinationArg
-    func accountIdParam(accountId: AccountId) -> MultiAddress
+    func multiAddress(accountId: AccountId) -> MultiAddress
 
     func queryItems<T>(
         engine: JSONRPCEngine,
@@ -22,6 +23,14 @@ protocol ChainStakingSettings {
         storagePath: StorageCodingPath,
         using requestFactory: StorageRequestFactoryProtocol
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable
+
+    func queryItems<T>(
+        engine: JSONRPCEngine,
+        keyParams: @escaping () throws -> [Data],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath,
+        using requestFactory: AsyncStorageRequestFactory
+    ) -> AwaitOperation<[StorageResponse<T>]> where T: Decodable
 }
 
 struct DefaultRelaychainChainStakingSettings: ChainStakingSettings {
@@ -35,11 +44,22 @@ struct DefaultRelaychainChainStakingSettings: ChainStakingSettings {
         requestFactory.queryItems(engine: engine, keyParams: keyParams, factory: factory, storagePath: storagePath)
     }
 
+    func queryItems<T>(engine: JSONRPCEngine, keyParams: @escaping () throws -> [Data], factory: @escaping () throws -> RuntimeCoderFactoryProtocol, storagePath: StorageCodingPath, using requestFactory: AsyncStorageRequestFactory) -> AwaitOperation<[StorageResponse<T>]> where T: Decodable {
+        AwaitOperation {
+            try await requestFactory.queryItems(
+                engine: engine,
+                keyParams: keyParams(),
+                factory: factory(),
+                storagePath: storagePath
+            )
+        }
+    }
+
     var rewardAssetName: String? {
         nil
     }
 
-    func accountIdParam(accountId: AccountId) -> MultiAddress {
+    func multiAddress(accountId: AccountId) -> MultiAddress {
         .accoundId(accountId)
     }
 
@@ -63,11 +83,22 @@ struct SoraChainStakingSettings: ChainStakingSettings {
         requestFactory.queryItems(engine: engine, keyParams: keyParams, factory: factory, storagePath: storagePath)
     }
 
+    func queryItems<T>(engine: JSONRPCEngine, keyParams: @escaping () throws -> [Data], factory: @escaping () throws -> RuntimeCoderFactoryProtocol, storagePath: StorageCodingPath, using requestFactory: AsyncStorageRequestFactory) -> AwaitOperation<[StorageResponse<T>]> where T: Decodable {
+        AwaitOperation {
+            try await requestFactory.queryItems(
+                engine: engine,
+                keyParams: keyParams(),
+                factory: factory(),
+                storagePath: storagePath
+            )
+        }
+    }
+
     var rewardAssetName: String? {
         "val"
     }
 
-    func accountIdParam(accountId: AccountId) -> MultiAddress {
+    func multiAddress(accountId: AccountId) -> MultiAddress {
         .accountTo(accountId)
     }
 
@@ -92,11 +123,23 @@ struct ReefChainStakingSettings: ChainStakingSettings {
         return requestFactory.queryItems(engine: engine, keyParams: params, factory: factory, storagePath: storagePath)
     }
 
+    func queryItems<T>(engine: JSONRPCEngine, keyParams: @escaping () throws -> [Data], factory: @escaping () throws -> RuntimeCoderFactoryProtocol, storagePath: StorageCodingPath, using requestFactory: AsyncStorageRequestFactory) -> AwaitOperation<[StorageResponse<T>]> where T: Decodable {
+        let params = { try keyParams().compactMap { $0.toHex() } }
+        return AwaitOperation {
+            try await requestFactory.queryItems(
+                engine: engine,
+                keyParams: params(),
+                factory: factory(),
+                storagePath: storagePath
+            )
+        }
+    }
+
     var rewardAssetName: String? {
         nil
     }
 
-    func accountIdParam(accountId: AccountId) -> MultiAddress {
+    func multiAddress(accountId: AccountId) -> MultiAddress {
         .indexedString(accountId)
     }
 

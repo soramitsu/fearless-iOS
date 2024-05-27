@@ -1,10 +1,12 @@
 import Foundation
 import RobinHood
+import SSFSingleValueCache
+import SSFAccountManagmentStorage
 
 protocol SubstrateRepositoryFactoryProtocol {
     func createChainStorageItemRepository() -> AnyDataProviderRepository<ChainStorageItem>
     func createStashItemRepository() -> AnyDataProviderRepository<StashItem>
-    func createSingleValueRepository() -> AnyDataProviderRepository<SingleValueProviderObject>
+    func createSingleValueRepository() throws -> AnyDataProviderRepository<SingleValueProviderObject>
 }
 
 final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
@@ -42,10 +44,8 @@ final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
         return AnyDataProviderRepository(repository)
     }
 
-    func createSingleValueRepository() -> AnyDataProviderRepository<SingleValueProviderObject> {
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
-            storageFacade.createRepository()
-
+    func createSingleValueRepository() throws -> AnyDataProviderRepository<SingleValueProviderObject> {
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = try SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
         return AnyDataProviderRepository(repository)
     }
 }

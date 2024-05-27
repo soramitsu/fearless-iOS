@@ -1,5 +1,4 @@
 import Foundation
-import CommonWallet
 
 final class WalletBuyCommand: WalletCommandProtocol {
     let action: PurchaseAction

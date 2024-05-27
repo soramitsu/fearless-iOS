@@ -3,12 +3,15 @@ import SnapKit
 
 final class NftSendViewLayout: UIView {
     enum LayoutConstants {
-        static let verticalOffset: CGFloat = 25
-        static let stackActionHeight: CGFloat = 32
-        static let stackViewSpacing: CGFloat = 12
-        static let bottomContainerHeight: CGFloat = 120
+        static let verticalOffset: CGFloat = 12
         static let stackSubviewHeight: CGFloat = 64
-        static let optionsImageSize: CGFloat = 16
+        static let networkFeeViewHeight: CGFloat = 50
+        static let contentViewLayoutMargins = UIEdgeInsets(
+            top: 24.0,
+            left: 0.0,
+            bottom: 0.0,
+            right: 0.0
+        )
     }
 
     let navigationBar: BaseNavigationBar = {
@@ -25,12 +28,11 @@ final class NftSendViewLayout: UIView {
         return label
     }()
 
-    private let optionsStackView: UIStackView = {
-        let view = UIStackView()
-        view.axis = .horizontal
-        view.distribution = .fillProportionally
-        view.spacing = 12
-        view.isUserInteractionEnabled = true
+    let contentView: ScrollableContainerView = {
+        let view = ScrollableContainerView()
+        view.stackView.isLayoutMarginsRelativeArrangement = true
+        view.stackView.layoutMargins = LayoutConstants.contentViewLayoutMargins
+        view.stackView.spacing = LayoutConstants.verticalOffset
         return view
     }()
 
@@ -45,14 +47,13 @@ final class NftSendViewLayout: UIView {
         let button = TriangularedButton()
         button.applyStackButtonStyle()
         button.imageWithTitleView?.iconImage = R.image.iconHistory()
-        button.isHidden = true
         return button
     }()
 
-    let pasteButton: TriangularedButton = {
+    let myWalletsButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyStackButtonStyle()
-        button.imageWithTitleView?.iconImage = R.image.iconCopy()
+        button.imageWithTitleView?.iconImage = R.image.fearlessRoundedIconSmall()
         return button
     }()
 
@@ -62,7 +63,7 @@ final class NftSendViewLayout: UIView {
         return button
     }()
 
-    let searchView = SearchTriangularedView()
+    let searchView = SearchTriangularedView(withPasteButton: true)
 
     let feeView: NetworkFeeView = {
         let view = UIFactory.default.createNetworkFeeView()
@@ -83,12 +84,6 @@ final class NftSendViewLayout: UIView {
         mediaView.shouldAutoPlayAfterPresentation = true
         mediaView.backgroundColor = .clear
         return mediaView
-    }()
-
-    private let bottomContainer: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
-        return view
     }()
 
     var locale = Locale.current {
@@ -114,58 +109,65 @@ final class NftSendViewLayout: UIView {
 
     func setupLayout() {
         addSubview(navigationBar)
-        addSubview(searchView)
-        addSubview(scamWarningView)
-        addSubview(feeView)
-        addSubview(bottomContainer)
-        bottomContainer.addSubview(optionsStackView)
-        bottomContainer.addSubview(actionButton)
+        addSubview(contentView)
+        addSubview(actionButton)
 
-        optionsStackView.addArrangedSubview(scanButton)
-        optionsStackView.addArrangedSubview(historyButton)
-        optionsStackView.addArrangedSubview(pasteButton)
+        actionButton.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint =
+                make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
+        }
 
         navigationBar.setCenterViews([navigationTitleLabel])
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
         }
 
+        contentView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
+        }
+
         let viewOffset = -2.0 * UIConstants.horizontalInset
 
+        contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
-            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-        feeView.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.cellHeight)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalTo(searchView.snp.bottom)
         }
 
+        let commonButtonsContainer = UIFactory
+            .default
+            .createHorizontalStackView()
+        commonButtonsContainer.distribution = .equalCentering
+
+        let leftSideButtonContainer = UIFactory
+            .default
+            .createHorizontalStackView(spacing: UIConstants.defaultOffset)
+        leftSideButtonContainer.alignment = .leading
+        leftSideButtonContainer.addArrangedSubview(scanButton)
+        leftSideButtonContainer.addArrangedSubview(historyButton)
+
+        commonButtonsContainer.addArrangedSubview(leftSideButtonContainer)
+        commonButtonsContainer.addArrangedSubview(myWalletsButton)
+
+        contentView.stackView.addArrangedSubview(commonButtonsContainer)
+        commonButtonsContainer.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+        }
+
+        contentView.stackView.addArrangedSubview(feeView)
+        feeView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(LayoutConstants.networkFeeViewHeight)
+        }
+
+        contentView.stackView.addArrangedSubview(scamWarningView)
         scamWarningView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalTo(feeView.snp.bottom)
-        }
-
-        bottomContainer.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            keyboardAdoptableConstraint =
-                make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
-        }
-
-        actionButton.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-
-        optionsStackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
-            make.height.equalTo(LayoutConstants.stackActionHeight)
-            make.top.equalToSuperview()
+            make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
     }
 
@@ -190,13 +192,13 @@ final class NftSendViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         ).uppercased()
 
-        historyButton.imageWithTitleView?.title = R.string.localizable.walletHistoryTitle_v190(
+        historyButton.imageWithTitleView?.title = R.string.localizable.walletSearchContacts(
             preferredLanguages: locale.rLanguages
         ).uppercased()
 
-        pasteButton.imageWithTitleView?.title = R.string.localizable.commonPaste(
+        myWalletsButton.imageWithTitleView?.title = R.string.localizable.xcmMywalletsButtonTitle(
             preferredLanguages: locale.rLanguages
-        ).uppercased()
+        )
 
         navigationTitleLabel.text = R.string.localizable
             .chooseRecipientTitle(preferredLanguages: locale.rLanguages)

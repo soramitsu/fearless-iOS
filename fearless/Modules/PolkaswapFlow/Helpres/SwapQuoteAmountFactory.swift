@@ -11,12 +11,10 @@ struct PolkaswapAdjustmentDetailsViewModel {
     let fromPerToValue: String
     let toPerFromTitle: String
     let toPerFromValue: String
-    let liqudityProviderFeeVieModel: BalanceViewModelProtocol?
 }
 
 protocol PolkaswapAdjustmentViewModelFactoryProtocol {
     func createAmounts(
-        xorChainAsset: ChainAsset,
         fromAsset: AssetModel?,
         toAsset: AssetModel?,
         params: PolkaswapQuoteParams,
@@ -44,14 +42,12 @@ struct SwapQuoteAmounts {
     static let mockQuoteAmount = SwapQuoteAmounts(
         bestQuote: .mockSwapValues,
         fromAmount: .zero,
-        toAmount: .zero,
-        lpAmount: .zero
+        toAmount: .zero
     )
 
     let bestQuote: SubstrateSwapValues
     let fromAmount: Decimal
     let toAmount: Decimal
-    let lpAmount: Decimal
 }
 
 final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol {
@@ -75,7 +71,6 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
     }
 
     func createAmounts(
-        xorChainAsset: ChainAsset,
         fromAsset: AssetModel?,
         toAsset: AssetModel?,
         params: PolkaswapQuoteParams,
@@ -83,15 +78,13 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         swapVariant: SwapVariant
     ) -> SwapQuoteAmounts? {
         let substrateSwapValues: [SubstrateSwapValues] = quote.compactMap { quote -> SubstrateSwapValues? in
-            guard let toAmountBig = BigUInt(quote.amount),
-                  let feeBig = BigUInt(quote.fee)
+            guard let toAmountBig = BigUInt(quote.amount)
             else {
                 return nil
             }
             return SubstrateSwapValues(
                 dexId: quote.dexId,
                 amount: toAmountBig,
-                fee: feeBig,
                 rewards: quote.rewards
             )
         }
@@ -115,8 +108,7 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             let fromAssetPrecision = fromAsset?.precision,
             let toAssetPrecision = toAsset?.precision,
             let fromAmount = Decimal.fromSubstrateAmount(fromAmountBig, precision: Int16(fromAssetPrecision)),
-            let toAmount = Decimal.fromSubstrateAmount(bestQuote.amount, precision: Int16(toAssetPrecision)),
-            let lpAmount = Decimal.fromSubstrateAmount(bestQuote.fee, precision: Int16(xorChainAsset.asset.precision))
+            let toAmount = Decimal.fromSubstrateAmount(bestQuote.amount, precision: Int16(toAssetPrecision))
         else {
             return nil
         }
@@ -124,8 +116,7 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         return SwapQuoteAmounts(
             bestQuote: bestQuote,
             fromAmount: fromAmount,
-            toAmount: toAmount,
-            lpAmount: lpAmount
+            toAmount: toAmount
         )
     }
 
@@ -173,21 +164,14 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             toPerFromValue = amounts.fromAmount / amounts.toAmount
         }
 
-        let liqudityProviderFeeVieModel = createLiqitityProviderFeeViewMode(
-            lpAmount: amounts.lpAmount,
-            prices: prices,
-            locale: locale
-        )
-
         let viewModel = PolkaswapAdjustmentDetailsViewModel(
             minMaxReceiveVieModel: minMaxReceiveVieModel.0,
             minMaxReceiveValue: minMaxReceiveVieModel.1,
             route: route,
             fromPerToTitle: fromPerToTitle,
-            fromPerToValue: fromPerToValue.toString(locale: locale, maximumDigits: .max) ?? "",
+            fromPerToValue: fromPerToValue.toString(locale: locale, maximumDigits: 16) ?? "",
             toPerFromTitle: toPerFromTitle,
-            toPerFromValue: toPerFromValue.toString(locale: locale, maximumDigits: .max) ?? "",
-            liqudityProviderFeeVieModel: liqudityProviderFeeVieModel
+            toPerFromValue: toPerFromValue.toString(locale: locale, maximumDigits: 16) ?? ""
         )
 
         return viewModel

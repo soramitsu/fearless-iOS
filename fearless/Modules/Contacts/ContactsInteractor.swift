@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import CommonWallet
+
 import SSFModels
 
 final class ContactsInteractor {
@@ -15,7 +15,7 @@ final class ContactsInteractor {
     private let operationQueue: OperationQueue
     private let historyOperationFactory: HistoryOperationFactoryProtocol
     private let wallet: MetaAccountModel
-    private let chainAsset: ChainAsset
+    private let source: ContactSource
     private(set) var dataLoadingState: WalletTransactionHistoryDataState = .waitingCached
 
     init(
@@ -23,13 +23,13 @@ final class ContactsInteractor {
         operationQueue: OperationQueue,
         historyOperationFactory: HistoryOperationFactoryProtocol,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset
+        source: ContactSource
     ) {
         self.repository = repository
         self.operationQueue = operationQueue
         self.historyOperationFactory = historyOperationFactory
         self.wallet = wallet
-        self.chainAsset = chainAsset
+        self.source = source
     }
 }
 
@@ -58,73 +58,89 @@ private extension ContactsInteractor {
     func fetchContacts() {
         let savedContactsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
-        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
-            return
-        }
-
-        let pagination = Pagination(count: Constants.recentTransfersCount)
-        let filters = [WalletTransactionHistoryFilter(type: .transfer, selected: true),
-                       WalletTransactionHistoryFilter(type: .other, selected: false),
-                       WalletTransactionHistoryFilter(type: .reward, selected: false)]
-
-        let operationWrapper = historyOperationFactory.fetchTransactionHistoryOperation(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            address: address,
-            filters: filters,
-            pagination: pagination
-        )
-
-        let mergeOperation: BaseOperation<(
-            savedContacts: [Contact],
-            recentContacts: [ContactType]
-        )> = ClosureOperation {
-            let savedContacts = try? savedContactsOperation.extractNoCancellableResultData().filter { [weak self] in
-                $0.chainId == self?.chainAsset.chain.chainId
-            }
-            let transactionsData = try? operationWrapper.targetOperation.extractNoCancellableResultData()
-            let recentAddresses: [String] = Array(Set(transactionsData?.transactions.compactMap { data in
-                data.peerName
-            } ?? []))
-            let recentContacts: [ContactType] = recentAddresses.map { address in
-                if let contact = savedContacts?.first(where: { $0.address == address }) {
-                    return .saved(contact)
-                } else {
-                    return .unsaved(address)
-                }
-            }
-            return (
-                savedContacts: savedContacts ?? [],
-                recentContacts: recentContacts
-            )
-        }
-
-        mergeOperation.completionBlock = { [weak self] in
-            guard let result = mergeOperation.result else {
+        switch source {
+        case let .token(chainAsset):
+            guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
                 return
             }
 
-            switch result {
-            case let .success((savedContacts, recentContacts)):
-                DispatchQueue.main.async {
-                    self?.output?.didReceive(
-                        savedContacts: savedContacts,
-                        recentContacts: recentContacts
-                    )
+            let pagination = Pagination(count: Constants.recentTransfersCount)
+            let filters = [WalletTransactionHistoryFilter(type: .transfer, selected: true),
+                           WalletTransactionHistoryFilter(type: .other, selected: false),
+                           WalletTransactionHistoryFilter(type: .reward, selected: false)]
+
+            let operationWrapper = historyOperationFactory.fetchTransactionHistoryOperation(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                address: address,
+                filters: filters,
+                pagination: pagination
+            )
+
+            let mergeOperation: BaseOperation<(
+                savedContacts: [Contact],
+                recentContacts: [ContactType]
+            )> = ClosureOperation {
+                let savedContacts = try? savedContactsOperation.extractNoCancellableResultData().filter { [weak self] in
+                    $0.chainId == chainAsset.chain.chainId
                 }
-            case let .failure(error):
-                DispatchQueue.main.async {
-                    self?.output?.didReceiveError(error)
+                let transactionsData = try? operationWrapper.targetOperation.extractNoCancellableResultData()
+                let recentAddresses: [String] = Array(Set(transactionsData?.transactions.compactMap { data in
+                    data.peerName
+                } ?? []))
+                let recentContacts: [ContactType] = recentAddresses.map { address in
+                    if let contact = savedContacts?.first(where: { $0.address == address }) {
+                        return .saved(contact)
+                    } else {
+                        return .unsaved(address)
+                    }
+                }
+                return (
+                    savedContacts: savedContacts ?? [],
+                    recentContacts: recentContacts
+                )
+            }
+
+            mergeOperation.completionBlock = { [weak self] in
+                guard let result = mergeOperation.result else {
+                    return
+                }
+
+                switch result {
+                case let .success((savedContacts, recentContacts)):
+                    DispatchQueue.main.async {
+                        self?.output?.didReceive(
+                            savedContacts: savedContacts,
+                            recentContacts: recentContacts
+                        )
+                    }
+                case let .failure(error):
+                    DispatchQueue.main.async {
+                        self?.output?.didReceiveError(error)
+                    }
                 }
             }
+
+            mergeOperation.addDependency(savedContactsOperation)
+            mergeOperation.addDependency(operationWrapper.targetOperation)
+
+            operationQueue.addOperations(
+                operationWrapper.allOperations + [savedContactsOperation, mergeOperation],
+                waitUntilFinished: false
+            )
+        case let .nft(chain):
+            savedContactsOperation.completionBlock = { [weak self] in
+                let savedContacts = try? savedContactsOperation.extractNoCancellableResultData().filter {
+                    $0.chainId == chain.chainId
+                }
+                DispatchQueue.main.async {
+                    self?.output?.didReceive(
+                        savedContacts: savedContacts ?? [],
+                        recentContacts: []
+                    )
+                }
+            }
+            operationQueue.addOperation(savedContactsOperation)
         }
-
-        mergeOperation.addDependency(savedContactsOperation)
-        mergeOperation.addDependency(operationWrapper.targetOperation)
-
-        operationQueue.addOperations(
-            operationWrapper.allOperations + [savedContactsOperation, mergeOperation],
-            waitUntilFinished: false
-        )
     }
 }

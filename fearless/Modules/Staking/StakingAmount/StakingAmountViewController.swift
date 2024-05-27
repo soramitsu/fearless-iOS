@@ -2,7 +2,6 @@ import UIKit
 import SoraFoundation
 import SoraUI
 import SSFUtils
-import CommonWallet
 
 final class StakingAmountViewController: UIViewController, AdaptiveDesignable, LoadableViewProtocol {
     var presenter: StakingAmountPresenterProtocol?

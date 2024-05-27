@@ -1,7 +1,6 @@
 import Foundation
 import SSFUtils
 import UIKit
-import CommonWallet
 
 struct WalletTransactionHistoryCellViewModel {
     let transaction: AssetTransactionData

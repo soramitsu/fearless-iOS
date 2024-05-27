@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import IrohaCrypto
 import SSFUtils
 import SSFModels
@@ -11,10 +11,11 @@ enum BlockExplorerApiKey {
     case polygonscan
     case bscscan
     case oklink
+    case opMainnet
 
     init?(chainId: String) {
         switch chainId {
-        case "1":
+        case "1", "5":
             self = .etherscan
         case "137":
             self = .polygonscan
@@ -22,6 +23,8 @@ enum BlockExplorerApiKey {
             self = .bscscan
         case "195":
             self = .oklink
+        case "10":
+            self = .opMainnet
         default:
             return nil
         }
@@ -52,6 +55,12 @@ enum BlockExplorerApiKey {
                 return BlockExplorerApiKeysDebug.oklinkApiKey
             #else
                 return BlockExplorerApiKeys.oklinkApiKey
+            #endif
+        case .opMainnet:
+            #if DEBUG
+                return BlockExplorerApiKeysDebug.opMainnetApiKey
+            #else
+                return BlockExplorerApiKeys.opMainnetApiKey
             #endif
         }
     }

@@ -5,12 +5,12 @@ final class RootWireframe: RootWireframeProtocol {
         window.rootViewController = splashView?.controller
     }
 
-    func showOnboarding(on window: UIWindow) {
-        let onboardingView = OnboardingMainViewFactory.createViewForOnboarding()
-        let onboardingController = onboardingView?.controller ?? UIViewController()
+    func showMain(on window: UIWindow) {
+        let mainView = OnboardingMainViewFactory.createViewForOnboarding()
+        let mainController = mainView?.controller ?? UIViewController()
 
         let navigationController = FearlessNavigationController()
-        navigationController.viewControllers = [onboardingController]
+        navigationController.viewControllers = [mainController]
 
         window.rootViewController = navigationController
     }
@@ -35,8 +35,8 @@ final class RootWireframe: RootWireframeProtocol {
         window.backgroundColor = .clear
     }
 
-    func showEducationStories(on window: UIWindow) {
-        guard let viewController = EducationStoriesAssembly.configureModule()?.controller else {
+    func showOnboarding(on window: UIWindow) {
+        guard let viewController = OnboardingStartAssembly.configureModule()?.view.controller else {
             return
         }
 

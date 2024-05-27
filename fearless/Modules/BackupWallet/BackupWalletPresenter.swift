@@ -163,18 +163,23 @@ final class BackupWalletPresenter {
     }
 
     private func showDelete(error: Error) {
-        let presentingError: ConvenienceError
-        if let error = error as? FearlessCompatibilityError {
+        var presentingError: ConvenienceError?
+        if let error = error as? FearlessExtensionError {
             switch error {
             case .cantRemoveExtensionBackup:
+                let title = R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages)
                 let message = R.string.localizable
                     .removeBackupExtensionErrorMessage(preferredLanguages: selectedLocale.rLanguages)
-                presentingError = ConvenienceError(error: message)
+                let closeAction = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+                router.present(message: message, title: title, closeAction: closeAction, from: view, actions: [])
             case .backupNotFound:
                 presentingError = ConvenienceError(error: error.localizedDescription)
             }
         } else {
             presentingError = ConvenienceError(error: error.localizedDescription)
+        }
+        guard let presentingError = presentingError else {
+            return
         }
         router.present(error: presentingError, from: view, locale: selectedLocale)
     }

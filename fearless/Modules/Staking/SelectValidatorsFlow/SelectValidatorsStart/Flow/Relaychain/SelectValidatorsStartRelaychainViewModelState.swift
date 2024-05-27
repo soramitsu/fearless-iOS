@@ -157,7 +157,7 @@ class SelectValidatorsStartRelaychainViewModelState: SelectValidatorsStartViewMo
         let recomendedValidators = RecommendationsComposer(
             resultSize: resultLimit,
             clusterSizeLimit: StakingConstants.targetsClusterLimit
-        ).compose(from: Array(electedValidators.values))
+        ).compose(from: Array(electedValidators.values.filter { $0.elected }))
 
         recommendedValidators = recomendedValidators
     }

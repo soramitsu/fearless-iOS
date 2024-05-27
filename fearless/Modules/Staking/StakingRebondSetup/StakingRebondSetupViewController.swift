@@ -1,6 +1,5 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
 
 final class StakingRebondSetupViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRebondSetupLayout

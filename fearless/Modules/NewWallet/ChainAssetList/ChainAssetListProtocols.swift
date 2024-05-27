@@ -12,23 +12,26 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
-    func didTapExpandSections(state: HiddenSectionState)
     func didPullToRefresh()
+    func didTapManageAsset()
+    func didFinishManageAssetAnimate()
+    func didTapResolveNetworkIssue(for chain: ChainModel)
+    func didTapResolveAccountIssue(for chain: ChainModel)
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
+    var shouldRunManageAssetAnimate: Bool { get set }
     func setup(with output: ChainAssetListInteractorOutput)
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor],
         useCashe: Bool
     )
-    func hideChainAsset(_ chainAsset: ChainAsset)
-    func showChainAsset(_ chainAsset: ChainAsset)
     func markUnused(chain: ChainModel)
-    func saveHiddenSection(state: HiddenSectionState)
-    func reload(fetchPrices: Bool)
+    func reload()
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void))
+    func hideChainAsset(_ chainAsset: ChainAsset)
+    func retryConnection(for chainId: ChainModel.Id)
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {
@@ -40,6 +43,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func updateViewModel(isInitSearchState: Bool)
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
     func handleWalletChanged(wallet: MetaAccountModel)
+    func didReceive(chainSettings: [ChainSettings])
 }
 
 protocol ChainAssetListRouterInput:
@@ -79,12 +83,23 @@ protocol ChainAssetListRouterInput:
         uniqueChainModel: UniqueChainModel,
         from view: ControllerBackedProtocol?
     )
+    func showManageAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        filter: NetworkManagmentFilter?
+    )
+    func showIssueNotification(
+        from view: ControllerBackedProtocol?,
+        issues: [ChainIssue],
+        wallet: MetaAccountModel
+    )
 }
 
 protocol ChainAssetListModuleInput: AnyObject {
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        networkFilter: NetworkManagmentFilter?
     )
 }
 

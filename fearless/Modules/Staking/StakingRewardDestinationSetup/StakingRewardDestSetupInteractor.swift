@@ -3,6 +3,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!
@@ -164,12 +165,12 @@ extension StakingRewardDestSetupInteractor: AccountInfoSubscriptionAdapterHandle
 }
 
 extension StakingRewardDestSetupInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        if priceId == chainAsset.asset.priceId {
+    func handlePrice(result: Result<PriceData?, Error>, chainAsset: ChainAsset) {
+        if chainAsset.asset.priceId == chainAsset.asset.priceId {
             presenter.didReceivePriceData(result: result)
         }
 
-        if priceId == rewardChainAsset?.asset.priceId {
+        if chainAsset.asset.priceId == rewardChainAsset?.asset.priceId {
             presenter.didReceiveRewardAssetPriceData(result: result)
         }
     }

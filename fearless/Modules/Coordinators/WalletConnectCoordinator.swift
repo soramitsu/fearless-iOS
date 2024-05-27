@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 import WalletConnectSign
 import UIKit
 
@@ -10,18 +11,40 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         WalletConnectCoordinatorRouterImpl()
     }()
 
+    private lazy var applicationHandler: ApplicationHandler = {
+        ApplicationHandler()
+    }()
+
     override init() {
         super.init()
         walletConnect.set(listener: self)
+        applicationHandler.delegate = self
     }
 
     // MARK: - private methods
 
     private func presentNextIfPossible() {
-        guard childCoordinators.isNotEmpty, let nextCoordinator = childCoordinators.first else {
+        guard childCoordinators.isNotEmpty, let nextCoordinator = childCoordinators.first, !router.isBusy else {
             return
         }
         nextCoordinator.start()
+    }
+
+    private func startIfPossible(with coordinator: DefaultCoordinator) {
+        let applicationState = UIApplication.shared.applicationState
+        switch applicationState {
+        case .active:
+            addChildCoordinator(coordinator)
+            guard !router.isBusy else {
+                return
+            }
+            coordinator.start()
+
+        case .background, .inactive:
+            addChildCoordinator(coordinator)
+        @unknown default:
+            preconditionFailure()
+        }
     }
 }
 
@@ -31,28 +54,30 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func sign(request: Request, session: Session?) {
         let coordinator = WalletConnectSessionCoordinator(router: router, request: request, session: session)
         coordinator.finishFlow = { [weak self, weak coordinator] in
-            self?.removeDependency(coordinator)
+            self?.removeChildCoordinator(coordinator)
             self?.router.dismiss { [weak self] in
                 self?.presentNextIfPossible()
             }
         }
-        addDependency(coordinator)
-        if childCoordinators.count == 1 {
-            coordinator.start()
-        }
+        startIfPossible(with: coordinator)
     }
 
     func session(proposal: Session.Proposal) {
         let coordinator = WalletConnectProposalCoordinator(router: router, proposal: proposal)
         coordinator.finishFlow = { [weak self, weak coordinator] in
-            self?.removeDependency(coordinator)
+            self?.removeChildCoordinator(coordinator)
             self?.router.dismiss { [weak self] in
                 self?.presentNextIfPossible()
             }
         }
-        addDependency(coordinator)
-        if childCoordinators.count == 1 {
-            coordinator.start()
-        }
+        startIfPossible(with: coordinator)
+    }
+}
+
+// MARK: - ApplicationHandlerDelegate
+
+extension WalletConnectCoordinator: ApplicationHandlerDelegate {
+    func didReceiveDidBecomeActive(notification _: Notification) {
+        presentNextIfPossible()
     }
 }

@@ -2,6 +2,7 @@ import Foundation
 import CoreData
 import RobinHood
 import IrohaCrypto
+import SSFAccountManagmentStorage
 
 // TODO: Fix logic
 extension CDMetaAccount: CoreDataCodable {

@@ -13,6 +13,8 @@ final class CrossChainDepsContainer {
 
     struct CrossChainConfirmationDeps {
         let xcmServices: XcmExtrinsicServices
+        let destinationExistentialDepositService: ExistentialDepositServiceProtocol?
+        let destinationStorageRequestPerformer: StorageRequestPerformer?
     }
 
     private var cachedDependencies: [String: CrossChainConfirmationDeps] = [:]
@@ -29,22 +31,39 @@ final class CrossChainDepsContainer {
 
     func prepareDepsFor(
         originalChainAsset: ChainAsset,
-        originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?
+        originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?,
+        destChainModel: ChainModel?
     ) throws -> CrossChainConfirmationDeps {
-        if let cached = cachedDependencies[originalChainAsset.chain.chainId] {
-            return cached
-        }
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let xcmServices = try createXcmService(
             wallet: wallet,
             originalChainAsset: originalChainAsset,
             originalRuntimeMetadataItem: originalRuntimeMetadataItem
         )
-        let deps = CrossChainConfirmationDeps(
-            xcmServices: xcmServices
-        )
+        let existentialDepositService = (destChainModel?.chainId).map {
+            ExistentialDepositService(
+                operationManager: OperationManagerFacade.sharedManager,
+                chainRegistry: chainRegistry,
+                chainId: $0
+            )
+        }
+        let storageRequestPerformer: StorageRequestPerformer? = (destChainModel?.chainId).flatMap {
+            guard
+                let runtimeService = chainRegistry.getRuntimeProvider(for: $0),
+                let connection = chainRegistry.getConnection(for: $0)
+            else {
+                return nil
+            }
 
-        cachedDependencies[originalChainAsset.chain.chainId] = deps
+            return StorageRequestPerformerDefault(runtimeService: runtimeService, connection: connection)
+        }
+
+        let deps = CrossChainConfirmationDeps(
+            xcmServices: xcmServices,
+            destinationExistentialDepositService: existentialDepositService,
+            destinationStorageRequestPerformer: storageRequestPerformer
+        )
 
         return deps
     }
@@ -77,16 +96,18 @@ final class CrossChainDepsContainer {
 
         let fromChainData = XcmAssembly.FromChainData(
             chainId: originalChainAsset.chain.chainId,
-            cryptoType: SFCryptoType(utilsType: cryptoType.utilsType, isEthereum: response.isEthereumBased),
+            cryptoType: cryptoType,
             chainMetadata: originalRuntimeMetadataItem,
             accountId: accountId,
-            signingWrapperData: signingWrapperData
+            signingWrapperData: signingWrapperData,
+            chainType: originalChainAsset.chain.chainBaseType
         )
 
         let sourceConfig = ApplicationConfig.shared
         let services = XcmAssembly.createExtrincisServices(
             fromChainData: fromChainData,
-            sourceConfig: sourceConfig
+            sourceConfig: sourceConfig,
+            chainRegistry: ChainRegistryFacade.sharedRegistry
         )
 
         return services

@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import CommonWallet
+
 import SSFModels
 
 final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFactoryProtocol {
@@ -30,7 +30,7 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
         let rewardDestinationViewModel = try? buildSelectRewardDestinationViewModel(
             viewModelState: relaychainViewModelState,
             priceData: priceData,
-            calculator: calculator, rewardAssetPrice: relaychainViewModelState.rewardAssetPrice
+            calculator: calculator
         )
 
         let feeViewModel = buildFeeViewModel(
@@ -50,15 +50,14 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
     func buildSelectRewardDestinationViewModel(
         viewModelState: StakingAmountViewModelState,
         priceData: PriceData?,
-        calculator: RewardCalculatorEngineProtocol?,
-        rewardAssetPrice: PriceData?
+        calculator: RewardCalculatorEngineProtocol?
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
         guard let viewModelState = viewModelState as? StakingAmountRelaychainViewModelState else {
             return nil
         }
 
         let reward: CalculatedReward?
-        let price = rewardAssetPrice ?? priceData
+        let price = viewModelState.rewardAssetPrice ?? priceData
 
         if let calculator = calculator {
             let restake = calculator.calculatorReturn(
@@ -73,23 +72,16 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
                 type: .max()
             )
 
-            let amount = viewModelState.amount ?? 0.0
+            let amount = viewModelState.amount ?? 1.0
 
-            let restakeEarnings = calculator.calculateMaxEarnings(
-                amount: amount,
-                isCompound: true,
-                period: .year
-            )
-            let payoutEarnings = calculator.calculateMaxEarnings(
-                amount: amount,
-                isCompound: false,
-                period: .year
-            )
+            let rewardAssetRate = calculator.rewardAssetRate
+            let restakeReturnAmount = restake * amount * rewardAssetRate
+            let payoutReturnAmount = payout * amount * rewardAssetRate
 
             reward = CalculatedReward(
-                restakeReturn: restakeEarnings,
+                restakeReturn: restakeReturnAmount,
                 restakeReturnPercentage: restake,
-                payoutReturn: payoutEarnings,
+                payoutReturn: payoutReturnAmount,
                 payoutReturnPercentage: payout
             )
         } else {

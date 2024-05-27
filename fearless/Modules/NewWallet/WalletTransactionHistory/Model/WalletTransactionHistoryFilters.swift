@@ -21,6 +21,19 @@ struct WalletTransactionHistoryFilter: SwitchFilterItem {
             }
         }
 
+        static func type(from index: Int) -> HistoryFilterType? {
+            switch index {
+            case 0:
+                return .transfer
+            case 1:
+                return .reward
+            case 2:
+                return .other
+            default:
+                return nil
+            }
+        }
+
         var title: String {
             switch self {
             case .transfer:

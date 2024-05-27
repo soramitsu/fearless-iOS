@@ -53,7 +53,6 @@ final class PolkaswapAdjustmentPresenter {
 
     private var networkFee: Decimal?
     private var networkFeeViewModel: BalanceViewModelProtocol?
-    private var liquidityProviderFee: Decimal?
 
     private var xorBalance: Decimal?
     private var xorBalanceMinusFee: Decimal {
@@ -257,7 +256,6 @@ final class PolkaswapAdjustmentPresenter {
         quotes: [SwapValues]
     ) {
         guard let amounts = viewModelFactory.createAmounts(
-            xorChainAsset: xorChainAsset,
             fromAsset: swapFromChainAsset?.asset,
             toAsset: swapToChainAsset?.asset,
             params: params,
@@ -270,7 +268,6 @@ final class PolkaswapAdjustmentPresenter {
         fetchSwapFee(amounts: amounts)
         setAndDisplayAmount(amounts: amounts)
         calcalatedAmounts = amounts
-        liquidityProviderFee = amounts.lpAmount
         polkaswapDexForRoute = polkaswapRemoteSettings?.availableDexIds.first(where: { polkaswapDex in
             polkaswapDex.code == amounts.bestQuote.dexId
         })
@@ -375,7 +372,6 @@ final class PolkaswapAdjustmentPresenter {
 
     private func invalidateParams() {
         calcalatedAmounts = nil
-        liquidityProviderFee = nil
         swapFromInputResult = nil
         swapToInputResult = nil
         provideFromAssetVewModel()
@@ -646,18 +642,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         )
     }
 
-    func didTapLiquidityProviderFeeInfo() {
-        let infoTitle = R.string.localizable
-            .polkaswapLiquidityProviderFee(preferredLanguages: selectedLocale.rLanguages)
-        let infoText = R.string.localizable
-            .polkaswapLiqudityFeeInfo(preferredLanguages: selectedLocale.rLanguages)
-        router.presentInfo(
-            message: infoText,
-            title: infoTitle,
-            from: view
-        )
-    }
-
     func didTapNetworkFeeInfo() {
         let infoTitle = R.string.localizable
             .commonNetworkFee(preferredLanguages: selectedLocale.rLanguages)
@@ -718,8 +702,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             )
         ]).runValidation { [weak self] in
             self?.confirmationScreenModuleInput = self?.router.showConfirmation(with: params, from: self?.view, completeClosure: {
-                self?.updateToAmount(.zero)
-                self?.updateFromAmount(.zero)
+                self?.invalidateParams()
             })
         }
     }

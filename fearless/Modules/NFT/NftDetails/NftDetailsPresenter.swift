@@ -97,6 +97,16 @@ final class NftDetailsPresenter {
             completion(nil)
         }
     }
+
+    private func provideViewModel(for nft: NFT, owner: String?) {
+        let viewModel = viewModelFactory.buildViewModel(
+            with: nft,
+            nftType: type,
+            ownerString: owner
+        )
+        self.viewModel = viewModel
+        view?.didReceive(viewModel: viewModel)
+    }
 }
 
 // MARK: - NftDetailsViewOutput
@@ -111,29 +121,21 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
         router.dismiss(view: view)
     }
 
-    func didActionButtonTapped() {
-        switch type {
-        case .owned:
-            router.openSend(nft: nft, wallet: wallet, from: view)
-        case .available:
-            prepareShareSources { [weak self] sources in
-                self?.router.share(
-                    sources: sources,
-                    from: self?.view,
-                    with: nil
-                )
-            }
+    func didTapSendButton() {
+        router.openSend(nft: nft, wallet: wallet, from: view)
+    }
+
+    func didTapShareButton() {
+        prepareShareSources { [weak self] sources in
+            self?.router.share(
+                sources: sources,
+                from: self?.view,
+                with: nil
+            )
         }
     }
 
-    func didTapCopyOwner() {
-        router.presentStatus(
-            with: CommonCopiedEvent(locale: selectedLocale),
-            animated: true
-        )
-    }
-
-    func didTapCopyTokenId() {
+    func didTapCopy() {
         router.presentStatus(
             with: CommonCopiedEvent(locale: selectedLocale),
             animated: true
@@ -145,13 +147,16 @@ extension NftDetailsPresenter: NftDetailsViewOutput {
 
 extension NftDetailsPresenter: NftDetailsInteractorOutput {
     func didReceive(nft: NFT) {
-        let viewModel = viewModelFactory.buildViewModel(
-            with: nft,
+        provideViewModel(for: nft, owner: nil)
+    }
+
+    func didReceive(owners: [String]) {
+        let ownerString = viewModelFactory.buildOwnerString(
+            owners: owners,
             address: address,
-            nftType: type
+            locale: selectedLocale
         )
-        self.viewModel = viewModel
-        view?.didReceive(viewModel: viewModel)
+        provideViewModel(for: nft, owner: ownerString)
     }
 }
 

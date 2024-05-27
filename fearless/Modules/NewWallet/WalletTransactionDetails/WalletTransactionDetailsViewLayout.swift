@@ -1,5 +1,5 @@
 import UIKit
-import CommonWallet
+
 import SSFUtils
 
 final class WalletTransactionDetailsViewLayout: UIView {
@@ -99,6 +99,13 @@ final class WalletTransactionDetailsViewLayout: UIView {
         amountView.valueLabel.text = viewModel.amount
         feeView.valueLabel.text = viewModel.fee
 
+        switch viewModel.transaction.status {
+        case .commited:
+            amountView.valueLabel.textColor = viewModel.transactionType == .incoming ? R.color.colorGreen() : R.color.colorWhite()
+        case .pending, .rejected:
+            amountView.valueLabel.textColor = R.color.colorWhite16()
+        }
+
         if let from = viewModel.from {
             if let icon = try? UniversalIconGenerator().generateFromAddress(from) {
                 senderView.iconImage = icon.imageWithFillColor(
@@ -181,12 +188,12 @@ final class WalletTransactionDetailsViewLayout: UIView {
         rewardView.isHidden = true
         receiverView.isHidden = true
         eraView.isHidden = true
-        feeView.isHidden = true
         senderView.isHidden = viewModel.sender == nil
 
         moduleView.valueLabel.text = viewModel.module
         callView.valueLabel.text = viewModel.call
         senderView.subtitleLabel?.text = viewModel.sender
+        feeView.valueLabel.text = viewModel.fee
 
         if let sender = viewModel.sender {
             if let icon = try? UniversalIconGenerator().generateFromAddress(sender) {

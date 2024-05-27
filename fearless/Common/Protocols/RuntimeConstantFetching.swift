@@ -1,8 +1,10 @@
 import Foundation
 import RobinHood
+import SSFUtils
+import SSFRuntimeCodingService
 
 protocol RuntimeConstantFetching {
-    func fetchConstant<T: LosslessStringConvertible & Equatable>(
+    func fetchConstant<T: LosslessStringConvertible & Equatable & Hashable>(
         for path: ConstantCodingPath,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
@@ -18,7 +20,7 @@ protocol RuntimeConstantFetching {
 }
 
 extension RuntimeConstantFetching {
-    func fetchConstant<T: LosslessStringConvertible & Equatable>(
+    func fetchConstant<T: LosslessStringConvertible & Equatable & Hashable>(
         for path: ConstantCodingPath,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,

@@ -25,11 +25,11 @@ final class RootPresenter {
         case .pinSetup:
             wireframe.showPincodeSetup(on: window)
         case .login:
-            wireframe.showOnboarding(on: window)
+            wireframe.showMain(on: window)
         case .broken:
             wireframe.showBroken(on: window)
-        case .educationStories:
-            wireframe.showEducationStories(on: window)
+        case .onboarding:
+            wireframe.showOnboarding(on: window)
         }
     }
 }

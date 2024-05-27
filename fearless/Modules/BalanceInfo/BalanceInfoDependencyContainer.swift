@@ -1,11 +1,13 @@
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 struct BalanceInfoDependencies {
     let connection: JSONRPCEngine?
     let runtimeService: RuntimeCodingServiceProtocol?
     let existentialDepositService: ExistentialDepositServiceProtocol
     let accountInfoFetching: AccountInfoFetchingProtocol
+    let balanceLocksFetcher: BalanceLocksFetching?
 }
 
 final class BalanceInfoDepencyContainer {
@@ -21,11 +23,14 @@ final class BalanceInfoDepencyContainer {
             chainRegistry: chainRegistry,
             chainId: chainAsset.chain.chainId
         )
+        let balanceLocksFetcher = BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset)
+
         return BalanceInfoDependencies(
             connection: connection,
             runtimeService: runtimeService,
             existentialDepositService: existentialDepositService,
-            accountInfoFetching: createAccountInfoFetching(for: chainAsset)
+            accountInfoFetching: createAccountInfoFetching(for: chainAsset),
+            balanceLocksFetcher: balanceLocksFetcher
         )
     }
 

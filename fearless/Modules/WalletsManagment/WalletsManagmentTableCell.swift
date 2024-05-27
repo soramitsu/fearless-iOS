@@ -78,6 +78,11 @@ final class WalletsManagmentTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        backgroundTriangularedView.setGradientBorder(highlighted: false, animated: false)
+    }
+
     func bind(to viewModel: WalletsManagmentCellViewModel) {
         iconImageView.image = R.image.iconBirdGreen()
         walletNameLabel.text = viewModel.walletName

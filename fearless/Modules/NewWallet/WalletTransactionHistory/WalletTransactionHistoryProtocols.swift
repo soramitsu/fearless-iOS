@@ -1,4 +1,4 @@
-import CommonWallet
+
 import SSFModels
 
 protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggable, LoadableViewProtocol {
@@ -11,10 +11,11 @@ protocol WalletTransactionHistoryPresenterProtocol: AnyObject {
     func loadNext() -> Bool
     func didSelect(viewModel: WalletTransactionHistoryCellViewModel)
     func didTapFiltersButton()
+    func didChangeFiltersSliderValue(index: Int)
 }
 
 protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {
-    func setup()
+    func setup(with presenter: WalletTransactionHistoryInteractorOutputProtocol?)
     func loadNext() -> Bool
     func applyFilters(_ filters: [FilterSet])
     func reload()

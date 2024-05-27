@@ -3,6 +3,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 class BaseStakingAccountSubscription: StakingAccountSubscription {
     struct Subscription {

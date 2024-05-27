@@ -7,6 +7,7 @@ import SSFRuntimeCodingService
 
 enum SubstrateCallFactoryError: Error {
     case metadataUnavailable
+    case callNotFound
 }
 
 // swiftlint:disable type_body_length file_length
@@ -31,7 +32,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
 
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
 
-        let controllerIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+        let controllerIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: controllerId) ?? .accoundId(controllerId)
 
         let destArg: RewardDestinationArg
 
@@ -40,7 +41,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             destArg = .staked
         case let .payout(address):
             let accountId = try AddressFactory.accountId(from: address, chain: chainAsset.chain)
-            destArg = .account(accountId)
+            destArg = chainAsset.chain.stakingSettings?.rewardDestinationArg(accountId: accountId) ?? .account(accountId)
         }
         let path: SubstrateCallPath = .bond
 
@@ -99,7 +100,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     func nominate(targets: [SelectedValidatorInfo], chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let addresses: [MultiAddress] = try targets.map { info in
             let accountId = try AddressFactory.accountId(from: info.address, chain: chainAsset.chain)
-            let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: accountId) ?? .accoundId(accountId)
+            let accountIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: accountId) ?? .accoundId(accountId)
             return accountIdParam
         }
 
@@ -257,7 +258,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
             .arguments.isNotEmpty == true
 
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
-        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+        let accountIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: controllerId) ?? .accoundId(controllerId)
 
         let path: SubstrateCallPath = .setController
 
@@ -272,7 +273,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
 
     private func defaultSetController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
-        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+        let accountIdParam = chainAsset.chain.stakingSettings?.multiAddress(accountId: controllerId) ?? .accoundId(controllerId)
 
         let args = SetControllerCall(controller: accountIdParam)
         let path: SubstrateCallPath = .setController
@@ -761,5 +762,55 @@ extension SubstrateCallFactoryDefault {
         }()
 
         return setPayee(for: arg)
+    }
+
+    func vestingClaim() throws -> any RuntimeCallable {
+        guard let metadata = runtimeService.snapshot?.metadata else {
+            throw SubstrateCallFactoryError.metadataUnavailable
+        }
+        let vestingClaimPath: SubstrateCallPath = .vestingClaim
+        let vestingVestPath: SubstrateCallPath = .vestingVest
+        let vestedRewardsClaimRewardsPath: SubstrateCallPath = .vestedRewardsClaimRewards
+
+        let vestingClaimCallExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestingClaimPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestingClaimPath.callName.lowercased() }) != nil
+
+        let vestingVestCallExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestingVestPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestingVestPath.callName.lowercased() }) != nil
+
+        let vestedRewardsClaimRewardsExists = try metadata.modules
+            .first(where: { $0.name.lowercased() == vestedRewardsClaimRewardsPath.moduleName.lowercased() })?
+            .calls(using: metadata.schemaResolver)?
+            .first(where: { $0.name.lowercased() == vestedRewardsClaimRewardsPath.callName.lowercased() }) != nil
+
+        if vestingVestCallExists {
+            let path: SubstrateCallPath = vestingVestPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        if vestingClaimCallExists {
+            let path: SubstrateCallPath = vestingClaimPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        if vestedRewardsClaimRewardsExists {
+            let path: SubstrateCallPath = vestedRewardsClaimRewardsPath
+            return RuntimeCall(
+                moduleName: path.moduleName,
+                callName: path.callName
+            )
+        }
+
+        throw SubstrateCallFactoryError.callNotFound
     }
 }

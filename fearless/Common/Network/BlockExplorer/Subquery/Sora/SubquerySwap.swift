@@ -5,6 +5,5 @@ struct SubquerySwap: Decodable {
     let targetAssetId: String
     let baseAssetAmount: String
     let targetAssetAmount: String
-    let liquidityProviderFee: String
     let selectedMarket: String
 }

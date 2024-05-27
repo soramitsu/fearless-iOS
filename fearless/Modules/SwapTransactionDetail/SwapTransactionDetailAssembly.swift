@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
+
 import SSFModels
 
 final class SwapTransactionDetailAssembly {

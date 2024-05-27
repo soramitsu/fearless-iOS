@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol RuntimeProviderPoolProtocol {
     @discardableResult
@@ -58,7 +59,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         for chain: ChainModel,
         chainTypes: Data?
     ) -> RuntimeProviderProtocol {
-        if let runtimeProvider = runtimeProviders[chain.chainId] {
+        if let runtimeProvider = lock.concurrentlyRead({ runtimeProviders[chain.chainId] }) {
             return runtimeProvider
         } else {
             let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(

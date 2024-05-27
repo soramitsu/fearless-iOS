@@ -1,6 +1,6 @@
 import Foundation
 
-enum AlchemyTokenCategory: String, Encodable {
+enum AlchemyTokenCategory: String, Codable {
     case external
     case `internal`
     case erc20

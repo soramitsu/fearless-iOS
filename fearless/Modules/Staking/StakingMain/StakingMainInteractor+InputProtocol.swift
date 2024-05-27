@@ -123,7 +123,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNewChain()
 
         clear(singleValueProvider: &priceProvider)
-        clear(singleValueProvider: &rewardAssetPriceProvider)
         clear(dataProvider: &delegatorStateProvider)
         collatorIds = nil
         performPriceSubscription()
@@ -311,7 +310,10 @@ extension StakingMainInteractor: EventVisitorProtocol {
         updateAfterSelectedAccountChange()
     }
 
-    func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard selectedWalletSettings.value?.selectedCurrency != event.account.selectedCurrency else {
+            return
+        }
         priceProvider?.refresh()
     }
 }

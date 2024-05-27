@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import CommonWallet
+
 import SSFUtils
 
 struct SoraSubsquidPageInfo: Decodable {
@@ -68,7 +68,6 @@ struct SoraSubsquidHistoryElementData: Decodable {
     let baseAssetId: String?
     let baseAssetAmount: String?
     let targetAssetAmount: String?
-    let liquidityProviderFee: String?
     let sidechainAddress: String?
     let requestHash: String?
 
