@@ -30,7 +30,7 @@ final class StartViewHelper: StartViewHelperProtocol {
 
     func startView(onboardingConfig: OnboardingConfigWrapper?) -> StartView {
         do {
-            if let config = onboardingConfig, !selectedWalletSettings.hasValue {
+            if let config = onboardingConfig {
                 return StartView.onboarding(config)
             }
 
