@@ -656,6 +656,34 @@ final class RelaychainValidatorOperationFactory {
         operation.addDependency(runtimeOperation)
         return operation
     }
+
+    private func createIdentityWrapperOperation(
+        accountIds: @escaping () throws -> [AccountId],
+        chain: ChainModel
+    ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
+        let identityConnection = chain.identityChain.flatMap {
+            chainRegistry.getConnection(for: $0)
+        } ?? connection
+
+        let identityRuntimeService = chain.identityChain.flatMap {
+            chainRegistry.getRuntimeProvider(for: $0)
+        } ?? runtimeService
+
+        return identityOperationFactory.createIdentityWrapper(
+            for: accountIds,
+            engine: identityConnection,
+            runtimeService: identityRuntimeService,
+            chain: chain
+        )
+    }
 }
 
 extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol {
@@ -746,12 +774,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             try allValidatorsOperation.extractNoCancellableResultData().compactMap { $0.accountId }
         }
 
-        let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: accountIdsClosure,
-            engine: connection,
-            runtimeService: runtimeService,
-            chain: chain
-        )
+        let identityWrapper = createIdentityWrapperOperation(accountIds: accountIdsClosure, chain: chain)
 
         identityWrapper.allOperations.forEach { $0.addDependency(allValidatorsOperation) }
 
@@ -839,12 +862,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             try eraValidatorsOperation.extractNoCancellableResultData().validators.compactMap { $0.accountId }
         }
 
-        let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: accountIdsClosure,
-            engine: connection,
-            runtimeService: runtimeService,
-            chain: chain
-        )
+        let identityWrapper = createIdentityWrapperOperation(accountIds: accountIdsClosure, chain: chain)
 
         identityWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
 
@@ -893,20 +911,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         by nomination: Nomination,
         nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
-        }
-
-        let identityWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { nomination.targets },
-            engine: connection,
-            runtimeService: runtimeService,
-            chain: chain
-        )
+        let identityWrapper = createIdentityWrapperOperation(accountIds: { nomination.targets }, chain: chain)
 
         let electedValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
@@ -988,12 +993,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             try activeValidatorsStakeInfoWrapper.targetOperation.extractNoCancellableResultData().compactMap { $0.key }
         }
 
-        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: validatorIds,
-            engine: connection,
-            runtimeService: runtimeService,
-            chain: chain
-        )
+        let identitiesWrapper = createIdentityWrapperOperation(accountIds: validatorIds, chain: chain)
 
         identitiesWrapper.allOperations.forEach {
             $0.addDependency(activeValidatorsStakeInfoWrapper.targetOperation)
@@ -1053,12 +1053,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         validatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
 
-        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { accountIds },
-            engine: connection,
-            runtimeService: runtimeService,
-            chain: chain
-        )
+        let identitiesWrapper = createIdentityWrapperOperation(accountIds: { accountIds }, chain: chain)
 
         let chainFormat = chain.chainFormat
 
@@ -1127,12 +1122,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             $0.addDependency(slashDeferOperation)
         }
 
-        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
-            for: { accountIdList },
-            engine: connection,
-            runtimeService: runtimeService,
-            chain: chain
-        )
+        let identitiesWrapper = createIdentityWrapperOperation(accountIds: { accountIdList }, chain: chain)
 
         let validatorPrefsWrapper = createValidatorPrefsWrapper(for: accountIdList)
 
