@@ -1034,7 +1034,7 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "transaction.details.view.etherscan" = "Ver no Etherscan";
 "transaction.details.view.polkascan" = "Ver na Polkascan";
 "transaction.details.view.reefscan" = "View in Reefscan";
-"transaction.details.view.oklink" = "Okx explorer";
+"transaction.details.view.oklink" = "OKX explorer";
 "transaction.details.view.subscan" = "Ver no Subscan";
 "transaction.list.header" = "Todas as transações";
 "transaction.status.completed" = "Concluído";
