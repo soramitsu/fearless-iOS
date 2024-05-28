@@ -13,16 +13,19 @@ final class OnboardingStartPresenter {
     private weak var view: OnboardingStartViewInput?
     private let router: OnboardingStartRouterInput
     private let interactor: OnboardingStartInteractorInput
+    private let config: OnboardingConfigWrapper
 
     // MARK: - Constructors
 
     init(
         interactor: OnboardingStartInteractorInput,
         router: OnboardingStartRouterInput,
+        config: OnboardingConfigWrapper,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.router = router
+        self.config = config
         self.localizationManager = localizationManager
     }
 
@@ -38,7 +41,7 @@ extension OnboardingStartPresenter: OnboardingStartViewOutput {
     }
 
     func didTapStartButton() {
-        router.startOnboarding()
+        router.startOnboarding(config: config)
     }
 }
 

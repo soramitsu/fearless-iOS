@@ -4,13 +4,8 @@ import SSFNetwork
 import SoraKeystore
 
 final class OnboardingAssembly {
-    static func configureModule() -> OnboardingModuleCreationResult? {
+    static func configureModule(config: OnboardingConfigWrapper) -> OnboardingModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-
-        let service = OnboardingService(
-            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
-        )
         let userDefaultsStorage = SettingsManager.shared
         let keychain = Keychain()
         let startViewHelper = StartViewHelper(
@@ -20,9 +15,9 @@ final class OnboardingAssembly {
         )
 
         let interactor = OnboardingInteractor(
-            onboardingService: service,
             operationQueue: OperationQueue(),
-            userDefaultsStorage: userDefaultsStorage
+            userDefaultsStorage: userDefaultsStorage,
+            config: config
         )
         let router = OnboardingRouter()
 
