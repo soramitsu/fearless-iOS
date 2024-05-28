@@ -21,12 +21,10 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
 
     private func deriveMinimalStake(
         from eraStakersInfo: EraStakersInfo,
-        limitedBy maxNominators: Int,
-        runtimeService: RuntimeCodingServiceProtocol
+        limitedBy maxNominators: Int?,
+        runtimeService _: RuntimeCodingServiceProtocol
     ) -> BigUInt {
-        let isNominatorsCountUnlimited = runtimeService.snapshot?.metadata.getStorageMetadata(for: .erasStakersOverview) != nil
-
-        if isNominatorsCountUnlimited {
+        guard let maxNominators else {
             return .zero
         }
 
@@ -53,9 +51,9 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
 
     private func deriveActiveNominatorsCount(
         from eraStakersInfo: EraStakersInfo,
-        limitedBy maxNominators: Int
+        limitedBy maxNominators: Int?
     ) -> Int {
-        extractActiveNominators(from: eraStakersInfo, limitedBy: maxNominators).count
+        extractActiveNominators(from: eraStakersInfo, limitedBy: maxNominators.or(Int.max)).count
     }
 
     private func createMapOperation(
@@ -68,7 +66,7 @@ final class RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFa
     ) -> BaseOperation<NetworkStakingInfo> {
         ClosureOperation<NetworkStakingInfo> {
             let eraStakersInfo = try eraValidatorsOperation.extractNoCancellableResultData()
-            let maxNominators = try Int(maxNominatorsOperation.extractNoCancellableResultData())
+            let maxNominators = try? Int(maxNominatorsOperation.extractNoCancellableResultData())
             let lockUpPeriod = try lockUpPeriodOperation.extractNoCancellableResultData()
             let minBalance = try minBalanceOperation.extractNoCancellableResultData()
 

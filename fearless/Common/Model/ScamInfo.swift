@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct ScamInfo: Identifiable, Codable, Equatable {
+struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
     var identifier: String {
         address
     }

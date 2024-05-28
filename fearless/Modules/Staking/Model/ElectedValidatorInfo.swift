@@ -10,12 +10,16 @@ struct ElectedValidatorInfo: Equatable, Hashable, Recommendable {
     let identity: AccountIdentity?
     let stakeReturn: Decimal
     let hasSlashes: Bool
-    let maxNominatorsRewarded: UInt32
+    let maxNominatorsRewarded: UInt32?
     let blocked: Bool
     let elected: Bool
 
     var oversubscribed: Bool {
-        nominators.count > maxNominatorsRewarded
+        guard let maxNominatorsRewarded else {
+            return false
+        }
+
+        return nominators.count > maxNominatorsRewarded
     }
 
     var hasIdentity: Bool {
@@ -38,7 +42,7 @@ extension ElectedValidatorInfo {
         identity: AccountIdentity?,
         stakeReturn: Decimal,
         hasSlashes: Bool,
-        maxNominatorsRewarded: UInt32,
+        maxNominatorsRewarded: UInt32?,
         chainFormat: ChainFormat,
         blocked: Bool,
         precision: Int16,

@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 protocol OnboardingViewInput: ControllerBackedProtocol {
-    func didReceive(viewModel: OnboardingDataSource) async
+    func didReceive(viewModel: OnboardingDataSource)
     func showNextPage()
 }
 
@@ -44,7 +44,7 @@ final class OnboardingPresenter {
     private func close() async {
         interactor.didClose()
 
-        switch startViewHelper.startView() {
+        switch startViewHelper.startView(onboardingConfig: nil) {
         case .pin:
             await router.showLocalAuthentication()
         case .pinSetup:
@@ -75,18 +75,9 @@ extension OnboardingPresenter: OnboardingViewOutput {
 // MARK: - OnboardingInteractorOutput
 
 extension OnboardingPresenter: OnboardingInteractorOutput {
-    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper?) async {
-        if let config = config {
-            let viewModel = pagesFactory.createPageControllers(with: config)
-            await view?.didReceive(viewModel: viewModel)
-        } else {
-            await close()
-        }
-    }
-
-    func didReceiveOnboardingConfig(error: Error) async {
-        Logger.shared.customError(error)
-        await close()
+    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper) {
+        let viewModel = pagesFactory.createPageControllers(with: config)
+        view?.didReceive(viewModel: viewModel)
     }
 }
 

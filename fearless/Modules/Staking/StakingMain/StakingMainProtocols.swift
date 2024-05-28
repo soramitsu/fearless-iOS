@@ -80,7 +80,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(rewardChainAsset: ChainAsset?)
     func didReceive(rewardAssetPrice: PriceData?)
 
-    func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
+    func didReceiveMaxNominatorsPerValidator(_ maxNominatorsPerValidator: UInt32?)
 
     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
     func networkInfoViewExpansion(isExpanded: Bool)

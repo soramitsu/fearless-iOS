@@ -53,6 +53,10 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
         )
 
         databaseService = CoreDataService(configuration: configuration)
+
+        #if DEBUG
+            Logger.shared.debug("Substrate Storage URL: \(SubstrateStorageParams.storageURL)")
+        #endif
     }
 
     func createRepository<T, U>(
