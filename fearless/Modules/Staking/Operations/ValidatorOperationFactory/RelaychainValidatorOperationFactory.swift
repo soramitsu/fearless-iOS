@@ -155,12 +155,10 @@ final class RelaychainValidatorOperationFactory {
             constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
         ) != nil
 
-        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
-
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: maxNominatorsConstantCodingPath
+                path: .maxNominatorRewardedPerValidator
             )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -172,7 +170,7 @@ final class RelaychainValidatorOperationFactory {
 
             let allElectedValidators = try electedValidatorsOperation.extractNoCancellableResultData()
             let nominatorId = try AddressFactory.accountId(from: nominatorAddress, chain: strongSelf.chain)
-            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let maxNominators = try? maxNominatorsOperation.extractNoCancellableResultData()
 
             return validatorIds.enumerated().map { _, accountId in
                 if let electedValidator = allElectedValidators.validators
@@ -183,7 +181,7 @@ final class RelaychainValidatorOperationFactory {
                            nominators[index].value,
                            precision: Int16(strongSelf.asset.precision)
                        ) {
-                        let isRewarded = index < maxNominators
+                        let isRewarded = index < maxNominators.or(UInt32.max)
                         let allocation = ValidatorTokenAllocation(amount: amountDecimal, isRewarded: isRewarded)
                         return .active(allocation: allocation)
                     } else {
@@ -269,18 +267,16 @@ final class RelaychainValidatorOperationFactory {
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
+        let hasNominatorsLimit = runtimeService.snapshot?.metadata.getConstant(
             in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
             constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
         ) != nil
-
-        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
 
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
-            path: maxNominatorsConstantCodingPath
+            path: .maxNominatorRewardedPerValidator
         )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -289,7 +285,7 @@ final class RelaychainValidatorOperationFactory {
             let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
             let maxNominatorsRewarded =
-                try maxNominatorsOperation.extractNoCancellableResultData()
+                try? maxNominatorsOperation.extractNoCancellableResultData()
 
             return try validatorIds.map { validatorId in
                 if let electedValidator = electedStakers.validators
@@ -360,11 +356,9 @@ final class RelaychainValidatorOperationFactory {
             constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
         ) != nil
 
-        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
-
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
-            path: maxNominatorsConstantCodingPath
+            path: .maxNominatorRewardedPerValidator
         )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
@@ -373,13 +367,14 @@ final class RelaychainValidatorOperationFactory {
             let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
             let nominatorAccountId = try AddressFactory.accountId(from: nominatorAddress, chain: chain)
-            let maxNominatorsRewarded = try maxNominatorsOperation
+            let maxNominatorsRewarded = try? maxNominatorsOperation
                 .extractNoCancellableResultData()
 
             return try electedStakers.validators
                 .reduce(into: [AccountId: ValidatorStakeInfo]()) { result, validator in
-                    let exposures = validator.exposure.others
-                        .prefix(Int(maxNominatorsRewarded))
+                    let exposures: [IndividualExposure] = maxNominatorsRewarded.flatMap {
+                        Array(validator.exposure.others.prefix(Int($0)))
+                    } ?? validator.exposure.others
 
                     guard exposures.contains(where: { $0.who == nominatorAccountId }) else {
                         return
@@ -443,7 +438,7 @@ final class RelaychainValidatorOperationFactory {
         return ClosureOperation<[ElectedValidatorInfo]> {
             let eraStakersInfo = try electedValidatorOperation.extractNoCancellableResultData()
             let allValidators = try allValidatorsOperation.extractNoCancellableResultData()
-            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let maxNominators = try? maxNominatorsOperation.extractNoCancellableResultData()
             let slashings = try slashesOperation.extractNoCancellableResultData()
             let identities = try identitiesOperation.extractNoCancellableResultData()
             let calculator = try rewardOperation.extractNoCancellableResultData()
@@ -529,7 +524,7 @@ final class RelaychainValidatorOperationFactory {
 
         return ClosureOperation<[ElectedValidatorInfo]> {
             let electedInfo = try eraValidatorsOperation.extractNoCancellableResultData()
-            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let maxNominators = try? maxNominatorsOperation.extractNoCancellableResultData()
             let slashings = try slashesOperation.extractNoCancellableResultData()
             let identities = try identitiesOperation.extractNoCancellableResultData()
             let calculator = try rewardOperation.extractNoCancellableResultData()
@@ -712,12 +707,10 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
         ) != nil
 
-        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
-
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: maxNominatorsConstantCodingPath
+                path: .maxNominatorRewardedPerValidator
             )
 
         slashDeferOperation.addDependency(runtimeOperation)
@@ -845,12 +838,10 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
         ) != nil
 
-        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
-
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
-                path: maxNominatorsConstantCodingPath
+                path: .maxNominatorRewardedPerValidator
             )
 
         slashDeferOperation.addDependency(runtimeOperation)
@@ -1015,7 +1006,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 let validatorAddress = try AddressFactory.address(for: validatorAccountId, chainFormat: chainFormat)
 
                 let nominatorInfo = validatorStakeInfo.nominators[nominatorIndex]
-                let isRewarded = nominatorIndex < validatorStakeInfo.maxNominatorsRewarded
+                let isRewarded = nominatorIndex < validatorStakeInfo.maxNominatorsRewarded.or(UInt32.max)
                 let allocation = ValidatorTokenAllocation(amount: nominatorInfo.stake, isRewarded: isRewarded)
 
                 return SelectedValidatorInfo(
