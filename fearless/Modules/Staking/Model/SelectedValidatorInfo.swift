@@ -70,17 +70,21 @@ struct ValidatorStakeInfo: ValidatorStakeInfoProtocol {
     let totalStake: Decimal
     let ownStake: Decimal
     let stakeReturn: Decimal
-    let maxNominatorsRewarded: UInt32
+    let maxNominatorsRewarded: UInt32?
 
     var oversubscribed: Bool {
-        nominators.count > maxNominatorsRewarded
+        guard let maxNominatorsRewarded else {
+            return false
+        }
+
+        return nominators.count > maxNominatorsRewarded
     }
 
     init(
         nominators: [NominatorInfo] = [],
         totalStake: Decimal = 0.0,
         stakeReturn: Decimal = 0.0,
-        maxNominatorsRewarded: UInt32 = 0
+        maxNominatorsRewarded: UInt32?
     ) {
         self.nominators = nominators
         self.totalStake = totalStake
