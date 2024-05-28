@@ -2,7 +2,10 @@ import Foundation
 import SSFModels
 
 extension CryptoType {
-    init?(version: UInt8) {
+    init?(version: UInt8?) {
+        guard let version else {
+            return nil
+        }
         switch version {
         case 0:
             self = .ed25519
