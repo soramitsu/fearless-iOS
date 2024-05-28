@@ -1027,7 +1027,7 @@
 "transaction.details.view.etherscan" = "在Etherscan上查看";
 "transaction.details.view.polkascan" = "在Polkascan中查看";
 "transaction.details.view.reefscan" = "在Reefscan中查看";
-"transaction.details.view.oklink" = "View in Oklink";
+"transaction.details.view.oklink" = "Okx explorer";
 "transaction.details.view.subscan" = "在Subscan中查看";
 "transaction.list.header" = "所有交易";
 "transaction.status.completed" = "已完成";

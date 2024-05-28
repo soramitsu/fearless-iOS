@@ -1027,7 +1027,7 @@ Euro cash";
 "transaction.details.view.etherscan" = "Посмотреть в Etherscan";
 "transaction.details.view.polkascan" = "Посмотреть в Polkascan";
 "transaction.details.view.reefscan" = "View in Reefscan";
-"transaction.details.view.oklink" = "View in Oklink";
+"transaction.details.view.oklink" = "Okx explorer";
 "transaction.details.view.subscan" = "Просмотреть в Subscan";
 "transaction.list.header" = "Все транзакции";
 "transaction.status.completed" = "Успешно";

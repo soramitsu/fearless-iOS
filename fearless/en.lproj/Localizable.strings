@@ -1029,7 +1029,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "transaction.details.view.etherscan" = "View in Etherscan";
 "transaction.details.view.polkascan" = "View in Polkascan";
 "transaction.details.view.reefscan" = "View in Reefscan";
-"transaction.details.view.oklink" = "View in Oklink";
+"transaction.details.view.oklink" = "Okx explorer";
 "transaction.details.view.subscan" = "View in Subscan";
 "transaction.list.header" = "All transaction";
 "transaction.status.completed" = "Completed";
