@@ -40,12 +40,12 @@ extension RootPresenter: RootPresenterProtocol {
 
         interactor.setup(runMigrations: true)
         Task {
-            switch await interactor.fetchOnboardingConfig() {
-            case let .success(onboardingConfig):
+            do {
+                let onboardingConfig = try await interactor.fetchOnboardingConfig()
                 DispatchQueue.main.async { [weak self] in
                     self?.decideModuleSynchroniously(with: onboardingConfig)
                 }
-            case let .failure(error):
+            } catch {
                 DispatchQueue.main.async { [weak self] in
                     Logger.shared.error(error.localizedDescription)
                     self?.decideModuleSynchroniously(with: nil)

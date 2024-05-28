@@ -84,14 +84,13 @@ extension RootInteractor: RootInteractorInputProtocol {
         }
     }
 
-    func fetchOnboardingConfig() async -> Result<OnboardingConfigWrapper?, Error> {
+    func fetchOnboardingConfig() async throws -> OnboardingConfigWrapper? {
         do {
             let onboardingConfigPlatform = try await onboardingService.fetchConfigs()
             let onboardingWrappers = onboardingConfigPlatform.ios
-            let currentConfig = onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
-            return .success(currentConfig)
+            return onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
         } catch {
-            return .failure(error)
+            throw error
         }
     }
 }

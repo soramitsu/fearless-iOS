@@ -20,7 +20,7 @@ protocol RootWireframeProtocol: AnyObject {
 
 protocol RootInteractorInputProtocol: AnyObject {
     func setup(runMigrations: Bool)
-    func fetchOnboardingConfig() async -> Result<OnboardingConfigWrapper?, Error>
+    func fetchOnboardingConfig() async throws -> OnboardingConfigWrapper?
 }
 
 protocol RootInteractorOutputProtocol: AnyObject {}
