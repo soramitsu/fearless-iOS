@@ -92,4 +92,8 @@ extension NSPredicate {
     static func hasCrowloans() -> NSPredicate {
         NSPredicate(format: "%K == true", #keyPath(CDChain.hasCrowdloans))
     }
+
+    static func enabledCHain() -> NSPredicate {
+        NSPredicate(format: "%K == false", #keyPath(CDChain.disabled))
+    }
 }

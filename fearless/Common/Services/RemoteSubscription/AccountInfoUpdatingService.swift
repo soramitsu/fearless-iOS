@@ -72,7 +72,10 @@ final class AccountInfoUpdatingService {
                             addSubscriptionIfNeeded(for: $0)
                         }
                     }
-                    chains[newItem.chainId] = newItem
+                    readLock.exclusivelyWrite { [weak self] in
+                        guard let self else { return }
+                        self.chains[newItem.chainId] = newItem
+                    }
                 } else {
                     chains[newItem.chainId] = newItem
                 }
