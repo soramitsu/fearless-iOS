@@ -33,10 +33,7 @@ final class OnboardingConfigVersionResolver {
             availableVersion = lastAvailableVersion
         }
 
-        if let lastShownVersion = userDefaultsStorage.value(
-            of: String.self,
-            for: OnboardingKeys.lastShownOnboardingVersion.rawValue
-        ) {
+        if let lastShownVersion = userDefaultsStorage.string(for: OnboardingKeys.lastShownOnboardingVersion.rawValue) {
             return lastShownVersion.versionLowerThan(availableVersion) ? versionsForConfigs[availableVersion] : nil
         } else {
             return versionsForConfigs[availableVersion]
