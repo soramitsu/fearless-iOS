@@ -45,8 +45,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let migrators: [Migrating] = [
             languageMigrator,
             dbMigrator,
-            substrateDbMigrator,
-            assetManagementMigrator
+            substrateDbMigrator
         ]
 
         let service = OnboardingService(

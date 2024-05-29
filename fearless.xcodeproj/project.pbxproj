@@ -3254,6 +3254,7 @@
 		07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationViewModelFactory.swift; sourceTree = "<group>"; };
 		07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationCellViewModel.swift; sourceTree = "<group>"; };
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
+		07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		07BF3D932B3D873F0046ABF4 /* OklinkHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OklinkHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		07BF3D952B3D8B3A0046ABF4 /* PriceDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceDataSource.swift; sourceTree = "<group>"; };
 		07BF3D982B3D8BCD0046ABF4 /* ChainlinkOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainlinkOperationFactory.swift; sourceTree = "<group>"; };
@@ -19814,13 +19815,14 @@
 		FACE6C5D2BBAC3B000643CEF /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */,
 				FACE6C5E2BBAC3B000643CEF /* SubstrateDataModel.xcdatamodel */,
 				FACE6C5F2BBAC3B000643CEF /* SubstrateDataModel_v4.xcdatamodel */,
 				FACE6C602BBAC3B000643CEF /* SubstrateDataModel_v2.xcdatamodel */,
 				FACE6C612BBAC3B000643CEF /* SubstrateDataModel_v5.xcdatamodel */,
 				FACE6C622BBAC3B000643CEF /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = FACE6C612BBAC3B000643CEF /* SubstrateDataModel_v5.xcdatamodel */;
+			currentVersion = 07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */;
 			path = SubstrateDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

@@ -2,7 +2,7 @@ import RobinHood
 import CoreData
 
 enum SubstrateStorageParams {
-    static let modelVersion: SubstrateStorageVersion = .version5
+    static let modelVersion: SubstrateStorageVersion = .version6
     static let modelDirectory: String = "SubstrateDataModel.momd"
     static let databaseName = "SubstrateDataModel.sqlite"
 
@@ -43,7 +43,7 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
         let persistentSettings = CoreDataPersistentSettings(
             databaseDirectory: baseURL!,
             databaseName: databaseName,
-            incompatibleModelStrategy: .removeStore,
+            incompatibleModelStrategy: .ignore,
             options: options
         )
 
