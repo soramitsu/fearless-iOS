@@ -17,7 +17,7 @@ extension ChainModel.ExternalApiExplorerType {
             case .oklink:
                 return R.string.localizable.transactionDetailsViewOklink(preferredLanguages: locale.rLanguages)
             case .unknown:
-                return nil
+                return ""
             }
         }
     }
