@@ -1153,7 +1153,6 @@
 		84CA68E126BEAC7C003B9453 /* SpecVersionSubscriptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CA68E026BEAC7C003B9453 /* SpecVersionSubscriptionFactory.swift */; };
 		84CB2250270360AC0041C8C1 /* RelaychainStakingLocalSubscriptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CB224F270360AC0041C8C1 /* RelaychainStakingLocalSubscriptionFactory.swift */; };
 		84CCBFBC2509709500180F4F /* UIBarButtonItem+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CCBFBB2509709500180F4F /* UIBarButtonItem+Style.swift */; };
-		84CD3570252620FB0081BC0B /* CryptoType+Extrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CD356F252620FB0081BC0B /* CryptoType+Extrinsic.swift */; };
 		84CD82AE263C1452001A6F01 /* SubstrateProviderSubscriber.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CD82AD263C1452001A6F01 /* SubstrateProviderSubscriber.swift */; };
 		84CD82B3263C30BC001A6F01 /* SubstrateProviderSubscriptionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CD82B2263C30BC001A6F01 /* SubstrateProviderSubscriptionHandler.swift */; };
 		84CE69DD2565BB6400559427 /* AboutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE69DC2565BB6400559427 /* AboutViewModel.swift */; };
@@ -4249,7 +4248,6 @@
 		84CA68E026BEAC7C003B9453 /* SpecVersionSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SpecVersionSubscriptionFactory.swift; sourceTree = "<group>"; };
 		84CB224F270360AC0041C8C1 /* RelaychainStakingLocalSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaychainStakingLocalSubscriptionFactory.swift; sourceTree = "<group>"; };
 		84CCBFBB2509709500180F4F /* UIBarButtonItem+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIBarButtonItem+Style.swift"; sourceTree = "<group>"; };
-		84CD356F252620FB0081BC0B /* CryptoType+Extrinsic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+Extrinsic.swift"; sourceTree = "<group>"; };
 		84CD82AD263C1452001A6F01 /* SubstrateProviderSubscriber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateProviderSubscriber.swift; sourceTree = "<group>"; };
 		84CD82B2263C30BC001A6F01 /* SubstrateProviderSubscriptionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateProviderSubscriptionHandler.swift; sourceTree = "<group>"; };
 		84CE69DC2565BB6400559427 /* AboutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AboutViewModel.swift; sourceTree = "<group>"; };
@@ -10422,7 +10420,6 @@
 				843C49E024DFFC9500B71DDA /* AccountImportSource+ViewModel.swift */,
 				84754C992513871300854599 /* SNAddressType+Codable.swift */,
 				84D97EC0251FEE1E00F07405 /* WalletAssetId+Display.swift */,
-				84CD356F252620FB0081BC0B /* CryptoType+Extrinsic.swift */,
 				8460516C25536C4800A1F0B4 /* ExportOption+ViewModel.swift */,
 				84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */,
 			);
@@ -16249,7 +16246,6 @@
 				FA9278A827C382C600FF7B5B /* MultiassetV2.xcmappingmodel in Sources */,
 				FA72542D2AC2E48500EC47A6 /* WalletConnectPolkadotTransaction.swift in Sources */,
 				FA38C99B275F384E005C5577 /* ChainOptionsViewModel.swift in Sources */,
-				84CD3570252620FB0081BC0B /* CryptoType+Extrinsic.swift in Sources */,
 				FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */,
 				FADB9DB529D551A100303F7D /* SoraRewardCalculatorService.swift in Sources */,
 				843910BB253F021E00E3C217 /* WalletStakingChanged.swift in Sources */,

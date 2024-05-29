@@ -59,7 +59,6 @@ final class BackupPasswordPresenter {
             guard
                 let backupAccountTypes = backup.backupAccountType,
                 let backupCryptoType = backup.cryptoType?.lowercased(),
-                let cryptoType = CryptoType(rawValue: backupCryptoType) ?? CryptoType(version: UInt8(backupCryptoType)),
                 let name = backup.name
             else {
                 throw ConvenienceError(error: "Missing backup types or crypto type")
@@ -79,6 +78,15 @@ final class BackupPasswordPresenter {
 
             guard let source = source else {
                 throw ConvenienceError(error: "Can't create MetaAccountImportRequestSource")
+            }
+
+            let cryptoType: CryptoType
+            if let fromStringValueCryptoType = CryptoType(rawValue: backupCryptoType) {
+                cryptoType = fromStringValueCryptoType
+            } else if let uint8 = UInt8(backupCryptoType), let fromUInt8ValueCryptoType = CryptoType(rawValue: uint8) {
+                cryptoType = fromUInt8ValueCryptoType
+            } else {
+                throw ConvenienceError(error: "Wrong crypto type in google backup")
             }
 
             let request = MetaAccountImportRequest(
