@@ -41,16 +41,16 @@ final class OnboardingPresenter {
 
     // MARK: - Private methods
 
-    private func close() async {
+    private func close() {
         interactor.didClose()
 
         switch startViewHelper.startView(onboardingConfig: nil) {
         case .pin:
-            await router.showLocalAuthentication()
+            router.showLocalAuthentication()
         case .pinSetup:
-            await router.showPincodeSetup()
+            router.showPincodeSetup()
         case .login:
-            await router.showLogin()
+            router.showLogin()
         case .onboarding, .broken:
             break
         }
@@ -66,9 +66,7 @@ extension OnboardingPresenter: OnboardingViewOutput {
     }
 
     func didTapSkipButton() {
-        Task {
-            await close()
-        }
+        close()
     }
 }
 

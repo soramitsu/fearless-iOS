@@ -1024,7 +1024,7 @@
 "transaction.details.view.etherscan" = "イーサスキャン(Etherscan)で見る";
 "transaction.details.view.polkascan" = "ポルカスキャン(Polkascan)で見る";
 "transaction.details.view.reefscan" = "View in Reefscan";
-"transaction.details.view.oklink" = "View in Oklink";
+"transaction.details.view.oklink" = "OKX explorer";
 "transaction.details.view.subscan" = "サブスキャン(Subscan)で見る";
 "transaction.list.header" = "全てのトランザクション";
 "transaction.status.completed" = "完了";

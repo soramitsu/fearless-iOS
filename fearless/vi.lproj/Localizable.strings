@@ -1029,7 +1029,7 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "transaction.details.view.etherscan" = "Xem trong Etherscan";
 "transaction.details.view.polkascan" = "Xem trên Polkascan";
 "transaction.details.view.reefscan" = "Xem trong Reefscan";
-"transaction.details.view.oklink" = "View in Oklink";
+"transaction.details.view.oklink" = "OKX explorer";
 "transaction.details.view.subscan" = "Xem trong Subscan";
 "transaction.list.header" = "Tất cả giao dịch";
 "transaction.status.completed" = "Đã hoàn thành";

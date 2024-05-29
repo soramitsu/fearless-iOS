@@ -167,7 +167,7 @@ final class WalletSendConfirmPresenter {
             return feeViewModel
         }
         return fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: utilityPriceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 

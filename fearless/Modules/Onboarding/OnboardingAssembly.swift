@@ -11,7 +11,7 @@ final class OnboardingAssembly {
         let startViewHelper = StartViewHelper(
             keystore: keychain,
             selectedWalletSettings: SelectedWalletSettings.shared,
-            userDefaultsStorage: SettingsManager.shared
+            userDefaultsStorage: userDefaultsStorage
         )
 
         let interactor = OnboardingInteractor(

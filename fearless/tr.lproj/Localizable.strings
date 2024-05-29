@@ -1025,7 +1025,7 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "transaction.details.view.etherscan" = "Etherscan'da görüntüle";
 "transaction.details.view.polkascan" = "Polkascan'de görüntüle";
 "transaction.details.view.reefscan" = "Reefscan'da görüntüle";
-"transaction.details.view.oklink" = "View in Oklink";
+"transaction.details.view.oklink" = "OKX explorer";
 "transaction.details.view.subscan" = "Subscan'da Görüntüle";
 "transaction.list.header" = "Tüm işlemler";
 "transaction.status.completed" = "Tamamlandı";

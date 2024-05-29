@@ -24,7 +24,12 @@ final class OnboardingInteractor {
     }
 
     func didClose() {
-        userDefaultsStorage.set(value: AppVersion.stringValue, for: OnboardingKeys.lastShownOnboardingVersion.rawValue)
+        if let appVersion: String = AppVersion.stringValue {
+            userDefaultsStorage.set(
+                value: appVersion,
+                for: OnboardingKeys.lastShownOnboardingVersion.rawValue
+            )
+        }
     }
 }
 
