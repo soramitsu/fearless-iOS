@@ -48,7 +48,20 @@ final class CrossChainInteractor {
     private let storageRequestPerformer: StorageRequestPerformer?
     private var runtimeItems: [RuntimeMetadataItem] = []
 
-    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps?
+    private let depsLock = ReaderWriterLock()
+    private var _deps: CrossChainDepsContainer.CrossChainConfirmationDeps?
+    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps? {
+        set {
+            depsLock.exclusivelyWrite { [weak self] in
+                self?._deps = newValue
+            }
+        }
+        get {
+            depsLock.concurrentlyRead {
+                _deps
+            }
+        }
+    }
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
