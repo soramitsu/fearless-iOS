@@ -6,6 +6,8 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
     var fee: Decimal?
     var builderClosure: ExtrinsicBuilderClosure?
     private var balance: Decimal?
+    private var utilityBalance: Decimal?
+
     private(set) var rewardAmount: Decimal = 0.0
     private(set) var account: ChainAccountResponse?
     private(set) var rewardDestination: RewardDestination<DisplayAddress>?
@@ -18,8 +20,23 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
         self.stateListener = stateListener
     }
 
-    func validators(using locale: Locale) -> [DataValidating] {
-        [
+    private func calculateRewardAssetRate(prices: [PriceData]) -> Decimal? {
+        guard
+            let utilityTokenPriceData = prices.first(where: { $0.priceId == chainAsset.chain.utilityAssets().first?.priceId }),
+            let rewardTokenPriceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId }),
+            let utilityTokenPrice = Decimal(string: utilityTokenPriceData.price),
+            let rewardTokenPrice = Decimal(string: rewardTokenPriceData.price)
+        else {
+            return nil
+        }
+
+        return utilityTokenPrice / rewardTokenPrice
+    }
+
+    func validators(using locale: Locale, prices: [PriceData]) -> [DataValidating] {
+        let rewardAssetRate: Decimal = chainAsset.isUtility ? 1 : calculateRewardAssetRate(prices: prices).or(1)
+        let rewardAmount = rewardAmount / rewardAssetRate
+        return [
             dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
                 self?.stateListener?.provideFee()
             },
@@ -78,9 +95,12 @@ extension StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConfir
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
+            guard chainAsset == self.chainAsset.chain.utilityChainAssets().first else {
+                return
+            }
             if let availableValue = accountInfo?.data.stakingAvailable {
                 balance = Decimal.fromSubstrateAmount(
                     availableValue,
@@ -89,7 +109,6 @@ extension StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConfir
             } else {
                 balance = 0.0
             }
-
         case let .failure(error):
             logger?.error("Account Info subscription error: \(error)")
         }

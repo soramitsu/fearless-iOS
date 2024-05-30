@@ -78,7 +78,6 @@ PODS:
   - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.54.0)
   - SwiftyBeaver (2.0.0)
-  - XNetworking (0.0.37)
 
 DEPENDENCIES:
   - Charts (~> 4.1.0)
@@ -98,10 +97,9 @@ DEPENDENCIES:
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
   - SwiftyBeaver
-  - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/Specs.git:
     - Charts
     - CocoaLumberjack
     - Cuckoo
@@ -129,8 +127,6 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
-  XNetworking:
-    :podspec: https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec
 
 CHECKOUT OPTIONS:
   MediaView:
@@ -161,8 +157,7 @@ SPEC CHECKSUMS:
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
   SwiftyBeaver: 014b0c12065026b731bac80305294f27d63e27f6
-  XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
 
-PODFILE CHECKSUM: 1684027b944c28b30cfce215940039c95ff4a95d
+PODFILE CHECKSUM: 934ddb815cb022338f1abd75110a1a634cde7340
 
 COCOAPODS: 1.15.2
