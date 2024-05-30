@@ -10997,13 +10997,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		C603E80F28583C0500007B72 /* Relaychain */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Relaychain;
-			sourceTree = "<group>";
-		};
 		C6264C262799A54400FCA0DB /* WalletDetails */ = {
 			isa = PBXGroup;
 			children = (
@@ -11103,7 +11096,6 @@
 		C63CB3232851C59A0071AF26 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
-				C603E80F28583C0500007B72 /* Relaychain */,
 				C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */,
 			);
 			path = Flow;

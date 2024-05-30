@@ -139,7 +139,7 @@ final class SendDepencyContainer {
                 chainsTypesSyncService: chainsTypesSyncService,
                 runtimeSyncService: runtimeSyncService
             )
-            let connection = try await chainRegistry.getSubstrateConnection(for: chainAsset.chain)
+            let connection = try chainRegistry.getSubstrateConnection(for: chainAsset.chain)
 
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,

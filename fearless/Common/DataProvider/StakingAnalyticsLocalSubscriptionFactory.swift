@@ -44,7 +44,7 @@ extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubsc
             return AnySingleValueProvider(provider)
         }
 
-        let repository = try SubstrateRepositoryFactory(storageFacade: storageFacade)
+        let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
         let operationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)

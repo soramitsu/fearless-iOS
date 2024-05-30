@@ -39,7 +39,7 @@ extension RESTRequestConfigurator: RequestConfigurator {
 
         #if DEBUG
             if let bodyData = config.body {
-                Logger.shared.debug("URL Request: \(urlComponents.url?.absoluteString) ; BODY: \n \(try JSONSerialization.jsonObject(with: bodyData))")
+                Logger.shared.debug("URL Request: \(url.absoluteString) ; BODY: \n \(try JSONSerialization.jsonObject(with: bodyData))")
             }
         #endif
 

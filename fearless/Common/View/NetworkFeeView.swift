@@ -28,7 +28,7 @@ final class NetworkFeeView: UIView {
     let activityIndicator: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView()
         view.hidesWhenStopped = true
-        view.style = .white
+        view.style = .medium
         return view
     }()
 

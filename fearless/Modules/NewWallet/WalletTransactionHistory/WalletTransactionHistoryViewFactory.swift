@@ -84,7 +84,6 @@ enum WalletTransactionHistoryViewFactory {
     private static func createHistoryDeps(
         for chain: ChainModel
     ) -> (HistoryServiceProtocol, HistoryDataProviderFactoryProtocol)? {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 

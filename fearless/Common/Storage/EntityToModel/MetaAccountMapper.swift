@@ -46,7 +46,6 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
 
         let substrateAccountId = try Data(hexStringSSF: entity.substrateAccountId!)
         let ethereumAddress = try entity.ethereumAddress.map { try Data(hexStringSSF: $0) }
-        let assetFilterOptions = entity.assetFilterOptions as? [String]
         let assetsVisibility: [AssetVisibility]? = (entity.assetsVisibility?.allObjects as? [CDAssetVisibility])?.compactMap {
             guard let assetId = $0.assetId else {
                 return nil
@@ -96,7 +95,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.unusedChainIds = model.unusedChainIds as? NSArray
         entity.networkManagmentFilter = model.networkManagmentFilter
         entity.hasBackup = model.hasBackup
-        entity.favouriteChainIds = model.favouriteChainIds as? NSArray
+        entity.favouriteChainIds = model.favouriteChainIds as NSArray
 
         for assetVisibility in model.assetsVisibility {
             var assetVisibilityEntity = entity.assetsVisibility?.first { entity in

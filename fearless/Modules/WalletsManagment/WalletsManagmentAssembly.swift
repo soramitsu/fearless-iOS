@@ -17,21 +17,9 @@ final class WalletsManagmentAssembly {
         let logger = Logger.shared
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
         let managedMetaAccountRepository = accountRepositoryFactory.createManagedMetaAccountRepository(
             for: nil,
             sortDescriptors: []
-        )
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: sharedDefaultQueue
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
