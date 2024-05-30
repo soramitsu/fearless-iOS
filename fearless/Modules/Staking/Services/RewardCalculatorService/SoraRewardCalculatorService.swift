@@ -4,11 +4,6 @@ import SSFUtils
 import BigInt
 import SSFModels
 
-enum SoraCalculatorServiceError: Error {
-    case timedOut
-    case unexpectedInfo
-}
-
 final class SoraRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 

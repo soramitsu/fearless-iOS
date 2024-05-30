@@ -35,8 +35,6 @@ final class AddressChainDefiner {
     private let chainModelRepository: AnyDataProviderRepository<ChainModel>
     private let wallet: MetaAccountModel
 
-    var chains: [ChainModel]?
-
     init(
         operationManager: OperationManagerProtocol,
         chainModelRepository: AnyDataProviderRepository<ChainModel>,
