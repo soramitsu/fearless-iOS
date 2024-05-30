@@ -3,10 +3,6 @@ import SSFModels
 import Web3
 import FearlessKeys
 
-enum EthereumNodeFetchingError: Error {
-    case unknownChain
-}
-
 enum EthereumChain: String {
     case ethereumMainnet = "1"
     case sepolia = "11155111"

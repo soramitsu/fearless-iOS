@@ -114,8 +114,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ashleymills/Reachability.swift",
       "state" : {
-        "revision" : "57da4b1270cab7c2228919eabc0e4e1bf93e48ea",
-        "version" : "5.2.2"
+        "revision" : "7cbd73f46a7dfaeca079e18df7324c6de6d1834a",
+        "version" : "5.2.3"
       }
     },
     {
@@ -133,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "update-for-fearless-asset-management",
-        "revision" : "153f7721ab0739e51913faf80ad66accfc589f86"
+        "revision" : "dd3ffa9016d20d9f3695d76b976df4c857ec1efb"
       }
     },
     {
