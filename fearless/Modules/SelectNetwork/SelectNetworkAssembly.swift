@@ -17,7 +17,7 @@ enum SelectNetworkAssembly {
         let localizationManager = LocalizationManager.shared
 
         let repository = ChainRepositoryFactory().createRepository(
-            for: nil,
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

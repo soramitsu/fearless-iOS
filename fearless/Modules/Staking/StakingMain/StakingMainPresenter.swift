@@ -663,13 +663,8 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
-    func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>) {
-        switch result {
-        case let .success(maxNominatorsPerValidator):
-            stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
-        case let .failure(error):
-            handle(error: error)
-        }
+    func didReceiveMaxNominatorsPerValidator(_ maxNominatorsPerValidator: UInt32?) {
+        stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
     }
 
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {

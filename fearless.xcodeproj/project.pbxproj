@@ -1565,6 +1565,7 @@
 		C661B3B427DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B327DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift */; };
 		C661B3B627E2E7AB005F1F7D /* AccountCreateChainType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */; };
 		C665E4F029C35801001946D1 /* TimeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4EF29C35801001946D1 /* TimeFormatter.swift */; };
+		C66E68CE2BFC119300A14759 /* OnboardingConfigVersionResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66E68CD2BFC119300A14759 /* OnboardingConfigVersionResolver.swift */; };
 		C67E780F27B3163B0053346B /* CheckPincodeProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */; };
 		C67E781127B318840053346B /* CheckPincodeViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781027B318840053346B /* CheckPincodeViewFactory.swift */; };
 		C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */; };
@@ -3105,6 +3106,7 @@
 		07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationViewModelFactory.swift; sourceTree = "<group>"; };
 		07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationCellViewModel.swift; sourceTree = "<group>"; };
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
+		07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		07BF3D932B3D873F0046ABF4 /* OklinkHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OklinkHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		07BF3D952B3D8B3A0046ABF4 /* PriceDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PriceDataSource.swift; sourceTree = "<group>"; };
 		07BF3D982B3D8BCD0046ABF4 /* ChainlinkOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainlinkOperationFactory.swift; sourceTree = "<group>"; };
@@ -4503,6 +4505,7 @@
 		C661B3B327DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoSubscriptionProviderWrapper.swift; sourceTree = "<group>"; };
 		C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateChainType.swift; sourceTree = "<group>"; };
 		C665E4EF29C35801001946D1 /* TimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatter.swift; sourceTree = "<group>"; };
+		C66E68CD2BFC119300A14759 /* OnboardingConfigVersionResolver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingConfigVersionResolver.swift; sourceTree = "<group>"; };
 		C67ACC943DA07FC529AE69B4 /* StakingBalanceFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingBalanceFlow.swift; sourceTree = "<group>"; };
 		C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeProtocols.swift; sourceTree = "<group>"; };
 		C67E781027B318840053346B /* CheckPincodeViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewFactory.swift; sourceTree = "<group>"; };
@@ -12436,6 +12439,7 @@
 				FA34EEC52B98723B0042E73E /* OnboardingViewController.swift */,
 				FA34EEC62B98723B0042E73E /* OnboardingViewLayout.swift */,
 				FA34EEC72B98723B0042E73E /* OnboardingAssembly.swift */,
+				C66E68CD2BFC119300A14759 /* OnboardingConfigVersionResolver.swift */,
 			);
 			path = Onboarding;
 			sourceTree = "<group>";
@@ -16121,6 +16125,7 @@
 				FA17B4BA27E873E9006E0735 /* WarningAlertPresentAnimator.swift in Sources */,
 				FA584C782AB2BCD500F6F020 /* UniversalMediaView.swift in Sources */,
 				070CDD792ACBE19100F3F20A /* BokoloCashQRInfo.swift in Sources */,
+				C66E68CE2BFC119300A14759 /* OnboardingConfigVersionResolver.swift in Sources */,
 				AEA0C8A8267B6B3200F9666F /* SelectedValidatorListPresenter.swift in Sources */,
 				FAFFAE9529AC84B10074AF1F /* GiantsquidTransfer.swift in Sources */,
 				FA256985274CE5A500875A53 /* BalanceLocks+Sort.swift in Sources */,
@@ -18429,7 +18434,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.2.3;
+				MARKETING_VERSION = 3.6.1;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -18456,7 +18461,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.2.3;
+				MARKETING_VERSION = 3.6.1;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -18594,7 +18599,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.2.3;
+				MARKETING_VERSION = 3.6.1;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -19022,13 +19027,14 @@
 		FACE6C5D2BBAC3B000643CEF /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */,
 				FACE6C5E2BBAC3B000643CEF /* SubstrateDataModel.xcdatamodel */,
 				FACE6C5F2BBAC3B000643CEF /* SubstrateDataModel_v4.xcdatamodel */,
 				FACE6C602BBAC3B000643CEF /* SubstrateDataModel_v2.xcdatamodel */,
 				FACE6C612BBAC3B000643CEF /* SubstrateDataModel_v5.xcdatamodel */,
 				FACE6C622BBAC3B000643CEF /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = FACE6C612BBAC3B000643CEF /* SubstrateDataModel_v5.xcdatamodel */;
+			currentVersion = 07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */;
 			path = SubstrateDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

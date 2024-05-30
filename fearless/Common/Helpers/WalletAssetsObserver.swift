@@ -139,7 +139,11 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     }
 
     private func emptyAccountInfos(for chain: ChainModel) -> [ChainAssetId: AccountInfo?] {
-        Dictionary(uniqueKeysWithValues: chain.chainAssets.map { ($0.chainAssetId, nil) })
+        let mapped: [(ChainAssetId, AccountInfo?)] = chain
+            .chainAssets
+            .map { ($0.chainAssetId, nil) }
+            .uniq(predicate: { $0.0 })
+        return Dictionary(uniqueKeysWithValues: mapped)
     }
 
     private func performSaveAndNotify() {

@@ -16,6 +16,7 @@ final class ChainAssetListViewController:
     private let output: ChainAssetListViewOutput
 
     private weak var bannersViewController: UIViewController?
+    private let keyboardAdoptable: Bool
 
     private var viewModel: ChainAssetListViewModel?
     private lazy var locale: Locale = {
@@ -27,9 +28,11 @@ final class ChainAssetListViewController:
     init(
         bannersViewController: UIViewController?,
         output: ChainAssetListViewOutput,
+        keyboardAdoptable: Bool,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.bannersViewController = bannersViewController
+        self.keyboardAdoptable = keyboardAdoptable
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -57,7 +60,7 @@ final class ChainAssetListViewController:
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
-        if keyboardHandler == nil {
+        if keyboardHandler == nil, keyboardAdoptable {
             setupKeyboardHandler()
         }
     }
@@ -154,10 +157,8 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
         self.viewModel = viewModel
         rootView.setFooterButtonTitle(for: viewModel.displayState)
         rootView.footerButton.isHidden = viewModel.displayState.isSearch
+        rootView.bannersView?.isHidden = viewModel.displayState.isSearch
         rootView.footerButton.set(loading: false)
-        UIView.animate(withDuration: 0.3) {
-            self.rootView.bannersView?.isHidden = viewModel.displayState.isSearch
-        }
 
         switch viewModel.displayState {
         case let .defaultList(_, withAnimate):

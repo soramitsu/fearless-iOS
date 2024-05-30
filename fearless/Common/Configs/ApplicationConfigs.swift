@@ -197,7 +197,7 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     }
 
     var onboardingConfig: URL? {
-        GitHubUrl.url(suffix: "appConfigs/onboarding/mobile.json", branch: .developFree)
+        GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json", branch: .developFree)
     }
 }
 

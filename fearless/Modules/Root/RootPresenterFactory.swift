@@ -2,6 +2,7 @@ import UIKit
 import SoraKeystore
 import SoraFoundation
 import RobinHood
+import SSFNetwork
 
 final class RootPresenterFactory: RootPresenterFactoryProtocol {
     static func createPresenter(with window: UIWindow) -> RootPresenterProtocol {
@@ -44,9 +45,15 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let migrators: [Migrating] = [
             languageMigrator,
             dbMigrator,
-            substrateDbMigrator,
-            assetManagementMigrator
+            substrateDbMigrator
         ]
+
+        let service = OnboardingService(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
+
+        let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared)
 
         let interactor = RootInteractor(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
@@ -54,7 +61,9 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
             migrators: migrators,
-            logger: Logger.shared
+            logger: Logger.shared,
+            onboardingService: service,
+            onboardingConfigResolver: resolver
         )
 
         let view = RootViewController(

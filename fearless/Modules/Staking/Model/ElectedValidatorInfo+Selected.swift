@@ -7,7 +7,7 @@ extension ElectedValidatorInfo {
         if let nominatorAddress = nominatorAddress,
            let nominatorInfoIndex = nominators.firstIndex(where: { $0.address == nominatorAddress }) {
             let nominatorInfo = nominators[nominatorInfoIndex]
-            let isRewarded = nominatorInfoIndex < maxNominatorsRewarded
+            let isRewarded = nominatorInfoIndex < maxNominatorsRewarded.or(UInt32.max)
             let allocations = ValidatorTokenAllocation(
                 amount: nominatorInfo.stake,
                 isRewarded: isRewarded

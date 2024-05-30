@@ -488,7 +488,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         let chain = readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
 
         guard let chain else {
-            throw ChainRegistryError.connectionUnavailable
+            throw ChainRegistryError.chainUnavailable(chainId: chainId)
         }
 
         return chain
@@ -503,10 +503,13 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeSnapshot {
-        let runtimeService = try await getRuntimeProvider(chainId: chainId, usedRuntimePaths: [:], runtimeItem: nil)
-        runtimeService.setup()
-
-        let runtimeSnapshot = try await runtimeService.readySnapshot()
+        guard let runtimeProvider = getRuntimeProvider(for: chainId) else {
+            throw RuntimeProviderError.providerUnavailable
+        }
+        guard let runtimeSnapshot = runtimeProvider.snapshot else {
+            let snapshot = try await runtimeProvider.readySnapshot()
+            return snapshot
+        }
         return runtimeSnapshot
     }
 }

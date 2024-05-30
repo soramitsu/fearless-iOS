@@ -87,7 +87,7 @@ final class WalletMainContainerAssembly {
     private static func configureAssetListModule(
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        ChainAssetListAssembly.configureModule(wallet: metaAccount)
+        ChainAssetListAssembly.configureModule(wallet: metaAccount, keyboardAdoptable: false)
     }
 
     private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {
