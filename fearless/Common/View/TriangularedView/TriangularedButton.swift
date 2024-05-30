@@ -90,7 +90,7 @@ class TriangularedButton: BackgroundedContentControl {
             applyDisabledStyle()
         } else {
             activityIndicator.stopAnimating()
-            set(enabled: isEnabled)
+            set(enabled: isEnabled, changeStyle: false)
         }
     }
 }

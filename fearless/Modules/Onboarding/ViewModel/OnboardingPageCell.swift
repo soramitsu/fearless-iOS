@@ -37,6 +37,9 @@ final class OnboardingPageCell: UICollectionViewCell {
     }
 
     func bind(viewModel: OnboardingPageViewModel) {
+        if let hexColor = viewModel.titleColorHex {
+            titleLabel.textColor = HexColorConverter.hexStringToUIColor(hex: hexColor)
+        }
         titleLabel.text = viewModel.title
         descriptionLabel.text = viewModel.description
         let imageWidth = UIScreen.superviewWidth

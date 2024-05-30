@@ -5,7 +5,7 @@ import SSFCloudStorage
 protocol BackupWalletImportedInteractorOutput: AnyObject {}
 
 final class BackupWalletImportedInteractor {
-    var cloudStorageService: FearlessCompatibilityProtocol?
+    var cloudStorageService: CloudStorageServiceProtocol?
 
     // MARK: - Private properties
 

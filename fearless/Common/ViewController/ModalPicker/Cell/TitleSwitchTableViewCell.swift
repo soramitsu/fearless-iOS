@@ -41,8 +41,6 @@ final class TitleSwitchTableViewCell: UITableViewCell, ModalPickerCellProtocol {
     }
 
     func bind(model: TitleSwitchTableViewCellModel) {
-        delegate = model
-
         iconImageView.image = model.icon
         title.text = model.title
         switchView.isOn = model.switchIsOn

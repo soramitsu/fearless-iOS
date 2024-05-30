@@ -6,23 +6,17 @@ enum StartView {
     case pinSetup
     case login
     case broken
-    case onboarding
+    case onboarding(OnboardingConfigWrapper)
 }
 
 protocol StartViewHelperProtocol {
-    func startView() -> StartView
+    func startView(onboardingConfig: OnboardingConfigWrapper?) -> StartView
 }
 
 final class StartViewHelper: StartViewHelperProtocol {
     private let keystore: KeystoreProtocol
     private let selectedWalletSettings: SelectedWalletSettings
     private let userDefaultsStorage: SettingsManagerProtocol
-
-    private lazy var isNeedShowOnboarding: Bool = {
-        userDefaultsStorage.bool(
-            for: OnboardingKeys.shouldShowOnboarding.rawValue
-        ) ?? true
-    }()
 
     init(
         keystore: KeystoreProtocol,
@@ -34,10 +28,10 @@ final class StartViewHelper: StartViewHelperProtocol {
         self.userDefaultsStorage = userDefaultsStorage
     }
 
-    func startView() -> StartView {
+    func startView(onboardingConfig: OnboardingConfigWrapper?) -> StartView {
         do {
-            if isNeedShowOnboarding, !selectedWalletSettings.hasValue {
-                return StartView.onboarding
+            if let config = onboardingConfig {
+                return StartView.onboarding(config)
             }
 
             if !selectedWalletSettings.hasValue {

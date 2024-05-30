@@ -141,11 +141,8 @@ final class SendPresenter {
 
     private func provideAssetVewModel() {
         guard let chainAsset = selectedChainAsset, case let .value(assetInfo) = assetAccountInfo else { return }
-
         let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
-
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
-
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
@@ -565,11 +562,14 @@ final class SendPresenter {
                     let strongSelf = self,
                     let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
                 else { return }
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+
                 let transfer = Transfer(
                     chainAsset: chainAsset,
                     amount: amount,
                     receiver: address,
-                    tip: strongSelf.tipValue
+                    tip: strongSelf.tipValue,
+                    appId: appId
                 )
                 strongSelf.router.presentConfirm(
                     from: strongSelf.view,
@@ -963,7 +963,7 @@ extension SendPresenter: SendViewOutput {
 
     func didTapSelectNetwork() {
         guard let chainAsset = selectedChainAsset else { return }
-        interactor.defineAvailableChains(for: chainAsset.asset) { [weak self] chains in
+        interactor.defineAvailableChains(for: chainAsset.asset, wallet: wallet) { [weak self] chains in
             guard let strongSelf = self, let availableChains = chains else { return }
             strongSelf.router.showSelectNetwork(
                 from: strongSelf.view,
@@ -1182,7 +1182,7 @@ extension SendPresenter: SelectAssetModuleOutput {
                 handle(selectedChain: chain)
             } else {
                 state = .normal
-                interactor.defineAvailableChains(for: asset) { [weak self] chains in
+                interactor.defineAvailableChains(for: asset, wallet: wallet) { [weak self] chains in
                     if let availableChains = chains, let strongSelf = self {
                         if availableChains.count == 1 {
                             self?.handle(selectedChain: availableChains.first)

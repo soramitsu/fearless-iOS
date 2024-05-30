@@ -20,6 +20,7 @@ struct Transfer {
     let amount: BigUInt
     let receiver: String
     let tip: BigUInt?
+    let appId: BigUInt?
 }
 
 protocol TransferServiceProtocol {

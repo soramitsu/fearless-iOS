@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+import UIKit
 
 class WalletTransactionDetailsViewModel {
     let transaction: AssetTransactionData

@@ -1,4 +1,4 @@
-import CommonWallet
+import Foundation
 import BigInt
 import SSFModels
 
@@ -44,6 +44,7 @@ protocol SendInteractorInput: AnyObject {
     func updateSubscriptions(for chainAsset: ChainAsset)
     func defineAvailableChains(
         for asset: AssetModel,
+        wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     )
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset)

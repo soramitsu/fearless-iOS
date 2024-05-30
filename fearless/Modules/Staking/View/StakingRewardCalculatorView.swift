@@ -1,6 +1,5 @@
 import UIKit
 import SoraUI
-import CommonWallet
 
 protocol RewardCalculatorViewDelegate: AnyObject {
     func rewardCalculatorView(_ view: StakingRewardCalculatorView, didChange amount: Decimal?)

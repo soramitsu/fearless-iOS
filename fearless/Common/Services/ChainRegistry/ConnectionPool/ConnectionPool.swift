@@ -126,6 +126,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
         connectionLock.exclusivelyWrite {
             self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.key != chainId }
+            self.failedUrls[chainId] = nil
         }
     }
 }

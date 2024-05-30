@@ -69,7 +69,7 @@ final class WalletConnectSocketEngine: WebSocketConnecting {
                 self?.didDisconnectedWith(error: error)
             case let .text(text):
                 self?.onText?(text)
-            case .ping, .pong, .binary:
+            case .ping, .pong, .binary, .timeout, .waiting:
                 break
             }
         }

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 extension CryptoType {
     var supportsSeedFromSecretKey: Bool {

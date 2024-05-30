@@ -17,7 +17,6 @@ protocol ProfileInteractorInputProtocol: AnyObject {
     func updateWallet(_ wallet: MetaAccountModel)
     func logout(completion: @escaping () -> Void)
     func update(currency: Currency)
-    func update(zeroBalanceAssetsHidden: Bool)
 }
 
 protocol ProfileInteractorOutputProtocol: AnyObject {

@@ -164,7 +164,7 @@ final class BackupWalletPresenter {
 
     private func showDelete(error: Error) {
         var presentingError: ConvenienceError?
-        if let error = error as? FearlessCompatibilityError {
+        if let error = error as? FearlessExtensionError {
             switch error {
             case .cantRemoveExtensionBackup:
                 let title = R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages)

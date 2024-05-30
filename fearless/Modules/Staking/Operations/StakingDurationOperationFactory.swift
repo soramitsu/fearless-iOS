@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFRuntimeCodingService
 
 struct StakingDuration {
     let session: TimeInterval

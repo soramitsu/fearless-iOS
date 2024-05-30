@@ -17,8 +17,8 @@ final class RootPresenter {
         self.localizationManager = localizationManager
     }
 
-    private func decideModuleSynchroniously() {
-        let startView = startViewHelper.startView()
+    private func decideModuleSynchroniously(with onboardingConfig: OnboardingConfigWrapper?) {
+        let startView = startViewHelper.startView(onboardingConfig: onboardingConfig)
         switch startView {
         case .pin:
             wireframe.showLocalAuthentication(on: window)
@@ -28,8 +28,8 @@ final class RootPresenter {
             wireframe.showMain(on: window)
         case .broken:
             wireframe.showBroken(on: window)
-        case .onboarding:
-            wireframe.showOnboarding(on: window)
+        case let .onboarding(config):
+            wireframe.showOnboarding(on: window, with: config)
         }
     }
 }
@@ -39,12 +39,25 @@ extension RootPresenter: RootPresenterProtocol {
         wireframe.showSplash(splashView: view, on: window)
 
         interactor.setup(runMigrations: true)
-        decideModuleSynchroniously()
+        Task {
+            do {
+                let onboardingConfig = try await interactor.fetchOnboardingConfig()
+                DispatchQueue.main.async { [weak self] in
+                    self?.decideModuleSynchroniously(with: onboardingConfig)
+                }
+            } catch {
+                DispatchQueue.main.async { [weak self] in
+                    Logger.shared.error(error.localizedDescription)
+                    self?.decideModuleSynchroniously(with: nil)
+                }
+            }
+        }
     }
 
     func reload() {
         interactor.setup(runMigrations: false)
-        decideModuleSynchroniously()
+
+        decideModuleSynchroniously(with: nil)
     }
 }
 

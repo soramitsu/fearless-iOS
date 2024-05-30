@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import SSFModels
 import RobinHood
+import SSFRuntimeCodingService
 
 protocol CrowdloanService {
     func fetchContributions(accountId: AccountId) async throws -> CrowdloanContributionDict

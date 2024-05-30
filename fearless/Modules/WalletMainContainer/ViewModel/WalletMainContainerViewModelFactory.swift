@@ -6,9 +6,7 @@ protocol WalletMainContainerViewModelFactoryProtocol {
         selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
-        chainsIssues: [ChainIssue],
-        locale: Locale,
-        chainSettings: [ChainSettings]
+        locale: Locale
     ) -> WalletMainContainerViewModel
 }
 
@@ -17,9 +15,7 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
         selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
-        chainsIssues: [ChainIssue],
-        locale: Locale,
-        chainSettings: [ChainSettings]
+        locale: Locale
     ) -> WalletMainContainerViewModel {
         var selectedChain: ChainModel?
         let selectedFilterName: String
@@ -50,27 +46,11 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             address = address1
         }
 
-        let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
-        var hasNetworkIssues: Bool = false
-        var hasAccountIssues: Bool = false
-        let unusedChains = selectedMetaAccount.unusedChainIds ?? []
-        chainsIssues.forEach { issue in
-            switch issue {
-            case let .network(chains):
-                hasNetworkIssues = chains.first(where: { !mutedIssuesChainIds.contains($0.chainId) }) != nil
-            case let .missingAccount(chains):
-                hasAccountIssues = chains.first(where: { !unusedChains.contains($0.chainId) }) != nil
-            }
-        }
-
-        let hasIssues = hasNetworkIssues || hasAccountIssues
-
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedFilter: selectedFilterName,
             selectedFilterImage: selectedFilterImage,
-            address: address,
-            hasNetworkIssues: hasIssues
+            address: address
         )
     }
 }

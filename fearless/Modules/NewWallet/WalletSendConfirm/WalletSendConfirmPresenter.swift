@@ -6,6 +6,29 @@ import IrohaCrypto
 import SwiftUI
 import SSFModels
 
+struct SendLoadingCollector {
+    var feeReady: Bool = false
+    var balanceReady: Bool = false
+    var utilityBalanceReady: Bool = false
+    var edReady: Bool = false
+
+    mutating func reset(isUtility: Bool) {
+        feeReady = false
+        balanceReady = false
+        utilityBalanceReady = !isUtility
+        edReady = false
+    }
+
+    var isReady: Bool {
+        [
+            feeReady,
+            balanceReady,
+            utilityBalanceReady,
+            edReady
+        ].allSatisfy { $0 }
+    }
+}
+
 final class WalletSendConfirmPresenter {
     weak var view: WalletSendConfirmViewProtocol?
     private let wireframe: WalletSendConfirmWireframeProtocol
@@ -27,6 +50,8 @@ final class WalletSendConfirmPresenter {
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
     private var eqUilibriumTotalBalance: Decimal?
+
+    private var loadingCollector = SendLoadingCollector()
 
     init(
         interactor: WalletSendConfirmInteractorInputProtocol,
@@ -142,7 +167,7 @@ final class WalletSendConfirmPresenter {
             return feeViewModel
         }
         return fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: utilityPriceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 
@@ -196,6 +221,12 @@ final class WalletSendConfirmPresenter {
         view?.didStartLoading()
         interactor.submitExtrinsic()
     }
+
+    private func checkLoadingState() {
+        DispatchQueue.main.async { [unowned self] in
+            self.view?.didReceive(isLoading: !self.loadingCollector.isReady)
+        }
+    }
 }
 
 extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
@@ -226,6 +257,8 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
         interactor.setup()
         provideViewModel()
         refreshFee()
+
+        loadingCollector.utilityBalanceReady = chainAsset.isUtility
     }
 
     func didTapBackButton() {
@@ -270,6 +303,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(accountInfo):
             if chainAsset == self.chainAsset {
+                loadingCollector.balanceReady = true
+                checkLoadingState()
+
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
@@ -280,6 +316,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
                 provideViewModel()
             } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
                       utilityAsset == chainAsset {
+                loadingCollector.utilityBalanceReady = true
+                checkLoadingState()
+
                 utilityBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
@@ -295,10 +334,14 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(minimumBalance):
+            loadingCollector.edReady = true
+            checkLoadingState()
             self.minimumBalance = minimumBalance
 
             provideViewModel()
         case let .failure(error):
+            loadingCollector.edReady = true
+            checkLoadingState()
             logger?.error("Did receive minimum balance error: \(error)")
         }
     }
@@ -333,6 +376,8 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
             let fullAmount = amount + fee.or(.zero) + tip
             interactor.fetchEquilibriumTotalBalance(chainAsset: chainAsset, amount: fullAmount)
+            loadingCollector.feeReady = true
+            checkLoadingState()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
         }
@@ -340,6 +385,8 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
     func didReceive(eqTotalBalance: Decimal) {
         eqUilibriumTotalBalance = eqTotalBalance
+        loadingCollector.balanceReady = true
+        checkLoadingState()
     }
 }
 

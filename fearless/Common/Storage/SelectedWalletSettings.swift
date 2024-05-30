@@ -55,13 +55,16 @@ final class SelectedWalletSettings: PersistentValueSettings<MetaAccountModel> {
             var accountsToSave: [ManagedMetaAccountModel] = []
 
             if let currentAccount = try maybeCurrentAccountOperation?.extractNoCancellableResultData() {
-                accountsToSave.append(
-                    ManagedMetaAccountModel(
-                        info: currentAccount.info,
-                        isSelected: false,
-                        order: currentAccount.order
+                let newAccount = try? newAccountOperation.extractNoCancellableResultData()
+                if currentAccount.identifier != newAccount?.identifier {
+                    accountsToSave.append(
+                        ManagedMetaAccountModel(
+                            info: currentAccount.info,
+                            isSelected: false,
+                            order: currentAccount.order
+                        )
                     )
-                )
+                }
             }
 
             if let newAccount = try newAccountOperation.extractNoCancellableResultData() {

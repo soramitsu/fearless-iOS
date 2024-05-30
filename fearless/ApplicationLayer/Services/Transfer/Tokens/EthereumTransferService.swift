@@ -37,10 +37,15 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             let gasLimit = try await queryGasLimit(call: call)
             return gasLimit.quantity * gasPrice.quantity
         case .erc20, .bep20:
+            let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
             let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
             let contractAddress = try EthereumAddress(rawAddress: transfer.chainAsset.asset.id.hexToBytes())
-            let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
-            let transfer = contract.transfer(to: contractAddress, value: transfer.amount)
+            let contract = ws.Contract(
+                type: GenericERC20Contract.self,
+                address: contractAddress
+            )
+            let transfer = contract.transfer(to: address, value: transfer.amount)
+
             let gasPrice = try await queryGasPrice()
             let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: BigUInt.zero), transfer: transfer)
 

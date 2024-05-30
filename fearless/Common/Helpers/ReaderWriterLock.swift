@@ -1,7 +1,7 @@
 import Foundation
 
 final class ReaderWriterLock {
-    private let queue = DispatchQueue(label: "co.jp.soramitsu.rwLock", attributes: .concurrent)
+    private let queue = DispatchQueue(label: "co.jp.soramitsu.rwLock.\(UUID().uuidString)", attributes: .concurrent)
 
     func concurrentlyRead<T>(_ block: () throws -> T) rethrows -> T {
         try queue.sync {

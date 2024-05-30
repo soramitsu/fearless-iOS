@@ -97,7 +97,6 @@ final class ChainAccountInteractor {
                 strongSelf.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
                     wallet: strongSelf.wallet,
                     chainAsset: chainAsset,
-                    deliverOn: .main,
                     listener: strongSelf
                 )
             }
@@ -109,8 +108,9 @@ final class ChainAccountInteractor {
             let balanceLocksFetcher = currentDependencies?.balanceLocksFetcher,
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
         else {
-            presenter?.didReceiveBalanceLocks(nil)
-            presenter?.didReceiveAssetFrozen(nil)
+            presenter?.didReceiveBalanceLocksError(ChainRegistryError.runtimeMetadaUnavailable)
+            presenter?.didReceiveAssetFrozenError(ChainRegistryError.runtimeMetadaUnavailable)
+
             return
         }
 

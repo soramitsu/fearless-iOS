@@ -22,8 +22,11 @@ final class AccountInfoUpdatingService {
 
     private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
-    private let mutex = NSLock()
     private lazy var readLock = ReaderWriterLock()
+
+    private lazy var chainConnectionVisibilityHelper = {
+        ChainConnectionVisibilityHelper()
+    }()
 
     deinit {
         removeAllSubscriptions()
@@ -64,10 +67,15 @@ final class AccountInfoUpdatingService {
             switch change {
             case let .insert(newItem):
                 if chainRegistry.availableChainIds.or([]).contains(newItem.chainId) {
-                    newItem.chainAssets.forEach {
-                        addSubscriptionIfNeeded(for: $0)
+                    if chainConnectionVisibilityHelper.shouldHaveConnetion(newItem, wallet: selectedMetaAccount) {
+                        newItem.chainAssets.forEach {
+                            addSubscriptionIfNeeded(for: $0)
+                        }
                     }
-                    chains[newItem.chainId] = newItem
+                    readLock.exclusivelyWrite { [weak self] in
+                        guard let self else { return }
+                        self.chains[newItem.chainId] = newItem
+                    }
                 } else {
                     chains[newItem.chainId] = newItem
                 }
@@ -155,27 +163,19 @@ final class AccountInfoUpdatingService {
 
         setSubscription(nil, for: key)
 
-        guard let ecosystem = key.components(separatedBy: ":")[safe: 1],
-              let chainBaseType = ChainBaseType(rawValue: ecosystem) else {
-            return
-        }
-
-        switch chainBaseType {
-        case .ethereum:
-            ethereumRemoteSubscriptionService.detachFromAccountInfo(
-                for: subscriptionInfo.subscriptionId,
-                chainAssetKey: key,
-                queue: nil,
-                closure: nil
-            )
-        case .substrate:
-            substrateRemoteSubscriptionService.detachFromAccountInfo(
-                for: subscriptionInfo.subscriptionId,
-                chainAssetKey: key,
-                queue: nil,
-                closure: nil
-            )
-        }
+        substrateRemoteSubscriptionService.detachFromAccountInfo(
+            for: subscriptionInfo.subscriptionId,
+            chainAssetKey: key,
+            queue: nil,
+            closure: { [weak self] result in
+                switch result {
+                case .success:
+                    self?.logger?.info("removed subscription for \(key)")
+                case let .failure(error):
+                    self?.logger?.error("Faced with error: \(error) when detach subscription")
+                }
+            }
+        )
     }
 
     private func subscribeToChains() {

@@ -4,7 +4,7 @@ typealias OnboardingStartModuleCreationResult = (
 )
 
 protocol OnboardingStartRouterInput: AnyObject {
-    func startOnboarding()
+    func startOnboarding(config: OnboardingConfigWrapper)
 }
 
 protocol OnboardingStartModuleInput: AnyObject {}

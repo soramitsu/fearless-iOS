@@ -11,7 +11,9 @@ protocol AssetNetworksViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         locale: Locale,
         filter: AssetNetworksFilter,
-        sort: AssetNetworksSortType
+        sort: AssetNetworksSortType,
+        chainsWithIssue: [ChainIssue],
+        chainSettings: [ChainSettings]
     ) -> [AssetNetworksTableCellModel]
 }
 
@@ -29,9 +31,12 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
         wallet: MetaAccountModel,
         locale: Locale,
         filter: AssetNetworksFilter,
-        sort: AssetNetworksSortType
+        sort: AssetNetworksSortType,
+        chainsWithIssue: [ChainIssue],
+        chainSettings: [ChainSettings]
     ) -> [AssetNetworksTableCellModel] {
-        let viewModels: [AssetNetworksTableCellModel] = chainAssets.sorted(by: { ca1, ca2 in
+        let enabledChainAssets = enabledOrDefault(chainAssets: chainAssets, for: wallet)
+        let viewModels: [AssetNetworksTableCellModel] = enabledChainAssets.sorted(by: { ca1, ca2 in
             switch sort {
             case .fiat:
                 guard
@@ -81,13 +86,20 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
 
             let fiatBalance = balanceDecimal * priceValue
             let fiatBalanceLabelText = fiatFormatter(for: wallet.selectedCurrency, locale: locale).stringFromDecimal(fiatBalance)
+            let hasIssues = checkHasIssue(
+                chain: chainAsset.chain,
+                wallet: wallet,
+                chainsWithIssue: chainsWithIssue,
+                chainSettings: chainSettings
+            )
 
             return AssetNetworksTableCellModel(
                 iconViewModel: chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) },
                 chainNameLabelText: chainAsset.chain.name,
                 cryptoBalanceLabelText: cryptoBalanceLabelText,
                 fiatBalanceLabelText: fiatBalanceLabelText,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                hasIssues: hasIssues.hasAccountIssue || hasIssues.hasNetworkIssue
             )
         }
 
@@ -106,3 +118,4 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
 }
 
 extension AssetNetworksViewModelFactory: RemoteImageViewModelFactoryProtocol {}
+extension AssetNetworksViewModelFactory: ChainAssetListBuilder {}

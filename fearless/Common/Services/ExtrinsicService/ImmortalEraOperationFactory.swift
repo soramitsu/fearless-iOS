@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFRuntimeCodingService
 
 final class ImmortalEraOperationFactory: ExtrinsicEraOperationFactoryProtocol {
     func createOperation(

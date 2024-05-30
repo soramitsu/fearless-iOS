@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
-import CommonWallet
+
 import SSFUtils
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {

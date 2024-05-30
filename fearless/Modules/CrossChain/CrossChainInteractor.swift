@@ -48,7 +48,20 @@ final class CrossChainInteractor {
     private let storageRequestPerformer: StorageRequestPerformer?
     private var runtimeItems: [RuntimeMetadataItem] = []
 
-    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps?
+    private let depsLock = ReaderWriterLock()
+    private var _deps: CrossChainDepsContainer.CrossChainConfirmationDeps?
+    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps? {
+        set {
+            depsLock.exclusivelyWrite { [weak self] in
+                self?._deps = newValue
+            }
+        }
+        get {
+            depsLock.concurrentlyRead {
+                _deps
+            }
+        }
+    }
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
@@ -313,7 +326,8 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         guard
             let destinationChain,
             let originalChainAsset,
-            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() })
+            let asset = destinationChain.assets.first(where: { $0.normalizedSymbol().lowercased() == originalChainAsset.asset.normalizedSymbol().lowercased() }),
+            address.isNotEmpty
         else {
             return
         }
@@ -330,7 +344,9 @@ extension CrossChainInteractor: CrossChainInteractorInput {
                     output?.didReceiveDestinationAccountInfo(accountInfo: accountInfo)
                 }
             } catch {
-                output?.didReceiveDestinationAccountInfoError(error: error)
+                await MainActor.run {
+                    output?.didReceiveDestinationAccountInfoError(error: error)
+                }
             }
         }
     }

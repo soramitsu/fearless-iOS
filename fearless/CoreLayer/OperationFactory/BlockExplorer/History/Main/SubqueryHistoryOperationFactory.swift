@@ -1,9 +1,10 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 class SubqueryHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>

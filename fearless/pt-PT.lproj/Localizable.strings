@@ -1034,6 +1034,7 @@ Lembre-se de fazer uma cópia de segurança da sua chave e guardá-la num local 
 "transaction.details.view.etherscan" = "Ver no Etherscan";
 "transaction.details.view.polkascan" = "Ver na Polkascan";
 "transaction.details.view.reefscan" = "View in Reefscan";
+"transaction.details.view.oklink" = "View in OKX explorer";
 "transaction.details.view.subscan" = "Ver no Subscan";
 "transaction.list.header" = "Todas as transações";
 "transaction.status.completed" = "Concluído";
@@ -1273,3 +1274,5 @@ To find out more, contact %@";
 "verify.phone.number.send.code" = "ENVIAR CÓDIGO";
 "balance.locks.blocked.row.title" = "Blocked";
 "wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
+"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
+"wallet.all.assets.hidden" = "You have hidden all assets";

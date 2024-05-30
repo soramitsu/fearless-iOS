@@ -1,9 +1,9 @@
 import Foundation
-import SSFUtils
-import SSFRuntimeCodingService
 import SSFModels
+import SSFRuntimeCodingService
+import SSFUtils
 
-final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
+final actor AsyncStorageRequestDefault: AsyncStorageRequestFactory {
     private lazy var storageKeyFactory: StorageKeyFactoryProtocol = {
         StorageKeyFactory()
     }()
@@ -94,7 +94,7 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
 
     func queryItems<T>(
         engine: JSONRPCEngine,
-        keyParams: [[any NMapKeyParamProtocol]],
+        keyParams: [[[any NMapKeyParamProtocol]]],
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath,
         at blockHash: Data?
@@ -119,16 +119,21 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
 
     func queryItemsByPrefix<T>(
         engine: JSONRPCEngine,
-        key: Data,
+        keys: [Data],
         factory: RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath,
         at blockHash: Data?
     ) async throws -> [StorageResponse<T>] where T: Decodable {
-        let queryKeys = try await createQueryByPrefixOperation(for: key, engine: engine)
+        let queryKeys = try await queryKeysByPrefix(for: keys, engine: engine)
         let fetchedKeys = try queryKeys
+            .compactMap { $0 }.reduce([], +)
             .compactMap { try Data(hexStringSSF: $0) }
 
-        let queryItems = try await queryWorkersResult(for: fetchedKeys, at: blockHash, engine: engine)
+        let queryItems = try await queryWorkersResult(
+            for: fetchedKeys,
+            at: blockHash,
+            engine: engine
+        )
         let result = queryItems
             .flatMap { $0 }
             .flatMap { StorageUpdateData(update: $0).changes }
@@ -144,14 +149,36 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
         let mergeResult = mergeResult(
             updates: queryItems,
             decoded: decoded,
-            keys: [key]
+            keys: keys
         )
         return mergeResult
     }
 
-    // MARK: - Private methods
+    func queryItemsByPrefix<T>(
+        engine: JSONRPCEngine,
+        keyParams: [any Encodable],
+        factory: RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath,
+        at _: Data?
+    ) async throws -> [StorageResponse<T>] where T: Decodable {
+        let keysWorker = MapKeyEncodingWorker(
+            codingFactory: factory,
+            path: storagePath,
+            storageKeyFactory: storageKeyFactory,
+            keyParams: keyParams
+        )
+        let keys = try keysWorker.performEncoding()
 
-    private func queryWorkersResult(
+        return try await queryItemsByPrefix(
+            engine: engine,
+            keys: keys,
+            factory: factory,
+            storagePath: storagePath,
+            at: nil
+        )
+    }
+
+    func queryWorkersResult(
         for keys: [Data],
         at blockHash: Data?,
         engine: JSONRPCEngine
@@ -182,6 +209,8 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
         return updates
     }
 
+    // MARK: - Private methods
+
     private func mergeResult<T>(
         updates: [[StorageUpdate]],
         decoded: [T?],
@@ -210,9 +239,8 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
         return allKeys.map { key in
             StorageResponse(key: key, data: keyedEncodedItems[key], value: keyedItems[key])
         }.sorted { response1, response2 in
-            guard
-                let index1 = originalIndexedKeys[response1.key],
-                let index2 = originalIndexedKeys[response2.key] else {
+            guard let index1 = originalIndexedKeys[response1.key],
+                  let index2 = originalIndexedKeys[response2.key] else {
                 return false
             }
 
@@ -220,7 +248,7 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
         }
     }
 
-    private func createQueryByPrefixOperation(
+    private func queryKeysByPrefix(
         for key: Data,
         engine: JSONRPCEngine
     ) async throws -> [String] {
@@ -249,6 +277,15 @@ final class AsyncStorageRequestDefault: AsyncStorageRequestFactory {
         }
 
         return result
+    }
+
+    private func queryKeysByPrefix(
+        for keys: [Data],
+        engine: JSONRPCEngine
+    ) async throws -> [[String]] {
+        try await keys.asyncCompactMap {
+            try await queryKeysByPrefix(for: $0, engine: engine)
+        }
     }
 
     private func runRPCWorkers<P: Encodable, T: Decodable>(

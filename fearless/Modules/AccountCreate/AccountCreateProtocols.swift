@@ -1,5 +1,6 @@
 import IrohaCrypto
 import SoraFoundation
+import SSFModels
 
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
