@@ -488,7 +488,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         let chain = readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
 
         guard let chain else {
-            throw ChainRegistryError.connectionUnavailable
+            throw ChainRegistryError.chainUnavailable(chainId: chainId)
         }
 
         return chain

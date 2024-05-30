@@ -64,7 +64,7 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
             return (key, accountInfo)
-        }
+        }.uniq(predicate: { $0.0 })
         return Dictionary(uniqueKeysWithValues: mapped)
     }
 

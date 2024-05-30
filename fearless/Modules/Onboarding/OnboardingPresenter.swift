@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 protocol OnboardingViewInput: ControllerBackedProtocol {
-    func didReceive(viewModel: OnboardingDataSource) async
+    func didReceive(viewModel: OnboardingDataSource)
     func showNextPage()
 }
 
@@ -41,16 +41,16 @@ final class OnboardingPresenter {
 
     // MARK: - Private methods
 
-    private func close() async {
+    private func close() {
         interactor.didClose()
 
-        switch startViewHelper.startView() {
+        switch startViewHelper.startView(onboardingConfig: nil) {
         case .pin:
-            await router.showLocalAuthentication()
+            router.showLocalAuthentication()
         case .pinSetup:
-            await router.showPincodeSetup()
+            router.showPincodeSetup()
         case .login:
-            await router.showLogin()
+            router.showLogin()
         case .onboarding, .broken:
             break
         }
@@ -66,27 +66,16 @@ extension OnboardingPresenter: OnboardingViewOutput {
     }
 
     func didTapSkipButton() {
-        Task {
-            await close()
-        }
+        close()
     }
 }
 
 // MARK: - OnboardingInteractorOutput
 
 extension OnboardingPresenter: OnboardingInteractorOutput {
-    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper?) async {
-        if let config = config {
-            let viewModel = pagesFactory.createPageControllers(with: config)
-            await view?.didReceive(viewModel: viewModel)
-        } else {
-            await close()
-        }
-    }
-
-    func didReceiveOnboardingConfig(error: Error) async {
-        Logger.shared.customError(error)
-        await close()
+    func didReceiveOnboardingConfig(_ config: OnboardingConfigWrapper) {
+        let viewModel = pagesFactory.createPageControllers(with: config)
+        view?.didReceive(viewModel: viewModel)
     }
 }
 

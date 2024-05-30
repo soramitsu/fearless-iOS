@@ -5,7 +5,8 @@ import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        keyboardAdoptable: Bool
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
@@ -92,6 +93,7 @@ final class ChainAssetListAssembly {
         let view = ChainAssetListViewController(
             bannersViewController: bannersViewController,
             output: presenter,
+            keyboardAdoptable: keyboardAdoptable,
             localizationManager: localizationManager
         )
 

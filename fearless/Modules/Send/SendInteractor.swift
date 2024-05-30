@@ -201,13 +201,13 @@ extension SendInteractor: SendInteractorInput {
     }
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
-        guard let dependencies = dependencies else {
+        guard let dependencies = dependencies, let senderAddress = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             return
         }
 
         Task {
             do {
-                let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
+                let address = address ?? senderAddress
                 let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
                 let transfer = Transfer(
                     chainAsset: chainAsset,

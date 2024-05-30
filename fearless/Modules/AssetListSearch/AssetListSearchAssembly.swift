@@ -8,7 +8,7 @@ final class AssetListSearchAssembly {
         let interactor = AssetListSearchInteractor()
         let router = AssetListSearchRouter()
 
-        guard let assetListModule = ChainAssetListAssembly.configureModule(wallet: wallet) else {
+        guard let assetListModule = ChainAssetListAssembly.configureModule(wallet: wallet, keyboardAdoptable: true) else {
             return nil
         }
 
