@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFRuntimeCodingService
 
 protocol SubscriptionRequestProtocol {
     var localKey: String { get }

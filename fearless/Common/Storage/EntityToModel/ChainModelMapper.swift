@@ -478,7 +478,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             disabled: entity.disabled,
             chainId: entity.chainId!,
             parentId: entity.parentId,
-            paraId: nil,
+            paraId: entity.paraId,
             name: entity.name!,
             xcm: xcm, nodes: Set(nodes),
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
@@ -488,7 +488,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: customNodesSet,
-            iosMinAppVersion: entity.minimalAppVersion
+            iosMinAppVersion: entity.minimalAppVersion,
+            identityChain: entity.identityChain
         )
 
         let assetsArray: [AssetModel] = entity.assets.or([]).compactMap { anyAsset in
@@ -515,6 +516,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
         entity.disabled = model.disabled
         entity.chainId = model.chainId
+        entity.paraId = model.paraId
         entity.parentId = model.parentId
         entity.name = model.name
         entity.types = model.types?.url
@@ -528,7 +530,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
-
+        entity.identityChain = model.identityChain
         updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)

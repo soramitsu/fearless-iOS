@@ -13,16 +13,12 @@ final class NetworkManagmentAssembly {
         let localizationManager = LocalizationManager.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
-            for: nil,
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
         let interactor = NetworkManagmentInteractor(
             wallet: wallet,
-            accountRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             chainModels: chains,

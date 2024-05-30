@@ -1,5 +1,6 @@
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 struct BalanceInfoDependencies {
     let connection: JSONRPCEngine?

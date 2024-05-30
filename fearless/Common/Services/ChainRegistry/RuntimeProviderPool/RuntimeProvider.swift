@@ -2,21 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
-
-// swiftlint:disable file_length
-protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
-    var chainId: ChainModel.Id { get }
-    var snapshot: RuntimeSnapshot? { get }
-    var runtimeSpecVersion: RuntimeSpecVersion { get }
-
-    func setup()
-    func setupHot()
-    func cleanup()
-    func fetchCoderFactoryOperation(
-        with timeout: TimeInterval,
-        closure: RuntimeMetadataClosure?
-    ) -> BaseOperation<RuntimeCoderFactoryProtocol>
-}
+import SSFRuntimeCodingService
 
 enum RuntimeProviderError: Error {
     case providerUnavailable
@@ -214,6 +200,78 @@ final class RuntimeProvider {
             pendingRequests.append(request)
         }
     }
+}
+
+// MARK: - RuntimeProviderProtocol
+
+extension RuntimeProvider: RuntimeProviderProtocol {
+    var runtimeSnapshot: RuntimeSnapshot? {
+        snapshot
+    }
+
+    var runtimeSpecVersion: SSFRuntimeCodingService.RuntimeSpecVersion {
+        runtimeSnapshot?.runtimeSpecVersion ?? RuntimeSpecVersion.defaultVersion
+    }
+
+    func setup() {
+        mutex.lock()
+        defer {
+            mutex.unlock()
+        }
+
+        guard currentWrapper == nil else {
+            return
+        }
+
+        buildSnapshot(for: initialChainMetadata)
+    }
+
+    func setupHot() {
+        mutex.lock()
+        defer {
+            mutex.unlock()
+        }
+
+        guard currentWrapper == nil else {
+            return
+        }
+
+        buildHotSnapshot()
+    }
+
+    func readySnapshot() async throws -> SSFRuntimeCodingService.RuntimeSnapshot {
+        guard
+            let chainTypes = chainTypes,
+            let chainMetadata = initialChainMetadata
+        else {
+            throw RuntimeProviderError.providerUnavailable
+        }
+        let wrapper = snapshotOperationFactory.createRuntimeSnapshotWrapper(
+            chainTypes: chainTypes,
+            chainMetadata: chainMetadata,
+            usedRuntimePaths: usedRuntimePaths
+        )
+        currentWrapper = wrapper
+        operationQueue.addOperation(wrapper)
+
+        return try await withUnsafeThrowingContinuation { continuation in
+            wrapper.completionBlock = { [weak self] in
+                let result = wrapper.result
+                self?.handleCompletion(result: result)
+                switch result {
+                case let .success(snapshot):
+                    guard let snapshot = snapshot else {
+                        return continuation.resume(throwing: RuntimeProviderError.providerUnavailable)
+                    }
+                    return continuation.resume(returning: snapshot)
+                case let .failure(error):
+                    return continuation.resume(throwing: error)
+                case .none:
+                    return continuation.resume(throwing: RuntimeProviderError.providerUnavailable)
+                }
+            }
+        }
+    }
 
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         AwaitOperation { [weak self] in
@@ -230,73 +288,33 @@ final class RuntimeProvider {
         }
     }
 
-    func fetchCoderFactoryOperation(
-        with _: TimeInterval,
-        closure _: RuntimeMetadataClosure?
-    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
-        AwaitOperation { [weak self] in
-            try await withCheckedThrowingContinuation { continuation in
-                self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+    func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
+        try await withUnsafeThrowingContinuation { continuation in
+            Task {
+                var nillableContinuation: UnsafeContinuation<RuntimeCoderFactoryProtocol, Error>? = continuation
+                self.fetchCoderFactory(runCompletionIn: nil) { factory in
+                    guard let unwrapedContinuation = nillableContinuation else {
+                        return
+                    }
                     guard let factory = factory else {
-                        continuation.resume(with: .failure(RuntimeProviderError.providerUnavailable))
+                        unwrapedContinuation.resume(with: .failure(RuntimeProviderError.providerUnavailable))
+                        nillableContinuation = nil
                         return
                     }
 
-                    continuation.resume(with: .success(factory))
+                    unwrapedContinuation.resume(with: .success(factory))
+                    nillableContinuation = nil
                 }
-            }
-        }
-    }
 
-    func fetchCoderFactory() async throws -> RuntimeCoderFactoryProtocol {
-        try await withUnsafeThrowingContinuation { continuation in
-            fetchCoderFactory(runCompletionIn: nil) { factory in
-                guard let factory = factory else {
-                    continuation.resume(with: .failure(RuntimeProviderError.providerUnavailable))
+                let duration = UInt64(10 * 1_000_000_000)
+                try await Task.sleep(nanoseconds: duration)
+                guard let unwrapedContinuation = nillableContinuation else {
                     return
                 }
-
-                continuation.resume(with: .success(factory))
+                unwrapedContinuation.resume(throwing: RuntimeProviderError.providerUnavailable)
+                nillableContinuation = nil
             }
         }
-    }
-}
-
-extension RuntimeProvider: RuntimeProviderProtocol {
-    func setupHot() {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        guard currentWrapper == nil else {
-            return
-        }
-
-        buildHotSnapshot()
-    }
-
-    var runtimeSnapshot: RuntimeSnapshot? {
-        snapshot
-    }
-
-    var runtimeSpecVersion: RuntimeSpecVersion {
-        snapshot?.runtimeSpecVersion(for: chainModel) ?? RuntimeSpecVersion.defaultVersion(for: chainModel)
-    }
-
-    func setup() {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        guard currentWrapper == nil else {
-            return
-        }
-
-        buildSnapshot(for: initialChainMetadata)
     }
 
     func cleanup() {
@@ -314,6 +332,8 @@ extension RuntimeProvider: RuntimeProviderProtocol {
         resolveRequests()
     }
 }
+
+// MARK: - EventVisitorProtocol
 
 extension RuntimeProvider: EventVisitorProtocol {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {

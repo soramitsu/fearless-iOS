@@ -355,12 +355,6 @@ final class CrossChainPresenter {
             cancelAction: {}
         )
 
-        let destExsitentialDepositIsNotViolated = dataValidatingFactory.destinationExistentialDepositIsNotViolated(
-            parameters: destEdParameters,
-            locale: selectedLocale,
-            chainAsset: selectedAmountChainAsset
-        )
-
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
             originCHainId: selectedOriginChainModel.chainId,
             destChainId: selectedDestChainModel?.chainId,
@@ -382,8 +376,7 @@ final class CrossChainPresenter {
             exsitentialDepositIsNotViolated,
             destFeeValidating,
             soraBridgeViolated,
-            soraBridgeAmountLessFeeViolated,
-            destExsitentialDepositIsNotViolated
+            soraBridgeAmountLessFeeViolated
         ]
         DataValidationRunner(validators: validators)
             .runValidation { [weak self] in
@@ -474,6 +467,20 @@ final class CrossChainPresenter {
             return fee
         }
         return .zero
+    }
+
+    private func deriveTransferableBalance() {
+        let totalBalance = Decimal.fromSubstrateAmount(
+            originNetworkBalanceValue,
+            precision: Int16(selectedAmountChainAsset.asset.precision)
+        ) ?? .zero
+        var minimumBalance: Decimal = .zero
+        if let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first {
+            minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
+        }
+
+        originNetworkSelectedAssetBalance = totalBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired() - (minimumBalance * 1.1)
+        provideAssetViewModel()
     }
 }
 
@@ -633,20 +640,9 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             originNetworkBalanceValue = success?.data.sendAvailable ?? .zero
             loadingCollector.balanceReady = true
             checkLoadingState()
+
             if receiveUniqueKey == selectedAmountChainAsset.uniqueKey(accountId: accountId) {
-                originNetworkSelectedAssetBalance = success.map {
-                    let totalBalance = Decimal.fromSubstrateAmount(
-                        $0.data.sendAvailable,
-                        precision: Int16(chainAsset.asset.precision)
-                    ) ?? .zero
-                    var minimumBalance: Decimal = .zero
-                    if let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first {
-                        minimumBalance = Decimal.fromSubstrateAmount(existentialDeposit ?? .zero, precision: Int16(utilityChainAsset.asset.precision)) ?? .zero
-                    }
-                    // set aside a reserve 10% to avoid account cancellation as a result of a jump in commission
-                    return totalBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired() - (minimumBalance * 1.1)
-                } ?? .zero
-                provideAssetViewModel()
+                deriveTransferableBalance()
             }
             if let originUtilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
                receiveUniqueKey == originUtilityChainAsset.uniqueKey(accountId: accountId) {
@@ -683,6 +679,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         switch result {
         case let .success(existentialDeposit):
             self.existentialDeposit = existentialDeposit
+            deriveTransferableBalance()
             loadingCollector.existentialDepositReady = true
             checkLoadingState()
         case let .failure(error):
@@ -698,6 +695,8 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             checkLoadingState()
         case let .failure(error):
             logger.customError(error)
+            loadingCollector.destinationExistentialDepositReady = true
+            checkLoadingState()
         }
     }
 
@@ -709,10 +708,13 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
 
     func didReceiveDestinationAccountInfoError(error: Error) {
         logger.customError(error)
+        loadingCollector.destinationBalanceReady = true
+        checkLoadingState()
     }
 
     func didReceiveAssetAccountInfo(assetAccountInfo: AssetAccountInfo?) {
         loadingCollector.assetAccountInfoReady = true
+        checkLoadingState()
         self.assetAccountInfo = assetAccountInfo
 
         provideAssetViewModel()
@@ -721,6 +723,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
     func didReceiveAssetAccountInfoError(error: Error) {
         loadingCollector.assetAccountInfoReady = true
         logger.customError(error)
+        checkLoadingState()
     }
 }
 

@@ -158,6 +158,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                         }
                     }
                 )
+            case let .oklink(url: url):
+                self.wireframe.present(from: view, url: url)
             }
         }
         wireframe.presentActions(
@@ -224,6 +226,10 @@ private extension WalletDetailsPresenter {
                     }
                 case .unknown:
                     return nil
+                case .oklink:
+                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                        return .oklink(url: url)
+                    }
                 }
                 return nil
             }

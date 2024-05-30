@@ -4,6 +4,7 @@ import SSFUtils
 import SoraKeystore
 import RobinHood
 import SSFModels
+import SSFAccountManagmentStorage
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(

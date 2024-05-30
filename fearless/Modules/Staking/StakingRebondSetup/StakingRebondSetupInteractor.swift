@@ -3,6 +3,7 @@ import SoraKeystore
 import SSFUtils
 import IrohaCrypto
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRebondSetupInteractorOutputProtocol!

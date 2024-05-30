@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol EquilibriumTotalBalanceServiceProtocol {
     var accountInfos: [ChainAssetKey: AccountInfo?] { get }

@@ -13,6 +13,8 @@ final class RootInteractor {
     private let eventCenter: EventCenterProtocol
     private let migrators: [Migrating]
     private let logger: LoggerProtocol?
+    private let onboardingService: OnboardingServiceProtocol
+    private let onboardingConfigResolver: OnboardingConfigVersionResolver
 
     init(
         chainRegistry: ChainRegistryProtocol,
@@ -20,7 +22,9 @@ final class RootInteractor {
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        onboardingService: OnboardingServiceProtocol,
+        onboardingConfigResolver: OnboardingConfigVersionResolver
     ) {
         self.chainRegistry = chainRegistry
         self.settings = settings
@@ -28,6 +32,8 @@ final class RootInteractor {
         self.eventCenter = eventCenter
         self.migrators = migrators
         self.logger = logger
+        self.onboardingService = onboardingService
+        self.onboardingConfigResolver = onboardingConfigResolver
     }
 
     private func setupURLHandlingService() {
@@ -57,18 +63,17 @@ extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
 
-        if runMigrations {
-            runMigrators()
-        }
+        settings.setup(runningCompletionIn: .global()) { result in
+            if runMigrations {
+                self.runMigrators()
+            }
 
-        // TODO: Move to loading screen
-        settings.setup(runningCompletionIn: .main) { result in
             switch result {
-            case let .success(maybeMetaAccount):
-                if let metaAccount = maybeMetaAccount {
+            case let .success(wallet):
+                if let wallet = wallet {
                     self.chainRegistry.performHotBoot()
                     self.chainRegistry.subscribeToChians()
-                    self.logger?.debug("Selected account: \(metaAccount.metaId)")
+                    self.logger?.debug("Selected account: \(wallet.metaId)")
                 } else {
                     self.chainRegistry.performColdBoot()
                     self.logger?.debug("No selected account")
@@ -76,6 +81,16 @@ extension RootInteractor: RootInteractorInputProtocol {
             case let .failure(error):
                 self.logger?.error("Selected account setup failed: \(error)")
             }
+        }
+    }
+
+    func fetchOnboardingConfig() async throws -> OnboardingConfigWrapper? {
+        do {
+            let onboardingConfigPlatform = try await onboardingService.fetchConfigs()
+            let onboardingWrappers = onboardingConfigPlatform.ios
+            return onboardingConfigResolver.resolve(configWrappers: onboardingWrappers)
+        } catch {
+            throw error
         }
     }
 }

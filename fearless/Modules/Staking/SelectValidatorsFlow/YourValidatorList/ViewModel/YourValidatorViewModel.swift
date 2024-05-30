@@ -12,7 +12,6 @@ struct YourValidatorListViewModel {
     let allValidatorWithoutRewards: Bool
     let sections: [YourValidatorListSection]
     let userCanSelectValidators: Bool
-    let hasOversubscribedValidators: Bool
 }
 
 struct YourValidatorListSection {

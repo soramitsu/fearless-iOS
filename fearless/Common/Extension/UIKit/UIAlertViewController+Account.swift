@@ -33,44 +33,15 @@ extension UIAlertController {
 
         alertController.addAction(copy)
 
-        if let url = chain.polkascanAddressURL(address) {
-            let polkascanTitle = R.string.localizable
-                .transactionDetailsViewPolkascan(preferredLanguages: locale.rLanguages)
-            let viewPolkascan = UIAlertAction(title: polkascanTitle, style: .default) { _ in
+        chain.externalApi?.explorers?.forEach { explorer in
+            guard let url = explorer.explorerUrl(for: address, type: .address) else {
+                return
+            }
+            let title = explorer.type.actionTitle().value(for: locale)
+            let action = UIAlertAction(title: title, style: .default) { _ in
                 urlClosure(url)
             }
-
-            alertController.addAction(viewPolkascan)
-        }
-
-        if let url = chain.subscanAddressURL(address) {
-            let subscanTitle = R.string.localizable
-                .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
-            let viewSubscan = UIAlertAction(title: subscanTitle, style: .default) { _ in
-                urlClosure(url)
-            }
-
-            alertController.addAction(viewSubscan)
-        }
-
-        if let url = chain.etherscanAddressURL(address) {
-            let etherscanTitle = R.string.localizable
-                .transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
-            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
-                urlClosure(url)
-            }
-
-            alertController.addAction(viewEtherscan)
-        }
-
-        if let url = chain.reefscanAddressURL(address) {
-            let etherscanTitle = R.string.localizable
-                .transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
-            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
-                urlClosure(url)
-            }
-
-            alertController.addAction(viewEtherscan)
+            alertController.addAction(action)
         }
 
         if let exportClosure = exportClosure {

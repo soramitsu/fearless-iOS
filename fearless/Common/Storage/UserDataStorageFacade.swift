@@ -4,7 +4,7 @@ import CoreData
 
 enum UserStorageParams {
     static let modelVersion: UserStorageVersion = .version12
-    static let modelDirectory: String = "UserDataModel.momd"
+    static let modelDirectory: String = "Modules_SSFAccountManagmentStorage.bundle//UserDataModel.momd"
     static let databaseName = "UserDataModel.sqlite"
 
     static let storageDirectoryURL: URL = {
@@ -68,6 +68,19 @@ class UserDataStorageFacade: StorageFacadeProtocol {
         mapper: AnyCoreDataMapper<T, U>
     ) -> CoreDataRepository<T, U> where T: Identifiable, U: NSManagedObject {
         CoreDataRepository(
+            databaseService: databaseService,
+            mapper: mapper,
+            filter: filter,
+            sortDescriptors: sortDescriptors
+        )
+    }
+
+    func createAsyncRepository<T, U>(
+        filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor],
+        mapper: AnyCoreDataMapper<T, U>
+    ) -> AsyncCoreDataRepositoryDefault<T, U> where T: Identifiable, U: NSManagedObject {
+        AsyncCoreDataRepositoryDefault(
             databaseService: databaseService,
             mapper: mapper,
             filter: filter,

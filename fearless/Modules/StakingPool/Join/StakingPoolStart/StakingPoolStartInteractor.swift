@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFRuntimeCodingService
 
 final class StakingPoolStartInteractor {
     // MARK: - Private properties

@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
+
 import SnapKit
 
 final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {

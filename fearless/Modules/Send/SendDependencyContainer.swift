@@ -8,6 +8,8 @@ import SSFExtrinsicKit
 import Web3
 import SSFSigner
 import SSFCrypto
+import Foundation
+import SSFRuntimeCodingService
 
 struct SendDependencies {
     let wallet: MetaAccountModel
@@ -137,7 +139,7 @@ final class SendDepencyContainer {
                 chainsTypesSyncService: chainsTypesSyncService,
                 runtimeSyncService: runtimeSyncService
             )
-            let connection = try chainRegistry.getConnection(for: chainAsset.chain)
+            let connection = try await chainRegistry.getSubstrateConnection(for: chainAsset.chain)
 
             let runtimeService = try await chainRegistry.getRuntimeProvider(
                 chainId: chainAsset.chain.chainId,
@@ -150,16 +152,16 @@ final class SendDepencyContainer {
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
                 accountId: accountResponse.accountId,
                 chainFormat: chainAsset.chain.chainFormat.asSfCrypto(),
-                cryptoType: SFCryptoType(accountResponse.cryptoType.utilsType),
+                cryptoType: accountResponse.cryptoType,
                 runtimeRegistry: runtimeService,
                 engine: connection,
                 operationManager: operationManager
             )
             let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
-            let signer = TransactionSigner(
+            let signer = SubstrateTransactionSigner(
                 publicKeyData: accountResponse.publicKey,
                 secretKeyData: secretKey,
-                cryptoType: SFCryptoType(utilsType: accountResponse.cryptoType.utilsType, isEthereum: chainAsset.chain.isEthereumBased)
+                cryptoType: accountResponse.cryptoType
             )
 
             let callFactory = SubstrateCallFactoryDefault(runtimeService: nativeRuntimeService)

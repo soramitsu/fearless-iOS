@@ -371,7 +371,9 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createCommonInputView() -> CommonInputView {
-        CommonInputView()
+        let inputView = CommonInputView()
+        inputView.defaultSetup()
+        return inputView
     }
 
     func createAmountInputView(filled: Bool) -> AmountInputView {

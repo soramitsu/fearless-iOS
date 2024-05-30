@@ -19,6 +19,11 @@ protocol AccountRepositoryFactoryProtocol {
         for filter: NSPredicate?,
         sortDescriptors: [NSSortDescriptor]
     ) -> AnyDataProviderRepository<ManagedMetaAccountModel>
+
+    func createAsyncMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AsyncAnyRepository<MetaAccountModel>
 }
 
 final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
@@ -67,6 +72,19 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
         )
 
         return AnyDataProviderRepository(repository)
+    }
+
+    func createAsyncMetaAccountRepository(
+        for filter: NSPredicate?,
+        sortDescriptors: [NSSortDescriptor]
+    ) -> AsyncAnyRepository<MetaAccountModel> {
+        let mapper = MetaAccountMapper()
+        let repository = storageFacade.createAsyncRepository(
+            filter: filter,
+            sortDescriptors: sortDescriptors,
+            mapper: AnyCoreDataMapper(mapper)
+        )
+        return AsyncAnyRepository(repository)
     }
 }
 

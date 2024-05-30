@@ -1,6 +1,6 @@
 import Foundation
 
-enum AlchemySortOrder: String, Encodable {
+enum AlchemySortOrder: String, Codable {
     case desc
     case asc
 }

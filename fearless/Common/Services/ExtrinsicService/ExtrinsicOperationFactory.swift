@@ -2,6 +2,8 @@ import Foundation
 import RobinHood
 import SSFUtils
 import IrohaCrypto
+import SSFModels
+import SSFRuntimeCodingService
 
 typealias ExtrinsicBuilderClosure = (ExtrinsicBuilderProtocol) throws -> (ExtrinsicBuilderProtocol)
 typealias ExtrinsicBuilderIndexedClosure = (ExtrinsicBuilderProtocol, Int) throws -> (ExtrinsicBuilderProtocol)
@@ -213,7 +215,7 @@ final class ExtrinsicOperationFactory {
 
                 builder = try customClosure(builder, index).signing(
                     by: signingClosure,
-                    of: currentCryptoType.utilsType,
+                    of: currentCryptoType,
                     using: codingFactory.createEncoder(),
                     metadata: codingFactory.metadata
                 )

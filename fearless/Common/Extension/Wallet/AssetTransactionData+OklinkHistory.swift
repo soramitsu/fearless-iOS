@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import SoraFoundation
 import SSFModels
 
@@ -7,7 +7,7 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: OklinkTransactionItem,
         address: String,
-        chain: ChainModel,
+        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let peerAddress = item.from == address ? item.to : item.from
@@ -19,7 +19,6 @@ extension AssetTransactionData {
             return timestamp / 1000
         }()
 
-        let utilityAsset = chain.utilityChainAssets().first?.asset ?? asset
         let feeDecimal = Decimal(string: item.txFee, locale: Locale(identifier: "en_EN")) ?? .zero
 
         let fee = AssetTransactionFee(
@@ -28,10 +27,9 @@ extension AssetTransactionData {
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
-        let amount = AmountDecimal(string: item.amount)
 
         return AssetTransactionData(
-            transactionId: item.blockHash,
+            transactionId: item.txID,
             status: .commited,
             assetId: item.tokenContractAddress,
             peerId: "",

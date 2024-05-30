@@ -24,12 +24,32 @@ final class AssetNetworksRouter: AssetNetworksRouterInput {
         moduleOutput: FiltersModuleOutput?,
         from view: ControllerBackedProtocol?
     ) {
-        let module = FiltersViewFactory.createView(title: title, filters: filters, mode: .singleSelection, moduleOutput: moduleOutput)
+        let module = FiltersViewFactory.createView(
+            title: title,
+            filters: filters,
+            mode: .singleSelection,
+            moduleOutput: moduleOutput
+        )
 
         guard let filterView = module?.controller else {
             return
         }
 
         view?.controller.present(filterView, animated: true)
+    }
+
+    func showIssueNotification(
+        from view: ControllerBackedProtocol?,
+        issues: [ChainIssue],
+        wallet: MetaAccountModel
+    ) {
+        guard let module = NetworkIssuesNotificationAssembly.configureModule(
+            wallet: wallet,
+            issues: issues
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
     }
 }

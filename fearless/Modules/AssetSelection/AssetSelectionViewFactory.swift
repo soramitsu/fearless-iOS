@@ -17,7 +17,7 @@ enum AssetSelectionViewFactory {
         assetSelectionType: AssetSelectionType
     ) -> ChainSelectionViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
-            for: nil,
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

@@ -4,6 +4,7 @@ import RobinHood
 import BigInt
 import IrohaCrypto
 import SSFModels
+import SSFRuntimeCodingService
 
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let selectedAccountAddress: String

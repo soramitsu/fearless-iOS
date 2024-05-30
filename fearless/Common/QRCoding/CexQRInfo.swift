@@ -1,5 +1,5 @@
 import Foundation
-import SSFUtils
+import SSFQRService
 
 struct CexQRInfo: QRInfo, Equatable {
     let address: String

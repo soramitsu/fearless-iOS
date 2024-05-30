@@ -59,11 +59,12 @@ final class OnboardingViewController: UIViewController, ViewHolder {
 // MARK: - OnboardingViewInput
 
 extension OnboardingViewController: OnboardingViewInput {
-    @MainActor func didReceive(viewModel: OnboardingDataSource) async {
+    @MainActor func didReceive(viewModel: OnboardingDataSource) {
         dataSource = CollectionViewDataSource(data: viewModel.pages, cellClass: OnboardingPageCell.self) { model, cell in
             cell.bind(viewModel: model)
         }
         rootView.collectionView.dataSource = dataSource
+        rootView.set(backgroundImage: viewModel.backgroundImage)
 
         rootView.pageControl.numberOfPages = viewModel.pages.count
     }

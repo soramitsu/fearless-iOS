@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 
 final class OnboardingStartAssembly {
-    static func configureModule() -> OnboardingStartModuleCreationResult? {
+    static func configureModule(_ config: OnboardingConfigWrapper) -> OnboardingStartModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let interactor = OnboardingStartInteractor()
@@ -11,6 +11,7 @@ final class OnboardingStartAssembly {
         let presenter = OnboardingStartPresenter(
             interactor: interactor,
             router: router,
+            config: config,
             localizationManager: localizationManager
         )
 

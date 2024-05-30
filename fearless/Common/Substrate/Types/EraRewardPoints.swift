@@ -1,4 +1,5 @@
 import SSFUtils
+import Foundation
 
 typealias RewardPoint = UInt32
 

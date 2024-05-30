@@ -4,6 +4,7 @@ import IrohaCrypto
 import RobinHood
 import SoraKeystore
 import SSFModels
+import SSFCrypto
 
 protocol MetaAccountOperationFactoryProtocol {
     func newMetaAccountOperation(request: MetaAccountImportMnemonicRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
@@ -243,13 +244,11 @@ private extension MetaAccountOperationFactory {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: [],
             assetKeysOrder: nil,
-            assetFilterOptions: [],
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
             networkManagmentFilter: defaultChainId,
             assetsVisibility: [],
-            zeroBalanceAssetsHidden: false,
             hasBackup: isBackuped,
             favouriteChainIds: []
         )
@@ -426,13 +425,11 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumPublicKey: ethereumPublicKey?.rawData(),
                 chainAccounts: [],
                 assetKeysOrder: nil,
-                assetFilterOptions: [],
                 canExportEthereumMnemonic: true,
                 unusedChainIds: nil,
                 selectedCurrency: Currency.defaultCurrency(),
                 networkManagmentFilter: nil,
                 assetsVisibility: [],
-                zeroBalanceAssetsHidden: false,
                 hasBackup: isBackuped,
                 favouriteChainIds: []
             )

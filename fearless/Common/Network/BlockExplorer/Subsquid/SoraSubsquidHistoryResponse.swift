@@ -1,6 +1,6 @@
 import Foundation
 import SSFModels
-import CommonWallet
+
 import SSFUtils
 
 struct SoraSubsquidPageInfo: Decodable {

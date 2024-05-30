@@ -74,6 +74,9 @@ final class EmptyView: UIView {
         }
     }
 
+    private let aligmentContainer = UIFactory.default.createHorizontalStackView()
+    private let contentContainer = UIView()
+
     private enum LayoutConstants {
         static let imageSize = CGSize(width: 36, height: 32)
         static let imageBackgroundSizeSmall: CGFloat = 56
@@ -129,9 +132,11 @@ final class EmptyView: UIView {
     }
 
     private func setupLayout() {
-        addSubview(imageBackgroundView)
-        addSubview(titleLabel)
-        addSubview(descriptionLabel)
+        addSubview(aligmentContainer)
+        aligmentContainer.addArrangedSubview(contentContainer)
+        contentContainer.addSubview(imageBackgroundView)
+        contentContainer.addSubview(titleLabel)
+        contentContainer.addSubview(descriptionLabel)
         imageBackgroundView.addSubview(imageView)
 
         handleLayoutConfigurationChanges()
@@ -149,19 +154,25 @@ final class EmptyView: UIView {
 
         switch contentAlignment.vertical {
         case .center:
-            imageBackgroundView.snp.remakeConstraints { make in
-                make.centerX.equalToSuperview()
-                make.centerY.equalToSuperview().offset(verticalOffset)
-                make.size.equalTo(iconMode.iconSize)
-            }
+            aligmentContainer.alignment = .center
         case .top:
-            imageBackgroundView.snp.remakeConstraints { make in
-                make.centerX.equalToSuperview()
-                make.top.equalToSuperview().offset(UIConstants.bigOffset + verticalOffset)
-                make.size.equalTo(iconMode.iconSize)
-            }
+            aligmentContainer.alignment = .top
         case .bottom:
-            preconditionFailure("EmptyView doensn't support .bottom layout")
+            aligmentContainer.alignment = .bottom
+        }
+
+        aligmentContainer.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        contentContainer.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        imageBackgroundView.snp.remakeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.top.equalToSuperview().offset(UIConstants.bigOffset + verticalOffset)
+            make.size.equalTo(iconMode.iconSize)
         }
 
         imageView.snp.makeConstraints { make in
@@ -179,6 +190,7 @@ final class EmptyView: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
             make.top.equalTo(titleLabel.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
 }

@@ -180,9 +180,14 @@ extension SendInteractor: SendInteractorInput {
 
     func defineAvailableChains(
         for asset: AssetModel,
+        wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     ) {
-        chainAssetFetching.fetch(shouldUseCache: true, filters: [], sortDescriptors: []) { result in
+        chainAssetFetching.fetch(
+            shouldUseCache: true,
+            filters: [.enabled(wallet: wallet)],
+            sortDescriptors: []
+        ) { result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):
@@ -196,19 +201,20 @@ extension SendInteractor: SendInteractorInput {
     }
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
-        guard let dependencies = dependencies else {
+        guard let dependencies = dependencies, let senderAddress = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             return
         }
 
         Task {
             do {
-                let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
-
+                let address = address ?? senderAddress
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
                 let transfer = Transfer(
                     chainAsset: chainAsset,
                     amount: amount,
                     receiver: address,
-                    tip: tip
+                    tip: tip,
+                    appId: appId
                 )
 
                 let fee = try await dependencies.transferService.estimateFee(for: transfer)

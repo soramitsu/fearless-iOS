@@ -1,4 +1,5 @@
 import Foundation
+import SSFRuntimeCodingService
 import SSFModels
 import SSFUtils
 import RobinHood
@@ -6,34 +7,6 @@ import RobinHood
 private typealias IdentifiableExposure = (Data, ValidatorExposure)
 
 extension EraValidatorService {
-//    private let syncQueue = DispatchQueue(
-//        label: "jp.co.fearless.legvalidators.\(UUID().uuidString)",
-//        qos: .userInitiated
-//    )
-//
-//    private let chainRegistry: ChainRegistryProtocol
-//    private let chainId: ChainModel.Id
-//    private let operationManager: OperationManagerProtocol
-//    private let logger: LoggerProtocol?
-//    private let storageFacade: StorageFacadeProtocol
-//    private let chain: ChainModel
-//
-//    init(
-//        chainRegistry: ChainRegistryProtocol,
-//        chainId: ChainModel.Id,
-//        operationManager: OperationManagerProtocol,
-//        logger: LoggerProtocol?,
-//        storageFacade: StorageFacadeProtocol,
-//        chain: ChainModel
-//    ) {
-//        self.chainRegistry = chainRegistry
-//        self.chainId = chainId
-//        self.operationManager = operationManager
-//        self.logger = logger
-//        self.storageFacade = storageFacade
-//        self.chain = chain
-//    }
-
     private func updateValidators(
         activeEra: UInt32,
         exposures: [IdentifiableExposure],

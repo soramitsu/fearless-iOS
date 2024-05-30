@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import IrohaCrypto
 import SSFUtils
 import SSFModels
@@ -15,7 +15,14 @@ final class OklinkHistoryOperationFactory {
         var urlComponents = URLComponents(string: url.absoluteString)
         var queryItems = urlComponents?.queryItems
         queryItems?.append(URLQueryItem(name: "address", value: address))
-        queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol.lowercased()))
+        queryItems?.append(URLQueryItem(name: "symbol", value: chainAsset.asset.symbol))
+
+        switch chainAsset.asset.ethereumType {
+        case .erc20:
+            queryItems?.append(URLQueryItem(name: "protocolType", value: "token_20"))
+        case .bep20, .normal, .none:
+            break
+        }
 
         urlComponents?.queryItems = queryItems
 
@@ -27,9 +34,13 @@ final class OklinkHistoryOperationFactory {
             var request = URLRequest(url: urlWithParameters)
             request.httpMethod = HttpMethod.get.rawValue
 
-            if let apiKey = BlockExplorerApiKey(chainId: chainAsset.chain.chainId) {
-                request.setValue(apiKey.value, forHTTPHeaderField: "Ok-Access-Key")
-            }
+            var apiKey: String
+            #if DEBUG
+                apiKey = BlockExplorerApiKeysDebug.oklinkApiKey
+            #else
+                apiKey = BlockExplorerApiKeys.oklinkApiKey
+            #endif
+            request.setValue(apiKey, forHTTPHeaderField: "Ok-Access-Key")
 
             return request
         }

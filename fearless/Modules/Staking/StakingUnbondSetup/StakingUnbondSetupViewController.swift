@@ -1,6 +1,5 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
 
 final class StakingUnbondSetupViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingUnbondSetupLayout
