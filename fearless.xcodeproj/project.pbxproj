@@ -19464,7 +19464,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "update-for-fearless-asset-management";
+				branch = "feature/xcm-routes";
 				kind = branch;
 			};
 		};
