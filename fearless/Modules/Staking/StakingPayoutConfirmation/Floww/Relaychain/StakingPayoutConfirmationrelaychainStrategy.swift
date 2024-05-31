@@ -179,25 +179,25 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
 
 extension StakingPayoutConfirmationRelayachainStrategy: StakingPayoutConfirmationStrategy {
     func submitPayout(builderClosure _: ExtrinsicBuilderClosure?) {
-//        let payoutsUnwrapped = payouts
-//        guard !payoutsUnwrapped.isEmpty else { return }
-//
-//        output?.didStartPayout()
-//
-//        guard let closure = createExtrinsicBuilderClosure(for: payoutsUnwrapped) else { return }
-//
-//        extrinsicService.submit(
-//            closure,
-//            signer: signer,
-//            runningIn: .main
-//        ) { [weak self] result in
-//            switch result {
-//            case let .success(hash):
-//                self?.output?.didCompletePayout(txHashes: [hash])
-//            case let .failure(error):
-//                self?.output?.didFailPayout(error: error)
-//            }
-//        }
+        let payoutsUnwrapped = payouts
+        guard !payoutsUnwrapped.isEmpty else { return }
+
+        output?.didStartPayout()
+
+        guard let closure = createExtrinsicBuilderClosure(for: payoutsUnwrapped) else { return }
+
+        extrinsicService.submit(
+            closure,
+            signer: signer,
+            runningIn: .main
+        ) { [weak self] result in
+            switch result {
+            case let .success(hash):
+                self?.output?.didCompletePayout(txHashes: [hash])
+            case let .failure(error):
+                self?.output?.didFailPayout(error: error)
+            }
+        }
     }
 
     func setup() {
