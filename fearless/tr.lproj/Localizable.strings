@@ -1144,3 +1144,4 @@ ait olduğundan emin olun.";
 "wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
 "nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
 "wallet.all.assets.hidden" = "You have hidden all assets";
+"xcm.low.amaunt.assetSymbol.alert" = "Currently, there's a min. amount %@ for bridging to ensure the stability and security. We appreciate your understanding.";

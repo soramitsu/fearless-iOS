@@ -231,17 +231,21 @@ class SendDataValidatingFactory: NSObject {
         originCHainId: ChainModel.Id,
         destChainId: ChainModel.Id?,
         amount: Decimal,
-        locale: Locale
+        locale: Locale,
+        asset: AssetModel
     ) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
-            guard let view = self?.view else {
+            guard let self, let view = self.view, let destChainId else {
                 return
             }
 
-            self?.basePresentable.presentSoraBridgeLowAmountError(
+            let assetAmount = self.minAssetAmount(originCHainId: originCHainId, destChainId: destChainId)
+
+            self.basePresentable.presentSoraBridgeLowAmountError(
                 from: view,
                 originChainId: originCHainId,
-                locale: locale
+                locale: locale,
+                assetAmount: assetAmount
             )
         }, preservesCondition: {
             guard let destChainId = destChainId else {
@@ -255,6 +259,10 @@ class SendDataValidatingFactory: NSObject {
                 return amount >= 0.05
             case (.polkadot, .soraMain), (.soraMain, .polkadot):
                 return amount >= 1.1
+            case (.liberland, .soraMain):
+                return amount >= 1.0 && asset.symbol.lowercased() == "lld"
+            case (.soraMain, .liberland):
+                return amount >= 1.0 && asset.symbol.lowercased() == "lld"
             default:
                 return true
             }
@@ -297,6 +305,27 @@ class SendDataValidatingFactory: NSObject {
             default:
                 return true
             }
+        }
+    }
+
+    private func minAssetAmount(
+        originCHainId: ChainModel.Id,
+        destChainId: ChainModel.Id
+    ) -> String {
+        let originKnownChain = Chain(chainId: originCHainId)
+        let destKnownChain = Chain(chainId: destChainId)
+
+        switch (originKnownChain, destKnownChain) {
+        case (.kusama, .soraMain):
+            return "0.05 KSM"
+        case (.polkadot, .soraMain), (.soraMain, .polkadot):
+            return "1.1 DOT"
+        case (.liberland, .soraMain):
+            return "1.0 LLD"
+        case (.soraMain, .liberland):
+            return "1.0 LLD"
+        default:
+            return ""
         }
     }
 }
