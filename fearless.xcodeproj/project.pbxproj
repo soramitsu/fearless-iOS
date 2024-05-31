@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -563,7 +563,7 @@
 		8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765E24ADE0BB00D91AD8 /* UserSettings.swift */; };
 		8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */; };
 		8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */; };
-		8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */; };
+		8428766B24ADF51D00D91AD8 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766A24ADF51D00D91AD8 /* UIViewController.swift */; };
 		8428768324AE046300D91AD8 /* LanguageSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766D24AE046200D91AD8 /* LanguageSelectionViewController.swift */; };
 		8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766E24AE046200D91AD8 /* LanguageSelectionInteractor.swift */; };
 		8428768524AE046300D91AD8 /* LanguageSelectionProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766F24AE046200D91AD8 /* LanguageSelectionProtocols.swift */; };
@@ -3648,7 +3648,7 @@
 		8428765E24ADE0BB00D91AD8 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformAnimator+Common.swift"; sourceTree = "<group>"; };
 		8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthorizationPresentable.swift; sourceTree = "<group>"; };
-		8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Modal.swift"; sourceTree = "<group>"; };
+		8428766A24ADF51D00D91AD8 /* UIViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
 		8428766D24AE046200D91AD8 /* LanguageSelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSelectionViewController.swift; sourceTree = "<group>"; };
 		8428766E24AE046200D91AD8 /* LanguageSelectionInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSelectionInteractor.swift; sourceTree = "<group>"; };
 		8428766F24AE046200D91AD8 /* LanguageSelectionProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSelectionProtocols.swift; sourceTree = "<group>"; };
@@ -9458,7 +9458,7 @@
 				F409672526B29B04008CD244 /* UIScrollView+ScrollToPage.swift */,
 				8490144E24A93E2E008F705E /* UIImage+Drawing.swift */,
 				849014C424AA890D008F705E /* UIFont+Style.swift */,
-				8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */,
+				8428766A24ADF51D00D91AD8 /* UIViewController.swift */,
 				84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */,
 				84CCBFBB2509709500180F4F /* UIBarButtonItem+Style.swift */,
 				84D331AE2519E8080078D044 /* TriangularedView+Style.swift */,
@@ -16638,7 +16638,7 @@
 				84B64E412704569D00914E88 /* RelaychainStakingLocalSubscriptionHandler.swift in Sources */,
 				848FFE9525E6DF2200652AA5 /* PagedKeysRequest.swift in Sources */,
 				FAABC4732845C7F4002CF40E /* ValidatorListFilterParachainViewModelState.swift in Sources */,
-				8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */,
+				8428766B24ADF51D00D91AD8 /* UIViewController.swift in Sources */,
 				FAAC292C2ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift in Sources */,
 				84F30E9725FD3C5300039D09 /* EventEmittingStorageSubscription.swift in Sources */,
 				AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */,
