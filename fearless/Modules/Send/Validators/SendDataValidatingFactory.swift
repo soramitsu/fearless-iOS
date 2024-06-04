@@ -260,9 +260,15 @@ class SendDataValidatingFactory: NSObject {
             case (.polkadot, .soraMain), (.soraMain, .polkadot):
                 return amount >= 1.1
             case (.liberland, .soraMain):
-                return amount >= 1.0 && asset.symbol.lowercased() == "lld"
+                guard asset.symbol.lowercased() == "lld" else {
+                    return true
+                }
+                return amount >= 1.0
             case (.soraMain, .liberland):
-                return amount >= 1.0 && asset.symbol.lowercased() == "lld"
+                guard asset.symbol.lowercased() == "lld" else {
+                    return true
+                }
+                return amount >= 1.0
             default:
                 return true
             }
