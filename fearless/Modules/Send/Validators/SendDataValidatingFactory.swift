@@ -269,6 +269,10 @@ class SendDataValidatingFactory: NSObject {
                     return true
                 }
                 return amount >= 1.0
+            case (.soraMain, .acala):
+                return amount >= 1.0
+            case (.acala, .soraMain):
+                return amount >= 56.0
             default:
                 return true
             }
