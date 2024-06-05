@@ -334,6 +334,10 @@ class SendDataValidatingFactory: NSObject {
             return "1.0 LLD"
         case (.soraMain, .liberland):
             return "1.0 LLD"
+        case (.soraMain, .acala):
+            return "1.0 ACA"
+        case (.acala, .soraMain):
+            return "56.0 ACA"
         default:
             return ""
         }
