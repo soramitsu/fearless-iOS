@@ -76,6 +76,9 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
                     changes.forEach { change in
                         switch change {
                         case let .insert(chain):
+                            guard !chain.disabled else {
+                                return
+                            }
                             if let accounts {
                                 if accounts.contains(where: { $0.chainId == chain.chainId }) {
                                     group.addTask {

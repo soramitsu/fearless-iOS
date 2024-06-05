@@ -96,7 +96,7 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
     func getAvailableChainAssets() async throws -> [ChainAsset] {
         let chainAssets = try await chainAssetFetching.fetchAwait(
             shouldUseCache: true,
-            filters: [],
+            filters: [.enabledChains],
             sortDescriptors: []
         )
         fetchPrices(for: chainAssets)
