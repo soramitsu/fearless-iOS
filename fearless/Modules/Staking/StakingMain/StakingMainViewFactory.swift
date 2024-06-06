@@ -182,6 +182,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

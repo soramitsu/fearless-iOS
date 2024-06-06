@@ -36,6 +36,7 @@ final class ChainAssetListAssembly {
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let chainAssetFetching = ChainAssetsFetching(

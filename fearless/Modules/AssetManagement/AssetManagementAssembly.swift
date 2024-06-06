@@ -13,7 +13,9 @@ final class AssetManagementAssembly {
         let localizationManager = LocalizationManager.shared
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-        let chainRepository = ChainRepositoryFactory().createRepository()
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain()
+        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue

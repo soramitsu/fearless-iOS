@@ -20,6 +20,7 @@ final class SelectAssetAssembly {
             mapper: AnyCoreDataMapper(AssetModelMapper())
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

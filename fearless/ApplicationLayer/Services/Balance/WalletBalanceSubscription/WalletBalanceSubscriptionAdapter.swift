@@ -450,6 +450,7 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
 private extension WalletBalanceSubscriptionAdapter {
     static func createWalletBalanceAdapter() -> WalletBalanceSubscriptionAdapter {
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
