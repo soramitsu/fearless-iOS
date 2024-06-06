@@ -203,7 +203,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         Task {
             do {
                 async let wallets = self.walletRepository.fetchAll()
-                async let chainAssets = chainAssetFetcher.fetchAwait(shouldUseCache: false, filters: [], sortDescriptors: [])
+                async let chainAssets = chainAssetFetcher.fetchAwait(shouldUseCache: false, filters: [.enabledChains], sortDescriptors: [])
                 try await handle(wallets, chainAssets)
 
                 let accountInfos = try await fetchAccountInfos(wallets: wallets, chainAssets: chainAssets)
@@ -383,7 +383,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         Task {
             let chainAssets = try await chainAssetFetcher.fetchAwait(
                 shouldUseCache: false,
-                filters: [],
+                filters: [.enabledChains],
                 sortDescriptors: []
             )
             subscribeToAccountInfo(for: wallets, chainAssets)
