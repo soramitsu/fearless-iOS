@@ -201,8 +201,8 @@ final class LiquidityPoolDetailsViewLayout: UIView {
 
     private static func makeRowView() -> TitleMultiValueView {
         let view = TitleMultiValueView()
-        view.titleLabel.font = .p1Paragraph
-        view.titleLabel.textColor = R.color.colorWhite()
+        view.titleLabel.font = .h6Title
+        view.titleLabel.textColor = R.color.colorWhite50()
         view.valueTop.font = .p1Paragraph
         view.valueTop.textColor = R.color.colorWhite()
         view.valueBottom.font = .p2Paragraph

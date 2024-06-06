@@ -1,4 +1,5 @@
 import SSFModels
+import SSFPools
 
 typealias LiquidityPoolSupplyModuleCreationResult = (
     view: LiquidityPoolSupplyViewInput,
@@ -13,6 +14,14 @@ protocol LiquidityPoolSupplyRouterInput: AnyObject, AnyDismissable, SheetAlertPr
         selectedAssetId: AssetModel.Id?,
         contextTag: Int?,
         output: SelectAssetModuleOutput
+    )
+
+    func showConfirmation(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        liquidityPair: LiquidityPair,
+        inputData: LiquidityPoolSupplyConfirmInputData,
+        from view: ControllerBackedProtocol?
     )
 }
 

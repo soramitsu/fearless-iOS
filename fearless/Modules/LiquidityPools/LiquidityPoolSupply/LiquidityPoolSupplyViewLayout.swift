@@ -49,21 +49,20 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         return button
     }()
 
-    let minMaxReceivedView = UIFactory.default.createMultiView()
     let swapRouteView: TitleMultiValueView = {
         let view = UIFactory.default.createMultiView()
         return view
     }()
 
-    let fromPerToPriceView = UIFactory.default.createMultiView()
-    let toPerFromPriceView = UIFactory.default.createMultiView()
+    let slippageView = UIFactory.default.createMultiView()
+    let apyView = UIFactory.default.createMultiView()
+    let rewardTokenView = UIFactory.default.createMultiView()
     let networkFeeView = UIFactory.default.createMultiView()
 
     private lazy var multiViews = [
-        minMaxReceivedView,
-        swapRouteView,
-        fromPerToPriceView,
-        toPerFromPriceView,
+        slippageView,
+        apyView,
+        rewardTokenView,
         networkFeeView
     ]
 
@@ -120,31 +119,10 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         swapToInputView.bind(viewModel: assetViewModel)
     }
 
-    func bindDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) {
-        guard let viewModel = viewModel else {
-            multiViews.forEach { $0.isHidden = true }
-            return
-        }
-        minMaxReceivedView.bindBalance(viewModel: viewModel.minMaxReceiveVieModel)
-        swapRouteView.valueTop.text = viewModel.route
-        fromPerToPriceView.titleLabel.text = viewModel.fromPerToTitle
-        fromPerToPriceView.valueTop.text = viewModel.fromPerToValue
-        toPerFromPriceView.titleLabel.text = viewModel.toPerFromTitle
-        toPerFromPriceView.valueTop.text = viewModel.toPerFromValue
-        multiViews.forEach { $0.isHidden = false }
-    }
-
-    func bind(swapVariant: SwapVariant) {
-        var text: String
-        switch swapVariant {
-        case .desiredInput:
-            text = R.string.localizable
-                .polkaswapMinReceived(preferredLanguages: locale.rLanguages)
-        case .desiredOutput:
-            text = R.string.localizable
-                .polkaswapMaxReceived(preferredLanguages: locale.rLanguages)
-        }
-        setInfoImage(for: minMaxReceivedView.titleLabel, text: text)
+    func bind(viewModel: LiquidityPoolSupplyViewModel) {
+        slippageView.bind(viewModel: viewModel.slippageViewModel)
+        apyView.bind(viewModel: viewModel.apyViewModel)
+        rewardTokenView.bind(viewModel: viewModel.rewardTokenViewModel)
     }
 
     // MARK: - Private methods
@@ -183,13 +161,13 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
+            make.bottom.equalTo(previewButton.snp.top).offset(-16)
         }
 
         previewButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(UIConstants.actionHeight)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(16).constraint
         }
 
         let switchInputsView = createSwitchInputsView()
@@ -201,7 +179,7 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         let feesView = createFeesView()
         contentView.stackView.addArrangedSubview(feesView)
         feesView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
     }
 
@@ -237,27 +215,36 @@ final class LiquidityPoolSupplyViewLayout: UIView {
             }
         }
 
+        let backgroundView = UIFactory.default.createInfoBackground()
         let container = UIFactory.default.createVerticalStackView()
+
+        backgroundView.addSubview(container)
+        container.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().inset(8)
+        }
 
         multiViews.forEach {
             container.addArrangedSubview($0)
             makeCommonConstraints(for: $0)
-            $0.isHidden = true
             $0.titleLabel.isUserInteractionEnabled = true
         }
 
-        return container
+        return backgroundView
     }
 
     private func createMultiView() -> TitleMultiValueView {
         let view = TitleMultiValueView()
-        view.borderView.borderType = .none
-        view.titleLabel.font = .p2Paragraph
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h6Title
+        view.titleLabel.font = .h6Title
+        view.titleLabel.textColor = R.color.colorWhite50()
+        view.valueTop.font = .p1Paragraph
         view.valueTop.textColor = R.color.colorWhite()
         view.valueBottom.font = .p2Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
         return view
     }
 
@@ -281,6 +268,10 @@ final class LiquidityPoolSupplyViewLayout: UIView {
 
         previewButton.imageWithTitleView?.title = R.string.localizable
             .commonPreview(preferredLanguages: locale.rLanguages)
+
+        slippageView.titleLabel.text = R.string.localizable.polkaswapSettingsSlippageTitle(preferredLanguages: locale.rLanguages)
+        apyView.titleLabel.text = "Strategic Bonus APY"
+        rewardTokenView.titleLabel.text = "Rewards Payout In"
     }
 
     private func setInfoImage(for label: UILabel, text: String) {

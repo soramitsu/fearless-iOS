@@ -1,4 +1,5 @@
 import Foundation
+import SSFPools
 import SSFModels
 
 final class LiquidityPoolSupplyRouter: LiquidityPoolSupplyRouterInput {
@@ -23,5 +24,19 @@ final class LiquidityPoolSupplyRouter: LiquidityPoolSupplyRouterInput {
         }
 
         view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showConfirmation(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        liquidityPair: LiquidityPair,
+        inputData: LiquidityPoolSupplyConfirmInputData,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let module = LiquidityPoolSupplyConfirmAssembly.configureModule(chain: chain, wallet: wallet, liquidityPair: liquidityPair, inputData: inputData) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
     }
 }

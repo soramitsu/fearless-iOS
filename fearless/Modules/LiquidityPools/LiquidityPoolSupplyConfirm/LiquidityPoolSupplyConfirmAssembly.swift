@@ -1,12 +1,23 @@
 import UIKit
 import SoraFoundation
-import SSFPools
 import SSFPolkaswap
+import SSFPools
 import SSFModels
 import SoraKeystore
 
-final class LiquidityPoolSupplyAssembly {
-    static func configureModule(chain: ChainModel, wallet: MetaAccountModel, liquidityPair: LiquidityPair) -> LiquidityPoolSupplyModuleCreationResult? {
+struct LiquidityPoolSupplyConfirmInputData {
+    let baseAssetAmount: Decimal
+    let targetAssetAmount: Decimal
+    let slippageTolerance: Decimal
+}
+
+enum LiquidityPoolSupplyConfirmAssembly {
+    static func configureModule(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        liquidityPair: LiquidityPair,
+        inputData: LiquidityPoolSupplyConfirmInputData
+    ) -> LiquidityPoolSupplyConfirmModuleCreationResult? {
         guard let response = wallet.fetch(for: chain.accountRequest()) else {
             return nil
         }
@@ -38,27 +49,33 @@ final class LiquidityPoolSupplyAssembly {
             selectedMetaAccount: wallet
         )
 
-        let interactor = LiquidityPoolSupplyInteractor(lpOperationService: lpOperationService, lpDataService: lpDataService, liquidityPair: liquidityPair, priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared, chain: chain, accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter)
-        let router = LiquidityPoolSupplyRouter()
-        let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
-        let presenter = LiquidityPoolSupplyPresenter(
+        let interactor = LiquidityPoolSupplyConfirmInteractor(
+            lpOperationService: lpOperationService,
+            lpDataService: lpDataService,
+            liquidityPair: liquidityPair,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
+            chain: chain,
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
+        )
+        let router = LiquidityPoolSupplyConfirmRouter()
+
+        let presenter = LiquidityPoolSupplyConfirmPresenter(
             interactor: interactor,
             router: router,
-            liquidityPair: liquidityPair,
             localizationManager: localizationManager,
-            chain: chain,
+            dataValidatingFactory: SendDataValidatingFactory(presentable: router),
             logger: Logger.shared,
+            liquidityPair: liquidityPair,
+            chain: chain,
+            inputData: inputData,
             wallet: wallet,
-            dataValidatingFactory: dataValidatingFactory,
-            viewModelFactory: LiquidityPoolSupplyViewModelFactoryDefault()
+            viewModelFactory: LiquidityPoolSupplyConfirmViewModelFactoryDefault()
         )
 
-        let view = LiquidityPoolSupplyViewController(
+        let view = LiquidityPoolSupplyConfirmViewController(
             output: presenter,
             localizationManager: localizationManager
         )
-
-        dataValidatingFactory.view = view
 
         return (view, presenter)
     }

@@ -1,10 +1,10 @@
 import UIKit
-import SSFPools
-import SSFPolkaswap
 import SSFModels
+import SSFPolkaswap
+import SSFPools
 import BigInt
 
-protocol LiquidityPoolSupplyInteractorOutput: AnyObject {
+protocol LiquidityPoolSupplyConfirmInteractorOutput: AnyObject {
     func didReceiveDexId(_ dexId: String)
     func didReceiveDexIdError(_ error: Error)
     func didReceiveFee(_ fee: BigUInt)
@@ -13,12 +13,14 @@ protocol LiquidityPoolSupplyInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceivePoolAPY(apyInfo: PoolApyInfo?)
     func didReceivePoolApyError(error: Error)
+    func didReceiveTransactionHash(_ hash: String)
+    func didReceiveSubmitError(error: Error)
 }
 
-final class LiquidityPoolSupplyInteractor {
+final class LiquidityPoolSupplyConfirmInteractor {
     // MARK: - Private properties
 
-    private weak var output: LiquidityPoolSupplyInteractorOutput?
+    private weak var output: LiquidityPoolSupplyConfirmInteractorOutput?
     private let lpOperationService: PoolsOperationService
     private let lpDataService: PolkaswapLiquidityPoolService
     private let liquidityPair: LiquidityPair
@@ -76,15 +78,15 @@ final class LiquidityPoolSupplyInteractor {
     }
 }
 
-// MARK: - LiquidityPoolSupplyInteractorInput
+// MARK: - LiquidityPoolSupplyConfirmInteractorInput
 
-extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
-    func setup(with output: LiquidityPoolSupplyInteractorOutput) {
+extension LiquidityPoolSupplyConfirmInteractor: LiquidityPoolSupplyConfirmInteractorInput {
+    func setup(with output: LiquidityPoolSupplyConfirmInteractorOutput) {
         self.output = output
         fetchDexId()
+        fetchApy()
         subscribeToPrices()
         subscribeToAccountInfo()
-        fetchApy()
     }
 
     func estimateFee(supplyLiquidityInfo: SupplyLiquidityInfo) {
@@ -94,6 +96,21 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
                 output?.didReceiveFee(fee)
             } catch {
                 output?.didReceiveFeeError(error)
+            }
+        }
+    }
+
+    func submit(supplyLiquidityInfo: SupplyLiquidityInfo) {
+        Task {
+            do {
+                let hash = try await lpOperationService.submit(liquidityOperation: .substrateSupplyLiquidity(supplyLiquidityInfo))
+                await MainActor.run {
+                    output?.didReceiveTransactionHash(hash)
+                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceiveSubmitError(error: error)
+                }
             }
         }
     }
@@ -121,7 +138,7 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
 
 // MARK: - PriceLocalStorageSubscriber
 
-extension LiquidityPoolSupplyInteractor: PriceLocalSubscriptionHandler {
+extension LiquidityPoolSupplyConfirmInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         output?.didReceivePricesData(result: result)
     }
@@ -129,7 +146,7 @@ extension LiquidityPoolSupplyInteractor: PriceLocalSubscriptionHandler {
 
 // MARK: - AccountInfoSubscriptionAdapterHandler
 
-extension LiquidityPoolSupplyInteractor: AccountInfoSubscriptionAdapterHandler {
+extension LiquidityPoolSupplyConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,

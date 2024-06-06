@@ -4,6 +4,7 @@ import SnapKit
 
 protocol LiquidityPoolSupplyViewOutput: AnyObject {
     func didLoad(view: LiquidityPoolSupplyViewInput)
+    func handleViewAppeared()
     func didTapBackButton()
     func didTapApyInfo()
     func didTapPreviewButton()
@@ -27,6 +28,9 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
 
     private var amountFromInputViewModel: IAmountInputViewModel?
     private var amountToInputViewModel: IAmountInputViewModel?
+
+    private var assetFromViewModel: AssetBalanceViewModelProtocol?
+    private var assetToViewModel: AssetBalanceViewModelProtocol?
 
     // MARK: - Constructor
 
@@ -58,6 +62,14 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         addEndEditingTapGesture(for: rootView.contentView)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if isBeingPresented || isMovingToParent {
+            output.handleViewAppeared()
+        }
+    }
+
     // MARK: - Private methods
 
     private func configure() {
@@ -66,6 +78,9 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         rootView.swapToInputView.textField.delegate = self
         rootView.swapFromInputView.textField.delegate = self
 
+        rootView.swapFromInputView.textField.isUserInteractionEnabled = false
+        rootView.swapToInputView.textField.isUserInteractionEnabled = false
+
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
@@ -73,7 +88,7 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
     }
 
     private func updatePreviewButton() {
-        let isEnabled = amountFromInputViewModel?.isValid == true && amountToInputViewModel?.isValid == true
+        let isEnabled = amountFromInputViewModel?.isValid == true && amountToInputViewModel?.isValid == true && assetToViewModel != nil && assetFromViewModel != nil
         rootView.previewButton.set(enabled: isEnabled)
     }
 
@@ -83,12 +98,6 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
             action: #selector(handleTapBackButton),
             for: .touchUpInside
         )
-        let tapMinReceiveInfo = UITapGestureRecognizer(
-            target: self,
-            action: #selector(handleTapApyInfo)
-        )
-        rootView.minMaxReceivedView.titleLabel
-            .addGestureRecognizer(tapMinReceiveInfo)
 
         rootView.previewButton.addTarget(
             self,
@@ -115,12 +124,21 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
 // MARK: - LiquidityPoolSupplyViewInput
 
 extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
+    func didReceiveSwapQuoteReady() {
+        rootView.swapFromInputView.textField.isUserInteractionEnabled = true
+        rootView.swapToInputView.textField.isUserInteractionEnabled = true
+    }
+
     func didReceiveSwapFrom(viewModel: AssetBalanceViewModelProtocol?) {
+        assetFromViewModel = viewModel
         rootView.bindSwapFrom(assetViewModel: viewModel)
+        updatePreviewButton()
     }
 
     func didReceiveSwapTo(viewModel: AssetBalanceViewModelProtocol?) {
+        assetToViewModel = viewModel
         rootView.bindSwapTo(assetViewModel: viewModel)
+        updatePreviewButton()
     }
 
     func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?) {
@@ -152,6 +170,10 @@ extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
         DispatchQueue.main.async {
             self.rootView.previewButton.set(enabled: false)
         }
+    }
+
+    func didReceiveViewModel(_ viewModel: LiquidityPoolSupplyViewModel) {
+        rootView.bind(viewModel: viewModel)
     }
 }
 

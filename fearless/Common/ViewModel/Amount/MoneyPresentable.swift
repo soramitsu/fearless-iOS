@@ -124,9 +124,9 @@ extension MoneyPresentable {
             )
         }
 
-        if result.isEmpty {
-            result = MoneyPresentableConstants.singleZero
-        }
+//        if result.isEmpty {
+//            result = MoneyPresentableConstants.singleZero
+//        }
 
         return result
     }
