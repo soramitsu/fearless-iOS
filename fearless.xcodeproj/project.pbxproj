@@ -3211,6 +3211,7 @@
 		07A4F5252B5004E60007C54A /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		07A4F5262B5004E60007C54A /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "pt-PT"; path = "pt-PT.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		07AC51122AD8040C000970B8 /* XorlessTransfer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = XorlessTransfer.swift; sourceTree = "<group>"; };
+		07AFA26B2C119A5800CCE04D /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
 		07B018D028C7135400E05510 /* ScamInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfo.swift; sourceTree = "<group>"; };
 		07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamServiceOperationFactory.swift; sourceTree = "<group>"; };
 		07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamWarningExpandableView.swift; sourceTree = "<group>"; };
@@ -19592,6 +19593,7 @@
 		FACE6C5D2BBAC3B000643CEF /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				07AFA26B2C119A5800CCE04D /* SubstrateDataModel_v7.xcdatamodel */,
 				07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */,
 				FACE6C5E2BBAC3B000643CEF /* SubstrateDataModel.xcdatamodel */,
 				FACE6C5F2BBAC3B000643CEF /* SubstrateDataModel_v4.xcdatamodel */,
@@ -19599,7 +19601,7 @@
 				FACE6C612BBAC3B000643CEF /* SubstrateDataModel_v5.xcdatamodel */,
 				FACE6C622BBAC3B000643CEF /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = 07BE13CB2C071E7800EC7424 /* SubstrateDataModel_v6.xcdatamodel */;
+			currentVersion = 07AFA26B2C119A5800CCE04D /* SubstrateDataModel_v7.xcdatamodel */;
 			path = SubstrateDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
