@@ -18,6 +18,7 @@ actor AssetManagementInteractor {
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let eventCenter: EventCenterProtocol
     private let accountInfoRemoteService: AccountInfoRemoteService
+    private let walletAssetObserver: WalletAssetsObserver
 
     private var bufferWallet: MetaAccountModel?
 
@@ -26,13 +27,15 @@ actor AssetManagementInteractor {
         priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoFetchingProvider: AccountInfoFetching,
         eventCenter: EventCenterProtocol,
-        accountInfoRemoteService: AccountInfoRemoteService
+        accountInfoRemoteService: AccountInfoRemoteService,
+        walletAssetObserver: WalletAssetsObserver
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.eventCenter = eventCenter
         self.accountInfoRemoteService = accountInfoRemoteService
+        self.walletAssetObserver = walletAssetObserver
 
         self.eventCenter.add(observer: self)
     }
@@ -122,6 +125,12 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
             wallet: wallet
         )
         return accountInfo
+    }
+
+    func updatedVisibility(for chainAssets: [ChainAsset]) async -> MetaAccountModel {
+        let updatedWallet = await walletAssetObserver.updateVisibility(wallet: bufferWallet, chainAssets: chainAssets)
+        bufferWallet = updatedWallet
+        return updatedWallet
     }
 }
 

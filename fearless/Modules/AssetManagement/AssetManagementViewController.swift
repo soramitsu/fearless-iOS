@@ -10,6 +10,7 @@ protocol AssetManagementViewOutput: AnyObject {
     func allNetworkButtonDidTapped()
     func didSelectRow(at indexPath: IndexPath, viewModel: AssetManagementViewModel)
     func didTap(on section: Int, viewModel: AssetManagementViewModel)
+    func didPullToRefresh()
 }
 
 final class AssetManagementViewController: UIViewController, ViewHolder, HiddableBarWhenPushed, KeyboardViewAdoptable {
@@ -90,7 +91,17 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
         rootView.tableView.estimatedSectionFooterHeight = 0
 
         rootView.tableView.contentInsetAdjustmentBehavior = .never
+
+        if let refreshControl = rootView.tableView.refreshControl {
+            refreshControl.addTarget(
+                self,
+                action: #selector(handlePullToRefresh),
+                for: .valueChanged
+            )
+        }
     }
+
+    // MARK: - Actions
 
     @objc
     private func handleTap(sender: UIGestureRecognizer) {
@@ -98,6 +109,11 @@ final class AssetManagementViewController: UIViewController, ViewHolder, Hiddabl
             return
         }
         output.didTap(on: section, viewModel: viewModel)
+    }
+
+    @objc
+    private func handlePullToRefresh() {
+        output.didPullToRefresh()
     }
 
     // MARK: - KeyboardViewAdoptable
@@ -116,6 +132,7 @@ extension AssetManagementViewController: AssetManagementViewInput {
         rootView.setFilter(title: viewModel.filterButtonTitle)
         rootView.setAddAssetButton(visible: viewModel.addAssetButtonIsHidden)
         rootView.tableView.reloadData()
+        rootView.tableView.refreshControl?.endRefreshing()
         reloadEmptyState(animated: false)
     }
 

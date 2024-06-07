@@ -65,12 +65,22 @@ final class AssetManagementAssembly {
             storagePerformer: storagePerformer
         )
 
+        let walletAssetsObserver = WalletAssetsObserverImpl(
+            wallet: wallet,
+            chainRegistry: chainRegistry,
+            accountInfoRemote: accountInfoRemote,
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared,
+            userDefaultsStorage: SettingsManager.shared
+        )
+
         let interactor = AssetManagementInteractor(
             chainAssetFetching: chainAssetFetching,
             priceLocalSubscriber: priceLocalSubscriber,
             accountInfoFetchingProvider: accountInfoFetchingProvider,
             eventCenter: EventCenter.shared,
-            accountInfoRemoteService: accountInfoRemote
+            accountInfoRemoteService: accountInfoRemote,
+            walletAssetObserver: walletAssetsObserver
         )
         let router = AssetManagementRouter()
 
