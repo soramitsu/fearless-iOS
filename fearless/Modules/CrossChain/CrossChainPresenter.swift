@@ -356,10 +356,11 @@ final class CrossChainPresenter {
         )
 
         let soraBridgeViolated = dataValidatingFactory.soraBridgeViolated(
-            originCHainId: selectedOriginChainModel.chainId,
-            destChainId: selectedDestChainModel?.chainId,
+            originCHain: selectedOriginChainModel,
+            destChain: selectedDestChainModel,
             amount: inputAmountDecimal,
-            locale: selectedLocale
+            locale: selectedLocale,
+            asset: selectedAmountChainAsset.asset
         )
 
         let soraBridgeAmountLessFeeViolated = dataValidatingFactory.soraBridgeAmountLessFeeViolated(

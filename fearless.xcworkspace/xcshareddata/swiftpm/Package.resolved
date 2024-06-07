@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "update-for-fearless-asset-management",
-        "revision" : "dd3ffa9016d20d9f3695d76b976df4c857ec1efb"
+        "branch" : "feature/xcm-routes",
+        "revision" : "f3737080f73453325fe436575b0f6c04d71e9e2a"
       }
     },
     {
