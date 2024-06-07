@@ -18,7 +18,7 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         return view
     }()
 
-    let doubleImageView = PolkaswapDoubleSymbolView()
+    let doubleImageView = PolkaswapDoubleSymbolView(imageSize: CGSize(width: 64, height: 64), mode: .filled)
     let pairTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title

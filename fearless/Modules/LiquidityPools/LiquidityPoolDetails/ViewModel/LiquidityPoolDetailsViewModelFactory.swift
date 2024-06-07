@@ -63,7 +63,6 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
             targetAssetPrice: targetAssetPrice
         )
         let reservesString = reservesValue.flatMap { fiatFormatter.stringFromDecimal($0) }
-        let reservesLabelText: String? = reservesString.flatMap { "\($0) TVL" }
 
         let apyLabelText = apyInfo?.apy.flatMap { NumberFormatter.percentAPY.stringFromDecimal($0) }
         let tokenPairsIconViewModel = PolkaswapDoubleSymbolViewModel(
@@ -83,7 +82,7 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
         let targetAssetViewModel = accountPoolInfo?.targetAssetPooled.flatMap {
             targetAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: targetAssetPrice, usageCase: .detailsCrypto)
         }
-        let reservesViewModel = reservesLabelText.flatMap { TitleMultiValueViewModel(title: $0, subtitle: nil) }
+        let reservesViewModel = reservesString.flatMap { TitleMultiValueViewModel(title: $0, subtitle: nil) }
         let apyViewModel = apyLabelText.flatMap { TitleMultiValueViewModel(title: $0, subtitle: nil) }
 
         return LiquidityPoolDetailsViewModel(

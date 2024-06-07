@@ -104,6 +104,13 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
             action: #selector(handleTapPreviewButton),
             for: .touchUpInside
         )
+
+        let tapApyInfo = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTapApyInfo)
+        )
+        rootView.apyView
+            .addGestureRecognizer(tapApyInfo)
     }
 
     // MARK: - Private actions

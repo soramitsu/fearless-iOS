@@ -294,10 +294,8 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     func didTapApyInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = R.string.localizable
-            .polkaswapMinReceived(preferredLanguages: selectedLocale.rLanguages)
-        infoText = R.string.localizable
-            .polkaswapMinimumReceivedInfo(preferredLanguages: selectedLocale.rLanguages)
+        infoTitle = "Strategic Bonus APY"
+        infoText = "Farming reward for liquidity provision"
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -501,7 +499,9 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
                 let targetAssetPriceValue = Decimal(string: targetAssetPrice.price) {
                 baseTargetRate = baseAssetPriceValue / targetAssetPriceValue
 
-                view?.didReceiveSwapQuoteReady()
+                DispatchQueue.main.async { [weak self] in
+                    self?.view?.didReceiveSwapQuoteReady()
+                }
             }
         case let .failure(error):
             prices = []

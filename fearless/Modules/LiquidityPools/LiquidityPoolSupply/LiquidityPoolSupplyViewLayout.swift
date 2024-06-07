@@ -17,18 +17,19 @@ final class LiquidityPoolSupplyViewLayout: UIView {
 
     let navigationViewContainer = UIView()
 
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h3Title
+        label.textColor = R.color.colorWhite()
+        return label
+    }()
+
     let backButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
         button.layer.masksToBounds = true
         button.backgroundColor = R.color.colorWhite8()
         return button
-    }()
-
-    let polkaswapImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.polkaswap()
-        return imageView
     }()
 
     // MARK: content
@@ -45,7 +46,7 @@ final class LiquidityPoolSupplyViewLayout: UIView {
     let swapToInputView = AmountInputViewV2()
     let switchSwapButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconSwitch(), for: .normal)
+        button.setImage(R.image.iconAddTokenPair(), for: .normal)
         return button
     }()
 
@@ -58,6 +59,14 @@ final class LiquidityPoolSupplyViewLayout: UIView {
     let apyView = UIFactory.default.createMultiView()
     let rewardTokenView = UIFactory.default.createMultiView()
     let networkFeeView = UIFactory.default.createMultiView()
+    let apyInfoButton: UIButton = {
+        let button = UIButton()
+        button.isUserInteractionEnabled = false
+        button.setImage(R.image.iconInfoFilled(), for: .normal)
+        return button
+    }()
+
+    let tokenIconImageView = UIImageView()
 
     private lazy var multiViews = [
         slippageView,
@@ -123,6 +132,12 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         slippageView.bind(viewModel: viewModel.slippageViewModel)
         apyView.bind(viewModel: viewModel.apyViewModel)
         rewardTokenView.bind(viewModel: viewModel.rewardTokenViewModel)
+
+        viewModel.rewardTokenIconViewModel?.loadImage(
+            on: tokenIconImageView,
+            targetSize: CGSize(width: 12, height: 12),
+            animated: true
+        )
     }
 
     // MARK: - Private methods
@@ -140,7 +155,7 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         }
 
         container.addSubview(backButton)
-        container.addSubview(polkaswapImageView)
+        container.addSubview(titleLabel)
 
         backButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
@@ -148,9 +163,8 @@ final class LiquidityPoolSupplyViewLayout: UIView {
             make.size.equalTo(Constants.backButtonSize)
         }
 
-        polkaswapImageView.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalTo(backButton.snp.trailing).offset(UIConstants.defaultOffset)
+        titleLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
     }
 
@@ -230,6 +244,24 @@ final class LiquidityPoolSupplyViewLayout: UIView {
             $0.titleLabel.isUserInteractionEnabled = true
         }
 
+        apyView.addSubview(apyInfoButton)
+
+        apyInfoButton.snp.makeConstraints { make in
+            make.leading.equalTo(apyView.titleLabel.snp.trailing).offset(4)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(12)
+        }
+
+        rewardTokenView.addSubview(tokenIconImageView)
+
+        rewardTokenView.valueTop.snp.makeConstraints { make in
+            make.leading.equalTo(tokenIconImageView.snp.trailing).offset(4)
+        }
+        tokenIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(12)
+            make.centerY.equalToSuperview()
+        }
+
         return backgroundView
     }
 
@@ -249,6 +281,8 @@ final class LiquidityPoolSupplyViewLayout: UIView {
     }
 
     private func applyLocalization() {
+        titleLabel.text = "Supply Liquidity"
+
         swapFromInputView.locale = locale
         swapToInputView.locale = locale
 

@@ -211,7 +211,17 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
         router.dismiss(view: view)
     }
 
-    func didTapApyInfo() {}
+    func didTapApyInfo() {
+        var infoText: String
+        var infoTitle: String
+        infoTitle = "Strategic Bonus APY"
+        infoText = "Farming reward for liquidity provision"
+        router.presentInfo(
+            message: infoText,
+            title: infoTitle,
+            from: view
+        )
+    }
 
     func didTapConfirmButton() {
         guard

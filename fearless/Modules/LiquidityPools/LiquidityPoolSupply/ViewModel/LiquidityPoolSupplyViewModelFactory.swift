@@ -27,13 +27,17 @@ class LiquidityPoolSupplyViewModelFactoryDefault: LiquidityPoolSupplyViewModelFa
         }
         let apyViewModel = apyString.flatMap { TitleMultiValueViewModel(title: $0, subtitle: nil) }
 
-        let rewardAssetSymbol = chain.assets.first(where: { $0.currencyId == liquidityPair.rewardAssetId })?.symbol.uppercased()
+        let rewardAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.rewardAssetId })
+        let rewardAssetSymbol = rewardAsset?.symbol.uppercased()
         let rewardTokenViewModel = TitleMultiValueViewModel(title: rewardAssetSymbol, subtitle: nil)
+
+        let rewardTokenIconViewModel = RemoteImageViewModel(url: rewardAsset?.icon)
 
         return LiquidityPoolSupplyViewModel(
             slippageViewModel: slippageViewModel,
             apyViewModel: apyViewModel,
-            rewardTokenViewModel: rewardTokenViewModel
+            rewardTokenViewModel: rewardTokenViewModel,
+            rewardTokenIconViewModel: rewardTokenIconViewModel
         )
     }
 }

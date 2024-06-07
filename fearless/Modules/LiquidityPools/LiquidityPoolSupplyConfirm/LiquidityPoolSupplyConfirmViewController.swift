@@ -66,6 +66,13 @@ final class LiquidityPoolSupplyConfirmViewController: UIViewController, ViewHold
             action: #selector(handleTapConfirmButton),
             for: .touchUpInside
         )
+
+        let tapApyInfo = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTapApyInfo)
+        )
+        rootView.apyView
+            .addGestureRecognizer(tapApyInfo)
     }
 
     // MARK: - Private actions

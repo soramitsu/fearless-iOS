@@ -20,7 +20,7 @@ final class AmountInputViewV2: UIView {
 
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!
-
+        view.shadowColor = .clear
         view.strokeColor = R.color.colorWhite8()!
         view.highlightedStrokeColor = R.color.colorWhite8()!
         view.strokeWidth = 0.5

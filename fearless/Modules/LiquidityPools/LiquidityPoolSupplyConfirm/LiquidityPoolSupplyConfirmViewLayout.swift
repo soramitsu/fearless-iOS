@@ -36,7 +36,7 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
         return view
     }()
 
-    let doubleImageView = PolkaswapDoubleSymbolView()
+    let doubleImageView = PolkaswapDoubleSymbolView(imageSize: CGSize(width: 64, height: 64), mode: .filled)
     let swapStubTitle: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -85,6 +85,15 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
         return button
     }()
 
+    let apyInfoButton: UIButton = {
+        let button = UIButton()
+        button.isUserInteractionEnabled = false
+        button.setImage(R.image.iconInfoFilled(), for: .normal)
+        return button
+    }()
+
+    let tokenIconImageView = UIImageView()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -111,6 +120,12 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
         slippageView.bind(viewModel: viewModel.slippageViewModel)
         apyView.bind(viewModel: viewModel.apyViewModel)
         rewardTokenView.bind(viewModel: viewModel.rewardTokenViewModel)
+
+        viewModel.rewardTokenIconViewModel?.loadImage(
+            on: tokenIconImageView,
+            targetSize: CGSize(width: 12, height: 12),
+            animated: true
+        )
     }
 
     func bind(confirmViewModel: LiquidityPoolSupplyConfirmViewModel?) {
@@ -196,6 +211,24 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        apyView.addSubview(apyInfoButton)
+
+        apyInfoButton.snp.makeConstraints { make in
+            make.leading.equalTo(apyView.titleLabel.snp.trailing).offset(4)
+            make.centerY.equalToSuperview()
+            make.size.equalTo(12)
+        }
+
+        rewardTokenView.addSubview(tokenIconImageView)
+
+        rewardTokenView.valueTop.snp.makeConstraints { make in
+            make.leading.equalTo(tokenIconImageView.snp.trailing).offset(4)
+        }
+        tokenIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(12)
+            make.centerY.equalToSuperview()
         }
     }
 }
