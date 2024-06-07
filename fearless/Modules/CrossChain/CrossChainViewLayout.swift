@@ -93,10 +93,12 @@ final class CrossChainViewLayout: UIView {
     // MARK: - Public methods
 
     func bind(originFeeViewModel: BalanceViewModelProtocol?) {
+        originNetworkFeeView.isHidden = originFeeViewModel == nil
         originNetworkFeeView.bindBalance(viewModel: originFeeViewModel)
     }
 
     func bind(destinationFeeViewModel: BalanceViewModelProtocol?) {
+        destinationNetworkFeeView.isHidden = destinationFeeViewModel == nil
         destinationNetworkFeeView.bindBalance(viewModel: destinationFeeViewModel)
     }
 
@@ -133,6 +135,9 @@ final class CrossChainViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(contentView)
         addSubview(actionButton)
+
+        originNetworkFeeView.isHidden = true
+        destinationNetworkFeeView.isHidden = true
 
         actionButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)

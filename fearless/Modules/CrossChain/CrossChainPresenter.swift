@@ -113,7 +113,10 @@ final class CrossChainPresenter {
     }
 
     private func checkLoadingState() {
-        view?.setButtonLoadingState(isLoading: !loadingCollector.isReady)
+        guard let isReady = loadingCollector.isReady else {
+            return
+        }
+        view?.setButtonLoadingState(isLoading: !isReady)
     }
 
     private func provideInputViewModel() {
@@ -660,12 +663,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         availableDestChainModels = filtredChainAssets
             .map { $0.chain }
             .withoutDuplicates()
-
-        if selectedDestChainModel == nil {
-            selectedDestChainModel = filtredChainAssets.map { $0.chain }.first
-        }
-        provideDestSelectNetworkViewModel()
-        estimateFee()
     }
 
     func didSetup() {
