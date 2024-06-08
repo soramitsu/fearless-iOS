@@ -3,10 +3,6 @@ import SnapKit
 import SoraFoundation
 
 final class StakingPayoutConfirmationViewLayout: UIView {
-    private enum Constants {
-        static let bottomViewHeight: CGFloat = 164.0
-    }
-
     private var mainColor: UIColor? {
         didSet {
             applyMainColor()

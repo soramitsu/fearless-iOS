@@ -13,7 +13,6 @@ final class ValidatorInfoViewFactory {
     ) -> ValidatorInfoDependencyContainer? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
             selectedMetaAccount: wallet
         )
 
@@ -25,13 +24,6 @@ final class ValidatorInfoViewFactory {
             )
 
             let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-            guard
-                let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-                let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-                return nil
-            }
-
             let serviceFactory = StakingServiceFactory(
                 chainRegisty: chainRegistry,
                 storageFacade: SubstrateDataStorageFacade.shared,
@@ -101,13 +93,6 @@ final class ValidatorInfoViewFactory {
             )
         case let .parachain(candidate):
             let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-            guard
-                let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-                let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-                return nil
-            }
-
             let storageRequestFactory = StorageRequestFactory(
                 remoteFactory: StorageKeyFactory(),
                 operationManager: OperationManagerFacade.sharedManager
@@ -148,13 +133,6 @@ final class ValidatorInfoViewFactory {
             )
 
             let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-            guard
-                let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-                let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-                return nil
-            }
-
             let serviceFactory = StakingServiceFactory(
                 chainRegisty: chainRegistry,
                 storageFacade: SubstrateDataStorageFacade.shared,

@@ -3,10 +3,6 @@ import SoraKeystore
 import RobinHood
 import SSFModels
 
-enum AssetManagementMigratorError: Error {
-    case walletNotExist
-}
-
 // MARK: - AssetManagementMigrator
 
 final class AssetManagementMigrator: Migrating {

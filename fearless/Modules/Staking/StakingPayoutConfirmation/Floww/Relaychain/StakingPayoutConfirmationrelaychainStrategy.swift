@@ -279,5 +279,3 @@ extension StakingPayoutConfirmationRelayachainStrategy: RelaychainStakingLocalSt
 // MARK: - SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning
 
 extension StakingPayoutConfirmationRelayachainStrategy: AnyProviderAutoCleaning {}
-
-// MARK: - SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler

@@ -30,19 +30,4 @@ final class WalletOptionRouter: WalletOptionRouterInput {
         }
         view?.controller.present(controller, animated: true)
     }
-
-    func showAccountRestore(
-        defaultSource: AccountImportSource,
-        from view: OnboardingMainViewProtocol?
-    ) {
-        guard let restorationController = AccountImportViewFactory
-            .createViewForOnboarding(defaultSource: defaultSource)?.controller
-        else {
-            return
-        }
-
-        if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(restorationController, animated: true)
-        }
-    }
 }

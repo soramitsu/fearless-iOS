@@ -129,10 +129,6 @@ extension YourValidatorListPresenter: YourValidatorListModelStateListener {
         updateView()
     }
 
-    func didReceiveError(error: YourValidatorListFlowError) {
-        logger?.error(error.localizedDescription)
-    }
-
     func didReceiveState(_ state: YourValidatorListViewState) {
         view?.reload(state: state)
     }

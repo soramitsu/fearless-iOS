@@ -43,10 +43,6 @@ extension WalletDetailsPresenter: WalletDetailsViewOutputProtocol {
         interactor.setup()
     }
 
-    func updateData() {
-//        TODO: Will required when add chain acounts changes
-    }
-
     func didTapCloseButton() {
         wireframe.dismiss(view: view)
     }

@@ -1,7 +1,4 @@
-enum StakingMainFlow {
-    case parachain
-    case relaychain
-}
+import Foundation
 
 protocol StakingMainModelStateListener: AnyObject {
     func provideStakingMainModel()
@@ -13,12 +10,6 @@ protocol StakingMainViewModelState {
     var stateListener: StakingMainModelStateListener { get set }
 
     func setStateListener(_ stateListener: StakingMainModelStateListener?)
-}
-
-struct StakingMainDependencyContainer {
-    let viewModelState: StakingMainViewModelState
-    let strategy: StakingMainStrategy
-    let viewModelFactory: StakingMainViewModelFactoryProtocol
 }
 
 protocol StakingMainViewModelFactoryProtocol {

@@ -24,7 +24,6 @@ protocol EventVisitorProtocol: AnyObject {
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
     func processStakingUpdatedEvent()
-    func processZeroBalancesSettingChanged()
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent)
     func processChainsSetupCompleted()
     func processLogout()
@@ -54,7 +53,6 @@ extension EventVisitorProtocol {
 
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
     func processStakingUpdatedEvent() {}
-    func processZeroBalancesSettingChanged() {}
     func processRemoteSubscriptionWasUpdated(event _: WalletRemoteSubscriptionWasUpdatedEvent) {}
     func processChainsSetupCompleted() {}
     func processLogout() {}

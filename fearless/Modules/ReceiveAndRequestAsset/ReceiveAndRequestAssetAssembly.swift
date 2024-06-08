@@ -10,7 +10,6 @@ final class ReceiveAndRequestAssetAssembly {
     ) -> ReceiveAndRequestAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let repositoryFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(

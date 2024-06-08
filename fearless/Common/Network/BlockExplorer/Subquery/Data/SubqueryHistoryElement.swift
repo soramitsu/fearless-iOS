@@ -1,6 +1,5 @@
 import Foundation
 import IrohaCrypto
-
 import SSFModels
 
 struct SubqueryHistoryElement: Decodable, RewardOrSlashData {

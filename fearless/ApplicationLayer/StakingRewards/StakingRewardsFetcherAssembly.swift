@@ -1,10 +1,6 @@
 import Foundation
 import SSFModels
 
-enum StakingRewardsFetcherAssemblyError: Error {
-    case noBlockExplorer(chainName: String)
-}
-
 final class StakingRewardsFetcherAssembly {
     func fetcher(for chain: ChainModel) throws -> StakingRewardsFetcher {
         let blockExplorer = chain.externalApi?.staking

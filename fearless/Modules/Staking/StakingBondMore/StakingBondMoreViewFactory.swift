@@ -63,7 +63,6 @@ struct StakingBondMoreViewFactory {
         wallet: MetaAccountModel,
         strategy: StakingBondMoreStrategy
     ) -> StakingBondMoreInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let interactor = StakingBondMoreInteractor(

@@ -290,29 +290,6 @@ final class CrossChainPresenter {
             totalAmount: utilityBalance,
             minimumBalance: minimumBalance
         )
-        let destChainAsset = selectedDestChainModel.map {
-            ChainAsset(chain: $0, asset: selectedAmountChainAsset.asset)
-        }
-
-        let destBalanceDecimal: Decimal? = (destAccountInfo?.data.sendAvailable).flatMap {
-            guard let destChainAsset else {
-                return nil
-            }
-
-            return Decimal.fromSubstrateAmount($0, precision: Int16(destChainAsset.asset.precision))
-        }
-
-        let destMinimumBalance: Decimal? = destExistentialDeposit.flatMap {
-            Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision))
-        }
-
-        let totalDestinationAmount = destBalanceDecimal.map { $0 + inputAmountDecimal }
-
-        let destEdParameters: ExistentialDepositValidationParameters = .utility(
-            spendingAmount: 0,
-            totalAmount: totalDestinationAmount,
-            minimumBalance: destMinimumBalance
-        )
 
         let originFeeValidating = dataValidatingFactory.has(
             fee: originNetworkFee,

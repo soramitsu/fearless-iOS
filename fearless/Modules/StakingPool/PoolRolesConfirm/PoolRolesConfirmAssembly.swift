@@ -35,8 +35,6 @@ final class PoolRolesConfirmAssembly {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared

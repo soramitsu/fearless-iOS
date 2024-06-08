@@ -1,15 +1,13 @@
 import Foundation
 
-public struct WalletHistoryRequest: Codable, Equatable {
-    public var assets: [String]?
-    public var filter: String?
-    public var fromDate: Date?
-    public var toDate: Date?
-    public var type: String?
+struct WalletHistoryRequest: Codable, Equatable {
+    var assets: [String]?
+    var filter: String?
+    var fromDate: Date?
+    var toDate: Date?
+    var type: String?
 
-    public init(assets: [String]) {
+    init(assets: [String]) {
         self.assets = assets
     }
-
-    public init() {}
 }

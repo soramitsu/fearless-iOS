@@ -44,18 +44,3 @@ protocol PinViewFactoryProtocol: AnyObject {
         -> PinSetupViewProtocol?
     static func createPinCheckView() -> PinSetupViewProtocol?
 }
-
-enum PinAppearanceAnimationConstants {
-    static let type = CATransitionType.moveIn
-    static let subtype = CATransitionSubtype.fromTop
-    static let timingFunction = CAMediaTimingFunction(name: CAMediaTimingFunctionName.easeOut)
-    static let duration = 0.3
-    static let animationKey = "pin.transitionIn"
-}
-
-enum PinDismissAnimationConstants {
-    static let type = CATransitionType.fade
-    static let timingFunction = CAMediaTimingFunctionName.easeOut
-    static let duration = 0.3
-    static let animationKey = "pin.transitionOut"
-}

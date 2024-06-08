@@ -140,7 +140,7 @@ final class SendPresenter {
     }
 
     private func provideAssetVewModel() {
-        guard let chainAsset = selectedChainAsset, case let .value(assetInfo) = assetAccountInfo else { return }
+        guard let chainAsset = selectedChainAsset, case .value = assetAccountInfo else { return }
         let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0

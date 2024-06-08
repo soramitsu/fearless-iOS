@@ -417,7 +417,7 @@ extension EraValidatorService {
         erasStakersKeyOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
                 switch erasStakersKeyOperation.result {
-                case let .success(prefixKeys):
+                case .success:
                     if let factory = erasStakersKeyOperation.codingFactory {
                         self?.updateIfNeeded(activeEra: activeEra, codingFactory: factory, completion: completion)
                     } else {

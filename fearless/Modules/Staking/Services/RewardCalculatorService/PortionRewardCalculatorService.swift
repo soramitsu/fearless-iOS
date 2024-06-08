@@ -5,11 +5,6 @@ import BigInt
 import SSFModels
 import SSFRuntimeCodingService
 
-enum PortionCalculatorServiceError: Error {
-    case timedOut
-    case unexpectedInfo
-}
-
 final class PortionRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 

@@ -4,7 +4,6 @@ final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
         static let walletIconSize: CGFloat = 40.0
         static let accessoryButtonSize: CGFloat = 32.0
-        static let issuesButtonSize = CGSize(width: 140, height: 24)
     }
 
     var locale: Locale = .current {

@@ -1,0 +1,5 @@
+schemes:
+- fearless
+targets:
+- fearless
+workspace: fearless.xcworkspace

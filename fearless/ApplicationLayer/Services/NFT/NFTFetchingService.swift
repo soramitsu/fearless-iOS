@@ -1,10 +1,6 @@
 import Foundation
 import SSFModels
 
-enum NFTFetchingServiceError: Error {
-    case emptyResponse
-}
-
 protocol NFTFetchingServiceProtocol {
     func fetchCollections(
         for wallet: MetaAccountModel,

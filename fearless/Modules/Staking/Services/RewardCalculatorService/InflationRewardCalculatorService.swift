@@ -4,11 +4,6 @@ import SSFUtils
 import BigInt
 import SSFModels
 
-enum RewardCalculatorServiceError: Error {
-    case timedOut
-    case unexpectedInfo
-}
-
 final class InflationRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 

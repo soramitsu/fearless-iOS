@@ -2,9 +2,7 @@ import Foundation
 import SSFModels
 import RobinHood
 
-extension ChainModel: Identifiable {
-    public var identifier: String { chainId }
-
+extension ChainModel {
     var isSupported: Bool {
         AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
     }

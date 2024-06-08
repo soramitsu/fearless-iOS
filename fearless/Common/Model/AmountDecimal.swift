@@ -1,21 +1,21 @@
 import Foundation
 
-public enum AmountDecimalError: Error {
+enum AmountDecimalError: Error {
     case invalidStringValue
 }
 
-public struct AmountDecimal: Codable, Equatable {
-    public let decimalValue: Decimal
+struct AmountDecimal: Codable, Equatable {
+    let decimalValue: Decimal
 
-    public var stringValue: String {
+    var stringValue: String {
         (decimalValue as NSNumber).stringValue
     }
 
-    public init(value: Decimal) {
+    init(value: Decimal) {
         decimalValue = value
     }
 
-    public init?(string: String) {
+    init?(string: String) {
         guard let value = Decimal(string: string) else {
             return nil
         }
@@ -23,7 +23,7 @@ public struct AmountDecimal: Codable, Equatable {
         self.init(value: value)
     }
 
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 
         let stringValue = try container.decode(String.self)
@@ -35,7 +35,7 @@ public struct AmountDecimal: Codable, Equatable {
         decimalValue = value
     }
 
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(stringValue)
     }

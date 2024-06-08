@@ -1,6 +1,6 @@
 import Foundation
 
-public enum MapKeyType: String {
+enum MapKeyType: String {
     case u8
     case u16
     case u32

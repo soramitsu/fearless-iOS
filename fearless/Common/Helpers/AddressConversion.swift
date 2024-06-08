@@ -18,8 +18,6 @@ enum ChainFormat {
 }
 
 enum AddressFactory {
-    private static let substrateFactory = SS58AddressFactory()
-
     private static func chainFormat(of chain: ChainModel) -> ChainFormat {
         chain.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
     }

@@ -32,7 +32,6 @@ final class StakingPoolCreateAssembly {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(

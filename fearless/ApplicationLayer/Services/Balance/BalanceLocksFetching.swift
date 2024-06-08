@@ -104,11 +104,6 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
             throw BalanceLocksFetchingError.stakingNotFound
         }
 
-        let controller = try await fetchStakingController(accountId: accountId)
-        guard let controller else {
-            throw BalanceLocksFetchingError.stakingNotFound
-        }
-
         let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
         let ledgerRequest = StakingLedgerRequest(accountId: accountIdVariant)
         let eraRequest = StakingCurrentEraRequest()

@@ -9,11 +9,6 @@ protocol SettingsMigrating: AnyObject {
     func finalize() throws
 }
 
-enum SettingsMigratingError: Error {
-    case nextVersionMissing
-    case destinationNotReached
-}
-
 class SettingsMigrator {
     let sourceVersion: UserStorageVersion
     let destinationVersion: UserStorageVersion
