@@ -10,7 +10,7 @@ protocol CrossChainViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceive(amountInputViewModel: IAmountInputViewModel?)
     func didReceive(originSelectNetworkViewModel: SelectNetworkViewModel)
-    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel)
+    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel?)
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(destinationFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(recipientViewModel: RecipientViewModel)
@@ -159,6 +159,7 @@ final class CrossChainPresenter {
 
     private func provideDestSelectNetworkViewModel() {
         guard let selectedDestChainModel = selectedDestChainModel else {
+            view?.didReceive(destSelectNetworkViewModel: nil)
             return
         }
 
@@ -533,6 +534,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideOriginSelectNetworkViewModel()
+        provideDestSelectNetworkViewModel()
         provideInputViewModel()
     }
 

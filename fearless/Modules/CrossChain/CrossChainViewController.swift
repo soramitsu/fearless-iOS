@@ -154,7 +154,7 @@ extension CrossChainViewController: CrossChainViewInput {
         rootView.bind(originalSelectNetworkViewModel: originSelectNetworkViewModel)
     }
 
-    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel) {
+    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel?) {
         rootView.bind(destSelectNetworkViewModel: destSelectNetworkViewModel)
     }
 

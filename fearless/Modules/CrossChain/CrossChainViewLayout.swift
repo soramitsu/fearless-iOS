@@ -115,7 +115,12 @@ final class CrossChainViewLayout: UIView {
             .loadAmountInputIcon(on: originSelectNetworkView.iconView, animated: true)
     }
 
-    func bind(destSelectNetworkViewModel: SelectNetworkViewModel) {
+    func bind(destSelectNetworkViewModel: SelectNetworkViewModel?) {
+        guard let destSelectNetworkViewModel else {
+            destSelectNetworkView.subtitle = R.string.localizable.commonSelectNetwork(preferredLanguages: locale.rLanguages)
+            destSelectNetworkView.iconView.image = R.image.addressPlaceholder()
+            return
+        }
         destSelectNetworkView.subtitle = destSelectNetworkViewModel.chainName
         destSelectNetworkViewModel.iconViewModel?.cancel(on: destSelectNetworkView.iconView)
         destSelectNetworkView.iconView.image = nil
