@@ -591,6 +591,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                 feeInPlanks,
                 precision: precision
             )
+            deriveTransferableBalance()
 
         case let .failure(error):
             destNetworkFee = nil
@@ -610,6 +611,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                 return
             }
             originNetworkFee = feeDecimal
+            deriveTransferableBalance()
         case let .failure(error):
             originNetworkFee = nil
             logger.customError(error)

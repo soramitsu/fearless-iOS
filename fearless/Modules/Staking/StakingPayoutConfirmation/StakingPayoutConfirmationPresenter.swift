@@ -57,7 +57,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
+        DataValidationRunner(validators: viewModelState.validators(using: locale, prices: pricesData)).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
             }
