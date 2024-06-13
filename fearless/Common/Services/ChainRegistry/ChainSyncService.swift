@@ -191,12 +191,25 @@ final class ChainSyncService {
 
         switch result {
         case let .success(changes):
-            logger?.debug(
-                """
-                Sync completed: \(changes.newOrUpdatedItems) (new or updated),
-                \(changes.removedItems) (removed)
-                """
-            )
+            if changes.newOrUpdatedItems.isNotEmpty {
+                logger?.warning(
+                    """
+                    !!!! Make shure what chains.json was changed, if you see this message without chains.json changes, equatable ChainModel is broken !!!!
+                    """
+                )
+                logger?.debug(
+                    """
+                    Sync completed: \(changes.newOrUpdatedItems.map { $0.name }) (new or updated)
+                    """
+                )
+            }
+            if changes.removedItems.isNotEmpty {
+                logger?.debug(
+                    """
+                    Sync completed: \(changes.removedItems.map { $0.name }) (removed)
+                    """
+                )
+            }
 
             retryAttempt = 0
 

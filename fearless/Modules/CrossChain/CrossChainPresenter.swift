@@ -510,7 +510,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
             from: view,
             wallet: wallet,
             chainAssets: availableOriginChainAssets,
-            selectedAssetId: selectedAmountChainAsset.asset.identifier,
+            selectedAssetId: selectedAmountChainAsset.asset.id,
             output: self
         )
     }

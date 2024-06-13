@@ -955,7 +955,7 @@ extension SendPresenter: SendViewOutput {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            selectedAssetId: selectedChainAsset?.asset.identifier,
+            selectedAssetId: selectedChainAsset?.asset.id,
             chainAssets: nil,
             output: self
         )
