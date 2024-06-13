@@ -1,4 +1,5 @@
 {
+  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -127,6 +128,15 @@
       }
     },
     {
+      "identity" : "shared-features-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soramitsu/shared-features-spm.git",
+      "state" : {
+        "branch" : "feature/xcm-routes",
+        "revision" : "9cd43ddd0bd5b9c2290dbef939aac09962612323"
+      }
+    },
+    {
       "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
@@ -217,15 +227,6 @@
       }
     },
     {
-      "identity" : "swiftformat",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nicklockwood/SwiftFormat",
-      "state" : {
-        "revision" : "dd989a46d0c6f15c016484bab8afe5e7a67a4022",
-        "version" : "0.54.0"
-      }
-    },
-    {
       "identity" : "swiftimagereadwrite",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/SwiftImageReadWrite",
@@ -298,5 +299,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

@@ -3099,7 +3099,6 @@
 		0702B31929701884003519F5 /* MoneyPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoneyPresentable.swift; sourceTree = "<group>"; };
 		0702B354297948C8003519F5 /* SwapTransactionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTransactionViewModel.swift; sourceTree = "<group>"; };
 		0702B35629794BA6003519F5 /* SwapTransactionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapTransactionViewModelFactory.swift; sourceTree = "<group>"; };
-		070594C62C183BBC0016264E /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		07089AF228B63386001566CA /* UIButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIButton.swift; sourceTree = "<group>"; };
 		07089AF428B64701001566CA /* ChainReconnectingEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainReconnectingEvent.swift; sourceTree = "<group>"; };
 		07089AF628B64928001566CA /* NetworkIssuesProviderProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesProviderProtocol.swift; sourceTree = "<group>"; };
@@ -8992,7 +8991,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				070594C62C183BBC0016264E /* shared-features-spm */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
