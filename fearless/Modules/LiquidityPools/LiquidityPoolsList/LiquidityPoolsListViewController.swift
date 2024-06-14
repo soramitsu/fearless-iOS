@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class LiquidityPoolsListViewController: UIViewController, ViewHolder {
+final class LiquidityPoolsListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = LiquidityPoolsListViewLayout
 
     // MARK: Private properties
@@ -41,6 +41,10 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder {
 
         rootView.moreButton.addAction { [weak self] in
             self?.output.didTapMoreButton()
+        }
+
+        rootView.backButton.addAction { [weak self] in
+            self?.output.didTapBackButton()
         }
     }
 

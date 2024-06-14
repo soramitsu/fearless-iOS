@@ -12,6 +12,7 @@ protocol LiquidityPoolsListViewOutput: AnyObject {
     func didLoad(view: LiquidityPoolsListViewInput)
     func didTapOn(viewModel: LiquidityPoolListCellModel)
     func didTapMoreButton()
+    func didTapBackButton()
 }
 
 protocol LiquidityPoolsListInteractorInput: AnyObject {
@@ -19,7 +20,7 @@ protocol LiquidityPoolsListInteractorInput: AnyObject {
     func fetchPools()
 }
 
-protocol LiquidityPoolsListRouterInput: AnyObject {
+protocol LiquidityPoolsListRouterInput: AnyObject, AnyDismissable {
     func showPoolDetails(
         assetIdPair: AssetIdPair,
         chain: ChainModel,
@@ -34,4 +35,5 @@ protocol LiquidityPoolsListModuleInput: AnyObject {}
 protocol LiquidityPoolsListModuleOutput: AnyObject {
     func didTapMoreUserPools()
     func didTapMoreAvailablePools()
+    func shouldShowUserPools(_ shouldShow: Bool)
 }

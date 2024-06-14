@@ -2,10 +2,13 @@ import SSFModels
 
 typealias LiquidityPoolsOverviewModuleCreationResult = (view: LiquidityPoolsOverviewViewInput, input: LiquidityPoolsOverviewModuleInput)
 
-protocol LiquidityPoolsOverviewViewInput: ControllerBackedProtocol {}
+protocol LiquidityPoolsOverviewViewInput: ControllerBackedProtocol {
+    func changeUserPoolsVisibility(visible: Bool)
+}
 
 protocol LiquidityPoolsOverviewViewOutput: AnyObject {
     func didLoad(view: LiquidityPoolsOverviewViewInput)
+    func backButtonClicked()
 }
 
 protocol LiquidityPoolsOverviewInteractorInput: AnyObject {
@@ -14,7 +17,7 @@ protocol LiquidityPoolsOverviewInteractorInput: AnyObject {
 
 protocol LiquidityPoolsOverviewInteractorOutput: AnyObject {}
 
-protocol LiquidityPoolsOverviewRouterInput: AnyObject {
+protocol LiquidityPoolsOverviewRouterInput: AnyObject, AnyDismissable {
     func showAllAvailablePools(
         chain: ChainModel,
         wallet: MetaAccountModel,

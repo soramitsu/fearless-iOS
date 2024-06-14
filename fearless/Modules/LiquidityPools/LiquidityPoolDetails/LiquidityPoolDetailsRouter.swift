@@ -11,5 +11,11 @@ final class LiquidityPoolDetailsRouter: LiquidityPoolDetailsRouterInput {
         view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
 
-    func showRemoveFlow(liquidityPair _: LiquidityPair, chain _: ChainModel, wallet _: MetaAccountModel, from _: ControllerBackedProtocol?) {}
+    func showRemoveFlow(liquidityPair: LiquidityPair, chain: ChainModel, wallet: MetaAccountModel, from view: ControllerBackedProtocol?) {
+        guard let controller = LiquidityPoolRemoveLiquidityAssembly.configureModule(wallet: wallet, chain: chain, liquidityPair: liquidityPair)?.view.controller else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
 }

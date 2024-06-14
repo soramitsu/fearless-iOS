@@ -2,11 +2,10 @@ import UIKit
 import SoraFoundation
 import SnapKit
 
-protocol LiquidityPoolSupplyViewOutput: AnyObject {
-    func didLoad(view: LiquidityPoolSupplyViewInput)
+protocol LiquidityPoolRemoveLiquidityViewOutput: AnyObject {
+    func didLoad(view: LiquidityPoolRemoveLiquidityViewInput)
     func handleViewAppeared()
     func didTapBackButton()
-    func didTapApyInfo()
     func didTapPreviewButton()
     func selectFromAmountPercentage(_ percentage: Float)
     func updateFromAmount(_ newValue: Decimal)
@@ -14,8 +13,8 @@ protocol LiquidityPoolSupplyViewOutput: AnyObject {
     func updateToAmount(_ newValue: Decimal)
 }
 
-final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
-    typealias RootViewType = LiquidityPoolSupplyViewLayout
+final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+    typealias RootViewType = LiquidityPoolRemoveLiquidityViewLayout
     var keyboardHandler: FearlessKeyboardHandler?
 
     private enum Constants {
@@ -24,7 +23,7 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
 
     // MARK: Private properties
 
-    private let output: LiquidityPoolSupplyViewOutput
+    private let output: LiquidityPoolRemoveLiquidityViewOutput
 
     private var amountFromInputViewModel: IAmountInputViewModel?
     private var amountToInputViewModel: IAmountInputViewModel?
@@ -35,7 +34,7 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
     // MARK: - Constructor
 
     init(
-        output: LiquidityPoolSupplyViewOutput,
+        output: LiquidityPoolRemoveLiquidityViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
@@ -51,7 +50,7 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
     // MARK: - Life cycle
 
     override func loadView() {
-        view = LiquidityPoolSupplyViewLayout()
+        view = LiquidityPoolRemoveLiquidityViewLayout()
     }
 
     override func viewDidLoad() {
@@ -104,13 +103,6 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
             action: #selector(handleTapPreviewButton),
             for: .touchUpInside
         )
-
-        let tapApyInfo = UITapGestureRecognizer(
-            target: self,
-            action: #selector(handleTapApyInfo)
-        )
-        rootView.apyView
-            .addGestureRecognizer(tapApyInfo)
     }
 
     // MARK: - Private actions
@@ -119,21 +111,20 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         output.didTapBackButton()
     }
 
-    @objc private func handleTapApyInfo() {
-        output.didTapApyInfo()
-    }
-
     @objc private func handleTapPreviewButton() {
         output.didTapPreviewButton()
     }
 }
 
-// MARK: - LiquidityPoolSupplyViewInput
+// MARK: - LiquidityPoolRemoveLiquidityViewInput
 
-extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
+extension LiquidityPoolRemoveLiquidityViewController: LiquidityPoolRemoveLiquidityViewInput {
+    func didReceiveXorBalanceViewModel(balanceViewModel: BalanceViewModelProtocol?) {
+        rootView.bindXorBalanceViewModel(balanceViewModel)
+    }
+
     func didReceiveSwapQuoteReady() {
         print("Swap quotes ready")
-
         rootView.swapFromInputView.textField.isUserInteractionEnabled = true
         rootView.swapToInputView.textField.isUserInteractionEnabled = true
     }
@@ -180,15 +171,11 @@ extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
             self.rootView.previewButton.set(enabled: false)
         }
     }
-
-    func didReceiveViewModel(_ viewModel: LiquidityPoolSupplyViewModel) {
-        rootView.bind(viewModel: viewModel)
-    }
 }
 
 // MARK: - Localizable
 
-extension LiquidityPoolSupplyViewController: Localizable {
+extension LiquidityPoolRemoveLiquidityViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
     }
@@ -196,7 +183,7 @@ extension LiquidityPoolSupplyViewController: Localizable {
 
 // MARK: - AmountInputAccessoryViewDelegate
 
-extension LiquidityPoolSupplyViewController: AmountInputAccessoryViewDelegate {
+extension LiquidityPoolRemoveLiquidityViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         if rootView.swapFromInputView.textField.isFirstResponder {
             output.selectFromAmountPercentage(percentage)
@@ -216,7 +203,7 @@ extension LiquidityPoolSupplyViewController: AmountInputAccessoryViewDelegate {
 
 // MARK: - UITextFieldDelegate
 
-extension LiquidityPoolSupplyViewController: UITextFieldDelegate {
+extension LiquidityPoolRemoveLiquidityViewController: UITextFieldDelegate {
     func textField(
         _ textField: UITextField,
         shouldChangeCharactersIn range: NSRange,
@@ -244,7 +231,7 @@ extension LiquidityPoolSupplyViewController: UITextFieldDelegate {
 
 // MARK: - AmountInputViewModelObserver
 
-extension LiquidityPoolSupplyViewController: AmountInputViewModelObserver {
+extension LiquidityPoolRemoveLiquidityViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         rootView.swapFromInputView.inputFieldText = amountFromInputViewModel?.displayAmount
         rootView.swapToInputView.inputFieldText = amountToInputViewModel?.displayAmount
@@ -254,6 +241,7 @@ extension LiquidityPoolSupplyViewController: AmountInputViewModelObserver {
             selector: #selector(updateAmounts),
             object: nil
         )
+
         perform(#selector(updateAmounts), with: nil, afterDelay: Constants.delay)
     }
 
@@ -280,7 +268,7 @@ extension LiquidityPoolSupplyViewController: AmountInputViewModelObserver {
 
 // MARK: - KeyboardViewAdoptable
 
-extension LiquidityPoolSupplyViewController: KeyboardViewAdoptable {
+extension LiquidityPoolRemoveLiquidityViewController: KeyboardViewAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { UIConstants.bigOffset }

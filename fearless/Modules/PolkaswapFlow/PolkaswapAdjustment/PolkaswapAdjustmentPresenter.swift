@@ -714,6 +714,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         }
         detailsViewModel = provideDetailsViewModel(with: amounts)
     }
+
+    func didTapLiquidityPools() {
+        router.presentLiquidityPools(on: view, wallet: wallet)
+    }
 }
 
 // MARK: - PolkaswapAdjustmentInteractorOutput

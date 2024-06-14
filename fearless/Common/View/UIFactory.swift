@@ -104,6 +104,7 @@ protocol UIFactoryProtocol {
     ) -> UIToolbar
     func createDisabledButton() -> TriangularedButton
     func createRoundedButton() -> UIButton
+    func createWarningView(title: String, text: String) -> UIView
 }
 
 extension UIFactoryProtocol {
@@ -730,5 +731,34 @@ final class UIFactory: UIFactoryProtocol {
         button.titleLabel?.font = .h6Title
         button.layer.cornerRadius = 12
         return button
+    }
+
+    func createWarningView(title _: String, text _: String) -> UIView {
+        let iconView = UIImageView(image: R.image.iconWarning())
+        iconView.snp.makeConstraints { make in
+            make.size.equalTo(16)
+        }
+
+        let hStack = UIFactory.default.createHorizontalStackView(spacing: 8)
+        hStack.alignment = .top
+        hStack.distribution = .fillProportionally
+
+        let vStack = UIFactory.default.createVerticalStackView(spacing: 4)
+
+        hStack.addArrangedSubview(iconView)
+        hStack.addArrangedSubview(vStack)
+
+        let titleLabel = UILabel()
+        titleLabel.textColor = R.color.colorOrange()
+        titleLabel.font = .h6Title
+
+        let textLabel = UILabel()
+        textLabel.textColor = R.color.colorWhite50()
+        textLabel.font = .p3Paragraph
+
+        vStack.addArrangedSubview(titleLabel)
+        vStack.addArrangedSubview(textLabel)
+
+        return hStack
     }
 }

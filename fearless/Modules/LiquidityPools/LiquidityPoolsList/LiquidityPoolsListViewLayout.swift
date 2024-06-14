@@ -25,6 +25,15 @@ final class LiquidityPoolsListViewLayout: UIView {
         return button
     }()
 
+    let backButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconClose(), for: .normal)
+        button.layer.masksToBounds = true
+        button.backgroundColor = R.color.colorWhite8()
+        button.isHidden = true
+        return button
+    }()
+
     let tableView: SelfSizingTableView = {
         let view = SelfSizingTableView(frame: .zero)
         view.backgroundColor = .clear
@@ -60,6 +69,7 @@ final class LiquidityPoolsListViewLayout: UIView {
     func bind(viewModel: LiquidityPoolListViewModel) {
         titleLabel.text = viewModel.titleLabelText
         moreButton.isHidden = !viewModel.moreButtonVisible
+        backButton.isHidden = !viewModel.backgroundVisible
         backgroundImageView.isHidden = !viewModel.backgroundVisible
 
         tableView.refreshControl = viewModel.refreshAvailable ? UIRefreshControl() : nil
@@ -69,6 +79,7 @@ final class LiquidityPoolsListViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         moreButton.rounded()
+        backButton.rounded()
     }
 
     private func drawSubviews() {
@@ -78,6 +89,7 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         topBar.addSubview(titleLabel)
         topBar.addSubview(moreButton)
+        topBar.addSubview(backButton)
     }
 
     private func setupConstraints() {
@@ -105,6 +117,12 @@ final class LiquidityPoolsListViewLayout: UIView {
             make.width.equalTo(61)
             make.height.equalTo(24)
             make.trailing.equalToSuperview().inset(12)
+            make.centerY.equalToSuperview()
+        }
+
+        backButton.snp.makeConstraints { make in
+            make.size.equalTo(32)
+            make.trailing.equalToSuperview().inset(16)
             make.centerY.equalToSuperview()
         }
     }

@@ -88,7 +88,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
 
         let filteredViewModels = type == .embed ? Array(poolViewModels.or([]).prefix(10)) : poolViewModels.or([])
         return LiquidityPoolListViewModel(
-            poolViewModels: poolViewModels,
+            poolViewModels: filteredViewModels,
             titleLabelText: "Available pools",
             moreButtonVisible: type == .embed && (filteredViewModels.count < pairs?.count ?? 0),
             backgroundVisible: type == .full,

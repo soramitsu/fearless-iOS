@@ -41,6 +41,10 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
         super.viewDidLoad()
         output.didLoad(view: self)
 
+        rootView.navigationBar.backButton.addAction { [weak self] in
+            self?.output.backButtonClicked()
+        }
+
         setupEmbededUserPoolsView()
         setupEmbededAvailablePoolsView()
     }
@@ -72,7 +76,11 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
 
 // MARK: - LiquidityPoolsOverviewViewInput
 
-extension LiquidityPoolsOverviewViewController: LiquidityPoolsOverviewViewInput {}
+extension LiquidityPoolsOverviewViewController: LiquidityPoolsOverviewViewInput {
+    func changeUserPoolsVisibility(visible: Bool) {
+        rootView.userPoolsContainerView.isHidden = !visible
+    }
+}
 
 // MARK: - Localizable
 

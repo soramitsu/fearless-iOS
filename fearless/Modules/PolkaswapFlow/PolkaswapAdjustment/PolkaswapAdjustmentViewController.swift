@@ -106,6 +106,9 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
             action: #selector(handleTapSwitchInputsButton),
             for: .touchUpInside
         )
+        rootView.bannerButton.addAction { [weak self] in
+            self?.output.didTapLiquidityPools()
+        }
 
         let tapMinReceiveInfo = UITapGestureRecognizer(
             target: self,

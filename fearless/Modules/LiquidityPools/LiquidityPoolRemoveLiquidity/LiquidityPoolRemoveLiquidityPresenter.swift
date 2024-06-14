@@ -1,59 +1,61 @@
 import Foundation
 import SoraFoundation
-import SSFModels
 import SSFPools
 import BigInt
+import SSFModels
 import SSFPolkaswap
 
-protocol LiquidityPoolSupplyViewInput: ControllerBackedProtocol {
+protocol LiquidityPoolRemoveLiquidityConfirmViewInput: ControllerBackedProtocol {
+    func didReceiveNetworkFee(fee: BalanceViewModelProtocol?)
+    func setButtonLoadingState(isLoading: Bool)
+    func didUpdating()
+    func didReceiveConfirmViewModel(_ viewModel: LiquidityPoolSupplyConfirmViewModel?)
+}
+
+protocol LiquidityPoolRemoveLiquidityViewInput: ControllerBackedProtocol {
+    func didReceiveXorBalanceViewModel(balanceViewModel: BalanceViewModelProtocol?)
     func didReceiveSwapFrom(viewModel: AssetBalanceViewModelProtocol?)
     func didReceiveSwapTo(viewModel: AssetBalanceViewModelProtocol?)
     func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?)
     func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?)
+    func didReceiveSwapQuoteReady()
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?)
     func setButtonLoadingState(isLoading: Bool)
     func didUpdating()
-    func didReceiveViewModel(_ viewModel: LiquidityPoolSupplyViewModel)
-    func didReceiveSwapQuoteReady()
 }
 
-protocol LiquidityPoolSupplyInteractorInput: AnyObject {
-    func setup(with output: LiquidityPoolSupplyInteractorOutput)
-    func estimateFee(supplyLiquidityInfo: SupplyLiquidityInfo)
+protocol LiquidityPoolRemoveLiquidityInteractorInput: AnyObject {
+    func setup(with output: LiquidityPoolRemoveLiquidityInteractorOutput)
+    func estimateFee(removeLiquidityInfo: RemoveLiquidityInfo)
+    func submit(removeLiquidityInfo: RemoveLiquidityInfo)
 }
 
-final class LiquidityPoolSupplyPresenter {
-    private enum InputTag: Int {
-        case swapFrom = 0
-        case swapTo
-    }
-
-    private enum Constants {
-        static let slippadgeTolerance: Float = 0.5
-    }
-
+final class LiquidityPoolRemoveLiquidityPresenter {
     // MARK: Private properties
 
-    private weak var view: LiquidityPoolSupplyViewInput?
-    private let router: LiquidityPoolSupplyRouterInput
-    private let interactor: LiquidityPoolSupplyInteractorInput
-    private let dataValidatingFactory: SendDataValidatingFactory
-    private let logger: LoggerProtocol
-    private let liquidityPair: LiquidityPair
-    private let chain: ChainModel
-    private let viewModelFactory: LiquidityPoolSupplyViewModelFactory
+    private weak var confirmView: LiquidityPoolRemoveLiquidityConfirmViewInput?
+    private weak var setupView: LiquidityPoolRemoveLiquidityViewInput?
 
+    private let router: LiquidityPoolRemoveLiquidityRouterInput
+    private let interactor: LiquidityPoolRemoveLiquidityInteractorInput
+    private let logger: LoggerProtocol
+    private let chain: ChainModel
     private let wallet: MetaAccountModel
+    private let liquidityPair: LiquidityPair
+    private let dataValidatingFactory: SendDataValidatingFactory
+    private let confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?
+
+    private var removeInfo: RemoveLiquidityInfo?
+    private var reserves: PolkaswapPoolReservesInfo?
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
     private var prices: [PriceData]?
-
-    private var apyInfo: PoolApyInfo?
-    private var slippadgeTolerance: Float = Constants.slippadgeTolerance
     private var baseAssetInputResult: AmountInputResult?
     private var baseAssetBalance: Decimal?
     private var targetAssetInputResult: AmountInputResult?
     private var targetAssetBalance: Decimal?
+    private var accountPoolInfo: AccountPool?
+    private var totalIssuance: BigUInt?
 
     private var networkFeeViewModel: BalanceViewModelProtocol?
     private var networkFee: Decimal?
@@ -85,48 +87,43 @@ final class LiquidityPoolSupplyPresenter {
     // MARK: - Constructors
 
     init(
-        interactor: LiquidityPoolSupplyInteractorInput,
-        router: LiquidityPoolSupplyRouterInput,
-        liquidityPair: LiquidityPair,
+        interactor: LiquidityPoolRemoveLiquidityInteractorInput,
+        router: LiquidityPoolRemoveLiquidityRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        chain: ChainModel,
-        logger: LoggerProtocol,
         wallet: MetaAccountModel,
+        logger: LoggerProtocol,
+        chain: ChainModel,
+        liquidityPair: LiquidityPair,
         dataValidatingFactory: SendDataValidatingFactory,
-        viewModelFactory: LiquidityPoolSupplyViewModelFactory
+        confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?,
+        removeInfo: RemoveLiquidityInfo?
     ) {
         self.interactor = interactor
         self.router = router
-        self.liquidityPair = liquidityPair
-        self.chain = chain
-        self.logger = logger
         self.wallet = wallet
+        self.logger = logger
+        self.chain = chain
+        self.liquidityPair = liquidityPair
         self.dataValidatingFactory = dataValidatingFactory
-        self.viewModelFactory = viewModelFactory
+        self.confirmViewModelFactory = confirmViewModelFactory
+        self.removeInfo = removeInfo
 
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
 
-    private func provideViewModel() {
-        let viewModel = viewModelFactory.buildViewModel(
-            slippage: Decimal(floatLiteral: Double(slippadgeTolerance)),
-            apy: apyInfo,
-            liquidityPair: liquidityPair,
-            chain: chain
-        )
-
-        view?.didReceiveViewModel(viewModel)
-    }
-
-    private func refreshFee() {
+    private func buildCallParameters() -> RemoveLiquidityInfo? {
         guard
             let dexId,
             let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
-            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId })
+            let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),
+            let totalIssuance = totalIssuance,
+            let reserves = reserves,
+            let baseAssetReserves = Decimal.fromSubstrateAmount(reserves.reserves.reserves, precision: Int16(baseAsset.precision)),
+            let totalIssuanceDecimal = Decimal.fromSubstrateAmount(totalIssuance, precision: Int16(baseAsset.precision))
         else {
-            return
+            return nil
         }
 
         let baseAssetInfo = PooledAssetInfo(id: liquidityPair.baseAssetId, precision: Int16(baseAsset.precision))
@@ -134,28 +131,74 @@ final class LiquidityPoolSupplyPresenter {
 
         let baseAssetAmount = baseAssetInputResult?.absoluteValue(from: baseAssetBalance ?? .zero) ?? .zero
         let targetAssetAmount = targetAssetInputResult?.absoluteValue(from: targetAssetBalance ?? .zero) ?? .zero
-        let supplyLiquidityInfo = SupplyLiquidityInfo(
+
+        let info = RemoveLiquidityInfo(
             dexId: dexId,
             baseAsset: baseAssetInfo,
             targetAsset: targetAssetInfo,
             baseAssetAmount: baseAssetAmount,
             targetAssetAmount: targetAssetAmount,
-            slippage: Decimal(floatLiteral: Double(slippadgeTolerance))
+            baseAssetReserves: baseAssetReserves,
+            totalIssuances: totalIssuanceDecimal,
+            slippage: 0.5
         )
 
-        interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
+        return info
+    }
+
+    private func refreshFee() {
+        guard let info = buildCallParameters() else {
+            return
+        }
+
+        interactor.estimateFee(removeLiquidityInfo: info)
     }
 
     private func runLoadingState() {
         DispatchQueue.main.async { [weak self] in
-            self?.view?.setButtonLoadingState(isLoading: true)
+            self?.setupView?.setButtonLoadingState(isLoading: true)
+            self?.confirmView?.setButtonLoadingState(isLoading: true)
         }
     }
 
     private func checkLoadingState() {
         DispatchQueue.main.async { [weak self] in
-            self?.view?.setButtonLoadingState(isLoading: false)
+            self?.setupView?.setButtonLoadingState(isLoading: false)
+            self?.confirmView?.setButtonLoadingState(isLoading: false)
         }
+    }
+
+    private func provideFeeViewModel() {
+        guard let swapFromFee = networkFee, let xorChainAsset = chain.utilityChainAssets().first else {
+            return
+        }
+        let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
+        let feeViewModel = balanceViewModelFactory.balanceFromPrice(
+            swapFromFee,
+            priceData: prices?.first(where: { price in
+                price.priceId == xorChainAsset.asset.priceId
+            }),
+            isApproximately: true,
+            usageCase: .detailsCrypto
+        ).value(for: selectedLocale)
+
+        DispatchQueue.main.async {
+            self.setupView?.didReceiveNetworkFee(fee: feeViewModel)
+            self.confirmView?.didReceiveNetworkFee(fee: feeViewModel)
+        }
+
+        networkFeeViewModel = feeViewModel
+
+        checkLoadingState()
+    }
+
+    private func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactory {
+        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: wallet
+        )
+        return balanceViewModelFactory
     }
 
     private func provideFromAssetVewModel(updateAmountInput: Bool = true) {
@@ -170,7 +213,7 @@ final class LiquidityPoolSupplyPresenter {
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             baseAssetResultAmount,
-            balance: baseAssetBalance,
+            balance: accountPoolInfo?.baseAssetPooled,
             priceData: swapFromPrice
         ).value(for: selectedLocale)
 
@@ -179,10 +222,10 @@ final class LiquidityPoolSupplyPresenter {
             .value(for: selectedLocale)
 
         DispatchQueue.main.async { [weak self] in
-            self?.view?.didReceiveSwapFrom(viewModel: viewModel)
+            self?.setupView?.didReceiveSwapFrom(viewModel: viewModel)
 
             if updateAmountInput {
-                self?.view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+                self?.setupView?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
             }
         }
 
@@ -201,7 +244,7 @@ final class LiquidityPoolSupplyPresenter {
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             targetAssetResultAmount,
-            balance: targetAssetBalance,
+            balance: accountPoolInfo?.targetAssetPooled,
             priceData: swapToPrice
         ).value(for: selectedLocale)
 
@@ -210,35 +253,12 @@ final class LiquidityPoolSupplyPresenter {
             .value(for: selectedLocale)
 
         DispatchQueue.main.async { [weak self] in
-            self?.view?.didReceiveSwapTo(viewModel: viewModel)
+            self?.setupView?.didReceiveSwapTo(viewModel: viewModel)
 
             if updateAmountInput {
-                self?.view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
+                self?.setupView?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
             }
         }
-
-        checkLoadingState()
-    }
-
-    private func provideFeeViewModel() {
-        guard let swapFromFee = networkFee, let xorChainAsset = chain.utilityChainAssets().first else {
-            return
-        }
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
-        let feeViewModel = balanceViewModelFactory.balanceFromPrice(
-            swapFromFee,
-            priceData: prices?.first(where: { price in
-                price.priceId == xorChainAsset.asset.priceId
-            }),
-            isApproximately: true,
-            usageCase: .detailsCrypto
-        ).value(for: selectedLocale)
-
-        DispatchQueue.main.async {
-            self.view?.didReceiveNetworkFee(fee: feeViewModel)
-        }
-
-        networkFeeViewModel = feeViewModel
 
         checkLoadingState()
     }
@@ -259,35 +279,98 @@ final class LiquidityPoolSupplyPresenter {
         return balanceViewModelFactory
     }
 
-    private func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactory {
-        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+    private func provideConfirmViewModel() {
+        guard let removeInfo else {
+            return
+        }
+        let viewModel = confirmViewModelFactory?.buildViewModel(
+            baseAssetAmount: removeInfo.baseAssetAmount,
+            targetAssetAmount: removeInfo.targetAssetAmount,
+            liquidityPair: liquidityPair,
+            chain: chain,
+            locale: selectedLocale
         )
-        return balanceViewModelFactory
+
+        DispatchQueue.main.async { [weak self] in
+            self?.confirmView?.didReceiveConfirmViewModel(viewModel)
+        }
     }
 
-    private func provideInitialData() {
+    private func provideXorBalanceViewModel() {
+        guard let xorBalance else {
+            DispatchQueue.main.async { [weak self] in
+                self?.setupView?.didReceiveXorBalanceViewModel(balanceViewModel: nil)
+            }
+            return
+        }
+
+        let balanceViewModelFactory = buildBalanceSwapToViewModelFactory(
+            wallet: wallet,
+            for: chain.utilityChainAssets().first
+        )
+
+        let xorPrice = prices?.first(where: { priceData in
+            chain.utilityAssets().first?.priceId == priceData.priceId
+        })
+
+        let viewModel = balanceViewModelFactory?.balanceFromPrice(
+            xorBalance,
+            priceData: xorPrice,
+            usageCase: .detailsCrypto
+        ).value(for: selectedLocale)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.setupView?.didReceiveXorBalanceViewModel(balanceViewModel: viewModel)
+        }
+    }
+}
+
+// MARK: - LiquidityPoolRemoveLiquidityConfirmViewOutput
+
+extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityConfirmViewOutput {
+    func didLoad(view: LiquidityPoolRemoveLiquidityConfirmViewInput) {
+        confirmView = view
+        interactor.setup(with: self)
+        provideConfirmViewModel()
+    }
+
+    func didTapConfirmButton() {
+        guard let removeInfo else {
+            return
+        }
+
+        interactor.submit(removeLiquidityInfo: removeInfo)
+    }
+}
+
+// MARK: - LiquidityPoolRemoveLiquidityViewOutput
+
+extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityViewOutput {
+    func handleViewAppeared() {
         swapFromChainAsset = chain.chainAssets.first(where: { $0.asset.currencyId == liquidityPair.baseAssetId })
         swapToChainAsset = chain.chainAssets.first(where: { $0.asset.currencyId == liquidityPair.targetAssetId })
 
         DispatchQueue.main.async {
-            self.view?.didReceiveNetworkFee(fee: nil)
-            self.provideViewModel()
+            self.setupView?.didReceiveNetworkFee(fee: nil)
+            self.confirmView?.didReceiveNetworkFee(fee: nil)
         }
 
         provideToAssetVewModel()
         provideFromAssetVewModel()
         refreshFee()
     }
-}
 
-// MARK: - LiquidityPoolSupplyViewOutput
+    func didLoad(view: LiquidityPoolRemoveLiquidityViewInput) {
+        setupView = view
+        interactor.setup(with: self)
+    }
 
-extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     func didTapBackButton() {
-        router.dismiss(view: view)
+        if let setupView {
+            router.dismiss(view: setupView)
+        } else if let confirmView {
+            router.dismiss(view: confirmView)
+        }
     }
 
     func didTapApyInfo() {
@@ -298,11 +381,15 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
         router.presentInfo(
             message: infoText,
             title: infoTitle,
-            from: view
+            from: setupView
         )
     }
 
     func didTapPreviewButton() {
+        guard let info = buildCallParameters() else {
+            return
+        }
+
         let baseAssetFee = swapFromChainAsset?.isUtility == true ? networkFee : .zero
         let targetAssetFee = swapToChainAsset?.isUtility == true ? networkFee : .zero
 
@@ -317,12 +404,24 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: baseAssetBalance),
                 feeAndTip: baseAssetFee,
-                sendAmount: baseAssetResultAmount,
+                sendAmount: .zero,
                 locale: selectedLocale
             ),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: targetAssetBalance),
                 feeAndTip: targetAssetFee,
+                sendAmount: .zero,
+                locale: selectedLocale
+            ),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: .utility(balance: accountPoolInfo?.baseAssetPooled),
+                feeAndTip: .zero,
+                sendAmount: baseAssetResultAmount,
+                locale: selectedLocale
+            ),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: .utility(balance: accountPoolInfo?.targetAssetPooled),
+                feeAndTip: .zero,
                 sendAmount: targetAssetResultAmount,
                 locale: selectedLocale
             )
@@ -333,18 +432,12 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
                 return
             }
 
-            let inputData = LiquidityPoolSupplyConfirmInputData(
-                baseAssetAmount: self.baseAssetResultAmount,
-                targetAssetAmount: self.targetAssetResultAmount,
-                slippageTolerance: Decimal(floatLiteral: Double(self.slippadgeTolerance))
-            )
-
             self.router.showConfirmation(
                 chain: self.chain,
                 wallet: self.wallet,
                 liquidityPair: self.liquidityPair,
-                inputData: inputData,
-                from: self.view
+                info: info,
+                from: self.setupView
             )
         }
     }
@@ -408,52 +501,29 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
 
         refreshFee()
     }
-
-    func didTapSelectFromAsset() {
-        let showChainAssets = chain.chainAssets
-            .filter { $0.chainAssetId != swapToChainAsset?.chainAssetId }
-        router.showSelectAsset(
-            from: view,
-            wallet: wallet,
-            chainAssets: showChainAssets,
-            selectedAssetId: swapFromChainAsset?.asset.id,
-            contextTag: InputTag.swapFrom.rawValue,
-            output: self
-        )
-    }
-
-    func didTapSelectToAsset() {
-        let showChainAssets = chain.chainAssets
-            .filter { $0.chainAssetId != swapFromChainAsset?.chainAssetId }
-        router.showSelectAsset(
-            from: view,
-            wallet: wallet,
-            chainAssets: showChainAssets,
-            selectedAssetId: swapToChainAsset?.asset.id,
-            contextTag: InputTag.swapTo.rawValue,
-            output: self
-        )
-    }
-
-    func didLoad(view: LiquidityPoolSupplyViewInput) {
-        self.view = view
-        interactor.setup(with: self)
-    }
-
-    func handleViewAppeared() {
-        provideInitialData()
-    }
 }
 
-// MARK: - LiquidityPoolSupplyInteractorOutput
+// MARK: - LiquidityPoolRemoveLiquidityInteractorOutput
 
-extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
-    func didReceivePoolAPY(apyInfo: SSFPolkaswap.PoolApyInfo?) {
-        self.apyInfo = apyInfo
-        provideViewModel()
+extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInteractorOutput {
+    func didReceiveTransactionHash(_ hash: String) {
+        guard let utilityChainAsset = chain.utilityChainAssets().first else {
+            return
+        }
+
+        router.complete(on: confirmView, title: hash, chainAsset: utilityChainAsset)
     }
 
-    func didReceivePoolApyError(error: Error) {
+    func didReceiveSubmitError(error: Error) {
+        router.present(error: error, from: setupView, locale: selectedLocale)
+    }
+
+    func didReceiveTotalIssuance(totalIssuance: BigUInt?) {
+        self.totalIssuance = totalIssuance
+        refreshFee()
+    }
+
+    func didReceiveTotalIssuanceError(error: Error) {
         logger.customError(error)
     }
 
@@ -464,6 +534,13 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
 
     func didReceiveDexIdError(_ error: Error) {
         logger.customError(error)
+    }
+
+    func didReceiveUserPool(pool: AccountPool?) {
+        accountPoolInfo = pool
+
+        provideToAssetVewModel()
+        provideFromAssetVewModel()
     }
 
     func didReceiveFee(_ fee: BigUInt) {
@@ -484,6 +561,8 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
         case let .success(priceData):
             prices = priceData
 
+            provideXorBalanceViewModel()
+
             let baseAssetPrice = prices?.first(where: { $0.priceId == swapFromChainAsset?.asset.priceId })
             let targetAssetPrice = prices?.first(where: { $0.priceId == swapToChainAsset?.asset.priceId })
 
@@ -495,7 +574,7 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
                 baseTargetRate = baseAssetPriceValue / targetAssetPriceValue
 
                 DispatchQueue.main.async { [weak self] in
-                    self?.view?.didReceiveSwapQuoteReady()
+                    self?.setupView?.didReceiveSwapQuoteReady()
                 }
             }
         case let .failure(error):
@@ -535,50 +614,32 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? .zero
+
+                provideXorBalanceViewModel()
             }
         case let .failure(error):
-            router.present(error: error, from: view, locale: selectedLocale)
+            router.present(error: error, from: setupView, locale: selectedLocale)
         }
+    }
+
+    func didReceivePoolReserves(reserves: PolkaswapPoolReservesInfo?) {
+        self.reserves = reserves
+        refreshFee()
+    }
+
+    func didReceiveUserPoolError(error: Error) {
+        logger.customError(error)
+    }
+
+    func didReceivePoolReservesError(error: Error) {
+        logger.customError(error)
     }
 }
 
 // MARK: - Localizable
 
-extension LiquidityPoolSupplyPresenter: Localizable {
+extension LiquidityPoolRemoveLiquidityPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyModuleInput {}
-
-// MARK: - SelectAssetModuleOutput
-
-extension LiquidityPoolSupplyPresenter: SelectAssetModuleOutput {
-    func assetSelection(
-        didCompleteWith chainAsset: ChainAsset?,
-        contextTag: Int?
-    ) {
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.didUpdating()
-        }
-
-        guard let rawValue = contextTag,
-              let input = InputTag(rawValue: rawValue),
-              let chainAsset = chainAsset
-        else {
-            return
-        }
-
-        switch input {
-        case .swapFrom:
-            swapFromChainAsset = chainAsset
-            provideFromAssetVewModel()
-        case .swapTo:
-            swapToChainAsset = chainAsset
-            provideToAssetVewModel()
-        }
-
-        runLoadingState()
-
-        refreshFee()
-    }
-}
+extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityModuleInput {}

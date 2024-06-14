@@ -21,12 +21,13 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
     }()
 
     let scrollView = UIScrollView()
-    let scrollViewBackgroundView = UIView()
+    let scrollViewBackgroundView = UIFactory.default.createVerticalStackView(spacing: 16)
     let userPoolsContainerView = TriangularedBlurView()
     let availablePoolsContainerView = TriangularedBlurView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        userPoolsContainerView.isHidden = true
         drawSubviews()
         setupConstraints()
     }
@@ -55,10 +56,10 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(scrollView)
         scrollView.addSubview(scrollViewBackgroundView)
-        scrollViewBackgroundView.addSubview(userPoolsContainerView)
-        scrollViewBackgroundView.addSubview(availablePoolsContainerView)
+        scrollViewBackgroundView.addArrangedSubview(userPoolsContainerView)
+        scrollViewBackgroundView.addArrangedSubview(availablePoolsContainerView)
 
-        navigationBar.setLeftViews([polkaswapImageView])
+        navigationBar.setCenterViews([polkaswapImageView])
     }
 
     private func setupConstraints() {
@@ -81,13 +82,11 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         }
 
         userPoolsContainerView.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview().inset(16)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
 
         availablePoolsContainerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.top.equalTo(userPoolsContainerView.snp.bottom).offset(16)
-            make.bottom.lessThanOrEqualToSuperview().offset(16)
         }
     }
 }

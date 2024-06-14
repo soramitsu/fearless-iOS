@@ -42,8 +42,8 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         return view
     }()
 
-    let swapFromInputView = AmountInputViewV2()
-    let swapToInputView = AmountInputViewV2()
+    let swapFromInputView = AmountInputViewV2(type: .bonded)
+    let swapToInputView = AmountInputViewV2(type: .bonded)
     let switchSwapButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconAddTokenPair(), for: .normal)

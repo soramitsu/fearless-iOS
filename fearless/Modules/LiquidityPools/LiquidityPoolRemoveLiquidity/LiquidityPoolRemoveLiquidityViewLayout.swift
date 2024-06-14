@@ -1,7 +1,7 @@
 import UIKit
 import SnapKit
 
-final class PolkaswapAdjustmentViewLayout: UIView {
+final class LiquidityPoolRemoveLiquidityViewLayout: UIView {
     private enum Constants {
         static let navigationBarHeight: CGFloat = 56.0
         static let backButtonSize = CGSize(width: 32, height: 32)
@@ -17,6 +17,13 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     let navigationViewContainer = UIView()
 
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h3Title
+        label.textColor = R.color.colorWhite()
+        return label
+    }()
+
     let backButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
@@ -25,52 +32,29 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         return button
     }()
 
-    let polkaswapImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.polkaswap()
-        return imageView
-    }()
-
-    let marketButton = MarketButton()
-
     // MARK: content
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
         view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
-        view.stackView.spacing = UIConstants.bigOffset
+        view.stackView.spacing = 8
         return view
     }()
 
-    let swapFromInputView = SelectableAmountInputView(type: .swapSend)
-    let swapToInputView = SelectableAmountInputView(type: .swapReceive)
+    let swapFromInputView = AmountInputViewV2()
+    let swapToInputView = AmountInputViewV2()
     let switchSwapButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconSwitch(), for: .normal)
+        button.setImage(R.image.iconAddTokenPair(), for: .normal)
         return button
     }()
 
-    let minMaxReceivedView = UIFactory.default.createMultiView()
-    let swapRouteView: TitleMultiValueView = {
-        let view = UIFactory.default.createMultiView()
-        return view
-    }()
-
-    let fromPerToPriceView = UIFactory.default.createMultiView()
-    let toPerFromPriceView = UIFactory.default.createMultiView()
     let networkFeeView = UIFactory.default.createMultiView()
-    let bannerButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconLpBanner(), for: .normal)
-        return button
-    }()
+    let balanceView = UIFactory.default.createMultiView()
 
     private lazy var multiViews = [
-        minMaxReceivedView,
-        swapRouteView,
-        fromPerToPriceView,
-        toPerFromPriceView,
+        balanceView,
         networkFeeView
     ]
 
@@ -80,13 +64,13 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         return button
     }()
 
+    let warningView = WarningView()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
         }
     }
-
-    // MARK: - Lifecycle
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -112,38 +96,23 @@ final class PolkaswapAdjustmentViewLayout: UIView {
     }
 
     func bindSwapFrom(assetViewModel: AssetBalanceViewModelProtocol?) {
+        guard let assetViewModel else {
+            return
+        }
+
         swapFromInputView.bind(viewModel: assetViewModel)
     }
 
     func bindSwapTo(assetViewModel: AssetBalanceViewModelProtocol?) {
+        guard let assetViewModel else {
+            return
+        }
+
         swapToInputView.bind(viewModel: assetViewModel)
     }
 
-    func bindDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) {
-        guard let viewModel = viewModel else {
-            multiViews.forEach { $0.isHidden = true }
-            return
-        }
-        minMaxReceivedView.bindBalance(viewModel: viewModel.minMaxReceiveVieModel)
-        swapRouteView.valueTop.text = viewModel.route
-        fromPerToPriceView.titleLabel.text = viewModel.fromPerToTitle
-        fromPerToPriceView.valueTop.text = viewModel.fromPerToValue
-        toPerFromPriceView.titleLabel.text = viewModel.toPerFromTitle
-        toPerFromPriceView.valueTop.text = viewModel.toPerFromValue
-        multiViews.forEach { $0.isHidden = false }
-    }
-
-    func bind(swapVariant: SwapVariant) {
-        var text: String
-        switch swapVariant {
-        case .desiredInput:
-            text = R.string.localizable
-                .polkaswapMinReceived(preferredLanguages: locale.rLanguages)
-        case .desiredOutput:
-            text = R.string.localizable
-                .polkaswapMaxReceived(preferredLanguages: locale.rLanguages)
-        }
-        setInfoImage(for: minMaxReceivedView.titleLabel, text: text)
+    func bindXorBalanceViewModel(_ viewModel: BalanceViewModelProtocol?) {
+        balanceView.bindBalance(viewModel: viewModel)
     }
 
     // MARK: - Private methods
@@ -161,8 +130,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         }
 
         container.addSubview(backButton)
-        container.addSubview(polkaswapImageView)
-        container.addSubview(marketButton)
+        container.addSubview(titleLabel)
 
         backButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
@@ -170,40 +138,31 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             make.size.equalTo(Constants.backButtonSize)
         }
 
-        polkaswapImageView.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalTo(backButton.snp.trailing).offset(UIConstants.defaultOffset)
-        }
-
-        marketButton.snp.makeConstraints { make in
-            make.height.equalTo(Constants.backButtonSize.height)
-            make.centerY.equalToSuperview()
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.leading.greaterThanOrEqualTo(polkaswapImageView.snp.trailing).offset(UIConstants.defaultOffset)
+        titleLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
         }
     }
 
     private func setupContentsLayout() {
         addSubview(contentView)
-        addSubview(bannerButton)
         addSubview(previewButton)
+        addSubview(warningView)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
+            make.bottom.equalTo(previewButton.snp.top).offset(-16)
         }
 
         previewButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(UIConstants.actionHeight)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(16).constraint
         }
 
-        bannerButton.snp.makeConstraints { make in
+        warningView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(139)
-            make.bottom.equalTo(previewButton.snp.top).inset(-16)
+            make.bottom.equalTo(previewButton.snp.top).offset(-16)
         }
 
         let switchInputsView = createSwitchInputsView()
@@ -215,7 +174,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         let feesView = createFeesView()
         contentView.stackView.addArrangedSubview(feesView)
         feesView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
     }
 
@@ -251,37 +210,47 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             }
         }
 
+        let backgroundView = UIFactory.default.createInfoBackground()
         let container = UIFactory.default.createVerticalStackView()
+
+        backgroundView.addSubview(container)
+        container.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.bottom.equalToSuperview().inset(8)
+            make.top.equalToSuperview()
+        }
 
         multiViews.forEach {
             container.addArrangedSubview($0)
             makeCommonConstraints(for: $0)
-            $0.isHidden = true
             $0.titleLabel.isUserInteractionEnabled = true
         }
 
-        return container
+        return backgroundView
     }
 
     private func createMultiView() -> TitleMultiValueView {
         let view = TitleMultiValueView()
-        view.borderView.borderType = .none
-        view.titleLabel.font = .p2Paragraph
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h6Title
+        view.titleLabel.font = .h6Title
+        view.titleLabel.textColor = R.color.colorWhite50()
+        view.valueTop.font = .p1Paragraph
         view.valueTop.textColor = R.color.colorWhite()
         view.valueBottom.font = .p2Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
         return view
     }
 
     private func applyLocalization() {
+        warningView.titleLabel.text = "NOTE"
+        warningView.textLabel.text = "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
+        titleLabel.text = "Remove Liquidity"
+
         swapFromInputView.locale = locale
         swapToInputView.locale = locale
-        marketButton.locale = locale
-
-        swapRouteView.titleLabel.text = R.string.localizable
-            .polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
 
         let texts = [
             R.string.localizable
@@ -294,6 +263,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             setInfoImage(for: label, text: texts[index])
         }
 
+        balanceView.titleLabel.text = R.string.localizable.assetdetailsBalanceTransferable(preferredLanguages: locale.rLanguages)
         previewButton.imageWithTitleView?.title = R.string.localizable
             .commonPreview(preferredLanguages: locale.rLanguages)
     }

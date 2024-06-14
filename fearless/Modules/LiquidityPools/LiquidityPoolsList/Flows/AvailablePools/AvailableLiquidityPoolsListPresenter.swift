@@ -89,6 +89,10 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
     func didTapMoreButton() {
         moduleOutput?.didTapMoreAvailablePools()
     }
+
+    func didTapBackButton() {
+        router.dismiss(view: view)
+    }
 }
 
 extension AvailableLiquidityPoolsListPresenter: AvailableLiquidityPoolsListInteractorOutput {

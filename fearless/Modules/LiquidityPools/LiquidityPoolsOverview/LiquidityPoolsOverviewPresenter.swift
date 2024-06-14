@@ -38,6 +38,10 @@ extension LiquidityPoolsOverviewPresenter: LiquidityPoolsOverviewViewOutput {
         self.view = view
         interactor.setup(with: self)
     }
+
+    func backButtonClicked() {
+        router.dismiss(view: view)
+    }
 }
 
 // MARK: - LiquidityPoolsOverviewInteractorOutput
@@ -59,5 +63,9 @@ extension LiquidityPoolsOverviewPresenter: LiquidityPoolsListModuleOutput {
 
     func didTapMoreAvailablePools() {
         router.showAllAvailablePools(chain: chain, wallet: wallet, from: view, moduleOutput: self)
+    }
+
+    func shouldShowUserPools(_ shouldShow: Bool) {
+        view?.changeUserPoolsVisibility(visible: shouldShow)
     }
 }
