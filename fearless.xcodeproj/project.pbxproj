@@ -2686,7 +2686,6 @@
 		FAAA294A2B8DCF350089AFE6 /* AsyncStorageRequestFactory+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29472B8DCF350089AFE6 /* AsyncStorageRequestFactory+Extension.swift */; };
 		FAAA294B2B8DCF350089AFE6 /* AsyncStorageRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29482B8DCF350089AFE6 /* AsyncStorageRequestFactory.swift */; };
 		FAAA29572B8DED770089AFE6 /* MapKeyType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAA29562B8DED770089AFE6 /* MapKeyType.swift */; };
-		FAAB998D27A7C79D00CD1A3B /* QRParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB998C27A7C79D00CD1A3B /* QRParser.swift */; };
 		FAABC46E2845BADA002CF40E /* CustomValidatorParachainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */; };
 		FAABC4702845BAEE002CF40E /* CustomValidatorParachainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */; };
 		FAABC4732845C7F4002CF40E /* ValidatorListFilterParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC4722845C7F4002CF40E /* ValidatorListFilterParachainViewModelState.swift */; };
@@ -5267,7 +5266,6 @@
 		FA4B928E284493C60003BCEF /* DelegateCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegateCall.swift; sourceTree = "<group>"; };
 		FA4B92902844CF750003BCEF /* MetaAccountModelChangedEvent.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetaAccountModelChangedEvent.swift; sourceTree = "<group>"; };
 		FA4B92922844D0060003BCEF /* Currency.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Currency.swift; sourceTree = "<group>"; };
-		FA4B92942844D0100003BCEF /* UIImageView+Shimmered.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageView+Shimmered.swift"; sourceTree = "<group>"; };
 		FA4B92952844D0100003BCEF /* ShimmeredLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShimmeredLabel.swift; sourceTree = "<group>"; };
 		FA4B92962844D0100003BCEF /* ShimmeredProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShimmeredProtocol.swift; sourceTree = "<group>"; };
 		FA4B929A2844D0470003BCEF /* WalletDetailsTableHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableHeaderView.swift; sourceTree = "<group>"; };
@@ -5737,7 +5735,6 @@
 		FAAA29472B8DCF350089AFE6 /* AsyncStorageRequestFactory+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AsyncStorageRequestFactory+Extension.swift"; sourceTree = "<group>"; };
 		FAAA29482B8DCF350089AFE6 /* AsyncStorageRequestFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AsyncStorageRequestFactory.swift; sourceTree = "<group>"; };
 		FAAA29562B8DED770089AFE6 /* MapKeyType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MapKeyType.swift; sourceTree = "<group>"; };
-		FAAB998C27A7C79D00CD1A3B /* QRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRParser.swift; sourceTree = "<group>"; };
 		FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListFilter.swift; sourceTree = "<group>"; };
 		FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListComposer.swift; sourceTree = "<group>"; };
 		FAABC4722845C7F4002CF40E /* ValidatorListFilterParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterParachainViewModelState.swift; sourceTree = "<group>"; };
@@ -9596,7 +9593,6 @@
 				07DE95CD28A16C7C00E9C2CB /* SearchTextField.swift */,
 				FA4B92952844D0100003BCEF /* ShimmeredLabel.swift */,
 				FA4B92962844D0100003BCEF /* ShimmeredProtocol.swift */,
-				FA4B92942844D0100003BCEF /* UIImageView+Shimmered.swift */,
 				FA8644502768A13300956D8E /* TwoLabelView.swift */,
 				FA38C988275DFB8D005C5577 /* NavigationBar */,
 				FA2569B9274CE74000875A53 /* AttentionView.swift */,
@@ -14376,17 +14372,8 @@
 				FA3067292B6246BD006A0BA5 /* Storage */,
 				FAFB47D52ABD588D0008F8CA /* Repository */,
 				FA7336C52A0E3B870096A291 /* Network */,
-				FAAB998B27A7C79000CD1A3B /* QR */,
 			);
 			path = CoreComponents;
-			sourceTree = "<group>";
-		};
-		FAAB998B27A7C79000CD1A3B /* QR */ = {
-			isa = PBXGroup;
-			children = (
-				FAAB998C27A7C79D00CD1A3B /* QRParser.swift */,
-			);
-			path = QR;
 			sourceTree = "<group>";
 		};
 		FAABC4712845C7E7002CF40E /* Parachain */ = {
@@ -16611,7 +16598,6 @@
 				84C6801A24D75E2A00006BF5 /* BorderedSubtitleActionView+Inspectable.swift in Sources */,
 				FA256A34274CE7D600875A53 /* MoonbeamJSONEncoder.swift in Sources */,
 				FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */,
-				FAAB998D27A7C79D00CD1A3B /* QRParser.swift in Sources */,
 				FA93A2DB28323CCD0021330F /* CustomValidatorListParachainStrategy.swift in Sources */,
 				8430AAD42602285B005B1066 /* StakingStateCommonData.swift in Sources */,
 				F4F2296C260DBDCE00ACFDB8 /* StakingPayoutLabelTableCell.swift in Sources */,

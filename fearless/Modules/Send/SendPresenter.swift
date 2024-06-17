@@ -24,7 +24,6 @@ final class SendPresenter {
     private let dataValidatingFactory: SendDataValidatingFactory
     private let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
-    private let qrParser: QRParser
     private let viewModelFactory: SendViewModelFactoryProtocol
     private var initialData: SendFlowInitialData
 
@@ -92,7 +91,6 @@ final class SendPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: SendViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
-        qrParser: QRParser,
         logger: LoggerProtocol? = nil,
         wallet: MetaAccountModel,
         initialData: SendFlowInitialData
@@ -101,7 +99,6 @@ final class SendPresenter {
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.qrParser = qrParser
         self.logger = logger
         self.wallet = wallet
         self.initialData = initialData
