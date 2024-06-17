@@ -15,7 +15,8 @@ protocol UserLiquidityPoolsListViewModelFactory {
         prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
-        type: LiquidityPoolListType
+        type: LiquidityPoolListType,
+        searchText: String?
     ) -> LiquidityPoolListViewModel
 }
 
@@ -36,7 +37,8 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
         prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
-        type: LiquidityPoolListType
+        type: LiquidityPoolListType,
+        searchText: String?
     ) -> LiquidityPoolListViewModel {
         let poolViewModels: [LiquidityPoolListCellModel]? = pools?.sorted().compactMap { pair in
             let baseAsset = chain.assets.first(where: { $0.currencyId == pair.baseAssetId })
@@ -73,7 +75,7 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             )
             let reservesString = reservesValue.flatMap { fiatFormatter.stringFromDecimal($0) }
             let reservesLabelText: String? = reservesString.flatMap { "\($0) TVL" }
-            let reservesLabelValue: ShimmeredLabelState = reserves?.type == .cache ? .updating(reservesLabelText) : .normal(reservesLabelText)
+            let reservesLabelValue: ShimmeredLabelState = .normal(reservesLabelText)
 
             return LiquidityPoolListCellModel(
                 tokenPairIconsVieWModel: iconsViewModel,
@@ -85,7 +87,13 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
                 sortValue: reservesValue.or(.zero),
                 liquidityPair: pair
             )
-        }.sorted(by: { $0.sortValue > $1.sortValue })
+        }.sorted(by: { $0.sortValue > $1.sortValue }).filter {
+            guard let searchText, searchText.isNotEmpty else {
+                return true
+            }
+
+            return $0.tokenPairNameLabelText.lowercased().contains(searchText.lowercased())
+        }
 
         return LiquidityPoolListViewModel(
             poolViewModels: poolViewModels,

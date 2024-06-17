@@ -65,7 +65,7 @@ final class ValidatorInfoPoolViewModelFactory {
         let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
         let nominatorsCount = validatorInfo.stakeInfo?.nominators.count ?? 0
-        let maxNominatorsReward = validatorInfo.stakeInfo?.maxNominatorsRewarded ?? 0
+        let maxNominatorsReward = validatorInfo.stakeInfo?.maxNominatorsRewarded ?? UInt32.max
 
         let nominators = R.string.localizable.stakingValidatorInfoNominators(
             formatter.string(from: NSNumber(value: nominatorsCount)) ?? "",

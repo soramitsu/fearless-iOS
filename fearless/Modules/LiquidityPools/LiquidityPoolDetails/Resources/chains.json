@@ -106,7 +106,8 @@
                 "assets": [
                     {
                         "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
-                        "symbol": "DOT"
+                        "symbol": "DOT",
+                        "minAmount": "11000000000"
                     }
                     
                 ],
@@ -139,6 +140,7 @@
         "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
         "rank": 9,
         "name": "Kusama",
+        "identityChain": "c1af4cb4eb3918e5db15086c0cc5ec17fb334f728b7c65dd44bfe1e174ff8b3f",
         "externalApi": {
             "staking": {
                 "type": "subsquid",
@@ -227,7 +229,8 @@
                     "assets": [
                         {
                             "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
-                            "symbol": "KSM"
+                            "symbol": "KSM",
+                            "minAmount": "50000000000"
                         }
                         
                     ],
@@ -819,6 +822,18 @@
                             "symbol": "ACA"
                         }
                     ]
+                },
+                {
+                    "chainId": "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5",
+                    "assets": [
+                        {
+                            "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
+                            "symbol": "ACA",
+                            "minAmount": "56000000000000"
+                        }
+                        
+                    ],
+                    "bridgeParachainId": "e92d165ad41e41e215d09713788173aecfdbe34d3bed29409d33a2ef03980738"
                 }
             ]
         },
@@ -4970,7 +4985,52 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/KSM.svg",
                 "color": "FFFFFF",
                 "type": "soraAsset"
+            },
+            {
+                "id": "ada3b18e-1912-4f96-ad3b-4d0e1b1d1d0a",
+                "symbol": "tbcd",
+                "name": "sora tbc dollar",
+                "currencyId": "0x02000a0000000000000000000000000000000000000000000000000000000000",
+                "precision": 18,
+                "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/TBCD.svg",
+                "color":"6D8954",
+                "type": "soraAsset",
+                "isNative": true
+            },
+            {
+                "id": "eface91d-b2a8-49d2-88e8-640586bda477",
+                "name": "polkadot",
+                "symbol": "dot",
+                "currencyId": "0x0003b1dbee890acfb1b3bc12d1bb3b4295f52755423f84d1751b2545cebf000b",
+                "precision": 18,
+                "priceId": "polkadot",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DOT.svg",
+                "color": "FF0066",
+                "type": "soraAsset"
+            },
+            {
+                "id": "191c31de-62b1-41e4-aad3-15a5be1b4cd4",
+                "name": "dai",
+                "symbol": "dai",
+                "currencyId": "0x0200060000000000000000000000000000000000000000000000000000000000",
+                "precision": 18,
+                "priceId": "dai",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
+                "color": "F9AF1A",
+                "type": "soraAsset"
+            },
+            {
+                "id": "3ab2c884-6c6e-4f92-b87a-a013c80210af",
+                "name": "ethereum",
+                "symbol": "eth",
+                "currencyId": "0x0200070000000000000000000000000000000000000000000000000000000000",
+                "precision": 18,
+                "priceId": "ethereum",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+                "color": "627EEA",
+                "type": "soraAsset"
             }
+
         ],
         "nodes": [
 
@@ -5307,6 +5367,60 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DOT.svg",
                 "color": "FF0066",
                 "type": "soraAsset"
+            },
+            {
+                "id": "fb88fa55-b8c8-4ff1-afa8-f72a86a238a4",
+                "name": "acala",
+                "symbol": "aca",
+                "currencyId": "0x001ddbe1a880031da72f7ea421260bec635fa7d1aa72593d5412795408b6b2ba",
+                "precision": 18,
+                "priceId": "acala",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ACA.svg",
+                "color": "FFFFFF",
+                "type": "soraAsset"
+            },
+            {
+                "id": "acc32ee0-8fdc-4743-91e1-f70cc4f3069b",
+                "name": "astar",
+                "symbol": "astr",
+                "currencyId": "0x009dd037fcb32f4fe17c513abd4641a2ece844d106e30788124f0c0acc6e748e",
+                "precision": 18,
+                "priceId": "astar",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ASTR.svg",
+                "color": "0AE2FF",
+                "type": "soraAsset"
+            },
+            {
+                "id": "0ef3afdc-cdd3-47cc-bd52-817c54ae65b5",
+                "name": "liberland merit",
+                "symbol": "llm",
+                "currencyId": "0x0200000000000000000000000000010000000000000000000000000000000000",
+                "precision": 18,
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LLM.svg",
+                "color": "EFB900",
+                "type": "soraAsset"
+            },
+            {
+                "id": "1c3b4fcb-5a5f-4319-9dce-d178006eb9bf",
+                "name": "liberland dollar",
+                "symbol": "lld",
+                "currencyId": "0x00073edd278e1bd6a7f9d0b27d4f3e93b73c8f0832b58a4df13c69611a99f156",
+                "precision": 18,
+                "priceId": "liberland-lld",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LLD.svg",
+                "color": "00437F",
+                "type": "soraAsset"
+            },
+            {
+                "id": "a543b9a2-f85a-4974-92fc-435d6bc418e5",
+                "name": "toncoin",
+                "symbol": "toncoin",
+                "currencyId": "0x00e8c8923623335128807857dfa38f9212e9803394a2c976e97245d7063bbe10",
+                "precision": 18,
+                "priceId": "the-open-network",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/TON.svg",
+                "color": "0098EA",
+                "type": "soraAsset"
             }
         ],
         "xcm": {
@@ -5319,6 +5433,22 @@
                 {
                     "id": "cd092a5a-4eb6-4318-9f11-4bf8454d67a2",
                     "symbol": "DOT"
+                },
+                {
+                    "id": "fb88fa55-b8c8-4ff1-afa8-f72a86a238a4",
+                    "symbol": "ACA"
+                },
+                {
+                    "id": "a6b83d39-a488-4b34-8352-280705a792ea",
+                    "symbol": "LLD"
+                },
+                {
+                    "id": "b774c386-5cce-454a-a845-1ec0381538ec",
+                    "symbol": "XOR"
+                },
+                {
+                    "id": "0ef3afdc-cdd3-47cc-bd52-817c54ae65b5",
+                    "symbol": "LLM"
                 }
             ],
             "availableDestinations": [
@@ -5336,7 +5466,36 @@
                     "assets": [
                         {
                             "id": "cd092a5a-4eb6-4318-9f11-4bf8454d67a2",
-                            "symbol": "DOT"
+                            "symbol": "DOT",
+                            "minAmount": "1100000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "chainId": "fc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
+                    "assets": [
+                        {
+                            "id": "fb88fa55-b8c8-4ff1-afa8-f72a86a238a4",
+                            "symbol": "ACA",
+                            "minAmount": "1000000000000000000"
+                        }
+                    ]
+                },
+                {
+                    "chainId": "6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6",
+                    "assets": [
+                        {
+                            "id": "a6b83d39-a488-4b34-8352-280705a792ea",
+                            "symbol": "LLD",
+                            "minAmount": "1000000000000000000"
+                        },
+                        {
+                            "id": "b774c386-5cce-454a-a845-1ec0381538ec",
+                            "symbol": "XOR"
+                        },
+                        {
+                            "id": "0ef3afdc-cdd3-47cc-bd52-817c54ae65b5",
+                            "symbol": "LLM"
                         }
                     ]
                 }
@@ -5981,7 +6140,19 @@
                 "color": "243579",
                 "type": "normal",
                 "ethereumType": "erc20"
-              }
+              },
+              {
+                "isUtility": false,
+                "id": "0x236501327e701692a281934230AF0b6BE8Df3353",
+                "name": "fluence",
+                "symbol": "flt",
+                "precision": 18,
+                "priceId": "fluence-2",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/FLT.svg",
+                "color": "FFFFFF",
+                "type": "normal",
+                "ethereumType": "erc20"
+            }
         ],
         "nodes": [
             {
@@ -6786,17 +6957,17 @@
         "name": "Arbitrum One",
         "externalApi": {
             "history": {
-              "type": "etherscan",
-              "url": "https://api.arbiscan.io/api"
+              "type": "oklink",
+              "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=ARBITRUM"
             },
             "explorers": [
               {
-                "type": "etherscan",
+                "type": "oklink",
                 "types": [
                   "tx",
                   "address"
                 ],
-                "url": "https://arbiscan.io/{type}/{value}"
+                "url": "https://www.okx.com/web3/explorer/arbitrum/{type}/{value}?channelID=flessw"
               }
             ]
           },
@@ -6851,17 +7022,17 @@
         "name": "OP Mainnet",
         "externalApi": {
             "history": {
-              "type": "etherscan",
-              "url": "https://api-optimistic.etherscan.io/api"
+              "type": "oklink",
+              "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=OP"
             },
             "explorers": [
               {
-                "type": "etherscan",
+                "type": "oklink",
                 "types": [
                   "tx",
                   "address"
                 ],
-                "url": "https://optimistic.etherscan.io/{type}/{value}"
+                "url": "https://www.okx.com/web3/explorer/optimism/{type}/{value}?channelID=flessw"
               }
             ]
           },
@@ -6923,17 +7094,17 @@
         "name": "Avalanche C-Chain",
         "externalApi": {
             "history": {
-              "type": "etherscan",
-              "url": "https://api.snowtrace.io/api"
+              "type": "oklink",
+              "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=AVAXC"
             },
             "explorers": [
               {
-                "type": "etherscan",
+                "type": "oklink",
                 "types": [
                   "tx",
                   "address"
                 ],
-                "url": "https://snowtrace.io/{type}/{value}"
+                "url": "https://www.okx.com/web3/explorer/avax/{type}/{value}?channelID=flessw"
               }
             ]
           },
@@ -6971,48 +7142,116 @@
       {
         "disabled": false,
         "chainId": "195",
-        "rank": 13,
-        "name": "X1 testnet",
+        "rank": 130,
+        "name": "X Layer Testnet",
         "externalApi": {
-            "history": {
-              "type": "oklink",
-              "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=X1_TEST"
-            },
-            "explorers": [
-              {
-                "type": "oklink",
-                "types": [
-                  "tx",
-                  "address"
-                ],
-                "url": "https://www.oklink.com/x1-test/{type}/{value}"
-              }
-            ]
+          "history": {
+            "type": "oklink",
+            "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=XLAYER_TESTNET"
           },
+          "explorers": [
+            {
+              "type": "oklink",
+              "types": [
+                "tx",
+                "address"
+              ],
+              "url": "https://www.okx.com/explorer/xlayer-test/{type}/{value}"
+            }
+          ]
+        },
         "assets": [
           {
             "isUtility": true,
-            "id": "0db45dec-9e88-4044-a358-3888f85e9a9e",
+            "id": "a61b1842-30c0-431d-9bbc-fc3370562455",
             "name": "okb",
             "symbol": "okb",
             "precision": 18,
-            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/OKTC.svg",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XLOKB.svg",
             "color": "FFFFFF",
             "type": "normal",
             "ethereumType": "normal"
           }
         ],
         "nodes": [
+          {
+            "url": "https://testrpc.xlayer.tech/",
+            "name": "X Layer Test Tech https node"
+          },
+          {
+            "url": "wss://testws.xlayer.tech",
+            "name": "X Layer Test Tech wss node"
+          },
+          {
+            "url": "https://xlayertestrpc.okx.com/",
+            "name": "X Layer Test OKX https node"
+          },
+          {
+            "url": "wss://xlayertestws.okx.com",
+            "name": "X Layer Test OKX wss node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/xlayerchain.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": false,
+        "chainId": "196",
+        "rank": 13,
+        "name": "X Layer Mainnet",
+        "externalApi": {
+          "history": {
+            "type": "oklink",
+            "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=XLAYER"
+          },
+          "explorers": [
             {
-                "url": "https://testrpc.x1.tech/",
-                "name": "X1 https node"
+              "type": "oklink",
+              "types": [
+                "tx",
+                "address"
+              ],
+              "url": "https://www.okx.com/web3/explorer/xlayer-test/{type}/{value}"
+            }
+          ]
+        },
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "dcf40e8d-f041-45b8-8cc8-e5b95bedb86e",
+            "name": "okb",
+            "symbol": "okb",
+            "precision": 18,
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XLOKB.svg",
+            "color": "FFFFFF",
+            "priceId": "okb",
+            "type": "normal",
+            "ethereumType": "normal"
+          }
+        ],
+        "nodes": [
+            {
+              "url": "https://rpc.xlayer.tech/",
+              "name": "X Layer Tech https node"
             },
             {
-                "url": "https://x1testrpc.okx.com/",
-                "name": "X1 https node"
+              "url": "wss://ws.xlayer.tech/",
+              "name": "X Layer Tech wss node"
+            },
+            {
+              "url": "https://xlayerrpc.okx.com/",
+              "name": "X Layer OKX https node"
+            },
+            {
+                "url": "wss://xlayerws.okx.com/",
+                "name": "X Layer OKX wss node"
             }
         ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Okxchain.svg",
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/xlayerchain.svg",
         "addressPrefix": 0,
         "options": [
           "ethereum",
@@ -7026,20 +7265,20 @@
         "name": "Polygon zkEVM",
         "externalApi": {
             "history": {
-              "type": "etherscan",
-              "url": "https://api-zkevm.polygonscan.com/api"
+              "type": "oklink",
+              "url": "https://www.oklink.com/api/v5/explorer/address/transaction-list?chainShortName=POLYGON_ZKEVM"
+              },
+              "explorers": [
+                {
+                  "type": "oklink",
+                  "types": [
+                    "tx",
+                    "address"
+                    ],
+                  "url": "https://www.okx.com/web3/explorer/polygon-zkevm/{type}/{value}?channelID=flessw"
+                }
+              ]
             },
-            "explorers": [
-              {
-                "type": "etherscan",
-                "types": [
-                  "tx",
-                  "address"
-                ],
-                "url": "https://zkevm.polygonscan.com/{type}/{value}"
-              }
-            ]
-          },
         "assets": [
           {
             "isUtility": true,
@@ -7182,6 +7421,211 @@
     
         ],
         "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/reefchain.svg",
+        "addressPrefix": 42
+      },
+      {
+        "disabled": false,
+        "chainId": "f3c7ad88f6a80f366c4be216691411ef0622e8b809b1046ea297ef106058d4eb",
+        "name": "Manta Parachain",
+        "assets": [{
+            "id": "0c41f3da-3c42-413a-aca3-bfb19b717df7",
+            "name": "manta",
+            "symbol": "manta",
+            "precision": 18,
+            "priceId": "manta-network",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MANTA.svg",
+            "color": "29CCB9",
+            "isUtility": true,
+            "type": "normal"
+        }],
+        "externalApi": {
+            "explorers": [{
+                "type": "subscan",
+                "types": [
+                    "extrinsic",
+                    "account"
+                ],
+                "url": "https://manta.subscan.io/{type}/{value}"
+            }]
+        },
+        "nodes": [{
+            "url": "wss://ws.manta.systems",
+            "name": "Manta Community node"
+        }
+    
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/mantachain.svg",
+        "addressPrefix": 77
+      },
+      {
+        "disabled": false,
+        "chainId": "169",
+        "name": "Manta Pacific Mainnet",
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "af44954d-2be1-4021-ae0b-f05d8180400a",
+            "name": "ethereum",
+            "symbol": "eth",
+            "precision": 18,
+            "priceId": "ethereum",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+            "color":"627EEA",
+            "type": "normal",
+            "ethereumType": "normal"
+          },
+          {
+            "isUtility": false,
+            "id": "0x95CeF13441Be50d20cA4558CC0a27B601aC544E5",
+            "name": "manta",
+            "symbol": "manta",
+            "precision": 18,
+            "priceId": "manta-network",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MANTA.svg",
+            "color": "8247E5",
+            "type": "normal",
+            "ethereumType": "erc20"
+        }
+        ],
+        "externalApi": {
+            "history": {
+                "type": "zeta",
+                "url": "https://pacific-explorer.manta.network/api/v2/addresses/"
+            }
+        },
+        "nodes": [
+            {
+                "url": "https://pacific-rpc.manta.network/http",
+                "name": "Manta https node"
+            },
+            {
+                "url": "https://1rpc.io/manta",
+                "name": "1RPC https node"
+            }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/mantachain.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": true,
+        "chainId": "d8761d3c88f26dc12875c00d3165f7d67243d56fc85b4cf19937601a7916e5a9",
+        "name": "Enjin Relaychain",
+        "externalApi": {
+          "explorers": [{
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://enjin.subscan.io/{type}/{value}"
+          }]
+        },
+        "assets": [{
+          "id": "43748d94-90ba-41b2-8732-326cd943a501",
+          "name": "enjin coin",
+          "symbol": "enj",
+          "precision": 18,
+          "priceId": "enjincoin",
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ENJ.svg",
+          "color": "5A27ED",
+          "isUtility": true,
+          "type": "normal"
+        }],
+        "nodes": [{
+          "url": "wss://rpc.relay.blockchain.enjin.io",
+          "name": "Enjin Foundation node"
+        }
+      
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Enjin.svg",
+        "addressPrefix": 2135
+      },
+      {
+        "disabled": false,
+        "chainId": "6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6",
+        "name": "Liberland",
+        "assets": [
+          {
+            "id": "a6b83d39-a488-4b34-8352-280705a792ea",
+            "name": "liberland lld",
+            "symbol": "lld",
+            "precision": 12,
+            "priceId": "liberland-lld",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LLD.svg",
+            "color": "00437F",
+            "isUtility": true,
+            "type": "normal"
+        },
+          {
+               "id": "30b43eb9-36b4-4b40-bf72-330d2e20ee86",
+               "name": "liberland merit",
+               "symbol": "llm",
+               "precision": 12,
+               "currencyId": "1",
+               "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LLM.svg",
+               "color": "EFB900",
+               "type": "assets"
+           },
+           {
+               "id": "2e7179c9-4308-420e-a654-43c92d119717",
+               "name": "sora xor",
+               "symbol": "xor",
+               "precision": 12,
+               "currencyId": "774441749",
+               "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
+               "color": "EE2233",
+               "type": "assets"
+           }
+      ],
+        "xcm": {
+            "xcmVersion": "v3",
+            "availableAssets": [
+                {
+                    "id": "a6b83d39-a488-4b34-8352-280705a792e",
+                    "symbol": "LLD"
+                },
+                {
+                    "id": "30b43eb9-36b4-4b40-bf72-330d2e20ee86",
+                    "symbol": "LLM"
+                },
+                {
+                    "id": "2e7179c9-4308-420e-a654-43c92d119717",
+                    "symbol": "XOR"
+                }
+            ],
+            "availableDestinations": [
+                {
+                    "chainId": "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5",
+                    "assets": [
+                        {
+                            "id": "a6b83d39-a488-4b34-8352-280705a792e",
+                            "symbol": "LLD",
+                            "minAmount": "1000000000000"
+                        },
+                        {
+                            "id": "30b43eb9-36b4-4b40-bf72-330d2e20ee86",
+                            "symbol": "LLM"
+                        },
+                        {
+                            "id": "2e7179c9-4308-420e-a654-43c92d119717",
+                            "symbol": "XOR"
+                        }
+                        
+                    ]
+                }
+            ]
+        },
+        "nodes": [
+          {
+            "url": "wss://mainnet.liberland.org",
+            "name": "Liberland node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/liberland.svg",
         "addressPrefix": 42
       },
       {
@@ -7916,7 +8360,72 @@
             }
     
         ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/white/Avail.svg",
-        "addressPrefix": 42
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Avail.svg",
+        "addressPrefix": 42,
+        "options": [
+            "checkAppId"
+        ]
+    },
+    {
+        "disabled": false,
+        "chainId": "0614f7b74a2e47f7c8d8e2a5335be84bdde9402a43f5decdec03200a87c8b943",
+        "name": "Analog Testnet",
+        "assets": [
+            {
+            "id": "9a8799db-a479-4a73-ae81-3b637c8624d8",
+            "name": "tanlog",
+            "symbol": "tanlog",
+            "precision": 12,
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/TANLOG.svg",
+            "color": "9A74F7",
+            "isUtility": true,
+            "type": "normal"
+        }
+    ],
+        "nodes": [{
+                "url": "wss://rpc.testnet.analog.one",
+                "name": "Analog Testnet node"
+            }
+    
+        ],
+        "options": [
+            "testnet"
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Analog.svg",
+        "addressPrefix": 12850
+    },
+    {
+        "disabled": false,
+        "chainId": "c1af4cb4eb3918e5db15086c0cc5ec17fb334f728b7c65dd44bfe1e174ff8b3f",
+        "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+        "name": "Kusama People",
+        "assets": [
+            {
+                "id": "b54f9075-6364-4ad9-8ac2-ed8a604491fd",
+                "name": "kusama",
+                "symbol": "ksm",
+                "precision": 12,
+                "priceId": "kusama",
+                "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/KSM.svg",
+                "color": "FFFFFF",
+                "isUtility": true,
+                "type": "normal"
+            }
+        ],
+        "nodes": [
+            {
+                "url": "wss://kusama-people-rpc.polkadot.io",
+                "name": "Parity node"
+            },
+            {
+                "url": "wss://ksm-rpc.stakeworld.io/people",
+                "name": "Stakeworld node"
+            }
+            ],
+        "options": [
+            "identityChain"
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/People.svg",
+        "addressPrefix": 2
     }
 ]

@@ -27,6 +27,7 @@ final class AvailableLiquidityPoolsListPresenter {
     private var reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?
     private var apy: [PoolApyInfo]?
     private var prices: [PriceData]?
+    private var searchText: String?
 
     init(
         logger: Logger,
@@ -60,7 +61,8 @@ final class AvailableLiquidityPoolsListPresenter {
             prices: prices,
             locale: selectedLocale,
             wallet: wallet,
-            type: type
+            type: type,
+            searchText: searchText
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -92,6 +94,11 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
 
     func didTapBackButton() {
         router.dismiss(view: view)
+    }
+
+    func searchTextDidChanged(_ text: String?) {
+        searchText = text
+        provideViewModel()
     }
 }
 

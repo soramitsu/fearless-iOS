@@ -3,6 +3,7 @@ import SoraFoundation
 import BigInt
 import SSFUtils
 import SSFModels
+import SSFQRService
 
 final class SendPresenter {
     enum State {
@@ -33,9 +34,8 @@ final class SendPresenter {
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset? {
         didSet {
-            checkSendAllVisibility()
-
             DispatchQueue.main.async {
+                self.checkSendAllVisibility()
                 self.view?.setInputAccessoryView(visible: self.selectedChainAsset?.isBokolo == false)
             }
         }
@@ -141,16 +141,10 @@ final class SendPresenter {
 
     private func provideAssetVewModel() {
         guard let chainAsset = selectedChainAsset, case let .value(assetInfo) = assetAccountInfo else { return }
-
         let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
-
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
-
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
-        let frozenBalance = assetInfo.map {
-            Decimal.fromSubstrateAmount($0.locked, precision: Int16(chainAsset.asset.precision)).or(.zero)
-        }
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
             balance: freeBalance,
@@ -252,7 +246,7 @@ final class SendPresenter {
                 return
             }
             interactor.didReceive(xorlessTransfer: transfer)
-        case .address, .chainAsset, .soraMainnet:
+        case .address, .chainAsset, .soraMainnet, .desiredCryptocurrency:
             if selectedChainAsset?.isBokolo == true {
                 guard let transfer = prepareXorlessTransfer() else {
                     return
@@ -498,10 +492,10 @@ final class SendPresenter {
                 totalBalance: eqUilibriumTotalBalance
             )
         }
-        var validators: [DataValidating]
+        var validators: [DataValidating?]
         switch validationCase {
         case let .validateAmount(handler):
-            validators = [dataValidatingFactory.exsitentialDepositIsNotViolated(
+            validators = [minimumBalance != nil ? dataValidatingFactory.exsitentialDepositIsNotViolated(
                 parameters: edParameters,
                 locale: selectedLocale,
                 chainAsset: chainAsset,
@@ -525,7 +519,7 @@ final class SendPresenter {
                     self?.view?.switchEnableSendAllState(enabled: false)
                     self?.selectAmountPercentage(0, validate: false)
                 }
-            )]
+            ) : nil]
         case .validateAll:
             validators = [
                 dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -559,7 +553,7 @@ final class SendPresenter {
                 )
             ]
         }
-        DataValidationRunner(validators: validators).runValidation { [weak self] in
+        DataValidationRunner(validators: validators.compactMap { $0 }).runValidation { [weak self] in
             switch validationCase {
             case let .validateAmount(handler):
                 handler()
@@ -568,11 +562,14 @@ final class SendPresenter {
                     let strongSelf = self,
                     let amount = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
                 else { return }
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
+
                 let transfer = Transfer(
                     chainAsset: chainAsset,
                     amount: amount,
                     receiver: address,
-                    tip: strongSelf.tipValue
+                    tip: strongSelf.tipValue,
+                    appId: appId
                 )
                 strongSelf.router.presentConfirm(
                     from: strongSelf.view,
@@ -756,6 +753,40 @@ final class SendPresenter {
         }
     }
 
+    private func handleDesiredCrypto(qrInfo: DesiredCryptocurrencyQRInfo) {
+        recipientAddress = qrInfo.address
+        Task {
+            let possibleChains = await self.interactor.getPossibleChains(for: qrInfo.address)
+            let chainAsset = possibleChains?
+                .first(where: { $0.name.lowercased() == qrInfo.assetName.lowercased() })?
+                .chainAssets
+                .first(where: { $0.asset.isUtility })
+
+            selectedChainAsset = chainAsset
+
+            if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
+                inputResult = .absolute(qrAmount)
+            }
+
+            let viewModel = viewModelFactory.buildRecipientViewModel(
+                address: qrInfo.address,
+                isValid: true,
+                canEditing: false
+            )
+
+            if let qrChainAsset = chainAsset {
+                interactor.updateSubscriptions(for: qrChainAsset)
+            }
+            await MainActor.run {
+                view?.didReceive(viewModel: viewModel)
+                provideInputViewModel()
+                if let qrChainAsset = chainAsset {
+                    provideNetworkViewModel(for: qrChainAsset.chain, canEdit: true)
+                }
+            }
+        }
+    }
+
     private func prepareXorlessTransfer() -> XorlessTransfer? {
         do {
             guard let selectedChainAsset = selectedChainAsset else {
@@ -878,6 +909,8 @@ extension SendPresenter: SendViewOutput {
             handleSora(qrInfo: qrInfo)
         case let .bokoloCash(bokoloCashQRInfo):
             handleBokoloCash(qrInfo: bokoloCashQRInfo)
+        case let .desiredCryptocurrency(qrInfo):
+            handleDesiredCrypto(qrInfo: qrInfo)
         }
     }
 
@@ -966,7 +999,7 @@ extension SendPresenter: SendViewOutput {
 
     func didTapSelectNetwork() {
         guard let chainAsset = selectedChainAsset else { return }
-        interactor.defineAvailableChains(for: chainAsset.asset) { [weak self] chains in
+        interactor.defineAvailableChains(for: chainAsset.asset, wallet: wallet) { [weak self] chains in
             guard let strongSelf = self, let availableChains = chains else { return }
             strongSelf.router.showSelectNetwork(
                 from: strongSelf.view,
@@ -1161,6 +1194,8 @@ extension SendPresenter: ScanQRModuleOutput {
             handleSora(qrInfo: qrInfo)
         case let .cex(qrInfo):
             searchTextDidChanged(qrInfo.address)
+        case let .desiredCryptocurrency(qrInfo):
+            handleDesiredCrypto(qrInfo: qrInfo)
         }
     }
 }
@@ -1185,7 +1220,7 @@ extension SendPresenter: SelectAssetModuleOutput {
                 handle(selectedChain: chain)
             } else {
                 state = .normal
-                interactor.defineAvailableChains(for: asset) { [weak self] chains in
+                interactor.defineAvailableChains(for: asset, wallet: wallet) { [weak self] chains in
                     if let availableChains = chains, let strongSelf = self {
                         if availableChains.count == 1 {
                             self?.handle(selectedChain: availableChains.first)

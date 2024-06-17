@@ -5,7 +5,8 @@ import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        keyboardAdoptable: Bool
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
@@ -23,11 +24,6 @@ final class ChainAssetListAssembly {
         )
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
-            mapper: AnyCoreDataMapper(AssetModelMapper())
-        )
-
         let dependencyContainer = ChainAssetListDependencyContainer()
 
         let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
@@ -40,28 +36,49 @@ final class ChainAssetListAssembly {
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
+        let missingAccountHelper = MissingAccountFetcher(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let accountInfoFetcher = AccountInfoFetching(
+            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+            chainRegistry: chainRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let chainsIssuesCenter = ChainsIssuesCenter(
+            wallet: wallet,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetcher
+        )
+
+        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriber: priceLocalSubscriber,
-            assetRepository: AnyDataProviderRepository(assetRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            chainAssetFetching: chainAssetFetching
+            chainAssetFetching: chainAssetFetching,
+            userDefaultsStorage: SettingsManager.shared,
+            chainsIssuesCenter: chainsIssuesCenter,
+            chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
+            chainRegistry: ChainRegistryFacade.sharedRegistry
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
-            settings: SettingsManager.shared
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         )
 
         let presenter = ChainAssetListPresenter(
@@ -77,6 +94,7 @@ final class ChainAssetListAssembly {
         let view = ChainAssetListViewController(
             bannersViewController: bannersViewController,
             output: presenter,
+            keyboardAdoptable: keyboardAdoptable,
             localizationManager: localizationManager
         )
 

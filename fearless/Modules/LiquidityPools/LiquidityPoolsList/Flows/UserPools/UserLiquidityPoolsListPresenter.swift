@@ -28,6 +28,7 @@ final class UserLiquidityPoolsListPresenter {
     private var apy: [PoolApyInfo]?
     private var accountPools: [AccountPool]?
     private var prices: [PriceData]?
+    private var searchText: String?
 
     init(
         logger: Logger,
@@ -61,7 +62,8 @@ final class UserLiquidityPoolsListPresenter {
             prices: prices,
             locale: selectedLocale,
             wallet: wallet,
-            type: type
+            type: type,
+            searchText: searchText
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -92,6 +94,11 @@ extension UserLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
 
     func didTapBackButton() {
         router.dismiss(view: view)
+    }
+
+    func searchTextDidChanged(_ text: String?) {
+        searchText = text
+        provideViewModel()
     }
 }
 

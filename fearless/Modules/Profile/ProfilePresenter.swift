@@ -56,7 +56,9 @@ final class ProfilePresenter {
             missingAccountIssue: missingAccountIssue
         )
         let state = ProfileViewState.loaded(viewModel)
-        view?.didReceive(state: state)
+        DispatchQueue.main.async {
+            self.view?.didReceive(state: state)
+        }
     }
 }
 
@@ -90,8 +92,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
         case .biometry:
             break
-        case .zeroBalances:
-            break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
         }
@@ -102,8 +102,6 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .biometry:
             settings.biometryEnabled = isOn
-        case .zeroBalances:
-            interactor.update(zeroBalanceAssetsHidden: isOn)
         default:
             break
         }
@@ -189,7 +187,9 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
         case let .success(balances):
             if let wallet = selectedWallet {
                 balance = balances[wallet.metaId]
-                receiveState()
+                DispatchQueue.main.async {
+                    self.receiveState()
+                }
             }
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
@@ -198,9 +198,7 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
 
     func didReceiveMissingAccount(issues: [ChainIssue]) {
         missingAccountIssue = issues
-        DispatchQueue.main.async {
-            self.receiveState()
-        }
+        receiveState()
     }
 }
 
@@ -214,9 +212,12 @@ extension ProfilePresenter: Localizable {
 
 extension ProfilePresenter: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        let currency = event.account.selectedCurrency
+        if selectedCurrency != event.account.selectedCurrency {
+            selectedWallet = event.account
+            let currency = event.account.selectedCurrency
+            interactor.update(currency: currency)
+        }
         selectedWallet = event.account
-        interactor.update(currency: currency)
     }
 }
 

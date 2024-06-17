@@ -12,39 +12,18 @@ struct MetaAccountModel: Equatable, Codable {
     let substratePublicKey: Data
     let ethereumAddress: Data?
     let ethereumPublicKey: Data?
-    let chainAccounts: Set<SSFModels.ChainAccountModel>
+    let chainAccounts: Set<ChainAccountModel>
     let assetKeysOrder: [String]?
-    let assetFilterOptions: [SSFModels.FilterOption]
     let canExportEthereumMnemonic: Bool
     let unusedChainIds: [String]?
-    let selectedCurrency: SSFModels.Currency
+    let selectedCurrency: Currency
     let networkManagmentFilter: String?
-    let assetsVisibility: [SSFModels.AssetVisibility]
-    let zeroBalanceAssetsHidden: Bool
+    let assetsVisibility: [AssetVisibility]
     let hasBackup: Bool
     let favouriteChainIds: [ChainModel.Id]
 
     var utilsModel: SSFModels.MetaAccountModel {
-        SSFModels.MetaAccountModel(
-            metaId: metaId,
-            name: name,
-            substrateAccountId: substrateAccountId,
-            substrateCryptoType: substrateCryptoType,
-            substratePublicKey: substratePublicKey,
-            ethereumAddress: ethereumAddress,
-            ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: chainAccounts,
-            assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
-            canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency,
-            networkManagmentFilter: networkManagmentFilter,
-            assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
-        )
+        SSFModels.MetaAccountModel(metaId: metaId, name: name, substrateAccountId: substrateAccountId, substrateCryptoType: substrateCryptoType, substratePublicKey: substratePublicKey, ethereumAddress: ethereumAddress, ethereumPublicKey: ethereumPublicKey, chainAccounts: chainAccounts, assetKeysOrder: assetKeysOrder, assetFilterOptions: [], canExportEthereumMnemonic: canExportEthereumMnemonic, unusedChainIds: unusedChainIds, selectedCurrency: selectedCurrency, networkManagmentFilter: networkManagmentFilter, assetsVisibility: assetsVisibility, zeroBalanceAssetsHidden: false, hasBackup: hasBackup, favouriteChainIds: favouriteChainIds)
     }
 }
 
@@ -76,13 +55,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: newChainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -99,13 +76,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -122,13 +97,11 @@ extension MetaAccountModel {
             ethereumPublicKey: newEthereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -145,13 +118,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -168,13 +139,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: newAssetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -191,13 +160,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: newUnusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -214,36 +181,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: currency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
-        )
-    }
-
-    func replacingAssetsFilterOptions(_ options: [FilterOption]) -> MetaAccountModel {
-        MetaAccountModel(
-            metaId: metaId,
-            name: name,
-            substrateAccountId: substrateAccountId,
-            substrateCryptoType: substrateCryptoType,
-            substratePublicKey: substratePublicKey,
-            ethereumAddress: ethereumAddress,
-            ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: chainAccounts,
-            assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: options,
-            canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency,
-            networkManagmentFilter: networkManagmentFilter,
-            assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -260,13 +202,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: identifire,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -283,36 +223,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: newAssetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
-            hasBackup: hasBackup,
-            favouriteChainIds: favouriteChainIds
-        )
-    }
-
-    func replacingZeroBalanceAssetsHidden(_ newZeroBalanceAssetsHidden: Bool) -> MetaAccountModel {
-        MetaAccountModel(
-            metaId: metaId,
-            name: name,
-            substrateAccountId: substrateAccountId,
-            substrateCryptoType: substrateCryptoType,
-            substratePublicKey: substratePublicKey,
-            ethereumAddress: ethereumAddress,
-            ethereumPublicKey: ethereumPublicKey,
-            chainAccounts: chainAccounts,
-            assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
-            canExportEthereumMnemonic: canExportEthereumMnemonic,
-            unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency,
-            networkManagmentFilter: networkManagmentFilter,
-            assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: newZeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -329,13 +244,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: isBackuped,
             favouriteChainIds: favouriteChainIds
         )
@@ -352,13 +265,11 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             networkManagmentFilter: networkManagmentFilter,
             assetsVisibility: assetsVisibility,
-            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden,
             hasBackup: hasBackup,
             favouriteChainIds: favouriteChainIds
         )

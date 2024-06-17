@@ -17,6 +17,7 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.image = R.image.backgroundImage()
+        imageView.isHidden = true
         return imageView
     }()
 
@@ -27,6 +28,7 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = R.color.colorBlack19()
         userPoolsContainerView.isHidden = true
         drawSubviews()
         setupConstraints()

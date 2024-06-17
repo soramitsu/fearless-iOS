@@ -70,13 +70,11 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             ethereumPublicKey: entity.ethereumPublicKey,
             chainAccounts: Set(chainAccounts),
             assetKeysOrder: entity.assetKeysOrder as? [String],
-            assetFilterOptions: assetFilterOptions?.compactMap { FilterOption(rawValue: $0) } ?? [],
             canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
             unusedChainIds: entity.unusedChainIds as? [String],
             selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
             networkManagmentFilter: entity.networkManagmentFilter,
             assetsVisibility: assetsVisibility ?? [],
-            zeroBalanceAssetsHidden: entity.zeroBalanceAssetsHidden,
             hasBackup: entity.hasBackup,
             favouriteChainIds: favouriteChainIds
         )
@@ -87,7 +85,6 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         from model: DataProviderModel,
         using context: NSManagedObjectContext
     ) throws {
-        let assetFilterOptions = model.assetFilterOptions.map(\.rawValue) as? NSArray ?? []
         entity.metaId = model.metaId
         entity.name = model.name
         entity.substrateAccountId = model.substrateAccountId.toHex()
@@ -98,9 +95,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.assetKeysOrder = model.assetKeysOrder as? NSArray
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
         entity.unusedChainIds = model.unusedChainIds as? NSArray
-        entity.assetFilterOptions = assetFilterOptions
         entity.networkManagmentFilter = model.networkManagmentFilter
-        entity.zeroBalanceAssetsHidden = model.zeroBalanceAssetsHidden
         entity.hasBackup = model.hasBackup
         entity.favouriteChainIds = model.favouriteChainIds as? NSArray
 

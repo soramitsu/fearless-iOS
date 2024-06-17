@@ -1025,6 +1025,7 @@ Anahtarınızın yedeğini almayı ve onu güvenli ve gizli bir yerde (ö.o., bi
 "transaction.details.view.etherscan" = "Etherscan'da görüntüle";
 "transaction.details.view.polkascan" = "Polkascan'de görüntüle";
 "transaction.details.view.reefscan" = "Reefscan'da görüntüle";
+"transaction.details.view.oklink" = "View in OKX explorer";
 "transaction.details.view.subscan" = "Subscan'da Görüntüle";
 "transaction.list.header" = "Tüm işlemler";
 "transaction.status.completed" = "Tamamlandı";
@@ -1142,3 +1143,6 @@ ait olduğundan emin olun.";
 "balance.locks.blocked.row.title" = "Blocked";
 "wallet.send.dead.recipient.message.v2" = "Your transfer will fail since the final amount (%s) on the destination account will be less than the minimal balance (%s). Please increase the amount by %s";
 "common.more" = "more";
+"nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
+"wallet.all.assets.hidden" = "You have hidden all assets";
+"xcm.low.amaunt.assetSymbol.alert" = "Currently, there's a min. amount %@ for bridging to ensure the stability and security. We appreciate your understanding.";

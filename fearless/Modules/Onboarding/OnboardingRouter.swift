@@ -4,7 +4,7 @@ final class OnboardingRouter: OnboardingRouterInput {
     private lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
     private lazy var navigationController = FearlessNavigationController()
 
-    @MainActor func showMain() async {
+    func showMain() {
         guard let mainViewController = MainTabBarViewFactory.createView()?.controller else {
             return
         }
@@ -12,7 +12,7 @@ final class OnboardingRouter: OnboardingRouterInput {
         rootAnimator.animateTransition(to: mainViewController)
     }
 
-    @MainActor func showLogin() async {
+    func showLogin() {
         let onboardingView = OnboardingMainViewFactory.createViewForOnboarding()
         guard let onboardingController = onboardingView?.controller else {
             return
@@ -21,7 +21,7 @@ final class OnboardingRouter: OnboardingRouterInput {
         animateTransition(to: onboardingController)
     }
 
-    @MainActor func showLocalAuthentication() async {
+    func showLocalAuthentication() {
         let pincodeView = PinViewFactory.createSecuredPinView()
         guard let pincodeController = pincodeView?.controller else {
             return
@@ -30,7 +30,7 @@ final class OnboardingRouter: OnboardingRouterInput {
         animateTransition(to: pincodeController)
     }
 
-    @MainActor func showPincodeSetup() async {
+    func showPincodeSetup() {
         guard let controller = PinViewFactory.createPinSetupView()?.controller else {
             return
         }

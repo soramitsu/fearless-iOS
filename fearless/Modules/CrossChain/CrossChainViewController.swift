@@ -122,6 +122,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
 extension CrossChainViewController: CrossChainViewInput {
     func setButtonLoadingState(isLoading: Bool) {
         rootView.actionButton.set(loading: isLoading)
+        updatePreviewButton()
     }
 
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
@@ -153,21 +154,12 @@ extension CrossChainViewController: CrossChainViewInput {
         rootView.bind(originalSelectNetworkViewModel: originSelectNetworkViewModel)
     }
 
-    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel) {
+    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel?) {
         rootView.bind(destSelectNetworkViewModel: destSelectNetworkViewModel)
     }
 
     func didReceive(recipientViewModel: RecipientViewModel) {
         rootView.bind(recipientViewModel: recipientViewModel)
-        updatePreviewButton()
-    }
-
-    func didStartLoading() {
-        rootView.actionButton.set(loading: true)
-    }
-
-    func didStopLoading() {
-        rootView.actionButton.set(loading: false)
         updatePreviewButton()
     }
 }

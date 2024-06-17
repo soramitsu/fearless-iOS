@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 final class LiquidityPoolsListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = LiquidityPoolsListViewLayout
@@ -46,9 +47,38 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder, Hidd
         rootView.backButton.addAction { [weak self] in
             self?.output.didTapBackButton()
         }
+
+        bindSearchTextView()
+        addEndEditingTapGesture(for: rootView)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
+
+    private func bindSearchTextView() {
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.output.searchTextDidChanged(text)
+        }
+    }
+}
+
+extension LiquidityPoolsListViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
 extension LiquidityPoolsListViewController: UITableViewDataSource, UITableViewDelegate {

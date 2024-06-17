@@ -58,7 +58,11 @@ final class ChainAccountInteractor {
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [.assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"])],
+            filters: [
+                .assetNames([chainAsset.asset.symbol, "xc\(chainAsset.asset.symbol)"]),
+                .enabledChains,
+                .enabled(wallet: wallet)
+            ],
             sortDescriptors: []
         ) { [weak self] result in
             guard let strongSelf = self else {
@@ -97,7 +101,6 @@ final class ChainAccountInteractor {
                 strongSelf.walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
                     wallet: strongSelf.wallet,
                     chainAsset: chainAsset,
-                    deliverOn: .main,
                     listener: strongSelf
                 )
             }
@@ -109,6 +112,9 @@ final class ChainAccountInteractor {
             let balanceLocksFetcher = currentDependencies?.balanceLocksFetcher,
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
         else {
+            presenter?.didReceiveBalanceLocksError(ChainRegistryError.runtimeMetadaUnavailable)
+            presenter?.didReceiveAssetFrozenError(ChainRegistryError.runtimeMetadaUnavailable)
+
             return
         }
 

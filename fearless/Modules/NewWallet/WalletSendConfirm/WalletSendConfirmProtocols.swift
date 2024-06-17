@@ -4,6 +4,7 @@ import SSFModels
 
 protocol WalletSendConfirmViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(state: WalletSendConfirmViewState)
+    func didReceive(isLoading: Bool)
 }
 
 protocol WalletSendConfirmPresenterProtocol: AnyObject {

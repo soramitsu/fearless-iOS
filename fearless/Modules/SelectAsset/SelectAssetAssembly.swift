@@ -20,6 +20,7 @@ final class SelectAssetAssembly {
             mapper: AnyCoreDataMapper(AssetModelMapper())
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -44,7 +45,8 @@ final class SelectAssetAssembly {
             priceLocalSubscriber: priceLocalSubscriber,
             assetRepository: AnyDataProviderRepository(assetRepository),
             chainAssets: chainAssets,
-            operationQueue: operationQueue
+            operationQueue: operationQueue,
+            wallet: wallet
         )
         let router = SelectAssetRouter()
 

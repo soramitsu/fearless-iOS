@@ -124,7 +124,6 @@ extension LiquidityPoolRemoveLiquidityViewController: LiquidityPoolRemoveLiquidi
     }
 
     func didReceiveSwapQuoteReady() {
-        print("Swap quotes ready")
         rootView.swapFromInputView.textField.isUserInteractionEnabled = true
         rootView.swapToInputView.textField.isUserInteractionEnabled = true
     }

@@ -1,19 +1,19 @@
 import Foundation
-import SSFRuntimeCodingService
 import SSFModels
+import SSFRuntimeCodingService
 import SSFUtils
 
-actor NMapKeyEncodingWorker {
-    private let keyParams: [[any NMapKeyParamProtocol]]
+final class NMapKeyEncodingWorker {
+    private let keyParams: [[[any NMapKeyParamProtocol]]]
     private let codingFactory: RuntimeCoderFactoryProtocol
-    private let path: StorageCodingPath
+    private let path: any StorageCodingPathProtocol
     private let storageKeyFactory: StorageKeyFactoryProtocol
 
     init(
         codingFactory: RuntimeCoderFactoryProtocol,
-        path: StorageCodingPath,
+        path: any StorageCodingPathProtocol,
         storageKeyFactory: StorageKeyFactoryProtocol,
-        keyParams: [[any NMapKeyParamProtocol]]
+        keyParams: [[[any NMapKeyParamProtocol]]]
     ) {
         self.codingFactory = codingFactory
         self.path = path
@@ -34,31 +34,36 @@ actor NMapKeyEncodingWorker {
         }
 
         let keyEntries = try nMapEntry.keys(using: codingFactory.metadata.schemaResolver)
-        guard keyEntries.count == keyParams.count else {
-            throw StorageKeyEncodingOperationError.incompatibleStorageType
-        }
 
-        var params: [[any NMapKeyParamProtocol]] = []
-        for index in 0 ..< keyParams[0].count {
-            var array: [any NMapKeyParamProtocol] = []
-            for param in keyParams {
-                array.append(param[index])
-            }
-            params.append(array)
-        }
-
-        let keys: [Data] = try params.map { params in
-            let encodedParams: [Data] = try params.enumerated().map { index, param in
-                try param.encode(encoder: codingFactory.createEncoder(), type: keyEntries[index])
+        let keys: [Data] = try keyParams.compactMap {
+            guard keyEntries.count == $0.count else {
+                throw StorageKeyEncodingOperationError.incompatibleStorageType
             }
 
-            return try storageKeyFactory.createStorageKey(
-                moduleName: path.moduleName,
-                storageName: path.itemName,
-                keys: encodedParams,
-                hashers: nMapEntry.hashers
-            )
-        }
+            var params: [[any NMapKeyParamProtocol]] = []
+            for index in 0 ..< $0[0].count {
+                var array: [any NMapKeyParamProtocol] = []
+                for param in $0 {
+                    array.append(param[index])
+                }
+                params.append(array)
+            }
+
+            let keys: [Data] = try params.map { params in
+                let encodedParams: [Data] = try params.enumerated().map { index, param in
+                    try param.encode(encoder: codingFactory.createEncoder(), type: keyEntries[index])
+                }
+
+                return try storageKeyFactory.createStorageKey(
+                    moduleName: path.moduleName,
+                    storageName: path.itemName,
+                    keys: encodedParams,
+                    hashers: nMapEntry.hashers
+                )
+            }
+            return keys
+        }.reduce([], +)
+
         return keys
     }
 

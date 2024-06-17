@@ -72,7 +72,6 @@ PODS:
   - Sourcery (1.9.2):
     - Sourcery/CLI-Only (= 1.9.2)
   - Sourcery/CLI-Only (1.9.2)
-  - Starscream (4.0.8)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
@@ -94,7 +93,6 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
@@ -129,9 +127,6 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
-  Starscream:
-    :git: https://github.com/soramitsu/fearless-starscream.git
-    :tag: 4.0.8
 
 CHECKOUT OPTIONS:
   MediaView:
@@ -140,9 +135,6 @@ CHECKOUT OPTIONS:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
-  Starscream:
-    :git: https://github.com/soramitsu/fearless-starscream.git
-    :tag: 4.0.8
 
 SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
@@ -160,13 +152,12 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
-  Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
   SwiftyBeaver: 014b0c12065026b731bac80305294f27d63e27f6
 
-PODFILE CHECKSUM: 3e3f33da665e33df253f763ffaeb6830b00dded0
+PODFILE CHECKSUM: 934ddb815cb022338f1abd75110a1a634cde7340
 
 COCOAPODS: 1.15.2

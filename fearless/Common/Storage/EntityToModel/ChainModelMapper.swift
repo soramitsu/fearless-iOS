@@ -288,7 +288,7 @@ final class ChainModelMapper {
             guard let id = entity.id, let symbol = entity.symbol else {
                 return nil
             }
-            return XcmAvailableAsset(id: id, symbol: symbol)
+            return XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil)
         }
         let availableXcmAssetDestinations = entity.xcmConfig?.availableDestinations?.allObjects as? [CDXcmAvailableDestination] ?? []
         let destinations: [XcmAvailableDestination] = availableXcmAssetDestinations.compactMap {
@@ -300,7 +300,7 @@ final class ChainModelMapper {
                 guard let id = entity.id, let symbol = entity.symbol else {
                     return nil
                 }
-                return XcmAvailableAsset(id: id, symbol: symbol)
+                return XcmAvailableAsset(id: id, symbol: symbol, minAmount: entity.minAmount)
             }
             return XcmAvailableDestination(
                 chainId: chainId,
@@ -420,6 +420,7 @@ final class ChainModelMapper {
                 let entity = CDXcmAvailableAsset(context: context)
                 entity.id = $0.id
                 entity.symbol = $0.symbol
+                entity.minAmount = $0.minAmount
                 return entity
             }
             destinationEntity.assets = Set(availableAssets) as NSSet
@@ -496,7 +497,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: customNodesSet,
-            iosMinAppVersion: entity.minimalAppVersion
+            iosMinAppVersion: entity.minimalAppVersion,
+            identityChain: entity.identityChain
         )
 
         let assetsArray: [AssetModel] = entity.assets.or([]).compactMap { anyAsset in
@@ -537,7 +539,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
-
+        entity.identityChain = model.identityChain
         updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)

@@ -137,9 +137,6 @@ final class ChainSyncService {
         }
 
         let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
-            guard !item.disabled else {
-                return
-            }
             mapping[item.chainId] = item
         }
 
@@ -148,9 +145,6 @@ final class ChainSyncService {
         }
 
         let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
-            guard !remoteItem.disabled else {
-                return nil
-            }
             if let localItem = localMapping[remoteItem.chainId] {
                 return localItem != remoteItem ? remoteItem : nil
             } else {
@@ -159,7 +153,7 @@ final class ChainSyncService {
         }
 
         let removed = localChains.compactMap { localItem in
-            let isRemoved = remoteMapping[localItem.chainId] == nil || (remoteMapping[localItem.chainId]?.disabled == true)
+            let isRemoved = remoteMapping[localItem.chainId] == nil
             return isRemoved ? localItem : nil
         }
 

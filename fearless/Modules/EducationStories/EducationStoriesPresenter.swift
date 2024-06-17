@@ -53,7 +53,7 @@ extension EducationStoriesPresenter: EducationStoriesPresenterProtocol {
     func didCloseStories() {
         interactor.didCloseStories()
 
-        switch startViewHelper.startView() {
+        switch startViewHelper.startView(onboardingConfig: nil) {
         case .pin:
             router.showLocalAuthentication()
         case .pinSetup:

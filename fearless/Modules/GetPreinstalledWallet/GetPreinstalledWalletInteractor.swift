@@ -1,17 +1,18 @@
 import UIKit
+import SSFQRService
 import RobinHood
 
 final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
     // MARK: - Private properties
 
     private weak var output: GetPreinstalledWalletInteractorOutput?
-    private let qrExtractionService: QRExtractionServiceProtocol
+    private let qrService: QRService
     private let qrScanService: QRCaptureServiceProtocol
     private let settings: SelectedWalletSettings
     private let eventCenter: EventCenterProtocol
 
     init(
-        qrExtractionService: QRExtractionServiceProtocol,
+        qrService: QRService,
         qrScanService: QRCaptureServiceProtocol,
         accountOperationFactory: MetaAccountOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
@@ -21,7 +22,7 @@ final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
         settings: SelectedWalletSettings,
         eventCenter: EventCenterProtocol
     ) {
-        self.qrExtractionService = qrExtractionService
+        self.qrService = qrService
         self.qrScanService = qrScanService
         self.settings = settings
         self.eventCenter = eventCenter
@@ -87,21 +88,14 @@ extension GetPreinstalledWalletInteractor: GetPreinstalledWalletInteractorInput 
     }
 
     func extractQr(from image: UIImage) {
-        qrExtractionService.extract(
-            from: image,
-            dispatchCompletionIn: .main
-        ) { [weak self] result in
-            switch result {
-            case let .success(code):
-                self?.output?.handleMatched(code: code)
-            case let .failure(error):
-                if case let QRExtractionServiceError.plainAddress(address) = error {
-                    self?.output?.handleAddress(address)
-                    return
-                }
-
-                self?.output?.handleQRService(error: error)
+        do {
+            let matcher = try qrService.extractQrCode(from: image)
+            guard let preinstalledWallet = matcher.preinstalledWallet else {
+                throw ConvenienceError(error: "Matches has't preinstalled wallet")
             }
+            output?.handleAddress(preinstalledWallet)
+        } catch {
+            output?.handleQRService(error: error)
         }
     }
 

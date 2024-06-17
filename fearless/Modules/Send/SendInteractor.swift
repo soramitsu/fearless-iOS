@@ -60,18 +60,18 @@ final class SendInteractor: RuntimeConstantFetching {
             return
         }
 
-        Task {
-            if let accountId = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-                dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
+        if let accountId = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            dependencies.accountInfoFetching.fetch(for: chainAsset, accountId: accountId) { [weak self] chainAsset, accountInfo in
 
+                DispatchQueue.main.async {
                     self?.output?.didReceiveAccountInfo(result: .success(accountInfo), for: chainAsset)
-
-                    let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
-                    self?.accountInfoSubscriptionAdapter.subscribe(
-                        chainsAssets: chainAssets,
-                        handler: self
-                    )
                 }
+
+                let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
+                self?.accountInfoSubscriptionAdapter.subscribe(
+                    chainsAssets: chainAssets,
+                    handler: self
+                )
             }
         }
     }
@@ -180,9 +180,14 @@ extension SendInteractor: SendInteractorInput {
 
     func defineAvailableChains(
         for asset: AssetModel,
+        wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     ) {
-        chainAssetFetching.fetch(shouldUseCache: true, filters: [], sortDescriptors: []) { result in
+        chainAssetFetching.fetch(
+            shouldUseCache: true,
+            filters: [.enabled(wallet: wallet)],
+            sortDescriptors: []
+        ) { result in
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):
@@ -196,19 +201,20 @@ extension SendInteractor: SendInteractorInput {
     }
 
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
-        guard let dependencies = dependencies else {
+        guard let dependencies = dependencies, let senderAddress = dependencies.wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             return
         }
 
         Task {
             do {
-                let address = try (address ?? AddressFactory.randomAccountId(for: chainAsset.chain).toAddress(using: chainAsset.chain.chainFormat))
-
+                let address = address ?? senderAddress
+                let appId: BigUInt? = chainAsset.chain.options?.contains(.checkAppId) == true ? .zero : nil
                 let transfer = Transfer(
                     chainAsset: chainAsset,
                     amount: amount,
                     receiver: address,
-                    tip: tip
+                    tip: tip,
+                    appId: appId
                 )
 
                 let fee = try await dependencies.transferService.estimateFee(for: transfer)
@@ -301,29 +307,31 @@ extension SendInteractor: SendInteractorInput {
             return
         }
 
-        Task {
-            guard let runtimeService = dependencies.runtimeService else {
-                return
-            }
+        guard let runtimeService = dependencies.runtimeService else {
+            return
+        }
 
-            dependencies.existentialDepositService.fetchExistentialDeposit(
-                chainAsset: chainAsset
-            ) { [weak self] result in
+        dependencies.existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
+            DispatchQueue.main.async {
                 self?.output?.didReceiveMinimumBalance(result: result)
             }
+        }
 
-            if chainAsset.chain.isTipRequired {
-                fetchConstant(
-                    for: .defaultTip,
-                    runtimeCodingService: runtimeService,
-                    operationManager: operationManager
-                ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
+        if chainAsset.chain.isTipRequired {
+            fetchConstant(
+                for: .defaultTip,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
+                DispatchQueue.main.async {
                     self?.output?.didReceiveTip(result: result)
                 }
             }
-            if chainAsset.chain.isEquilibrium {
-                equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
-            }
+        }
+        if chainAsset.chain.isEquilibrium {
+            equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
         }
     }
 }

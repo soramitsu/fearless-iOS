@@ -13,6 +13,7 @@ protocol LiquidityPoolsListViewOutput: AnyObject {
     func didTapOn(viewModel: LiquidityPoolListCellModel)
     func didTapMoreButton()
     func didTapBackButton()
+    func searchTextDidChanged(_ text: String?)
 }
 
 protocol LiquidityPoolsListInteractorInput: AnyObject {

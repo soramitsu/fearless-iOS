@@ -1,5 +1,5 @@
-
 import SSFModels
+import SSFQRService
 
 enum SendFlowType {
     case token
@@ -11,6 +11,7 @@ enum SendFlowInitialData {
     case address(String)
     case soraMainnet(qrInfo: SoraQRInfo)
     case bokoloCash(qrInfo: BokoloCashQRInfo)
+    case desiredCryptocurrency(qrInfo: DesiredCryptocurrencyQRInfo)
 
     init(qrInfoType: QRInfoType) {
         switch qrInfoType {
@@ -20,12 +21,14 @@ enum SendFlowInitialData {
             self = .soraMainnet(qrInfo: soraQRInfo)
         case let .cex(cexQRInfo):
             self = .address(cexQRInfo.address)
+        case let .desiredCryptocurrency(qrInfo):
+            self = .desiredCryptocurrency(qrInfo: qrInfo)
         }
     }
 
     var selectableAsset: Bool {
         switch self {
-        case .chainAsset, .address:
+        case .chainAsset, .address, .desiredCryptocurrency:
             return true
         case .soraMainnet, .bokoloCash:
             return false

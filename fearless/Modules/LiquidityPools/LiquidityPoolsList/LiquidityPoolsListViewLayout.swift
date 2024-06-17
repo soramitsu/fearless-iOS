@@ -1,7 +1,10 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class LiquidityPoolsListViewLayout: UIView {
+    var keyboardAdoptableConstraint: Constraint?
+
     let topBar: BorderedContainerView = {
         let view = BorderedContainerView()
         view.borderType = .bottom
@@ -42,11 +45,18 @@ final class LiquidityPoolsListViewLayout: UIView {
         return view
     }()
 
-    private let backgroundImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
-        imageView.image = R.image.backgroundImage()
-        return imageView
+    let vStackView = UIFactory.default.createVerticalStackView(spacing: 8)
+
+    let searchTextField: SearchTextField = {
+        let searchTextField = UIFactory.default.createSearchTextField()
+        searchTextField.triangularedView?.strokeWidth = 0
+        return searchTextField
+    }()
+
+    let cancelButton: UIButton = {
+        let button = UIButton()
+        button.titleLabel?.font = .h4Title
+        return button
     }()
 
     var locale: Locale = .current {
@@ -57,6 +67,7 @@ final class LiquidityPoolsListViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = R.color.colorBlack19()
         drawSubviews()
         setupConstraints()
     }
@@ -70,7 +81,7 @@ final class LiquidityPoolsListViewLayout: UIView {
         titleLabel.text = viewModel.titleLabelText
         moreButton.isHidden = !viewModel.moreButtonVisible
         backButton.isHidden = !viewModel.backgroundVisible
-        backgroundImageView.isHidden = !viewModel.backgroundVisible
+        searchTextField.isHidden = !viewModel.refreshAvailable
 
         tableView.refreshControl = viewModel.refreshAvailable ? UIRefreshControl() : nil
         tableView.isScrollEnabled = viewModel.refreshAvailable
@@ -83,9 +94,11 @@ final class LiquidityPoolsListViewLayout: UIView {
     }
 
     private func drawSubviews() {
-        addSubview(backgroundImageView)
-        addSubview(topBar)
-        addSubview(tableView)
+        addSubview(vStackView)
+
+        vStackView.addArrangedSubview(topBar)
+        vStackView.addArrangedSubview(searchTextField)
+        vStackView.addArrangedSubview(tableView)
 
         topBar.addSubview(titleLabel)
         topBar.addSubview(moreButton)
@@ -93,24 +106,28 @@ final class LiquidityPoolsListViewLayout: UIView {
     }
 
     private func setupConstraints() {
-        backgroundImageView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        vStackView.snp.makeConstraints { make in
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+            make.leading.trailing.top.equalToSuperview()
         }
 
         topBar.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
             make.height.equalTo(42)
             make.leading.trailing.equalToSuperview()
         }
 
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(topBar.snp.bottom).offset(8)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
         }
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(12)
             make.centerY.equalToSuperview()
+        }
+
+        searchTextField.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(8)
+            make.height.equalTo(32)
         }
 
         moreButton.snp.makeConstraints { make in
@@ -129,5 +146,8 @@ final class LiquidityPoolsListViewLayout: UIView {
 
     private func applyLocalization() {
         moreButton.setTitle(R.string.localizable.commonMore(preferredLanguages: locale.rLanguages).uppercased(), for: .normal)
+        searchTextField.textField.placeholder = R.string.localizable.manageAssetsSearchHint(
+            preferredLanguages: locale.rLanguages
+        )
     }
 }
