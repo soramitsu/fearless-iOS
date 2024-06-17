@@ -65,7 +65,6 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     }
 
     private var baseTargetRate: Decimal?
-
     private var dexId: String?
 
     private var baseAssetResultAmount: Decimal {
