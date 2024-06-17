@@ -106,7 +106,8 @@
                 "assets": [
                     {
                         "id": "99e66d4f-00cd-4d73-bd1b-3adadcacffb2",
-                        "symbol": "DOT"
+                        "symbol": "DOT",
+                        "minAmount": "11000000000"
                     }
                     
                 ],
@@ -228,7 +229,8 @@
                     "assets": [
                         {
                             "id": "0ceffe96-8090-404e-815c-91118ee5dd65",
-                            "symbol": "KSM"
+                            "symbol": "KSM",
+                            "minAmount": "50000000000"
                         }
                         
                     ],
@@ -826,7 +828,8 @@
                     "assets": [
                         {
                             "id": "7528bb5b-2aa9-4a70-a4ed-3476aec0f87d",
-                            "symbol": "ACA"
+                            "symbol": "ACA",
+                            "minAmount": "56000000000000"
                         }
                         
                     ],
@@ -5403,7 +5406,8 @@
                     "assets": [
                         {
                             "id": "cd092a5a-4eb6-4318-9f11-4bf8454d67a2",
-                            "symbol": "DOT"
+                            "symbol": "DOT",
+                            "minAmount": "1100000000000000000"
                         }
                     ]
                 },
@@ -5412,7 +5416,8 @@
                     "assets": [
                         {
                             "id": "fb88fa55-b8c8-4ff1-afa8-f72a86a238a4",
-                            "symbol": "ACA"
+                            "symbol": "ACA",
+                            "minAmount": "1000000000000000000"
                         }
                     ]
                 },
@@ -5421,7 +5426,8 @@
                     "assets": [
                         {
                             "id": "a6b83d39-a488-4b34-8352-280705a792ea",
-                            "symbol": "LLD"
+                            "symbol": "LLD",
+                            "minAmount": "1000000000000000000"
                         },
                         {
                             "id": "b774c386-5cce-454a-a845-1ec0381538ec",
@@ -7525,7 +7531,8 @@
                     "assets": [
                         {
                             "id": "a6b83d39-a488-4b34-8352-280705a792e",
-                            "symbol": "LLD"
+                            "symbol": "LLD",
+                            "minAmount": "1000000000000"
                         },
                         {
                             "id": "30b43eb9-36b4-4b40-bf72-330d2e20ee86",

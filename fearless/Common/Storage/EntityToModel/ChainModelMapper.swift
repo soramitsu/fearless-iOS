@@ -295,7 +295,7 @@ final class ChainModelMapper {
                 guard let id = entity.id, let symbol = entity.symbol else {
                     return nil
                 }
-                return XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil)
+                return XcmAvailableAsset(id: id, symbol: symbol, minAmount: entity.minAmount)
             }
             return XcmAvailableDestination(
                 chainId: chainId,
@@ -412,6 +412,7 @@ final class ChainModelMapper {
                 let entity = CDXcmAvailableAsset(context: context)
                 entity.id = $0.id
                 entity.symbol = $0.symbol
+                entity.minAmount = $0.minAmount
                 return entity
             }
             destinationEntity.assets = Set(availableAssets) as NSSet

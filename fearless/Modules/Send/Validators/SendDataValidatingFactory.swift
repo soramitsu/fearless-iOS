@@ -1,4 +1,5 @@
 import Foundation
+import SSFXCM
 import SoraFoundation
 import BigInt
 import SSFModels
@@ -26,6 +27,10 @@ enum ExistentialDepositValidationParameters {
 }
 
 class SendDataValidatingFactory: NSObject {
+    private lazy var xcmAmountInspector: XcmMinAmountInspector = {
+        XcmMinAmountInspectorImpl()
+    }()
+
     weak var view: (Localizable & ControllerBackedProtocol)?
     var basePresentable: BaseErrorPresentable
 
@@ -228,53 +233,43 @@ class SendDataValidatingFactory: NSObject {
     }
 
     func soraBridgeViolated(
-        originCHainId: ChainModel.Id,
-        destChainId: ChainModel.Id?,
+        originCHain: ChainModel,
+        destChain: ChainModel?,
         amount: Decimal,
         locale: Locale,
         asset: AssetModel
     ) -> DataValidating {
-        ErrorConditionViolation(onError: { [weak self] in
-            guard let self, let view = self.view, let destChainId else {
+        ErrorThrowingViolation(onError: { [weak self] errorText in
+            guard let self, let view = self.view else {
                 return
             }
 
-            let assetAmount = self.minAssetAmount(originCHainId: originCHainId, destChainId: destChainId)
-
             self.basePresentable.presentSoraBridgeLowAmountError(
                 from: view,
-                originChainId: originCHainId,
                 locale: locale,
-                assetAmount: assetAmount
+                assetAmount: errorText
             )
-        }, preservesCondition: {
-            guard let destChainId = destChainId else {
-                return false
+        }, preservesCondition: { [weak self] in
+            guard
+                let self,
+                let destChain,
+                let substrateAmount = amount.toSubstrateAmount(precision: Int16(asset.precision))
+            else {
+                return nil
             }
-            let originKnownChain = Chain(chainId: originCHainId)
-            let destKnownChain = Chain(chainId: destChainId)
-
-            switch (originKnownChain, destKnownChain) {
-            case (.kusama, .soraMain):
-                return amount >= 0.05
-            case (.polkadot, .soraMain), (.soraMain, .polkadot):
-                return amount >= 1.1
-            case (.liberland, .soraMain):
-                guard asset.symbol.lowercased() == "lld" else {
-                    return true
+            do {
+                try self.xcmAmountInspector.inspectMin(
+                    amount: substrateAmount,
+                    fromChainModel: originCHain,
+                    destChainModel: destChain,
+                    assetSymbol: asset.symbol
+                )
+                return nil
+            } catch {
+                guard let xcmError = error as? XcmError, case let .minAmountError(minAmount) = xcmError else {
+                    return nil
                 }
-                return amount >= 1.0
-            case (.soraMain, .liberland):
-                guard asset.symbol.lowercased() == "lld" else {
-                    return true
-                }
-                return amount >= 1.0
-            case (.soraMain, .acala):
-                return amount >= 1.0
-            case (.acala, .soraMain):
-                return amount >= 56.0
-            default:
-                return true
+                return minAmount
             }
         })
     }
