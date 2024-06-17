@@ -3,6 +3,7 @@ import SoraFoundation
 import BigInt
 import SSFUtils
 import SSFModels
+import SSFQRService
 
 final class SendPresenter {
     enum State {
@@ -33,9 +34,8 @@ final class SendPresenter {
     private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset? {
         didSet {
-            checkSendAllVisibility()
-
             DispatchQueue.main.async {
+                self.checkSendAllVisibility()
                 self.view?.setInputAccessoryView(visible: self.selectedChainAsset?.isBokolo == false)
             }
         }
@@ -246,7 +246,7 @@ final class SendPresenter {
                 return
             }
             interactor.didReceive(xorlessTransfer: transfer)
-        case .address, .chainAsset, .soraMainnet:
+        case .address, .chainAsset, .soraMainnet, .desiredCryptocurrency:
             if selectedChainAsset?.isBokolo == true {
                 guard let transfer = prepareXorlessTransfer() else {
                     return
@@ -753,6 +753,40 @@ final class SendPresenter {
         }
     }
 
+    private func handleDesiredCrypto(qrInfo: DesiredCryptocurrencyQRInfo) {
+        recipientAddress = qrInfo.address
+        Task {
+            let possibleChains = await self.interactor.getPossibleChains(for: qrInfo.address)
+            let chainAsset = possibleChains?
+                .first(where: { $0.name.lowercased() == qrInfo.assetName.lowercased() })?
+                .chainAssets
+                .first(where: { $0.asset.isUtility })
+
+            selectedChainAsset = chainAsset
+
+            if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
+                inputResult = .absolute(qrAmount)
+            }
+
+            let viewModel = viewModelFactory.buildRecipientViewModel(
+                address: qrInfo.address,
+                isValid: true,
+                canEditing: false
+            )
+
+            if let qrChainAsset = chainAsset {
+                interactor.updateSubscriptions(for: qrChainAsset)
+            }
+            await MainActor.run {
+                view?.didReceive(viewModel: viewModel)
+                provideInputViewModel()
+                if let qrChainAsset = chainAsset {
+                    provideNetworkViewModel(for: qrChainAsset.chain, canEdit: true)
+                }
+            }
+        }
+    }
+
     private func prepareXorlessTransfer() -> XorlessTransfer? {
         do {
             guard let selectedChainAsset = selectedChainAsset else {
@@ -875,6 +909,8 @@ extension SendPresenter: SendViewOutput {
             handleSora(qrInfo: qrInfo)
         case let .bokoloCash(bokoloCashQRInfo):
             handleBokoloCash(qrInfo: bokoloCashQRInfo)
+        case let .desiredCryptocurrency(qrInfo):
+            handleDesiredCrypto(qrInfo: qrInfo)
         }
     }
 
@@ -1158,6 +1194,8 @@ extension SendPresenter: ScanQRModuleOutput {
             handleSora(qrInfo: qrInfo)
         case let .cex(qrInfo):
             searchTextDidChanged(qrInfo.address)
+        case let .desiredCryptocurrency(qrInfo):
+            handleDesiredCrypto(qrInfo: qrInfo)
         }
     }
 }

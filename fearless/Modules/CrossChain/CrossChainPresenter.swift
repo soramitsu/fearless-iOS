@@ -5,6 +5,7 @@ import BigInt
 import SSFExtrinsicKit
 import SSFUtils
 import SSFModels
+import SSFQRService
 
 protocol CrossChainViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)

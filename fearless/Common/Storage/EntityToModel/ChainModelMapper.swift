@@ -283,7 +283,7 @@ final class ChainModelMapper {
             guard let id = entity.id, let symbol = entity.symbol else {
                 return nil
             }
-            return XcmAvailableAsset(id: id, symbol: symbol)
+            return XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil)
         }
         let availableXcmAssetDestinations = entity.xcmConfig?.availableDestinations?.allObjects as? [CDXcmAvailableDestination] ?? []
         let destinations: [XcmAvailableDestination] = availableXcmAssetDestinations.compactMap {
@@ -295,7 +295,7 @@ final class ChainModelMapper {
                 guard let id = entity.id, let symbol = entity.symbol else {
                     return nil
                 }
-                return XcmAvailableAsset(id: id, symbol: symbol)
+                return XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil)
             }
             return XcmAvailableDestination(
                 chainId: chainId,
