@@ -5661,6 +5661,7 @@
 		FA887A442C107A1100CA720F /* LiquidityPoolSupplyConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolSupplyConfirmViewModel.swift; sourceTree = "<group>"; };
 		FA887A462C107A4300CA720F /* LiquidityPoolSupplyConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolSupplyConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		FA887A482C1C19DB00CA720F /* WarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningView.swift; sourceTree = "<group>"; };
+		FA887A4B2C1FFFD400CA720F /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FA8C34B051607218638BA851 /* FiltersProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersProtocols.swift; sourceTree = "<group>"; };
 		FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListFlow.swift; sourceTree = "<group>"; };
 		FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListRelaychainStrategy.swift; sourceTree = "<group>"; };
@@ -9169,6 +9170,7 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
+				FA887A4A2C1FFFD400CA720F /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -14108,6 +14110,14 @@
 				FA887A462C107A4300CA720F /* LiquidityPoolSupplyConfirmViewModelFactory.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		FA887A4A2C1FFFD400CA720F /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				FA887A4B2C1FFFD400CA720F /* shared-features-spm */,
+			);
+			name = Packages;
 			sourceTree = "<group>";
 		};
 		FA8ED43128FD8D6200EBB712 /* Flows */ = {
