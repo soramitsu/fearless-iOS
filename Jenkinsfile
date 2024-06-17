@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/SUP-8993-fearless-autotests') _
 
 // Job properties
 def jobParams = [
