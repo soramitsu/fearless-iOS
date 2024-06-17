@@ -5656,7 +5656,6 @@
 		FA8800672B31A335000AE5EB /* StakingAccountSubscriptionV13.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAccountSubscriptionV13.swift; sourceTree = "<group>"; };
 		FA8800692B31A33E000AE5EB /* StakingAccountSubscriptionV14.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAccountSubscriptionV14.swift; sourceTree = "<group>"; };
 		FA88006B2B31A46D000AE5EB /* StakingAccountSubscriptionAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAccountSubscriptionAssembly.swift; sourceTree = "<group>"; };
-		FA8810D12BDCAF350084CC4B /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FA8810D22BDCCF7E0084CC4B /* UserLiquidityPoolsListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLiquidityPoolsListPresenter.swift; sourceTree = "<group>"; };
 		FA8810D42BDCD19D0084CC4B /* UserLiquidityPoolsListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserLiquidityPoolsListViewModelFactory.swift; sourceTree = "<group>"; };
 		FA887A442C107A1100CA720F /* LiquidityPoolSupplyConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolSupplyConfirmViewModel.swift; sourceTree = "<group>"; };
@@ -9170,7 +9169,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FAF25D3F2BD7C45E00EA4E3B /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -15523,14 +15521,6 @@
 				C661B3B327DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift */,
 			);
 			path = Adapter;
-			sourceTree = "<group>";
-		};
-		FAF25D3F2BD7C45E00EA4E3B /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				FA8810D12BDCAF350084CC4B /* shared-features-spm */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		FAF5E9C827E46D3E005A3448 /* Codable */ = {
