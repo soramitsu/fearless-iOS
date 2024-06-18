@@ -34,10 +34,7 @@ final class SendDepencyContainer {
         self.operationManager = operationManager
     }
 
-    func prepareDepencies(
-        chainAsset: ChainAsset,
-        runtimeItem: RuntimeMetadataItem?
-    ) async throws -> SendDependencies {
+    func prepareDepencies(chainAsset: ChainAsset) async throws -> SendDependencies {
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             throw ChainAccountFetchingError.accountNotExists
         }
@@ -60,7 +57,7 @@ final class SendDepencyContainer {
 
         let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
-        let transferService = try await createTransferService(for: chainAsset, runtimeItem: runtimeItem)
+        let transferService = try await createTransferService(for: chainAsset)
         let polkaswapService = createPolkaswapService(chainAsset: chainAsset, chainRegistry: chainRegistry)
         let accountInfoFetching = createAccountInfoFetching(for: chainAsset)
 
@@ -105,7 +102,7 @@ final class SendDepencyContainer {
         return substrateAccountInfoFetching
     }
 
-    private func createTransferService(for chainAsset: ChainAsset, runtimeItem: RuntimeMetadataItem?) async throws -> TransferServiceProtocol {
+    private func createTransferService(for chainAsset: ChainAsset) async throws -> TransferServiceProtocol {
         guard
             let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest())
         else {
@@ -118,42 +115,15 @@ final class SendDepencyContainer {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
 
-            let chainSyncService = SSFChainRegistry.ChainSyncService(
-                chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
-                operationQueue: OperationQueue(),
-                dataFetchFactory: SSFNetwork.NetworkOperationFactory()
-            )
-
-            let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
-                url: ApplicationConfig.shared.chainTypesSourceUrl,
-                dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
-                operationQueue: OperationQueue()
-            )
-
-            let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
-
-            let chainRegistry = SSFChainRegistry.ChainRegistry(
-                runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
-                connectionPool: SSFChainRegistry.ConnectionPool(),
-                chainSyncService: chainSyncService,
-                chainsTypesSyncService: chainsTypesSyncService,
-                runtimeSyncService: runtimeSyncService
-            )
-            let connection = try await chainRegistry.getSubstrateConnection(for: chainAsset.chain)
-
-            let runtimeService = try await chainRegistry.getRuntimeProvider(
-                chainId: chainAsset.chain.chainId,
-                usedRuntimePaths: [:],
-                runtimeItem: runtimeItem
-            )
-
+            let chainRegistry = ChainRegistryFacade.sharedRegistry
+            let connection = try chainRegistry.getSubstrateConnection(for: chainAsset.chain)
             let operationManager = OperationManagerFacade.sharedManager
 
             let extrinsicService = SSFExtrinsicKit.ExtrinsicService(
                 accountId: accountResponse.accountId,
                 chainFormat: chainAsset.chain.chainFormat.asSfCrypto(),
                 cryptoType: accountResponse.cryptoType,
-                runtimeRegistry: runtimeService,
+                runtimeRegistry: nativeRuntimeService,
                 engine: connection,
                 operationManager: operationManager
             )

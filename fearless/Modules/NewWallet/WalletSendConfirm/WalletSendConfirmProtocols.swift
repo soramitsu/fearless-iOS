@@ -19,7 +19,6 @@ protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
 
     func setup()
     func submitExtrinsic()
-    func estimateFee()
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal)
     func provideConstants()

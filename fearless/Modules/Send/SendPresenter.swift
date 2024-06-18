@@ -577,7 +577,7 @@ final class SendPresenter {
                     chainAsset: chainAsset,
                     call: .transfer(transfer),
                     scamInfo: strongSelf.scamInfo,
-                    feeViewModel: nil
+                    feeViewModel: strongSelf.feeViewModel
                 )
             }
         }
@@ -888,7 +888,6 @@ extension SendPresenter: SendViewOutput {
                     self?.inputResult = .rate(Decimal(Double(percentage)))
                     self?.provideAssetVewModel()
                     self?.provideInputViewModel()
-                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
                 })
             )
         }
@@ -907,7 +906,6 @@ extension SendPresenter: SendViewOutput {
                 chainAsset: chainAsset,
                 validationCase: .validateAmount(completionHandler: { [weak self] in
                     self?.provideAssetVewModel()
-                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
                 })
             )
         }
