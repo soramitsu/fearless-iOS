@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="class">
+        <attribute name="color" optional="YES" attributeType="String"/>
+        <attribute name="currencyId" optional="YES" attributeType="String"/>
+        <attribute name="ethereumType" optional="YES" attributeType="String"/>
+        <attribute name="existentialDeposit" optional="YES" attributeType="String"/>
+        <attribute name="fiatDayChange" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="icon" optional="YES" attributeType="URI"/>
+        <attribute name="id" attributeType="String"/>
+        <attribute name="isNative" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="isUtility" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="price" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
+        <attribute name="priceId" optional="YES" attributeType="String"/>
+        <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="staking" optional="YES" attributeType="String"/>
+        <attribute name="symbol" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="priceProvider" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDPriceProvider" inverseName="asset" inverseEntity="CDPriceProvider"/>
+    </entity>
+    <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
+        <attribute name="addressPrefix" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="chainId" attributeType="String"/>
+        <attribute name="crowdloansApiType" optional="YES" attributeType="String"/>
+        <attribute name="crowdloansApiUrl" optional="YES" attributeType="URI"/>
+        <attribute name="disabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="hasCrowdloans" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="historyApiType" optional="YES" attributeType="String"/>
+        <attribute name="historyApiUrl" optional="YES" attributeType="URI"/>
+        <attribute name="icon" optional="YES" attributeType="URI"/>
+        <attribute name="identityChain" optional="YES" attributeType="String"/>
+        <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isOrml" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isTestnet" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="isTipRequired" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="minimalAppVersion" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="options" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
+        <attribute name="paraId" optional="YES" attributeType="String"/>
+        <attribute name="parentId" optional="YES" attributeType="String"/>
+        <attribute name="rank" optional="YES" attributeType="String"/>
+        <attribute name="stakingApiType" optional="YES" attributeType="String"/>
+        <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
+        <attribute name="types" optional="YES" attributeType="URI"/>
+        <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
+        <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDAsset"/>
+        <relationship name="customNodes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainNode"/>
+        <relationship name="explorers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDExternalApi" inverseName="chain" inverseEntity="CDExternalApi"/>
+        <relationship name="nodes" optional="YES" toMany="YES" minCount="1" deletionRule="Cascade" destinationEntity="CDChainNode" inverseName="chain" inverseEntity="CDChainNode"/>
+        <relationship name="selectedNode" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChainNode"/>
+        <relationship name="xcmConfig" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChainXcmConfig" inverseName="chain" inverseEntity="CDChainXcmConfig"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="chainId"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CDChainNode" representedClassName="CDChainNode" syncable="YES" codeGenerationType="class">
+        <attribute name="apiKeyName" optional="YES" attributeType="String"/>
+        <attribute name="apiQueryName" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String" defaultValueString=""/>
+        <attribute name="url" attributeType="URI"/>
+        <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="nodes" inverseEntity="CDChain"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="url"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
+    </entity>
+    <entity name="CDChainStorageItem" representedClassName="CDChainStorageItem" syncable="YES" codeGenerationType="class">
+        <attribute name="data" optional="YES" attributeType="Binary"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDChainXcmConfig" representedClassName="CDChainXcmConfig" syncable="YES" codeGenerationType="class">
+        <attribute name="destWeightIsPrimitive" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="xcmVersion" optional="YES" attributeType="String"/>
+        <relationship name="availableAssets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableAsset"/>
+        <relationship name="availableDestinations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableDestination" inverseName="config" inverseEntity="CDXcmAvailableDestination"/>
+        <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="xcmConfig" inverseEntity="CDChain"/>
+    </entity>
+    <entity name="CDContact" representedClassName="CDContact" syncable="YES" codeGenerationType="class">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="chainId" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDContactItem" representedClassName="CDContactItem" syncable="YES" codeGenerationType="class">
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="peerAddress" optional="YES" attributeType="String"/>
+        <attribute name="peerName" optional="YES" attributeType="String"/>
+        <attribute name="targetAddress" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="CDExternalApi" representedClassName="CDExternalApi" syncable="YES" codeGenerationType="class">
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <attribute name="types" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="url" optional="YES" attributeType="String"/>
+        <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="explorers" inverseEntity="CDChain"/>
+    </entity>
+    <entity name="CDPhishingItem" representedClassName="CDPhishingItem" syncable="YES" codeGenerationType="class">
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="publicKey" optional="YES" attributeType="String"/>
+        <attribute name="source" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDPolkaswapDex" representedClassName="CDPolkaswapDex" syncable="YES" codeGenerationType="class">
+        <attribute name="assetId" optional="YES" attributeType="String"/>
+        <attribute name="code" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDPolkaswapRemoteSettings" representedClassName="CDPolkaswapRemoteSettings" syncable="YES" codeGenerationType="class">
+        <attribute name="availableSources" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="forceSmartIds" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
+        <attribute name="version" attributeType="String"/>
+        <attribute name="xstusdId" optional="YES" attributeType="String"/>
+        <relationship name="availableDexIds" toMany="YES" deletionRule="Nullify" destinationEntity="CDPolkaswapDex"/>
+    </entity>
+    <entity name="CDPriceProvider" representedClassName="CDPriceProvider" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="precision" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="priceProvider" inverseEntity="CDAsset"/>
+    </entity>
+    <entity name="CDRuntimeMetadataItem" representedClassName="CDRuntimeMetadataItem" syncable="YES" codeGenerationType="class">
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="metadata" optional="YES" attributeType="Binary"/>
+        <attribute name="resolver" optional="YES" attributeType="Binary"/>
+        <attribute name="txVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="CDScamInfo" representedClassName="CDScamInfo" syncable="YES" codeGenerationType="class">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="subtype" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDStashItem" representedClassName="CDStashItem" syncable="YES" codeGenerationType="class">
+        <attribute name="controller" optional="YES" attributeType="String"/>
+        <attribute name="stash" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
+        <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
+        <attribute name="call" optional="YES" attributeType="Binary"/>
+        <attribute name="callName" attributeType="String"/>
+        <attribute name="fee" optional="YES" attributeType="String"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="moduleName" attributeType="String"/>
+        <attribute name="receiver" optional="YES" attributeType="String"/>
+        <attribute name="sender" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
+    </entity>
+    <entity name="CDXcmAvailableAsset" representedClassName="CDXcmAvailableAsset" syncable="YES" codeGenerationType="class">
+        <attribute name="id" optional="YES" attributeType="String"/>
+        <attribute name="minAmount" optional="YES" attributeType="String"/>
+        <attribute name="symbol" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDXcmAvailableDestination" representedClassName="CDXcmAvailableDestination" syncable="YES" codeGenerationType="class">
+        <attribute name="bridgeParachainId" optional="YES" attributeType="String"/>
+        <attribute name="chainId" optional="YES" attributeType="String"/>
+        <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDXcmAvailableAsset"/>
+        <relationship name="config" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChainXcmConfig" inverseName="availableDestinations" inverseEntity="CDChainXcmConfig"/>
+    </entity>
+</model>
