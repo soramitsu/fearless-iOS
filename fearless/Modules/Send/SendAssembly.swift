@@ -78,7 +78,6 @@ final class SendAssembly {
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            qrParser: SubstrateQRParser(),
             logger: Logger.shared,
             wallet: wallet,
             initialData: initialData
