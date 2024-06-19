@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
@@ -82,7 +83,8 @@ final class ChainRegistryFactory {
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
             operationQueue: OperationManagerFacade.syncQueue,
-            logger: Logger.shared
+            logger: Logger.shared,
+            applicationHandler: ApplicationHandler()
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(

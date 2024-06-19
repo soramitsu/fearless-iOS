@@ -67,14 +67,28 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        guard wallet.assetsVisibility.isEmpty else {
-            return
-        }
         chainRegistry.chainsSubscribe(
             self,
             runningInQueue: walletAssetsObserverQueue
         ) { [weak self] changes in
-            self?.handleChains(changes: changes, accounts: nil)
+            guard self?.wallet.assetsVisibility.isEmpty == true else {
+                let updateChanges = changes.filter {
+                    switch $0 {
+                    case .update: return true
+                    default: return false
+                    }
+                }
+                self?.handleChains(changes: updateChanges, accounts: nil)
+                return
+            }
+
+            let insertChanges = changes.filter {
+                switch $0 {
+                case .insert: return true
+                default: return false
+                }
+            }
+            self?.handleChains(changes: insertChanges, accounts: nil)
         }
     }
 
@@ -90,27 +104,14 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             let result = await withTaskGroup(
                 of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
                 returning: [ChainModel: [ChainAssetId: AccountInfo?]].self,
-                body: { [wallet] group in
+                body: { group in
                     changes.forEach { change in
                         switch change {
                         case let .insert(chain):
-                            guard !chain.disabled else {
-                                return
-                            }
-                            if let accounts {
-                                if accounts.contains(where: { $0.chainId == chain.chainId }) {
-                                    group.addTask {
-                                        await self.fetchAccountInfos(chain: chain, wallet: wallet)
-                                    }
-                                } else {
-                                    return
-                                }
-                            } else {
-                                group.addTask {
-                                    await self.fetchAccountInfos(chain: chain, wallet: wallet)
-                                }
-                            }
-                        case .update, .delete:
+                            self.handleChange(for: chain, accounts: accounts, group: &group)
+                        case let .update(chain):
+                            self.handleChange(for: chain, accounts: accounts, group: &group)
+                        case .delete:
                             break
                         }
                     }
@@ -127,6 +128,29 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             }
             updateCurrentWallet(with: result)
             performSaveAndNotify()
+        }
+    }
+
+    private func handleChange(
+        for chain: ChainModel,
+        accounts: [ChainAccountModel]?,
+        group: inout TaskGroup<(ChainModel, [ChainAssetId: AccountInfo?])>
+    ) {
+        guard !chain.disabled else {
+            return
+        }
+        if let accounts {
+            if accounts.contains(where: { $0.chainId == chain.chainId }) {
+                group.addTask { [wallet] in
+                    await self.fetchAccountInfos(chain: chain, wallet: wallet)
+                }
+            } else {
+                return
+            }
+        } else {
+            group.addTask { [wallet] in
+                await self.fetchAccountInfos(chain: chain, wallet: wallet)
+            }
         }
     }
 
