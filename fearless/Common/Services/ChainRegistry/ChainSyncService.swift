@@ -61,7 +61,7 @@ final class ChainSyncService {
             return
         }
 
-        DispatchQueue.main.sync {
+        DispatchQueue.main.async {
             self.timer.start(with: 300)
         }
         retryAttempt += 1

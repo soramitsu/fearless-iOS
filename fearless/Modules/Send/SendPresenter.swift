@@ -411,10 +411,17 @@ final class SendPresenter {
         ) { [weak self] in
             self?.router.dismiss(view: self?.view)
         }
+        let assetManagementAction = SheetAlertPresentableAction(
+            title: R.string.localizable.walletManageAssets(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let self else { return }
+            self.router.showManageAsset(from: self.view, wallet: self.wallet)
+        }
         let alertViewModel = SheetAlertPresentableViewModel(
-            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-            message: R.string.localizable.errorUnsupportedAsset(preferredLanguages: selectedLocale.rLanguages),
-            actions: [dissmissAction],
+            title: R.string.localizable.commonActionReceive(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.errorScanQrDisabledAsset(preferredLanguages: selectedLocale.rLanguages),
+            actions: [assetManagementAction, dissmissAction],
             closeAction: nil,
             dismissCompletion: { [weak self] in
                 self?.router.dismiss(view: self?.view)
@@ -764,6 +771,12 @@ final class SendPresenter {
             if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
                 inputResult = .absolute(qrAmount)
             }
+            guard let chainAsset, wallet.isVisible(chainAsset: chainAsset) else {
+                await MainActor.run {
+                    showUnsupportedAssetAlert()
+                }
+                return
+            }
 
             let viewModel = viewModelFactory.buildRecipientViewModel(
                 address: qrInfo.address,
@@ -771,15 +784,11 @@ final class SendPresenter {
                 canEditing: false
             )
 
-            if let qrChainAsset = chainAsset {
-                interactor.updateSubscriptions(for: qrChainAsset)
-            }
+            interactor.updateSubscriptions(for: chainAsset)
             await MainActor.run {
                 view?.didReceive(viewModel: viewModel)
                 provideInputViewModel()
-                if let qrChainAsset = chainAsset {
-                    provideNetworkViewModel(for: qrChainAsset.chain, canEdit: true)
-                }
+                provideNetworkViewModel(for: chainAsset.chain, canEdit: true)
             }
         }
     }
