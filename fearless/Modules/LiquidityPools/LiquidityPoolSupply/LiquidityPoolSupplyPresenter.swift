@@ -5,6 +5,20 @@ import SSFPools
 import BigInt
 import SSFPolkaswap
 
+struct SupplyLiquidityLoadingCollector {
+    var dexIdReady: Bool
+    var feeReady: Bool
+
+    init() {
+        dexIdReady = false
+        feeReady = false
+    }
+
+    var isReady: Bool {
+        dexIdReady && feeReady
+    }
+}
+
 protocol LiquidityPoolSupplyViewInput: ControllerBackedProtocol {
     func didReceiveSwapFrom(viewModel: AssetBalanceViewModelProtocol?)
     func didReceiveSwapTo(viewModel: AssetBalanceViewModelProtocol?)
@@ -65,6 +79,8 @@ final class LiquidityPoolSupplyPresenter {
     private var baseTargetRate: Decimal?
 
     private var dexId: String?
+
+    private var loadingCollector = SupplyLiquidityLoadingCollector()
 
     private var baseAssetResultAmount: Decimal {
         guard let baseAssetInputResult else {
@@ -146,13 +162,19 @@ final class LiquidityPoolSupplyPresenter {
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
     }
 
+    private func checkLoadingState() {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.setButtonLoadingState(isLoading: self?.loadingCollector.isReady == false)
+        }
+    }
+
     private func runLoadingState() {
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: true)
         }
     }
 
-    private func checkLoadingState() {
+    private func resetLoadingState() {
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: false)
         }
@@ -185,8 +207,6 @@ final class LiquidityPoolSupplyPresenter {
                 self?.view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
             }
         }
-
-        checkLoadingState()
     }
 
     private func provideToAssetVewModel(updateAmountInput: Bool = true) {
@@ -216,8 +236,6 @@ final class LiquidityPoolSupplyPresenter {
                 self?.view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
             }
         }
-
-        checkLoadingState()
     }
 
     private func provideFeeViewModel() {
@@ -239,8 +257,6 @@ final class LiquidityPoolSupplyPresenter {
         }
 
         networkFeeViewModel = feeViewModel
-
-        checkLoadingState()
     }
 
     private func buildBalanceSwapToViewModelFactory(
@@ -293,8 +309,20 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     func didTapApyInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Strategic Bonus APY"
-        infoText = "Farming reward for liquidity provision"
+        infoTitle = "Strategic bonus APY"
+        infoText = "APY is a figure that represents the actual amount of interest earned on investments in Liquidity pool."
+        router.presentInfo(
+            message: infoText,
+            title: infoTitle,
+            from: view
+        )
+    }
+
+    func didTapFeeInfo() {
+        var infoText: String
+        var infoTitle: String
+        infoTitle = "Network fee"
+        infoText = "Network fee is used to ensure SORA system’s growth and stable performance."
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -350,8 +378,6 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     }
 
     func selectFromAmountPercentage(_ percentage: Float) {
-        runLoadingState()
-
         baseAssetInputResult = .rate(Decimal(Double(percentage)))
 
         let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
@@ -365,8 +391,6 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     }
 
     func updateFromAmount(_ newValue: Decimal) {
-        runLoadingState()
-
         baseAssetInputResult = .absolute(newValue)
 
         let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
@@ -380,8 +404,6 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     }
 
     func selectToAmountPercentage(_ percentage: Float) {
-        runLoadingState()
-
         targetAssetInputResult = .rate(Decimal(Double(percentage)))
 
         let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
@@ -395,8 +417,6 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     }
 
     func updateToAmount(_ newValue: Decimal) {
-        runLoadingState()
-
         targetAssetInputResult = .absolute(newValue)
 
         let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
@@ -441,6 +461,7 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     }
 
     func handleViewAppeared() {
+        checkLoadingState()
         provideInitialData()
     }
 }
@@ -460,6 +481,9 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
     func didReceiveDexId(_ dexId: String) {
         self.dexId = dexId
         refreshFee()
+
+        loadingCollector.dexIdReady = true
+        checkLoadingState()
     }
 
     func didReceiveDexIdError(_ error: Error) {
@@ -473,6 +497,9 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
 
         networkFee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityAsset.precision))
         provideFeeViewModel()
+
+        loadingCollector.feeReady = true
+        checkLoadingState()
     }
 
     func didReceiveFeeError(_ error: Error) {

@@ -30,15 +30,17 @@ final class LiquidityPoolsListViewLayout: UIView {
 
     let backButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconClose(), for: .normal)
+        button.setImage(R.image.iconBack(), for: .normal)
         button.layer.masksToBounds = true
         button.backgroundColor = R.color.colorWhite8()
         button.isHidden = true
         return button
     }()
 
-    let tableView: SelfSizingTableView = {
-        let view = SelfSizingTableView(frame: .zero)
+    let separatorView = UIFactory.default.createSeparatorView()
+
+    let tableView: UITableView = {
+        let view = UITableView(frame: .zero)
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = .zero
@@ -82,9 +84,22 @@ final class LiquidityPoolsListViewLayout: UIView {
         moreButton.isHidden = !viewModel.moreButtonVisible
         backButton.isHidden = !viewModel.backgroundVisible
         searchTextField.isHidden = !viewModel.refreshAvailable
+        separatorView.isHidden = viewModel.refreshAvailable
 
         tableView.refreshControl = viewModel.refreshAvailable ? UIRefreshControl() : nil
         tableView.isScrollEnabled = viewModel.refreshAvailable
+
+        backgroundColor = viewModel.backgroundVisible ? R.color.colorBlack19() : .clear
+
+        titleLabel.snp.remakeConstraints { make in
+            make.centerY.equalToSuperview()
+
+            if viewModel.isEmbed {
+                make.leading.equalToSuperview().inset(12)
+            } else {
+                make.centerX.equalToSuperview()
+            }
+        }
     }
 
     override func layoutSubviews() {
@@ -98,8 +113,9 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         vStackView.addArrangedSubview(topBar)
         vStackView.addArrangedSubview(searchTextField)
-        vStackView.addArrangedSubview(tableView)
+        vStackView.addArrangedSubview(separatorView)
 
+        addSubview(tableView)
         topBar.addSubview(titleLabel)
         topBar.addSubview(moreButton)
         topBar.addSubview(backButton)
@@ -107,8 +123,13 @@ final class LiquidityPoolsListViewLayout: UIView {
 
     private func setupConstraints() {
         vStackView.snp.makeConstraints { make in
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+            keyboardAdoptableConstraint = make.bottom.lessThanOrEqualToSuperview().constraint
             make.leading.trailing.top.equalToSuperview()
+        }
+
+        separatorView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(1.0 / UIScreen.main.scale)
         }
 
         topBar.snp.makeConstraints { make in
@@ -117,12 +138,12 @@ final class LiquidityPoolsListViewLayout: UIView {
         }
 
         tableView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(vStackView.snp.bottom).offset(8)
+            make.leading.trailing.bottom.equalToSuperview()
         }
 
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(12)
-            make.centerY.equalToSuperview()
+            make.centerX.centerY.equalToSuperview()
         }
 
         searchTextField.snp.makeConstraints { make in
@@ -139,7 +160,7 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         backButton.snp.makeConstraints { make in
             make.size.equalTo(32)
-            make.trailing.equalToSuperview().inset(16)
+            make.leading.equalToSuperview().inset(16)
             make.centerY.equalToSuperview()
         }
     }

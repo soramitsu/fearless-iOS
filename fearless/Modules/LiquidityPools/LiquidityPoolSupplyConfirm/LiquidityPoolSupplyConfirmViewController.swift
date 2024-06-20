@@ -7,6 +7,7 @@ protocol LiquidityPoolSupplyConfirmViewOutput: AnyObject {
     func didTapBackButton()
     func didTapApyInfo()
     func didTapConfirmButton()
+    func didTapFeeInfo()
 }
 
 final class LiquidityPoolSupplyConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -73,6 +74,13 @@ final class LiquidityPoolSupplyConfirmViewController: UIViewController, ViewHold
         )
         rootView.apyView
             .addGestureRecognizer(tapApyInfo)
+
+        let tapNetworkFeeInfo = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTapNetworkFeeInfo)
+        )
+        rootView.networkFeeView
+            .addGestureRecognizer(tapNetworkFeeInfo)
     }
 
     // MARK: - Private actions
@@ -88,6 +96,10 @@ final class LiquidityPoolSupplyConfirmViewController: UIViewController, ViewHold
     @objc private func handleTapConfirmButton() {
         output.didTapConfirmButton()
     }
+
+    @objc private func handleTapNetworkFeeInfo() {
+        output.didTapFeeInfo()
+    }
 }
 
 // MARK: - LiquidityPoolSupplyConfirmViewInput
@@ -99,12 +111,7 @@ extension LiquidityPoolSupplyConfirmViewController: LiquidityPoolSupplyConfirmVi
 
     func setButtonLoadingState(isLoading: Bool) {
         rootView.confirmButton.set(loading: isLoading)
-    }
-
-    func didUpdating() {
-        DispatchQueue.main.async {
-            self.rootView.confirmButton.set(enabled: false)
-        }
+        rootView.confirmButton.set(enabled: !isLoading)
     }
 
     func didReceiveViewModel(_ viewModel: LiquidityPoolSupplyViewModel) {

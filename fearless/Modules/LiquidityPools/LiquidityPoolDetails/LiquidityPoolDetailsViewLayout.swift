@@ -54,6 +54,8 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         return button
     }()
 
+    let tokenIconImageView = UIImageView()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -126,6 +128,12 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         if let targetAssetName = viewModel?.targetAssetName.uppercased() {
             targetAssetPooledView.titleLabel.text = "Your \(targetAssetName) Pooled"
         }
+
+        viewModel?.rewardTokenIconViewModel?.loadImage(
+            on: tokenIconImageView,
+            targetSize: CGSize(width: 16, height: 16),
+            animated: true
+        )
     }
 
     private func drawSubviews() {
@@ -143,6 +151,7 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         infoViewsStackView.addArrangedSubview(targetAssetPooledView)
         contentView.stackView.addArrangedSubview(supplyButton)
         contentView.stackView.addArrangedSubview(removeButton)
+        rewardTokenView.addSubview(tokenIconImageView)
     }
 
     private func setupConstraints() {
@@ -166,6 +175,14 @@ final class LiquidityPoolDetailsViewLayout: UIView {
 
         doubleImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(24)
+        }
+
+        rewardTokenView.valueTop.snp.makeConstraints { make in
+            make.leading.equalTo(tokenIconImageView.snp.trailing).offset(4)
+        }
+        tokenIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(16)
+            make.centerY.equalToSuperview()
         }
 
         [
@@ -208,9 +225,9 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         view.valueBottom.font = .p2Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
         view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
         view.valueTop.lineBreakMode = .byTruncatingTail
         view.valueBottom.lineBreakMode = .byTruncatingMiddle
+
         return view
     }
 

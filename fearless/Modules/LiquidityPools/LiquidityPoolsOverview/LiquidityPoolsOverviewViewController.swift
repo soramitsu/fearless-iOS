@@ -80,6 +80,10 @@ extension LiquidityPoolsOverviewViewController: LiquidityPoolsOverviewViewInput 
     func changeUserPoolsVisibility(visible: Bool) {
         rootView.userPoolsContainerView.isHidden = !visible
     }
+
+    func didReceiveUserPoolsCount(count: Int) {
+        rootView.bind(userPoolsCount: count)
+    }
 }
 
 // MARK: - Localizable

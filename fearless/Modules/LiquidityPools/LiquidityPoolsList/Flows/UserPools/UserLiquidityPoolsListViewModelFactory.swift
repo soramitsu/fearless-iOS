@@ -100,7 +100,8 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             titleLabelText: "User pools",
             moreButtonVisible: type == .embed && (poolViewModels?.count ?? 0 < pools?.count ?? 0),
             backgroundVisible: type == .full,
-            refreshAvailable: type == .full
+            refreshAvailable: type == .full,
+            isEmbed: type == .embed
         )
     }
 

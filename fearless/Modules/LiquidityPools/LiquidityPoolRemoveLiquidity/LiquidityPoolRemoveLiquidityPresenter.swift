@@ -5,10 +5,27 @@ import BigInt
 import SSFModels
 import SSFPolkaswap
 
+struct RemoveLiquidityLoadingCollector {
+    var dexIdReady: Bool
+    var totalIssuanceReady: Bool
+    var reservesReady: Bool
+    var feeReady: Bool
+
+    init() {
+        dexIdReady = false
+        totalIssuanceReady = false
+        reservesReady = false
+        feeReady = false
+    }
+
+    var isReady: Bool {
+        dexIdReady && totalIssuanceReady && reservesReady && feeReady
+    }
+}
+
 protocol LiquidityPoolRemoveLiquidityConfirmViewInput: ControllerBackedProtocol {
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?)
     func setButtonLoadingState(isLoading: Bool)
-    func didUpdating()
     func didReceiveConfirmViewModel(_ viewModel: LiquidityPoolSupplyConfirmViewModel?)
 }
 
@@ -21,7 +38,6 @@ protocol LiquidityPoolRemoveLiquidityViewInput: ControllerBackedProtocol {
     func didReceiveSwapQuoteReady()
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?)
     func setButtonLoadingState(isLoading: Bool)
-    func didUpdating()
 }
 
 protocol LiquidityPoolRemoveLiquidityInteractorInput: AnyObject {
@@ -66,6 +82,8 @@ final class LiquidityPoolRemoveLiquidityPresenter {
 
     private var baseTargetRate: Decimal?
     private var dexId: String?
+
+    private var loadingCollector = RemoveLiquidityLoadingCollector()
 
     private var baseAssetResultAmount: Decimal {
         guard let baseAssetInputResult else {
@@ -153,6 +171,13 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         interactor.estimateFee(removeLiquidityInfo: info)
     }
 
+    private func checkLoadingState() {
+        DispatchQueue.main.async { [weak self] in
+            self?.setupView?.setButtonLoadingState(isLoading: self?.loadingCollector.isReady == false)
+            self?.confirmView?.setButtonLoadingState(isLoading: self?.loadingCollector.isReady == false)
+        }
+    }
+
     private func runLoadingState() {
         DispatchQueue.main.async { [weak self] in
             self?.setupView?.setButtonLoadingState(isLoading: true)
@@ -160,7 +185,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         }
     }
 
-    private func checkLoadingState() {
+    private func resetLoadingState() {
         DispatchQueue.main.async { [weak self] in
             self?.setupView?.setButtonLoadingState(isLoading: false)
             self?.confirmView?.setButtonLoadingState(isLoading: false)
@@ -322,6 +347,15 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             self?.setupView?.didReceiveXorBalanceViewModel(balanceViewModel: viewModel)
         }
     }
+
+    private func handleRemovePool() {
+        baseAssetInputResult = .absolute((accountPoolInfo?.baseAssetPooled).or(0))
+        targetAssetInputResult = .absolute((accountPoolInfo?.targetAssetPooled).or(0))
+        provideFromAssetVewModel()
+        provideToAssetVewModel()
+
+        refreshFee()
+    }
 }
 
 // MARK: - LiquidityPoolRemoveLiquidityConfirmViewOutput
@@ -340,6 +374,20 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityCon
 
         interactor.submit(removeLiquidityInfo: removeInfo)
     }
+
+    func didTapFeeInfo() {
+        var infoText: String
+        var infoTitle: String
+        infoTitle = "Network fee"
+        infoText = "Network fee is used to ensure SORA system’s growth and stable performance."
+
+        let view = setupView ?? confirmView
+        router.presentInfo(
+            message: infoText,
+            title: infoTitle,
+            from: view
+        )
+    }
 }
 
 // MARK: - LiquidityPoolRemoveLiquidityViewOutput
@@ -357,6 +405,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
         provideToAssetVewModel()
         provideFromAssetVewModel()
         refreshFee()
+        checkLoadingState()
     }
 
     func didLoad(view: LiquidityPoolRemoveLiquidityViewInput) {
@@ -442,11 +491,16 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
     }
 
     func selectFromAmountPercentage(_ percentage: Float) {
+        if percentage == 1.0 {
+            handleRemovePool()
+            return
+        }
+
         runLoadingState()
 
         baseAssetInputResult = .rate(Decimal(Double(percentage)))
 
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
+        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: (accountPoolInfo?.baseAssetPooled).or(.zero))
         let targetAssetAbsoluteValue = baseAssetAbsolulteValue.or(.zero) * baseTargetRate.or(.zero)
         targetAssetInputResult = .absolute(targetAssetAbsoluteValue)
 
@@ -461,7 +515,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
 
         baseAssetInputResult = .absolute(newValue)
 
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
+        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: (accountPoolInfo?.baseAssetPooled).or(.zero))
         let targetAssetAbsoluteValue = baseAssetAbsolulteValue.or(.zero) * baseTargetRate.or(.zero)
         targetAssetInputResult = .absolute(targetAssetAbsoluteValue)
 
@@ -472,11 +526,16 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
     }
 
     func selectToAmountPercentage(_ percentage: Float) {
+        if percentage == 1.0 {
+            handleRemovePool()
+            return
+        }
+
         runLoadingState()
 
         targetAssetInputResult = .rate(Decimal(Double(percentage)))
 
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
+        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: (accountPoolInfo?.targetAssetPooled).or(.zero))
         let baseAssetAbsolulteValue = targetAssetAbsoluteValue.or(.zero) / baseTargetRate.or(1)
         baseAssetInputResult = .absolute(baseAssetAbsolulteValue)
 
@@ -491,7 +550,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
 
         targetAssetInputResult = .absolute(newValue)
 
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
+        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: (accountPoolInfo?.targetAssetPooled).or(.zero))
         let baseAssetAbsolulteValue = targetAssetAbsoluteValue.or(.zero) / baseTargetRate.or(1)
         baseAssetInputResult = .absolute(baseAssetAbsolulteValue)
 
@@ -510,16 +569,21 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
             return
         }
 
+        resetLoadingState()
+
         router.complete(on: confirmView, title: hash, chainAsset: utilityChainAsset)
     }
 
     func didReceiveSubmitError(error: Error) {
+        resetLoadingState()
         router.present(error: error, from: setupView, locale: selectedLocale)
     }
 
     func didReceiveTotalIssuance(totalIssuance: BigUInt?) {
         self.totalIssuance = totalIssuance
         refreshFee()
+        loadingCollector.totalIssuanceReady = true
+        checkLoadingState()
     }
 
     func didReceiveTotalIssuanceError(error: Error) {
@@ -529,6 +593,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
     func didReceiveDexId(_ dexId: String) {
         self.dexId = dexId
         refreshFee()
+        loadingCollector.dexIdReady = true
+        checkLoadingState()
     }
 
     func didReceiveDexIdError(_ error: Error) {
@@ -549,6 +615,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
 
         networkFee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityAsset.precision))
         provideFeeViewModel()
+        loadingCollector.feeReady = true
+        checkLoadingState()
     }
 
     func didReceiveFeeError(_ error: Error) {
@@ -624,6 +692,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
     func didReceivePoolReserves(reserves: PolkaswapPoolReservesInfo?) {
         self.reserves = reserves
         refreshFee()
+        loadingCollector.reservesReady = true
+        checkLoadingState()
     }
 
     func didReceiveUserPoolError(error: Error) {

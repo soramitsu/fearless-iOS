@@ -37,4 +37,5 @@ protocol LiquidityPoolsListModuleOutput: AnyObject {
     func didTapMoreUserPools()
     func didTapMoreAvailablePools()
     func shouldShowUserPools(_ shouldShow: Bool)
+    func didReceiveUserPoolCount(_ userPoolsCount: Int)
 }

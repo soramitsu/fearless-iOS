@@ -203,7 +203,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         bannerButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(139)
-            make.bottom.equalTo(previewButton.snp.top).inset(-16)
+            make.bottom.equalToSuperview().inset(UIConstants.actionHeight + UIConstants.bigOffset * 2)
         }
 
         let switchInputsView = createSwitchInputsView()

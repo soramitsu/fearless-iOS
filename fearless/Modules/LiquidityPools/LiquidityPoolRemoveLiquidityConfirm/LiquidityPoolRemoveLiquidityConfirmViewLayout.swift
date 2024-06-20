@@ -4,6 +4,9 @@ final class LiquidityPoolRemoveLiquidityConfirmViewLayout: UIView {
     private enum Constants {
         static let navigationBarHeight: CGFloat = 56.0
         static let backButtonSize = CGSize(width: 32, height: 32)
+        static let imageWidth: CGFloat = 12
+        static let imageHeight: CGFloat = 12
+        static let imageVerticalPosition: CGFloat = 2
     }
 
     let navigationViewContainer = UIView()
@@ -103,8 +106,6 @@ final class LiquidityPoolRemoveLiquidityConfirmViewLayout: UIView {
 
     private func applyLocalization() {
         titleLabel.text = "Remove Liquidity"
-        networkFeeView.titleLabel.text = R.string.localizable
-            .commonNetworkFee(preferredLanguages: locale.rLanguages)
         confirmButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
     }
@@ -165,5 +166,34 @@ final class LiquidityPoolRemoveLiquidityConfirmViewLayout: UIView {
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+        let texts = [
+            R.string.localizable
+                .polkaswapNetworkFee(preferredLanguages: locale.rLanguages)
+        ]
+
+        [
+            networkFeeView.titleLabel
+        ].enumerated().forEach { index, label in
+            setInfoImage(for: label, text: texts[index])
+        }
+    }
+
+    private func setInfoImage(for label: UILabel, text: String) {
+        let attributedString = NSMutableAttributedString(string: text)
+
+        let imageAttachment = NSTextAttachment()
+        imageAttachment.image = R.image.iconInfoFilled()
+        imageAttachment.bounds = CGRect(
+            x: 0,
+            y: -Constants.imageVerticalPosition,
+            width: Constants.imageWidth,
+            height: Constants.imageHeight
+        )
+
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        attributedString.append(NSAttributedString(string: " "))
+        attributedString.append(imageString)
+
+        label.attributedText = attributedString
     }
 }

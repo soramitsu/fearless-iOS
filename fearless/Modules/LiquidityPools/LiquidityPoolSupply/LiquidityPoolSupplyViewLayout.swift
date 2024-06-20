@@ -42,8 +42,8 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         return view
     }()
 
-    let swapFromInputView = AmountInputViewV2(type: .bonded)
-    let swapToInputView = AmountInputViewV2(type: .bonded)
+    let swapFromInputView = AmountInputViewV2(type: .available)
+    let swapToInputView = AmountInputViewV2(type: .available)
     let switchSwapButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconAddTokenPair(), for: .normal)
@@ -55,10 +55,10 @@ final class LiquidityPoolSupplyViewLayout: UIView {
         return view
     }()
 
-    let slippageView = UIFactory.default.createMultiView()
-    let apyView = UIFactory.default.createMultiView()
-    let rewardTokenView = UIFactory.default.createMultiView()
-    let networkFeeView = UIFactory.default.createMultiView()
+    let slippageView = UIFactory.default.createConfirmationMultiView()
+    let apyView = UIFactory.default.createConfirmationMultiView()
+    let rewardTokenView = UIFactory.default.createConfirmationMultiView()
+    let networkFeeView = UIFactory.default.createConfirmationMultiView()
     let apyInfoButton: UIButton = {
         let button = UIButton()
         button.isUserInteractionEnabled = false
@@ -135,7 +135,7 @@ final class LiquidityPoolSupplyViewLayout: UIView {
 
         viewModel.rewardTokenIconViewModel?.loadImage(
             on: tokenIconImageView,
-            targetSize: CGSize(width: 12, height: 12),
+            targetSize: CGSize(width: 16, height: 16),
             animated: true
         )
     }
@@ -258,26 +258,11 @@ final class LiquidityPoolSupplyViewLayout: UIView {
             make.leading.equalTo(tokenIconImageView.snp.trailing).offset(4)
         }
         tokenIconImageView.snp.makeConstraints { make in
-            make.size.equalTo(12)
+            make.size.equalTo(16)
             make.centerY.equalToSuperview()
         }
 
         return backgroundView
-    }
-
-    private func createMultiView() -> TitleMultiValueView {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h6Title
-        view.titleLabel.textColor = R.color.colorWhite50()
-        view.valueTop.font = .p1Paragraph
-        view.valueTop.textColor = R.color.colorWhite()
-        view.valueBottom.font = .p2Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        view.valueTop.lineBreakMode = .byTruncatingTail
-        view.valueBottom.lineBreakMode = .byTruncatingMiddle
-        return view
     }
 
     private func applyLocalization() {

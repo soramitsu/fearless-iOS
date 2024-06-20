@@ -11,6 +11,7 @@ protocol LiquidityPoolRemoveLiquidityViewOutput: AnyObject {
     func updateFromAmount(_ newValue: Decimal)
     func selectToAmountPercentage(_ percentage: Float)
     func updateToAmount(_ newValue: Decimal)
+    func didTapFeeInfo()
 }
 
 final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -30,6 +31,8 @@ final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHo
 
     private var assetFromViewModel: AssetBalanceViewModelProtocol?
     private var assetToViewModel: AssetBalanceViewModelProtocol?
+
+    private var feeViewModel: BalanceViewModelProtocol?
 
     // MARK: - Constructor
 
@@ -67,6 +70,15 @@ final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHo
         if isBeingPresented || isMovingToParent {
             output.handleViewAppeared()
         }
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -83,6 +95,8 @@ final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHo
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
+        rootView.swapToInputView.textField.inputAccessoryView = accessoryView
+
         updatePreviewButton()
     }
 
@@ -103,6 +117,13 @@ final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHo
             action: #selector(handleTapPreviewButton),
             for: .touchUpInside
         )
+
+        let tapFeeInfo = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTapFeeInfo)
+        )
+        rootView.networkFeeView
+            .addGestureRecognizer(tapFeeInfo)
     }
 
     // MARK: - Private actions
@@ -113,6 +134,10 @@ final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHo
 
     @objc private func handleTapPreviewButton() {
         output.didTapPreviewButton()
+    }
+
+    @objc private func handleTapFeeInfo() {
+        output.didTapFeeInfo()
     }
 }
 
@@ -158,17 +183,10 @@ extension LiquidityPoolRemoveLiquidityViewController: LiquidityPoolRemoveLiquidi
 
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?) {
         rootView.bind(fee: fee)
-        updatePreviewButton()
     }
 
     func setButtonLoadingState(isLoading: Bool) {
         rootView.previewButton.set(loading: isLoading)
-    }
-
-    func didUpdating() {
-        DispatchQueue.main.async {
-            self.rootView.previewButton.set(enabled: false)
-        }
     }
 }
 

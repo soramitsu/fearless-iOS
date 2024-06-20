@@ -94,13 +94,13 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
             return $0.tokenPairNameLabelText.lowercased().contains(searchText.lowercased())
         }
 
-        let filteredViewModels = type == .embed ? Array(poolViewModels.or([]).prefix(10)) : poolViewModels.or([])
         return LiquidityPoolListViewModel(
-            poolViewModels: filteredViewModels,
+            poolViewModels: poolViewModels,
             titleLabelText: "Available pools",
-            moreButtonVisible: type == .embed && (filteredViewModels.count < pairs?.count ?? 0),
+            moreButtonVisible: type == .embed,
             backgroundVisible: type == .full,
-            refreshAvailable: type == .full
+            refreshAvailable: type == .full,
+            isEmbed: type == .embed
         )
     }
 

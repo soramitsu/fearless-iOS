@@ -42,8 +42,8 @@ final class LiquidityPoolRemoveLiquidityViewLayout: UIView {
         return view
     }()
 
-    let swapFromInputView = AmountInputViewV2()
-    let swapToInputView = AmountInputViewV2()
+    let swapFromInputView = AmountInputViewV2(type: .available)
+    let swapToInputView = AmountInputViewV2(type: .available)
     let switchSwapButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconAddTokenPair(), for: .normal)
@@ -162,7 +162,7 @@ final class LiquidityPoolRemoveLiquidityViewLayout: UIView {
 
         warningView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.bottom.equalTo(previewButton.snp.top).offset(-16)
+            make.bottom.equalToSuperview().inset(UIConstants.actionHeight + UIConstants.bigOffset * 2)
         }
 
         let switchInputsView = createSwitchInputsView()

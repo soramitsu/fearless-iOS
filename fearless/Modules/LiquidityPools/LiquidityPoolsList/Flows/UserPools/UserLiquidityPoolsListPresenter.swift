@@ -67,6 +67,8 @@ final class UserLiquidityPoolsListPresenter {
         )
 
         view?.didReceive(viewModel: viewModel)
+
+        moduleOutput?.didReceiveUserPoolCount((viewModel.poolViewModels?.count).or(0))
     }
 }
 

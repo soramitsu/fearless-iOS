@@ -68,4 +68,8 @@ extension LiquidityPoolsOverviewPresenter: LiquidityPoolsListModuleOutput {
     func shouldShowUserPools(_ shouldShow: Bool) {
         view?.changeUserPoolsVisibility(visible: shouldShow)
     }
+
+    func didReceiveUserPoolCount(_ userPoolsCount: Int) {
+        view?.didReceiveUserPoolsCount(count: userPoolsCount)
+    }
 }

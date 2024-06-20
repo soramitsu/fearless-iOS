@@ -2906,6 +2906,7 @@
 		FAD067D02C20453E0050291F /* LegacyEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD067CD2C20453E0050291F /* LegacyEraStakersFetching.swift */; };
 		FAD067D12C20453E0050291F /* DefaultEraStakersFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD067CE2C20453E0050291F /* DefaultEraStakersFetching.swift */; };
 		FAD067D32C20550B0050291F /* UIImageView+Shimmered.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD067D22C20550B0050291F /* UIImageView+Shimmered.swift */; };
+		FAD067D52C214E7C0050291F /* LiquidityPoolsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD067D42C214E7C0050291F /* LiquidityPoolsConstants.swift */; };
 		FAD428942A834A8E001D6A16 /* TopViewControllerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD428932A834A8E001D6A16 /* TopViewControllerHelper.swift */; };
 		FAD428962A834BA8001D6A16 /* UIApplication+TopViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD428952A834BA8001D6A16 /* UIApplication+TopViewController.swift */; };
 		FAD428982A860C9B001D6A16 /* EthereumNodeFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD428972A860C9B001D6A16 /* EthereumNodeFetching.swift */; };
@@ -6044,6 +6045,7 @@
 		FAD067CD2C20453E0050291F /* LegacyEraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LegacyEraStakersFetching.swift; sourceTree = "<group>"; };
 		FAD067CE2C20453E0050291F /* DefaultEraStakersFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultEraStakersFetching.swift; sourceTree = "<group>"; };
 		FAD067D22C20550B0050291F /* UIImageView+Shimmered.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImageView+Shimmered.swift"; sourceTree = "<group>"; };
+		FAD067D42C214E7C0050291F /* LiquidityPoolsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolsConstants.swift; sourceTree = "<group>"; };
 		FAD428932A834A8E001D6A16 /* TopViewControllerHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TopViewControllerHelper.swift; sourceTree = "<group>"; };
 		FAD428952A834BA8001D6A16 /* UIApplication+TopViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIApplication+TopViewController.swift"; sourceTree = "<group>"; };
 		FAD428972A860C9B001D6A16 /* EthereumNodeFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumNodeFetching.swift; sourceTree = "<group>"; };
@@ -12676,6 +12678,7 @@
 			isa = PBXGroup;
 			children = (
 				FA1D51D62BCFD445001353E7 /* LiquidityPools+ViewModel.swift */,
+				FAD067D42C214E7C0050291F /* LiquidityPoolsConstants.swift */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -19106,6 +19109,7 @@
 				02EC6059AEE8C92B4EDD09C0 /* LiquidityPoolsOverviewViewLayout.swift in Sources */,
 				61B5A91FBEF633FCC8D965B6 /* LiquidityPoolsOverviewAssembly.swift in Sources */,
 				CF96BE0B636DA8227E689DDA /* LiquidityPoolDetailsProtocols.swift in Sources */,
+				FAD067D52C214E7C0050291F /* LiquidityPoolsConstants.swift in Sources */,
 				23E30A21620831C600CBC1D6 /* LiquidityPoolDetailsRouter.swift in Sources */,
 				D2A85A5EE89EAAA856EA5C0F /* LiquidityPoolDetailsPresenter.swift in Sources */,
 				7D8D644C5E1695288A0E86C0 /* LiquidityPoolDetailsInteractor.swift in Sources */,

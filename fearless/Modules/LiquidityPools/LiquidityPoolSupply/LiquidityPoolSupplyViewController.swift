@@ -12,6 +12,7 @@ protocol LiquidityPoolSupplyViewOutput: AnyObject {
     func updateFromAmount(_ newValue: Decimal)
     func selectToAmountPercentage(_ percentage: Float)
     func updateToAmount(_ newValue: Decimal)
+    func didTapFeeInfo()
 }
 
 final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -68,6 +69,15 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         if isBeingPresented || isMovingToParent {
             output.handleViewAppeared()
         }
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -82,7 +92,7 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         rootView.swapToInputView.textField.isUserInteractionEnabled = false
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
+        let accessoryView = UIFactory.default.createDoneAccessoryView(for: self, locale: locale)
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
         updatePreviewButton()
     }
@@ -111,6 +121,13 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
         )
         rootView.apyView
             .addGestureRecognizer(tapApyInfo)
+
+        let tapFeeInfo = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTapFeeInfo)
+        )
+        rootView.networkFeeView
+            .addGestureRecognizer(tapFeeInfo)
     }
 
     // MARK: - Private actions
@@ -126,14 +143,16 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
     @objc private func handleTapPreviewButton() {
         output.didTapPreviewButton()
     }
+
+    @objc private func handleTapFeeInfo() {
+        output.didTapFeeInfo()
+    }
 }
 
 // MARK: - LiquidityPoolSupplyViewInput
 
 extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
     func didReceiveSwapQuoteReady() {
-        print("Swap quotes ready")
-
         rootView.swapFromInputView.textField.isUserInteractionEnabled = true
         rootView.swapToInputView.textField.isUserInteractionEnabled = true
     }

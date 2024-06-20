@@ -95,7 +95,8 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
             baseAssetViewModel: baseAssetViewModel?.value(for: locale),
             targetAssetViewModel: targetAssetViewModel?.value(for: locale),
             tokenPairIconsViewModel: tokenPairsIconViewModel,
-            userPoolFieldsHidden: !input.isUserPool && accountPoolInfo == nil
+            userPoolFieldsHidden: !input.isUserPool && accountPoolInfo == nil,
+            rewardTokenIconViewModel: RemoteImageViewModel(url: rewardAsset.icon)
         )
     }
 

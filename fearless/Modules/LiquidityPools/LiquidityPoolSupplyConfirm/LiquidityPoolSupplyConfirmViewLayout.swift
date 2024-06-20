@@ -4,6 +4,9 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
     private enum Constants {
         static let navigationBarHeight: CGFloat = 56.0
         static let backButtonSize = CGSize(width: 32, height: 32)
+        static let imageWidth: CGFloat = 12
+        static let imageHeight: CGFloat = 12
+        static let imageVerticalPosition: CGFloat = 2
     }
 
     let navigationViewContainer = UIView()
@@ -81,6 +84,7 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
 
     let confirmButton: TriangularedButton = {
         let button = TriangularedButton()
+        button.isEnabled = true
         button.applyEnabledStyle()
         return button
     }()
@@ -123,7 +127,7 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
 
         viewModel.rewardTokenIconViewModel?.loadImage(
             on: tokenIconImageView,
-            targetSize: CGSize(width: 12, height: 12),
+            targetSize: CGSize(width: 16, height: 16),
             animated: true
         )
     }
@@ -143,15 +147,11 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
     // MARK: - Private methods
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .commonPreview(preferredLanguages: locale.rLanguages)
-        networkFeeView.titleLabel.text = R.string.localizable
-            .commonNetworkFee(preferredLanguages: locale.rLanguages)
+        titleLabel.text = "Confirm Liquidity"
         confirmButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
         swapStubTitle.text = "Output is estimated. If the price changes more than 0.5% your transaction will revert."
-        slippageView.titleLabel.text = R.string.localizable.polkaswapSettingsSlippageTitle(preferredLanguages: locale.rLanguages)
-        apyView.titleLabel.text = "Strategic Bonus APY"
+        slippageView.titleLabel.text = "Slippage"
         rewardTokenView.titleLabel.text = "Rewards Payout In"
     }
 
@@ -213,13 +213,13 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        apyView.addSubview(apyInfoButton)
-
-        apyInfoButton.snp.makeConstraints { make in
-            make.leading.equalTo(apyView.titleLabel.snp.trailing).offset(4)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(12)
-        }
+//        apyView.addSubview(apyInfoButton)
+//
+//        apyInfoButton.snp.makeConstraints { make in
+//            make.leading.equalTo(apyView.titleLabel.snp.trailing).offset(4)
+//            make.centerY.equalToSuperview()
+//            make.size.equalTo(12)
+//        }
 
         rewardTokenView.addSubview(tokenIconImageView)
 
@@ -227,8 +227,40 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
             make.leading.equalTo(tokenIconImageView.snp.trailing).offset(4)
         }
         tokenIconImageView.snp.makeConstraints { make in
-            make.size.equalTo(12)
+            make.size.equalTo(16)
             make.centerY.equalToSuperview()
         }
+
+        let texts = [
+            R.string.localizable
+                .polkaswapNetworkFee(preferredLanguages: locale.rLanguages),
+            "Strategic Bonus APY"
+        ]
+
+        [
+            networkFeeView.titleLabel,
+            apyView.titleLabel
+        ].enumerated().forEach { index, label in
+            setInfoImage(for: label, text: texts[index])
+        }
+    }
+
+    private func setInfoImage(for label: UILabel, text: String) {
+        let attributedString = NSMutableAttributedString(string: text)
+
+        let imageAttachment = NSTextAttachment()
+        imageAttachment.image = R.image.iconInfoFilled()
+        imageAttachment.bounds = CGRect(
+            x: 0,
+            y: -Constants.imageVerticalPosition,
+            width: Constants.imageWidth,
+            height: Constants.imageHeight
+        )
+
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        attributedString.append(NSAttributedString(string: " "))
+        attributedString.append(imageString)
+
+        label.attributedText = attributedString
     }
 }

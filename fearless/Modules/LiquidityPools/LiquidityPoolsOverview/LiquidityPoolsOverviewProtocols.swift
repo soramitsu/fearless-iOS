@@ -4,6 +4,7 @@ typealias LiquidityPoolsOverviewModuleCreationResult = (view: LiquidityPoolsOver
 
 protocol LiquidityPoolsOverviewViewInput: ControllerBackedProtocol {
     func changeUserPoolsVisibility(visible: Bool)
+    func didReceiveUserPoolsCount(count: Int)
 }
 
 protocol LiquidityPoolsOverviewViewOutput: AnyObject {

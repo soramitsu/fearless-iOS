@@ -5,10 +5,23 @@ import SSFPolkaswap
 import SSFModels
 import BigInt
 
+struct SupplyLiquidityConfirmLoadingCollector {
+    var dexIdReady: Bool
+    var feeReady: Bool
+
+    init() {
+        dexIdReady = false
+        feeReady = false
+    }
+
+    var isReady: Bool {
+        dexIdReady && feeReady
+    }
+}
+
 protocol LiquidityPoolSupplyConfirmViewInput: ControllerBackedProtocol {
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?)
     func setButtonLoadingState(isLoading: Bool)
-    func didUpdating()
     func didReceiveViewModel(_ viewModel: LiquidityPoolSupplyViewModel)
     func didReceiveConfirmationViewModel(_ viewModel: LiquidityPoolSupplyConfirmViewModel?)
 }
@@ -48,6 +61,8 @@ final class LiquidityPoolSupplyConfirmPresenter {
     private var swapToBalance: Decimal?
 
     private var dexId: String?
+
+    private var loadingCollector = SupplyLiquidityConfirmLoadingCollector()
 
     // MARK: - Constructors
 
@@ -102,13 +117,19 @@ final class LiquidityPoolSupplyConfirmPresenter {
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
     }
 
+    private func checkLoadingState() {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.setButtonLoadingState(isLoading: (self?.loadingCollector.isReady) == false)
+        }
+    }
+
     private func runLoadingState() {
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: true)
         }
     }
 
-    private func checkLoadingState() {
+    private func resetLoadingState() {
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: false)
         }
@@ -134,7 +155,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
 
         networkFeeViewModel = feeViewModel
 
-        checkLoadingState()
+        resetLoadingState()
     }
 
     private func buildBalanceSwapToViewModelFactory(
@@ -214,8 +235,20 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     func didTapApyInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Strategic Bonus APY"
-        infoText = "Farming reward for liquidity provision"
+        infoTitle = "Strategic bonus APY"
+        infoText = "APY is a figure that represents the actual amount of interest earned on investments in Liquidity pool."
+        router.presentInfo(
+            message: infoText,
+            title: infoTitle,
+            from: view
+        )
+    }
+
+    func didTapFeeInfo() {
+        var infoText: String
+        var infoTitle: String
+        infoTitle = "Network fee"
+        infoText = "Network fee is used to ensure SORA system’s growth and stable performance."
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -245,6 +278,8 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
         )
 
         interactor.submit(supplyLiquidityInfo: supplyLiquidityInfo)
+
+        runLoadingState()
     }
 
     func didLoad(view: LiquidityPoolSupplyConfirmViewInput) {
@@ -253,6 +288,8 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     }
 
     func handleViewAppeared() {
+        checkLoadingState()
+
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceiveNetworkFee(fee: nil)
             self?.provideViewModel()
@@ -278,6 +315,9 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
     func didReceiveDexId(_ dexId: String) {
         self.dexId = dexId
         refreshFee()
+
+        loadingCollector.dexIdReady = true
+        checkLoadingState()
     }
 
     func didReceiveDexIdError(_ error: Error) {
@@ -291,6 +331,9 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
 
         networkFee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityAsset.precision))
         provideFeeViewModel()
+
+        loadingCollector.feeReady = true
+        checkLoadingState()
     }
 
     func didReceiveFeeError(_ error: Error) {
@@ -341,6 +384,8 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
     }
 
     func didReceiveTransactionHash(_ hash: String) {
+        resetLoadingState()
+
         guard let utilityChainAsset = chain.utilityChainAssets().first else {
             return
         }
@@ -349,6 +394,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
     }
 
     func didReceiveSubmitError(error: Error) {
+        resetLoadingState()
         router.present(error: error, from: view, locale: selectedLocale)
     }
 }

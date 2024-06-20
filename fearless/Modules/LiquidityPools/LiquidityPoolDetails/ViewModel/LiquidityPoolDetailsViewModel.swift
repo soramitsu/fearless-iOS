@@ -11,4 +11,5 @@ struct LiquidityPoolDetailsViewModel {
     let targetAssetViewModel: BalanceViewModelProtocol?
     let tokenPairIconsViewModel: PolkaswapDoubleSymbolViewModel?
     let userPoolFieldsHidden: Bool
+    let rewardTokenIconViewModel: RemoteImageViewModel?
 }

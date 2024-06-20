@@ -105,6 +105,10 @@ protocol UIFactoryProtocol {
     func createDisabledButton() -> TriangularedButton
     func createRoundedButton() -> UIButton
     func createWarningView(title: String, text: String) -> UIView
+    func createDoneAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar
 }
 
 extension UIFactoryProtocol {
@@ -365,6 +369,43 @@ final class UIFactory: UIFactoryProtocol {
         return createActionsAccessoryView(
             for: toolBar,
             actions: actions,
+            doneAction: doneAction,
+            target: toolBar,
+            spacing: spacing
+        )
+    }
+
+    func createDoneAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar {
+        let frame = CGRect(
+            x: 0.0,
+            y: 0.0,
+            width: UIScreen.main.bounds.width,
+            height: UIConstants.accessoryBarHeight
+        )
+
+        let toolBar = AmountInputAccessoryView(frame: frame)
+        toolBar.actionDelegate = delegate
+
+        let doneTitle = R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
+        let doneAction = ViewSelectorAction(
+            title: doneTitle,
+            selector: #selector(toolBar.actionSelectDone)
+        )
+
+        let spacing: CGFloat
+
+        if toolBar.isAdaptiveWidthDecreased {
+            spacing = UIConstants.accessoryItemsSpacing * toolBar.designScaleRatio.width
+        } else {
+            spacing = UIConstants.accessoryItemsSpacing
+        }
+
+        return createActionsAccessoryView(
+            for: toolBar,
+            actions: [],
             doneAction: doneAction,
             target: toolBar,
             spacing: spacing
