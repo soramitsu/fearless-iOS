@@ -133,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "feature/xcm-routes",
-        "revision" : "ad712ce34d995276f9cae269afad7902353bd878"
+        "revision" : "1781f7d9a8ea8eccccfcfd21d8c951f65cff480a"
       }
     },
     {

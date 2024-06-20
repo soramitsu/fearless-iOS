@@ -23,8 +23,6 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         DispatchQueue(label: "co.jp.soramitsu.asset.observer.deliveryQueue")
     }()
 
-    private var currentTask: Task<Void, Error>?
-
     init(
         wallet: MetaAccountModel,
         chainRegistry: ChainRegistryProtocol,
@@ -71,36 +69,18 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             self,
             runningInQueue: walletAssetsObserverQueue
         ) { [weak self] changes in
-            guard self?.wallet.assetsVisibility.isEmpty == true else {
-                let updateChanges = changes.filter {
-                    switch $0 {
-                    case .update: return true
-                    default: return false
-                    }
-                }
-                self?.handleChains(changes: updateChanges, accounts: nil)
-                return
-            }
-
-            let insertChanges = changes.filter {
-                switch $0 {
-                case .insert: return true
-                default: return false
-                }
-            }
-            self?.handleChains(changes: insertChanges, accounts: nil)
+            self?.handleChains(changes: changes, accounts: nil)
         }
     }
 
     func throttle() {
-        currentTask?.cancel()
         chainRegistry.chainsUnsubscribe(self)
     }
 
     // MARK: - Private methods
 
     private func handleChains(changes: [DataProviderChange<ChainModel>], accounts: [ChainAccountModel]?) {
-        currentTask = Task {
+        Task {
             let result = await withTaskGroup(
                 of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
                 returning: [ChainModel: [ChainAssetId: AccountInfo?]].self,
@@ -136,7 +116,11 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         accounts: [ChainAccountModel]?,
         group: inout TaskGroup<(ChainModel, [ChainAssetId: AccountInfo?])>
     ) {
-        guard !chain.disabled else {
+        let chainAssetsIds = chain.chainAssets.map { $0.identifier }
+        let existVisibility = wallet.assetsVisibility.map { $0.assetId }
+        let perhapsExistVisibility = existVisibility.filter { chainAssetsIds.contains($0) }
+
+        guard !chain.disabled, chainAssetsIds.count > perhapsExistVisibility.count else {
             return
         }
         if let accounts {

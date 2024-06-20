@@ -461,10 +461,12 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeProviderProtocol {
-        let runtimeProvider = readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
-        guard let runtimeProvider else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
+        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+            throw ChainRegistryError.chainUnavailable(chainId: chainId)
         }
+        let chainTypes = chainsTypesMap[chainId]
+
+        let runtimeProvider = runtimeProviderPool.setupRuntimeProvider(for: chain, chainTypes: chainTypes)
         return runtimeProvider
     }
 
