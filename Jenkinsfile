@@ -21,8 +21,7 @@ def appPipeline = new org.ios.AppPipeline(
   dojoProductType: 'fearless',
   effectJiraTasks: true,
   uploadToNexusFor: ['master','develop','staging'],
-  statusNotif: true,
-  triggerAutoTests: true
+  statusNotif: true
 )
 
 appPipeline.runPipeline('fearless')
