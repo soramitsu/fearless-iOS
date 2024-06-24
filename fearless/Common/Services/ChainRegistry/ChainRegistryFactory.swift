@@ -111,10 +111,8 @@ final class ChainRegistryFactory {
             logger: Logger.shared
         )
 
-        let queue = OperationQueue()
         let substrateConnectionPool = ConnectionPool(
-            connectionFactory: ConnectionFactory(logger: Logger.shared),
-            operationQueue: queue
+            connectionFactory: ConnectionFactory(logger: Logger.shared)
         )
         let ethereumConnectionPool = EthereumConnectionPool()
 

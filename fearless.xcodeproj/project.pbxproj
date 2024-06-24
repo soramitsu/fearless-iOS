@@ -97,6 +97,7 @@
 		074EB7AD290B9F64000A2A6A /* AddressCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */; };
 		074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */; };
 		074EB7B1290BA142000A2A6A /* ConnectionOnlineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */; };
+		0754A3632C259CE200900E11 /* SafeArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0754A3622C259CE200900E11 /* SafeArray.swift */; };
 		075A2F0A2BF722F300CE6F24 /* ExternalApiExplorerType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075A2F092BF722F300CE6F24 /* ExternalApiExplorerType.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
 		075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */; };
@@ -3152,6 +3153,7 @@
 		074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCopiedEvent.swift; sourceTree = "<group>"; };
 		074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOfflineEvent.swift; sourceTree = "<group>"; };
 		074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOnlineEvent.swift; sourceTree = "<group>"; };
+		0754A3622C259CE200900E11 /* SafeArray.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafeArray.swift; sourceTree = "<group>"; };
 		075A2F092BF722F300CE6F24 /* ExternalApiExplorerType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalApiExplorerType.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputViewV2.swift; sourceTree = "<group>"; };
@@ -9176,6 +9178,7 @@
 				FA24FEFD2B95C32200CD9E04 /* Decimal+DoubleValue.swift */,
 				FAC6CDA82BA814F20013A17E /* UIControl+Disable.swift */,
 				07F65DEA2C240A19004A1728 /* SafeDictionary.swift */,
+				0754A3622C259CE200900E11 /* SafeArray.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -17029,6 +17032,7 @@
 				FA3F5B69281BAF5C00BEF03B /* StakingAmountParachainStrategy.swift in Sources */,
 				FA62623B2AC2E35A005D3D95 /* WalletConnectConfirmationProtocols.swift in Sources */,
 				8448221826B1624E007F4492 /* SelectValidatorsConfirmViewLayout.swift in Sources */,
+				0754A3632C259CE200900E11 /* SafeArray.swift in Sources */,
 				C6267B9528BDF6A5001E31BF /* ChainAssetListPresenter.swift in Sources */,
 				FAD429362A8656B7001D6A16 /* UICollectionView.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
@@ -19300,7 +19304,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "feature/xcm-routes";
+				branch = "socket-connection-refactoring";
 				kind = branch;
 			};
 		};

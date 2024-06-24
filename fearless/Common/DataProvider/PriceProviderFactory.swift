@@ -26,7 +26,7 @@ class PriceProviderFactory {
 
     private func clearIfNeeded() {
         let filtred = providers.dictionary.filter { $0.value.target != nil }
-        providers = SafeDictionary(dict: filtred)
+        providers.replace(dict: filtred)
     }
 }
 

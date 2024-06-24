@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "feature/xcm-routes",
-        "revision" : "1781f7d9a8ea8eccccfcfd21d8c951f65cff480a"
+        "branch" : "socket-connection-refactoring",
+        "revision" : "e84295e599c4fc2fd097e0f13731159b008347bc"
       }
     },
     {

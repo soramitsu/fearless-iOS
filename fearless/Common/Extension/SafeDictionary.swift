@@ -35,6 +35,12 @@ final class SafeDictionary<V: Hashable, T>: Collection {
         dictionary = dict
     }
 
+    func replace(dict: [V: T]) {
+        concurrentQueue.async(flags: .barrier) { [weak self] in
+            self?.dictionary = dict
+        }
+    }
+
     func index(after i: Dictionary<V, T>.Index) -> Dictionary<V, T>.Index {
         concurrentQueue.sync {
             self.dictionary.index(after: i)

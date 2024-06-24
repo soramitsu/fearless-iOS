@@ -27,14 +27,6 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
         return ws
     }
 
-    func setupConnection(for chain: SSFModels.ChainModel, ignoredUrl _: URL?) throws -> Web3.Eth {
-        // TODO: Ignored URL handling
-        let ws = try EthereumNodeFetching().getNode(for: chain)
-        connectionsByChainIds[chain.chainId] = ws
-
-        return ws
-    }
-
     func getConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
         lock.lock()
         defer {
