@@ -9,7 +9,6 @@ protocol UserLiquidityPoolsListInteractorInput {
     func setup(with output: UserLiquidityPoolsListInteractorOutput)
 
     func fetchPools()
-    func fetchApy()
 }
 
 final class UserLiquidityPoolsListPresenter {
@@ -55,6 +54,7 @@ final class UserLiquidityPoolsListPresenter {
 
     private func provideViewModel() {
         let viewModel = viewModelFactory.buildViewModel(
+            accountPools: accountPools,
             pools: pools,
             reserves: reserves,
             apyInfos: apy,
@@ -107,6 +107,7 @@ extension UserLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
 extension UserLiquidityPoolsListPresenter: UserLiquidityPoolsListInteractorOutput {
     func didReceiveUserPools(accountPools: [AccountPool]?) {
         self.accountPools = accountPools
+        provideViewModel()
     }
 
     func didReceiveLiquidityPairs(pools: [LiquidityPair]?) {

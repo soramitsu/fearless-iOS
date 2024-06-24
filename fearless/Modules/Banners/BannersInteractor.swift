@@ -26,31 +26,6 @@ final class BannersInteractor {
     }
 
     // MARK: - Private methods
-
-    private func subscribeToWallet() {
-        let updateClosure: ([DataProviderChange<ManagedMetaAccountModel>]) -> Void = { [weak self] changes in
-            guard let selectedWallet = changes.firstToLastChange(filter: { wallet in
-                wallet.isSelected
-            }) else {
-                return
-            }
-            self?.output?.didReceive(wallet: selectedWallet.info)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.output?.didReceive(error: error)
-        }
-
-        let options = StreamableProviderObserverOptions()
-
-        walletProvider.addObserver(
-            self,
-            deliverOn: .global(),
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
 }
 
 // MARK: - BannersInteractorInput
@@ -58,7 +33,6 @@ final class BannersInteractor {
 extension BannersInteractor: BannersInteractorInput {
     func setup(with output: BannersInteractorOutput) {
         self.output = output
-        subscribeToWallet()
     }
 
     func markWalletAsBackedUp(_ wallet: MetaAccountModel) {
@@ -84,5 +58,30 @@ extension BannersInteractor: BannersInteractorInput {
         }
 
         operationQueue.addOperation(operation)
+    }
+
+    func subscribeToWallet() {
+        let updateClosure: ([DataProviderChange<ManagedMetaAccountModel>]) -> Void = { [weak self] changes in
+            guard let selectedWallet = changes.firstToLastChange(filter: { wallet in
+                wallet.isSelected
+            }) else {
+                return
+            }
+            self?.output?.didReceive(wallet: selectedWallet.info)
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.output?.didReceive(error: error)
+        }
+
+        let options = StreamableProviderObserverOptions()
+
+        walletProvider.addObserver(
+            self,
+            deliverOn: .global(),
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 }

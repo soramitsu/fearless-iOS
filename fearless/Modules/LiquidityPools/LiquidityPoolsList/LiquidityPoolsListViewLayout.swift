@@ -11,6 +11,8 @@ final class LiquidityPoolsListViewLayout: UIView {
         return view
     }()
 
+    let contentView = UIView()
+
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
@@ -114,8 +116,9 @@ final class LiquidityPoolsListViewLayout: UIView {
         vStackView.addArrangedSubview(topBar)
         vStackView.addArrangedSubview(searchTextField)
         vStackView.addArrangedSubview(separatorView)
+        addSubview(contentView)
+        contentView.addSubview(tableView)
 
-        addSubview(tableView)
         topBar.addSubview(titleLabel)
         topBar.addSubview(moreButton)
         topBar.addSubview(backButton)
@@ -137,9 +140,13 @@ final class LiquidityPoolsListViewLayout: UIView {
             make.leading.trailing.equalToSuperview()
         }
 
-        tableView.snp.makeConstraints { make in
+        contentView.snp.makeConstraints { make in
             make.top.equalTo(vStackView.snp.bottom).offset(8)
             make.leading.trailing.bottom.equalToSuperview()
+        }
+
+        tableView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
         titleLabel.snp.makeConstraints { make in

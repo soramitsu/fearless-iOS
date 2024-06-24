@@ -7,6 +7,7 @@ struct BannersViewModel {
 enum Banners: Int {
     case backup
     case buyXor
+    case liquidityPools
 }
 
 protocol BannersViewModelFactoryProtocol {
@@ -14,17 +15,12 @@ protocol BannersViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         locale: Locale
     ) -> BannersViewModel
+
+    func createViewModel(banners: [Banners], locale: Locale) -> BannersViewModel
 }
 
 final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
-    func createViewModel(
-        wallet: MetaAccountModel,
-        locale: Locale
-    ) -> BannersViewModel {
-        var banners: [Banners] = []
-        if !wallet.hasBackup {
-            banners.insert(.backup, at: 0)
-        }
+    func createViewModel(banners: [Banners], locale: Locale) -> BannersViewModel {
         let bannersViewModel: [BannerCellViewModel] = banners.map {
             switch $0 {
             case .backup:
@@ -39,7 +35,9 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     subtitle: subtitle,
                     buttonTitle: buttonAction,
                     image: R.image.fearlessBanner()!,
-                    dismissable: true
+                    dismissable: true,
+                    fullsizeImage: false,
+                    bannerType: .backup
                 )
             case .buyXor:
                 let title = R.string.localizable
@@ -53,11 +51,39 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     subtitle: subtitle,
                     buttonTitle: buttonAction,
                     image: R.image.xorBanner()!,
-                    dismissable: true
+                    dismissable: true,
+                    fullsizeImage: false,
+                    bannerType: .buyXor
+                )
+            case .liquidityPools:
+                let title = "Liquidity pools"
+                let subtitle = "Invest your funds in Liquidity pools and receive rewards"
+                let buttonAction = "Show details"
+
+                return BannerCellViewModel(
+                    title: title,
+                    subtitle: subtitle,
+                    buttonTitle: buttonAction,
+                    image: R.image.iconLpBanner()!,
+                    dismissable: true,
+                    fullsizeImage: true,
+                    bannerType: .liquidityPools
                 )
             }
         }
 
         return BannersViewModel(banners: bannersViewModel)
+    }
+
+    func createViewModel(
+        wallet: MetaAccountModel,
+        locale: Locale
+    ) -> BannersViewModel {
+        var banners: [Banners] = []
+        if !wallet.hasBackup {
+            banners.insert(.backup, at: 0)
+        }
+
+        return createViewModel(banners: banners, locale: locale)
     }
 }

@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SnapKit
+import SoraUI
 
 final class LiquidityPoolsListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = LiquidityPoolsListViewLayout
@@ -122,6 +123,8 @@ extension LiquidityPoolsListViewController: LiquidityPoolsListViewInput {
         rootView.bind(viewModel: viewModel)
 
         rootView.tableView.reloadData()
+
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -130,5 +133,42 @@ extension LiquidityPoolsListViewController: LiquidityPoolsListViewInput {
 extension LiquidityPoolsListViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
+    }
+}
+
+// MARK: - EmptyStateViewOwnerProtocol
+
+extension LiquidityPoolsListViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+// MARK: - EmptyStateDataSource
+
+extension LiquidityPoolsListViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarningGray()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable.selectAssetSearchEmptySubtitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .smallFilled
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView.contentView
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension LiquidityPoolsListViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let cellModels else {
+            return false
+        }
+
+        return cellModels.isEmpty
     }
 }

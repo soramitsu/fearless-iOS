@@ -7,15 +7,18 @@ struct BannerCellViewModel {
     let buttonTitle: String
     let image: UIImage
     let dismissable: Bool
+    let fullsizeImage: Bool
+    let bannerType: Banners
 }
 
 protocol BannerCellectionCellDelegate: AnyObject {
-    func didActionButtonTapped(indexPath: IndexPath?)
-    func didCloseButtonTapped(indexPath: IndexPath?)
+    func didActionButtonTapped(banner: Banners)
+    func didCloseButtonTapped(banner: Banners)
 }
 
 final class BannerCollectionViewCell: UICollectionViewCell {
     weak var delegate: BannerCellectionCellDelegate?
+    private var viewModel: BannerCellViewModel?
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -79,20 +82,45 @@ final class BannerCollectionViewCell: UICollectionViewCell {
     }
 
     func bind(viewModel: BannerCellViewModel) {
+        self.viewModel = viewModel
+
         titleLabel.text = viewModel.title
         subtitleLabel.text = viewModel.subtitle
         actionButton.imageWithTitleView?.title = viewModel.buttonTitle
         imageView.image = viewModel.image
         closeButton.isHidden = !viewModel.dismissable
+
+        updateImageConstraints(fullsizeImage: viewModel.fullsizeImage)
     }
 
     private func bindActions() {
         actionButton.addAction { [weak self] in
-            self?.delegate?.didActionButtonTapped(indexPath: self?.indexPath)
+            guard let banner = self?.viewModel?.bannerType else {
+                return
+            }
+
+            self?.delegate?.didActionButtonTapped(banner: banner)
         }
 
         closeButton.addAction { [weak self] in
-            self?.delegate?.didCloseButtonTapped(indexPath: self?.indexPath)
+
+            guard let banner = self?.viewModel?.bannerType else {
+                return
+            }
+
+            self?.delegate?.didCloseButtonTapped(banner: banner)
+        }
+    }
+
+    private func updateImageConstraints(fullsizeImage: Bool) {
+        if fullsizeImage {
+            imageView.snp.remakeConstraints { make in
+                make.leading.trailing.bottom.equalToSuperview()
+            }
+        } else {
+            imageView.snp.remakeConstraints { make in
+                make.trailing.bottom.equalToSuperview()
+            }
         }
     }
 
@@ -102,19 +130,25 @@ final class BannerCollectionViewCell: UICollectionViewCell {
             make.trailing.bottom.equalToSuperview()
         }
 
+        addSubview(closeButton)
+        closeButton.snp.makeConstraints { make in
+            make.top.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.size.equalTo(UIConstants.roundedCloseButtonSize)
+        }
+
         addSubview(titleLabel)
         titleLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalTo(imageView.snp.leading).inset(16)
+            make.trailing.equalTo(closeButton.snp.leading).inset(16)
         }
 
         addSubview(subtitleLabel)
         subtitleLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalTo(imageView.snp.leading).inset(16)
+            make.trailing.equalTo(closeButton.snp.leading).inset(16)
         }
 
         addSubview(actionButton)
@@ -124,12 +158,6 @@ final class BannerCollectionViewCell: UICollectionViewCell {
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.height.equalTo(32)
             make.width.greaterThanOrEqualTo(102)
-        }
-
-        addSubview(closeButton)
-        closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
-            make.size.equalTo(UIConstants.roundedCloseButtonSize)
         }
     }
 }

@@ -3075,7 +3075,6 @@
 		FAFFAE7C29AC84B10074AF1F /* KmmCallCodingPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE4D29AC84B10074AF1F /* KmmCallCodingPath.swift */; };
 		FAFFAE7D29AC84B10074AF1F /* SubqueryPageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE4F29AC84B10074AF1F /* SubqueryPageInfo.swift */; };
 		FAFFAE7E29AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5029AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift */; };
-		FAFFAE7F29AC84B10074AF1F /* GraphQLResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5129AC84B10074AF1F /* GraphQLResponse.swift */; };
 		FAFFAE8029AC84B10074AF1F /* SubqueryTransfer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5229AC84B10074AF1F /* SubqueryTransfer.swift */; };
 		FAFFAE8129AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5329AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift */; };
 		FAFFAE8229AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAE5429AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift */; };
@@ -5642,7 +5641,6 @@
 		FA887A442C107A1100CA720F /* LiquidityPoolSupplyConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolSupplyConfirmViewModel.swift; sourceTree = "<group>"; };
 		FA887A462C107A4300CA720F /* LiquidityPoolSupplyConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolSupplyConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		FA887A482C1C19DB00CA720F /* WarningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WarningView.swift; sourceTree = "<group>"; };
-		FA887A4B2C1FFFD400CA720F /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FA8C34B051607218638BA851 /* FiltersProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FiltersProtocols.swift; sourceTree = "<group>"; };
 		FA8ED43228FD960F00EBB712 /* YourValidatorListFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListFlow.swift; sourceTree = "<group>"; };
 		FA8ED43528FD983A00EBB712 /* YourValidatorListRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListRelaychainStrategy.swift; sourceTree = "<group>"; };
@@ -6218,7 +6216,6 @@
 		FAFFAE4D29AC84B10074AF1F /* KmmCallCodingPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KmmCallCodingPath.swift; sourceTree = "<group>"; };
 		FAFFAE4F29AC84B10074AF1F /* SubqueryPageInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryPageInfo.swift; sourceTree = "<group>"; };
 		FAFFAE5029AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryDelegatorHistoryData.swift; sourceTree = "<group>"; };
-		FAFFAE5129AC84B10074AF1F /* GraphQLResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphQLResponse.swift; sourceTree = "<group>"; };
 		FAFFAE5229AC84B10074AF1F /* SubqueryTransfer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryTransfer.swift; sourceTree = "<group>"; };
 		FAFFAE5329AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryDelegatorHistoryElement.swift; sourceTree = "<group>"; };
 		FAFFAE5429AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryDelegatorHistoryItem.swift; sourceTree = "<group>"; };
@@ -9154,7 +9151,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FA887A4A2C1FFFD400CA720F /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -14084,14 +14080,6 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		FA887A4A2C1FFFD400CA720F /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				FA887A4B2C1FFFD400CA720F /* shared-features-spm */,
-			);
-			name = Packages;
-			sourceTree = "<group>";
-		};
 		FA8ED43128FD8D6200EBB712 /* Flows */ = {
 			isa = PBXGroup;
 			children = (
@@ -15706,7 +15694,6 @@
 			children = (
 				FAFFAE4F29AC84B10074AF1F /* SubqueryPageInfo.swift */,
 				FAFFAE5029AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift */,
-				FAFFAE5129AC84B10074AF1F /* GraphQLResponse.swift */,
 				FAFFAE5229AC84B10074AF1F /* SubqueryTransfer.swift */,
 				FAFFAE5329AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift */,
 				FAFFAE5429AC84B10074AF1F /* SubqueryDelegatorHistoryItem.swift */,
@@ -16764,7 +16751,6 @@
 				8406B5AF26FBE7EF00635B61 /* SelectionIconDetailsTableViewCell.swift in Sources */,
 				FA256A23274CE7D600875A53 /* MoonbeamAgreeRemarkInfo.swift in Sources */,
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
-				FAFFAE7F29AC84B10074AF1F /* GraphQLResponse.swift in Sources */,
 				849ABE63262785F200011A2A /* ControllerMapper.swift in Sources */,
 				FAC0BBD9291D0EB000E6F106 /* SendViewController.swift in Sources */,
 				FAA0139D28DA131B000A5230 /* StakingBondMorePoolViewModelState.swift in Sources */,
@@ -19867,7 +19853,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "storage-requests-update";
+				branch = "liquidity-pools-fw";
 				kind = branch;
 			};
 		};

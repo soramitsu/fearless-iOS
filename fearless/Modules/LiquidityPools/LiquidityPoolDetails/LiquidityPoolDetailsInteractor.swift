@@ -123,11 +123,13 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
 
     func fetchApy(reservesId: String) {
         Task {
+            let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+            let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: [address])
             do {
-                let apy = try await liquidityPoolService.fetchPoolsAPY()
-                let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
-                await MainActor.run {
-                    output?.didReceivePoolAPY(apy: apy.first(where: { $0.poolId == address }))
+                for try await apy in apyStream {
+                    await MainActor.run {
+                        output?.didReceivePoolAPY(apy: apy.first(where: { $0.value?.poolId == address })?.value)
+                    }
                 }
             } catch {
                 await MainActor.run {

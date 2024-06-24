@@ -8,6 +8,7 @@ import SSFStorageQueryKit
 
 protocol UserLiquidityPoolsListViewModelFactory {
     func buildViewModel(
+        accountPools: [AccountPool]?,
         pools: [LiquidityPair]?,
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
@@ -30,6 +31,7 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
     }
 
     func buildViewModel(
+        accountPools: [AccountPool]?,
         pools: [LiquidityPair]?,
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
@@ -41,6 +43,7 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
         searchText: String?
     ) -> LiquidityPoolListViewModel {
         let poolViewModels: [LiquidityPoolListCellModel]? = pools?.sorted().compactMap { pair in
+            let accountPoolInfo = accountPools?.first(where: { $0.poolId == pair.identifier })
             let baseAsset = chain.assets.first(where: { $0.currencyId == pair.baseAssetId })
             let targetAsset = chain.assets.first(where: { $0.currencyId == pair.targetAssetId })
             let rewardAsset = chain.assets.first(where: { $0.currencyId == pair.rewardAssetId })
@@ -77,12 +80,34 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             let reservesLabelText: String? = reservesString.flatMap { "\($0) TVL" }
             let reservesLabelValue: ShimmeredLabelState = .normal(reservesLabelText)
 
+            let baseAssetBalanceViewModelFactory = createBalanceViewModelFactory(for: ChainAsset(chain: chain, asset: baseAsset), wallet: wallet)
+            let targetAssetBalanceViewModelFactory = createBalanceViewModelFactory(for: ChainAsset(chain: chain, asset: targetAsset), wallet: wallet)
+
+            let baseAssetViewModel = accountPoolInfo?.baseAssetPooled.flatMap {
+                baseAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: baseAssetPrice, usageCase: .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 3))
+            }
+
+            let targetAssetViewModel = accountPoolInfo?.targetAssetPooled.flatMap {
+                targetAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: targetAssetPrice, usageCase: .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 3))
+            }
+
+            let baseAssetPooledText = baseAssetViewModel?.value(for: locale).amount
+            let targetAssetPooledText = targetAssetViewModel?.value(for: locale).amount
+
+            let stakingStatusLabelText: String? = baseAssetPooledText.flatMap {
+                guard let targetAssetPooledText = targetAssetPooledText else {
+                    return nil
+                }
+
+                return "\($0) - \(targetAssetPooledText)"
+            }
+
             return LiquidityPoolListCellModel(
                 tokenPairIconsVieWModel: iconsViewModel,
                 tokenPairNameLabelText: tokenPairName,
                 rewardTokenNameLabelText: rewardTokenNameLabelText,
                 apyLabelText: apyLabelText,
-                stakingStatusLabelText: nil,
+                stakingStatusLabelText: stakingStatusLabelText,
                 reservesLabelValue: reservesLabelValue,
                 sortValue: reservesValue.or(.zero),
                 liquidityPair: pair
@@ -113,5 +138,12 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
         let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .fiat)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
         return tokenFormatterValue
+    }
+
+    private func createBalanceViewModelFactory(for chainAsset: ChainAsset, wallet: MetaAccountModel) -> BalanceViewModelFactoryProtocol {
+        BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet
+        )
     }
 }

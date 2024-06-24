@@ -8,12 +8,19 @@ protocol BannersRouterInput: AnyObject, SheetAlertPresentable {
         for wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
+
+    func presentLiquidityPools(
+        on view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol BannersModuleInput: AnyObject {
     func reload(with wallet: MetaAccountModel)
+    func update(banners: [Banners])
 }
 
 protocol BannersModuleOutput: AnyObject {
     func reloadBannersView()
+    func didTapCloseBanners()
 }

@@ -104,11 +104,13 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
         }
 
         Task {
+            let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+            let apyStream = try await lpDataService.subscribePoolsAPY(poolIds: [address])
             do {
-                let apy = try await lpDataService.fetchPoolsAPY()
-                let address = try AddressFactory.address(for: Data(hex: reservesId), chain: chain)
-                await MainActor.run {
-                    output?.didReceivePoolAPY(apyInfo: apy.first(where: { $0.poolId == address }))
+                for try await apy in apyStream {
+                    await MainActor.run {
+                        output?.didReceivePoolAPY(apyInfo: apy.first(where: { $0.value?.poolId == address })?.value)
+                    }
                 }
             } catch {
                 await MainActor.run {

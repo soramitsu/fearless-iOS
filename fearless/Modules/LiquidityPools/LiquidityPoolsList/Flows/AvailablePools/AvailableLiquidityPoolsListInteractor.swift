@@ -22,6 +22,8 @@ final class AvailableLiquidityPoolsListInteractor {
     private let chain: ChainModel
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
+    private var receivedPoolIds: [String] = []
+
     init(
         liquidityPoolService: PolkaswapLiquidityPoolService,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
@@ -61,7 +63,6 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
         self.output = output
 
         fetchPools()
-        fetchApy()
         subscribeForPrices()
     }
 
@@ -77,6 +78,7 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
 
                     if let pools = availablePools.value {
                         fetchReserves(pools: pools)
+                        fetchApy(pools: pools)
                     }
                 }
             } catch {
@@ -87,13 +89,41 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
         }
     }
 
-    func fetchApy() {
-        Task {
-            do {
-                let apy = try await liquidityPoolService.fetchPoolsAPY()
+    func fetchApy(pools: [LiquidityPair]) {
+        let poolIds: [String] = pools.compactMap { pool in
+            let baseAsset = chain.assets.first(where: { $0.currencyId == pool.baseAssetId })
+            let targetAsset = chain.assets.first(where: { $0.currencyId == pool.targetAssetId })
+            let rewardAsset = chain.assets.first(where: { $0.currencyId == pool.rewardAssetId })
 
-                await MainActor.run {
-                    output?.didReceivePoolsAPY(apy: apy)
+            guard baseAsset != nil, targetAsset != nil, rewardAsset != nil else {
+                return nil
+            }
+
+            guard
+                let reservesId = pool.reservesId,
+                let address = try? AddressFactory.address(for: Data(hex: reservesId), chain: chain)
+            else {
+                return nil
+            }
+
+            return address
+        }
+
+        guard poolIds != receivedPoolIds else {
+            return
+        }
+
+        Task {
+            let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: poolIds)
+            do {
+                for try await apy in apyStream {
+                    if apy.first?.type == .remote {
+                        receivedPoolIds.append(contentsOf: apy.compactMap { $0.value?.poolId })
+                    }
+
+                    await MainActor.run {
+                        output?.didReceivePoolsAPY(apy: apy.compactMap { $0.value })
+                    }
                 }
             } catch {
                 await MainActor.run {

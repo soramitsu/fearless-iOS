@@ -9,7 +9,6 @@ protocol AvailableLiquidityPoolsListInteractorInput {
     func setup(with output: AvailableLiquidityPoolsListInteractorOutput)
 
     func fetchPools()
-    func fetchApy()
 }
 
 final class AvailableLiquidityPoolsListPresenter {
