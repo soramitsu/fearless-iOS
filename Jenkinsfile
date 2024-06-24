@@ -20,7 +20,8 @@ def appPipeline = new org.ios.AppPipeline(
   sonarProjectKey: 'fearless:fearless-ios',
   dojoProductType: 'fearless',
   effectJiraTasks: true,
-  uploadToNexusFor: ['master','develop','staging']
+  uploadToNexusFor: ['master','develop','staging'],
+  statusNotif: true
 )
 
 appPipeline.runPipeline('fearless')
