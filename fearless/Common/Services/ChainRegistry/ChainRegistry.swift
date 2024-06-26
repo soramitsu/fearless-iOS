@@ -402,11 +402,11 @@ extension ChainRegistry: ConnectionPoolDelegate {
         }) else {
             return
         }
-        
+
         let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
         eventCenter.notify(with: reconnectedEvent)
     }
- }
+}
 
 // MARK: - EventVisitorProtocol
 

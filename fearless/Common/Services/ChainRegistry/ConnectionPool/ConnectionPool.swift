@@ -5,6 +5,7 @@ import SSFModels
 
 enum ConnectionPoolError: Error {
     case onlyOneNode
+    case noConnection
 }
 
 protocol ConnectionPoolProtocol {
@@ -74,7 +75,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
         connections.first(where: { $0.chainId == chainId })?.connection.target as? ChainConnection
     }
-    
+
     func setDelegate(_ delegate: any ConnectionPoolDelegate) {
         self.delegate = delegate
     }

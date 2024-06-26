@@ -133,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "socket-connection-refactoring",
-        "revision" : "e84295e599c4fc2fd097e0f13731159b008347bc"
+        "revision" : "229b862ae178ca87833789f81b25ead56fa3af49"
       }
     },
     {
