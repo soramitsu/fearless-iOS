@@ -36,7 +36,8 @@ extension ConnectionFactory: ConnectionFactoryProtocol {
         }
         let engine = WebSocketEngine(
             connectionName: connectionName,
-            connectionStrategy: connectionStrategy
+            connectionStrategy: connectionStrategy,
+            processingQueue: processingQueue
         )
         engine.delegate = delegate
         return engine
