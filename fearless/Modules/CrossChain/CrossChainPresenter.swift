@@ -246,18 +246,11 @@ final class CrossChainPresenter {
     }
 
     private func handle(newAddress: String) {
-        guard let destChain = selectedDestChainModel else {
-            return
-        }
         loadingCollector.addressExists = !newAddress.isEmpty
         checkLoadingState()
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
-        let isValid = interactor.validate(address: newAddress, for: destChain).isValid
-        let viewModel = viewModelFactory.buildRecipientViewModel(
-            address: newAddress,
-            isValid: isValid
-        )
+        let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress)
         view?.didReceive(recipientViewModel: viewModel)
     }
 
@@ -268,7 +261,7 @@ final class CrossChainPresenter {
             guard let chain = selectedDestChainModel else {
                 return
             }
-            let isValid = interactor.validate(address: recipientAddress, for: chain).isValid
+            let isValid = interactor.validate(address: recipientAddress, for: chain).isValidOrSame
             if isValid, let recipientAddress = recipientAddress {
                 handle(newAddress: recipientAddress)
             } else {
@@ -819,10 +812,7 @@ extension CrossChainPresenter: WalletsManagmentModuleOutput {
             return
         }
 
-        let viewModel = viewModelFactory.buildRecipientViewModel(
-            address: address,
-            isValid: true
-        )
+        let viewModel = viewModelFactory.buildRecipientViewModel(address: address)
         view?.didReceive(recipientViewModel: viewModel)
         destWallet = wallet
         recipientAddress = address
