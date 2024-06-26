@@ -67,14 +67,24 @@ final class ScanQRPresenter: NSObject {
         }
     }
 
-    private func handleQRExtractionService(error: QRExtractionServiceError) {
-        switch error {
-        case .noFeatures:
-            view?.present(message: L10n.InvoiceScan.Error.noInfo, animated: true)
-        case .detectorUnavailable, .invalidImage:
-            view?.present(message: L10n.InvoiceScan.Error.invalidImage, animated: true)
-        case .plainAddress:
-            break
+    private func handleQRExtractionService() {
+        DispatchQueue.main.async {
+            self.view?.didStartLoading()
+            let viewModel = SheetAlertPresentableViewModel(
+                title: R.string.localizable.commonUndefinedErrorMessage(
+                    preferredLanguages: self.selectedLocale.rLanguages
+                ),
+                message: nil,
+                actions: [],
+                closeAction: nil,
+                dismissCompletion: { [weak self] in
+                    self?.scanState = .initializing(accessRequested: true)
+                    DispatchQueue.global().async {
+                        self?.interactor.startScanning()
+                    }
+                }
+            )
+            self.router.present(viewModel: viewModel, from: self.view)
         }
     }
 
@@ -170,8 +180,8 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
             return
         }
 
-        if let extractionError = error as? QRExtractionServiceError {
-            handleQRExtractionService(error: extractionError)
+        if let _ = error as? QRExtractionError {
+            handleQRExtractionService()
             return
         }
 
