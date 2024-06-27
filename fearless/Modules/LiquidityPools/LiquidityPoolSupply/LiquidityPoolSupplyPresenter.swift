@@ -6,16 +6,14 @@ import BigInt
 import SSFPolkaswap
 
 struct SupplyLiquidityLoadingCollector {
-    var dexIdReady: Bool
     var feeReady: Bool
 
     init() {
-        dexIdReady = false
         feeReady = false
     }
 
     var isReady: Bool {
-        dexIdReady && feeReady
+        feeReady
     }
 }
 
@@ -34,6 +32,7 @@ protocol LiquidityPoolSupplyViewInput: ControllerBackedProtocol {
 protocol LiquidityPoolSupplyInteractorInput: AnyObject {
     func setup(with output: LiquidityPoolSupplyInteractorOutput)
     func estimateFee(supplyLiquidityInfo: SupplyLiquidityInfo)
+    func fetchPools()
 }
 
 final class LiquidityPoolSupplyPresenter {
@@ -61,6 +60,7 @@ final class LiquidityPoolSupplyPresenter {
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
     private var prices: [PriceData]?
+    private var pairs: [LiquidityPair]?
 
     private var apyInfo: PoolApyInfo?
     private var slippadgeTolerance: Float = Constants.slippadgeTolerance
@@ -109,7 +109,8 @@ final class LiquidityPoolSupplyPresenter {
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
-        viewModelFactory: LiquidityPoolSupplyViewModelFactory
+        viewModelFactory: LiquidityPoolSupplyViewModelFactory,
+        availablePairs: [LiquidityPair]?
     ) {
         self.interactor = interactor
         self.router = router
@@ -119,6 +120,8 @@ final class LiquidityPoolSupplyPresenter {
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.viewModelFactory = viewModelFactory
+        pairs = availablePairs
+        dexId = liquidityPair.dexId
 
         self.localizationManager = localizationManager
     }
@@ -156,7 +159,8 @@ final class LiquidityPoolSupplyPresenter {
             targetAsset: targetAssetInfo,
             baseAssetAmount: baseAssetAmount,
             targetAssetAmount: targetAssetAmount,
-            slippage: Decimal(floatLiteral: Double(slippadgeTolerance))
+            slippage: Decimal(floatLiteral: Double(slippadgeTolerance)),
+            availablePairs: pairs
         )
 
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
@@ -288,6 +292,10 @@ final class LiquidityPoolSupplyPresenter {
         swapFromChainAsset = chain.chainAssets.first(where: { $0.asset.currencyId == liquidityPair.baseAssetId })
         swapToChainAsset = chain.chainAssets.first(where: { $0.asset.currencyId == liquidityPair.targetAssetId })
 
+        if pairs == nil {
+            interactor.fetchPools()
+        }
+
         DispatchQueue.main.async {
             self.view?.didReceiveNetworkFee(fee: nil)
             self.provideViewModel()
@@ -309,8 +317,8 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     func didTapApyInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Strategic bonus APY"
-        infoText = "APY is a figure that represents the actual amount of interest earned on investments in Liquidity pool."
+        infoTitle = R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        infoText = R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -321,8 +329,8 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     func didTapFeeInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Network fee"
-        infoText = "Network fee is used to ensure SORA system’s growth and stable performance."
+        infoTitle = R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        infoText = R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -364,7 +372,8 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
             let inputData = LiquidityPoolSupplyConfirmInputData(
                 baseAssetAmount: self.baseAssetResultAmount,
                 targetAssetAmount: self.targetAssetResultAmount,
-                slippageTolerance: Decimal(floatLiteral: Double(self.slippadgeTolerance))
+                slippageTolerance: Decimal(floatLiteral: Double(self.slippadgeTolerance)),
+                availablePools: pairs
             )
 
             self.router.showConfirmation(
@@ -469,24 +478,20 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
 // MARK: - LiquidityPoolSupplyInteractorOutput
 
 extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
+    func didReceiveLiquidityPairs(pairs: [LiquidityPair]?) {
+        self.pairs = pairs
+    }
+
+    func didReceiveLiquidityPairsError(error: Error) {
+        logger.customError(error)
+    }
+
     func didReceivePoolAPY(apyInfo: SSFPolkaswap.PoolApyInfo?) {
         self.apyInfo = apyInfo
         provideViewModel()
     }
 
     func didReceivePoolApyError(error: Error) {
-        logger.customError(error)
-    }
-
-    func didReceiveDexId(_ dexId: String) {
-        self.dexId = dexId
-        refreshFee()
-
-        loadingCollector.dexIdReady = true
-        checkLoadingState()
-    }
-
-    func didReceiveDexIdError(_ error: Error) {
         logger.customError(error)
     }
 

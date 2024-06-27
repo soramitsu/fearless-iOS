@@ -9,6 +9,7 @@ struct LiquidityPoolSupplyConfirmInputData {
     let baseAssetAmount: Decimal
     let targetAssetAmount: Decimal
     let slippageTolerance: Decimal
+    let availablePools: [LiquidityPair]?
 }
 
 enum LiquidityPoolSupplyConfirmAssembly {

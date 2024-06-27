@@ -33,6 +33,7 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
     let containerStackView: UIStackView = {
         let stackView = UIFactory.default.createVerticalStackView(spacing: 16)
         stackView.distribution = .fill
+        stackView.alignment = .center
         return stackView
     }()
 
@@ -85,7 +86,6 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
 
         userPoolsContainerView.snp.updateConstraints { make in
             make.height.equalTo(userSectionHeight)
-            make.leading.trailing.equalToSuperview().inset(16)
         }
 
         availablePoolsContainerView.snp.updateConstraints { make in

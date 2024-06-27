@@ -245,9 +245,9 @@ final class LiquidityPoolRemoveLiquidityViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        warningView.titleLabel.text = "NOTE"
-        warningView.textLabel.text = "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive."
-        titleLabel.text = "Remove Liquidity"
+        warningView.titleLabel.text = R.string.localizable.lpPoolRemoveWarningTitle(preferredLanguages: locale.rLanguages)
+        warningView.textLabel.text = R.string.localizable.lpPoolRemoveWarningText(preferredLanguages: locale.rLanguages)
+        titleLabel.text = R.string.localizable.lpRemoveLiquidityScreenTitle(preferredLanguages: locale.rLanguages)
 
         swapFromInputView.locale = locale
         swapToInputView.locale = locale

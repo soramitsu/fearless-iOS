@@ -4,7 +4,7 @@ import SSFPolkaswap
 import SSFModels
 import SSFStorageQueryKit
 
-protocol AvailableLiquidityPoolsListInteractorOutput {
+protocol AvailableLiquidityPoolsListInteractorOutput: AnyObject {
     func didReceiveLiquidityPairs(pairs: [LiquidityPair]?)
     func didReceivePoolsReserves(reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>)
     func didReceivePoolsAPY(apy: [PoolApyInfo]?)
@@ -17,12 +17,16 @@ protocol AvailableLiquidityPoolsListInteractorOutput {
 
 final class AvailableLiquidityPoolsListInteractor {
     private let liquidityPoolService: PolkaswapLiquidityPoolService
-    private var output: AvailableLiquidityPoolsListInteractorOutput?
+    private weak var output: AvailableLiquidityPoolsListInteractorOutput?
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chain: ChainModel
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     private var receivedPoolIds: [String] = []
+
+    private var reservesTask: Task<Void, Never>?
+    private var poolsTask: Task<Void, Never>?
+    private var apyTask: Task<Void, Never>?
 
     init(
         liquidityPoolService: PolkaswapLiquidityPoolService,
@@ -35,7 +39,7 @@ final class AvailableLiquidityPoolsListInteractor {
     }
 
     private func fetchReserves(pools: [LiquidityPair]) {
-        Task {
+        reservesTask = Task {
             do {
                 let reservesStream = try await liquidityPoolService.subscribePoolsReserves(pools: pools)
 
@@ -66,14 +70,21 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
         subscribeForPrices()
     }
 
+    func cancelTasks() {
+        [poolsTask, reservesTask, apyTask].compactMap { $0 }.forEach { $0.cancel() }
+    }
+
     func fetchPools() {
-        Task {
+        poolsTask = Task { [weak self] in
+            guard let self else {
+                return
+            }
             do {
                 let availablePoolsStream = try await liquidityPoolService.subscribeAvailablePools()
 
                 for try await availablePools in availablePoolsStream {
                     await MainActor.run {
-                        output?.didReceiveLiquidityPairs(pairs: availablePools.value)
+                        self.output?.didReceiveLiquidityPairs(pairs: availablePools.value)
                     }
 
                     if let pools = availablePools.value {
@@ -83,7 +94,7 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
                 }
             } catch {
                 await MainActor.run {
-                    output?.didReceiveLiquidityPairsError(error: error)
+                    self.output?.didReceiveLiquidityPairsError(error: error)
                 }
             }
         }
@@ -113,9 +124,9 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
             return
         }
 
-        Task {
-            let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: poolIds)
+        apyTask = Task {
             do {
+                let apyStream = try await liquidityPoolService.subscribePoolsAPY(poolIds: poolIds)
                 for try await apy in apyStream {
                     if apy.first?.type == .remote {
                         receivedPoolIds.append(contentsOf: apy.compactMap { $0.value?.poolId })

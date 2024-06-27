@@ -11,6 +11,12 @@ struct SoraSubqueryPricePage: Decodable {
 }
 
 struct SoraSubqueryPrice: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case id
+        case priceUsd = "priceUSD"
+        case priceChangeDay
+    }
+
     let id: String
     let priceUsd: String?
     let priceChangeDay: Decimal?

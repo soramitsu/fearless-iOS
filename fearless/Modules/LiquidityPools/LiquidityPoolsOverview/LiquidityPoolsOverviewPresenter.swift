@@ -11,6 +11,9 @@ final class LiquidityPoolsOverviewPresenter {
     private let chain: ChainModel
     private let wallet: MetaAccountModel
 
+    var availablePoolsInput: LiquidityPoolsListModuleInput?
+    var userPoolsInput: LiquidityPoolsListModuleInput?
+
     // MARK: - Constructors
 
     init(
@@ -41,6 +44,9 @@ extension LiquidityPoolsOverviewPresenter: LiquidityPoolsOverviewViewOutput {
 
     func backButtonClicked() {
         router.dismiss(view: view)
+
+        availablePoolsInput?.resetTasks()
+        userPoolsInput?.resetTasks()
     }
 }
 

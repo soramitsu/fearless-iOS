@@ -7,8 +7,6 @@ import BigInt
 protocol LiquidityPoolRemoveLiquidityInteractorOutput: AnyObject {
     func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
-    func didReceiveDexId(_ dexId: String)
-    func didReceiveDexIdError(_ error: Error)
     func didReceiveUserPool(pool: AccountPool?)
     func didReceiveUserPoolError(error: Error)
     func didReceiveFee(_ fee: BigUInt)
@@ -71,17 +69,6 @@ final class LiquidityPoolRemoveLiquidityInteractor {
             handler: self,
             deliveryOn: .main
         )
-    }
-
-    private func fetchDexId() {
-        Task {
-            do {
-                let dexId = try await lpDataService.fetchDexId(baseAssetId: liquidityPair.baseAssetId)
-                output?.didReceiveDexId(dexId)
-            } catch {
-                output?.didReceiveDexIdError(error)
-            }
-        }
     }
 
     private func fetchReserves() {
@@ -147,7 +134,6 @@ final class LiquidityPoolRemoveLiquidityInteractor {
 extension LiquidityPoolRemoveLiquidityInteractor: LiquidityPoolRemoveLiquidityInteractorInput {
     func setup(with output: LiquidityPoolRemoveLiquidityInteractorOutput) {
         self.output = output
-        fetchDexId()
         fetchReserves()
         fetchUserPool()
         fetchTotalIssuance()

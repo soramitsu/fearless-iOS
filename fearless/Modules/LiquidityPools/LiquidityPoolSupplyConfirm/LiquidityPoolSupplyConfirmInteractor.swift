@@ -5,8 +5,6 @@ import SSFPools
 import BigInt
 
 protocol LiquidityPoolSupplyConfirmInteractorOutput: AnyObject {
-    func didReceiveDexId(_ dexId: String)
-    func didReceiveDexIdError(_ error: Error)
     func didReceiveFee(_ fee: BigUInt)
     func didReceiveFeeError(_ error: Error)
     func didReceivePricesData(result: Result<[PriceData], Error>)
@@ -46,17 +44,6 @@ final class LiquidityPoolSupplyConfirmInteractor {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
     }
 
-    private func fetchDexId() {
-        Task {
-            do {
-                let dexId = try await lpDataService.fetchDexId(baseAssetId: liquidityPair.baseAssetId)
-                output?.didReceiveDexId(dexId)
-            } catch {
-                output?.didReceiveDexIdError(error)
-            }
-        }
-    }
-
     private func subscribeToPrices() {
         let chainAssets = chain.chainAssets
         pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
@@ -83,7 +70,6 @@ final class LiquidityPoolSupplyConfirmInteractor {
 extension LiquidityPoolSupplyConfirmInteractor: LiquidityPoolSupplyConfirmInteractorInput {
     func setup(with output: LiquidityPoolSupplyConfirmInteractorOutput) {
         self.output = output
-        fetchDexId()
         fetchApy()
         subscribeToPrices()
         subscribeToAccountInfo()

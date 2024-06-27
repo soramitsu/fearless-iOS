@@ -6,6 +6,7 @@ protocol LiquidityPoolDetailsViewOutput: AnyObject {
     func backButtonClicked()
     func supplyButtonClicked()
     func removeButtonClicked()
+    func didTapApyInfo()
 }
 
 final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -50,9 +51,20 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder, Hi
         rootView.removeButton.addAction { [weak self] in
             self?.output.removeButtonClicked()
         }
+
+        let tapApyInfo = UITapGestureRecognizer(
+            target: self,
+            action: #selector(handleTapApyInfo)
+        )
+        rootView.apyView
+            .addGestureRecognizer(tapApyInfo)
     }
 
     // MARK: - Private methods
+
+    @objc private func handleTapApyInfo() {
+        output.didTapApyInfo()
+    }
 }
 
 // MARK: - LiquidityPoolDetailsViewInput

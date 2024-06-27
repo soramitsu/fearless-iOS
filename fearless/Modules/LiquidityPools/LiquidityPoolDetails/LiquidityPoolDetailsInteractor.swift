@@ -91,9 +91,15 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
 
         Task {
             do {
-                let accountPool = try await liquidityPoolService.fetchUserPool(assetIdPair: assetIdPair, accountId: accountId)
-                await MainActor.run {
-                    output?.didReceiveUserPool(pool: accountPool)
+                let accountPoolStream = try await liquidityPoolService.subscribeUserPools(accountId: accountId)
+                for try await accountPools in accountPoolStream {
+                    guard let pool = accountPools.value?.first(where: { $0.poolId == assetIdPair.poolId }) else {
+                        return
+                    }
+
+                    await MainActor.run {
+                        output?.didReceiveUserPool(pool: pool)
+                    }
                 }
             } catch {
                 await MainActor.run {

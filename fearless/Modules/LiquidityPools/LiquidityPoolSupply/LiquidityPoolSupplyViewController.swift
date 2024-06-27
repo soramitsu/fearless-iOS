@@ -192,6 +192,7 @@ extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
 
     func setButtonLoadingState(isLoading: Bool) {
         rootView.previewButton.set(loading: isLoading)
+        updatePreviewButton()
     }
 
     func didUpdating() {

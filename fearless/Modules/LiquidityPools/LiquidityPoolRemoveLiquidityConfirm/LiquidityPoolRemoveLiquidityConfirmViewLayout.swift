@@ -105,7 +105,7 @@ final class LiquidityPoolRemoveLiquidityConfirmViewLayout: UIView {
     // MARK: - Private methods
 
     private func applyLocalization() {
-        titleLabel.text = "Remove Liquidity"
+        titleLabel.text = R.string.localizable.lpRemoveLiquidityScreenTitle(preferredLanguages: locale.rLanguages)
         confirmButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
     }

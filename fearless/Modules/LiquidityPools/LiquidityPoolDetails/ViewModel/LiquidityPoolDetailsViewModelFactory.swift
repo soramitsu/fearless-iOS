@@ -86,7 +86,7 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
         let apyViewModel = apyLabelText.flatMap { TitleMultiValueViewModel(title: $0, subtitle: nil) }
 
         return LiquidityPoolDetailsViewModel(
-            pairTitleLabelText: "\(baseAsset.symbol.uppercased()) > \(targetAsset.symbol.uppercased())",
+            pairTitleLabelText: "\(baseAsset.symbol.uppercased()) › \(targetAsset.symbol.uppercased())",
             baseAssetName: baseAsset.symbol.uppercased(),
             targetAssetName: targetAsset.symbol.uppercased(),
             reservesViewModel: reservesViewModel,

@@ -9,6 +9,7 @@ protocol UserLiquidityPoolsListInteractorInput {
     func setup(with output: UserLiquidityPoolsListInteractorOutput)
 
     func fetchPools()
+    func cancelTasks()
 }
 
 final class UserLiquidityPoolsListPresenter {
@@ -55,7 +56,6 @@ final class UserLiquidityPoolsListPresenter {
     private func provideViewModel() {
         let viewModel = viewModelFactory.buildViewModel(
             accountPools: accountPools,
-            pools: pools,
             reserves: reserves,
             apyInfos: apy,
             chain: chain,
@@ -79,14 +79,25 @@ extension UserLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
         interactor.setup(with: self)
     }
 
+    func didAppearView() {}
+
     func didTapOn(viewModel: LiquidityPoolListCellModel) {
-        let liquidityPair = viewModel.liquidityPair
+        guard let liquidityPair = viewModel.liquidityPair else {
+            return
+        }
+
         let reserves = reserves?.value?.first(where: { $0.poolId == liquidityPair.pairId })
         let reservesAddress = liquidityPair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
         let apyInfo = apy?.first(where: { $0.poolId == reservesAddress })
         let accountPool = accountPools?.first(where: { $0.poolId == liquidityPair.pairId })
-        let assetIdPair = AssetIdPair(baseAssetIdCode: viewModel.liquidityPair.baseAssetId, targetAssetIdCode: viewModel.liquidityPair.targetAssetId)
-        let input = LiquidityPoolDetailsInput.userPool(liquidityPair: liquidityPair, reserves: reserves, apyInfo: apyInfo, accountPool: accountPool)
+        let assetIdPair = AssetIdPair(baseAssetIdCode: liquidityPair.baseAssetId, targetAssetIdCode: liquidityPair.targetAssetId)
+        let input = LiquidityPoolDetailsInput.userPool(
+            liquidityPair: liquidityPair,
+            reserves: reserves,
+            apyInfo: apyInfo,
+            accountPool: accountPool,
+            availablePairs: accountPools?.compactMap { $0.liquidityPair }
+        )
         router.showPoolDetails(assetIdPair: assetIdPair, chain: chain, wallet: wallet, input: input, from: view)
     }
 
@@ -95,6 +106,7 @@ extension UserLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
     }
 
     func didTapBackButton() {
+        interactor.cancelTasks()
         router.dismiss(view: view)
     }
 
@@ -107,12 +119,13 @@ extension UserLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
 extension UserLiquidityPoolsListPresenter: UserLiquidityPoolsListInteractorOutput {
     func didReceiveUserPools(accountPools: [AccountPool]?) {
         self.accountPools = accountPools
+        moduleOutput?.shouldShowUserPools(accountPools?.isNotEmpty == true)
+
         provideViewModel()
     }
 
     func didReceiveLiquidityPairs(pools: [LiquidityPair]?) {
         self.pools = pools
-        moduleOutput?.shouldShowUserPools(pools?.isNotEmpty == true)
         provideViewModel()
     }
 
@@ -153,7 +166,11 @@ extension UserLiquidityPoolsListPresenter: UserLiquidityPoolsListInteractorOutpu
     }
 }
 
-extension UserLiquidityPoolsListPresenter: LiquidityPoolsListModuleInput {}
+extension UserLiquidityPoolsListPresenter: LiquidityPoolsListModuleInput {
+    func resetTasks() {
+        interactor.cancelTasks()
+    }
+}
 
 extension UserLiquidityPoolsListPresenter: Localizable {
     func applyLocalization() {}

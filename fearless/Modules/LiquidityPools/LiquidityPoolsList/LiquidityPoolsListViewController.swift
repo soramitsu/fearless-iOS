@@ -5,11 +5,14 @@ import SoraUI
 
 final class LiquidityPoolsListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = LiquidityPoolsListViewLayout
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: Private properties
 
     private var cellModels: [LiquidityPoolListCellModel]?
     private let output: LiquidityPoolsListViewOutput
+
+    private var viewLoadingFinished: Bool = false
 
     // MARK: - Constructor
 
@@ -59,6 +62,14 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder, Hidd
         if keyboardHandler == nil {
             setupKeyboardHandler()
         }
+
+        guard !viewLoadingFinished else {
+            return
+        }
+
+        viewLoadingFinished = true
+
+        output.didAppearView()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -119,6 +130,7 @@ extension LiquidityPoolsListViewController: UITableViewDataSource, UITableViewDe
 
 extension LiquidityPoolsListViewController: LiquidityPoolsListViewInput {
     func didReceive(viewModel: LiquidityPoolListViewModel) {
+        print("didreceive viewmodels: ", viewModel.poolViewModels)
         cellModels = viewModel.poolViewModels
         rootView.bind(viewModel: viewModel)
 

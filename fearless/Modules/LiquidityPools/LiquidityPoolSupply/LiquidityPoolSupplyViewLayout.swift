@@ -266,7 +266,7 @@ final class LiquidityPoolSupplyViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        titleLabel.text = "Supply Liquidity"
+        titleLabel.text = R.string.localizable.lpSupplyLiquidityScreenTitle(preferredLanguages: locale.rLanguages)
 
         swapFromInputView.locale = locale
         swapToInputView.locale = locale
@@ -289,8 +289,8 @@ final class LiquidityPoolSupplyViewLayout: UIView {
             .commonPreview(preferredLanguages: locale.rLanguages)
 
         slippageView.titleLabel.text = R.string.localizable.polkaswapSettingsSlippageTitle(preferredLanguages: locale.rLanguages)
-        apyView.titleLabel.text = "Strategic Bonus APY"
-        rewardTokenView.titleLabel.text = "Rewards Payout In"
+        apyView.titleLabel.text = R.string.localizable.lpApyTitle(preferredLanguages: locale.rLanguages)
+        rewardTokenView.titleLabel.text = R.string.localizable.lpRewardTokenTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setInfoImage(for label: UILabel, text: String) {

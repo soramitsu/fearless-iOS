@@ -3,8 +3,8 @@ import SSFModels
 import SSFPools
 
 final class LiquidityPoolDetailsRouter: LiquidityPoolDetailsRouterInput {
-    func showSupplyFlow(liquidityPair: LiquidityPair, chain: ChainModel, wallet: MetaAccountModel, from view: ControllerBackedProtocol?) {
-        guard let controller = LiquidityPoolSupplyAssembly.configureModule(chain: chain, wallet: wallet, liquidityPair: liquidityPair)?.view.controller else {
+    func showSupplyFlow(liquidityPair: LiquidityPair, chain: ChainModel, wallet: MetaAccountModel, availablePairs: [LiquidityPair]?, from view: ControllerBackedProtocol?) {
+        guard let controller = LiquidityPoolSupplyAssembly.configureModule(chain: chain, wallet: wallet, liquidityPair: liquidityPair, availablePairs: availablePairs)?.view.controller else {
             return
         }
 

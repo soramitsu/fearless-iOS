@@ -6,20 +6,18 @@ import SSFModels
 import SSFPolkaswap
 
 struct RemoveLiquidityLoadingCollector {
-    var dexIdReady: Bool
     var totalIssuanceReady: Bool
     var reservesReady: Bool
     var feeReady: Bool
 
     init() {
-        dexIdReady = false
         totalIssuanceReady = false
         reservesReady = false
         feeReady = false
     }
 
     var isReady: Bool {
-        dexIdReady && totalIssuanceReady && reservesReady && feeReady
+        totalIssuanceReady && reservesReady && feeReady
     }
 }
 
@@ -62,7 +60,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     private let confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?
 
     private var removeInfo: RemoveLiquidityInfo?
-    private var reserves: PolkaswapPoolReservesInfo?
+    private var reserves: BigUInt?
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
     private var prices: [PriceData]?
@@ -124,6 +122,12 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.confirmViewModelFactory = confirmViewModelFactory
         self.removeInfo = removeInfo
+        dexId = liquidityPair.dexId
+
+        if let removeInfo = removeInfo, let utilityAsset = chain.utilityAssets().first {
+            totalIssuance = removeInfo.totalIssuances.toSubstrateAmount(precision: Int16(utilityAsset.precision))
+            reserves = removeInfo.baseAssetReserves.toSubstrateAmount(precision: Int16(utilityAsset.precision))
+        }
 
         self.localizationManager = localizationManager
     }
@@ -137,7 +141,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),
             let totalIssuance = totalIssuance,
             let reserves = reserves,
-            let baseAssetReserves = Decimal.fromSubstrateAmount(reserves.reserves.reserves, precision: Int16(baseAsset.precision)),
+            let baseAssetReserves = Decimal.fromSubstrateAmount(reserves, precision: Int16(baseAsset.precision)),
             let totalIssuanceDecimal = Decimal.fromSubstrateAmount(totalIssuance, precision: Int16(baseAsset.precision))
         else {
             return nil
@@ -378,8 +382,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityCon
     func didTapFeeInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Network fee"
-        infoText = "Network fee is used to ensure SORA system’s growth and stable performance."
+        infoTitle = R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        infoText = R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages)
 
         let view = setupView ?? confirmView
         router.presentInfo(
@@ -411,6 +415,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
     func didLoad(view: LiquidityPoolRemoveLiquidityViewInput) {
         setupView = view
         interactor.setup(with: self)
+
+        refreshFee()
     }
 
     func didTapBackButton() {
@@ -424,8 +430,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
     func didTapApyInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Strategic Bonus APY"
-        infoText = "Farming reward for liquidity provision"
+        infoTitle = R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        infoText = R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -590,17 +596,6 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
         logger.customError(error)
     }
 
-    func didReceiveDexId(_ dexId: String) {
-        self.dexId = dexId
-        refreshFee()
-        loadingCollector.dexIdReady = true
-        checkLoadingState()
-    }
-
-    func didReceiveDexIdError(_ error: Error) {
-        logger.customError(error)
-    }
-
     func didReceiveUserPool(pool: AccountPool?) {
         accountPoolInfo = pool
 
@@ -690,7 +685,11 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
     }
 
     func didReceivePoolReserves(reserves: PolkaswapPoolReservesInfo?) {
-        self.reserves = reserves
+        guard let reserves else {
+            return
+        }
+
+        self.reserves = reserves.reserves.reserves
         refreshFee()
         loadingCollector.reservesReady = true
         checkLoadingState()

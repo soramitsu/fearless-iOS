@@ -9,7 +9,6 @@ import SSFStorageQueryKit
 protocol UserLiquidityPoolsListViewModelFactory {
     func buildViewModel(
         accountPools: [AccountPool]?,
-        pools: [LiquidityPair]?,
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
@@ -32,7 +31,6 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
 
     func buildViewModel(
         accountPools: [AccountPool]?,
-        pools: [LiquidityPair]?,
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
@@ -42,8 +40,7 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
         type: LiquidityPoolListType,
         searchText: String?
     ) -> LiquidityPoolListViewModel {
-        let poolViewModels: [LiquidityPoolListCellModel]? = pools?.sorted().compactMap { pair in
-            let accountPoolInfo = accountPools?.first(where: { $0.poolId == pair.identifier })
+        let poolViewModels: [LiquidityPoolListCellModel]? = accountPools?.compactMap { pair in
             let baseAsset = chain.assets.first(where: { $0.currencyId == pair.baseAssetId })
             let targetAsset = chain.assets.first(where: { $0.currencyId == pair.targetAssetId })
             let rewardAsset = chain.assets.first(where: { $0.currencyId == pair.rewardAssetId })
@@ -61,16 +58,16 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             let tokenPairName = "\(baseAsset.symbol.uppercased())-\(targetAsset.symbol.uppercased())"
 
             let reservesAddress = pair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
-            let rewardTokenNameLabelText = "Earn \(rewardAsset.symbol.uppercased())"
+            let rewardTokenNameLabelText = R.string.localizable.lpRewardTokenText(rewardAsset.symbol.uppercased(), preferredLanguages: locale.rLanguages)
             let apyInfo = apyInfos?.first(where: { $0.poolId == reservesAddress })
             let apyValue = apyInfo?.apy
             let apyLabelText = apyValue.flatMap { NumberFormatter.percentAPY.stringFromDecimal($0) }
 
             let baseAssetPrice = prices?.first(where: { $0.priceId == baseAsset.priceId })
             let targetAssetPrice = prices?.first(where: { $0.priceId == targetAsset.priceId })
-            let poolReservesInfo = reserves?.value?.first(where: { $0.poolId == pair.pairId })
+            let poolReservesInfo = reserves?.value?.first(where: { $0.poolId == pair.poolId })
             let reservesValue = modelFactory.buildReserves(
-                pool: pair,
+                accountPool: pair,
                 chain: chain,
                 reserves: poolReservesInfo,
                 baseAssetPrice: baseAssetPrice,
@@ -78,16 +75,15 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             )
             let reservesString = reservesValue.flatMap { fiatFormatter.stringFromDecimal($0) }
             let reservesLabelText: String? = reservesString.flatMap { "\($0) TVL" }
-            let reservesLabelValue: ShimmeredLabelState = .normal(reservesLabelText)
 
             let baseAssetBalanceViewModelFactory = createBalanceViewModelFactory(for: ChainAsset(chain: chain, asset: baseAsset), wallet: wallet)
             let targetAssetBalanceViewModelFactory = createBalanceViewModelFactory(for: ChainAsset(chain: chain, asset: targetAsset), wallet: wallet)
 
-            let baseAssetViewModel = accountPoolInfo?.baseAssetPooled.flatMap {
+            let baseAssetViewModel = pair.baseAssetPooled.flatMap {
                 baseAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: baseAssetPrice, usageCase: .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 3))
             }
 
-            let targetAssetViewModel = accountPoolInfo?.targetAssetPooled.flatMap {
+            let targetAssetViewModel = pair.targetAssetPooled.flatMap {
                 targetAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: targetAssetPrice, usageCase: .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 3))
             }
 
@@ -108,22 +104,22 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
                 rewardTokenNameLabelText: rewardTokenNameLabelText,
                 apyLabelText: apyLabelText,
                 stakingStatusLabelText: stakingStatusLabelText,
-                reservesLabelValue: reservesLabelValue,
+                reservesLabelText: reservesLabelText,
                 sortValue: reservesValue.or(.zero),
-                liquidityPair: pair
+                liquidityPair: pair.liquidityPair
             )
         }.sorted(by: { $0.sortValue > $1.sortValue }).filter {
             guard let searchText, searchText.isNotEmpty else {
                 return true
             }
 
-            return $0.tokenPairNameLabelText.lowercased().contains(searchText.lowercased())
+            return $0.tokenPairNameLabelText?.lowercased().contains(searchText.lowercased()) == true
         }
 
         return LiquidityPoolListViewModel(
             poolViewModels: poolViewModels,
-            titleLabelText: "User pools",
-            moreButtonVisible: type == .embed && (poolViewModels?.count ?? 0 < pools?.count ?? 0),
+            titleLabelText: R.string.localizable.lpUserPoolsTitle(preferredLanguages: locale.rLanguages),
+            moreButtonVisible: type == .embed && (poolViewModels?.count ?? 0 < accountPools?.count ?? 0),
             backgroundVisible: type == .full,
             refreshAvailable: type == .full,
             isEmbed: type == .embed

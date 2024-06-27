@@ -147,12 +147,12 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
     // MARK: - Private methods
 
     private func applyLocalization() {
-        titleLabel.text = "Confirm Liquidity"
+        titleLabel.text = R.string.localizable.lpConfirmLiquidityScreenTitle(preferredLanguages: locale.rLanguages)
         confirmButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
-        swapStubTitle.text = "Output is estimated. If the price changes more than 0.5% your transaction will revert."
-        slippageView.titleLabel.text = "Slippage"
-        rewardTokenView.titleLabel.text = "Rewards Payout In"
+        swapStubTitle.text = R.string.localizable.lpConfirmLiquidityWarningText(preferredLanguages: locale.rLanguages)
+        slippageView.titleLabel.text = R.string.localizable.lpSlippageTitle(preferredLanguages: locale.rLanguages)
+        rewardTokenView.titleLabel.text = R.string.localizable.lpRewardTokenTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -234,7 +234,7 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
         let texts = [
             R.string.localizable
                 .polkaswapNetworkFee(preferredLanguages: locale.rLanguages),
-            "Strategic Bonus APY"
+            R.string.localizable.lpApyTitle(preferredLanguages: locale.rLanguages)
         ]
 
         [

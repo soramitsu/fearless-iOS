@@ -57,7 +57,7 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                 )
             case .liquidityPools:
                 let title = "Liquidity pools"
-                let subtitle = "Invest your funds in Liquidity pools and receive rewards"
+                let subtitle = "Invest your funds in Liquidity\npools and receive rewards"
                 let buttonAction = "Show details"
 
                 return BannerCellViewModel(

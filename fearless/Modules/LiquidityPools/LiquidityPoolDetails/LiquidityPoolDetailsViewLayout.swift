@@ -1,6 +1,12 @@
 import UIKit
 
 final class LiquidityPoolDetailsViewLayout: UIView {
+    private enum Constants {
+        static let imageWidth: CGFloat = 12
+        static let imageHeight: CGFloat = 12
+        static let imageVerticalPosition: CGFloat = 2
+    }
+
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.push)
@@ -122,11 +128,11 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         targetAssetPooledView.bindBalance(viewModel: viewModel?.targetAssetViewModel)
 
         if let baseAssetName = viewModel?.baseAssetName.uppercased() {
-            baseAssetPooledView.titleLabel.text = "Your \(baseAssetName) Pooled"
+            baseAssetPooledView.titleLabel.text = R.string.localizable.lpTokenPooledText(baseAssetName, preferredLanguages: locale.rLanguages)
         }
 
         if let targetAssetName = viewModel?.targetAssetName.uppercased() {
-            targetAssetPooledView.titleLabel.text = "Your \(targetAssetName) Pooled"
+            targetAssetPooledView.titleLabel.text = R.string.localizable.lpTokenPooledText(targetAssetName, preferredLanguages: locale.rLanguages)
         }
 
         viewModel?.rewardTokenIconViewModel?.loadImage(
@@ -233,10 +239,39 @@ final class LiquidityPoolDetailsViewLayout: UIView {
 
     private func applyLocalization() {
         reservesView.titleLabel.text = "TVL"
-        apyView.titleLabel.text = "Strategic Bonus APY"
-        rewardTokenView.titleLabel.text = "Rewards Payout In"
-        supplyButton.imageWithTitleView?.title = "Supply Liquidity"
-        removeButton.imageWithTitleView?.title = "Remove Liquidity"
-        navigationBar.setTitle("Pool details")
+        rewardTokenView.titleLabel.text = R.string.localizable.lpRewardTokenTitle(preferredLanguages: locale.rLanguages)
+        supplyButton.imageWithTitleView?.title = R.string.localizable.lpSupplyButtonTitle(preferredLanguages: locale.rLanguages)
+        removeButton.imageWithTitleView?.title = R.string.localizable.lpRemoveButtonTitle(preferredLanguages: locale.rLanguages)
+        navigationBar.setTitle(R.string.localizable.lpPoolDetailsTitle(preferredLanguages: locale.rLanguages))
+
+        let texts = [
+            R.string.localizable
+                .lpApyTitle(preferredLanguages: locale.rLanguages)
+        ]
+
+        [
+            apyView.titleLabel
+        ].enumerated().forEach { index, label in
+            setInfoImage(for: label, text: texts[index])
+        }
+    }
+
+    private func setInfoImage(for label: UILabel, text: String) {
+        let attributedString = NSMutableAttributedString(string: text)
+
+        let imageAttachment = NSTextAttachment()
+        imageAttachment.image = R.image.iconInfoFilled()
+        imageAttachment.bounds = CGRect(
+            x: 0,
+            y: -Constants.imageVerticalPosition,
+            width: Constants.imageWidth,
+            height: Constants.imageHeight
+        )
+
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        attributedString.append(NSAttributedString(string: " "))
+        attributedString.append(imageString)
+
+        label.attributedText = attributedString
     }
 }

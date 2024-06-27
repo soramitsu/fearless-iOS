@@ -18,6 +18,8 @@ protocol AvailableLiquidityPoolsListViewModelFactory {
         type: LiquidityPoolListType,
         searchText: String?
     ) -> LiquidityPoolListViewModel
+
+    func buildLoadingViewModel(type: LiquidityPoolListType) -> LiquidityPoolListViewModel
 }
 
 final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidityPoolsListViewModelFactory {
@@ -27,6 +29,26 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
     init(modelFactory: LiquidityPoolsModelFactory, assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
         self.modelFactory = modelFactory
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+    }
+
+    private func buildLoadingCellViewModel() -> LiquidityPoolListCellModel {
+        LiquidityPoolListCellModel(tokenPairIconsVieWModel: TokenPairsIconViewModel(firstTokenIconViewModel: nil, secondTokenIconViewModel: nil), tokenPairNameLabelText: nil, rewardTokenNameLabelText: nil, apyLabelText: nil, stakingStatusLabelText: nil, reservesLabelText: nil, sortValue: 0, liquidityPair: nil)
+    }
+
+    func buildLoadingViewModel(type: LiquidityPoolListType) -> LiquidityPoolListViewModel {
+        var poolViewModels: [LiquidityPoolListCellModel] = []
+        for _ in 0 ... 19 {
+            poolViewModels.append(buildLoadingCellViewModel())
+        }
+
+        return LiquidityPoolListViewModel(
+            poolViewModels: poolViewModels,
+            titleLabelText: "Available pools",
+            moreButtonVisible: type == .embed,
+            backgroundVisible: type == .full,
+            refreshAvailable: type == .full,
+            isEmbed: type == .embed
+        )
     }
 
     func buildViewModel(
@@ -58,7 +80,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
             let tokenPairName = "\(baseAsset.symbol.uppercased())-\(targetAsset.symbol.uppercased())"
 
             let reservesAddress = pair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
-            let rewardTokenNameLabelText = "Earn \(rewardAsset.symbol.uppercased())"
+            let rewardTokenNameLabelText = R.string.localizable.lpRewardTokenText(rewardAsset.symbol.uppercased(), preferredLanguages: locale.rLanguages)
             let apyValue = apyInfos?.first(where: { $0.poolId == reservesAddress })?.apy
             let apyLabelText = apyValue.flatMap { NumberFormatter.percentAPY.stringFromDecimal($0) }
 
@@ -75,14 +97,13 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
             let reservesString = reservesValue.flatMap { fiatFormatter.stringFromDecimal($0) }
             let reservesLabelText: String? = reservesString.flatMap { "\($0) TVL" }
 
-            let reservesLabelValue: ShimmeredLabelState = .normal(reservesLabelText)
             return LiquidityPoolListCellModel(
                 tokenPairIconsVieWModel: iconsViewModel,
                 tokenPairNameLabelText: tokenPairName,
                 rewardTokenNameLabelText: rewardTokenNameLabelText,
                 apyLabelText: apyLabelText,
                 stakingStatusLabelText: nil,
-                reservesLabelValue: reservesLabelValue,
+                reservesLabelText: reservesLabelText,
                 sortValue: reservesValue.or(.zero),
                 liquidityPair: pair
             )
@@ -91,7 +112,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
                 return true
             }
 
-            return $0.tokenPairNameLabelText.lowercased().contains(searchText.lowercased())
+            return $0.tokenPairNameLabelText?.lowercased().contains(searchText.lowercased()) == true
         }
 
         return LiquidityPoolListViewModel(

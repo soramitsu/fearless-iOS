@@ -2,15 +2,15 @@ import UIKit
 
 class LiquidityPoolListCell: UITableViewCell {
     let tokenPairIconsView = TokenPairIconsView()
-    let tokenPairNameLabel: UILabel = {
-        let label = UILabel()
+    let tokenPairNameLabel: SkeletonLabel = {
+        let label = SkeletonLabel(skeletonSize: CGSize(width: 50, height: 12))
         label.font = .capsTitle
         label.textColor = .white
         return label
     }()
 
-    let rewardTokenNameLabel: UILabel = {
-        let label = UILabel()
+    let rewardTokenNameLabel: SkeletonLabel = {
+        let label = SkeletonLabel(skeletonSize: CGSize(width: 50, height: 12))
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite50()
         return label
@@ -60,14 +60,15 @@ class LiquidityPoolListCell: UITableViewCell {
 
     func bind(viewModel: LiquidityPoolListCellModel) {
         tokenPairIconsView.bind(viewModel: viewModel.tokenPairIconsVieWModel)
-        tokenPairNameLabel.text = viewModel.tokenPairNameLabelText
-        rewardTokenNameLabel.text = viewModel.rewardTokenNameLabelText
         stakingStatusLabel.text = viewModel.stakingStatusLabelText
 
+        tokenPairNameLabel.updateTextWithLoading(viewModel.tokenPairNameLabelText)
+        rewardTokenNameLabel.updateTextWithLoading(viewModel.rewardTokenNameLabelText)
         apyLabel.updateTextWithLoading(viewModel.apyLabelText)
-        reservesLabel.apply(state: viewModel.reservesLabelValue)
+        reservesLabel.updateTextWithLoading(viewModel.reservesLabelText)
 
         stakingStatusLabel.isHidden = viewModel.stakingStatusLabelText == nil
+        reservesLabel.isHidden = viewModel.stakingStatusLabelText != nil
     }
 
     private func drawSubviews() {

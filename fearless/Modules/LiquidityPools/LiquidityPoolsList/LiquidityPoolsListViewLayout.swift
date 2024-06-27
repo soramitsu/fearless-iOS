@@ -27,6 +27,7 @@ final class LiquidityPoolsListViewLayout: UIView {
         button.setImage(R.image.iconChevronRight(), for: .normal)
         button.semanticContentAttribute = .forceRightToLeft
         button.backgroundColor = R.color.colorWhite8()
+        button.isHidden = true
         return button
     }()
 
@@ -54,6 +55,7 @@ final class LiquidityPoolsListViewLayout: UIView {
     let searchTextField: SearchTextField = {
         let searchTextField = UIFactory.default.createSearchTextField()
         searchTextField.triangularedView?.strokeWidth = 0
+        searchTextField.isHidden = true
         return searchTextField
     }()
 
@@ -126,7 +128,7 @@ final class LiquidityPoolsListViewLayout: UIView {
 
     private func setupConstraints() {
         vStackView.snp.makeConstraints { make in
-            keyboardAdoptableConstraint = make.bottom.lessThanOrEqualToSuperview().constraint
+            make.bottom.lessThanOrEqualToSuperview()
             make.leading.trailing.top.equalToSuperview()
         }
 
@@ -137,12 +139,12 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         topBar.snp.makeConstraints { make in
             make.height.equalTo(42)
-            make.leading.trailing.equalToSuperview()
         }
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(vStackView.snp.bottom).offset(8)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
 
         tableView.snp.makeConstraints { make in

@@ -6,16 +6,14 @@ import SSFModels
 import BigInt
 
 struct SupplyLiquidityConfirmLoadingCollector {
-    var dexIdReady: Bool
     var feeReady: Bool
 
     init() {
-        dexIdReady = false
         feeReady = false
     }
 
     var isReady: Bool {
-        dexIdReady && feeReady
+        feeReady
     }
 }
 
@@ -57,6 +55,8 @@ final class LiquidityPoolSupplyConfirmPresenter {
         (xorBalance ?? 0) - (networkFee ?? 0)
     }
 
+    private var availablePairs: [LiquidityPair]?
+
     private var swapFromBalance: Decimal?
     private var swapToBalance: Decimal?
 
@@ -87,6 +87,8 @@ final class LiquidityPoolSupplyConfirmPresenter {
         self.inputData = inputData
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
+        dexId = liquidityPair.dexId
+        availablePairs = inputData.availablePools
 
         self.localizationManager = localizationManager
     }
@@ -111,7 +113,8 @@ final class LiquidityPoolSupplyConfirmPresenter {
             targetAsset: targetAssetInfo,
             baseAssetAmount: inputData.baseAssetAmount,
             targetAssetAmount: inputData.targetAssetAmount,
-            slippage: inputData.slippageTolerance
+            slippage: inputData.slippageTolerance,
+            availablePairs: availablePairs
         )
 
         interactor.estimateFee(supplyLiquidityInfo: supplyLiquidityInfo)
@@ -235,8 +238,8 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     func didTapApyInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Strategic bonus APY"
-        infoText = "APY is a figure that represents the actual amount of interest earned on investments in Liquidity pool."
+        infoTitle = R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        infoText = R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -247,8 +250,8 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     func didTapFeeInfo() {
         var infoText: String
         var infoTitle: String
-        infoTitle = "Network fee"
-        infoText = "Network fee is used to ensure SORA system’s growth and stable performance."
+        infoTitle = R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        infoText = R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
             message: infoText,
             title: infoTitle,
@@ -274,7 +277,8 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
             targetAsset: targetAssetInfo,
             baseAssetAmount: inputData.baseAssetAmount,
             targetAssetAmount: inputData.targetAssetAmount,
-            slippage: inputData.slippageTolerance
+            slippage: inputData.slippageTolerance,
+            availablePairs: availablePairs
         )
 
         interactor.submit(supplyLiquidityInfo: supplyLiquidityInfo)
@@ -309,18 +313,6 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
     }
 
     func didReceivePoolApyError(error: Error) {
-        logger.customError(error)
-    }
-
-    func didReceiveDexId(_ dexId: String) {
-        self.dexId = dexId
-        refreshFee()
-
-        loadingCollector.dexIdReady = true
-        checkLoadingState()
-    }
-
-    func didReceiveDexIdError(_ error: Error) {
         logger.customError(error)
     }
 

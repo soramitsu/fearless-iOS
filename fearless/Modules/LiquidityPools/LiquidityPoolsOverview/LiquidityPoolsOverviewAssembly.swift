@@ -29,6 +29,9 @@ final class LiquidityPoolsOverviewAssembly {
             return nil
         }
 
+        presenter.userPoolsInput = userPoolsModule.input
+        presenter.availablePoolsInput = availablePoolsModule.input
+
         let view = LiquidityPoolsOverviewViewController(
             output: presenter,
             localizationManager: localizationManager,

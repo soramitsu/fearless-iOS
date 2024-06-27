@@ -9,6 +9,7 @@ protocol AvailableLiquidityPoolsListInteractorInput {
     func setup(with output: AvailableLiquidityPoolsListInteractorOutput)
 
     func fetchPools()
+    func cancelTasks()
 }
 
 final class AvailableLiquidityPoolsListPresenter {
@@ -52,6 +53,10 @@ final class AvailableLiquidityPoolsListPresenter {
     }
 
     private func provideViewModel() {
+        guard let pairs, pairs.isNotEmpty else {
+            return
+        }
+
         let viewModel = viewModelFactory.buildViewModel(
             pairs: pairs,
             reserves: reserves,
@@ -76,13 +81,16 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
     }
 
     func didTapOn(viewModel: LiquidityPoolListCellModel) {
-        let liquidityPair = viewModel.liquidityPair
+        guard let liquidityPair = viewModel.liquidityPair else {
+            return
+        }
+
         let reserves = reserves?.value?.first(where: { $0.poolId == liquidityPair.pairId })
         let reservesAddress = liquidityPair.reservesId.map { try? AddressFactory.address(for: Data(hex: $0), chain: chain) }
         let apyInfo = apy?.first(where: { $0.poolId == reservesAddress })
 
-        let assetIdPair = AssetIdPair(baseAssetIdCode: viewModel.liquidityPair.baseAssetId, targetAssetIdCode: viewModel.liquidityPair.targetAssetId)
-        let input = LiquidityPoolDetailsInput.availablePool(liquidityPair: liquidityPair, reserves: reserves, apyInfo: apyInfo)
+        let assetIdPair = AssetIdPair(baseAssetIdCode: liquidityPair.baseAssetId, targetAssetIdCode: liquidityPair.targetAssetId)
+        let input = LiquidityPoolDetailsInput.availablePool(liquidityPair: liquidityPair, reserves: reserves, apyInfo: apyInfo, availablePairs: pairs)
 
         router.showPoolDetails(assetIdPair: assetIdPair, chain: chain, wallet: wallet, input: input, from: view)
     }
@@ -92,12 +100,18 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
     }
 
     func didTapBackButton() {
+        interactor.cancelTasks()
         router.dismiss(view: view)
     }
 
     func searchTextDidChanged(_ text: String?) {
         searchText = text
         provideViewModel()
+    }
+
+    func didAppearView() {
+        let viewModel = viewModelFactory.buildLoadingViewModel(type: type)
+        view?.didReceive(viewModel: viewModel)
     }
 }
 
@@ -140,7 +154,11 @@ extension AvailableLiquidityPoolsListPresenter: AvailableLiquidityPoolsListInter
     }
 }
 
-extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListModuleInput {}
+extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListModuleInput {
+    func resetTasks() {
+        interactor.cancelTasks()
+    }
+}
 
 extension AvailableLiquidityPoolsListPresenter: Localizable {
     func applyLocalization() {}

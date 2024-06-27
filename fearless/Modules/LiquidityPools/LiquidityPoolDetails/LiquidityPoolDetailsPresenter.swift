@@ -7,16 +7,27 @@ import SSFStorageQueryKit
 
 enum LiquidityPoolDetailsInput {
     case initial
-    case userPool(liquidityPair: LiquidityPair?, reserves: PolkaswapPoolReservesInfo?, apyInfo: PoolApyInfo?, accountPool: AccountPool?)
-    case availablePool(liquidityPair: LiquidityPair?, reserves: PolkaswapPoolReservesInfo?, apyInfo: PoolApyInfo?)
+    case userPool(liquidityPair: LiquidityPair?, reserves: PolkaswapPoolReservesInfo?, apyInfo: PoolApyInfo?, accountPool: AccountPool?, availablePairs: [LiquidityPair]?)
+    case availablePool(liquidityPair: LiquidityPair?, reserves: PolkaswapPoolReservesInfo?, apyInfo: PoolApyInfo?, availablePairs: [LiquidityPair]?)
+
+    var availablePairs: [LiquidityPair]? {
+        switch self {
+        case .initial:
+            return nil
+        case let .userPool(_, _, _, _, availablePairs):
+            return availablePairs
+        case let .availablePool(_, _, _, availablePairs):
+            return availablePairs
+        }
+    }
 
     var liquidityPair: LiquidityPair? {
         switch self {
         case .initial:
             return nil
-        case let .userPool(liquidityPair, _, _, _):
+        case let .userPool(liquidityPair, _, _, _, _):
             return liquidityPair
-        case let .availablePool(liquidityPair, _, _):
+        case let .availablePool(liquidityPair, _, _, _):
             return liquidityPair
         }
     }
@@ -25,9 +36,9 @@ enum LiquidityPoolDetailsInput {
         switch self {
         case .initial:
             return nil
-        case let .userPool(_, reserves, _, _):
+        case let .userPool(_, reserves, _, _, _):
             return reserves
-        case let .availablePool(_, reserves, _):
+        case let .availablePool(_, reserves, _, _):
             return reserves
         }
     }
@@ -36,9 +47,9 @@ enum LiquidityPoolDetailsInput {
         switch self {
         case .initial:
             return nil
-        case let .userPool(_, _, apyInfo, _):
+        case let .userPool(_, _, apyInfo, _, _):
             return apyInfo
-        case let .availablePool(_, _, apyInfo):
+        case let .availablePool(_, _, apyInfo, _):
             return apyInfo
         }
     }
@@ -47,7 +58,7 @@ enum LiquidityPoolDetailsInput {
         switch self {
         case .initial:
             return nil
-        case let .userPool(_, _, _, accountPool):
+        case let .userPool(_, _, _, accountPool, _):
             return accountPool
         case .availablePool:
             return nil
@@ -113,6 +124,8 @@ final class LiquidityPoolDetailsPresenter {
         self.wallet = wallet
         self.input = input
 
+        liquidityPair = input.liquidityPair
+
         self.localizationManager = localizationManager
     }
 
@@ -161,7 +174,7 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
             return
         }
 
-        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, from: view)
+        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, availablePairs: input.availablePairs, from: view)
     }
 
     func removeButtonClicked() {
@@ -170,6 +183,18 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
         }
 
         router.showRemoveFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, from: view)
+    }
+
+    func didTapApyInfo() {
+        var infoText: String
+        var infoTitle: String
+        infoTitle = R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        infoText = R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages)
+        router.presentInfo(
+            message: infoText,
+            title: infoTitle,
+            from: view
+        )
     }
 }
 

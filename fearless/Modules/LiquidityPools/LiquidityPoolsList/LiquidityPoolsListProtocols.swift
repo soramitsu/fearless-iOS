@@ -14,6 +14,7 @@ protocol LiquidityPoolsListViewOutput: AnyObject {
     func didTapMoreButton()
     func didTapBackButton()
     func searchTextDidChanged(_ text: String?)
+    func didAppearView()
 }
 
 protocol LiquidityPoolsListInteractorInput: AnyObject {
@@ -31,7 +32,9 @@ protocol LiquidityPoolsListRouterInput: AnyObject, AnyDismissable {
     )
 }
 
-protocol LiquidityPoolsListModuleInput: AnyObject {}
+protocol LiquidityPoolsListModuleInput: AnyObject {
+    func resetTasks()
+}
 
 protocol LiquidityPoolsListModuleOutput: AnyObject {
     func didTapMoreUserPools()

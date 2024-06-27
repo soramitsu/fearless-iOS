@@ -5,14 +5,14 @@ import SSFModels
 import BigInt
 
 protocol LiquidityPoolSupplyInteractorOutput: AnyObject {
-    func didReceiveDexId(_ dexId: String)
-    func didReceiveDexIdError(_ error: Error)
     func didReceiveFee(_ fee: BigUInt)
     func didReceiveFeeError(_ error: Error)
     func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceivePoolAPY(apyInfo: PoolApyInfo?)
     func didReceivePoolApyError(error: Error)
+    func didReceiveLiquidityPairs(pairs: [LiquidityPair]?)
+    func didReceiveLiquidityPairsError(error: Error)
 }
 
 final class LiquidityPoolSupplyInteractor {
@@ -44,17 +44,6 @@ final class LiquidityPoolSupplyInteractor {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
     }
 
-    private func fetchDexId() {
-        Task {
-            do {
-                let dexId = try await lpDataService.fetchDexId(baseAssetId: liquidityPair.baseAssetId)
-                output?.didReceiveDexId(dexId)
-            } catch {
-                output?.didReceiveDexIdError(error)
-            }
-        }
-    }
-
     private func subscribeToPrices() {
         let chainAssets = chain.chainAssets
         pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
@@ -81,7 +70,6 @@ final class LiquidityPoolSupplyInteractor {
 extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
     func setup(with output: LiquidityPoolSupplyInteractorOutput) {
         self.output = output
-        fetchDexId()
         subscribeToPrices()
         subscribeToAccountInfo()
         fetchApy()
@@ -94,6 +82,24 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
                 output?.didReceiveFee(fee)
             } catch {
                 output?.didReceiveFeeError(error)
+            }
+        }
+    }
+
+    func fetchPools() {
+        Task {
+            do {
+                let availablePoolsStream = try await lpDataService.subscribeAvailablePools()
+
+                for try await availablePools in availablePoolsStream {
+                    await MainActor.run {
+                        output?.didReceiveLiquidityPairs(pairs: availablePools.value)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceiveLiquidityPairsError(error: error)
+                }
             }
         }
     }
