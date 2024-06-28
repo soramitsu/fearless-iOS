@@ -202,6 +202,25 @@ final class RuntimeProvider {
     }
 }
 
+// <<<<<<< HEAD
+//    func fetchCoderFactoryOperation(
+//        with _: TimeInterval,
+//        closure _: RuntimeMetadataClosure?
+//    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
+//        AwaitOperation { [weak self] in
+//            try await withCheckedThrowingContinuation { continuation in
+//                self?.fetchCoderFactory(runCompletionIn: nil) { factory in
+//                    guard let factory = factory else {
+//                        continuation.resume(with: .failure(RuntimeProviderError.providerUnavailable))
+//                        return
+//                    }
+//
+//                    continuation.resume(with: .success(factory))
+//                }
+//            }
+//        }
+//=======
+
 // MARK: - RuntimeProviderProtocol
 
 extension RuntimeProvider: RuntimeProviderProtocol {

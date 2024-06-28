@@ -101,7 +101,7 @@ enum StorageCodingPath: Equatable, CaseIterable, StorageCodingPathProtocol {
         case .bottomDelegations:
             return (moduleName: "ParachainStaking", itemName: "BottomDelegations")
         case .staked:
-            return (moduleName: "ParachainStaking", itemName: "Staked")
+            return (moduleName: "ParachainStaking", itemName: "Total")
         case .currentBlock:
             return (moduleName: "System", itemName: "Number")
         case .bondedPools:

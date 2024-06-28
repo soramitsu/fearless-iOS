@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import BigInt
+import SSFModels
 
 final class ParachainSubqueryRewardsSource {
     typealias Model = [SubqueryRewardItemData]

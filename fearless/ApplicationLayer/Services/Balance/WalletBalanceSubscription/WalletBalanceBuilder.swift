@@ -23,7 +23,6 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
 
             let splitedChainAssets = split(chainAssets, for: wallet)
             let enabledChainAssets = splitedChainAssets.enabled
-            let disabledChainAssets = splitedChainAssets.disabled
 
             let enabledAssetFiatBalanceInfo = countBalance(
                 for: enabledChainAssets,
@@ -32,24 +31,12 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 prices
             )
 
-            let disabledAssetFiatBalanceInfo = countBalance(
-                for: disabledChainAssets,
-                wallet,
-                accountInfos,
-                prices
-            )
-
             let enabledAssetFiatBalance = enabledAssetFiatBalanceInfo.totalBalance
-            let disabledAssetFiatBalance = disabledAssetFiatBalanceInfo.totalBalance
-            let totalFiatValue = enabledAssetFiatBalance + disabledAssetFiatBalance
-
+            let totalFiatValue = enabledAssetFiatBalance
             let enabledTotalDayChange = enabledAssetFiatBalanceInfo.totalDayChange
-            let disabledTotalDayChange = disabledAssetFiatBalanceInfo.totalDayChange
-            let totalDayChange = enabledTotalDayChange + disabledTotalDayChange
-
+            let totalDayChange = enabledTotalDayChange
             let dayChangePercent = (totalDayChange / totalFiatValue)
-
-            let isLoaded = enabledAssetFiatBalanceInfo.isLoaded && disabledAssetFiatBalanceInfo.isLoaded
+            let isLoaded = enabledAssetFiatBalanceInfo.isLoaded
 
             guard isLoaded else {
                 return nil

@@ -1,5 +1,4 @@
 {
-  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -132,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "feature/xcm-routes",
-        "revision" : "f3737080f73453325fe436575b0f6c04d71e9e2a"
+        "branch" : "liquidity-pools-fw",
+        "revision" : "33c0c06715133b359efbc1a3e35a4952f88b9006"
       }
     },
     {
@@ -276,8 +275,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bnsports/Web3.swift.git",
       "state" : {
-        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
-        "version" : "7.7.7"
+        "branch" : "master",
+        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858"
       }
     },
     {
@@ -299,5 +298,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

@@ -170,6 +170,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         }
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

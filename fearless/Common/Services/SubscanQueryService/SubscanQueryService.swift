@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 final class SubscanQueryService<T, R>: Longrunable {
     typealias ResultType = R

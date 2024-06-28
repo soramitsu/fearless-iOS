@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 struct EventRecord: Decodable {
     enum CodingKeys: String, CodingKey {

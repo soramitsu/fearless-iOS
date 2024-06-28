@@ -130,6 +130,7 @@ final class ReefSubsquidHistoryOperationFactory {
                               id
                             }
                 signedData
+                blockHash
                           }
                         }
                         pageInfo {

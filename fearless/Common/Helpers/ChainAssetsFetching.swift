@@ -35,6 +35,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case chainIds([ChainModel.Id])
         case supportNfts
         case enabled(wallet: MetaAccountModel)
+        case enabledChains
 
         var searchText: String? {
             switch self {
@@ -243,6 +244,8 @@ private extension ChainAssetsFetching {
                 .filter { !$0.hidden }
                 .map { $0.assetId }
             return chainAssets.filter { enabled.contains($0.identifier) }
+        case .enabledChains:
+            return chainAssets.filter { !$0.chain.disabled }
         }
     }
 

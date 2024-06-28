@@ -1,6 +1,7 @@
 import SSFUtils
 import BigInt
 import Foundation
+import SSFModels
 
 class SwapAmount: Codable {
     var desired: BigUInt

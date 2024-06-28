@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import RobinHood
 import BigInt
+import SSFModels
 
 // MARK: - Normal
 

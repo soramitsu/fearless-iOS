@@ -2,6 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 import SSFModels
+import SSFQRService
 
 final class ReceiveAndRequestAssetAssembly {
     static func configureModule(
@@ -25,10 +26,7 @@ final class ReceiveAndRequestAssetAssembly {
         )
         let router = ReceiveAndRequestAssetRouter()
 
-        let qrService = QRService(
-            operationFactory: QROperationFactory(),
-            encoder: QREncoder()
-        )
+        let qrService = QRServiceDefault()
         let sharingFactory = AccountShareFactory()
 
         let presenter = ReceiveAndRequestAssetPresenter(

@@ -1,6 +1,7 @@
 import AVFoundation
 import UIKit
 import SSFUtils
+import SSFQRService
 
 typealias ScanQRModuleCreationResult = (view: ScanQRViewInput, input: ScanQRModuleInput)
 
@@ -24,11 +25,12 @@ protocol ScanQRInteractorInput: AnyObject {
     func extractQr(from image: UIImage)
     func startScanning()
     func stopScanning()
+    func lookingMatcher(for code: String)
 }
 
 protocol ScanQRInteractorOutput: AnyObject {
     func handleQRService(error: Error)
-    func handleMatched(code: String)
+    func didReceive(matcher: QRMatcherType)
 }
 
 protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable, SheetAlertPresentable {

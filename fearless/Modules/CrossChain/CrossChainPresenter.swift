@@ -5,12 +5,13 @@ import BigInt
 import SSFExtrinsicKit
 import SSFUtils
 import SSFModels
+import SSFQRService
 
 protocol CrossChainViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceive(amountInputViewModel: IAmountInputViewModel?)
     func didReceive(originSelectNetworkViewModel: SelectNetworkViewModel)
-    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel)
+    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel?)
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(destinationFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(recipientViewModel: RecipientViewModel)
@@ -113,7 +114,10 @@ final class CrossChainPresenter {
     }
 
     private func checkLoadingState() {
-        view?.setButtonLoadingState(isLoading: !loadingCollector.isReady)
+        guard let isReady = loadingCollector.isReady else {
+            return
+        }
+        view?.setButtonLoadingState(isLoading: !isReady)
     }
 
     private func provideInputViewModel() {
@@ -156,6 +160,7 @@ final class CrossChainPresenter {
 
     private func provideDestSelectNetworkViewModel() {
         guard let selectedDestChainModel = selectedDestChainModel else {
+            view?.didReceive(destSelectNetworkViewModel: nil)
             return
         }
 
@@ -530,6 +535,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideOriginSelectNetworkViewModel()
+        provideDestSelectNetworkViewModel()
         provideInputViewModel()
     }
 
@@ -660,12 +666,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         availableDestChainModels = filtredChainAssets
             .map { $0.chain }
             .withoutDuplicates()
-
-        if selectedDestChainModel == nil {
-            selectedDestChainModel = filtredChainAssets.map { $0.chain }.first
-        }
-        provideDestSelectNetworkViewModel()
-        estimateFee()
     }
 
     func didSetup() {

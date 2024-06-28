@@ -1,4 +1,5 @@
 import SSFUtils
+import SSFModels
 
 struct SubqueryEraValidatorInfo {
     let address: AccountAddress

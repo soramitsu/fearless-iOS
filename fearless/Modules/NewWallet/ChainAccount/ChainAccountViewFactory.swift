@@ -23,6 +23,7 @@ enum ChainAccountViewFactory {
         let operationManager = OperationManagerFacade.sharedManager
         let eventCenter = EventCenter.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -44,7 +45,6 @@ enum ChainAccountViewFactory {
             operationManager: operationManager
         )
 
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(

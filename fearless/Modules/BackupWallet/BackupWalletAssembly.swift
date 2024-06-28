@@ -13,6 +13,7 @@ final class BackupWalletAssembly {
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)

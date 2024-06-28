@@ -13,7 +13,9 @@ final class AssetManagementAssembly {
         let localizationManager = LocalizationManager.shared
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-        let chainRepository = ChainRepositoryFactory().createRepository()
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain()
+        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
@@ -63,12 +65,22 @@ final class AssetManagementAssembly {
             storagePerformer: storagePerformer
         )
 
+        let walletAssetsObserver = WalletAssetsObserverImpl(
+            wallet: wallet,
+            chainRegistry: chainRegistry,
+            accountInfoRemote: accountInfoRemote,
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared,
+            userDefaultsStorage: SettingsManager.shared
+        )
+
         let interactor = AssetManagementInteractor(
             chainAssetFetching: chainAssetFetching,
             priceLocalSubscriber: priceLocalSubscriber,
             accountInfoFetchingProvider: accountInfoFetchingProvider,
             eventCenter: EventCenter.shared,
-            accountInfoRemoteService: accountInfoRemote
+            accountInfoRemoteService: accountInfoRemote,
+            walletAssetObserver: walletAssetsObserver
         )
         let router = AssetManagementRouter()
 

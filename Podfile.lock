@@ -99,7 +99,7 @@ DEPENDENCIES:
   - SwiftyBeaver
 
 SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
+  https://github.com/cocoapods/Specs.git:
     - Charts
     - CocoaLumberjack
     - Cuckoo

@@ -25,6 +25,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

@@ -1,4 +1,5 @@
 import Foundation
+import SSFQRService
 import SSFModels
 
 final class SendRouter: SendRouterInput {
@@ -30,7 +31,7 @@ final class SendRouter: SendRouterInput {
         from view: ControllerBackedProtocol?,
         moduleOutput: ScanQRModuleOutput
     ) {
-        let matcher = QRInfoMatcher(decoder: QRCoderFactory().createDecoder())
+        let matcher = QRInfoMatcher(decoder: QRDecoderDefault())
         guard let module = ScanQRAssembly.configureModule(moduleOutput: moduleOutput, matchers: [matcher]) else {
             return
         }

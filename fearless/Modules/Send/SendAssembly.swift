@@ -39,6 +39,7 @@ final class SendAssembly {
             repository: AnyDataProviderRepository(scamRepository)
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let operationQueue = OperationQueue()

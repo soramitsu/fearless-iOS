@@ -50,6 +50,10 @@ extension AssetTransactionData {
 
             fees.append(fee)
         }
+        var context: [String: String] = [:]
+        if let blockHash = transfer.blockHash {
+            context["reefBlockHash"] = blockHash
+        }
 
         return AssetTransactionData(
             transactionId: transfer.identifier,
@@ -65,7 +69,7 @@ extension AssetTransactionData {
             timestamp: timestamp,
             type: type.rawValue,
             reason: nil,
-            context: nil
+            context: context
         )
     }
 

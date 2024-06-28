@@ -3,7 +3,11 @@ import SoraFoundation
 import RobinHood
 
 final class BannersAssembly {
-    static func configureModule(output: BannersModuleOutput?) -> BannersModuleCreationResult? {
+    static func configureModule(
+        output: BannersModuleOutput?,
+        type: BannersModuleType,
+        wallet: MetaAccountModel?
+    ) -> BannersModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let walletProvider = UserDataStorageFacade.shared
@@ -29,7 +33,9 @@ final class BannersAssembly {
             moduleOutput: output,
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            type: type,
+            wallet: wallet
         )
 
         let view = BannersViewController(

@@ -53,6 +53,7 @@ final class AssetManagementViewLayout: UIView {
         tableView.separatorStyle = .none
         tableView.backgroundColor = R.color.colorBlack19()
         tableView.tableFooterView = UIView()
+        tableView.refreshControl = UIRefreshControl()
         return tableView
     }()
 

@@ -106,7 +106,8 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         let viewModel = AssetManagementViewModel(
             list: list,
             filterButtonTitle: filterButtonTitle,
-            addAssetButtonIsHidden: true
+            addAssetButtonIsHidden: true,
+            dispayedChainAssets: filtredChainAssets
         )
         return viewModel
     }

@@ -27,6 +27,9 @@ protocol AssetManagementInteractorInput: AnyObject {
         for chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) async throws -> AccountInfo?
+    func updatedVisibility(
+        for chainAssets: [ChainAsset]
+    ) async -> MetaAccountModel
 }
 
 final class AssetManagementPresenter {
@@ -40,6 +43,7 @@ final class AssetManagementPresenter {
     private let viewModelFactory: AssetManagementViewModelFactory
     private var networkFilter: NetworkManagmentFilter?
 
+    private var viewModel: AssetManagementViewModel?
     private var chainAssets: [ChainAsset] = []
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: [PriceData] = []
@@ -83,6 +87,7 @@ final class AssetManagementPresenter {
                 search: searchText,
                 pendingAccountInfoChainAssets: pendingAccountInfoChainAssets
             )
+            self.viewModel = viewModel
             await view?.didReceive(viewModel: viewModel)
         }
     }
@@ -207,6 +212,17 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
             await interactor.setup(with: self)
         }
         getInitialData()
+    }
+
+    func didPullToRefresh() {
+        Task {
+            guard let chainAssets = viewModel?.dispayedChainAssets else {
+                return
+            }
+            let updatedWallet = await interactor.updatedVisibility(for: chainAssets)
+            wallet = updatedWallet
+            provideViewModel()
+        }
     }
 }
 
