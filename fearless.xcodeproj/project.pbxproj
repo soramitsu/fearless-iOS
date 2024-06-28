@@ -19300,7 +19300,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "fearless-wallet";
+				branch = webSocketEngine;
 				kind = branch;
 			};
 		};
