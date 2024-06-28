@@ -10,6 +10,7 @@ protocol LiquidityPoolsOverviewViewInput: ControllerBackedProtocol {
 protocol LiquidityPoolsOverviewViewOutput: AnyObject {
     func didLoad(view: LiquidityPoolsOverviewViewInput)
     func backButtonClicked()
+    func handleRefreshControlEvent()
 }
 
 protocol LiquidityPoolsOverviewInteractorInput: AnyObject {

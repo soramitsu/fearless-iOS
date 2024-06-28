@@ -9,9 +9,10 @@ final class LiquidityPoolRemoveLiquidityRouter: LiquidityPoolRemoveLiquidityRout
         wallet: MetaAccountModel,
         liquidityPair: LiquidityPair,
         info: RemoveLiquidityInfo,
+        flowClosure: @escaping () -> Void,
         from view: ControllerBackedProtocol?
     ) {
-        guard let module = LiquidityPoolRemoveLiquidityConfirmAssembly.configureModule(wallet: wallet, chain: chain, liquidityPair: liquidityPair, removeInfo: info) else {
+        guard let module = LiquidityPoolRemoveLiquidityConfirmAssembly.configureModule(wallet: wallet, chain: chain, liquidityPair: liquidityPair, removeInfo: info, flowClosure: flowClosure) else {
             return
         }
 
@@ -33,11 +34,9 @@ final class LiquidityPoolRemoveLiquidityRouter: LiquidityPoolRemoveLiquidityRout
         )
         controller?.modalTransitioningFactory = factory
 
-        view?.controller.navigationController?.dismiss(animated: true) {
-            if let presenter = presenter as? ControllerBackedProtocol,
-               let controller = controller {
-                presenter.controller.present(controller, animated: true)
-            }
+        view?.controller.navigationController?.popToRootViewController(animated: true)
+        if let controller = controller {
+            view?.controller.navigationController?.present(controller, animated: true)
         }
     }
 }

@@ -17,7 +17,8 @@ enum LiquidityPoolSupplyConfirmAssembly {
         chain: ChainModel,
         wallet: MetaAccountModel,
         liquidityPair: LiquidityPair,
-        inputData: LiquidityPoolSupplyConfirmInputData
+        inputData: LiquidityPoolSupplyConfirmInputData,
+        flowClosure: @escaping () -> Void
     ) -> LiquidityPoolSupplyConfirmModuleCreationResult? {
         guard let response = wallet.fetch(for: chain.accountRequest()) else {
             return nil
@@ -70,7 +71,8 @@ enum LiquidityPoolSupplyConfirmAssembly {
             chain: chain,
             inputData: inputData,
             wallet: wallet,
-            viewModelFactory: LiquidityPoolSupplyConfirmViewModelFactoryDefault()
+            viewModelFactory: LiquidityPoolSupplyConfirmViewModelFactoryDefault(),
+            flowClosure: flowClosure
         )
 
         let view = LiquidityPoolSupplyConfirmViewController(

@@ -6,7 +6,7 @@ import SSFModels
 import SoraKeystore
 
 final class LiquidityPoolSupplyAssembly {
-    static func configureModule(chain: ChainModel, wallet: MetaAccountModel, liquidityPair: LiquidityPair, availablePairs: [LiquidityPair]?) -> LiquidityPoolSupplyModuleCreationResult? {
+    static func configureModule(chain: ChainModel, wallet: MetaAccountModel, liquidityPair: LiquidityPair, availablePairs: [LiquidityPair]?, flowClosure: @escaping () -> Void) -> LiquidityPoolSupplyModuleCreationResult? {
         guard let response = wallet.fetch(for: chain.accountRequest()) else {
             return nil
         }
@@ -51,7 +51,8 @@ final class LiquidityPoolSupplyAssembly {
             wallet: wallet,
             dataValidatingFactory: dataValidatingFactory,
             viewModelFactory: LiquidityPoolSupplyViewModelFactoryDefault(),
-            availablePairs: availablePairs
+            availablePairs: availablePairs,
+            flowClosure: flowClosure
         )
 
         let view = LiquidityPoolSupplyViewController(

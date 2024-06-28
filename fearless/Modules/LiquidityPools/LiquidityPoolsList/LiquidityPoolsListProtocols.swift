@@ -15,6 +15,7 @@ protocol LiquidityPoolsListViewOutput: AnyObject {
     func didTapBackButton()
     func searchTextDidChanged(_ text: String?)
     func didAppearView()
+    func handleRefreshControlEvent()
 }
 
 protocol LiquidityPoolsListInteractorInput: AnyObject {
@@ -28,12 +29,14 @@ protocol LiquidityPoolsListRouterInput: AnyObject, AnyDismissable {
         chain: ChainModel,
         wallet: MetaAccountModel,
         input: LiquidityPoolDetailsInput,
+        poolOperationFlowsClosure: @escaping () -> Void,
         from view: ControllerBackedProtocol?
     )
 }
 
 protocol LiquidityPoolsListModuleInput: AnyObject {
     func resetTasks()
+    func refreshData()
 }
 
 protocol LiquidityPoolsListModuleOutput: AnyObject {
@@ -41,4 +44,5 @@ protocol LiquidityPoolsListModuleOutput: AnyObject {
     func didTapMoreAvailablePools()
     func shouldShowUserPools(_ shouldShow: Bool)
     func didReceiveUserPoolCount(_ userPoolsCount: Int)
+    func didReceiveFlowClosureEvent()
 }

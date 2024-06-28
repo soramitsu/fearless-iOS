@@ -58,6 +58,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     private let liquidityPair: LiquidityPair
     private let dataValidatingFactory: SendDataValidatingFactory
     private let confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?
+    private var flowClosure: () -> Void
 
     private var removeInfo: RemoveLiquidityInfo?
     private var reserves: BigUInt?
@@ -111,7 +112,8 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         liquidityPair: LiquidityPair,
         dataValidatingFactory: SendDataValidatingFactory,
         confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?,
-        removeInfo: RemoveLiquidityInfo?
+        removeInfo: RemoveLiquidityInfo?,
+        flowClosure: @escaping () -> Void
     ) {
         self.interactor = interactor
         self.router = router
@@ -123,6 +125,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         self.confirmViewModelFactory = confirmViewModelFactory
         self.removeInfo = removeInfo
         dexId = liquidityPair.dexId
+        self.flowClosure = flowClosure
 
         if let removeInfo = removeInfo, let utilityAsset = chain.utilityAssets().first {
             totalIssuance = removeInfo.totalIssuances.toSubstrateAmount(precision: Int16(utilityAsset.precision))
@@ -375,7 +378,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityCon
         guard let removeInfo else {
             return
         }
-
+        runLoadingState()
         interactor.submit(removeLiquidityInfo: removeInfo)
     }
 
@@ -491,6 +494,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
                 wallet: self.wallet,
                 liquidityPair: self.liquidityPair,
                 info: info,
+                flowClosure: self.flowClosure,
                 from: self.setupView
             )
         }
@@ -575,6 +579,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
             return
         }
 
+        flowClosure()
         resetLoadingState()
 
         router.complete(on: confirmView, title: hash, chainAsset: utilityChainAsset)

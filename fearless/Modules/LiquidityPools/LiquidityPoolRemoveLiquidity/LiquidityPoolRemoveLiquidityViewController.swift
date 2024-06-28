@@ -93,7 +93,7 @@ final class LiquidityPoolRemoveLiquidityViewController: UIViewController, ViewHo
         rootView.swapToInputView.textField.isUserInteractionEnabled = false
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
+        let accessoryView = UIFactory.default.createDoneAccessoryView(for: self, locale: locale)
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
         rootView.swapToInputView.textField.inputAccessoryView = accessoryView
 

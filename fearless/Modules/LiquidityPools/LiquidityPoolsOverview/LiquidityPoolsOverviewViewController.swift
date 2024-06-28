@@ -10,6 +10,7 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
 
     private let userPoolsViewController: UIViewController
     private let availablePoolsViewController: UIViewController
+    private var refreshControl = UIRefreshControl()
 
     // MARK: - Constructor
 
@@ -23,6 +24,7 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
         self.userPoolsViewController = userPoolsViewController
         self.availablePoolsViewController = availablePoolsViewController
         super.init(nibName: nil, bundle: nil)
+        isModalInPresentation = true
         self.localizationManager = localizationManager
     }
 
@@ -47,9 +49,15 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
 
         setupEmbededUserPoolsView()
         setupEmbededAvailablePoolsView()
+        refreshControl.addTarget(self, action: #selector(handleRefreshControlEvent), for: .valueChanged)
+        rootView.scrollView.refreshControl = refreshControl
     }
 
     // MARK: - Private methods
+
+    @objc private func handleRefreshControlEvent() {
+        output.handleRefreshControlEvent()
+    }
 
     private func setupEmbededUserPoolsView() {
         addChild(userPoolsViewController)
@@ -82,6 +90,7 @@ extension LiquidityPoolsOverviewViewController: LiquidityPoolsOverviewViewInput 
     }
 
     func didReceiveUserPoolsCount(count: Int) {
+        refreshControl.endRefreshing()
         rootView.bind(userPoolsCount: count)
     }
 }

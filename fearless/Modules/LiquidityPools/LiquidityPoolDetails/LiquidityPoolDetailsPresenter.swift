@@ -95,6 +95,7 @@ final class LiquidityPoolDetailsPresenter {
     private let chain: ChainModel
     private let wallet: MetaAccountModel
     private let input: LiquidityPoolDetailsInput
+    private var poolOperationFlowsClosure: () -> Void
 
     private var liquidityPair: LiquidityPair?
     private var accountPoolInfo: AccountPool?
@@ -113,7 +114,8 @@ final class LiquidityPoolDetailsPresenter {
         viewModelFactory: LiquidityPoolDetailsViewModelFactory,
         chain: ChainModel,
         wallet: MetaAccountModel,
-        input: LiquidityPoolDetailsInput
+        input: LiquidityPoolDetailsInput,
+        poolOperationFlowsClosure: @escaping () -> Void
     ) {
         self.interactor = interactor
         self.router = router
@@ -123,6 +125,7 @@ final class LiquidityPoolDetailsPresenter {
         self.chain = chain
         self.wallet = wallet
         self.input = input
+        self.poolOperationFlowsClosure = poolOperationFlowsClosure
 
         liquidityPair = input.liquidityPair
 
@@ -174,7 +177,7 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
             return
         }
 
-        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, availablePairs: input.availablePairs, from: view)
+        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, availablePairs: input.availablePairs, flowClosure: poolOperationFlowsClosure, from: view)
     }
 
     func removeButtonClicked() {
@@ -182,7 +185,7 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
             return
         }
 
-        router.showRemoveFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, from: view)
+        router.showRemoveFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, flowClosure: poolOperationFlowsClosure, from: view)
     }
 
     func didTapApyInfo() {

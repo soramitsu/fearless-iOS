@@ -10,7 +10,8 @@ final class LiquidityPoolRemoveLiquidityConfirmAssembly {
         wallet: MetaAccountModel,
         chain: ChainModel,
         liquidityPair: LiquidityPair,
-        removeInfo: RemoveLiquidityInfo
+        removeInfo: RemoveLiquidityInfo,
+        flowClosure: @escaping () -> Void
     ) -> LiquidityPoolRemoveLiquidityConfirmModuleCreationResult? {
         guard let response = wallet.fetch(for: chain.accountRequest()) else {
             return nil
@@ -56,7 +57,8 @@ final class LiquidityPoolRemoveLiquidityConfirmAssembly {
             liquidityPair: liquidityPair,
             dataValidatingFactory: dataValidatingFactory,
             confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactoryDefault(),
-            removeInfo: removeInfo
+            removeInfo: removeInfo,
+            flowClosure: flowClosure
         )
 
         let view = LiquidityPoolRemoveLiquidityConfirmViewController(

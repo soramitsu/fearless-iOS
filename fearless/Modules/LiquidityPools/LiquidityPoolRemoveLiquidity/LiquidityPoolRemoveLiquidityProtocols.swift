@@ -12,6 +12,7 @@ protocol LiquidityPoolRemoveLiquidityRouterInput: AnyObject, ErrorPresentable, S
         wallet: MetaAccountModel,
         liquidityPair: LiquidityPair,
         info: RemoveLiquidityInfo,
+        flowClosure: @escaping () -> Void,
         from view: ControllerBackedProtocol?
     )
 

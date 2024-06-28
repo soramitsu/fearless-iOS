@@ -96,14 +96,24 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
     private func drawSubviews() {
         addSubview(backgroundImageView)
         addSubview(navigationBar)
-        addSubview(containerStackView)
-        containerStackView.addArrangedSubview(userPoolsContainerView)
-        containerStackView.addArrangedSubview(availablePoolsContainerView)
+        addSubview(scrollView)
+        scrollView.addSubview(userPoolsContainerView)
+        scrollView.addSubview(availablePoolsContainerView)
+
+//        scrollView.addSubview(containerStackView)
+//        containerStackView.addArrangedSubview(userPoolsContainerView)
+//        containerStackView.addArrangedSubview(availablePoolsContainerView)
 
         navigationBar.setLeftViews([navigationBar.backButton, polkaswapImageView])
     }
 
     private func setupConstraints() {
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.bottom.equalToSuperview().inset(24)
+            make.width.equalTo(self)
+            make.centerX.equalToSuperview()
+        }
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -112,21 +122,24 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
             make.leading.trailing.top.equalToSuperview()
         }
 
-        containerStackView.snp.makeConstraints { make in
-            make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.lessThanOrEqualToSuperview()
-            make.width.equalTo(self)
-            make.centerX.equalToSuperview()
-        }
+//        containerStackView.snp.makeConstraints { make in
+//            make.top.equalTo(navigationBar.snp.bottom)
+//            make.bottom.lessThanOrEqualTo(self)
+//            make.width.equalTo(self)
+//            make.centerX.equalToSuperview()
+//        }
 
         userPoolsContainerView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(self).inset(16)
             userPoolsHeightConstraint = make.height.equalTo(0).constraint
         }
 
         availablePoolsContainerView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.top.equalTo(userPoolsContainerView.snp.bottom).offset(16)
+            make.leading.trailing.equalTo(self).inset(16)
             availablePoolsHeightConstraint = make.height.equalTo(0).constraint
+            make.bottom.equalToSuperview()
         }
 
         updateConstraints(with: 0)

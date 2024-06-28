@@ -11,6 +11,7 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder, Hidd
 
     private var cellModels: [LiquidityPoolListCellModel]?
     private let output: LiquidityPoolsListViewOutput
+    private var refreshControl = UIRefreshControl()
 
     private var viewLoadingFinished: Bool = false
 
@@ -54,6 +55,9 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder, Hidd
 
         bindSearchTextView()
         addEndEditingTapGesture(for: rootView)
+
+        rootView.tableView.addSubview(refreshControl)
+        refreshControl.addTarget(self, action: #selector(handleRefreshControlEvent), for: .valueChanged)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -83,6 +87,10 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder, Hidd
         rootView.searchTextField.onTextDidChanged = { [weak self] text in
             self?.output.searchTextDidChanged(text)
         }
+    }
+
+    @objc private func handleRefreshControlEvent() {
+        output.handleRefreshControlEvent()
     }
 }
 
@@ -130,7 +138,8 @@ extension LiquidityPoolsListViewController: UITableViewDataSource, UITableViewDe
 
 extension LiquidityPoolsListViewController: LiquidityPoolsListViewInput {
     func didReceive(viewModel: LiquidityPoolListViewModel) {
-        print("didreceive viewmodels: ", viewModel.poolViewModels)
+        refreshControl.endRefreshing()
+
         cellModels = viewModel.poolViewModels
         rootView.bind(viewModel: viewModel)
 

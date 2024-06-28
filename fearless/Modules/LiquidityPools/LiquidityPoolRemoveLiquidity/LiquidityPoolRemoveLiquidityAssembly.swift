@@ -6,7 +6,12 @@ import SSFPolkaswap
 import SoraKeystore
 
 final class LiquidityPoolRemoveLiquidityAssembly {
-    static func configureModule(wallet: MetaAccountModel, chain: ChainModel, liquidityPair: LiquidityPair) -> LiquidityPoolRemoveLiquidityModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        chain: ChainModel,
+        liquidityPair: LiquidityPair,
+        flowClosure: @escaping () -> Void
+    ) -> LiquidityPoolRemoveLiquidityModuleCreationResult? {
         guard let response = wallet.fetch(for: chain.accountRequest()) else {
             return nil
         }
@@ -41,7 +46,7 @@ final class LiquidityPoolRemoveLiquidityAssembly {
         let interactor = LiquidityPoolRemoveLiquidityInteractor(lpOperationService: lpOperationService, lpDataService: lpDataService, liquidityPair: liquidityPair, priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared, chain: chain, accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter, wallet: wallet)
         let router = LiquidityPoolRemoveLiquidityRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
-        let presenter = LiquidityPoolRemoveLiquidityPresenter(interactor: interactor, router: router, localizationManager: localizationManager, wallet: wallet, logger: Logger.shared, chain: chain, liquidityPair: liquidityPair, dataValidatingFactory: dataValidatingFactory, confirmViewModelFactory: nil, removeInfo: nil)
+        let presenter = LiquidityPoolRemoveLiquidityPresenter(interactor: interactor, router: router, localizationManager: localizationManager, wallet: wallet, logger: Logger.shared, chain: chain, liquidityPair: liquidityPair, dataValidatingFactory: dataValidatingFactory, confirmViewModelFactory: nil, removeInfo: nil, flowClosure: flowClosure)
 
         let view = LiquidityPoolRemoveLiquidityViewController(
             output: presenter,

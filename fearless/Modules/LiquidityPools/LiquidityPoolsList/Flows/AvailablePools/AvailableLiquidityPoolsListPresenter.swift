@@ -92,7 +92,14 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
         let assetIdPair = AssetIdPair(baseAssetIdCode: liquidityPair.baseAssetId, targetAssetIdCode: liquidityPair.targetAssetId)
         let input = LiquidityPoolDetailsInput.availablePool(liquidityPair: liquidityPair, reserves: reserves, apyInfo: apyInfo, availablePairs: pairs)
 
-        router.showPoolDetails(assetIdPair: assetIdPair, chain: chain, wallet: wallet, input: input, from: view)
+        router.showPoolDetails(
+            assetIdPair: assetIdPair,
+            chain: chain,
+            wallet: wallet,
+            input: input,
+            poolOperationFlowsClosure: { [weak self] in self?.moduleOutput?.didReceiveFlowClosureEvent() },
+            from: view
+        )
     }
 
     func didTapMoreButton() {
@@ -112,6 +119,10 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
     func didAppearView() {
         let viewModel = viewModelFactory.buildLoadingViewModel(type: type)
         view?.didReceive(viewModel: viewModel)
+    }
+
+    func handleRefreshControlEvent() {
+        interactor.fetchPools()
     }
 }
 
@@ -157,6 +168,10 @@ extension AvailableLiquidityPoolsListPresenter: AvailableLiquidityPoolsListInter
 extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListModuleInput {
     func resetTasks() {
         interactor.cancelTasks()
+    }
+
+    func refreshData() {
+        interactor.fetchPools()
     }
 }
 

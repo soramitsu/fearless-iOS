@@ -76,19 +76,20 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             let reservesString = reservesValue.flatMap { fiatFormatter.stringFromDecimal($0) }
             let reservesLabelText: String? = reservesString.flatMap { "\($0) TVL" }
 
-            let baseAssetBalanceViewModelFactory = createBalanceViewModelFactory(for: ChainAsset(chain: chain, asset: baseAsset), wallet: wallet)
-            let targetAssetBalanceViewModelFactory = createBalanceViewModelFactory(for: ChainAsset(chain: chain, asset: targetAsset), wallet: wallet)
+            let numberFormatter = NumberFormatter.decimalFormatter(precision: 3, rounding: .floor)
+            let baseAssetPooledText = pair.baseAssetPooled
+                .flatMap {
+                    numberFormatter.stringFromDecimal($0)
+                }.flatMap {
+                    "\($0) \(targetAsset.symbol.uppercased())"
+                }
 
-            let baseAssetViewModel = pair.baseAssetPooled.flatMap {
-                baseAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: baseAssetPrice, usageCase: .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 3))
-            }
-
-            let targetAssetViewModel = pair.targetAssetPooled.flatMap {
-                targetAssetBalanceViewModelFactory.balanceFromPrice($0, priceData: targetAssetPrice, usageCase: .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 3))
-            }
-
-            let baseAssetPooledText = baseAssetViewModel?.value(for: locale).amount
-            let targetAssetPooledText = targetAssetViewModel?.value(for: locale).amount
+            let targetAssetPooledText = pair.targetAssetPooled
+                .flatMap {
+                    numberFormatter.stringFromDecimal($0)
+                }.flatMap {
+                    "\($0) \(targetAsset.symbol.uppercased())"
+                }
 
             let stakingStatusLabelText: String? = baseAssetPooledText.flatMap {
                 guard let targetAssetPooledText = targetAssetPooledText else {

@@ -169,7 +169,7 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         backButton.snp.makeConstraints { make in
             make.size.equalTo(32)
-            make.leading.equalToSuperview().inset(16)
+            make.leading.equalToSuperview()
             make.centerY.equalToSuperview()
         }
     }

@@ -31,9 +31,16 @@ final class LiquidityPoolSupplyRouter: LiquidityPoolSupplyRouterInput {
         wallet: MetaAccountModel,
         liquidityPair: LiquidityPair,
         inputData: LiquidityPoolSupplyConfirmInputData,
+        flowClosure: @escaping () -> Void,
         from view: ControllerBackedProtocol?
     ) {
-        guard let module = LiquidityPoolSupplyConfirmAssembly.configureModule(chain: chain, wallet: wallet, liquidityPair: liquidityPair, inputData: inputData) else {
+        guard let module = LiquidityPoolSupplyConfirmAssembly.configureModule(
+            chain: chain,
+            wallet: wallet,
+            liquidityPair: liquidityPair,
+            inputData: inputData,
+            flowClosure: flowClosure
+        ) else {
             return
         }
 
