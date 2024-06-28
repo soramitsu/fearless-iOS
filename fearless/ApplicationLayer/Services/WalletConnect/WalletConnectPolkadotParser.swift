@@ -15,10 +15,6 @@ final class WalletConnectPolkadorParserImpl: WalletConnectPolkadotParser {
         ChainRegistryFacade.sharedRegistry
     }()
 
-    private lazy var operationQueue = {
-        OperationQueue()
-    }()
-
     func parse(
         transactionPayload: TransactionPayload,
         chain: ChainModel
@@ -68,27 +64,16 @@ final class WalletConnectPolkadorParserImpl: WalletConnectPolkadotParser {
         guard let runtimeProvider = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             throw RuntimeProviderError.providerUnavailable
         }
-        let fetchCoderFactoryOperation = runtimeProvider.fetchCoderFactoryOperation()
-        operationQueue.addOperation(fetchCoderFactoryOperation)
+        let codingFactory = try await runtimeProvider.fetchCoderFactory()
+        let methodData = try Data(hexStringSSF: transactionPayload.method)
+        let methodDecoder = try codingFactory.createDecoder(from: methodData)
 
-        return try await withCheckedThrowingContinuation { continuation in
-            fetchCoderFactoryOperation.completionBlock = {
-                do {
-                    let codingFactory = try fetchCoderFactoryOperation.extractNoCancellableResultData()
-                    let methodData = try Data(hexStringSSF: transactionPayload.method)
-                    let methodDecoder = try codingFactory.createDecoder(from: methodData)
-
-                    let call: WalletConnectPolkadotCall
-                    if let callableMethod: RuntimeCall<JSON> = try? methodDecoder.read(of: KnownType.call.rawValue) {
-                        call = .callable(value: callableMethod)
-                    } else {
-                        call = .raw(bytes: methodData)
-                    }
-                    continuation.resume(returning: call)
-                } catch {
-                    continuation.resume(throwing: error)
-                }
-            }
+        let call: WalletConnectPolkadotCall
+        if let callableMethod: RuntimeCall<JSON> = try? methodDecoder.read(of: KnownType.call.rawValue) {
+            call = .callable(value: callableMethod)
+        } else {
+            call = .raw(bytes: methodData)
         }
+        return call
     }
 }

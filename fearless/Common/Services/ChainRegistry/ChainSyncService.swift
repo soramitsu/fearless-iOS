@@ -281,16 +281,14 @@ extension ChainSyncService: SchedulerDelegate {
 }
 
 extension ChainSyncService: CountdownTimerDelegate {
-    func didStart(with interval: TimeInterval) {
+    func didStart(with _: TimeInterval) {
         isSyncing = true
-        print("CountdownTimerDelegate didStart", interval)
     }
 
     func didCountdown(remainedInterval _: TimeInterval) {}
 
-    func didStop(with remainedInterval: TimeInterval) {
+    func didStop(with _: TimeInterval) {
         isSyncing = false
-        print("CountdownTimerDelegate didStop", remainedInterval)
     }
 }
 
