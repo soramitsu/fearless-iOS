@@ -804,17 +804,19 @@ extension CrossChainPresenter: ContactsModuleOutput {
 
 extension CrossChainPresenter: WalletsManagmentModuleOutput {
     func selectedWallet(_ wallet: MetaAccountModel, for _: Int) {
+        destWallet = wallet
         guard
             let chain = selectedDestChainModel,
             let accountId = wallet.fetch(for: chain.accountRequest())?.accountId,
             let address = try? AddressFactory.address(for: accountId, chain: chain)
         else {
+            let viewModel = viewModelFactory.buildRecipientViewModel(address: wallet.name)
+            view?.didReceive(recipientViewModel: viewModel)
             return
         }
 
         let viewModel = viewModelFactory.buildRecipientViewModel(address: address)
         view?.didReceive(recipientViewModel: viewModel)
-        destWallet = wallet
         recipientAddress = address
         loadingCollector.addressExists = true
         checkLoadingState()
