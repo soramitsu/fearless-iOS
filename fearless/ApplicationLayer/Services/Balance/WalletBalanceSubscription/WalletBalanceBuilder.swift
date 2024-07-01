@@ -10,7 +10,7 @@ protocol WalletBalanceBuilderProtocol {
     ) -> [MetaAccountId: WalletBalanceInfo]?
 }
 
-final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
+final class WalletBalanceBuilder: WalletBalanceBuilderProtocol, ChainAssetListBuilder {
     func buildBalance(
         for accountInfos: [ChainAssetKey: AccountInfo?],
         _ metaAccounts: [MetaAccountModel],
@@ -71,7 +71,14 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         var totalDayChange: Decimal = .zero
         var enabledAccountInfos: [ChainAssetKey: AccountInfo?] = [:]
 
-        chainAssets.forEach { chainAsset in
+        let selectedChainAssets = filterChainAssets(
+            with: NetworkManagmentFilter(identifier: metaAccount.networkManagmentFilter),
+            chainAssets: chainAssets,
+            wallet: metaAccount,
+            search: nil
+        )
+
+        selectedChainAssets.forEach { chainAsset in
             let accountRequest = chainAsset.chain.accountRequest()
             guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
                 accountInfosCount += 1
@@ -96,7 +103,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             totalDayChange += balance.dayChange
         }
 
-        let isLoaded = accountInfosCount == chainAssets.count
+        let isLoaded = accountInfosCount == selectedChainAssets.count
         return CountBalanceInfo(
             totalBalance: totalBalance,
             totalDayChange: totalDayChange,
