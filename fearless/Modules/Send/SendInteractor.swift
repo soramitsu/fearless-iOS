@@ -25,7 +25,6 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
-    private var runtimeItemByChainId: [ChainModel.Id: RuntimeMetadataItem] = [:]
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -74,26 +73,6 @@ final class SendInteractor: RuntimeConstantFetching {
         priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
             utilityPriceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
-        }
-    }
-
-    private func fetchCurrentRuntimeItem(currentChainAsset: ChainAsset) async throws -> RuntimeMetadataItem? {
-        if let item = runtimeItemByChainId[currentChainAsset.chain.chainId] {
-            return item
-        }
-
-        let currentChainId = currentChainAsset.chain.chainId
-        let items = try await runtimeItemRepository.fetchAll()
-        cache(runtimeItems: items)
-        let currentRuntimeItem = items.first(where: { $0.chain == currentChainId })
-        return currentRuntimeItem
-    }
-
-    private func cache(runtimeItems: [RuntimeMetadataItem]) {
-        runtimeItemByChainId = runtimeItems.reduce([ChainModel.Id: RuntimeMetadataItem]()) { partialResult, currentItem in
-            var result = partialResult
-            result[currentItem.chain] = currentItem
-            return result
         }
     }
 
