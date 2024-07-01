@@ -488,7 +488,6 @@ final class CrossChainPresenter {
 extension CrossChainPresenter: CrossChainViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
         loadingCollector.originFeeReady = false
-        view?.setButtonLoadingState(isLoading: true)
         amountInputResult = .rate(Decimal(Double(percentage)))
         provideAssetViewModel()
         provideInputViewModel()
@@ -497,7 +496,6 @@ extension CrossChainPresenter: CrossChainViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         loadingCollector.originFeeReady = false
-        view?.setButtonLoadingState(isLoading: true)
         amountInputResult = .absolute(newValue)
         provideAssetViewModel()
         estimateFee()
