@@ -8,6 +8,7 @@ enum BalanceInfoType {
     case wallet(wallet: MetaAccountModel)
     case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
     case chainAssets(chainAssets: [ChainAsset], wallet: MetaAccountModel)
+    case networkManagement(wallet: MetaAccountModel)
 
     var wallet: MetaAccountModel {
         switch self {
@@ -16,6 +17,8 @@ enum BalanceInfoType {
         case let .chainAsset(wallet, _):
             return wallet
         case let .chainAssets(_, wallet):
+            return wallet
+        case let .networkManagement(wallet):
             return wallet
         }
     }

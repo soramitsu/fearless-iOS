@@ -80,6 +80,11 @@ private extension BalanceInfoInteractor {
                 wallet: wallet,
                 listener: self
             )
+        case let .networkManagement(wallet):
+            walletBalanceSubscriptionAdapter.subscribeNetworkManagementBalance(
+                wallet: wallet,
+                listener: self
+            )
         }
     }
 
@@ -162,6 +167,8 @@ extension BalanceInfoInteractor: WalletBalanceSubscriptionListener {
             return .chainAsset(wallet: wallet, chainAsset: chainAsset)
         case let .chainAssets(chainAssets, wallet):
             return .chainAssets(chainAssets: chainAssets, wallet: wallet)
+        case let .networkManagement(wallet):
+            return .networkManagement(wallet: wallet)
         }
     }
 
