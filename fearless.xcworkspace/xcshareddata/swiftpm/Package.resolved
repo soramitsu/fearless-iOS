@@ -41,8 +41,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/google-api-objectivec-client-for-rest.git",
       "state" : {
-        "revision" : "d46fb27cf61e08285a727c18a2ae0dbc20d91b2f",
-        "version" : "3.5.4"
+        "revision" : "a8c1e0b1173659d0be452680582c28556372ef74",
+        "version" : "3.5.5"
       }
     },
     {
@@ -59,8 +59,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/google/gtm-session-fetcher.git",
       "state" : {
-        "revision" : "0382ca27f22fb3494cf657d8dc356dc282cd1193",
-        "version" : "3.4.1"
+        "revision" : "a2ab612cb980066ee56d90d60d8462992c07f24b",
+        "version" : "3.5.0"
       }
     },
     {
@@ -131,8 +131,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "liquidity-pools-fw",
-        "revision" : "33c0c06715133b359efbc1a3e35a4952f88b9006"
+        "branch" : "fearless-wallet",
+        "revision" : "c139310dcac0d17355f5ce3d8a2ed14b0c57d2f2"
       }
     },
     {

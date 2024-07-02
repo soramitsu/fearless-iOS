@@ -246,18 +246,11 @@ final class CrossChainPresenter {
     }
 
     private func handle(newAddress: String) {
-        guard let destChain = selectedDestChainModel else {
-            return
-        }
         loadingCollector.addressExists = !newAddress.isEmpty
         checkLoadingState()
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
-        let isValid = interactor.validate(address: newAddress, for: destChain).isValid
-        let viewModel = viewModelFactory.buildRecipientViewModel(
-            address: newAddress,
-            isValid: isValid
-        )
+        let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress)
         view?.didReceive(recipientViewModel: viewModel)
     }
 
@@ -268,7 +261,7 @@ final class CrossChainPresenter {
             guard let chain = selectedDestChainModel else {
                 return
             }
-            let isValid = interactor.validate(address: recipientAddress, for: chain).isValid
+            let isValid = interactor.validate(address: recipientAddress, for: chain).isValidOrSame
             if isValid, let recipientAddress = recipientAddress {
                 handle(newAddress: recipientAddress)
             } else {
@@ -495,7 +488,6 @@ final class CrossChainPresenter {
 extension CrossChainPresenter: CrossChainViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
         loadingCollector.originFeeReady = false
-        view?.setButtonLoadingState(isLoading: true)
         amountInputResult = .rate(Decimal(Double(percentage)))
         provideAssetViewModel()
         provideInputViewModel()
@@ -504,7 +496,6 @@ extension CrossChainPresenter: CrossChainViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         loadingCollector.originFeeReady = false
-        view?.setButtonLoadingState(isLoading: true)
         amountInputResult = .absolute(newValue)
         provideAssetViewModel()
         estimateFee()
@@ -515,7 +506,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
             from: view,
             wallet: wallet,
             chainAssets: availableOriginChainAssets,
-            selectedAssetId: selectedAmountChainAsset.asset.identifier,
+            selectedAssetId: selectedAmountChainAsset.asset.id,
             output: self
         )
     }
@@ -811,20 +802,19 @@ extension CrossChainPresenter: ContactsModuleOutput {
 
 extension CrossChainPresenter: WalletsManagmentModuleOutput {
     func selectedWallet(_ wallet: MetaAccountModel, for _: Int) {
+        destWallet = wallet
         guard
             let chain = selectedDestChainModel,
             let accountId = wallet.fetch(for: chain.accountRequest())?.accountId,
             let address = try? AddressFactory.address(for: accountId, chain: chain)
         else {
+            let viewModel = viewModelFactory.buildRecipientViewModel(address: wallet.name)
+            view?.didReceive(recipientViewModel: viewModel)
             return
         }
 
-        let viewModel = viewModelFactory.buildRecipientViewModel(
-            address: address,
-            isValid: true
-        )
+        let viewModel = viewModelFactory.buildRecipientViewModel(address: address)
         view?.didReceive(recipientViewModel: viewModel)
-        destWallet = wallet
         recipientAddress = address
         loadingCollector.addressExists = true
         checkLoadingState()

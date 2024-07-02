@@ -255,6 +255,7 @@
 "common.message" = "消息";
 "common.methods" = "方法";
 "common.module" = "模块";
+"common.more" = "More";
 "common.my.networks" = "我的网络";
 "common.name" = "名字";
 "common.network" = "网络";
@@ -1184,4 +1185,3 @@
 "your.validators.stop.nominating.title" = "停止提名";
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
-"common.more" = "More";

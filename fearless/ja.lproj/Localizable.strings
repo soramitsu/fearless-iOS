@@ -253,6 +253,7 @@
 "common.message" = "Message";
 "common.methods" = "メソッド";
 "common.module" = "モジュール";
+"common.more" = "More";
 "common.my.networks" = "私のネットワーク";
 "common.name" = "名前";
 "common.network" = "ネットワーク";
@@ -1179,4 +1180,3 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
-"common.more" = "More";

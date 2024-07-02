@@ -52,13 +52,11 @@ enum WalletSendConfirmViewFactory {
         scamInfo: ScamInfo?,
         feeViewModel: BalanceViewModelProtocol?
     ) -> WalletSendConfirmViewProtocol? {
-        guard let interactor = createInteractor(
+        let interactor = createInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
             call: call
-        ) else {
-            return nil
-        }
+        )
 
         let wireframe = WalletSendConfirmWireframe()
 
@@ -103,48 +101,24 @@ enum WalletSendConfirmViewFactory {
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         call: SendConfirmTransferCall
-    ) -> WalletSendConfirmInteractor? {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
-            return nil
-        }
-
+    ) -> WalletSendConfirmInteractor {
         let operationManager = OperationManagerFacade.sharedManager
-
-        let feeProxy = ExtrinsicFeeProxy()
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
-            return nil
-        }
-
-        let keystore = Keychain()
-        let signingWrapper = SigningWrapper(
-            keystore: keystore,
-            metaId: selectedMetaAccount.metaId,
-            accountResponse: accountResponse
-        )
         let dependencyContainer = SendDepencyContainer(
             wallet: wallet,
             operationManager: operationManager
         )
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
         return WalletSendConfirmInteractor(
-            selectedMetaAccount: selectedMetaAccount,
+            selectedMetaAccount: wallet,
             chainAsset: chainAsset,
             call: call,
-            feeProxy: feeProxy,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-                selectedMetaAccount: selectedMetaAccount
+                selectedMetaAccount: wallet
             ),
             priceLocalSubscriber: priceLocalSubscriber,
-            operationManager: operationManager,
-            signingWrapper: signingWrapper,
             dependencyContainer: dependencyContainer,
-            wallet: wallet,
-            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
-            operationQueue: OperationQueue()
+            wallet: wallet
         )
     }
 }

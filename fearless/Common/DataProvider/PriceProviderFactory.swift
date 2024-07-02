@@ -10,7 +10,7 @@ protocol PriceProviderFactoryProtocol {
 class PriceProviderFactory {
     static let shared = PriceProviderFactory(storageFacade: SubstrateDataStorageFacade.shared)
 
-    private var providers: [AssetModel.PriceId: WeakWrapper] = [:]
+    private var providers: SafeDictionary<AssetModel.PriceId, WeakWrapper> = SafeDictionary(dict: [:])
     private var remoteFetchTimer: Timer?
 
     private let storageFacade: StorageFacadeProtocol
@@ -25,7 +25,8 @@ class PriceProviderFactory {
     }
 
     private func clearIfNeeded() {
-        providers = providers.filter { $0.value.target != nil }
+        let filtred = providers.dictionary.filter { $0.value.target != nil }
+        providers.replace(dict: filtred)
     }
 }
 

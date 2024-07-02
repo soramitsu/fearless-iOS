@@ -99,4 +99,17 @@ final class SendRouter: SendRouterInput {
         }
         view?.controller.present(module.view.controller, animated: true)
     }
+
+    func showManageAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
+    ) {
+        let module = AssetManagementAssembly.configureModule(networkFilter: nil, wallet: wallet)
+
+        guard let controller = module?.view.controller else {
+            return
+        }
+
+        view?.controller.present(controller, animated: true)
+    }
 }

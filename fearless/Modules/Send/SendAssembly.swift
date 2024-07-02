@@ -53,10 +53,9 @@ final class SendAssembly {
             chainModelRepository: AnyDataProviderRepository(chainRepository),
             wallet: wallet
         )
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createAsyncRepository()
         let interactor = SendInteractor(
-            feeProxy: ExtrinsicFeeProxy(),
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
@@ -67,8 +66,7 @@ final class SendAssembly {
             chainAssetFetching: chainAssetFetching,
             dependencyContainer: dependencyContainer,
             addressChainDefiner: addressChainDefiner,
-            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
-            operationQueue: OperationQueue()
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository)
         )
         let router = SendRouter()
 
@@ -80,7 +78,6 @@ final class SendAssembly {
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            qrParser: SubstrateQRParser(),
             logger: Logger.shared,
             wallet: wallet,
             initialData: initialData

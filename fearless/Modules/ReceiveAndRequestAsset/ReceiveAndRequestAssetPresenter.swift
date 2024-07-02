@@ -197,7 +197,7 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            selectedAssetId: chainAsset.asset.identifier,
+            selectedAssetId: chainAsset.asset.id,
             chainAssets: chainAsset.chain.chainAssets,
             output: self
         )

@@ -79,8 +79,10 @@ final class AccountInfoUpdatingService {
                 } else {
                     chains[newItem.chainId] = newItem
                 }
-            case .update:
-                break
+            case let .update(chain):
+                chain.chainAssets.forEach {
+                    addSubscriptionIfNeeded(for: $0)
+                }
             case let .delete(deletedIdentifier):
                 removeSubscription(for: deletedIdentifier)
             }

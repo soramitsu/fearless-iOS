@@ -45,7 +45,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: .pending,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,
@@ -86,8 +86,8 @@ extension AssetTransactionData {
         let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: asset.id,
+            assetId: asset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
@@ -100,7 +100,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: nil,
             peerLastName: nil,
@@ -145,8 +145,8 @@ extension AssetTransactionData {
         let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: asset.id,
+            assetId: asset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
@@ -157,7 +157,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.hash,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: nil,
             peerLastName: nil,
@@ -199,7 +199,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: reward.validator,
             peerLastName: nil,
@@ -233,7 +233,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: item.extrinsicHash,
             peerFirstName: nil,
             peerLastName: nil,
@@ -267,7 +267,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: extrinsic.module,
             peerLastName: extrinsic.call,
@@ -310,7 +310,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: item.callModule,
             peerLastName: item.callFunction,
@@ -369,8 +369,8 @@ extension AssetTransactionData {
         ) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: asset.id,
+            assetId: asset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
@@ -391,7 +391,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.txHash,
             status: item.status.walletValue,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: nil,
             peerLastName: nil,
@@ -427,7 +427,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: item.status.walletValue,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: item.callPath.moduleName,
             peerLastName: item.callPath.callName,

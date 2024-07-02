@@ -162,7 +162,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         wallet = account
         provideViewModel()
 
-        balanceInfoModuleInput?.replace(infoType: .wallet(wallet: account))
+        balanceInfoModuleInput?.replace(infoType: .networkManagement(wallet: account))
     }
 
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {

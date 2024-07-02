@@ -24,7 +24,6 @@ final class SendPresenter {
     private let dataValidatingFactory: SendDataValidatingFactory
     private let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
-    private let qrParser: QRParser
     private let viewModelFactory: SendViewModelFactoryProtocol
     private var initialData: SendFlowInitialData
 
@@ -92,7 +91,6 @@ final class SendPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: SendViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
-        qrParser: QRParser,
         logger: LoggerProtocol? = nil,
         wallet: MetaAccountModel,
         initialData: SendFlowInitialData
@@ -101,7 +99,6 @@ final class SendPresenter {
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.qrParser = qrParser
         self.logger = logger
         self.wallet = wallet
         self.initialData = initialData
@@ -414,10 +411,17 @@ final class SendPresenter {
         ) { [weak self] in
             self?.router.dismiss(view: self?.view)
         }
+        let assetManagementAction = SheetAlertPresentableAction(
+            title: R.string.localizable.walletManageAssets(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText
+        ) { [weak self] in
+            guard let self else { return }
+            self.router.showManageAsset(from: self.view, wallet: self.wallet)
+        }
         let alertViewModel = SheetAlertPresentableViewModel(
-            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-            message: R.string.localizable.errorUnsupportedAsset(preferredLanguages: selectedLocale.rLanguages),
-            actions: [dissmissAction],
+            title: R.string.localizable.commonActionReceive(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.errorScanQrDisabledAsset(preferredLanguages: selectedLocale.rLanguages),
+            actions: [assetManagementAction, dissmissAction],
             closeAction: nil,
             dismissCompletion: { [weak self] in
                 self?.router.dismiss(view: self?.view)
@@ -577,7 +581,7 @@ final class SendPresenter {
                     chainAsset: chainAsset,
                     call: .transfer(transfer),
                     scamInfo: strongSelf.scamInfo,
-                    feeViewModel: nil
+                    feeViewModel: strongSelf.feeViewModel
                 )
             }
         }
@@ -767,6 +771,12 @@ final class SendPresenter {
             if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
                 inputResult = .absolute(qrAmount)
             }
+            guard let chainAsset, wallet.isVisible(chainAsset: chainAsset) else {
+                await MainActor.run {
+                    showUnsupportedAssetAlert()
+                }
+                return
+            }
 
             let viewModel = viewModelFactory.buildRecipientViewModel(
                 address: qrInfo.address,
@@ -774,15 +784,11 @@ final class SendPresenter {
                 canEditing: false
             )
 
-            if let qrChainAsset = chainAsset {
-                interactor.updateSubscriptions(for: qrChainAsset)
-            }
+            interactor.updateSubscriptions(for: chainAsset)
             await MainActor.run {
                 view?.didReceive(viewModel: viewModel)
                 provideInputViewModel()
-                if let qrChainAsset = chainAsset {
-                    provideNetworkViewModel(for: qrChainAsset.chain, canEdit: true)
-                }
+                provideNetworkViewModel(for: chainAsset.chain, canEdit: true)
             }
         }
     }
@@ -924,7 +930,6 @@ extension SendPresenter: SendViewOutput {
                     self?.inputResult = .rate(Decimal(Double(percentage)))
                     self?.provideAssetVewModel()
                     self?.provideInputViewModel()
-                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
                 })
             )
         }
@@ -943,7 +948,6 @@ extension SendPresenter: SendViewOutput {
                 chainAsset: chainAsset,
                 validationCase: .validateAmount(completionHandler: { [weak self] in
                     self?.provideAssetVewModel()
-                    self?.refreshFee(for: chainAsset, address: self?.recipientAddress)
                 })
             )
         }
@@ -991,7 +995,7 @@ extension SendPresenter: SendViewOutput {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            selectedAssetId: selectedChainAsset?.asset.identifier,
+            selectedAssetId: selectedChainAsset?.asset.id,
             chainAssets: nil,
             output: self
         )
