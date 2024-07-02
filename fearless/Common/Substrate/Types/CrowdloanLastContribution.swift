@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 enum CrowdloanLastContribution: Equatable {
     static let neverField = "Never"

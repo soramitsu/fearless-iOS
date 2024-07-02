@@ -102,12 +102,29 @@ final class PolkaswapAdjustmentAssembly {
             localizationManager: localizationManager
         )
 
+        guard
+            let bannersModule = Self.configureBannersModule(output: presenter, wallet: wallet)
+        else {
+            return nil
+        }
+
         let view = PolkaswapAdjustmentViewController(
             output: presenter,
+            bannersViewController: bannersModule.view.controller,
             localizationManager: localizationManager
         )
         dataValidatingFactory.view = view
+        presenter.bannersModuleInput = bannersModule.input
 
         return (view, presenter)
+    }
+
+    // MARK: - Cofigure Modules
+
+    private static func configureBannersModule(
+        output: BannersModuleOutput?,
+        wallet: MetaAccountModel
+    ) -> BannersModuleCreationResult? {
+        BannersAssembly.configureModule(output: output, type: .embed, wallet: wallet)
     }
 }

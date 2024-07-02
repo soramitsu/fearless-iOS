@@ -8,7 +8,6 @@ final class RESTNetworkClient {
     }
 
     private func processDataResponse(
-        urlRequest _: URLRequest,
         data: Data,
         response: URLResponse
     ) -> Result<Data, NetworkingError> {
@@ -44,6 +43,6 @@ extension RESTNetworkClient: NetworkClient {
             return .failure(.init(errorCode: error.code))
         }
 
-        return processDataResponse(urlRequest: request, data: data, response: response)
+        return processDataResponse(data: data, response: response)
     }
 }

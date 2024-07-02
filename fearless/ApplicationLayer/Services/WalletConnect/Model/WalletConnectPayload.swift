@@ -1,6 +1,7 @@
 import Foundation
 import Commons
 import SSFUtils
+import SSFModels
 
 struct WalletConnectPayload {
     let address: String?

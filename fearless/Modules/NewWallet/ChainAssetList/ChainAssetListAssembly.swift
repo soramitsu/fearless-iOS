@@ -102,6 +102,6 @@ final class ChainAssetListAssembly {
     }
 
     private static func configureBannersModule(moduleOutput: BannersModuleOutput?) -> BannersModuleCreationResult? {
-        BannersAssembly.configureModule(output: moduleOutput)
+        BannersAssembly.configureModule(output: moduleOutput, type: .independent, wallet: nil)
     }
 }

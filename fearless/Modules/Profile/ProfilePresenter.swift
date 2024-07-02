@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import SSFModels
 
 final class ProfilePresenter {
     private weak var view: ProfileViewProtocol?
