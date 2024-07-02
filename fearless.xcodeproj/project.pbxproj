@@ -214,6 +214,7 @@
 		07DFA471289B8D8E0035A8AB /* EducationStoriesAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA466289B8D8E0035A8AB /* EducationStoriesAssembly.swift */; };
 		07DFA472289B8D8E0035A8AB /* EducationStoriesViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA467289B8D8E0035A8AB /* EducationStoriesViewState.swift */; };
 		07E346D4288E616E00A8FAEC /* WalletBalanceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */; };
+		07ED2EB92C341A0100FF7500 /* NodeApiKeyInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07ED2EB82C341A0100FF7500 /* NodeApiKeyInjector.swift */; };
 		07F2B75728A3A4B800280C38 /* ChainCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */; };
 		07F2B75C28A6565500280C38 /* assets.json in Resources */ = {isa = PBXBuildFile; fileRef = 07F2B75A28A6533900280C38 /* assets.json */; };
 		07F2B75D28A6565900280C38 /* chains.json in Resources */ = {isa = PBXBuildFile; fileRef = 07F2B75B28A6535B00280C38 /* chains.json */; };
@@ -3277,6 +3278,7 @@
 		07DFA466289B8D8E0035A8AB /* EducationStoriesAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesAssembly.swift; sourceTree = "<group>"; };
 		07DFA467289B8D8E0035A8AB /* EducationStoriesViewState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesViewState.swift; sourceTree = "<group>"; };
 		07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceBuilder.swift; sourceTree = "<group>"; };
+		07ED2EB82C341A0100FF7500 /* NodeApiKeyInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeApiKeyInjector.swift; sourceTree = "<group>"; };
 		07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainCollectionView.swift; sourceTree = "<group>"; };
 		07F2B75A28A6533900280C38 /* assets.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = assets.json; sourceTree = "<group>"; };
 		07F2B75B28A6535B00280C38 /* chains.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = chains.json; sourceTree = "<group>"; };
@@ -7863,6 +7865,7 @@
 				84D1110B26B922D50016D962 /* ConnectionPool.swift */,
 				84CA68DC26BEA60A003B9453 /* ConnectionFactory.swift */,
 				FA9A8F482A82034B008FA99F /* EthereumConnectionPool.swift */,
+				07ED2EB82C341A0100FF7500 /* NodeApiKeyInjector.swift */,
 			);
 			path = ConnectionPool;
 			sourceTree = "<group>";
@@ -16638,6 +16641,7 @@
 				FA00488F282CC7710032FF49 /* SelectValidatorsStartFlow.swift in Sources */,
 				FAA0137828DA12E3000A5230 /* StakingRedeemConfirmation]PoolStrategy.swift in Sources */,
 				FACD42B92A5BE90C009975AA /* InflationRewardCalculatorService.swift in Sources */,
+				07ED2EB92C341A0100FF7500 /* NodeApiKeyInjector.swift in Sources */,
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				FA9942712805524200D771E5 /* BalanceBuilder.swift in Sources */,
 				AE7129C12608CAE7000AA3F5 /* NetworkStakingInfo.swift in Sources */,
@@ -19300,7 +19304,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = webSocketEngine;
+				branch = "fearless-wallet";
 				kind = branch;
 			};
 		};
