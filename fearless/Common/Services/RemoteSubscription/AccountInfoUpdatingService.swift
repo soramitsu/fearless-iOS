@@ -77,7 +77,10 @@ final class AccountInfoUpdatingService {
                         self.chains[newItem.chainId] = newItem
                     }
                 } else {
-                    chains[newItem.chainId] = newItem
+                    readLock.exclusivelyWrite { [weak self] in
+                        guard let self else { return }
+                        self.chains[newItem.chainId] = newItem
+                    }
                 }
             case let .update(chain):
                 chain.chainAssets.forEach {
