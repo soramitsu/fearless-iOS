@@ -132,7 +132,7 @@ final class ChainAccountPresenter {
                 }
             }
 
-            let providersAggregator = PurchaseAggregator(providers: availableProviders)
+            let providersAggregator = PurchaseAggregator.defaultAggregator(with: availableProviders)
             actions = providersAggregator.buildPurchaseActions(asset: chainAsset.asset, address: address)
         }
         return actions

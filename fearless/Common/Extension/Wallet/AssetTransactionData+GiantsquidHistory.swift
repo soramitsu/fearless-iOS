@@ -31,8 +31,8 @@ extension AssetTransactionData {
 
         if let feeAmountString = transfer.feeAmount, let feeSubstrateAmount = BigUInt(string: feeAmountString), let feeDecimalAmount = Decimal.fromSubstrateAmount(feeSubstrateAmount, precision: Int16(asset.precision)) {
             let fee = AssetTransactionFee(
-                identifier: asset.identifier,
-                assetId: asset.identifier,
+                identifier: asset.id,
+                assetId: asset.id,
                 amount: AmountDecimal(value: feeDecimalAmount),
                 context: nil
             )
@@ -42,13 +42,17 @@ extension AssetTransactionData {
 
         if let signedData = transfer.signedData, let fee = signedData.fee, let partialFee = fee.partialFee, let partialFeeDecimal = Decimal.fromSubstrateAmount(partialFee, precision: Int16(asset.precision)) {
             let fee = AssetTransactionFee(
-                identifier: asset.identifier,
-                assetId: asset.identifier,
+                identifier: asset.id,
+                assetId: asset.id,
                 amount: AmountDecimal(value: partialFeeDecimal),
                 context: nil
             )
 
             fees.append(fee)
+        }
+        var context: [String: String] = [:]
+        if let blockHash = transfer.blockHash {
+            context["reefBlockHash"] = blockHash
         }
 
         return AssetTransactionData(
@@ -65,7 +69,7 @@ extension AssetTransactionData {
             timestamp: timestamp,
             type: type.rawValue,
             reason: nil,
-            context: nil
+            context: context
         )
     }
 
@@ -207,8 +211,8 @@ extension AssetTransactionData {
             let partialFeeDecimal = Decimal.fromSubstrateAmount(partialFee, precision: Int16(asset.precision))
         {
             let fee = AssetTransactionFee(
-                identifier: asset.identifier,
-                assetId: asset.identifier,
+                identifier: asset.id,
+                assetId: asset.id,
                 amount: AmountDecimal(value: partialFeeDecimal),
                 context: nil
             )
@@ -219,7 +223,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: extrinsic.hash ?? extrinsic.id,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: address,
             peerFirstName: extrinsic.section,
             peerLastName: extrinsic.method,

@@ -6,6 +6,7 @@ struct AssetManagementViewModel {
     var list: [AssetManagementTableSection]
     let filterButtonTitle: String
     let addAssetButtonIsHidden: Bool
+    let dispayedChainAssets: [ChainAsset]
 }
 
 struct AssetManagementTableSection {

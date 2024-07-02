@@ -86,7 +86,9 @@ final class StakingPoolStartViewModelFactory {
             return nil
         }
 
-        guard let percentString = NumberFormatter.percent.stringFromDecimal(apr) else {
+        let formatter = NumberFormatter.percent
+        formatter.locale = locale
+        guard let percentString = formatter.stringFromDecimal(apr) else {
             return nil
         }
 

@@ -21,6 +21,15 @@ enum WalletConnectPolkadotCall: Codable {
     case raw(bytes: Data)
     case callable(value: RuntimeCall<JSON>)
 
+    var payloadType: ExtrinsicBuilder.PayloadType {
+        switch self {
+        case .callable:
+            return .regular
+        case .raw:
+            return .rawData
+        }
+    }
+
     func encode(to encoder: Encoder) throws {
         switch self {
         case let .raw(bytes):

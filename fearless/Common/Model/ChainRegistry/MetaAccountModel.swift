@@ -34,6 +34,10 @@ extension MetaAccountModel: Identifiable {
 }
 
 extension MetaAccountModel {
+    func isVisible(chainAsset: ChainAsset) -> Bool {
+        assetsVisibility.first(where: { $0.assetId == chainAsset.identifier })?.hidden == false
+    }
+
     func insertingChainAccount(_ newChainAccount: ChainAccountModel) -> MetaAccountModel {
         var newChainAccounts = chainAccounts.filter {
             $0.chainId != newChainAccount.chainId

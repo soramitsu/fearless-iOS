@@ -6,6 +6,12 @@ protocol ChainAssetListBuilder {
     var assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol { get }
 }
 
+extension ChainAssetListBuilder {
+    var assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
+        AssetBalanceFormatterFactory()
+    }
+}
+
 struct AssetChainAssets {
     let chainAssets: [ChainAsset]
     let mainChainAsset: ChainAsset
@@ -344,6 +350,14 @@ extension ChainAssetListBuilder {
         guard wallet.assetsVisibility.isNotEmpty else {
             return defaultByPopular(chainAssets: chainAssets)
         }
+        let enabled = enabled(chainAssets: chainAssets, for: wallet)
+        return enabled
+    }
+
+    func enabled(
+        chainAssets: [ChainAsset],
+        for wallet: MetaAccountModel
+    ) -> [ChainAsset] {
         let enabledAssetIds: [String] = wallet.assetsVisibility
             .filter { !$0.hidden }
             .map { $0.assetId }

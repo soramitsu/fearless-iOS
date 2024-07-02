@@ -1,4 +1,5 @@
 import Foundation
+import SSFQRService
 import SSFModels
 
 final class SendRouter: SendRouterInput {
@@ -30,7 +31,7 @@ final class SendRouter: SendRouterInput {
         from view: ControllerBackedProtocol?,
         moduleOutput: ScanQRModuleOutput
     ) {
-        let matcher = QRInfoMatcher(decoder: QRCoderFactory().createDecoder())
+        let matcher = QRInfoMatcher(decoder: QRDecoderDefault())
         guard let module = ScanQRAssembly.configureModule(moduleOutput: moduleOutput, matchers: [matcher]) else {
             return
         }
@@ -97,5 +98,18 @@ final class SendRouter: SendRouterInput {
             return
         }
         view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showManageAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
+    ) {
+        let module = AssetManagementAssembly.configureModule(networkFilter: nil, wallet: wallet)
+
+        guard let controller = module?.view.controller else {
+            return
+        }
+
+        view?.controller.present(controller, animated: true)
     }
 }
