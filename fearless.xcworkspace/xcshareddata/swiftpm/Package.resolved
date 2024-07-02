@@ -132,8 +132,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "fearless-wallet",
-        "revision" : "bf6af4c1f27b4bc2002ae92a544c709447bf3eee"
+        "branch" : "webSocketEngine",
+        "revision" : "61919ef2904063a4c9acc6a5ddaaf4fb53c3c5e9"
       }
     },
     {

@@ -40,7 +40,7 @@ final class SafeArray<T>: Collection {
             self.array.index(after: i)
         }
     }
-    
+
     func remove(where predicate: @escaping (Element) -> Bool) {
         concurrentQueue.async(flags: .barrier) {
             while let index = self.array.firstIndex(where: predicate) {
