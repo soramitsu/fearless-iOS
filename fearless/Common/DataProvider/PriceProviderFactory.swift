@@ -49,7 +49,7 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
 
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
         let source = PriceDataSource(currencies: currencies)
-        let trigger: DataProviderEventTrigger = [.onInitialization, .onFetchPage]
+        let trigger: DataProviderEventTrigger = [.onFetchPage]
         let provider = SingleValueProvider(
             targetIdentifier: source.identifier,
             source: AnySingleValueProviderSource(source),

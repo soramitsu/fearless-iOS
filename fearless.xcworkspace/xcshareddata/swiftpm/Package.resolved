@@ -1,4 +1,5 @@
 {
+  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -132,7 +133,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "fearless-wallet",
-        "revision" : "ec3a092ea8d8df6e33190b1b4a9e4339fe1fa0ca"
+        "revision" : "bf6af4c1f27b4bc2002ae92a544c709447bf3eee"
       }
     },
     {
@@ -275,8 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bnsports/Web3.swift.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858"
+        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
+        "version" : "7.7.7"
       }
     },
     {
@@ -298,5 +299,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }
