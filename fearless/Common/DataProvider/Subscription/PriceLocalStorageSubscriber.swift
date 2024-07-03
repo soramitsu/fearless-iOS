@@ -18,9 +18,16 @@ struct PriceLocalStorageSubscriberListener {
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     static let shared = PriceLocalStorageSubscriberImpl()
 
+    private lazy var provider: AnySingleValueProvider<[PriceData]> = {
+        setupProvider()
+    }()
+
     private lazy var priceLocalSubscriber: PriceProviderFactoryProtocol = {
         PriceProviderFactory.shared
     }()
+
+    private var remoteFetchTimer: Timer?
+    private var fetchOperation: CompoundOperationWrapper<[PriceData]?>?
 
     private var listeners: [PriceLocalStorageSubscriberListener] = []
 
@@ -48,54 +55,8 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: [chainAsset], currencies: currencies)
-        let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
-        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
-
-            self?.listeners.forEach { wrapper in
-                guard
-                    let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler,
-                    let finalValue = changes.reduceToLastChange()?
-                    .first(where: { price in
-                        wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true
-                            && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
-                    })
-                else {
-                    return
-                }
-
-                listener.handlePrice(result: .success(finalValue), chainAsset: chainAsset)
-            }
-            self?.clearListenersIfNeeded()
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.listeners.forEach { wrapper in
-                guard
-                    let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler,
-                    let chainAsset = wrapper.chainAssets.first
-                else {
-                    return
-                }
-                listener.handlePrice(result: .failure(error), chainAsset: chainAsset)
-            }
-            self?.clearListenersIfNeeded()
-            return
-        }
-
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true)
-
-        priceProvider.removeObserver(self)
-        priceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-
-        return priceProvider
+        refreshProviderIfPossible()
+        return provider
     }
 
     func subscribeToPrices(
@@ -104,40 +65,51 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: chainAssets, currencies: currencies)
+        refreshProviderIfPossible()
+        return provider
+    }
+
+    // MARK: - Private methods
+
+    private func refreshProviderIfPossible() {
+        if remoteFetchTimer == nil {
+            DispatchQueue.main.async {
+                self.remoteFetchTimer = Timer.scheduledTimer(withTimeInterval: 30, repeats: false, block: { [weak self] timer in
+                    timer.invalidate()
+                    self?.remoteFetchTimer = nil
+                })
+            }
+            provider.refresh()
+        } else if fetchOperation == nil {
+            fetchOperation = provider.fetch { [weak self] result in
+                guard let result else { return }
+                self?.handleResult(for: result)
+                self?.fetchOperation = nil
+            }
+        }
+    }
+
+    private func setupProvider() -> AnySingleValueProvider<[PriceData]> {
         let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
         let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
-            self?.listeners.forEach { wrapper in
-                guard
-                    let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler,
-                    let finalValue = changes.reduceToLastChange()?
-                    .filter({ price in
-                        wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true
-                            && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
-                    })
-                else {
-                    return
-                }
-                listener.handlePrices(result: .success(finalValue))
+            guard let prices: [PriceData] = changes.reduceToLastChange() else {
+                return
             }
+            self?.handleResult(for: .success(prices))
             self?.clearListenersIfNeeded()
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.listeners.forEach { wrapper in
-                guard let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler else {
-                    return
-                }
-                listener.handlePrices(result: .failure(error))
-            }
+            self?.handleResult(for: .failure(error))
             self?.clearListenersIfNeeded()
-            return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true)
+        let options = DataProviderObserverOptions(
+            notifyIfNoDiff: true
+        )
 
-        priceProvider.removeObserver(self)
         priceProvider.addObserver(
             self,
             deliverOn: .main,
@@ -149,7 +121,48 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         return priceProvider
     }
 
-    // MARK: - Private methods
+    private func handleResult(for pricesResult: Result<[PriceData]?, Error>) {
+        switch pricesResult {
+        case let .success(prices):
+            handleSuccess(prices: prices)
+        case let .failure(error):
+            handleFailure(error: error)
+        }
+    }
+
+    private func handleSuccess(prices: [PriceData]?) {
+        listeners.forEach { wrapper in
+            guard
+                let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler,
+                let prices
+            else {
+                return
+            }
+            let finalValue = prices.filter { price in
+                wrapper.chainAssets.contains(where: { $0.asset.priceId == price.priceId }) == true
+                    && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
+            }
+
+            if wrapper.chainAssets.count == 1, let chainAsset = wrapper.chainAssets.first, let priceData = finalValue.first {
+                listener.handlePrice(result: .success(priceData), chainAsset: chainAsset)
+            } else {
+                listener.handlePrices(result: .success(finalValue))
+            }
+        }
+    }
+
+    private func handleFailure(error: Error) {
+        listeners.forEach { wrapper in
+            guard let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler else {
+                return
+            }
+            if wrapper.chainAssets.count == 1, let chainAsset = wrapper.chainAssets.first {
+                listener.handlePrice(result: .failure(error), chainAsset: chainAsset)
+            } else {
+                listener.handlePrices(result: .failure(error))
+            }
+        }
+    }
 
     private func clearListenersIfNeeded() {
         listeners = listeners.filter { $0.listener.target != nil }
