@@ -85,17 +85,17 @@ final class LiquidityPoolRemoveLiquidityPresenter {
 
     private var loadingCollector = RemoveLiquidityLoadingCollector()
 
-    private var baseAssetResultAmount: Decimal {
+    private var baseAssetResultAmount: Decimal? {
         guard let baseAssetInputResult else {
-            return .zero
+            return nil
         }
 
         return baseAssetInputResult.absoluteValue(from: baseAssetBalance.or(.zero))
     }
 
-    private var targetAssetResultAmount: Decimal {
+    private var targetAssetResultAmount: Decimal? {
         guard let targetAssetInputResult else {
-            return .zero
+            return nil
         }
 
         return targetAssetInputResult.absoluteValue(from: targetAssetBalance.or(.zero))
@@ -373,7 +373,9 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             let baseAssetPooled = (reserves?.reserves.reserves),
             let targetAssetPooled = reserves?.reserves.fee,
             let baseAssetPooledDecimal = Decimal.fromSubstrateAmount(baseAssetPooled, precision: Int16(baseAsset.asset.precision)),
-            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)) else {
+            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)),
+            baseAssetPooledDecimal > 0
+        else {
             return
         }
 
@@ -390,7 +392,9 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             let baseAssetPooled = (reserves?.reserves.reserves),
             let targetAssetPooled = reserves?.reserves.fee,
             let baseAssetPooledDecimal = Decimal.fromSubstrateAmount(baseAssetPooled, precision: Int16(baseAsset.asset.precision)),
-            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)) else {
+            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)),
+            targetAssetPooledDecimal > 0
+        else {
             return
         }
 

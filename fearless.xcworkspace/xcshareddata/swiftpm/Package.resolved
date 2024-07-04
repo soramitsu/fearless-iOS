@@ -132,7 +132,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "fearless-wallet",
-        "revision" : "114c28588ba4cd0ff5613d69b4953ee484c101a1"
+        "revision" : "e211bdfdfddb2d0facff0ce2fb18921d6dd9d2e0"
       }
     },
     {

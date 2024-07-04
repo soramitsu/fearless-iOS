@@ -319,7 +319,9 @@ final class LiquidityPoolSupplyPresenter {
             let baseAssetPooled = (reserves?.reserves.reserves),
             let targetAssetPooled = reserves?.reserves.fee,
             let baseAssetPooledDecimal = Decimal.fromSubstrateAmount(baseAssetPooled, precision: Int16(baseAsset.asset.precision)),
-            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)) else {
+            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)),
+            baseAssetPooledDecimal > 0
+        else {
             return
         }
 
@@ -336,7 +338,9 @@ final class LiquidityPoolSupplyPresenter {
             let baseAssetPooled = (reserves?.reserves.reserves),
             let targetAssetPooled = reserves?.reserves.fee,
             let baseAssetPooledDecimal = Decimal.fromSubstrateAmount(baseAssetPooled, precision: Int16(baseAsset.asset.precision)),
-            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)) else {
+            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)),
+            targetAssetPooledDecimal > 0
+        else {
             return
         }
 
