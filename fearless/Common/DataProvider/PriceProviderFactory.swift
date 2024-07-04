@@ -7,24 +7,14 @@ protocol PriceProviderFactoryProtocol {
     func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
 }
 
-class PriceProviderFactory {
-    static let shared = PriceProviderFactory()
-
-    private var currentProvider: AnySingleValueProvider<[SSFModels.PriceData]>?
-
+final class PriceProviderFactory: PriceProviderFactoryProtocol {
     private lazy var executionQueue: OperationQueue = {
         let queue = OperationQueue()
         queue.qualityOfService = .userInitiated
         return queue
     }()
-}
 
-extension PriceProviderFactory: PriceProviderFactoryProtocol {
     func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[SSFModels.PriceData]> {
-        if let currentProvider {
-            return currentProvider
-        }
-
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
         let source = PriceDataSource(currencies: currencies)
         let trigger: DataProviderEventTrigger = [.onFetchPage]

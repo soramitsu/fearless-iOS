@@ -23,13 +23,14 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     }()
 
     private lazy var priceLocalSubscriber: PriceProviderFactoryProtocol = {
-        PriceProviderFactory.shared
+        PriceProviderFactory()
     }()
 
     private var remoteFetchTimer: Timer?
     private var fetchOperation: CompoundOperationWrapper<[PriceData]?>?
 
     private var listeners: [PriceLocalStorageSubscriberListener] = []
+    private var sourcedCurrencies: Set<Currency> = []
 
     private init() {}
 
@@ -55,6 +56,9 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: [chainAsset], currencies: currencies)
+        guard !didUpdateProvider(for: currencies) else {
+            return provider
+        }
         refreshProviderIfPossible()
         return provider
     }
@@ -65,6 +69,9 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
         appendLisnenerIfNeeded(listener, chainAssets: chainAssets, currencies: currencies)
+        guard !didUpdateProvider(for: currencies) else {
+            return provider
+        }
         refreshProviderIfPossible()
         return provider
     }
@@ -119,6 +126,17 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         )
 
         return priceProvider
+    }
+
+    private func didUpdateProvider(for currencies: [Currency]?) -> Bool {
+        let set = Set(currencies ?? [])
+        let symmetricDifference = sourcedCurrencies.symmetricDifference(set)
+        if symmetricDifference.isNotEmpty {
+            remoteFetchTimer?.invalidate()
+            remoteFetchTimer = nil
+            provider = setupProvider()
+        }
+        return symmetricDifference.isNotEmpty
     }
 
     private func handleResult(for pricesResult: Result<[PriceData]?, Error>) {
