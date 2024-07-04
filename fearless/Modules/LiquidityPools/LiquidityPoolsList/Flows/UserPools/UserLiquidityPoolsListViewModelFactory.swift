@@ -117,10 +117,12 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             return $0.tokenPairNameLabelText?.lowercased().contains(searchText.lowercased()) == true
         }
 
+        let filteredViewModels = type == .embed ? poolViewModels?.prefix(5).compactMap { $0 } : poolViewModels
+
         return LiquidityPoolListViewModel(
-            poolViewModels: poolViewModels,
+            poolViewModels: filteredViewModels,
             titleLabelText: R.string.localizable.lpUserPoolsTitle(preferredLanguages: locale.rLanguages),
-            moreButtonVisible: type == .embed && (poolViewModels?.count ?? 0 < accountPools?.count ?? 0),
+            moreButtonVisible: type == .embed && (filteredViewModels?.count ?? 0 < accountPools?.count ?? 0),
             backgroundVisible: type == .full,
             refreshAvailable: type == .full,
             isEmbed: type == .embed

@@ -42,7 +42,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
         let coingeckoOperation = createCoingeckoOperation()
         let chainlinkOperations = createChainlinkOperations()
-        let soraSubqueryOperation = createSoraSubqueryOperation()
+        let soraSubqueryOperations = createSoraSubqueryOperation()
 
         let targetOperation: BaseOperation<[PriceData]?> = ClosureOperation { [weak self] in
             guard let self else {
@@ -50,46 +50,23 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             }
 
             var prices: [PriceData] = []
-            var coingeckoPrices = try coingeckoOperation.extractNoCancellableResultData()
+            let coingeckoPrices = try coingeckoOperation.extractNoCancellableResultData()
             let chainlinkPrices = chainlinkOperations.compactMap {
                 try? $0.extractNoCancellableResultData()
             }
-            let soraSubqueryPrices = try? soraSubqueryOperation.extractNoCancellableResultData()
+            let soraSubqueryPrices = soraSubqueryOperations.compactMap {
+                try? $0.extractNoCancellableResultData()
+            }.reduce([], +)
 
             prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
-            prices = self.merge(coingeckoPrices: coingeckoPrices, soraSubqueryPrices: soraSubqueryPrices.or([]))
+            prices = self.merge(coingeckoPrices: coingeckoPrices, soraSubqueryPrices: soraSubqueryPrices)
 
             return prices
-//            let replacedFiatDayChange: [PriceData] = chainlinkPrices.compactMap { chainlinkPrice in
-//                let coingeckoPrice = coingeckoPrices.first(where: { $0.coingeckoPriceId == chainlinkPrice.coingeckoPriceId })
-//                return chainlinkPrice.replaceFiatDayChange(fiatDayChange: coingeckoPrice?.fiatDayChange)
-//            }
-//
-//            if chainlinkPrices.count != chainlinkOperations.count || chainlinkOperations.isEmpty {
-//                let chainlinkPriceChainAsset = self.chainAssets.filter { $0.asset.priceProvider?.type == .chainlink }
-//                let failedPriceId = chainlinkPriceChainAsset.compactMap { $0.asset.coingeckoPriceId }.diff(from: chainlinkPrices.map { $0.coingeckoPriceId })
-//                let replacedPrices = coingeckoPrices.compactMap { price in
-//                    if failedPriceId.contains(price.coingeckoPriceId) == true {
-//                        guard let failedChainlinkCHainAsset = chainlinkPriceChainAsset.first(where: { $0.asset.coingeckoPriceId == price.coingeckoPriceId }) else {
-//                            return price
-//                        }
-//                        return PriceData(
-//                            currencyId: price.currencyId,
-//                            priceId: failedChainlinkCHainAsset.asset.priceProvider?.id ?? price.priceId,
-//                            price: price.price,
-//                            fiatDayChange: price.fiatDayChange,
-//                            coingeckoPriceId: price.coingeckoPriceId
-//                        )
-//                    }
-//                    return nil
-//                }
-//                coingeckoPrices = coingeckoPrices + replacedPrices
-//            }
-//
-//            return coingeckoPrices + replacedFiatDayChange
         }
 
-        targetOperation.addDependency(soraSubqueryOperation)
+        soraSubqueryOperations.forEach {
+            targetOperation.addDependency($0)
+        }
         targetOperation.addDependency(coingeckoOperation)
         chainlinkOperations.forEach {
             targetOperation.addDependency($0)
@@ -97,7 +74,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
 
         return CompoundOperationWrapper(
             targetOperation: targetOperation,
-            dependencies: [coingeckoOperation, soraSubqueryOperation] + chainlinkOperations
+            dependencies: [coingeckoOperation] + chainlinkOperations + soraSubqueryOperations
         )
     }
 
@@ -142,41 +119,44 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         return filtered + replacedFiatDayChange
     }
 
-    private func createSoraSubqueryOperation() -> BaseOperation<[PriceData]> {
+    private func createSoraSubqueryOperation() -> [BaseOperation<[PriceData]>] {
         guard currencies?.count == 1, currencies?.first?.id == Currency.defaultCurrency().id else {
-            return BaseOperation.createWithResult([])
+            return [BaseOperation.createWithResult([])]
         }
 
-        guard let chain = chainAssets.first(where: { $0.chain.knownChainEquivalent == .soraMain })?.chain else {
-            return BaseOperation.createWithResult([])
-        }
-        let fetcher = SoraSubqueryPriceFetcherDefault(chain: chain)
-        return AwaitOperation {
-            let priceIds = chain.assets.filter { $0.priceProvider?.type == .sorasubquery }.compactMap { $0.priceProvider?.id }
-            let prices = try await fetcher.fetch(priceIds: priceIds)
+        let chains = chainAssets.filter { $0.asset.priceProvider?.type == .sorasubquery }.compactMap { $0.chain }.withoutDuplicates()
 
-            return prices.compactMap { price in
-                let chainAsset = self.chainAssets.filter { $0.chain.knownChainEquivalent == .soraMain }.first(where: { $0.asset.currencyId == price.id })
+        let operations: [BaseOperation<[PriceData]>] = chains.compactMap { chain in
+            let fetcher = SoraSubqueryPriceFetcherDefault(chain: chain)
+            return AwaitOperation {
+                let priceIds = chain.assets.filter { $0.priceProvider?.type == .sorasubquery }.compactMap { $0.priceProvider?.id }
+                let prices = try await fetcher.fetch(priceIds: priceIds)
 
-                guard let chainAsset = chainAsset else {
-                    return nil
-                }
-                guard chainAsset.asset.priceProvider?.type == .sorasubquery else {
-                    return nil
-                }
-                guard let priceId = chainAsset.asset.priceId else {
-                    return nil
-                }
+                return prices.compactMap { price in
+                    let chainAsset = self.chainAssets.filter { $0.chain.knownChainEquivalent == .soraMain }.first(where: { $0.asset.currencyId == price.id })
 
-                return PriceData(
-                    currencyId: "usd",
-                    priceId: priceId,
-                    price: "\(price.priceUsd.or("0"))",
-                    fiatDayChange: price.priceChangeDay,
-                    coingeckoPriceId: chainAsset.asset.coingeckoPriceId
-                )
+                    guard let chainAsset = chainAsset else {
+                        return nil
+                    }
+                    guard chainAsset.asset.priceProvider?.type == .sorasubquery else {
+                        return nil
+                    }
+                    guard let priceId = chainAsset.asset.priceId else {
+                        return nil
+                    }
+
+                    return PriceData(
+                        currencyId: "usd",
+                        priceId: priceId,
+                        price: "\(price.priceUsd.or("0"))",
+                        fiatDayChange: price.priceChangeDay,
+                        coingeckoPriceId: chainAsset.asset.coingeckoPriceId
+                    )
+                }
             }
         }
+
+        return operations
     }
 
     private func createCoingeckoOperation() -> BaseOperation<[PriceData]> {

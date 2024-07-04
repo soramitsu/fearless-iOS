@@ -87,7 +87,7 @@ extension LiquidityPoolsOverviewPresenter: LiquidityPoolsListModuleOutput {
     func didReceiveFlowClosureEvent() {
         // Temporary until subscription will be implemented
         let soraTargetBlockTime = 6.0
-        DispatchQueue.global().asyncAfter(deadline: .now() + soraTargetBlockTime * 1.5) { [weak self] in
+        DispatchQueue.global().asyncAfter(deadline: .now() + soraTargetBlockTime * 2) { [weak self] in
             self?.availablePoolsInput?.refreshData()
             self?.userPoolsInput?.refreshData()
         }

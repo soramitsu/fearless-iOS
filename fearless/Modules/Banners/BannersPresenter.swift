@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SoraFoundation
 
 enum BannersModuleType {
@@ -111,7 +112,9 @@ extension BannersPresenter: BannersViewOutput {
         case .buyXor:
             break
         case .liquidityPools:
-            router.presentLiquidityPools(on: view, wallet: wallet)
+            router.presentLiquidityPools(on: view, wallet: wallet, chainId: Chain.soraMain.genesisHash)
+        case .liquidityPoolsTest:
+            router.presentLiquidityPools(on: view, wallet: wallet, chainId: Chain.soraTest.genesisHash)
         }
     }
 
@@ -125,7 +128,7 @@ extension BannersPresenter: BannersViewOutput {
             showNotBackedUpAlert(wallet: wallet)
         case .buyXor:
             break
-        case .liquidityPools:
+        case .liquidityPools, .liquidityPoolsTest:
             moduleOutput?.didTapCloseBanners()
         }
     }

@@ -68,7 +68,9 @@ final class UserLiquidityPoolsListPresenter {
 
         view?.didReceive(viewModel: viewModel)
 
-        moduleOutput?.didReceiveUserPoolCount((viewModel.poolViewModels?.count).or(0))
+        if type == .embed {
+            moduleOutput?.didReceiveUserPoolCount((viewModel.poolViewModels?.count).or(0))
+        }
     }
 }
 
@@ -130,7 +132,10 @@ extension UserLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
 extension UserLiquidityPoolsListPresenter: UserLiquidityPoolsListInteractorOutput {
     func didReceiveUserPools(accountPools: [AccountPool]?) {
         self.accountPools = accountPools
-        moduleOutput?.shouldShowUserPools(accountPools?.isNotEmpty == true)
+
+        if type == .embed {
+            moduleOutput?.shouldShowUserPools(accountPools?.isNotEmpty == true)
+        }
 
         provideViewModel()
     }

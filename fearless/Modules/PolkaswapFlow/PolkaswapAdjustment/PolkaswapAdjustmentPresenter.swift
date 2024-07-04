@@ -501,7 +501,11 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         interactor.fetchDisclaimerVisible()
         disclaimerWasShown = true
 
-        bannersModuleInput?.update(banners: [.liquidityPools])
+        #if F_RELEASE
+            bannersModuleInput?.update(banners: [.liquidityPools])
+        #else
+            bannersModuleInput?.update(banners: [.liquidityPools, .liquidityPoolsTest])
+        #endif
     }
 
     func didLoad(view: PolkaswapAdjustmentViewInput) {
@@ -716,10 +720,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             return
         }
         detailsViewModel = provideDetailsViewModel(with: amounts)
-    }
-
-    func didTapLiquidityPools() {
-        router.presentLiquidityPools(on: view, wallet: wallet)
     }
 }
 
