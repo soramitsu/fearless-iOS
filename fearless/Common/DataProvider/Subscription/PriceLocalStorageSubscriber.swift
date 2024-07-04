@@ -10,9 +10,15 @@ protocol PriceLocalStorageSubscriber where Self: AnyObject {
 }
 
 struct PriceLocalStorageSubscriberListener {
+    enum Handler {
+        case price
+        case prices
+    }
+
     let listener: WeakWrapper
     let chainAssets: [ChainAsset]
     let currencies: [Currency]
+    let handler: Handler
 }
 
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
@@ -55,7 +61,12 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
-        appendLisnenerIfNeeded(listener, chainAssets: [chainAsset], currencies: currencies)
+        appendLisnenerIfNeeded(
+            listener,
+            chainAssets: [chainAsset],
+            currencies: currencies,
+            handler: .price
+        )
         guard !didUpdateProvider(for: currencies) else {
             return provider
         }
@@ -68,7 +79,12 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         currencies: [Currency]?,
         listener: PriceLocalSubscriptionHandler
     ) -> AnySingleValueProvider<[PriceData]> {
-        appendLisnenerIfNeeded(listener, chainAssets: chainAssets, currencies: currencies)
+        appendLisnenerIfNeeded(
+            listener,
+            chainAssets: chainAssets,
+            currencies: currencies,
+            handler: .prices
+        )
         guard !didUpdateProvider(for: currencies) else {
             return provider
         }
@@ -90,7 +106,9 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         } else if fetchOperation == nil {
             fetchOperation = provider.fetch { [weak self] result in
                 guard let result else { return }
-                self?.handleResult(for: result)
+                DispatchQueue.main.async {
+                    self?.handleResult(for: result)
+                }
                 self?.fetchOperation = nil
             }
         }
@@ -161,9 +179,13 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
                     && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
             }
 
-            if wrapper.chainAssets.count == 1, let chainAsset = wrapper.chainAssets.first, let priceData = finalValue.first {
+            switch wrapper.handler {
+            case .price:
+                guard let chainAsset = wrapper.chainAssets.first, let priceData = finalValue.first else {
+                    return
+                }
                 listener.handlePrice(result: .success(priceData), chainAsset: chainAsset)
-            } else {
+            case .prices:
                 listener.handlePrices(result: .success(finalValue))
             }
         }
@@ -189,7 +211,8 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     private func appendLisnenerIfNeeded(
         _ listener: PriceLocalSubscriptionHandler,
         chainAssets: [ChainAsset],
-        currencies: [Currency]?
+        currencies: [Currency]?,
+        handler: PriceLocalStorageSubscriberListener.Handler
     ) {
         let existListener = listeners.first { wrapper in
             wrapper.listener.target === listener
@@ -201,8 +224,11 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         let listener = PriceLocalStorageSubscriberListener(
             listener: WeakWrapper(target: listener),
             chainAssets: chainAssets,
-            currencies: currencies ?? [wallet.selectedCurrency]
+            currencies: currencies ?? [wallet.selectedCurrency],
+            handler: handler
         )
         listeners.append(listener)
+        fetchOperation?.cancel()
+        fetchOperation = nil
     }
 }
