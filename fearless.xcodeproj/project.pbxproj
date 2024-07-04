@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -5409,7 +5409,6 @@
 		FA4CC665281801CB00A7E85F /* StakingUnitInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnitInfoView.swift; sourceTree = "<group>"; };
 		FA5085AA2C33C6D4002DF97D /* SafeArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SafeArray.swift; sourceTree = "<group>"; };
 		FA5085AB2C33C6D4002DF97D /* SafeDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SafeDictionary.swift; sourceTree = "<group>"; };
-		FA5085B12C3526AF002DF97D /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FA5137A129AC6F2F00560EBA /* PolkaswapDisclaimerViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PolkaswapDisclaimerViewModel.swift; sourceTree = "<group>"; };
 		FA5137A229AC6F2F00560EBA /* PolkaswapDisclaimerRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PolkaswapDisclaimerRouter.swift; sourceTree = "<group>"; };
 		FA5137A329AC6F2F00560EBA /* PolkaswapDisclaimerViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PolkaswapDisclaimerViewLayout.swift; sourceTree = "<group>"; };
@@ -9152,7 +9151,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FA5085B02C3526AF002DF97D /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -13536,14 +13534,6 @@
 				FA4B92A42844D0E60003BCEF /* SelectCurrencyCellViewModel.swift */,
 			);
 			path = viewModel;
-			sourceTree = "<group>";
-		};
-		FA5085B02C3526AF002DF97D /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				FA5085B12C3526AF002DF97D /* shared-features-spm */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		FA5137A029AC6F2F00560EBA /* PolkaswapDisclaimer */ = {

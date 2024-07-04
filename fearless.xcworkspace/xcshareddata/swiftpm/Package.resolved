@@ -127,6 +127,15 @@
       }
     },
     {
+      "identity" : "shared-features-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soramitsu/shared-features-spm.git",
+      "state" : {
+        "branch" : "fearless-wallet",
+        "revision" : "114c28588ba4cd0ff5613d69b4953ee484c101a1"
+      }
+    },
+    {
       "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
@@ -217,15 +226,6 @@
       }
     },
     {
-      "identity" : "swiftformat",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nicklockwood/SwiftFormat",
-      "state" : {
-        "revision" : "dd989a46d0c6f15c016484bab8afe5e7a67a4022",
-        "version" : "0.54.0"
-      }
-    },
-    {
       "identity" : "swiftimagereadwrite",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/SwiftImageReadWrite",
@@ -275,8 +275,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/bnsports/Web3.swift.git",
       "state" : {
-        "branch" : "master",
-        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858"
+        "revision" : "a526779488e5fe2fa993d9614f11f57b00cc1858",
+        "version" : "7.7.7"
       }
     },
     {
