@@ -389,7 +389,7 @@ extension ChainRegistry: ChainRegistryProtocol {
         else {
             return
         }
-        // TODO: - Remove retry logic if web socket engine refactoring helped
+        currentConnection.connectIfNeeded()
     }
 }
 

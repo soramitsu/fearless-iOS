@@ -80,7 +80,12 @@ extension ConnectionPool: ConnectionPoolProtocol {
         self.delegate = delegate
     }
 
-    func resetConnection(for _: ChainModel.Id) {}
+    func resetConnection(for chainId: ChainModel.Id) {
+        if let connection = getConnection(for: chainId) {
+            connection.disconnectIfNeeded()
+        }
+        connections.remove(where: { $0.chainId == chainId })
+    }
 }
 
 // MARK: - WebSocketEngineDelegate
@@ -95,21 +100,5 @@ extension ConnectionPool: WebSocketEngineDelegate {
         }
 
         delegate?.webSocketDidChangeState(chainId: chainId, state: newState)
-    }
-}
-
-struct NodeApiKeyInjector {
-    func injectKey(nodes: [ChainNodeModel]) -> [URL] {
-        nodes.map {
-            guard $0.name.lowercased().contains("dwellir") else {
-                return $0.url
-            }
-            #if DEBUG
-                return $0.url
-            #else
-                let apiKey = DwellirNodeApiKey.dwellirApiKey
-                return $0.url.appendingPathComponent("/\(apiKey)")
-            #endif
-        }
     }
 }
