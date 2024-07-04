@@ -3,6 +3,7 @@ import SSFPools
 import SSFPolkaswap
 import SSFModels
 import BigInt
+import SSFStorageQueryKit
 
 protocol LiquidityPoolSupplyInteractorOutput: AnyObject {
     func didReceiveFee(_ fee: BigUInt)
@@ -13,6 +14,8 @@ protocol LiquidityPoolSupplyInteractorOutput: AnyObject {
     func didReceivePoolApyError(error: Error)
     func didReceiveLiquidityPairs(pairs: [LiquidityPair]?)
     func didReceiveLiquidityPairsError(error: Error)
+    func didReceivePoolReserves(reserves: PolkaswapPoolReservesInfo?)
+    func didReceivePoolReservesError(error: Error)
 }
 
 final class LiquidityPoolSupplyInteractor {
@@ -25,7 +28,6 @@ final class LiquidityPoolSupplyInteractor {
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chain: ChainModel
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
@@ -73,6 +75,7 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
         subscribeToPrices()
         subscribeToAccountInfo()
         fetchApy()
+        fetchReserves()
     }
 
     func estimateFee(supplyLiquidityInfo: SupplyLiquidityInfo) {
@@ -121,6 +124,26 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
             } catch {
                 await MainActor.run {
                     output?.didReceivePoolApyError(error: error)
+                }
+            }
+        }
+    }
+
+    private func fetchReserves() {
+        let assetIdPair = AssetIdPair(baseAssetIdCode: liquidityPair.baseAssetId, targetAssetIdCode: liquidityPair.targetAssetId)
+
+        Task {
+            do {
+                let reservesStream = try await lpDataService.subscribePoolReserves(assetIdPair: assetIdPair)
+
+                for try await reserves in reservesStream {
+                    await MainActor.run {
+                        output?.didReceivePoolReserves(reserves: reserves.value)
+                    }
+                }
+            } catch {
+                await MainActor.run {
+                    output?.didReceivePoolReservesError(error: error)
                 }
             }
         }

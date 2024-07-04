@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias BannersModuleCreationResult = (
     view: BannersViewInput,
     input: BannersModuleInput
@@ -11,7 +13,8 @@ protocol BannersRouterInput: AnyObject, SheetAlertPresentable {
 
     func presentLiquidityPools(
         on view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        chainId: ChainModel.Id
     )
 }
 

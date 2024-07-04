@@ -61,7 +61,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     private var flowClosure: () -> Void
 
     private var removeInfo: RemoveLiquidityInfo?
-    private var reserves: BigUInt?
+    private var reserves: PolkaswapPoolReservesInfo?
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
     private var prices: [PriceData]?
@@ -71,6 +71,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     private var targetAssetBalance: Decimal?
     private var accountPoolInfo: AccountPool?
     private var totalIssuance: BigUInt?
+    private var reservesValue: BigUInt?
 
     private var networkFeeViewModel: BalanceViewModelProtocol?
     private var networkFee: Decimal?
@@ -129,7 +130,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
 
         if let removeInfo = removeInfo, let utilityAsset = chain.utilityAssets().first {
             totalIssuance = removeInfo.totalIssuances.toSubstrateAmount(precision: Int16(utilityAsset.precision))
-            reserves = removeInfo.baseAssetReserves.toSubstrateAmount(precision: Int16(utilityAsset.precision))
+            reservesValue = removeInfo.baseAssetReserves.toSubstrateAmount(precision: Int16(utilityAsset.precision))
         }
 
         self.localizationManager = localizationManager
@@ -143,7 +144,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             let baseAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.baseAssetId }),
             let targetAsset = chain.assets.first(where: { $0.currencyId == liquidityPair.targetAssetId }),
             let totalIssuance = totalIssuance,
-            let reserves = reserves,
+            let reserves = reservesValue,
             let baseAssetReserves = Decimal.fromSubstrateAmount(reserves, precision: Int16(baseAsset.precision)),
             let totalIssuanceDecimal = Decimal.fromSubstrateAmount(totalIssuance, precision: Int16(baseAsset.precision))
         else {
@@ -363,6 +364,40 @@ final class LiquidityPoolRemoveLiquidityPresenter {
 
         refreshFee()
     }
+
+    private func recalculateTargetAssetAmount(baseAssetAmount: Decimal?) {
+        guard
+            let baseAssetAmount,
+            let baseAsset = swapFromChainAsset,
+            let targetAsset = swapToChainAsset,
+            let baseAssetPooled = (reserves?.reserves.reserves),
+            let targetAssetPooled = reserves?.reserves.fee,
+            let baseAssetPooledDecimal = Decimal.fromSubstrateAmount(baseAssetPooled, precision: Int16(baseAsset.asset.precision)),
+            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)) else {
+            return
+        }
+
+        let scale = targetAssetPooledDecimal / baseAssetPooledDecimal
+
+        targetAssetInputResult = .absolute(baseAssetAmount * scale)
+    }
+
+    private func recalculateBaseAssetAmount(targetAssetAmount: Decimal?) {
+        guard
+            let targetAssetAmount,
+            let baseAsset = swapFromChainAsset,
+            let targetAsset = swapToChainAsset,
+            let baseAssetPooled = (reserves?.reserves.reserves),
+            let targetAssetPooled = reserves?.reserves.fee,
+            let baseAssetPooledDecimal = Decimal.fromSubstrateAmount(baseAssetPooled, precision: Int16(baseAsset.asset.precision)),
+            let targetAssetPooledDecimal = Decimal.fromSubstrateAmount(targetAssetPooled, precision: Int16(targetAsset.asset.precision)) else {
+            return
+        }
+
+        let scale = baseAssetPooledDecimal / targetAssetPooledDecimal
+
+        baseAssetInputResult = .absolute(targetAssetAmount * scale)
+    }
 }
 
 // MARK: - LiquidityPoolRemoveLiquidityConfirmViewOutput
@@ -510,9 +545,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
 
         baseAssetInputResult = .rate(Decimal(Double(percentage)))
 
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: (accountPoolInfo?.baseAssetPooled).or(.zero))
-        let targetAssetAbsoluteValue = baseAssetAbsolulteValue.or(.zero) * baseTargetRate.or(.zero)
-        targetAssetInputResult = .absolute(targetAssetAbsoluteValue)
+        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
+        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
 
         provideFromAssetVewModel()
         provideToAssetVewModel()
@@ -525,9 +559,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
 
         baseAssetInputResult = .absolute(newValue)
 
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: (accountPoolInfo?.baseAssetPooled).or(.zero))
-        let targetAssetAbsoluteValue = baseAssetAbsolulteValue.or(.zero) * baseTargetRate.or(.zero)
-        targetAssetInputResult = .absolute(targetAssetAbsoluteValue)
+        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
+        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
 
         provideFromAssetVewModel(updateAmountInput: false)
         provideToAssetVewModel()
@@ -545,9 +578,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
 
         targetAssetInputResult = .rate(Decimal(Double(percentage)))
 
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: (accountPoolInfo?.targetAssetPooled).or(.zero))
-        let baseAssetAbsolulteValue = targetAssetAbsoluteValue.or(.zero) / baseTargetRate.or(1)
-        baseAssetInputResult = .absolute(baseAssetAbsolulteValue)
+        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
+        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
 
         provideFromAssetVewModel()
         provideToAssetVewModel()
@@ -560,9 +592,8 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
 
         targetAssetInputResult = .absolute(newValue)
 
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: (accountPoolInfo?.targetAssetPooled).or(.zero))
-        let baseAssetAbsolulteValue = targetAssetAbsoluteValue.or(.zero) / baseTargetRate.or(1)
-        baseAssetInputResult = .absolute(baseAssetAbsolulteValue)
+        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
+        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
 
         provideFromAssetVewModel()
         provideToAssetVewModel(updateAmountInput: false)
@@ -629,21 +660,6 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
             prices = priceData
 
             provideXorBalanceViewModel()
-
-            let baseAssetPrice = prices?.first(where: { $0.priceId == swapFromChainAsset?.asset.priceId })
-            let targetAssetPrice = prices?.first(where: { $0.priceId == swapToChainAsset?.asset.priceId })
-
-            if
-                let baseAssetPrice = baseAssetPrice,
-                let targetAssetPrice = targetAssetPrice,
-                let baseAssetPriceValue = Decimal(string: baseAssetPrice.price),
-                let targetAssetPriceValue = Decimal(string: targetAssetPrice.price) {
-                baseTargetRate = baseAssetPriceValue / targetAssetPriceValue
-
-                DispatchQueue.main.async { [weak self] in
-                    self?.setupView?.didReceiveSwapQuoteReady()
-                }
-            }
         case let .failure(error):
             prices = []
             logger.error("\(error)")
@@ -694,10 +710,15 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
             return
         }
 
-        self.reserves = reserves.reserves.reserves
+        self.reserves = reserves
+        reservesValue = reserves.reserves.reserves
         refreshFee()
         loadingCollector.reservesReady = true
         checkLoadingState()
+
+        DispatchQueue.main.async { [weak self] in
+            self?.setupView?.didReceiveSwapQuoteReady()
+        }
     }
 
     func didReceiveUserPoolError(error: Error) {

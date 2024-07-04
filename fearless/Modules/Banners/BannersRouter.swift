@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class BannersRouter: BannersRouterInput {
     func showWalletBackupScreen(
@@ -13,10 +14,14 @@ final class BannersRouter: BannersRouterInput {
         view?.controller.present(navigation, animated: true)
     }
 
-    func presentLiquidityPools(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+    func presentLiquidityPools(
+        on view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        chainId: ChainModel.Id
+    ) {
         guard
             let tabBarController = view?.controller,
-            let viewController = LiquidityPoolsOverviewAssembly.configureModule(wallet: wallet)?.view.controller
+            let viewController = LiquidityPoolsOverviewAssembly.configureModule(wallet: wallet, chainId: chainId)?.view.controller
         else {
             return
         }

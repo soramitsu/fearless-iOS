@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct BannersViewModel {
     let banners: [BannerCellViewModel]
@@ -8,6 +9,7 @@ enum Banners: Int {
     case backup
     case buyXor
     case liquidityPools
+    case liquidityPoolsTest
 }
 
 protocol BannersViewModelFactoryProtocol {
@@ -68,6 +70,21 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     dismissable: true,
                     fullsizeImage: true,
                     bannerType: .liquidityPools
+                )
+
+            case .liquidityPoolsTest:
+                let title = "Liquidity pools test"
+                let subtitle = "Invest your funds in Liquidity\npools and receive rewards"
+                let buttonAction = "Show details"
+
+                return BannerCellViewModel(
+                    title: title,
+                    subtitle: subtitle,
+                    buttonTitle: buttonAction,
+                    image: R.image.iconLpBanner()!,
+                    dismissable: true,
+                    fullsizeImage: true,
+                    bannerType: .liquidityPoolsTest
                 )
             }
         }
