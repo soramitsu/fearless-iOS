@@ -19845,7 +19845,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "singleValueProvider-update";
+				branch = "fearless-wallet";
 				kind = branch;
 			};
 		};
