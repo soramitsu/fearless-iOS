@@ -222,7 +222,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.chainAssets = chainAssets
         self.wallets = (self.wallets + wallets).uniq(predicate: { $0.metaId })
         subscribeToAccountInfo(for: wallets, chainAssets)
-        let currencies = wallets.map { $0.selectedCurrency }
+        let currencies = self.wallets.map { $0.selectedCurrency }
         subscribeToPrices(for: chainAssets, currencies: currencies)
     }
 
