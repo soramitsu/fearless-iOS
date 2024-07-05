@@ -34,6 +34,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
 
     private var remoteFetchTimer: Timer?
     private var fetchOperation: CompoundOperationWrapper<[PriceData]?>?
+    private var isAlreadyRefrishing: Bool = false
 
     private var listeners: [PriceLocalStorageSubscriberListener] = []
     private var sourcedCurrencies: Set<Currency> = []
@@ -102,8 +103,9 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
                     self?.remoteFetchTimer = nil
                 })
             }
+            isAlreadyRefrishing = true
             provider.refresh()
-        } else if fetchOperation == nil {
+        } else if fetchOperation == nil, !isAlreadyRefrishing {
             fetchOperation = provider.fetch { [weak self] result in
                 guard let result else { return }
                 DispatchQueue.main.async {
@@ -164,6 +166,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         case let .failure(error):
             handleFailure(error: error)
         }
+        isAlreadyRefrishing = false
     }
 
     private func handleSuccess(prices: [PriceData]?) {
