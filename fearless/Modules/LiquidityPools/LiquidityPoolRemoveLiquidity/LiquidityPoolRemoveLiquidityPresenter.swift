@@ -58,7 +58,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     private let liquidityPair: LiquidityPair
     private let dataValidatingFactory: SendDataValidatingFactory
     private let confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?
-    private var flowClosure: () -> Void
+    private var didSubmitTransactionClosure: (String) -> Void
 
     private var removeInfo: RemoveLiquidityInfo?
     private var reserves: PolkaswapPoolReservesInfo?
@@ -114,7 +114,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         dataValidatingFactory: SendDataValidatingFactory,
         confirmViewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory?,
         removeInfo: RemoveLiquidityInfo?,
-        flowClosure: @escaping () -> Void
+        didSubmitTransactionClosure: @escaping (String) -> Void
     ) {
         self.interactor = interactor
         self.router = router
@@ -126,7 +126,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         self.confirmViewModelFactory = confirmViewModelFactory
         self.removeInfo = removeInfo
         dexId = liquidityPair.dexId
-        self.flowClosure = flowClosure
+        self.didSubmitTransactionClosure = didSubmitTransactionClosure
 
         if let removeInfo = removeInfo, let utilityAsset = chain.utilityAssets().first {
             totalIssuance = removeInfo.totalIssuances.toSubstrateAmount(precision: Int16(utilityAsset.precision))
@@ -533,7 +533,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
                 wallet: self.wallet,
                 liquidityPair: self.liquidityPair,
                 info: info,
-                flowClosure: self.flowClosure,
+                didSubmitTransactionClosure: self.didSubmitTransactionClosure,
                 from: self.setupView
             )
         }
@@ -614,7 +614,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
             return
         }
 
-        flowClosure()
+        didSubmitTransactionClosure(hash)
         resetLoadingState()
 
         router.complete(on: confirmView, title: hash, chainAsset: utilityChainAsset)

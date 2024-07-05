@@ -21,7 +21,7 @@ protocol LiquidityPoolSupplyRouterInput: AnyObject, AnyDismissable, SheetAlertPr
         wallet: MetaAccountModel,
         liquidityPair: LiquidityPair,
         inputData: LiquidityPoolSupplyConfirmInputData,
-        flowClosure: @escaping () -> Void,
+        didSubmitTransactionClosure: @escaping (String) -> Void,
         from view: ControllerBackedProtocol?
     )
 }

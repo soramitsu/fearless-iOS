@@ -95,7 +95,7 @@ final class LiquidityPoolDetailsPresenter {
     private let chain: ChainModel
     private let wallet: MetaAccountModel
     private let input: LiquidityPoolDetailsInput
-    private var poolOperationFlowsClosure: () -> Void
+    private var didSubmitTransactionClosure: (String) -> Void
 
     private var liquidityPair: LiquidityPair?
     private var accountPoolInfo: AccountPool?
@@ -115,7 +115,7 @@ final class LiquidityPoolDetailsPresenter {
         chain: ChainModel,
         wallet: MetaAccountModel,
         input: LiquidityPoolDetailsInput,
-        poolOperationFlowsClosure: @escaping () -> Void
+        didSubmitTransactionClosure: @escaping (String) -> Void
     ) {
         self.interactor = interactor
         self.router = router
@@ -125,7 +125,7 @@ final class LiquidityPoolDetailsPresenter {
         self.chain = chain
         self.wallet = wallet
         self.input = input
-        self.poolOperationFlowsClosure = poolOperationFlowsClosure
+        self.didSubmitTransactionClosure = didSubmitTransactionClosure
 
         liquidityPair = input.liquidityPair
 
@@ -177,7 +177,7 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
             return
         }
 
-        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, availablePairs: input.availablePairs, flowClosure: poolOperationFlowsClosure, from: view)
+        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, availablePairs: input.availablePairs, didSubmitTransactionClosure: didSubmitTransactionClosure, from: view)
     }
 
     func removeButtonClicked() {
@@ -185,7 +185,7 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
             return
         }
 
-        router.showRemoveFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, flowClosure: poolOperationFlowsClosure, from: view)
+        router.showRemoveFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, didSubmitTransactionClosure: didSubmitTransactionClosure, from: view)
     }
 
     func didTapApyInfo() {

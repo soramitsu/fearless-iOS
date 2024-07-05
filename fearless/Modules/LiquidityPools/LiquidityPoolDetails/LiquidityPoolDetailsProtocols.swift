@@ -9,14 +9,14 @@ protocol LiquidityPoolDetailsRouterInput: AnyObject, AnyDismissable, SheetAlertP
         chain: ChainModel,
         wallet: MetaAccountModel,
         availablePairs: [LiquidityPair]?,
-        flowClosure: @escaping () -> Void,
+        didSubmitTransactionClosure: @escaping (String) -> Void,
         from view: ControllerBackedProtocol?
     )
     func showRemoveFlow(
         liquidityPair: LiquidityPair,
         chain: ChainModel,
         wallet: MetaAccountModel,
-        flowClosure: @escaping () -> Void,
+        didSubmitTransactionClosure: @escaping (String) -> Void,
         from view: ControllerBackedProtocol?
     )
 }

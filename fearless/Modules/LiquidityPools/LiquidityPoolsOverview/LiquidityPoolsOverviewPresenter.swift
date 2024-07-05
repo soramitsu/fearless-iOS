@@ -57,7 +57,12 @@ extension LiquidityPoolsOverviewPresenter: LiquidityPoolsOverviewViewOutput {
 
 // MARK: - LiquidityPoolsOverviewInteractorOutput
 
-extension LiquidityPoolsOverviewPresenter: LiquidityPoolsOverviewInteractorOutput {}
+extension LiquidityPoolsOverviewPresenter: LiquidityPoolsOverviewInteractorOutput {
+    func didReceiveTransactionFinalizedEvent() {
+        userPoolsInput?.refreshData()
+        availablePoolsInput?.refreshData()
+    }
+}
 
 // MARK: - Localizable
 
@@ -84,12 +89,7 @@ extension LiquidityPoolsOverviewPresenter: LiquidityPoolsListModuleOutput {
         view?.didReceiveUserPoolsCount(count: userPoolsCount)
     }
 
-    func didReceiveFlowClosureEvent() {
-        // Temporary until subscription will be implemented
-        let soraTargetBlockTime = 6.0
-        DispatchQueue.global().asyncAfter(deadline: .now() + soraTargetBlockTime * 2) { [weak self] in
-            self?.availablePoolsInput?.refreshData()
-            self?.userPoolsInput?.refreshData()
-        }
+    func didSubmitTransaction(transactionHash: String) {
+        interactor.subscribe(transactionHash: transactionHash)
     }
 }

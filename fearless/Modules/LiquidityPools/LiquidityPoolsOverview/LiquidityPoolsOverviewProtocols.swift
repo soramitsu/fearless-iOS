@@ -15,9 +15,12 @@ protocol LiquidityPoolsOverviewViewOutput: AnyObject {
 
 protocol LiquidityPoolsOverviewInteractorInput: AnyObject {
     func setup(with output: LiquidityPoolsOverviewInteractorOutput)
+    func subscribe(transactionHash: String)
 }
 
-protocol LiquidityPoolsOverviewInteractorOutput: AnyObject {}
+protocol LiquidityPoolsOverviewInteractorOutput: AnyObject {
+    func didReceiveTransactionFinalizedEvent()
+}
 
 protocol LiquidityPoolsOverviewRouterInput: AnyObject, AnyDismissable {
     func showAllAvailablePools(

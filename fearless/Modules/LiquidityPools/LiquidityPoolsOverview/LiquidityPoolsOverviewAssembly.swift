@@ -5,13 +5,17 @@ import SSFModels
 final class LiquidityPoolsOverviewAssembly {
     static func configureModule(wallet: MetaAccountModel, chainId: ChainModel.Id) -> LiquidityPoolsOverviewModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let chain = chainRegistry.availableChains.first(where: { $0.chainId == chainId }) else {
+        guard
+            let chain = chainRegistry.availableChains.first(where: { $0.chainId == chainId }),
+            let engine = try? chainRegistry.getSubstrateConnection(for: chain)
+        else {
             return nil
         }
 
+        let transactionObserver = SubstrateTransactionObserver(engine: engine)
         let localizationManager = LocalizationManager.shared
 
-        let interactor = LiquidityPoolsOverviewInteractor()
+        let interactor = LiquidityPoolsOverviewInteractor(transactionObserver: transactionObserver)
         let router = LiquidityPoolsOverviewRouter()
 
         let presenter = LiquidityPoolsOverviewPresenter(
