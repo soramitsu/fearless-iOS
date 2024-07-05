@@ -31,9 +31,11 @@ protocol TransferServiceProtocol {
 
     func estimateFee(for transfer: XorlessTransfer) async throws -> BigUInt
     func submit(transfer: XorlessTransfer) async throws -> String
+    func submitAndWatch(transfer: Transfer) async throws -> String
 }
 
 extension TransferServiceProtocol {
     func estimateFee(for _: XorlessTransfer) async throws -> BigUInt { .zero }
     func submit(transfer _: XorlessTransfer) async throws -> String { "" }
+    func submitAndWatch(transfer _: Transfer) async throws -> String { "" }
 }

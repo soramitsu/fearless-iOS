@@ -1,5 +1,4 @@
 {
-  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -133,7 +132,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "fearless-wallet",
-        "revision" : "7919e67c517119b56095e211a5ef532d91522016"
+        "revision" : "e211bdfdfddb2d0facff0ce2fb18921d6dd9d2e0"
       }
     },
     {
@@ -177,8 +176,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-extras.git",
       "state" : {
-        "revision" : "a3b640d7dc567225db7c94386a6e71aded1bfa63",
-        "version" : "1.22.0"
+        "revision" : "05c36b57453d23ea63785d58a7dbc7b70ba1745e",
+        "version" : "1.23.0"
       }
     },
     {
@@ -299,5 +298,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

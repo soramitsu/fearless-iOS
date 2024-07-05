@@ -95,7 +95,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
                 let txHash: String
                 switch call {
                 case let .transfer(transfer):
-                    txHash = try await transferService.submit(transfer: transfer)
+                    txHash = try await transferService.submitAndWatch(transfer: transfer)
                 case let .xorlessTransfer(transfer):
                     txHash = try await transferService.submit(transfer: transfer)
                 }

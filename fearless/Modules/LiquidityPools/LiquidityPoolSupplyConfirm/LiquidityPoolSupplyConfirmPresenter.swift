@@ -42,7 +42,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
     private let chain: ChainModel
     private let inputData: LiquidityPoolSupplyConfirmInputData
     private let viewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory
-    private var flowClosure: () -> Void
+    private var didSubmitTransactionClosure: (String) -> Void
 
     private var apyInfo: PoolApyInfo?
     private let wallet: MetaAccountModel
@@ -78,7 +78,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
         inputData: LiquidityPoolSupplyConfirmInputData,
         wallet: MetaAccountModel,
         viewModelFactory: LiquidityPoolSupplyConfirmViewModelFactory,
-        flowClosure: @escaping () -> Void
+        didSubmitTransactionClosure: @escaping (String) -> Void
     ) {
         self.interactor = interactor
         self.router = router
@@ -91,7 +91,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
         self.viewModelFactory = viewModelFactory
         dexId = liquidityPair.dexId
         availablePairs = inputData.availablePools
-        self.flowClosure = flowClosure
+        self.didSubmitTransactionClosure = didSubmitTransactionClosure
 
         self.localizationManager = localizationManager
     }
@@ -379,7 +379,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
     }
 
     func didReceiveTransactionHash(_ hash: String) {
-        flowClosure()
+        didSubmitTransactionClosure(hash)
         resetLoadingState()
 
         guard let utilityChainAsset = chain.utilityChainAssets().first else {

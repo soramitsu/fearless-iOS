@@ -135,7 +135,7 @@ final class SendDepencyContainer {
             )
 
             let callFactory = SubstrateCallFactoryDefault(runtimeService: nativeRuntimeService)
-            return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer)
+            return SubstrateTransferService(extrinsicService: extrinsicService, callFactory: callFactory, signer: signer, engine: connection)
         case .ethereum:
             let secretKey = try fetchSecretKey(for: chainAsset.chain, accountResponse: accountResponse)
 

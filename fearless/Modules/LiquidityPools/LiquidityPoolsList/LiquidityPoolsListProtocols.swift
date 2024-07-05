@@ -29,7 +29,7 @@ protocol LiquidityPoolsListRouterInput: AnyObject, AnyDismissable {
         chain: ChainModel,
         wallet: MetaAccountModel,
         input: LiquidityPoolDetailsInput,
-        poolOperationFlowsClosure: @escaping () -> Void,
+        didSubmitTransactionClosure: @escaping (String) -> Void,
         from view: ControllerBackedProtocol?
     )
 }
@@ -44,5 +44,5 @@ protocol LiquidityPoolsListModuleOutput: AnyObject {
     func didTapMoreAvailablePools()
     func shouldShowUserPools(_ shouldShow: Bool)
     func didReceiveUserPoolCount(_ userPoolsCount: Int)
-    func didReceiveFlowClosureEvent()
+    func didSubmitTransaction(transactionHash: String)
 }

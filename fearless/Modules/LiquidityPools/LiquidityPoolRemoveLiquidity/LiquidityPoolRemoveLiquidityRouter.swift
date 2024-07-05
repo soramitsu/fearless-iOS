@@ -9,10 +9,10 @@ final class LiquidityPoolRemoveLiquidityRouter: LiquidityPoolRemoveLiquidityRout
         wallet: MetaAccountModel,
         liquidityPair: LiquidityPair,
         info: RemoveLiquidityInfo,
-        flowClosure: @escaping () -> Void,
+        didSubmitTransactionClosure: @escaping (String) -> Void,
         from view: ControllerBackedProtocol?
     ) {
-        guard let module = LiquidityPoolRemoveLiquidityConfirmAssembly.configureModule(wallet: wallet, chain: chain, liquidityPair: liquidityPair, removeInfo: info, flowClosure: flowClosure) else {
+        guard let module = LiquidityPoolRemoveLiquidityConfirmAssembly.configureModule(wallet: wallet, chain: chain, liquidityPair: liquidityPair, removeInfo: info, didSubmitTransactionClosure: didSubmitTransactionClosure) else {
             return
         }
 

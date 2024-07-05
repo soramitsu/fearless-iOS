@@ -97,7 +97,7 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
             chain: chain,
             wallet: wallet,
             input: input,
-            poolOperationFlowsClosure: { [weak self] in self?.moduleOutput?.didReceiveFlowClosureEvent() },
+            didSubmitTransactionClosure: { [weak self] hash in self?.moduleOutput?.didSubmitTransaction(transactionHash: hash) },
             from: view
         )
     }

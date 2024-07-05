@@ -55,7 +55,7 @@ final class LiquidityPoolSupplyPresenter {
     private let liquidityPair: LiquidityPair
     private let chain: ChainModel
     private let viewModelFactory: LiquidityPoolSupplyViewModelFactory
-    private var flowClosure: () -> Void
+    private var didSubmitTransactionClosure: (String) -> Void
 
     private let wallet: MetaAccountModel
     private var swapFromChainAsset: ChainAsset?
@@ -112,7 +112,7 @@ final class LiquidityPoolSupplyPresenter {
         dataValidatingFactory: SendDataValidatingFactory,
         viewModelFactory: LiquidityPoolSupplyViewModelFactory,
         availablePairs: [LiquidityPair]?,
-        flowClosure: @escaping () -> Void
+        didSubmitTransactionClosure: @escaping (String) -> Void
     ) {
         self.interactor = interactor
         self.router = router
@@ -124,7 +124,7 @@ final class LiquidityPoolSupplyPresenter {
         self.viewModelFactory = viewModelFactory
         pairs = availablePairs
         dexId = liquidityPair.dexId
-        self.flowClosure = flowClosure
+        self.didSubmitTransactionClosure = didSubmitTransactionClosure
 
         self.localizationManager = localizationManager
     }
@@ -384,7 +384,7 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
                 wallet: self.wallet,
                 liquidityPair: self.liquidityPair,
                 inputData: inputData,
-                flowClosure: flowClosure,
+                didSubmitTransactionClosure: didSubmitTransactionClosure,
                 from: self.view
             )
         }

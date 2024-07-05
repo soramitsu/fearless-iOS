@@ -4,7 +4,7 @@ import SSFPolkaswap
 import SSFModels
 
 final class LiquidityPoolDetailsAssembly {
-    static func configureModule(assetIdPair: AssetIdPair, chain: ChainModel, wallet: MetaAccountModel, input: LiquidityPoolDetailsInput, poolOperationFlowsClosure: @escaping () -> Void) -> LiquidityPoolDetailsModuleCreationResult? {
+    static func configureModule(assetIdPair: AssetIdPair, chain: ChainModel, wallet: MetaAccountModel, input: LiquidityPoolDetailsInput, didSubmitTransactionClosure: @escaping (String) -> Void) -> LiquidityPoolDetailsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
@@ -33,7 +33,7 @@ final class LiquidityPoolDetailsAssembly {
             chain: chain,
             wallet: wallet,
             input: input,
-            poolOperationFlowsClosure: poolOperationFlowsClosure
+            didSubmitTransactionClosure: didSubmitTransactionClosure
         )
 
         let view = LiquidityPoolDetailsViewController(
