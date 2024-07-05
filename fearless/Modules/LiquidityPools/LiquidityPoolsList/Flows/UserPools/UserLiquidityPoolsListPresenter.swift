@@ -81,7 +81,9 @@ extension UserLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
         interactor.setup(with: self)
     }
 
-    func didAppearView() {}
+    func didAppearView() {
+        interactor.fetchPools()
+    }
 
     func didTapOn(viewModel: LiquidityPoolListCellModel) {
         guard let liquidityPair = viewModel.liquidityPair else {

@@ -65,8 +65,6 @@ final class AvailableLiquidityPoolsListInteractor {
 extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInteractorInput {
     func setup(with output: AvailableLiquidityPoolsListInteractorOutput) {
         self.output = output
-
-        fetchPools()
         subscribeForPrices()
     }
 
