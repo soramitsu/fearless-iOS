@@ -5073,7 +5073,7 @@
             },
             "staking": {
                 "type" : "sora",
-                "url": "https://squid.subsquid.io/sora/v/v5/graphql"
+                "url": "https://sora.squids.live/sora/v/v7/graphql"
             },
             "pricing": {
                 "type": "sora",

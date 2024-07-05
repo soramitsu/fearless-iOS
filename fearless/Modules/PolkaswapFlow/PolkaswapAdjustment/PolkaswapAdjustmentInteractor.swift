@@ -200,7 +200,7 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         }
         operationManager.enqueue(operations: allOperations, in: .blockAfter)
 
-        let workItem = DispatchWorkItem(flags: .barrier) {
+        let workItem = DispatchWorkItem {
             self.output?.didReceiveSwapValues(
                 self.swapValues,
                 params: params,
