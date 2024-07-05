@@ -11,6 +11,7 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
     private let userPoolsViewController: UIViewController
     private let availablePoolsViewController: UIViewController
     private var refreshControl = UIRefreshControl()
+    private var viewLoadingFinished: Bool = false
 
     // MARK: - Constructor
 
@@ -51,6 +52,18 @@ final class LiquidityPoolsOverviewViewController: UIViewController, ViewHolder, 
         setupEmbededAvailablePoolsView()
         refreshControl.addTarget(self, action: #selector(handleRefreshControlEvent), for: .valueChanged)
         rootView.scrollView.refreshControl = refreshControl
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        guard !viewLoadingFinished else {
+            return
+        }
+
+        viewLoadingFinished = true
+
+        rootView.refreshLayout()
     }
 
     // MARK: - Private methods

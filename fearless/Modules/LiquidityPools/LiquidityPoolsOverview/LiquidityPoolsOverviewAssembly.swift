@@ -3,10 +3,10 @@ import SoraFoundation
 import SSFModels
 
 final class LiquidityPoolsOverviewAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> LiquidityPoolsOverviewModuleCreationResult? {
+    static func configureModule(wallet: MetaAccountModel, chainId: ChainModel.Id) -> LiquidityPoolsOverviewModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         guard
-            let chain = chainRegistry.availableChains.first(where: { $0.chainId == Chain.soraMain.genesisHash }),
+            let chain = chainRegistry.availableChains.first(where: { $0.chainId == chainId }),
             let engine = try? chainRegistry.getSubstrateConnection(for: chain)
         else {
             return nil

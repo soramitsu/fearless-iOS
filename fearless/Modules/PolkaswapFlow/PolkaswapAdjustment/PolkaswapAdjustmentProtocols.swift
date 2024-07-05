@@ -36,7 +36,6 @@ protocol PolkaswapAdjustmentViewOutput: AnyObject {
     func selectToAmountPercentage(_ percentage: Float)
     func updateToAmount(_ newValue: Decimal)
     func viewDidAppear()
-    func didTapLiquidityPools()
 }
 
 protocol PolkaswapAdjustmentInteractorInput: AnyObject {
@@ -92,10 +91,6 @@ protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, S
     func showDisclaimer(
         moduleOutput: PolkaswapDisclaimerModuleOutput?,
         from view: ControllerBackedProtocol?
-    )
-    func presentLiquidityPools(
-        on view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
     )
 }
 

@@ -43,6 +43,8 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
     var userPoolsHeightConstraint: Constraint?
     var availablePoolsHeightConstraint: Constraint?
 
+    private var userPoolsCount: Int = 0
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorBlack19()
@@ -74,16 +76,23 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         }
     }
 
+    func refreshLayout() {
+        updateConstraints(with: userPoolsCount)
+    }
+
     private func updateConstraints(with userPoolsCount: Int) {
+        self.userPoolsCount = userPoolsCount
         let totalHeight = frame.size.height - Constants.navigationBarHeight
+
         let isThereUserPoolsSection = userPoolsCount > 0
 
         let userSectionHeight = isThereUserPoolsSection ? LiquidityPoolConstants.liquidityPoolsListHeaderHeight + LiquidityPoolConstants.liquidityPoolsListCellHeight * Double(userPoolsCount) + 12 : 0
         let sectionOffset = isThereUserPoolsSection ? Constants.sectionsOffset : 0
         let totalAvailableSectionHeight = totalHeight - Constants.topInset - Constants.bottomInset - userSectionHeight - sectionOffset
-        let availableSectionRowsCount = Int((totalAvailableSectionHeight - LiquidityPoolConstants.liquidityPoolsListHeaderHeight) / LiquidityPoolConstants.liquidityPoolsListCellHeight)
-        let availableSectionHeight: CGFloat = LiquidityPoolConstants.liquidityPoolsListHeaderHeight + LiquidityPoolConstants.liquidityPoolsListCellHeight * Double(availableSectionRowsCount) + 4
 
+        let availableSectionRowsCount = Int((totalAvailableSectionHeight - LiquidityPoolConstants.liquidityPoolsListHeaderHeight) / LiquidityPoolConstants.liquidityPoolsListCellHeight)
+
+        let availableSectionHeight: CGFloat = LiquidityPoolConstants.liquidityPoolsListHeaderHeight + LiquidityPoolConstants.liquidityPoolsListCellHeight * Double(availableSectionRowsCount) + 4
         userPoolsContainerView.snp.updateConstraints { make in
             make.height.equalTo(userSectionHeight)
         }
@@ -99,10 +108,6 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         addSubview(scrollView)
         scrollView.addSubview(userPoolsContainerView)
         scrollView.addSubview(availablePoolsContainerView)
-
-//        scrollView.addSubview(containerStackView)
-//        containerStackView.addArrangedSubview(userPoolsContainerView)
-//        containerStackView.addArrangedSubview(availablePoolsContainerView)
 
         navigationBar.setLeftViews([navigationBar.backButton, polkaswapImageView])
     }
@@ -121,13 +126,6 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         navigationBar.snp.makeConstraints { make in
             make.leading.trailing.top.equalToSuperview()
         }
-
-//        containerStackView.snp.makeConstraints { make in
-//            make.top.equalTo(navigationBar.snp.bottom)
-//            make.bottom.lessThanOrEqualTo(self)
-//            make.width.equalTo(self)
-//            make.centerX.equalToSuperview()
-//        }
 
         userPoolsContainerView.snp.makeConstraints { make in
             make.top.equalToSuperview()

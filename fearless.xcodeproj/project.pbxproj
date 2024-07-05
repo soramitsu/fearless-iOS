@@ -3112,7 +3112,6 @@
 		FAFFAEA229AC84D30074AF1F /* HexColorConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAEA029AC84D30074AF1F /* HexColorConverter.swift */; };
 		FAFFAEA429AC850A0074AF1F /* TimeInterval+Debounce.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAEA329AC850A0074AF1F /* TimeInterval+Debounce.swift */; };
 		FAFFAEA629AC851A0074AF1F /* Bool + Inverted.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAEA529AC851A0074AF1F /* Bool + Inverted.swift */; };
-		FAFFAEA829AC85230074AF1F /* ZeroBalancesSettingChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAEA729AC85230074AF1F /* ZeroBalancesSettingChanged.swift */; };
 		FAFFAEAB29AC90E50074AF1F /* SubsquidPayoutValidatorsForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAEA929AC90E50074AF1F /* SubsquidPayoutValidatorsForNominatorFactory.swift */; };
 		FAFFAEAC29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFFAEAA29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift */; };
 		FB214D3851B28AA8FF05AA41 /* NftCollectionViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 610A7425DF3F20BE0AB05ECD /* NftCollectionViewLayout.swift */; };
@@ -6255,7 +6254,6 @@
 		FAFFAEA029AC84D30074AF1F /* HexColorConverter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HexColorConverter.swift; sourceTree = "<group>"; };
 		FAFFAEA329AC850A0074AF1F /* TimeInterval+Debounce.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Debounce.swift"; sourceTree = "<group>"; };
 		FAFFAEA529AC851A0074AF1F /* Bool + Inverted.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool + Inverted.swift"; sourceTree = "<group>"; };
-		FAFFAEA729AC85230074AF1F /* ZeroBalancesSettingChanged.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZeroBalancesSettingChanged.swift; sourceTree = "<group>"; };
 		FAFFAEA929AC90E50074AF1F /* SubsquidPayoutValidatorsForNominatorFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubsquidPayoutValidatorsForNominatorFactory.swift; sourceTree = "<group>"; };
 		FAFFAEAA29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryPayoutValidatorsForNominatorFactory.swift; sourceTree = "<group>"; };
 		FB19F24CAA892FE8B5FE1520 /* NftCollectionViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NftCollectionViewController.swift; sourceTree = "<group>"; };
@@ -10650,7 +10648,6 @@
 			children = (
 				FACD42782A5BE7C6009975AA /* RuntimeSnapshotReady.swift */,
 				FACD42792A5BE7C6009975AA /* WalletRemoteSubscriptionWasUpdatedEvent.swift */,
-				FAFFAEA729AC85230074AF1F /* ZeroBalancesSettingChanged.swift */,
 				FA4B92902844CF750003BCEF /* MetaAccountModelChangedEvent.swift */,
 				FA99549A27B3B60700CCC94B /* WalletNameChanged.swift */,
 				84EBC55A24F660F500459D15 /* SelectedAccountChanged.swift */,
@@ -19039,7 +19036,6 @@
 				04A17615051F4A1AE0E63BF8 /* PolkaswapSwapConfirmationViewLayout.swift in Sources */,
 				6B4F5F4FD7820C70FB51A2F9 /* PolkaswapSwapConfirmationAssembly.swift in Sources */,
 				FA7254212AC2E48500EC47A6 /* WalletConnectPayloadSigner.swift in Sources */,
-				FAFFAEA829AC85230074AF1F /* ZeroBalancesSettingChanged.swift in Sources */,
 				96EBE5F57C97C7A7A525E864 /* SwapTransactionDetailProtocols.swift in Sources */,
 				ADF845374BEF73D90D4BF005 /* SwapTransactionDetailRouter.swift in Sources */,
 				A73B076B0E983DA669C1F215 /* SwapTransactionDetailPresenter.swift in Sources */,

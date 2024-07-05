@@ -57,9 +57,9 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        configure()
         output.didLoad(view: self)
         setupActions()
-        configure()
         addEndEditingTapGesture(for: rootView.contentView)
     }
 
@@ -153,6 +153,7 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
 
 extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
     func didReceiveSwapQuoteReady() {
+        print("didReceiveSwapQuoteReady")
         rootView.swapFromInputView.textField.isUserInteractionEnabled = true
         rootView.swapToInputView.textField.isUserInteractionEnabled = true
     }
