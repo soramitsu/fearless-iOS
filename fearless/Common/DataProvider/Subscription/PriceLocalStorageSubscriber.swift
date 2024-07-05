@@ -228,7 +228,5 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
             handler: handler
         )
         listeners.append(listener)
-        fetchOperation?.cancel()
-        fetchOperation = nil
     }
 }

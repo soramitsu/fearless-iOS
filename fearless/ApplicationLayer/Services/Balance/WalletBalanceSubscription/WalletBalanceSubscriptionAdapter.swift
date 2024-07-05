@@ -235,6 +235,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
                 let accountInfos = try await fetchAccountInfos(wallets: wallets, chainAssets: chainAssets)
                 self.accountInfos = accountInfos
+                self.buildAndNotifyIfNeeded(with: try await wallets.map { $0.metaId }, updatedChainAssets: try await chainAssets)
             } catch {
                 let unwrappedListeners = listenersLock.concurrentlyRead {
                     listeners.compactMap {
