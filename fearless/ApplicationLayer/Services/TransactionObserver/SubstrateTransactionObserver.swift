@@ -11,7 +11,7 @@ final class SubstrateTransactionObserver: TransactionObserver {
     }
 
     deinit {
-        activeRequestIds.forEach { engine.cancelForIdentifier($0) }
+        activeRequestIds.forEach { try? engine.unsubsribe($0) }
     }
 
     func subscribe(transactionHash: String) async throws -> AsyncThrowingStream<ExtrinsicStatus, Error> {
