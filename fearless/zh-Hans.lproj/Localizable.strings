@@ -880,12 +880,12 @@
 "staking.pool.select.validators.suggested" = "选择建议的";
 "staking.pool.sort.pool.members" = "成员人数";
 "staking.pool.stake.info.title" = "质押池信息";
-"staking.pool.start.apr.text" = "每年赚取%s";
+"staking.pool.start.apr.text" = "每年赚取%@";
 "staking.pool.start.create.button.title" = "创建池";
 "staking.pool.start.earn.reward.title" = "质押您的\n %s即可获得奖励";
 "staking.pool.start.join.button.title" = "加入池";
 "staking.pool.start.reward.freq.text" = "奖励每%s支付一次";
-"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%s。";
+"staking.pool.start.unstake.period.text" = "随时可以解除质押。在能够使用资金和已获得的利息之前，您需要等待%@。";
 "staking.rebond" = "返回质押";
 "staking.rebond.all" = "重新绑定所有";
 "staking.rebond.custom.amount" = "重新绑定自定义金额";

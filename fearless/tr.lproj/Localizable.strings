@@ -877,13 +877,13 @@ hiç ödül alınmadı";
 "staking.pool.select.validators.suggested" = "Önerileni seç";
 "staking.pool.sort.pool.members" = "Üye sayısı";
 "staking.pool.stake.info.title" = "Havuz Bahis Bilgisi";
-"staking.pool.start.apr.text" = "Para kazanmak%syıl başına";
+"staking.pool.start.apr.text" = "Para kazanmak%@yıl başına";
 "staking.pool.start.create.button.title" = "Havuz oluştur";
 "staking.pool.start.earn.reward.title" = "Payınızı yatırdığınızda ödüller kazanın\n%s";
 "staking.pool.start.join.button.title" = "Havuza katıl";
 "staking.pool.start.reward.freq.text" = "Ödüller her yıl ödenir%s";
 "staking.pool.start.unstake.period.text" = "İstediğiniz zaman bahisten çıkın. Paranızı ve kazandığınız faizi harcayabilmeniz için Belirlenen süreyi beklemeniz gerekecektir.\
-%s";
+%@";
 "staking.rebond" = "Rebond";
 "staking.rebond.all" = "Hepsini yeniden bağla.";
 "staking.rebond.custom.amount" = "Özel tutarı yeniden bağlama";
