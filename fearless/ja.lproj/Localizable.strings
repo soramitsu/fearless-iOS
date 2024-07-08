@@ -877,12 +877,12 @@
 "staking.pool.select.validators.suggested" = "提案されたものを選択";
 "staking.pool.sort.pool.members" = "会員数";
 "staking.pool.stake.info.title" = "プールステーク情報";
-"staking.pool.start.apr.text" = "毎年%sを獲得";
+"staking.pool.start.apr.text" = "毎年%@を獲得";
 "staking.pool.start.create.button.title" = "プールを作成";
 "staking.pool.start.earn.reward.title" = "%s\nをステークすると報酬を獲得できます";
 "staking.pool.start.join.button.title" = "プールに参加";
 "staking.pool.start.reward.freq.text" = "報酬は%s毎に支払われます";
-"staking.pool.start.unstake.period.text" = "いつでもステーク解除できます。資金と獲得した利息を使うには、%sまで待つ必要があります";
+"staking.pool.start.unstake.period.text" = "いつでもステーク解除できます。資金と獲得した利息を使うには、%@まで待つ必要があります";
 "staking.rebond" = "ステークに戻る";
 "staking.rebond.all" = "全て再ボンド";
 "staking.rebond.custom.amount" = "カスタム量を再ボンド";

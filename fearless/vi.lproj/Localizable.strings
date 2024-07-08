@@ -881,12 +881,12 @@ vào tài khoản của bạn để phân biệt với lượng stake còn lại
 "staking.pool.select.validators.suggested" = "Chọn đề xuất";
 "staking.pool.sort.pool.members" = "Số lượng thành viên";
 "staking.pool.stake.info.title" = "Thông tin Pool Sttake";
-"staking.pool.start.apr.text" = "Kiếm %s mỗi năm";
+"staking.pool.start.apr.text" = "Kiếm %@ mỗi năm";
 "staking.pool.start.create.button.title" = "Tạo pool";
 "staking.pool.start.earn.reward.title" = "Kiếm phần thưởng khi bạn đặt cược \n %s của mình";
 "staking.pool.start.join.button.title" = "Tham gia pool";
 "staking.pool.start.reward.freq.text" = "Phần thưởng được trả mỗi %s";
-"staking.pool.start.unstake.period.text" = "Unstake bất cứ lúc nào. Bạn sẽ cần đợi %s trước khi có thể chi tiêu tiền của mình và tiền lãi bạn đã kiếm được";
+"staking.pool.start.unstake.period.text" = "Unstake bất cứ lúc nào. Bạn sẽ cần đợi %@ trước khi có thể chi tiêu tiền của mình và tiền lãi bạn đã kiếm được";
 "staking.rebond" = "Quay lại stake";
 "staking.rebond.all" = "Rebond tất cả";
 "staking.rebond.custom.amount" = "Rebond số lượng tùy chỉnh";

@@ -61,7 +61,9 @@ final class ManualOperation<ResultType>: BaseOperation<ResultType> {
     }
 
     func finish() {
-        isExecuting = false
-        isFinished = true
+        if isExecuting {
+            isExecuting = false
+            isFinished = true
+        }
     }
 }
