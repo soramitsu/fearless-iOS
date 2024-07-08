@@ -34,7 +34,8 @@ extension OnboardingService: OnboardingServiceProtocol {
             method: .get,
             endpoint: nil,
             headers: nil,
-            body: nil
+            body: nil,
+            timeout: 5
         )
         let worker = NetworkWorker()
         return try await worker.performRequest(with: request)
