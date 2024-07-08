@@ -250,7 +250,12 @@ final class CrossChainPresenter {
         checkLoadingState()
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
-        let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress)
+        guard let address = processDestinationAddress() else {
+            let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress, isValid: false)
+            view?.didReceive(recipientViewModel: viewModel)
+            return
+        }
+        let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress, isValid: true)
         view?.didReceive(recipientViewModel: viewModel)
     }
 
@@ -480,6 +485,17 @@ final class CrossChainPresenter {
 
         originNetworkSelectedAssetBalance = totalBalance - (destNetworkFee ?? .zero) - originNetworkFeeIfRequired() - (minimumBalance * 1.1)
         provideAssetViewModel()
+    }
+
+    private func processDestinationAddress() -> String? {
+        guard
+            let chain = selectedDestChainModel,
+            let accountId = wallet.fetch(for: chain.accountRequest())?.accountId,
+            let address = try? AddressFactory.address(for: accountId, chain: chain)
+        else {
+            return nil
+        }
+        return address
     }
 }
 
@@ -803,17 +819,13 @@ extension CrossChainPresenter: ContactsModuleOutput {
 extension CrossChainPresenter: WalletsManagmentModuleOutput {
     func selectedWallet(_ wallet: MetaAccountModel, for _: Int) {
         destWallet = wallet
-        guard
-            let chain = selectedDestChainModel,
-            let accountId = wallet.fetch(for: chain.accountRequest())?.accountId,
-            let address = try? AddressFactory.address(for: accountId, chain: chain)
-        else {
-            let viewModel = viewModelFactory.buildRecipientViewModel(address: wallet.name)
+        guard let address = processDestinationAddress() else {
+            let viewModel = viewModelFactory.buildRecipientViewModel(address: wallet.name, isValid: false)
             view?.didReceive(recipientViewModel: viewModel)
             return
         }
 
-        let viewModel = viewModelFactory.buildRecipientViewModel(address: address)
+        let viewModel = viewModelFactory.buildRecipientViewModel(address: address, isValid: true)
         view?.didReceive(recipientViewModel: viewModel)
         recipientAddress = address
         loadingCollector.addressExists = true
