@@ -5386,7 +5386,7 @@
                 "symbol": "dot",
                 "currencyId": "0x0003b1dbee890acfb1b3bc12d1bb3b4295f52755423f84d1751b2545cebf000b",
                 "precision": 18,
-                "priceId": "polkadot",
+                "priceId": "polkadot-sora",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DOT.svg",
                 "color": "FF0066",
                 "type": "soraAsset",
