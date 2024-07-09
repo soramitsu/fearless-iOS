@@ -132,6 +132,7 @@ final class CrossChainViewLayout: UIView {
     func bind(recipientViewModel: RecipientViewModel) {
         searchView.textField.text = recipientViewModel.address
         searchView.updateState(icon: recipientViewModel.icon)
+        searchView.isValid = recipientViewModel.isValid
     }
 
     // MARK: - Private methods
