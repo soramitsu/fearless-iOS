@@ -1,5 +1,4 @@
 {
-  "originHash" : "48bf9205e83b67ed7d81b2a0bcc8ef081189084205112c031b7823572f561e20",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -133,7 +132,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "fearless-wallet",
-        "revision" : "fe4cd49a6b56a6e1628411f74916f48f35c8afd5"
+        "revision" : "e211bdfdfddb2d0facff0ce2fb18921d6dd9d2e0"
       }
     },
     {
@@ -299,5 +298,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

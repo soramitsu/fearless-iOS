@@ -135,13 +135,11 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
                 return prices.compactMap { price in
                     let chainAsset = self.chainAssets.filter { $0.chain.knownChainEquivalent == .soraMain }.first(where: { $0.asset.currencyId == price.id })
 
-                    guard let chainAsset = chainAsset else {
-                        return nil
-                    }
-                    guard chainAsset.asset.priceProvider?.type == .sorasubquery else {
-                        return nil
-                    }
-                    guard let priceId = chainAsset.asset.priceId else {
+                    guard
+                        let chainAsset = chainAsset,
+                        chainAsset.asset.priceProvider?.type == .sorasubquery,
+                        let priceId = chainAsset.asset.priceId
+                    else {
                         return nil
                     }
 

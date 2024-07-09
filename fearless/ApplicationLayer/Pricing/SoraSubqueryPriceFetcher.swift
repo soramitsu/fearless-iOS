@@ -14,7 +14,7 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
         var allPricesFetched: Bool = false
 
         while !allPricesFetched {
-            let response = try await loadNewPrices(prices: prices, priceIds: priceIds, cursor: cursor)
+            let response = try await loadNewPrices(priceIds: priceIds, cursor: cursor)
             prices = prices + response.nodes
             allPricesFetched = response.pageInfo.hasNextPage.or(false) == false
             cursor = response.pageInfo.endCursor.or("")
@@ -24,7 +24,6 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
     }
 
     private func loadNewPrices(
-        prices _: [SoraSubqueryPrice],
         priceIds: [String],
         cursor: String
     ) async throws -> SoraSubqueryPricePage {
