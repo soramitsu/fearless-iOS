@@ -6,7 +6,13 @@ import SSFModels
 import SoraKeystore
 
 final class LiquidityPoolSupplyAssembly {
-    static func configureModule(chain: ChainModel, wallet: MetaAccountModel, liquidityPair: LiquidityPair, availablePairs: [LiquidityPair]?, didSubmitTransactionClosure: @escaping (String) -> Void) -> LiquidityPoolSupplyModuleCreationResult? {
+    static func configureModule(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        liquidityPair: LiquidityPair,
+        availablePairs: [LiquidityPair]?,
+        didSubmitTransactionClosure: @escaping (String) -> Void
+    ) -> LiquidityPoolSupplyModuleCreationResult? {
         guard let response = wallet.fetch(for: chain.accountRequest()) else {
             return nil
         }
@@ -38,7 +44,14 @@ final class LiquidityPoolSupplyAssembly {
             selectedMetaAccount: wallet
         )
 
-        let interactor = LiquidityPoolSupplyInteractor(lpOperationService: lpOperationService, lpDataService: lpDataService, liquidityPair: liquidityPair, priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared, chain: chain, accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter)
+        let interactor = LiquidityPoolSupplyInteractor(
+            lpOperationService: lpOperationService,
+            lpDataService: lpDataService,
+            liquidityPair: liquidityPair,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
+            chain: chain,
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
+        )
         let router = LiquidityPoolSupplyRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = LiquidityPoolSupplyPresenter(
@@ -65,7 +78,7 @@ final class LiquidityPoolSupplyAssembly {
         return (view, presenter)
     }
 
-    static func fetchSecretKey(
+    private static func fetchSecretKey(
         for chain: ChainModel,
         metaId: String,
         accountResponse: ChainAccountResponse

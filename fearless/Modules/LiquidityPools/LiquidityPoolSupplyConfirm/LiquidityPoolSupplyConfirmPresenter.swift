@@ -124,20 +124,12 @@ final class LiquidityPoolSupplyConfirmPresenter {
     }
 
     private func checkLoadingState() {
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.setButtonLoadingState(isLoading: (self?.loadingCollector.isReady) == false)
-        }
+        changeViewLoadingState(!loadingCollector.isReady)
     }
 
-    private func runLoadingState() {
+    private func changeViewLoadingState(_ isLoading: Bool) {
         DispatchQueue.main.async { [weak self] in
-            self?.view?.setButtonLoadingState(isLoading: true)
-        }
-    }
-
-    private func resetLoadingState() {
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.setButtonLoadingState(isLoading: false)
+            self?.view?.setButtonLoadingState(isLoading: isLoading)
         }
     }
 
@@ -161,7 +153,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
 
         networkFeeViewModel = feeViewModel
 
-        resetLoadingState()
+        changeViewLoadingState(false)
     }
 
     private func buildBalanceSwapToViewModelFactory(
@@ -239,25 +231,17 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
     }
 
     func didTapApyInfo() {
-        var infoText: String
-        var infoTitle: String
-        infoTitle = R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        infoText = R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
-            message: infoText,
-            title: infoTitle,
+            message: R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages),
             from: view
         )
     }
 
     func didTapFeeInfo() {
-        var infoText: String
-        var infoTitle: String
-        infoTitle = R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        infoText = R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
-            message: infoText,
-            title: infoTitle,
+            message: R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages),
             from: view
         )
     }
@@ -286,7 +270,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmViewOut
 
         interactor.submit(supplyLiquidityInfo: supplyLiquidityInfo)
 
-        runLoadingState()
+        changeViewLoadingState(true)
     }
 
     func didLoad(view: LiquidityPoolSupplyConfirmViewInput) {
@@ -374,13 +358,13 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
                 } ?? .zero
             }
         case let .failure(error):
-            router.present(error: error, from: view, locale: selectedLocale)
+            logger.customError(error)
         }
     }
 
     func didReceiveTransactionHash(_ hash: String) {
         didSubmitTransactionClosure(hash)
-        resetLoadingState()
+        changeViewLoadingState(false)
 
         guard let utilityChainAsset = chain.utilityChainAssets().first else {
             return
@@ -390,7 +374,7 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
     }
 
     func didReceiveSubmitError(error: Error) {
-        resetLoadingState()
+        changeViewLoadingState(false)
         router.present(error: error, from: view, locale: selectedLocale)
     }
 }

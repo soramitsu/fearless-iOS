@@ -402,6 +402,26 @@ final class LiquidityPoolRemoveLiquidityPresenter {
 
         baseAssetInputResult = .absolute(targetAssetAmount * scale)
     }
+
+    private func handleBaseAssetAmountChanged(updateAmountInput: Bool) {
+        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
+        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
+
+        provideFromAssetVewModel(updateAmountInput: updateAmountInput)
+        provideToAssetVewModel()
+
+        refreshFee()
+    }
+
+    private func handleTargetAssetAmountChanged(updateAmountInput: Bool) {
+        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
+        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
+
+        provideFromAssetVewModel()
+        provideToAssetVewModel(updateAmountInput: updateAmountInput)
+
+        refreshFee()
+    }
 }
 
 // MARK: - LiquidityPoolRemoveLiquidityConfirmViewOutput
@@ -422,15 +442,10 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityCon
     }
 
     func didTapFeeInfo() {
-        var infoText: String
-        var infoTitle: String
-        infoTitle = R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        infoText = R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages)
-
         let view = setupView ?? confirmView
         router.presentInfo(
-            message: infoText,
-            title: infoTitle,
+            message: R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages),
             from: view
         )
     }
@@ -546,30 +561,14 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
         }
 
         runLoadingState()
-
         baseAssetInputResult = .rate(Decimal(Double(percentage)))
-
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
-        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel()
-
-        refreshFee()
+        handleBaseAssetAmountChanged(updateAmountInput: true)
     }
 
     func updateFromAmount(_ newValue: Decimal) {
         runLoadingState()
-
         baseAssetInputResult = .absolute(newValue)
-
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
-        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
-
-        provideFromAssetVewModel(updateAmountInput: false)
-        provideToAssetVewModel()
-
-        refreshFee()
+        handleBaseAssetAmountChanged(updateAmountInput: false)
     }
 
     func selectToAmountPercentage(_ percentage: Float) {
@@ -581,28 +580,14 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityVie
         runLoadingState()
 
         targetAssetInputResult = .rate(Decimal(Double(percentage)))
-
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
-        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel()
-
-        refreshFee()
+        handleTargetAssetAmountChanged(updateAmountInput: true)
     }
 
     func updateToAmount(_ newValue: Decimal) {
         runLoadingState()
 
         targetAssetInputResult = .absolute(newValue)
-
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
-        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel(updateAmountInput: false)
-
-        refreshFee()
+        handleTargetAssetAmountChanged(updateAmountInput: false)
     }
 }
 
@@ -705,7 +690,7 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
                 provideXorBalanceViewModel()
             }
         case let .failure(error):
-            router.present(error: error, from: setupView, locale: selectedLocale)
+            logger.customError(error)
         }
     }
 

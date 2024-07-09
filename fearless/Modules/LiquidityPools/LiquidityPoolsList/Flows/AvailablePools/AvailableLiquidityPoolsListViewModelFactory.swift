@@ -32,7 +32,21 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
     }
 
     private func buildLoadingCellViewModel() -> LiquidityPoolListCellModel {
-        LiquidityPoolListCellModel(tokenPairIconsVieWModel: TokenPairsIconViewModel(firstTokenIconViewModel: nil, secondTokenIconViewModel: nil), tokenPairNameLabelText: nil, rewardTokenNameLabelText: nil, apyLabelText: nil, stakingStatusLabelText: nil, reservesLabelText: nil, sortValue: 0, liquidityPair: nil)
+        let tokenPairIconsViewModel = TokenPairsIconViewModel(
+            firstTokenIconViewModel: nil,
+            secondTokenIconViewModel: nil
+        )
+        
+        return LiquidityPoolListCellModel(
+            tokenPairIconsVieWModel: tokenPairIconsViewModel,
+            tokenPairNameLabelText: nil,
+            rewardTokenNameLabelText: nil,
+            apyLabelText: nil,
+            stakingStatusLabelText: nil,
+            reservesLabelText: nil,
+            sortValue: 0,
+            liquidityPair: nil
+        )
     }
 
     func buildLoadingViewModel(type: LiquidityPoolListType) -> LiquidityPoolListViewModel {
@@ -90,7 +104,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
             let reservesValue = modelFactory.buildReserves(
                 pool: pair,
                 chain: chain,
-                reserves: poolReservesInfo,
+                reservesInfo: poolReservesInfo,
                 baseAssetPrice: baseAssetPrice,
                 targetAssetPrice: targetAssetPrice
             )

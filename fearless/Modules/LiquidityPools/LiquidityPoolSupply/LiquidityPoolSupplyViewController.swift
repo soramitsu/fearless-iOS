@@ -153,7 +153,6 @@ final class LiquidityPoolSupplyViewController: UIViewController, ViewHolder, Hid
 
 extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
     func didReceiveSwapQuoteReady() {
-        print("didReceiveSwapQuoteReady")
         rootView.swapFromInputView.textField.isUserInteractionEnabled = true
         rootView.swapToInputView.textField.isUserInteractionEnabled = true
     }
@@ -194,12 +193,6 @@ extension LiquidityPoolSupplyViewController: LiquidityPoolSupplyViewInput {
     func setButtonLoadingState(isLoading: Bool) {
         rootView.previewButton.set(loading: isLoading)
         updatePreviewButton()
-    }
-
-    func didUpdating() {
-        DispatchQueue.main.async {
-            self.rootView.previewButton.set(enabled: false)
-        }
     }
 
     func didReceiveViewModel(_ viewModel: LiquidityPoolSupplyViewModel) {

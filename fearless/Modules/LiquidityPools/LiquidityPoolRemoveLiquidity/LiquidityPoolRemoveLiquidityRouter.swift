@@ -12,7 +12,13 @@ final class LiquidityPoolRemoveLiquidityRouter: LiquidityPoolRemoveLiquidityRout
         didSubmitTransactionClosure: @escaping (String) -> Void,
         from view: ControllerBackedProtocol?
     ) {
-        guard let module = LiquidityPoolRemoveLiquidityConfirmAssembly.configureModule(wallet: wallet, chain: chain, liquidityPair: liquidityPair, removeInfo: info, didSubmitTransactionClosure: didSubmitTransactionClosure) else {
+        guard let module = LiquidityPoolRemoveLiquidityConfirmAssembly.configureModule(
+            wallet: wallet,
+            chain: chain,
+            liquidityPair: liquidityPair,
+            removeInfo: info,
+            didSubmitTransactionClosure: didSubmitTransactionClosure
+        ) else {
             return
         }
 
@@ -24,9 +30,10 @@ final class LiquidityPoolRemoveLiquidityRouter: LiquidityPoolRemoveLiquidityRout
         title: String,
         chainAsset: ChainAsset
     ) {
-        let presenter = view?.controller.navigationController?.presentingViewController
-
-        let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: title)?.view.controller
+        let controller = AllDoneAssembly.configureModule(
+            chainAsset: chainAsset,
+            hashString: title
+        )?.view.controller
         controller?.modalPresentationStyle = .custom
 
         let factory = ModalSheetBlurPresentationFactory(
