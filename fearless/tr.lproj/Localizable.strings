@@ -477,6 +477,8 @@ Kaynak: %@";
 "lp.apy.alert.title" = "Stratejik Bonus APY";
 "lp.apy.title" = "Stratejik Bonus APY";
 "lp.available.pools.title" = "Mevcut havuzlar";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
 "lp.confirm.liquidity.screen.title" = "Likiditeyi Doğrula";
 "lp.confirm.liquidity.warning.text" = "Çıktı tahminidir. Fiyatın %0,5'ten fazla değişmesi durumunda işleminiz geri alınacaktır.";
 "lp.network.fee.alert.text" = "Ağ ücreti, SORA sisteminin büyümesini ve istikrarlı performansını sağlamak için kullanılır.";

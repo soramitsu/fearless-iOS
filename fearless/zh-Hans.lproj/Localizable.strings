@@ -474,6 +474,8 @@
 "lp.apy.alert.title" = "战略奖励APY";
 "lp.apy.title" = "战略奖励APY";
 "lp.available.pools.title" = "可用的流动池";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
 "lp.confirm.liquidity.screen.title" = "确认流动性";
 "lp.confirm.liquidity.warning.text" = "输出是估计的。如果价格变动超过0.5%，您的交易将会回滚。";
 "lp.network.fee.alert.text" = "网络费用用于确保 SORA 系统的增长和稳定性能。";
