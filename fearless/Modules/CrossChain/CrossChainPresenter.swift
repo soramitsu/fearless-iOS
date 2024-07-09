@@ -250,12 +250,8 @@ final class CrossChainPresenter {
         checkLoadingState()
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
-        guard let _ = processDestinationAddress() else {
-            let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress, isValid: false)
-            view?.didReceive(recipientViewModel: viewModel)
-            return
-        }
-        let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress, isValid: true)
+        let isValid = processDestinationAddress() != nil
+        let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress, isValid: isValid)
         view?.didReceive(recipientViewModel: viewModel)
     }
 
@@ -299,12 +295,6 @@ final class CrossChainPresenter {
 
             return Decimal.fromSubstrateAmount($0, precision: Int16(destChainAsset.asset.precision))
         }
-
-        let destMinimumBalance: Decimal? = destExistentialDeposit.flatMap {
-            Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision))
-        }
-
-        let totalDestinationAmount = destBalanceDecimal.map { $0 + inputAmountDecimal }
 
         let originFeeValidating = dataValidatingFactory.has(
             fee: originNetworkFee,
