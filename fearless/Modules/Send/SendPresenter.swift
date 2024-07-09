@@ -137,7 +137,7 @@ final class SendPresenter {
     }
 
     private func provideAssetVewModel() {
-        guard let chainAsset = selectedChainAsset, case let .value(assetInfo) = assetAccountInfo else { return }
+        guard let chainAsset = selectedChainAsset, case .value = assetAccountInfo else { return }
         let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
@@ -463,13 +463,13 @@ final class SendPresenter {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let spendingValue = (sendAmountDecimal ?? 0) + (fee ?? 0) + (tip ?? 0)
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
+        let balanceType: BalanceType = !chainAsset.isUtility ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: utilityBalance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
             let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset).or(chainAsset)
 
-            let precision = chainAsset.chain.isUtilityFeePayment ? feePaymentChainAsset.asset.precision : chainAsset.asset.precision
+            let precision = feePaymentChainAsset.asset.precision
             minimumBalanceDecimal = Decimal.fromSubstrateAmount(
                 minBalance,
                 precision: Int16(precision)
@@ -478,31 +478,22 @@ final class SendPresenter {
             minimumBalanceDecimal = .zero
         }
 
-        let shouldPayInAnotherUtilityToken = !chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment
-        var edParameters: ExistentialDepositValidationParameters = shouldPayInAnotherUtilityToken ?
-            .orml(
-                minimumBalance: minimumBalanceDecimal,
-                feeAndTip: (fee ?? 0) + (tip ?? 0),
-                utilityBalance: utilityBalance
-            ) :
-            .utility(
-                spendingAmount: spendingValue,
-                totalAmount: balance,
-                minimumBalance: minimumBalanceDecimal
-            )
-        if chainAsset.chain.isEquilibrium {
-            edParameters = .equilibrium(
-                minimumBalance: minimumBalanceDecimal,
-                totalBalance: eqUilibriumTotalBalance
-            )
+        let spending: Decimal
+        if chainAsset.isUtility {
+            spending = spendingValue
+        } else {
+            spending = fee.or(.zero)
         }
+
         var validators: [DataValidating?]
         switch validationCase {
         case let .validateAmount(handler):
             validators = [minimumBalance != nil ? dataValidatingFactory.exsitentialDepositIsNotViolated(
-                parameters: edParameters,
-                locale: selectedLocale,
+                spending: spending,
+                balance: eqUilibriumTotalBalance ?? utilityBalance.or(.zero),
+                minimumBalance: minimumBalanceDecimal.or(.zero),
                 chainAsset: chainAsset,
+                locale: selectedLocale,
                 sendAllEnabled: sendAllEnabled,
                 proceedAction: { [weak self] in
                     guard let self else {
@@ -536,9 +527,11 @@ final class SendPresenter {
                     locale: selectedLocale
                 ),
                 dataValidatingFactory.exsitentialDepositIsNotViolated(
-                    parameters: edParameters,
-                    locale: selectedLocale,
+                    spending: spending,
+                    balance: eqUilibriumTotalBalance ?? utilityBalance.or(.zero),
+                    minimumBalance: minimumBalanceDecimal.or(.zero),
                     chainAsset: chainAsset,
+                    locale: selectedLocale,
                     sendAllEnabled: sendAllEnabled,
                     proceedAction: { [weak self] in
                         self?.sendAllEnabled = true

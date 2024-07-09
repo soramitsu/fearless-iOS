@@ -197,7 +197,7 @@ final class WalletSendConfirmPresenter {
         let tipPaymentPrecision = tipPaymentChainAsset?.asset.precision ?? chainAsset.asset.precision
         let tip = Decimal.fromSubstrateAmount(call.tip ?? .zero, precision: Int16(tipPaymentPrecision)) ?? .zero
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
+        let balanceType: BalanceType = !chainAsset.isUtility ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
 
         DataValidationRunner(validators: [

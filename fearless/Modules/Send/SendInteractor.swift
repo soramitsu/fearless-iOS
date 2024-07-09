@@ -83,7 +83,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
             getTokensStatus(for: chainAsset)
 
-            if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
+            if !chainAsset.isUtility,
                let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
                 subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
                 provideConstants(for: utilityAsset)
