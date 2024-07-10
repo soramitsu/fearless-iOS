@@ -317,7 +317,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
                 utilityBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
-                        precision: Int16(self.chainAsset.asset.precision)
+                        precision: Int16(utilityAsset.asset.precision)
                     )
                 } ?? 0
             }
