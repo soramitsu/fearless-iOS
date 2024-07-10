@@ -68,9 +68,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
             currencies: currencies,
             handler: .price
         )
-        guard !didUpdateProvider(for: currencies) else {
-            return provider
-        }
+        updateProviderIfNeeded(for: currencies)
         refreshProviderIfPossible()
         return provider
     }
@@ -86,9 +84,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
             currencies: currencies,
             handler: .prices
         )
-        guard !didUpdateProvider(for: currencies) else {
-            return provider
-        }
+        updateProviderIfNeeded(for: currencies)
         refreshProviderIfPossible()
         return provider
     }
@@ -148,7 +144,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
         return priceProvider
     }
 
-    private func didUpdateProvider(for currencies: [Currency]?) -> Bool {
+    private func updateProviderIfNeeded(for currencies: [Currency]?) {
         let set = Set(currencies ?? [])
         let symmetricDifference = sourcedCurrencies.symmetricDifference(set)
         if symmetricDifference.isNotEmpty {
@@ -156,7 +152,6 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
             remoteFetchTimer = nil
             provider = setupProvider()
         }
-        return symmetricDifference.isNotEmpty
     }
 
     private func handleResult(for pricesResult: Result<[PriceData]?, Error>) {
