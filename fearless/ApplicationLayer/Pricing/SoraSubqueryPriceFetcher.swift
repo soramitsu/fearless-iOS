@@ -1,20 +1,54 @@
 import Foundation
 import SSFModels
+import RobinHood
 
 final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
-    private let chain: ChainModel
+    func fetchPriceOperation(
+        for chainAssets: [ChainAsset]
+    ) -> BaseOperation<[PriceData]> {
+        AwaitOperation { [weak self] in
+            guard let self else { return [] }
 
-    init(chain: ChainModel) {
-        self.chain = chain
+            guard let blockExplorer = chainAssets.first(where: { chainAsset in
+                chainAsset.chain.knownChainEquivalent == .soraMain
+            })?.chain.externalApi?.pricing else {
+                throw SubqueryPriceFetcherError.missingBlockExplorer
+            }
+            let priceIds = chainAssets.map { $0.asset.priceProvider?.id }.compactMap { $0 }
+            let prices = try await self.fetch(priceIds: priceIds, url: blockExplorer.url)
+
+            return prices.compactMap { price in
+                let chainAsset = chainAssets.first(where: { $0.asset.currencyId == price.id })
+
+                guard
+                    let chainAsset = chainAsset,
+                    chainAsset.asset.priceProvider?.type == .sorasubquery,
+                    let priceId = chainAsset.asset.priceId
+                else {
+                    return nil
+                }
+
+                return PriceData(
+                    currencyId: "usd",
+                    priceId: priceId,
+                    price: "\(price.priceUsd.or("0"))",
+                    fiatDayChange: price.priceChangeDay,
+                    coingeckoPriceId: chainAsset.asset.coingeckoPriceId
+                )
+            }
+        }
     }
 
-    func fetch(priceIds: [String]) async throws -> [SoraSubqueryPrice] {
+    private func fetch(
+        priceIds: [String],
+        url: URL
+    ) async throws -> [SoraSubqueryPrice] {
         var prices: [SoraSubqueryPrice] = []
         var cursor: String = ""
         var allPricesFetched: Bool = false
 
         while !allPricesFetched {
-            let response = try await loadNewPrices(prices: prices, priceIds: priceIds, cursor: cursor)
+            let response = try await loadNewPrices(url: url, priceIds: priceIds, cursor: cursor)
             prices = prices + response.nodes
             allPricesFetched = response.pageInfo.hasNextPage.or(false) == false
             cursor = response.pageInfo.endCursor.or("")
@@ -24,16 +58,12 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
     }
 
     private func loadNewPrices(
-        prices _: [SoraSubqueryPrice],
+        url: URL,
         priceIds: [String],
         cursor: String
     ) async throws -> SoraSubqueryPricePage {
-        guard let blockExplorer = chain.externalApi?.pricing else {
-            throw SubqueryPriceFetcherError.missingBlockExplorer(chain: chain.name)
-        }
-
         let request = try StakingRewardsRequest(
-            baseURL: blockExplorer.url,
+            baseURL: url,
             query: queryString(priceIds: priceIds, cursor: cursor)
         )
         let worker = NetworkWorker()
