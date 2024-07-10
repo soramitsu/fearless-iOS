@@ -241,7 +241,7 @@ extension UserStorageMigrator: StorageMigrating {
         checkIfMigrationNeeded(to: targetVersion)
     }
 
-    func migrate(_: @escaping () -> Void) {
+    func migrate(_ completion: @escaping () -> Void) {
         DispatchQueue.global(qos: .utility).async { [weak self] in
             self?.performMigration()
 
