@@ -59,7 +59,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             }.reduce([], +)
 
             prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
-            prices = self.merge(coingeckoPrices: coingeckoPrices, soraSubqueryPrices: soraSubqueryPrices)
+            prices = self.merge(coingeckoPrices: prices, soraSubqueryPrices: soraSubqueryPrices)
 
             return prices
         }
