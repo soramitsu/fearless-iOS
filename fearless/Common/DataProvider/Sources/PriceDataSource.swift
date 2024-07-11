@@ -46,7 +46,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
         let coingeckoOperation = createCoingeckoOperation()
 //        let chainlinkOperations = createChainlinkOperations()
-//        let soraSubqueryOperation = createSoraSubqueryOperation()
+        let soraSubqueryOperation = createSoraSubqueryOperation()
 
         let targetOperation: BaseOperation<[PriceData]?> = ClosureOperation { [weak self] in
             guard let self else {
@@ -58,16 +58,16 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
 //            let chainlinkPrices = chainlinkOperations.compactMap {
 //                try? $0.extractNoCancellableResultData()
 //            }
-//            let soraSubqueryPrices = try soraSubqueryOperation.extractNoCancellableResultData()
+            let soraSubqueryPrices = try soraSubqueryOperation.extractNoCancellableResultData()
 
 //            prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
-//            prices = self.merge(coingeckoPrices: prices, soraSubqueryPrices: soraSubqueryPrices)
+            prices = self.merge(coingeckoPrices: coingeckoPrices, soraSubqueryPrices: soraSubqueryPrices)
 
-            return coingeckoPrices
+            return prices
         }
 
         targetOperation.addDependency(coingeckoOperation)
-//        targetOperation.addDependency(soraSubqueryOperation)
+        targetOperation.addDependency(soraSubqueryOperation)
 //        chainlinkOperations.forEach {
 //            targetOperation.addDependency($0)
 //        }
