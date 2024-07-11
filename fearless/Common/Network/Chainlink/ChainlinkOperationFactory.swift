@@ -83,6 +83,8 @@ final class ChainlinkOperationFactoryImpl: ChainlinkOperationFactory {
                 }
             }
         } catch {
+            operation.result = .failure(error)
+            operation.finish()
             Logger.shared.customError(error)
             return nil
         }
