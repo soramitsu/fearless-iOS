@@ -58,7 +58,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             let chainlinkPrices = chainlinkOperations.compactMap {
                 try? $0.extractNoCancellableResultData()
             }
-            let soraSubqueryPrices = try soraSubqueryOperation.extractNoCancellableResultData()
+            let soraSubqueryPrices = (try? soraSubqueryOperation.extractNoCancellableResultData()) ?? []
 
             prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
             prices = self.merge(coingeckoPrices: prices, soraSubqueryPrices: soraSubqueryPrices)
@@ -160,6 +160,9 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         }
 
         let chainAssets = chainAssets.filter { $0.asset.priceProvider?.type == .sorasubquery }
+        guard chainAssets.isNotEmpty else {
+            return BaseOperation.createWithResult([])
+        }
         let operation = soraOperationFactory.fetchPriceOperation(for: chainAssets)
         return operation
     }

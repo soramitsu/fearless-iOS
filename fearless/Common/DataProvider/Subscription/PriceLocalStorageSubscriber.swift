@@ -23,7 +23,7 @@ struct PriceLocalStorageSubscriberListener {
 
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     static let shared = PriceLocalStorageSubscriberImpl()
-
+    private let chainRegistry = ChainRegistryFacade.sharedRegistry
     private lazy var provider: AnySingleValueProvider<[PriceData]> = {
         setupProvider()
     }()
@@ -39,7 +39,15 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     private var listeners: [PriceLocalStorageSubscriberListener] = []
     private var sourcedCurrencies: Set<Currency> = []
 
-    private init() {}
+    init() {
+        setup()
+    }
+
+    private func setup() {
+        chainRegistry.chainsSubscribe(self, runningInQueue: .global()) { [weak self] _ in
+            self?.refreshProviderIfPossible()
+        }
+    }
 
     // MARK: - PriceLocalStorageSubscriber
 
