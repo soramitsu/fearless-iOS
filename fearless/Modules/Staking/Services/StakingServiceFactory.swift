@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFStorageQueryKit
 
 enum StakingServiceFactoryError: Error {
     case stakingUnavailable
@@ -130,19 +131,9 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.connectionUnavailable
-        }
-
         let operationManager = OperationManagerFacade.sharedManager
-        let storageRequestPerformer = StorageRequestPerformerDefault(
-            runtimeService: runtimeService,
-            connection: connection
+        let storageRequestPerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
         )
 
         return ReefRewardCalculatorService(
@@ -161,14 +152,6 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         validatorService: EraValidatorServiceProtocol
     ) throws -> RewardCalculatorServiceProtocol {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
-        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
-        }
-
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -207,9 +190,8 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             operationManager: operationManager
         )
 
-        let storageRequestPerformer = StorageRequestPerformerDefault(
-            runtimeService: runtimeService,
-            connection: connection
+        let storageRequestPerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
         )
 
         return SoraRewardCalculatorService(
