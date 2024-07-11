@@ -70,7 +70,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createViewControllers(
-        stakingModuleOutput _: StakingMainModuleOutput?,
+        stakingModuleOutput: StakingMainModuleOutput?,
         walletConnect: WalletConnectService,
         wallet: MetaAccountModel
     ) -> [UIViewController] {
@@ -84,8 +84,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let polkaswapControoller = createPolkaswapController(wallet: wallet)
         viewControllers.append(polkaswapControoller)
 
-//        let stakingController = createStakingController(moduleOutput: stakingModuleOutput)
-//        viewControllers.append(stakingController)
+        let stakingController = createStakingController(moduleOutput: stakingModuleOutput)
+        viewControllers.append(stakingController)
 
         let settingsController = createProfileController()
         viewControllers.append(settingsController)

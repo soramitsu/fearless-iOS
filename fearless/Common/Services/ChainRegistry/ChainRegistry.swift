@@ -306,7 +306,7 @@ extension ChainRegistry: ChainRegistryProtocol {
             return nil
         }
 
-        return readLock.concurrentlyRead { substrateConnectionPool.getConnection(for: chainId) }
+        return substrateConnectionPool.getConnection(for: chainId)
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
