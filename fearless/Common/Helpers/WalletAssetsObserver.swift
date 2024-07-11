@@ -65,16 +65,16 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        chainRegistry.chainsSubscribe(
-            self,
-            runningInQueue: walletAssetsObserverQueue
-        ) { [weak self] changes in
-            self?.handleChains(changes: changes, accounts: nil)
-        }
+//        chainRegistry.chainsSubscribe(
+//            self,
+//            runningInQueue: walletAssetsObserverQueue
+//        ) { [weak self] changes in
+//            self?.handleChains(changes: changes, accounts: nil)
+//        }
     }
 
     func throttle() {
-        chainRegistry.chainsUnsubscribe(self)
+//        chainRegistry.chainsUnsubscribe(self)
     }
 
     // MARK: - Private methods
