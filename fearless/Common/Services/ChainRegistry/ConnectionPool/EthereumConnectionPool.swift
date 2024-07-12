@@ -16,12 +16,13 @@ final class EthereumConnectionPool: ConnectionPoolProtocol {
             return connection
         }
 
+        let ws = try EthereumNodeFetching().getNode(for: chain)
+
         lock.lock()
         defer {
             lock.unlock()
         }
 
-        let ws = try EthereumNodeFetching().getNode(for: chain)
         connectionsByChainIds[chain.chainId] = ws
 
         return ws

@@ -113,7 +113,7 @@ final class ChainRegistry {
                         self.handleDelete(chainId)
                     }
                 } catch {
-                    self.logger?.error("Unexpected error on handling chains update: \(error)")
+                    self.logger?.error("Chain: \(change.item?.name), Unexpected error on handling chains update: \(error)")
                 }
             }
 
