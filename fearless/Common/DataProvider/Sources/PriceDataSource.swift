@@ -34,16 +34,22 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         SoraSubqueryPriceFetcherDefault()
     }()
 
-    private lazy var chainAssets: [ChainAsset] = {
-        ChainRegistryFacade.sharedRegistry.availableChains.map { $0.chainAssets }.reduce([], +)
-    }()
+    private let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-    init(currencies: [Currency]?) {
+    private lazy var chainAssets: [ChainAsset] = []
+
+    init(currencies: [Currency]?, chainAssets: [ChainAsset]) {
         self.currencies = currencies
+        self.chainAssets = chainAssets
+
         setup()
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
+        guard chainAssets.isNotEmpty else {
+            return CompoundOperationWrapper.createWithResult([])
+        }
+
         let coingeckoOperation = createCoingeckoOperation()
         let chainlinkOperations = createChainlinkOperations()
         let soraSubqueryOperation = createSoraSubqueryOperation()
@@ -58,7 +64,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             let chainlinkPrices = chainlinkOperations.compactMap {
                 try? $0.extractNoCancellableResultData()
             }
-            let soraSubqueryPrices = try soraSubqueryOperation.extractNoCancellableResultData()
+            let soraSubqueryPrices = (try? soraSubqueryOperation.extractNoCancellableResultData()) ?? []
 
             prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
             prices = self.merge(coingeckoPrices: prices, soraSubqueryPrices: soraSubqueryPrices)
@@ -160,6 +166,10 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         }
 
         let chainAssets = chainAssets.filter { $0.asset.priceProvider?.type == .sorasubquery }
+        guard chainAssets.isNotEmpty else {
+            return BaseOperation.createWithResult([])
+        }
+
         let operation = soraOperationFactory.fetchPriceOperation(for: chainAssets)
         return operation
     }
@@ -170,11 +180,15 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             .map { $0.asset.coingeckoPriceId }
             .compactMap { $0 }
             .uniq(predicate: { $0 })
+        guard priceIds.isNotEmpty else {
+            return BaseOperation.createWithResult([])
+        }
         let operation = coingeckoOperationFactory.fetchPriceOperation(for: priceIds, currencies: currencies)
         return operation
     }
 
     private func createChainlinkOperations() -> [BaseOperation<PriceData>] {
+        return []
         guard currencies?.count == 1, currencies?.first?.id == Currency.defaultCurrency().id else {
             return []
         }

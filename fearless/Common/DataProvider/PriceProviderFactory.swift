@@ -4,7 +4,7 @@ import SSFModels
 import SSFSingleValueCache
 
 protocol PriceProviderFactoryProtocol {
-    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[PriceData]>
+    func getPricesProvider(currencies: [Currency]?, chainAssets: [ChainAsset]) -> AnySingleValueProvider<[PriceData]>
 }
 
 final class PriceProviderFactory: PriceProviderFactoryProtocol {
@@ -14,9 +14,9 @@ final class PriceProviderFactory: PriceProviderFactoryProtocol {
         return queue
     }()
 
-    func getPricesProvider(currencies: [Currency]?) -> AnySingleValueProvider<[SSFModels.PriceData]> {
+    func getPricesProvider(currencies: [Currency]?, chainAssets: [ChainAsset]) -> AnySingleValueProvider<[SSFModels.PriceData]> {
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
-        let source = PriceDataSource(currencies: currencies)
+        let source = PriceDataSource(currencies: currencies, chainAssets: chainAssets)
         let trigger: DataProviderEventTrigger = [.onFetchPage]
         let provider = SingleValueProvider(
             targetIdentifier: PriceDataSource.defaultIdentifier,
