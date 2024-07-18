@@ -3499,7 +3499,7 @@
             "type": "normal"
         }],
         "nodes": [{
-                "url": "wss://eden-rpc.dwellir.com",
+                "url": "wss://nodle-rpc.dwellir.com",
                 "name": "Dwellir node"
             },
             {
@@ -5073,7 +5073,7 @@
             },
             "staking": {
                 "type" : "sora",
-                "url": "https://sora.squids.live/sora/v/v7/graphql"
+                "url": "https://squid.subsquid.io/sora/v/v5/graphql"
             },
             "pricing": {
                 "type": "sora",

@@ -64,6 +64,17 @@
 "account.needed.message" = "您还没有此网络的账户，您可以创建或导入一个账户。";
 "account.needed.title" = "所需账户";
 "account.option" = "账户选项";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
 "account.template" = "%s账户";
 "account.unique.secret" = "拥有独特密钥的账户";
 "accounts.add.account" = "添加一个账户";
@@ -474,6 +485,8 @@
 "lp.apy.alert.title" = "战略奖励APY";
 "lp.apy.title" = "战略奖励APY";
 "lp.available.pools.title" = "可用的流动池";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
 "lp.confirm.liquidity.screen.title" = "确认流动性";
 "lp.confirm.liquidity.warning.text" = "输出是估计的。如果价格变动超过0.5%，您的交易将会回滚。";
 "lp.network.fee.alert.text" = "网络费用用于确保 SORA 系统的增长和稳定性能。";
@@ -535,6 +548,7 @@
 "nft.collection.title" = "收藏品";
 "nft.creator.title" = "创作者";
 "nft.list.empty.message" = "目前还没有任何NFT。购买或铸造NFT以在此处查看。";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "拥有";
 "nft.share.address" = "我要接收的公共地址：%s";
 "nft.spam.warning" = "小心某些 NFT 收藏品可能是骗局或垃圾邮件,在参与之前请先验证其真实性。保持安全!";

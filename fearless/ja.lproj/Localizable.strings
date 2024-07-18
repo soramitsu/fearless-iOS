@@ -64,6 +64,17 @@
 "account.needed.message" = "このネットワークのアカウントがありません。アカウントを作成またはインポートできます";
 "account.needed.title" = "アカウントが必要";
 "account.option" = "アカウントオプション";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
 "account.template" = "%sアカウント";
 "account.unique.secret" = "一意のシークレットを持つアカウント";
 "accounts.add.account" = "アカウントを追加";
@@ -472,6 +483,8 @@
 "lp.apy.alert.title" = "戦略的ボーナス年利";
 "lp.apy.title" = "戦略的ボーナス年利";
 "lp.available.pools.title" = "利用可能なプール";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
 "lp.confirm.liquidity.screen.title" = "流動性を確認";
 "lp.confirm.liquidity.warning.text" = "出力は推定です。価格が0.5%以上変動した場合、取引は元に戻されます。";
 "lp.network.fee.alert.text" = "ネットワーク手数料はSORAシステムの成長と安定したパフォーマンスを確保するために使用されます。";
@@ -534,6 +547,7 @@
 "nft.collection.title" = "コレクション";
 "nft.creator.title" = "作成者";
 "nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "所有";
 "nft.share.address" = "受信するパブリック・アドレス： %s";
 "nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";

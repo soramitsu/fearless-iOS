@@ -1,6 +1,7 @@
 import Foundation
 import SSFModels
 import RobinHood
+import SSFNetwork
 
 final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
     func fetchPriceOperation(
@@ -66,7 +67,7 @@ final class SoraSubqueryPriceFetcherDefault: SoraSubqueryPriceFetcher {
             baseURL: url,
             query: queryString(priceIds: priceIds, cursor: cursor)
         )
-        let worker = NetworkWorker()
+        let worker = NetworkWorkerImpl()
         let response: GraphQLResponse<SoraSubqueryPriceResponse> = try await worker.performRequest(with: request)
 
         switch response {

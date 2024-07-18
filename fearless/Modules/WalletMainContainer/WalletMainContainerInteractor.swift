@@ -16,6 +16,7 @@ final class WalletMainContainerInteractor {
     private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
     private let applicationHandler: ApplicationHandler
     private let walletConnectService: WalletConnectService
+    private let accountStatisticsFetcher: AccountStatisticsFetching
 
     // MARK: - Constructor
 
@@ -27,7 +28,8 @@ final class WalletMainContainerInteractor {
         eventCenter: EventCenterProtocol,
         deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
         applicationHandler: ApplicationHandler,
-        walletConnectService: WalletConnectService
+        walletConnectService: WalletConnectService,
+        accountStatisticsFetcher: AccountStatisticsFetching
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -37,10 +39,30 @@ final class WalletMainContainerInteractor {
         self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
         self.applicationHandler = applicationHandler
         self.walletConnectService = walletConnectService
+        self.accountStatisticsFetcher = accountStatisticsFetcher
         applicationHandler.delegate = self
     }
 
     // MARK: - Private methods
+
+    private func fetchAccountStats() {
+        guard let ethereumAccountId = wallet.ethereumAddress else {
+            return
+        }
+
+        let address = ethereumAccountId.toHex(includePrefix: true)
+
+        Task {
+            do {
+                let stream = try await accountStatisticsFetcher.subscribeForStatistics(address: address, cacheOptions: .onAll)
+                for try await statistics in stream {
+                    print("Account statistics: ", statistics.value?.data)
+                }
+            } catch {
+                print("Account statistics fetching error: ", error)
+            }
+        }
+    }
 
     private func fetchNetworkManagmentFilter() {
         guard let identifier = wallet.networkManagmentFilter else {
@@ -108,6 +130,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
         fetchNetworkManagmentFilter()
+        fetchAccountStats()
     }
 
     func walletConnect(uri: String) async throws {
