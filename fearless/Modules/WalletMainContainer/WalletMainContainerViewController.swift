@@ -111,6 +111,10 @@ extension WalletMainContainerViewController: WalletMainContainerViewInput {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel) {
         rootView.bind(viewModel: viewModel)
     }
+
+    func didReceiveAccountScoreViewModel(_ viewModel: AccountScoreViewModel) {
+        rootView.bind(accountScoreViewModel: viewModel)
+    }
 }
 
 // MARK: - Localizable

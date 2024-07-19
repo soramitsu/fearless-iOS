@@ -56,7 +56,11 @@ final class WalletMainContainerInteractor {
             do {
                 let stream = try await accountStatisticsFetcher.subscribeForStatistics(address: address, cacheOptions: .onAll)
                 for try await statistics in stream {
-                    print("Account statistics: ", statistics.value?.data)
+                    if let stats = statistics.value?.data {
+                        DispatchQueue.main.async { [weak self] in
+                            self?.output?.didReceiveAccountStatistics(stats)
+                        }
+                    }
                 }
             } catch {
                 print("Account statistics fetching error: ", error)

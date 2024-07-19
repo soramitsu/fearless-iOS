@@ -36,6 +36,8 @@ final class WalletMainContainerViewLayout: UIView {
         return button
     }()
 
+    let accountScoreView = AccountScoreView()
+
     private let walletNameTitle: UILabel = {
         let label = UILabel()
         label.font = .h4Title
@@ -120,6 +122,10 @@ final class WalletMainContainerViewLayout: UIView {
         }
     }
 
+    func bind(accountScoreViewModel: AccountScoreViewModel) {
+        accountScoreView.bind(viewModel: accountScoreViewModel)
+    }
+
     // MARK: - Private methods
 
     private func applyLocalization() {
@@ -156,6 +162,12 @@ final class WalletMainContainerViewLayout: UIView {
             make.centerY.equalToSuperview()
             make.leading.equalToSuperview()
             make.size.equalTo(Constants.walletIconSize)
+        }
+
+        navigationContainerView.addSubview(accountScoreView)
+        accountScoreView.snp.makeConstraints { make in
+            make.top.equalTo(switchWalletButton.snp.bottom).offset(4)
+            make.centerX.equalTo(switchWalletButton.snp.centerX)
         }
 
         let walletInfoVStackView = UIFactory.default.createVerticalStackView(spacing: 6)

@@ -13,6 +13,7 @@ final class WalletMainContainerPresenter {
     private weak var view: WalletMainContainerViewInput?
     private let router: WalletMainContainerRouterInput
     private let interactor: WalletMainContainerInteractorInput
+    private let accountScoreViewModelFactory: AccountScoreViewModelFactory
 
     private var wallet: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
@@ -32,7 +33,8 @@ final class WalletMainContainerPresenter {
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        accountScoreViewModelFactory: AccountScoreViewModelFactory
     ) {
         self.balanceInfoModuleInput = balanceInfoModuleInput
         self.assetListModuleInput = assetListModuleInput
@@ -41,6 +43,7 @@ final class WalletMainContainerPresenter {
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
+        self.accountScoreViewModelFactory = accountScoreViewModelFactory
 
         self.localizationManager = localizationManager
     }
@@ -218,6 +221,14 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             actions: [action]
         )
     }
+
+    func didReceiveAccountStatistics(_ accountStatistics: AccountStatistics) {
+        if let viewModel = accountScoreViewModelFactory.buildViewModel(from: accountStatistics) {
+            view?.didReceiveAccountScoreViewModel(viewModel)
+        }
+    }
+
+    func didReceiveAccountStatisticsError(_: Error) {}
 }
 
 // MARK: - Localizable

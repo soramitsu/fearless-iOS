@@ -7,6 +7,7 @@ typealias WalletMainContainerModuleCreationResult = (
 
 protocol WalletMainContainerViewInput: ControllerBackedProtocol, HiddableBarWhenPushed {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel)
+    func didReceiveAccountScoreViewModel(_ viewModel: AccountScoreViewModel)
 }
 
 protocol WalletMainContainerViewOutput: AnyObject {
@@ -30,6 +31,8 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveError(_ error: Error)
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool)
     func didReceiveStashAccountIssue(address: String)
+    func didReceiveAccountStatistics(_ accountStatistics: AccountStatistics)
+    func didReceiveAccountStatisticsError(_ error: Error)
 }
 
 protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {

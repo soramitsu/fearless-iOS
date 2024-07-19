@@ -81,7 +81,8 @@ final class WalletMainContainerAssembly {
             viewModelFactory: WalletMainContainerViewModelFactory(),
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            accountScoreViewModelFactory: AccountScoreViewModelFactoryImpl()
         )
 
         let view = WalletMainContainerViewController(
