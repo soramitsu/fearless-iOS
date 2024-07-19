@@ -16,7 +16,7 @@ struct SubqueryTransfer: Decodable {
     let amount: String
     let receiver: String
     let sender: String
-    let fee: String
+    let fee: String?
     let block: String?
     let extrinsicId: String?
     let extrinsicHash: String?
