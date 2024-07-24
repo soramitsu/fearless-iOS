@@ -111,6 +111,10 @@ extension WalletMainContainerViewController: WalletMainContainerViewInput {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel) {
         rootView.bind(viewModel: viewModel)
     }
+
+    func didReceiveNftAvailability(isNftAvailable: Bool) {
+        rootView.segmentContainer.isHidden = !isNftAvailable
+    }
 }
 
 // MARK: - Localizable

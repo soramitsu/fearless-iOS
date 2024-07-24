@@ -17,6 +17,7 @@ protocol ChainRegistryProtocol: AnyObject {
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
+    func getChainUnsafe(for chainId: ChainModel.Id) -> ChainModel?
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
@@ -324,6 +325,10 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {
         readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
+    }
+
+    func getChainUnsafe(for chainId: ChainModel.Id) -> ChainModel? {
+        chains.first(where: { $0.chainId == chainId })
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {

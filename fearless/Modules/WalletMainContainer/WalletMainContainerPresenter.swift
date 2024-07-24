@@ -218,6 +218,10 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             actions: [action]
         )
     }
+
+    func didReceiveNftAvailability(isNftAvailable: Bool) {
+        view?.didReceiveNftAvailability(isNftAvailable: isNftAvailable)
+    }
 }
 
 // MARK: - Localizable
