@@ -6118,7 +6118,6 @@
 		FAD5FF262C463C4F003201F5 /* AccountStatistics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountStatistics.swift; sourceTree = "<group>"; };
 		FAD5FF2A2C46464B003201F5 /* NomisAccountStatisticsFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisAccountStatisticsFetcher.swift; sourceTree = "<group>"; };
 		FAD5FF2D2C464717003201F5 /* NomisAccountStatisticsRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NomisAccountStatisticsRequest.swift; sourceTree = "<group>"; };
-		FAD5FF302C4648DF003201F5 /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FAD646C1284DD2CF007CCB92 /* StakingBalanceRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceRelaychainStrategy.swift; sourceTree = "<group>"; };
 		FAD646C3284DD2DA007CCB92 /* StakingBalanceRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FAD646C5284DD2E5007CCB92 /* StakingBalanceRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -9166,7 +9165,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FAD5FF2F2C4648DF003201F5 /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -15327,14 +15325,6 @@
 				FA236A402C4FA0A4009330F2 /* NomisJSONDecoder.swift */,
 			);
 			path = Nomis;
-			sourceTree = "<group>";
-		};
-		FAD5FF2F2C4648DF003201F5 /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				FAD5FF302C4648DF003201F5 /* shared-features-spm */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		FAD646BF284DD2B2007CCB92 /* Flow */ = {
