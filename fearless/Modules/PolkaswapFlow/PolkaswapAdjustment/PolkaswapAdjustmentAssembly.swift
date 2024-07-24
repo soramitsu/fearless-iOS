@@ -14,7 +14,7 @@ final class PolkaswapAdjustmentAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let xorChainAsset = chainRegistry.getChain(for: Chain.soraMain.genesisHash)?.utilityChainAssets().first,
+            let xorChainAsset = chainRegistry.getChainUnsafe(for: Chain.soraMain.genesisHash)?.utilityChainAssets().first,
             let connection = chainRegistry.getConnection(for: xorChainAsset.chain.chainId),
             let accountResponse = wallet.fetch(for: xorChainAsset.chain.accountRequest()),
             let runtimeService = chainRegistry.getRuntimeProvider(for: xorChainAsset.chain.chainId)

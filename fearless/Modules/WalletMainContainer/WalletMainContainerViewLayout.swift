@@ -76,6 +76,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - FWSegmentedControl
 
+    let segmentContainer = UIView()
     let segmentedControl = FWSegmentedControl()
 
     // MARK: - UIPageViewController
@@ -156,6 +157,8 @@ final class WalletMainContainerViewLayout: UIView {
         setupWalletBalanceLayout()
         setupSegmentedLayout()
         setupListLayout()
+
+        segmentContainer.isHidden = true
     }
 
     private func setupNavigationViewLayout() {
@@ -235,7 +238,6 @@ final class WalletMainContainerViewLayout: UIView {
 
     private func setupSegmentedLayout() {
         contentView.setCustomSpacing(32, after: walletBalanceVStackView)
-        let segmentContainer = UIView()
         contentView.addArrangedSubview(segmentContainer)
         segmentContainer.addSubview(segmentedControl)
         segmentedControl.snp.makeConstraints { make in

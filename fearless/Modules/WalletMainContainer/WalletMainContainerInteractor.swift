@@ -16,6 +16,7 @@ final class WalletMainContainerInteractor {
     private let deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol
     private let applicationHandler: ApplicationHandler
     private let walletConnectService: WalletConnectService
+    private let featureToggleService: FeatureToggleProviderProtocol
 
     // MARK: - Constructor
 
@@ -27,7 +28,8 @@ final class WalletMainContainerInteractor {
         eventCenter: EventCenterProtocol,
         deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
         applicationHandler: ApplicationHandler,
-        walletConnectService: WalletConnectService
+        walletConnectService: WalletConnectService,
+        featureToggleService: FeatureToggleProviderProtocol
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -37,6 +39,7 @@ final class WalletMainContainerInteractor {
         self.deprecatedAccountsCheckService = deprecatedAccountsCheckService
         self.applicationHandler = applicationHandler
         self.walletConnectService = walletConnectService
+        self.featureToggleService = featureToggleService
         applicationHandler.delegate = self
     }
 
@@ -99,6 +102,20 @@ final class WalletMainContainerInteractor {
             }
         }
     }
+
+    private func checkNftAvailability() {
+        let fetchOperation = featureToggleService.fetchConfigOperation()
+
+        fetchOperation.completionBlock = {
+            let config = try? fetchOperation.extractNoCancellableResultData()
+
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveNftAvailability(isNftAvailable: config?.nftEnabled == true)
+            }
+        }
+
+        operationQueue.addOperation(fetchOperation)
+    }
 }
 
 // MARK: - WalletMainContainerInteractorInput
@@ -108,6 +125,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
         fetchNetworkManagmentFilter()
+        checkNftAvailability()
     }
 
     func walletConnect(uri: String) async throws {
