@@ -113,6 +113,8 @@ final class WalletMainContainerViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
+
+        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
     }
 
     func addBalance(_ view: UIView) {
@@ -164,12 +166,6 @@ final class WalletMainContainerViewLayout: UIView {
             make.size.equalTo(Constants.walletIconSize)
         }
 
-        navigationContainerView.addSubview(accountScoreView)
-        accountScoreView.snp.makeConstraints { make in
-            make.top.equalTo(switchWalletButton.snp.bottom).offset(4)
-            make.centerX.equalTo(switchWalletButton.snp.centerX)
-        }
-
         let walletInfoVStackView = UIFactory.default.createVerticalStackView(spacing: 6)
         walletInfoVStackView.alignment = .center
         walletInfoVStackView.distribution = .fill
@@ -213,6 +209,12 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupWalletBalanceLayout() {
+        addSubview(accountScoreView)
+        accountScoreView.snp.makeConstraints { make in
+            make.top.equalTo(navigationContainerView.snp.bottom).offset(4)
+            make.centerX.equalTo(switchWalletButton.snp.centerX)
+        }
+
         addressCopyableLabel.snp.makeConstraints { make in
             make.width.lessThanOrEqualTo(200)
             make.height.equalTo(24)

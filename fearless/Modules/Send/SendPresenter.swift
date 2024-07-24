@@ -1035,7 +1035,10 @@ extension SendPresenter: SendInteractorOutput {
 
     func didReceive(scamInfo: ScamInfo?) {
         self.scamInfo = scamInfo
-        view?.didReceive(scamInfo: scamInfo)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(scamInfo: scamInfo)
+        }
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {

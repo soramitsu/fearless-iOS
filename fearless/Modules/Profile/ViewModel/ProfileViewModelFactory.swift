@@ -34,17 +34,20 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let biometry: BiometryAuthProtocol
     private let settings: SettingsManagerProtocol
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+    private let accountScoreFetcher: AccountStatisticsFetching
 
     // MARK: - Constructors
 
     init(
         iconGenerator: IconGenerating,
         biometry: BiometryAuthProtocol,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        accountScoreFetcher: AccountStatisticsFetching
     ) {
         self.iconGenerator = iconGenerator
         self.biometry = biometry
         self.settings = settings
+        self.accountScoreFetcher = accountScoreFetcher
     }
 
     // MARK: - Public methods
@@ -104,11 +107,15 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             )
         }
 
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: fiatBalance,
-            dayChange: dayChange
+            dayChange: dayChange,
+            accountScoreViewModel: accountScoreViewModel
         )
     }
 

@@ -1280,3 +1280,4 @@ To find out more, contact %@";
 "common.more" = "More";
 "common.activation.required" = "Activation Required";
 "error.scan.qr.disabled.asset" = "The asset you want to transfer is either unsupported or turned off. Go to Asset Management, activate the asset, and then scan the QR code again.";
+"account.stats.wallet.option.title" = "Show wallet score";

@@ -33,7 +33,22 @@ extension NomisAccountStatisticsFetcher: AccountStatisticsFetching {
             endpoint: "score"
         )
         request.signingType = .custom(signer: signer)
-
+        request.decoderType = .codable(jsonDecoder: NomisJSONDecoder())
         return await networkWorker.performRequest(with: request, withCacheOptions: cacheOptions)
+    }
+
+    func fetchStatistics(address: String) async throws -> AccountStatisticsResponse? {
+        guard let baseURL = URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/") else {
+            throw NomisAccountStatisticsFetcherError.badBaseURL
+        }
+
+        let request = try NomisAccountStatisticsRequest(
+            baseURL: baseURL,
+            address: address,
+            endpoint: "score"
+        )
+        request.signingType = .custom(signer: signer)
+        request.decoderType = .codable(jsonDecoder: NomisJSONDecoder())
+        return try await networkWorker.performRequest(with: request)
     }
 }

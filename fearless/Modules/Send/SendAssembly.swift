@@ -55,6 +55,8 @@ final class SendAssembly {
         )
         let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createAsyncRepository()
+        let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let scamInfoFetcher = ScamInfoFetcher(scamServiceOperationFactory: scamServiceOperationFactory, accountScoreFetching: accountStatisticsFetcher)
         let interactor = SendInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -62,7 +64,7 @@ final class SendAssembly {
             ),
             priceLocalSubscriber: priceLocalSubscriber,
             operationManager: operationManager,
-            scamServiceOperationFactory: scamServiceOperationFactory,
+            scamInfoFetching: scamInfoFetcher,
             chainAssetFetching: chainAssetFetching,
             dependencyContainer: dependencyContainer,
             addressChainDefiner: addressChainDefiner,

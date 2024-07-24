@@ -10,6 +10,7 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
 
     private let balanceInfoViewController: UIViewController
     private let pageControllers: [UIViewController]
+    var accountScoreTapGesture: UITapGestureRecognizer?
 
     // MARK: - Constructor
 
@@ -80,6 +81,10 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
 
         let walletBalanceTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBalanceDidTap))
         rootView.walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
+
+        rootView.accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
+            self?.output.didTapAccountScore()
+        }
     }
 
     // MARK: - Actions

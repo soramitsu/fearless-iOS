@@ -1202,3 +1202,4 @@ Euro cash";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.validator.total.stake" = "Всего в стейкинге: %@";
 "сurrencies.stub.text" = "Токены";
+"account.stats.wallet.option.title" = "Show wallet score";

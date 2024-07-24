@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFModels
+import SSFNetwork
 
 enum ContactSource {
     case token(chainAsset: ChainAsset)
@@ -57,11 +58,12 @@ enum ContactsAssembly {
         )
         let router = ContactsRouter()
 
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
         let presenter = ContactsPresenter(
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: AddressBookViewModelFactory(),
+            viewModelFactory: AddressBookViewModelFactory(accountScoreFetcher: accountScoreFetcher),
             moduleOutput: moduleOutput,
             source: source,
             wallet: wallet

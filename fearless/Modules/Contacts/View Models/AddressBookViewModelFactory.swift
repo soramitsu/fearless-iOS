@@ -15,6 +15,12 @@ struct ContactsTableSectionModel {
 }
 
 final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
+    private let accountScoreFetcher: AccountStatisticsFetching
+
+    init(accountScoreFetcher: AccountStatisticsFetching) {
+        self.accountScoreFetcher = accountScoreFetcher
+    }
+
     func buildCellViewModels(
         savedContacts: [Contact],
         recentContacts: [ContactType],
@@ -22,9 +28,13 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
         locale: Locale
     ) -> [ContactsTableSectionModel] {
         let recentContactsViewModels = recentContacts.map { contactType in
-            ContactTableCellModel(
+
+            let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: contactType.address)
+
+            return ContactTableCellModel(
                 contactType: contactType,
-                delegate: cellsDelegate
+                delegate: cellsDelegate,
+                accountScoreViewModel: accountScoreViewModel
             )
         }
         let recentContactsSection = ContactsTableSectionModel(
@@ -43,7 +53,9 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                 contact.name.first?.lowercased() == firstLetter.lowercased()
             }
             let cellModels = contacts.map { contact in
-                ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate)
+                let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: contact.address)
+
+                return ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate, accountScoreViewModel: accountScoreViewModel)
             }
             return ContactsTableSectionModel(name: String(firstLetter), cellViewModels: cellModels)
         }

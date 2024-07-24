@@ -6,4 +6,6 @@ protocol AccountStatisticsFetching {
         address: String,
         cacheOptions: CachedNetworkRequestTrigger
     ) async throws -> AsyncThrowingStream<CachedNetworkResponse<AccountStatisticsResponse>, Error>
+
+    func fetchStatistics(address: String) async throws -> AccountStatisticsResponse?
 }

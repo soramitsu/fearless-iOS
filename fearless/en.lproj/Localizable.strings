@@ -1204,3 +1204,4 @@ belongs to the right network";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.validator.total.stake" = "Total staked: %@";
 "сurrencies.stub.text" = "Currencies";
+"account.stats.wallet.option.title" = "Show wallet score";

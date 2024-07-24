@@ -1199,3 +1199,4 @@
 "your.validators.stop.nominating.title" = "停止提名";
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
+"account.stats.wallet.option.title" = "Show wallet score";

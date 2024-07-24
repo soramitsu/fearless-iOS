@@ -22,9 +22,7 @@ final class BackupWalletPresenter {
 
     private let logger: LoggerProtocol
     private let wallet: MetaAccountModel
-    private lazy var viewModelFactory: BackupWalletViewModelFactoryProtocol = {
-        BackupWalletViewModelFactory()
-    }()
+    private var viewModelFactory: BackupWalletViewModelFactoryProtocol
 
     private var balanceInfo: WalletBalanceInfo?
     private var chains: [ChainModel] = []
@@ -42,12 +40,15 @@ final class BackupWalletPresenter {
         interactor: BackupWalletInteractorInput,
         router: BackupWalletRouterInput,
         logger: LoggerProtocol,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        viewModelFactory: BackupWalletViewModelFactoryProtocol
     ) {
         self.wallet = wallet
         self.interactor = interactor
         self.router = router
         self.logger = logger
+        self.viewModelFactory = viewModelFactory
+
         self.localizationManager = localizationManager
     }
 

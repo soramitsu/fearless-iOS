@@ -23,16 +23,9 @@ final class WalletsManagmentAssembly {
             sortDescriptors: []
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: sharedDefaultQueue
         )
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
@@ -53,9 +46,14 @@ final class WalletsManagmentAssembly {
         )
         let router = WalletsManagmentRouter()
 
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
         let viewModelFactory = WalletsManagmentViewModelFactory(
-            assetBalanceFormatterFactory: assetBalanceFormatterFactory
+            assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+            accountScoreFetcher: accountScoreFetcher
         )
 
         let presenter = WalletsManagmentPresenter(

@@ -3,7 +3,7 @@ typealias AccountStatisticsModuleCreationResult = (
     input: AccountStatisticsModuleInput
 )
 
-protocol AccountStatisticsRouterInput: AnyObject {}
+protocol AccountStatisticsRouterInput: AnyObject, AnyDismissable, ApplicationStatusPresentable {}
 
 protocol AccountStatisticsModuleInput: AnyObject {}
 

@@ -11,6 +11,12 @@ protocol WalletMainContainerViewModelFactoryProtocol {
 }
 
 final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFactoryProtocol {
+    private let accountScoreFetcher: AccountStatisticsFetching
+
+    init(accountScoreFetcher: AccountStatisticsFetching) {
+        self.accountScoreFetcher = accountScoreFetcher
+    }
+
     func buildViewModel(
         selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
@@ -46,11 +52,15 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             address = address1
         }
 
+        let ethAddress = selectedMetaAccount.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = ethAddress.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedFilter: selectedFilterName,
             selectedFilterImage: selectedFilterImage,
-            address: address
+            address: address,
+            accountScoreViewModel: accountScoreViewModel
         )
     }
 }

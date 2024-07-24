@@ -34,6 +34,11 @@ enum BackupWalletOptions: Int, CaseIterable {
 
 final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+    private let accountScoreFetcher: AccountStatisticsFetching
+
+    init(accountScoreFetcher: AccountStatisticsFetching) {
+        self.accountScoreFetcher = accountScoreFetcher
+    }
 
     func createViewModel(
         from wallet: MetaAccountModel,
@@ -147,6 +152,9 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         balance: WalletBalanceInfo?,
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+
         var fiatBalance: String = ""
         var dayChange: NSAttributedString?
         if let balance = balance {
@@ -164,7 +172,8 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: fiatBalance,
-            dayChange: dayChange
+            dayChange: dayChange,
+            accountScoreViewModel: accountScoreViewModel
         )
     }
 

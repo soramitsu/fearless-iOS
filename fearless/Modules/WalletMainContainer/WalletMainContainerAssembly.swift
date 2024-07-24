@@ -50,7 +50,11 @@ final class WalletMainContainerAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
-        let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
+
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -59,8 +63,7 @@ final class WalletMainContainerAssembly {
             eventCenter: EventCenter.shared,
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
-            walletConnectService: walletConnect,
-            accountStatisticsFetcher: accountStatisticsFetcher
+            walletConnectService: walletConnect
         )
 
         let router = WalletMainContainerRouter()
@@ -73,16 +76,16 @@ final class WalletMainContainerAssembly {
             return nil
         }
 
+        let viewModelFactory = WalletMainContainerViewModelFactory(accountScoreFetcher: accountScoreFetcher)
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
             nftModuleInput: nftModule.input,
             wallet: wallet,
-            viewModelFactory: WalletMainContainerViewModelFactory(),
+            viewModelFactory: viewModelFactory,
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager,
-            accountScoreViewModelFactory: AccountScoreViewModelFactoryImpl()
+            localizationManager: localizationManager
         )
 
         let view = WalletMainContainerViewController(

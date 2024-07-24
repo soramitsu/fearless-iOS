@@ -24,6 +24,7 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
         case donation
         case exchange
         case sanctions
+        case lowScore
 
         init?(from string: String) {
             self.init(rawValue: string.lowercased())
@@ -54,6 +55,8 @@ struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
             case .sanctions:
                 return R.string.localizable
                     .scamDescriptionSanctionsStub(assetName, preferredLanguages: locale.rLanguages)
+            case .lowScore:
+                return "This account has a low activity. Ensure that recipient isn't a scammer"
             }
         }
     }

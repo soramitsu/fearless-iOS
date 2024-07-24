@@ -1,17 +1,20 @@
 import UIKit
 import SoraFoundation
+import SSFNetwork
 
 final class AccountStatisticsAssembly {
-    static func configureModule() -> AccountStatisticsModuleCreationResult? {
+    static func configureModule(address: String) -> AccountStatisticsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = AccountStatisticsInteractor()
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let interactor = AccountStatisticsInteractor(accountScoreFetcher: accountScoreFetcher, address: address)
         let router = AccountStatisticsRouter()
 
         let presenter = AccountStatisticsPresenter(
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            viewModelFactory: AccountStatisticsViewModelFactoryImpl()
         )
 
         let view = AccountStatisticsViewController(

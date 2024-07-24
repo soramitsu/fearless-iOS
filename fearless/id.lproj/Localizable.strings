@@ -1188,3 +1188,4 @@ akan muncul di sini";
 "your.validators.stop.nominating.title" = "berhenti mencalonkan diri";
 "your.validators.validator.total.stake" = "Total ditaruhkan: %@";
 "сurrencies.stub.text" = "Mata uang";
+"account.stats.wallet.option.title" = "Show wallet score";

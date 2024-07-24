@@ -13,8 +13,8 @@ class TitleValueView: UIView {
         return label
     }()
 
-    let valueLabel: UILabel = {
-        let label = UILabel()
+    let valueLabel: SkeletonLabel = {
+        let label = SkeletonLabel(skeletonSize: CGSize(width: 70, height: 14))
         label.textColor = R.color.colorWhite()
         label.font = UIFont.p1Paragraph
         label.textAlignment = .right
@@ -36,7 +36,7 @@ class TitleValueView: UIView {
     let activityIndicator: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView()
         view.hidesWhenStopped = true
-        view.style = .white
+        view.style = UIActivityIndicatorView.Style.medium
         return view
     }()
 
@@ -48,6 +48,12 @@ class TitleValueView: UIView {
                 }
             }
         }
+    }
+
+    init(skeletonSize: CGSize = .zero) {
+        super.init(frame: .zero)
+        setupLayout()
+        valueLabel.skeletonSize = skeletonSize
     }
 
     override init(frame: CGRect) {

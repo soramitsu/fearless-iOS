@@ -16,24 +16,27 @@ extension SkeletonLoadableView {
         guard skeletonView == nil else {
             return
         }
+
         let skeletonView = Skrull(
             size: skeletonSize,
             decorations: [],
             skeletons: [
-                SingleSkeleton.createRow(position: CGPoint(x: 0, y: 0), size: skeletonSize)
+                SingleSkeleton.createRow(position: CGPoint(x: 0.5, y: 0.5), size: skeletonSize)
             ]
         )
         .fillSkeletonStart(R.color.colorSkeletonStart()!)
         .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
         .build()
 
-        skeletonView.frame = CGRect(origin: CGPoint(x: -skeletonSize.width, y: skeletonSize.height / 2), size: skeletonSize)
+        skeletonView.frame = CGRect(
+            origin: CGPoint(x: frame.size.width - skeletonSize.width, y: frame.size.height / 2 - skeletonSize.height / 2),
+            size: CGSize(width: skeletonSize.width, height: skeletonSize.height)
+        )
         skeletonView.autoresizingMask = []
         container.addSubview(skeletonView)
 
-        self.skeletonView = skeletonView
-
         skeletonView.startSkrulling()
+        self.skeletonView = skeletonView
     }
 
     func stopSkeletonAnimation() {
@@ -43,10 +46,12 @@ extension SkeletonLoadableView {
     }
 
     func updateSkeletonLayout() {
-        guard let skeletonView = skeletonView else {
+        guard skeletonView != nil else {
             return
         }
-
-        skeletonView.frame = CGRect(origin: CGPoint(x: -skeletonSize.width / 2, y: skeletonSize.height / 2), size: skeletonSize)
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+        startSkeletonAnimation()
     }
 }

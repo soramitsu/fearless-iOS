@@ -1202,3 +1202,4 @@ thuộc đúng mạng";
 "your.validators.stop.nominating.title" = "Dừng đề cử";
 "your.validators.validator.total.stake" = "Tổng đã stake: %@";
 "сurrencies.stub.text" = "Tiền tệ";
+"account.stats.wallet.option.title" = "Show wallet score";
