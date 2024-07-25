@@ -9,5 +9,5 @@ struct DetailsTriangularedViewModel {
 
 struct DetailsTriangularedAttributedViewModel {
     let icon: UIImage
-    let title: NSAttributedString
+    let title: NSAttributedString?
 }

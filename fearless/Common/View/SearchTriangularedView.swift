@@ -11,6 +11,8 @@ final class SearchTriangularedView: UIView {
         static let pasteButtonSize: CGFloat = 76
     }
 
+    var isValid = false
+
     var onPasteTapped: (() -> Void)?
     private let withPasteButton: Bool
 

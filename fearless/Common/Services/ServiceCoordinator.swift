@@ -50,6 +50,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         chainRegistry.syncUp()
+        chainRegistry.subscribeToChians()
 
         githubPhishingService.setup()
         accountInfoService.setup()
@@ -147,5 +148,30 @@ extension ServiceCoordinator {
             walletConnect: walletConnect,
             walletAssetsObserver: walletAssetsObserver
         )
+    }
+
+    private static func createPackageChainRegistry() -> SSFChainRegistry.ChainRegistryProtocol {
+        let chainSyncService = SSFChainRegistry.ChainSyncService(
+            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
+            operationQueue: OperationQueue(),
+            dataFetchFactory: SSFNetwork.NetworkOperationFactory()
+        )
+
+        let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
+            url: ApplicationConfig.shared.chainTypesSourceUrl,
+            dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
+            operationQueue: OperationQueue()
+        )
+
+        let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
+
+        let chainRegistry = SSFChainRegistry.ChainRegistry(
+            runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
+            connectionPool: SSFChainRegistry.ConnectionPool(),
+            chainSyncService: chainSyncService,
+            chainsTypesSyncService: chainsTypesSyncService,
+            runtimeSyncService: runtimeSyncService
+        )
+        return chainRegistry
     }
 }

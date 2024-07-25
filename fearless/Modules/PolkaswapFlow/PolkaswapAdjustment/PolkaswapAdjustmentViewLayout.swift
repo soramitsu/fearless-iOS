@@ -75,6 +75,8 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         return button
     }()
 
+    let bannersViewContainer = UIView()
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -141,6 +143,22 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         setInfoImage(for: minMaxReceivedView.titleLabel, text: text)
     }
 
+    func addBanners(_ view: UIView) {
+        bannersViewContainer.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
+    func removeBanners() {
+        bannersViewContainer.isHidden = true
+        bannersViewContainer.snp.remakeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(0)
+            make.bottom.equalToSuperview()
+        }
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {
@@ -180,6 +198,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private func setupContentsLayout() {
         addSubview(contentView)
+        addSubview(bannersViewContainer)
         addSubview(previewButton)
 
         contentView.snp.makeConstraints { make in
@@ -192,6 +211,12 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+        }
+
+        bannersViewContainer.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(16)
+            make.height.equalTo(139)
+            make.bottom.equalToSuperview().inset(UIConstants.actionHeight + UIConstants.bigOffset * 2)
         }
 
         let switchInputsView = createSwitchInputsView()

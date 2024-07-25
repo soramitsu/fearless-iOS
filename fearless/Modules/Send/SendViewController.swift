@@ -297,6 +297,15 @@ extension SendViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
 
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(updateAmount),
+            object: nil
+        )
+        perform(#selector(updateAmount), with: nil, afterDelay: 0.75)
+    }
+
+    @objc private func updateAmount() {
         let amount = amountInputViewModel?.decimalAmount ?? 0.0
         output.updateAmount(amount)
     }

@@ -1,8 +1,8 @@
 import Foundation
 
 struct CrossChainViewLoadingCollector {
-    var originFeeReady: Bool = false
-    var destinationFeeReady: Bool = false
+    var originFeeReady: Bool?
+    var destinationFeeReady: Bool?
     var balanceReady: Bool = false
     var existentialDepositReady: Bool = false
     var destinationBalanceReady: Bool = false
@@ -21,7 +21,10 @@ struct CrossChainViewLoadingCollector {
         addressExists = false
     }
 
-    var isReady: Bool {
+    var isReady: Bool? {
+        guard let originFeeReady, let destinationFeeReady else {
+            return nil
+        }
         let destinationReady = addressExists ? destinationBalanceReady : true
         return [
             originFeeReady,

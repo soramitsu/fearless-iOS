@@ -45,7 +45,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: .pending,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: "",
             peerFirstName: nil,
             peerLastName: nil,
@@ -82,15 +82,21 @@ extension AssetTransactionData {
             BigUInt(string: transfer.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
-        let feeValue = BigUInt(string: transfer.fee) ?? BigUInt(0)
-        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
 
-        let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
-            amount: AmountDecimal(value: feeDecimal),
-            context: nil
-        )
+        var fees: [AssetTransactionFee] = []
+
+        if let fee = transfer.fee {
+            let feeValue = BigUInt(string: fee) ?? BigUInt(0)
+            let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
+
+            let fee = AssetTransactionFee(
+                identifier: asset.id,
+                assetId: asset.id,
+                amount: AmountDecimal(value: feeDecimal),
+                context: nil
+            )
+            fees.append(fee)
+        }
 
         let type = transfer.sender == address ? TransactionType.outgoing :
             TransactionType.incoming
@@ -100,14 +106,14 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: nil,
             peerLastName: nil,
             peerName: peerAddress,
             details: "",
             amount: AmountDecimal(value: amount),
-            fees: [fee],
+            fees: fees,
             timestamp: timestamp,
             type: type.rawValue,
             reason: "",
@@ -145,8 +151,8 @@ extension AssetTransactionData {
         let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: asset.id,
+            assetId: asset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
@@ -157,7 +163,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.hash,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: nil,
             peerLastName: nil,
@@ -199,7 +205,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: reward.validator,
             peerLastName: nil,
@@ -233,7 +239,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: item.extrinsicHash,
             peerFirstName: nil,
             peerLastName: nil,
@@ -267,7 +273,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: extrinsic.module,
             peerLastName: extrinsic.call,
@@ -310,7 +316,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: status,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: item.callModule,
             peerLastName: item.callFunction,
@@ -369,8 +375,8 @@ extension AssetTransactionData {
         ) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: asset.id,
+            assetId: asset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )
@@ -391,7 +397,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.txHash,
             status: item.status.walletValue,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: nil,
             peerLastName: nil,
@@ -427,7 +433,7 @@ extension AssetTransactionData {
         return AssetTransactionData(
             transactionId: item.identifier,
             status: item.status.walletValue,
-            assetId: asset.identifier,
+            assetId: asset.id,
             peerId: peerId,
             peerFirstName: item.callPath.moduleName,
             peerLastName: item.callPath.callName,

@@ -5,6 +5,10 @@ import SoraKeystore
 
 protocol WalletAssetsObserver: ApplicationServiceProtocol {
     func update(wallet: MetaAccountModel)
+    func updateVisibility(
+        wallet: MetaAccountModel?,
+        chainAssets: [ChainAsset]
+    ) async -> MetaAccountModel
 }
 
 final class WalletAssetsObserverImpl: WalletAssetsObserver {
@@ -18,8 +22,6 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     private lazy var walletAssetsObserverQueue: DispatchQueue = {
         DispatchQueue(label: "co.jp.soramitsu.asset.observer.deliveryQueue")
     }()
-
-    private var currentTask: Task<Void, Error>?
 
     init(
         wallet: MetaAccountModel,
@@ -46,12 +48,23 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         setup()
     }
 
+    func updateVisibility(
+        wallet: MetaAccountModel?,
+        chainAssets: [ChainAsset]
+    ) async -> MetaAccountModel {
+        if let wallet {
+            self.wallet = wallet
+        }
+        let chains = chainAssets
+            .map { $0.chain }
+            .uniq(predicate: { $0.chainId })
+        let updatedWallet = await updateVisibility(for: chains)
+        return updatedWallet
+    }
+
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        guard wallet.assetsVisibility.isEmpty else {
-            return
-        }
         chainRegistry.chainsSubscribe(
             self,
             runningInQueue: walletAssetsObserverQueue
@@ -61,35 +74,24 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     }
 
     func throttle() {
-        currentTask?.cancel()
         chainRegistry.chainsUnsubscribe(self)
     }
 
     // MARK: - Private methods
 
     private func handleChains(changes: [DataProviderChange<ChainModel>], accounts: [ChainAccountModel]?) {
-        currentTask = Task {
+        Task {
             let result = await withTaskGroup(
                 of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
                 returning: [ChainModel: [ChainAssetId: AccountInfo?]].self,
-                body: { [wallet] group in
+                body: { group in
                     changes.forEach { change in
                         switch change {
                         case let .insert(chain):
-                            if let accounts {
-                                if accounts.contains(where: { $0.chainId == chain.chainId }) {
-                                    group.addTask {
-                                        await self.fetchAccountInfos(chain: chain, wallet: wallet)
-                                    }
-                                } else {
-                                    return
-                                }
-                            } else {
-                                group.addTask {
-                                    await self.fetchAccountInfos(chain: chain, wallet: wallet)
-                                }
-                            }
-                        case .update, .delete:
+                            self.handleChange(for: chain, accounts: accounts, group: &group)
+                        case let .update(chain):
+                            self.handleChange(for: chain, accounts: accounts, group: &group)
+                        case .delete:
                             break
                         }
                     }
@@ -107,6 +109,62 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             updateCurrentWallet(with: result)
             performSaveAndNotify()
         }
+    }
+
+    private func handleChange(
+        for chain: ChainModel,
+        accounts: [ChainAccountModel]?,
+        group: inout TaskGroup<(ChainModel, [ChainAssetId: AccountInfo?])>
+    ) {
+        let chainAssetsIds = chain.chainAssets.map { $0.identifier }
+        let existVisibility = wallet.assetsVisibility.map { $0.assetId }
+        let perhapsExistVisibility = existVisibility.filter { chainAssetsIds.contains($0) }
+
+        guard !chain.disabled, chainAssetsIds.count > perhapsExistVisibility.count else {
+            return
+        }
+        if let accounts {
+            if accounts.contains(where: { $0.chainId == chain.chainId }) {
+                group.addTask { [wallet] in
+                    await self.fetchAccountInfos(chain: chain, wallet: wallet)
+                }
+            } else {
+                return
+            }
+        } else {
+            group.addTask { [wallet] in
+                await self.fetchAccountInfos(chain: chain, wallet: wallet)
+            }
+        }
+    }
+
+    private func updateVisibility(for chains: [ChainModel]) async -> MetaAccountModel {
+        let result = await withTaskGroup(
+            of: (ChainModel, [ChainAssetId: AccountInfo?])?.self,
+            returning: [ChainModel: [ChainAssetId: AccountInfo?]].self
+        ) { group in
+            chains.forEach { chain in
+                group.addTask {
+                    do {
+                        let accountInfos = try await self.accountInfoRemote.fetchAccountInfos(for: chain, wallet: self.wallet)
+                        return (chain, accountInfos)
+                    } catch {
+                        return nil
+                    }
+                }
+            }
+
+            var taskResults = [ChainModel: [ChainAssetId: AccountInfo?]]()
+            for await result in group {
+                guard let result else {
+                    continue
+                }
+                taskResults[result.0] = result.1
+            }
+            return taskResults
+        }
+        updateCurrentWallet(with: result)
+        return wallet
     }
 
     private func fetchAccountInfos(chain: ChainModel, wallet: MetaAccountModel) async -> (ChainModel, [ChainAssetId: AccountInfo?]) {

@@ -36,6 +36,7 @@ final class ChainAssetListAssembly {
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let chainAssetFetching = ChainAssetsFetching(
@@ -101,6 +102,6 @@ final class ChainAssetListAssembly {
     }
 
     private static func configureBannersModule(moduleOutput: BannersModuleOutput?) -> BannersModuleCreationResult? {
-        BannersAssembly.configureModule(output: moduleOutput)
+        BannersAssembly.configureModule(output: moduleOutput, type: .independent, wallet: nil)
     }
 }

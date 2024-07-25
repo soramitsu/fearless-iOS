@@ -1,6 +1,7 @@
 import Foundation
 import WalletConnectSign
 import SoraFoundation
+import SSFQRService
 
 protocol WalletConnectActiveSessionsViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func didReceive(viewModels: [WalletConnectActiveSessionsViewModel])

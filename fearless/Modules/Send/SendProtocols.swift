@@ -108,6 +108,10 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
         chainAssets: [ChainAsset]?,
         output: SelectAssetModuleOutput
     )
+    func showManageAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol SendModuleInput: AnyObject {}

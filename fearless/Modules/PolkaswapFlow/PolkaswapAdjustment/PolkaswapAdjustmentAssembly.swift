@@ -14,7 +14,7 @@ final class PolkaswapAdjustmentAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let xorChainAsset = chainRegistry.getChain(for: Chain.soraMain.genesisHash)?.utilityChainAssets().first,
+            let xorChainAsset = chainRegistry.getChainUnsafe(for: Chain.soraMain.genesisHash)?.utilityChainAssets().first,
             let connection = chainRegistry.getConnection(for: xorChainAsset.chain.chainId),
             let accountResponse = wallet.fetch(for: xorChainAsset.chain.accountRequest()),
             let runtimeService = chainRegistry.getRuntimeProvider(for: xorChainAsset.chain.chainId)
@@ -102,12 +102,29 @@ final class PolkaswapAdjustmentAssembly {
             localizationManager: localizationManager
         )
 
+        guard
+            let bannersModule = Self.configureBannersModule(output: presenter, wallet: wallet)
+        else {
+            return nil
+        }
+
         let view = PolkaswapAdjustmentViewController(
             output: presenter,
+            bannersViewController: bannersModule.view.controller,
             localizationManager: localizationManager
         )
         dataValidatingFactory.view = view
+        presenter.bannersModuleInput = bannersModule.input
 
         return (view, presenter)
+    }
+
+    // MARK: - Cofigure Modules
+
+    private static func configureBannersModule(
+        output: BannersModuleOutput?,
+        wallet: MetaAccountModel
+    ) -> BannersModuleCreationResult? {
+        BannersAssembly.configureModule(output: output, type: .embed, wallet: wallet)
     }
 }

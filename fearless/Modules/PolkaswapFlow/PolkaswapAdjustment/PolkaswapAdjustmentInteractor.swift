@@ -112,7 +112,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
 
         operationManager.enqueue(
             operations: allOperations,
-            in: .blockAfter
+            in: .transient
         )
 
         let workItem = DispatchWorkItem {
@@ -185,29 +185,27 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
 
             quotesOperation.completionBlock = { [weak self, dexId, group] in
                 guard let strongSelf = self else { return }
-                DispatchQueue.global().sync(flags: .barrier) {
-                    do {
-                        var result = try quotesOperation.extractNoCancellableResultData()
-                        result.dexId = dexId
-                        strongSelf.swapValues.append(result)
-                    } catch {
-                        strongSelf.swapValueErrors.append(error)
-                    }
-                    group.leave()
+                do {
+                    var result = try quotesOperation.extractNoCancellableResultData()
+                    result.dexId = dexId
+                    strongSelf.swapValues.append(result)
+                } catch {
+                    strongSelf.swapValueErrors.append(error)
                 }
+                group.leave()
             }
             allOperations.append(quotesOperation)
         }
-        operationManager.enqueue(operations: allOperations, in: .blockAfter)
+        operationManager.enqueue(operations: allOperations, in: .transient)
 
-        let workItem = DispatchWorkItem(flags: .barrier) {
+        let workItem = DispatchWorkItem {
             self.output?.didReceiveSwapValues(
                 self.swapValues,
                 params: params,
                 errors: self.swapValueErrors
             )
         }
-        group.notify(queue: .main, work: workItem)
+        group.notify(queue: .global(), work: workItem)
     }
 
     func subscribeOnBlocks() {

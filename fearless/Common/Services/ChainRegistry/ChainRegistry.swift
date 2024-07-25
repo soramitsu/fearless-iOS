@@ -17,6 +17,7 @@ protocol ChainRegistryProtocol: AnyObject {
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
+    func getChainUnsafe(for chainId: ChainModel.Id) -> ChainModel?
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
@@ -306,7 +307,7 @@ extension ChainRegistry: ChainRegistryProtocol {
             return nil
         }
 
-        return readLock.concurrentlyRead { substrateConnectionPool.getConnection(for: chainId) }
+        return substrateConnectionPool.getConnection(for: chainId)
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
@@ -324,6 +325,10 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {
         readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
+    }
+
+    func getChainUnsafe(for chainId: ChainModel.Id) -> ChainModel? {
+        chains.first(where: { $0.chainId == chainId })
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
@@ -385,63 +390,26 @@ extension ChainRegistry: ChainRegistryProtocol {
     func retryConnection(for chainId: ChainModel.Id) {
         guard
             let chain = chains.first(where: { $0.chainId == chainId }),
-            let currentConnection = getConnection(for: chainId),
-            let currentURL = currentConnection.url
+            let currentConnection = getConnection(for: chainId)
         else {
             return
         }
-        connectionNeedsReconnect(for: chain, previusUrl: currentURL)
+        currentConnection.connectIfNeeded()
     }
 }
 
 // MARK: - ConnectionPoolDelegate
 
 extension ChainRegistry: ConnectionPoolDelegate {
-    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
+    func webSocketDidChangeState(chainId: SSFModels.ChainModel.Id, state: SSFUtils.WebSocketEngine.State) {
         guard let changedStateChain = chains.first(where: { chain in
-            chain.nodes.first { node in
-                node.url == url
-            } != nil
+            chain.chainId == chainId
         }) else {
             return
         }
 
-        if case .connected = state {
-            let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
-            eventCenter.notify(with: reconnectedEvent)
-        }
-
-        switch state {
-        case let .waitingReconnection(attempt: attempt):
-            if attempt > NetworkConstants.websocketReconnectAttemptsLimit {
-                connectionNeedsReconnect(for: changedStateChain, previusUrl: url)
-            }
-        case .notConnected:
-            connectionNeedsReconnect(for: changedStateChain, previusUrl: url)
-        default:
-            break
-        }
-    }
-
-    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
-        guard chain.selectedNode == nil else {
-            return
-        }
-
-        do {
-            if chain.isEthereum {
-                // TODO: Ethereum reconnect
-            } else {
-                _ = try substrateConnectionPool?.setupConnection(for: chain, ignoredUrl: previusUrl)
-            }
-
-            let event = ChainsUpdatedEvent(updatedChains: [chain])
-            eventCenter.notify(with: event)
-        } catch {
-            logger?.error("\(chain.name) error: \(error.localizedDescription)")
-            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: .notConnected)
-            eventCenter.notify(with: reconnectedEvent)
-        }
+        let reconnectedEvent = ChainReconnectingEvent(chain: changedStateChain, state: state)
+        eventCenter.notify(with: reconnectedEvent)
     }
 }
 
@@ -461,10 +429,12 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeProviderProtocol {
-        let runtimeProvider = readLock.concurrentlyRead { runtimeProviderPool.getRuntimeProvider(for: chainId) }
-        guard let runtimeProvider else {
-            throw ChainRegistryError.runtimeMetadaUnavailable
+        guard let chain = chains.first(where: { $0.chainId == chainId }) else {
+            throw ChainRegistryError.chainUnavailable(chainId: chainId)
         }
+        let chainTypes = chainsTypesMap[chainId]
+
+        let runtimeProvider = runtimeProviderPool.setupRuntimeProvider(for: chain, chainTypes: chainTypes)
         return runtimeProvider
     }
 

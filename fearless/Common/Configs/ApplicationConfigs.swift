@@ -162,9 +162,9 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v9/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v10/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v9/chains.json")
+            GitHubUrl.url(suffix: "chains/v10/chains.json")
         #endif
     }
 
@@ -215,7 +215,15 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     }
 
     var onboardingConfig: URL? {
-        GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json", branch: .developFree)
+        #if F_DEV
+            GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json", branch: .developFree)
+        #else
+            GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json")
+        #endif
+    }
+
+    var soraSubqueryUrl: URL {
+        URL(string: "https://api.subquery.network/sq/sora-xor/sora-prod")!
     }
 }
 

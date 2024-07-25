@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFNetwork
 
 final class WalletMainContainerAssembly {
     static func configureModule(
@@ -50,6 +51,11 @@ final class WalletMainContainerAssembly {
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
 
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
+
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
@@ -58,7 +64,8 @@ final class WalletMainContainerAssembly {
             eventCenter: EventCenter.shared,
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
-            walletConnectService: walletConnect
+            walletConnectService: walletConnect,
+            featureToggleService: featureToggleProvider
         )
 
         let router = WalletMainContainerRouter()
@@ -97,7 +104,7 @@ final class WalletMainContainerAssembly {
     private static func configureBalanceInfoModule(
         wallet: MetaAccountModel
     ) -> BalanceInfoModuleCreationResult? {
-        BalanceInfoAssembly.configureModule(with: .wallet(wallet: wallet))
+        BalanceInfoAssembly.configureModule(with: .networkManagement(wallet: wallet))
     }
 
     private static func configureAssetListModule(

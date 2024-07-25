@@ -5,43 +5,42 @@ import SSFModels
 
 enum ConnectionPoolError: Error {
     case onlyOneNode
+    case noConnection
 }
 
 protocol ConnectionPoolProtocol {
     associatedtype T
 
     func setupConnection(for chain: ChainModel) throws -> T
-    func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> T
     func getConnection(for chainId: ChainModel.Id) -> T?
     func setDelegate(_ delegate: ConnectionPoolDelegate)
     func resetConnection(for chainId: ChainModel.Id)
 }
 
 protocol ConnectionPoolDelegate: AnyObject {
-    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State)
+    func webSocketDidChangeState(chainId: ChainModel.Id, state: WebSocketEngine.State)
 }
 
 final class ConnectionPool {
-    private let connectionFactory: ConnectionFactoryProtocol
-    private let applicationHandler = ApplicationHandler()
-    private weak var delegate: ConnectionPoolDelegate?
-    private let operationQueue: OperationQueue
-
-    private lazy var lock = ReaderWriterLock()
-    private lazy var connectionLock = ReaderWriterLock()
-
-    private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
-    private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
-
-    private func clearUnusedConnections() {
-        connectionLock.exclusivelyWrite {
-            self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.value.target != nil }
-        }
+    struct ConnectionWrapper {
+        let chainId: String
+        let connection: WeakWrapper
     }
 
-    init(connectionFactory: ConnectionFactoryProtocol, operationQueue: OperationQueue) {
+    private let connectionFactory: ConnectionFactoryProtocol
+    private let applicationHandler = ApplicationHandler()
+    private lazy var injector = NodeApiKeyInjector()
+    private weak var delegate: ConnectionPoolDelegate?
+
+    private(set) var connections: SafeArray<ConnectionWrapper> = .init()
+
+    init(connectionFactory: ConnectionFactoryProtocol) {
         self.connectionFactory = connectionFactory
-        self.operationQueue = operationQueue
+    }
+
+    private func clearUnusedConnections() {
+        let filtred = connections.filter { $0.connection.target != nil }
+        connections.replace(array: filtred)
     }
 }
 
@@ -50,84 +49,42 @@ final class ConnectionPool {
 extension ConnectionPool: ConnectionPoolProtocol {
     typealias T = ChainConnection
 
-    func setDelegate(_ delegate: ConnectionPoolDelegate) {
-        self.delegate = delegate
-    }
-
     func setupConnection(for chain: ChainModel) throws -> ChainConnection {
-        try setupConnection(for: chain, ignoredUrl: nil)
-    }
-
-    func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
-        if ignoredUrl == nil,
-           let connection = getConnection(for: chain.chainId) {
+        if let connection = getConnection(for: chain.chainId) {
             return connection
         }
-
-        var chainFailedUrls = getFailedUrls(for: chain.chainId).or([])
-        chainFailedUrls.insert(ignoredUrl)
-
-//        If all available nodes are in blacklist => Remove all nodes except last one checked
-        if chainFailedUrls.count == chain.nodes.count {
-            lock.exclusivelyWrite { [weak self] in
-                self?.failedUrls[chain.chainId] = [ignoredUrl]
-            }
-        }
-        let node = chain.selectedNode ?? chain.nodes.first(where: {
-            ($0.url != ignoredUrl) && !chainFailedUrls.contains($0.url)
-        })
-
-        lock.exclusivelyWrite { [weak self] in
-            self?.failedUrls[chain.chainId] = chainFailedUrls
+        let nodesForPreparing: [ChainNodeModel]
+        if let selectedNode = chain.selectedNode {
+            nodesForPreparing = [selectedNode]
+        } else {
+            nodesForPreparing = Array(chain.nodes)
         }
 
-        guard let node = node else {
-            throw ConnectionPoolError.onlyOneNode
-        }
-        let url = DwillerApiKeyInjector().apiKeyInjectedURL(node: node)
-
-        clearUnusedConnections()
-
-        if let connection = getConnection(for: chain.chainId) {
-            if connection.url == url {
-                return connection
-            } else if ignoredUrl != nil {
-                connection.reconnect(url: url)
-                return connection
-            }
-        }
-
-        let connection = connectionFactory.createConnection(
-            connectionName: chain.name,
-            for: url,
+        let preparedUrls = injector.injectKey(nodes: nodesForPreparing)
+        let connection = try connectionFactory.createConnection(
+            connectionName: chain.chainId,
+            for: preparedUrls,
             delegate: self
         )
-        let wrapper = WeakWrapper(target: connection)
 
-        connectionLock.exclusivelyWrite { [weak self] in
-            self?.connectionsByChainIds[chain.chainId] = wrapper
-        }
-
+        let wrapper = ConnectionWrapper(chainId: chain.chainId, connection: WeakWrapper(target: connection))
+        connections.append(wrapper)
         return connection
     }
 
-    func getFailedUrls(for chainId: ChainModel.Id) -> Set<URL?>? {
-        lock.concurrentlyRead { failedUrls[chainId] }
+    func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
+        connections.first(where: { $0.chainId == chainId })?.connection.target as? ChainConnection
     }
 
-    func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        connectionLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
+    func setDelegate(_ delegate: any ConnectionPoolDelegate) {
+        self.delegate = delegate
     }
 
     func resetConnection(for chainId: ChainModel.Id) {
         if let connection = getConnection(for: chainId) {
             connection.disconnectIfNeeded()
         }
-
-        connectionLock.exclusivelyWrite {
-            self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.key != chainId }
-            self.failedUrls[chainId] = nil
-        }
+        connections.remove(where: { $0.chainId == chainId })
     }
 }
 
@@ -136,27 +93,12 @@ extension ConnectionPool: ConnectionPoolProtocol {
 extension ConnectionPool: WebSocketEngineDelegate {
     func webSocketDidChangeState(
         engine: WebSocketEngine,
-        from _: WebSocketEngine.State,
         to newState: WebSocketEngine.State
     ) {
-        guard let previousUrl = engine.url else {
+        guard let chainId = engine.connectionName else {
             return
         }
 
-        delegate?.webSocketDidChangeState(url: previousUrl, state: newState)
-    }
-}
-
-struct DwillerApiKeyInjector {
-    func apiKeyInjectedURL(node: ChainNodeModel) -> URL {
-        guard node.name.lowercased().contains("dwellir") else {
-            return node.url
-        }
-        #if DEBUG
-            return node.url
-        #else
-            let apiKey = DwellirNodeApiKey.dwellirApiKey
-            return node.url.appendingPathComponent("/\(apiKey)")
-        #endif
+        delegate?.webSocketDidChangeState(chainId: chainId, state: newState)
     }
 }

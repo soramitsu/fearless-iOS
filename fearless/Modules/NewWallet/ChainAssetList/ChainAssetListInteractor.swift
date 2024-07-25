@@ -293,8 +293,8 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         wallet = event.account
     }
 
-    func processZeroBalancesSettingChanged() {
-        updateChainAssets(using: filters, sorts: sorts, useCashe: true)
+    func processChainsUpdated(event _: ChainsUpdatedEvent) {
+        updateChainAssets(using: filters, sorts: sorts, useCashe: false)
     }
 
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent) {

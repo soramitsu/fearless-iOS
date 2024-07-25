@@ -114,7 +114,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
     }
 
     private func updatePreviewButton() {
-        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty
+        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty && rootView.searchView.isValid
         rootView.actionButton.set(enabled: isEnabled)
     }
 }
@@ -156,7 +156,7 @@ extension CrossChainViewController: CrossChainViewInput {
         rootView.bind(originalSelectNetworkViewModel: originSelectNetworkViewModel)
     }
 
-    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel) {
+    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel?) {
         rootView.bind(destSelectNetworkViewModel: destSelectNetworkViewModel)
     }
 
