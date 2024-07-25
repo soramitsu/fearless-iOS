@@ -76,6 +76,8 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
     // MARK: - Private methods
 
     private func configure() {
+        hideKeyboardWhenTappedAround()
+
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
@@ -101,11 +103,11 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
             self?.output.didTapPasteButton()
         }
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = UIFactory
-            .default
-            .createAmountAccessoryView(for: self, locale: locale)
-        rootView.amountView.textField.inputAccessoryView = accessoryView
+//        let locale = localizationManager?.selectedLocale ?? Locale.current
+//        let accessoryView = UIFactory
+//            .default
+//            .createAmountAccessoryView(for: self, locale: locale)
+//        rootView.amountView.textField.inputAccessoryView = accessoryView
         rootView.amountView.textField.delegate = self
         rootView.searchView.textField.delegate = self
         updatePreviewButton()

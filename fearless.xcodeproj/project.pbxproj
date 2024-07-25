@@ -556,7 +556,6 @@
 		8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765E24ADE0BB00D91AD8 /* UserSettings.swift */; };
 		8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */; };
 		8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */; };
-		8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */; };
 		8428768324AE046300D91AD8 /* LanguageSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766D24AE046200D91AD8 /* LanguageSelectionViewController.swift */; };
 		8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766E24AE046200D91AD8 /* LanguageSelectionInteractor.swift */; };
 		8428768524AE046300D91AD8 /* LanguageSelectionProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766F24AE046200D91AD8 /* LanguageSelectionProtocols.swift */; };
@@ -2588,6 +2587,7 @@
 		FA93A313283653B70021330F /* ValidatorListFilterFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A312283653B70021330F /* ValidatorListFilterFlow.swift */; };
 		FA93A3162836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */; };
 		FA93A3182836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */; };
+		FA9610202C5205B200C3C750 /* UIViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA96101F2C5205B200C3C750 /* UIViewController.swift */; };
 		FA97E68B2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97E68A2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift */; };
 		FA99422827FE925000D771E5 /* UISwitch+CustomSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */; };
 		FA99422D28002BB800D771E5 /* MissingAccountOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */; };
@@ -3714,7 +3714,6 @@
 		8428765E24ADE0BB00D91AD8 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
 		8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformAnimator+Common.swift"; sourceTree = "<group>"; };
 		8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthorizationPresentable.swift; sourceTree = "<group>"; };
-		8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Modal.swift"; sourceTree = "<group>"; };
 		8428766D24AE046200D91AD8 /* LanguageSelectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSelectionViewController.swift; sourceTree = "<group>"; };
 		8428766E24AE046200D91AD8 /* LanguageSelectionInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSelectionInteractor.swift; sourceTree = "<group>"; };
 		8428766F24AE046200D91AD8 /* LanguageSelectionProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LanguageSelectionProtocols.swift; sourceTree = "<group>"; };
@@ -5717,6 +5716,7 @@
 		FA93A312283653B70021330F /* ValidatorListFilterFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterFlow.swift; sourceTree = "<group>"; };
 		FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
+		FA96101F2C5205B200C3C750 /* UIViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIViewController.swift; sourceTree = "<group>"; };
 		FA97E68A2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiantsquidRewardOperationFactory.swift; sourceTree = "<group>"; };
 		FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UISwitch+CustomSize.swift"; sourceTree = "<group>"; };
 		FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissingAccountOptions.swift; sourceTree = "<group>"; };
@@ -9605,6 +9605,7 @@
 		8490144D24A93E2E008F705E /* UIKit */ = {
 			isa = PBXGroup;
 			children = (
+				FA96101F2C5205B200C3C750 /* UIViewController.swift */,
 				FAD067D22C20550B0050291F /* UIImageView+Shimmered.swift */,
 				FAD067952C2043DC0050291F /* UIImage+Monochrome.swift */,
 				FAD429342A8656B7001D6A16 /* UICollectionView.swift */,
@@ -9615,7 +9616,6 @@
 				F409672526B29B04008CD244 /* UIScrollView+ScrollToPage.swift */,
 				8490144E24A93E2E008F705E /* UIImage+Drawing.swift */,
 				849014C424AA890D008F705E /* UIFont+Style.swift */,
-				8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */,
 				84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */,
 				84CCBFBB2509709500180F4F /* UIBarButtonItem+Style.swift */,
 				84D331AE2519E8080078D044 /* TriangularedView+Style.swift */,
@@ -17046,7 +17046,6 @@
 				84B64E412704569D00914E88 /* RelaychainStakingLocalSubscriptionHandler.swift in Sources */,
 				848FFE9525E6DF2200652AA5 /* PagedKeysRequest.swift in Sources */,
 				FAABC4732845C7F4002CF40E /* ValidatorListFilterParachainViewModelState.swift in Sources */,
-				8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */,
 				FAAC292C2ADCF3BB00063962 /* WalletConnectConfirmationCoordinator.swift in Sources */,
 				84F30E9725FD3C5300039D09 /* EventEmittingStorageSubscription.swift in Sources */,
 				AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */,
@@ -17562,6 +17561,7 @@
 				FAA013A328DA1328000A5230 /* TitleMultiValueViewModel.swift in Sources */,
 				84729741260A9C13009B86D0 /* DisplayAddress.swift in Sources */,
 				84F4386125D9A83100AEDA56 /* TimeInterval+Time.swift in Sources */,
+				FA9610202C5205B200C3C750 /* UIViewController.swift in Sources */,
 				FA99425A28053C8800D771E5 /* SelectExportAccountProtocols.swift in Sources */,
 				844EFB5F265FCE180090ACB1 /* CrowdloanContributionInteractor.swift in Sources */,
 				FAA0138F28DA1303000A5230 /* StakingPayoutConfirmationPoolViewModelFactory.swift in Sources */,

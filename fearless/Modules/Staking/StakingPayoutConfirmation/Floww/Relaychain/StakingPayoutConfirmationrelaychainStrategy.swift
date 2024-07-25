@@ -6,7 +6,7 @@ import SSFRuntimeCodingService
 
 protocol StakingPayoutConfirmationrelaychainStrategyOutput {
     func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset)
     func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>)
     func didReceiveFee(result: Result<Decimal, Error>)
     func didStartPayout()
@@ -208,7 +208,8 @@ extension StakingPayoutConfirmationRelayachainStrategy: StakingPayoutConfirmatio
         }
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
+            let chainAssets: [ChainAsset] = chainAsset.isUtility ? [chainAsset] : [chainAsset, chainAsset.chain.utilityChainAssets().first].compactMap { $0 }
+            accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self, deliveryOn: .main, notifyJustWhenUpdated: false)
         }
 
         provideRewardAmount()
@@ -236,8 +237,8 @@ extension StakingPayoutConfirmationRelayachainStrategy: StakingPayoutConfirmatio
 }
 
 extension StakingPayoutConfirmationRelayachainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
-        output?.didReceiveAccountInfo(result: result)
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
+        output?.didReceiveAccountInfo(result: result, accountId: accountId, chainAsset: chainAsset)
     }
 }
 
