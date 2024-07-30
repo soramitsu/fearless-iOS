@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 protocol AccountStatisticsViewOutput: AnyObject {
     func didLoad(view: AccountStatisticsViewInput)
@@ -13,6 +14,7 @@ final class AccountStatisticsViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: AccountStatisticsViewOutput
+    private var shouldDisplayEmptyView: Bool = false
 
     // MARK: - Constructor
 
@@ -60,6 +62,12 @@ final class AccountStatisticsViewController: UIViewController, ViewHolder {
 // MARK: - AccountStatisticsViewInput
 
 extension AccountStatisticsViewController: AccountStatisticsViewInput {
+    func didReceiveError() {
+        rootView.setupEmptyState()
+        shouldDisplayEmptyView = true
+        reloadEmptyState(animated: true)
+    }
+
     func didReceive(viewModel: AccountStatisticsViewModel?) {
         rootView.bind(viewModel: viewModel)
     }
@@ -70,5 +78,38 @@ extension AccountStatisticsViewController: AccountStatisticsViewInput {
 extension AccountStatisticsViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
+    }
+}
+
+// MARK: - EmptyStateViewOwnerProtocol
+
+extension AccountStatisticsViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+// MARK: - EmptyStateDataSource
+
+extension AccountStatisticsViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarningGray()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable.accountStatsErrorMessage(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .smallFilled
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView.contentBackgroundView
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension AccountStatisticsViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        shouldDisplayEmptyView
     }
 }

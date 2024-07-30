@@ -200,6 +200,10 @@ extension SendViewController: SendViewInput {
         rootView.bind(viewModel: viewModel)
     }
 
+    func didReceive(accountScoreViewModel: AccountScoreViewModel?) {
+        rootView.bind(accountScoreViewModel: accountScoreViewModel)
+    }
+
     func didStartLoading() {
         rootView.actionButton.set(loading: true)
     }

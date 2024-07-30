@@ -157,8 +157,9 @@ final class WalletsManagmentTableCell: UITableViewCell {
         backgroundTriangularedView.addSubview(accountScoreView)
         accountScoreView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.trailing.equalTo(optionsButton.snp.leading)
+            make.trailing.equalTo(optionsButton.snp.leading).offset(-8)
             make.height.equalTo(15)
+            make.width.equalTo(32)
         }
     }
 }

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol AddressBookViewModelFactoryProtocol {
     func buildCellViewModels(
@@ -16,9 +17,14 @@ struct ContactsTableSectionModel {
 
 final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
     private let accountScoreFetcher: AccountStatisticsFetching
+    private let chain: ChainModel
 
-    init(accountScoreFetcher: AccountStatisticsFetching) {
+    init(
+        accountScoreFetcher: AccountStatisticsFetching,
+        chain: ChainModel
+    ) {
         self.accountScoreFetcher = accountScoreFetcher
+        self.chain = chain
     }
 
     func buildCellViewModels(
@@ -29,7 +35,11 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
     ) -> [ContactsTableSectionModel] {
         let recentContactsViewModels = recentContacts.map { contactType in
 
-            let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: contactType.address)
+            let accountScoreViewModel = AccountScoreViewModel(
+                fetcher: accountScoreFetcher,
+                address: contactType.address,
+                chain: chain
+            )
 
             return ContactTableCellModel(
                 contactType: contactType,
@@ -53,7 +63,11 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                 contact.name.first?.lowercased() == firstLetter.lowercased()
             }
             let cellModels = contacts.map { contact in
-                let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: contact.address)
+                let accountScoreViewModel = AccountScoreViewModel(
+                    fetcher: accountScoreFetcher,
+                    address: contact.address,
+                    chain: chain
+                )
 
                 return ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate, accountScoreViewModel: accountScoreViewModel)
             }

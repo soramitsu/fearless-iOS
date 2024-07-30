@@ -106,7 +106,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0, chain: nil) }
 
         guard let balance = balanceInfo?[wallet.metaId] else {
             return WalletsManagmentCellViewModel(

@@ -3,7 +3,7 @@ import SoraFoundation
 import SSFNetwork
 
 final class AccountStatisticsAssembly {
-    static func configureModule(address: String) -> AccountStatisticsModuleCreationResult? {
+    static func configureModule(address: String?) -> AccountStatisticsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())

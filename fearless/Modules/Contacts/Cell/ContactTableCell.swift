@@ -45,6 +45,7 @@ class ContactTableCell: UITableViewCell {
 
     private let hStackView: UIStackView = {
         let stackView = UIFactory.default.createHorizontalStackView()
+        stackView.spacing = 4
         stackView.distribution = .fill
         return stackView
     }()

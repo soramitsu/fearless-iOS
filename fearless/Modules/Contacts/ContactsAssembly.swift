@@ -63,7 +63,7 @@ enum ContactsAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: AddressBookViewModelFactory(accountScoreFetcher: accountScoreFetcher),
+            viewModelFactory: AddressBookViewModelFactory(accountScoreFetcher: accountScoreFetcher, chain: source.chain),
             moduleOutput: moduleOutput,
             source: source,
             wallet: wallet

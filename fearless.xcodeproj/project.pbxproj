@@ -2519,9 +2519,6 @@
 		FA8F6386298253ED004B8CD4 /* AddConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F6385298253ED004B8CD4 /* AddConnectionError.swift */; };
 		FA8F63AB29825C90004B8CD4 /* AccountShareFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F63A529825C90004B8CD4 /* AccountShareFactory.swift */; };
 		FA8F63B1298273FE004B8CD4 /* DecodedTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8F63B0298273FE004B8CD4 /* DecodedTypes.swift */; };
-		FA8FD1812AF4B55100354482 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1802AF4B55100354482 /* Web3 */; };
-		FA8FD1832AF4B55100354482 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1822AF4B55100354482 /* Web3ContractABI */; };
-		FA8FD1852AF4B55100354482 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1842AF4B55100354482 /* Web3PromiseKit */; };
 		FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */ = {isa = PBXBuildFile; productRef = FA8FD1872AF4BEDD00354482 /* Swime */; };
 		FA8FD18B2AFB7E6C00354482 /* AssetNetworksTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18A2AFB7E6C00354482 /* AssetNetworksTableCell.swift */; };
 		FA8FD18E2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8FD18D2AFBA2EA00354482 /* AssetNetworksTableCellModel.swift */; };
@@ -2769,6 +2766,10 @@
 		FAB0EDE227AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */; };
 		FAB16A312A9C9BBF00E71F43 /* NftCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB16A302A9C9BBF00E71F43 /* NftCollectionCell.swift */; };
 		FAB16A342A9C9BD000E71F43 /* NftCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB16A332A9C9BD000E71F43 /* NftCellViewModel.swift */; };
+		FAB482EB2C58A8AA00594D89 /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FAB482EA2C58A8AA00594D89 /* Web3 */; };
+		FAB482ED2C58A8AA00594D89 /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FAB482EC2C58A8AA00594D89 /* Web3ContractABI */; };
+		FAB482EF2C58A8AA00594D89 /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FAB482EE2C58A8AA00594D89 /* Web3PromiseKit */; };
+		FAB482F12C58AC7F00594D89 /* ChainModel+Nomis.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB482F02C58AC7F00594D89 /* ChainModel+Nomis.swift */; };
 		FAB707622BB317D300A1131C /* CrossChainViewLoadingCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB707612BB317D300A1131C /* CrossChainViewLoadingCollector.swift */; };
 		FAB707652BB3C06900A1131C /* AssetsAccountRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB707642BB3C06900A1131C /* AssetsAccountRequest.swift */; };
 		FAB707672BB3C1A400A1131C /* AssetAccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB707662BB3C1A400A1131C /* AssetAccountInfo.swift */; };
@@ -3042,6 +3043,7 @@
 		FAF600772C48F08B00E56558 /* AccountScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF600762C48F08B00E56558 /* AccountScoreView.swift */; };
 		FAF6007A2C48F12000E56558 /* AccountScoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF600792C48F12000E56558 /* AccountScoreViewModel.swift */; };
 		FAF6007C2C48FC2500E56558 /* AccountScoreViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF6007B2C48FC2500E56558 /* AccountScoreViewModelFactory.swift */; };
+		FAF6D90D2C57654F00274E69 /* Decimal+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF6D90C2C57654F00274E69 /* Decimal+Formatting.swift */; };
 		FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF92E6527B4275E005467CE /* Bool+ToInt.swift */; };
 		FAF96B582B636FC700E299C1 /* SystemNumberRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF96B572B636FC700E299C1 /* SystemNumberRequest.swift */; };
 		FAF9C2962AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */; };
@@ -5901,6 +5903,7 @@
 		FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionTableCellViewModel.swift; sourceTree = "<group>"; };
 		FAB16A302A9C9BBF00E71F43 /* NftCollectionCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCollectionCell.swift; sourceTree = "<group>"; };
 		FAB16A332A9C9BD000E71F43 /* NftCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NftCellViewModel.swift; sourceTree = "<group>"; };
+		FAB482F02C58AC7F00594D89 /* ChainModel+Nomis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ChainModel+Nomis.swift"; sourceTree = "<group>"; };
 		FAB707612BB317D300A1131C /* CrossChainViewLoadingCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainViewLoadingCollector.swift; sourceTree = "<group>"; };
 		FAB707642BB3C06900A1131C /* AssetsAccountRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetsAccountRequest.swift; sourceTree = "<group>"; };
 		FAB707662BB3C1A400A1131C /* AssetAccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetAccountInfo.swift; sourceTree = "<group>"; };
@@ -6177,6 +6180,7 @@
 		FAF600762C48F08B00E56558 /* AccountScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreView.swift; sourceTree = "<group>"; };
 		FAF600792C48F12000E56558 /* AccountScoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreViewModel.swift; sourceTree = "<group>"; };
 		FAF6007B2C48FC2500E56558 /* AccountScoreViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreViewModelFactory.swift; sourceTree = "<group>"; };
+		FAF6D90C2C57654F00274E69 /* Decimal+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+Formatting.swift"; sourceTree = "<group>"; };
 		FAF92E6527B4275E005467CE /* Bool+ToInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
 		FAF96B572B636FC700E299C1 /* SystemNumberRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNumberRequest.swift; sourceTree = "<group>"; };
 		FAF9C2952AAADE3300A61D21 /* DeprecatedControllerStashAccountCheckService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeprecatedControllerStashAccountCheckService.swift; sourceTree = "<group>"; };
@@ -6298,11 +6302,10 @@
 				FA8810CA2BDCAF260084CC4B /* SSFUtils in Frameworks */,
 				FAF600752C48D79600E56558 /* Cosmos in Frameworks */,
 				FA8FD1882AF4BEDD00354482 /* Swime in Frameworks */,
+				FAB482ED2C58A8AA00594D89 /* Web3ContractABI in Frameworks */,
 				FA8810BA2BDCAF260084CC4B /* SSFPools in Frameworks */,
 				FA8810A42BDCAF260084CC4B /* SSFChainRegistry in Frameworks */,
-				FA8FD1832AF4B55100354482 /* Web3ContractABI in Frameworks */,
 				FA8810B82BDCAF260084CC4B /* SSFPolkaswap in Frameworks */,
-				FA8FD1812AF4B55100354482 /* Web3 in Frameworks */,
 				FA8810BE2BDCAF260084CC4B /* SSFQRService in Frameworks */,
 				FA8810CE2BDCAF260084CC4B /* SoraKeystore in Frameworks */,
 				FA88109E2BDCAF260084CC4B /* SSFAccountManagmentStorage in Frameworks */,
@@ -6312,10 +6315,10 @@
 				FA8810A82BDCAF260084CC4B /* SSFCrypto in Frameworks */,
 				FA8810C42BDCAF260084CC4B /* SSFSingleValueCache in Frameworks */,
 				FA8810AA2BDCAF260084CC4B /* SSFEraKit in Frameworks */,
-				FA8FD1852AF4B55100354482 /* Web3PromiseKit in Frameworks */,
 				FA8810D02BDCAF260084CC4B /* keccak in Frameworks */,
 				FA8810C62BDCAF260084CC4B /* SSFStorageQueryKit in Frameworks */,
 				FA8810B42BDCAF260084CC4B /* SSFModels in Frameworks */,
+				FAB482EB2C58A8AA00594D89 /* Web3 in Frameworks */,
 				FA7254672AC2F12D00EC47A6 /* WalletConnect in Frameworks */,
 				FA72546D2AC2F12D00EC47A6 /* WalletConnectPairing in Frameworks */,
 				FA7254692AC2F12D00EC47A6 /* WalletConnectAuth in Frameworks */,
@@ -6325,6 +6328,7 @@
 				FA8810C22BDCAF260084CC4B /* SSFSigner in Frameworks */,
 				FA8810982BDCAF260084CC4B /* IrohaCrypto in Frameworks */,
 				FA8810CC2BDCAF260084CC4B /* SSFXCM in Frameworks */,
+				FAB482EF2C58A8AA00594D89 /* Web3PromiseKit in Frameworks */,
 				C5AFED6C37C2C29E9903D136 /* Pods_fearlessAll_fearless.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -9392,6 +9396,8 @@
 				FAA9BC402B8F17BA00A875BF /* Collection+Average.swift */,
 				FA24FEFD2B95C32200CD9E04 /* Decimal+DoubleValue.swift */,
 				FAC6CDA82BA814F20013A17E /* UIControl+Disable.swift */,
+				FAF6D90C2C57654F00274E69 /* Decimal+Formatting.swift */,
+				FAB482F02C58AC7F00594D89 /* ChainModel+Nomis.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -15821,9 +15827,6 @@
 				FA72546A2AC2F12D00EC47A6 /* WalletConnectNetworking */,
 				FA72546C2AC2F12D00EC47A6 /* WalletConnectPairing */,
 				FA72546E2AC2F12D00EC47A6 /* Web3Wallet */,
-				FA8FD1802AF4B55100354482 /* Web3 */,
-				FA8FD1822AF4B55100354482 /* Web3ContractABI */,
-				FA8FD1842AF4B55100354482 /* Web3PromiseKit */,
 				FA8FD1872AF4BEDD00354482 /* Swime */,
 				FA8810972BDCAF260084CC4B /* IrohaCrypto */,
 				FA8810992BDCAF260084CC4B /* RobinHood */,
@@ -15855,6 +15858,9 @@
 				FA8810CD2BDCAF260084CC4B /* SoraKeystore */,
 				FA8810CF2BDCAF260084CC4B /* keccak */,
 				FAF600742C48D79600E56558 /* Cosmos */,
+				FAB482EA2C58A8AA00594D89 /* Web3 */,
+				FAB482EC2C58A8AA00594D89 /* Web3ContractABI */,
+				FAB482EE2C58A8AA00594D89 /* Web3PromiseKit */,
 			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
@@ -15923,10 +15929,10 @@
 			mainGroup = 8490139F24A80984008F705E;
 			packageReferences = (
 				FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */,
-				FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */,
 				FA8810962BDCAF260084CC4B /* XCRemoteSwiftPackageReference "shared-features-spm" */,
 				FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */,
+				FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
@@ -18291,6 +18297,7 @@
 				841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */,
 				C89D156BA8B690E8E4DE19ED /* ExportSeedProtocols.swift in Sources */,
 				076D9D2E2939B780002762E3 /* PolkaswapOperationFactoryProtocol.swift in Sources */,
+				FAB482F12C58AC7F00594D89 /* ChainModel+Nomis.swift in Sources */,
 				FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */,
 				84B64E3F2704567700914E88 /* RelaychainStakingLocalStorageSubscriber.swift in Sources */,
 				BD571417BD18C711B76E1D62 /* ExportSeedWireframe.swift in Sources */,
@@ -18775,6 +18782,7 @@
 				FAD429322A865696001D6A16 /* CheckboxButton.swift in Sources */,
 				0DAEDA34F5BCECE5BD64DF26 /* WalletTransactionHistoryWireframe.swift in Sources */,
 				FAD4291F2A86567F001D6A16 /* WalletNameAssembly.swift in Sources */,
+				FAF6D90D2C57654F00274E69 /* Decimal+Formatting.swift in Sources */,
 				D1E085712E7BC0EBF2F4F020 /* WalletTransactionHistoryPresenter.swift in Sources */,
 				FA7D46CD2AF24191005D681B /* SoraRewardOperationFactory.swift in Sources */,
 				FAD429132A86567F001D6A16 /* BackupSelectWalletInteractor.swift in Sources */,
@@ -19865,20 +19873,20 @@
 				kind = branch;
 			};
 		};
-		FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
-			requirement = {
-				kind = exactVersion;
-				version = 7.7.7;
-			};
-		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sendyhalim/Swime";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 3.0.0;
+			};
+		};
+		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/bnsports/Web3.swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 7.7.7;
 			};
 		};
 		FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */ = {
@@ -20062,25 +20070,25 @@
 			package = FA8810962BDCAF260084CC4B /* XCRemoteSwiftPackageReference "shared-features-spm" */;
 			productName = keccak;
 		};
-		FA8FD1802AF4B55100354482 /* Web3 */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
-			productName = Web3;
-		};
-		FA8FD1822AF4B55100354482 /* Web3ContractABI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
-			productName = Web3ContractABI;
-		};
-		FA8FD1842AF4B55100354482 /* Web3PromiseKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA8FD17F2AF4B55100354482 /* XCRemoteSwiftPackageReference "Web3.swift" */;
-			productName = Web3PromiseKit;
-		};
 		FA8FD1872AF4BEDD00354482 /* Swime */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */;
 			productName = Swime;
+		};
+		FAB482EA2C58A8AA00594D89 /* Web3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3;
+		};
+		FAB482EC2C58A8AA00594D89 /* Web3ContractABI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3ContractABI;
+		};
+		FAB482EE2C58A8AA00594D89 /* Web3PromiseKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3PromiseKit;
 		};
 		FAF600742C48D79600E56558 /* Cosmos */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -153,7 +153,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0, chain: nil) }
 
         var fiatBalance: String = ""
         var dayChange: NSAttributedString?

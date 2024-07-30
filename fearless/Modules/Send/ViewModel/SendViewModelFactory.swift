@@ -8,13 +8,19 @@ protocol SendViewModelFactoryProtocol {
         canEditing: Bool
     ) -> RecipientViewModel
     func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel
+    func buildAccountScoreViewModel(address: String, chain: ChainModel) -> AccountScoreViewModel?
 }
 
 final class SendViewModelFactory: SendViewModelFactoryProtocol {
     private let iconGenerator: IconGenerating
+    private let accountScoreFetcher: AccountStatisticsFetching
 
-    init(iconGenerator: IconGenerating) {
+    init(
+        iconGenerator: IconGenerating,
+        accountScoreFetcher: AccountStatisticsFetching
+    ) {
         self.iconGenerator = iconGenerator
+        self.accountScoreFetcher = accountScoreFetcher
     }
 
     func buildRecipientViewModel(
@@ -37,5 +43,9 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
             iconViewModel: iconViewModel,
             canEdit: canEdit
         )
+    }
+
+    func buildAccountScoreViewModel(address: String, chain: ChainModel) -> AccountScoreViewModel? {
+        AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: chain)
     }
 }

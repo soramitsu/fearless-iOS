@@ -53,7 +53,7 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
         }
 
         let ethAddress = selectedMetaAccount.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = ethAddress.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+        let accountScoreViewModel = ethAddress.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0, chain: nil) }
 
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,

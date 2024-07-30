@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 enum AccountScoreRate {
     case low
@@ -18,9 +19,9 @@ enum AccountScoreRate {
     var color: UIColor? {
         switch self {
         case .low:
-            return R.color.colorRed()
-        case .medium:
             return R.color.colorOrange()
+        case .medium:
+            return R.color.colorYellow()
         case .high:
             return R.color.colorGreen()
         }
@@ -30,12 +31,14 @@ enum AccountScoreRate {
 class AccountScoreViewModel {
     private let fetcher: AccountStatisticsFetching
     let address: String
+    let scoringEnabled: Bool
 
     weak var view: AccountScoreView?
 
-    init(fetcher: AccountStatisticsFetching, address: String) {
+    init(fetcher: AccountStatisticsFetching, address: String, chain: ChainModel?) {
         self.fetcher = fetcher
         self.address = address
+        scoringEnabled = chain?.isNomisSupported == true || chain == nil
     }
 
     func setup(with view: AccountScoreView?) {
@@ -55,6 +58,7 @@ class AccountScoreViewModel {
 
     private func handle(response: AccountStatisticsResponse?) {
         guard let score = response?.data?.score else {
+            view?.bindEmptyViewModel()
             return
         }
 

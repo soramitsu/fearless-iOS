@@ -1281,3 +1281,5 @@ To find out more, contact %@";
 "common.activation.required" = "Activation Required";
 "error.scan.qr.disabled.asset" = "The asset you want to transfer is either unsupported or turned off. Go to Asset Management, activate the asset, and then scan the QR code again.";
 "account.stats.wallet.option.title" = "Show wallet score";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";

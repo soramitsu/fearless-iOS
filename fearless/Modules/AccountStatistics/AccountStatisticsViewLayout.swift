@@ -91,6 +91,13 @@ final class AccountStatisticsViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func setupEmptyState() {
+        stackView.isHidden = true
+        addressView.isHidden = true
+        ratingView.rating = 0
+        ratingView.settings.emptyBorderColor = R.color.colorLightGray()!
+    }
+
     func bind(viewModel: AccountStatisticsViewModel?) {
         if let rating = viewModel?.rating {
             ratingView.rating = rating
@@ -189,7 +196,7 @@ final class AccountStatisticsViewLayout: UIView {
 
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(ratingView.snp.bottom).offset(8)
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.leading.trailing.equalToSuperview().inset(24)
         }
 
         scoreLabel.snp.makeConstraints { make in

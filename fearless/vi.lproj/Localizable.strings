@@ -1203,3 +1203,5 @@ thuộc đúng mạng";
 "your.validators.validator.total.stake" = "Tổng đã stake: %@";
 "сurrencies.stub.text" = "Tiền tệ";
 "account.stats.wallet.option.title" = "Show wallet score";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";

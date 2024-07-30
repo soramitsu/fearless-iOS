@@ -92,7 +92,7 @@ extension NftSendInteractor: NftSendInteractorInput {
 
     func fetchScamInfo(for address: String) {
         Task {
-            let scamInfo = try await scamInfoFetching.fetch(address: address)
+            let scamInfo = try await scamInfoFetching.fetch(address: address, chain: chain)
             output?.didReceive(scamInfo: scamInfo)
         }
     }
