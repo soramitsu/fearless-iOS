@@ -40,7 +40,7 @@ final class BackupWalletAssembly {
             signer: NomisRequestSigner()
         )
 
-        let viewModelFactory = BackupWalletViewModelFactory(accountScoreFetcher: accountScoreFetcher)
+        let viewModelFactory = BackupWalletViewModelFactory(accountScoreFetcher: accountScoreFetcher, settings: SettingsManager.shared)
         let presenter = BackupWalletPresenter(
             wallet: wallet,
             interactor: interactor,

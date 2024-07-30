@@ -69,7 +69,11 @@ enum NftSendAssembly {
                 wallet: wallet,
                 logger: Logger.shared,
                 viewModelFactory:
-                SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
+                SendViewModelFactory(
+                    iconGenerator: UniversalIconGenerator(),
+                    accountScoreFetcher: accountStatisticsFetcher,
+                    settings: SettingsManager.shared
+                ),
                 dataValidatingFactory: dataValidatingFactory
             )
 

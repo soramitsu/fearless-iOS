@@ -175,9 +175,9 @@ extension SendInteractor: SendInteractorInput {
         dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
     }
 
-    func fetchScamInfo(for address: String) {
+    func fetchScamInfo(for address: String, chain: ChainModel) {
         Task {
-            let scamInfo = try await scamInfoFetching.fetch(address: address)
+            let scamInfo = try await scamInfoFetching.fetch(address: address, chain: chain)
             output?.didReceive(scamInfo: scamInfo)
         }
     }

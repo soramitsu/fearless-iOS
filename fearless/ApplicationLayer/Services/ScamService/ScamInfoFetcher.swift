@@ -1,7 +1,8 @@
 import Foundation
+import SSFModels
 
 protocol ScamInfoFetching {
-    func fetch(address: String) async throws -> ScamInfo?
+    func fetch(address: String, chain: ChainModel) async throws -> ScamInfo?
 }
 
 final class ScamInfoFetcher: ScamInfoFetching {
@@ -17,11 +18,15 @@ final class ScamInfoFetcher: ScamInfoFetching {
         self.accountScoreFetching = accountScoreFetching
     }
 
-    func fetch(address: String) async throws -> ScamInfo? {
+    func fetch(address: String, chain: ChainModel) async throws -> ScamInfo? {
         let scamFeatureCheckingResult = try? await fetchScamInfo(address: address)
 
         guard scamFeatureCheckingResult == nil else {
             return scamFeatureCheckingResult
+        }
+
+        guard chain.isNomisSupported else {
+            return nil
         }
 
         return try? await fetchAccountScore(address: address)
@@ -49,11 +54,16 @@ final class ScamInfoFetcher: ScamInfoFetching {
     private func fetchAccountScore(address: String) async throws -> ScamInfo? {
         let score: AccountStatisticsResponse? = try await accountScoreFetching.fetchStatistics(address: address)
         let scamInfo: ScamInfo? = score.flatMap {
-            guard ($0.data?.score).or(.zero) < 25 else {
+            guard ($0.data?.score).or(.zero) < 0.25 else {
                 return nil
             }
 
-            return ScamInfo(name: "Low score", address: address, type: .lowScore, subtype: "Low network activity")
+            return ScamInfo(
+                name: "Nomis multi-chain score",
+                address: address,
+                type: .lowScore,
+                subtype: "Proceed with caution"
+            )
         }
 
         return scamInfo

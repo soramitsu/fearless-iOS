@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFCloudStorage
 import SSFModels
+import SoraKeystore
 
 protocol BackupWalletViewModelFactoryProtocol {
     func createViewModel(
@@ -35,9 +36,11 @@ enum BackupWalletOptions: Int, CaseIterable {
 final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
     private let accountScoreFetcher: AccountStatisticsFetching
+    private let settings: SettingsManagerProtocol
 
-    init(accountScoreFetcher: AccountStatisticsFetching) {
+    init(accountScoreFetcher: AccountStatisticsFetching, settings: SettingsManagerProtocol) {
         self.accountScoreFetcher = accountScoreFetcher
+        self.settings = settings
     }
 
     func createViewModel(
@@ -153,7 +156,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared)
 
         var fiatBalance: String = ""
         var dayChange: NSAttributedString?

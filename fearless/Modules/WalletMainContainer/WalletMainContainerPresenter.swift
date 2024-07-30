@@ -116,10 +116,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapAccountScore() {
-        guard let address = wallet.ethereumAddress?.toHex(includePrefix: true) else {
-            return
-        }
-
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
         router.presentAccountScore(address: address, from: view)
     }
 }

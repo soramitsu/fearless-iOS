@@ -2,14 +2,14 @@ import Foundation
 
 protocol AccountScorePresentable {
     func presentAccountScore(
-        address: String,
+        address: String?,
         from view: ControllerBackedProtocol?
     )
 }
 
 extension AccountScorePresentable {
     func presentAccountScore(
-        address: String,
+        address: String?,
         from view: ControllerBackedProtocol?
     ) {
         guard let controller = view?.controller else {

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFModels
+import SoraKeystore
 
 protocol WalletsManagmentViewModelFactoryProtocol {
     func buildViewModel(
@@ -41,7 +42,13 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
             }
 
             let address = managedMetaAccount.info.ethereumAddress?.toHex(includePrefix: true)
-            let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0) }
+            let accountScoreViewModel = AccountScoreViewModel(
+                fetcher: accountScoreFetcher,
+                address: address,
+                chain: nil,
+                settings: SettingsManager.shared,
+                eventCenter: EventCenter.shared
+            )
 
             guard let walletBalance = balances[key] else {
                 return WalletsManagmentCellViewModel(

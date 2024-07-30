@@ -3,6 +3,7 @@ import SoraFoundation
 
 protocol AccountStatisticsViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: AccountStatisticsViewModel?)
+    func didReceiveError()
 }
 
 protocol AccountStatisticsInteractorInput: AnyObject {
@@ -81,6 +82,10 @@ extension AccountStatisticsPresenter: AccountStatisticsInteractorOutput {
     }
 
     func didReceiveAccountStatisticsError(_: Error) {}
+
+    func didReceiveNoDataAvailableState() {
+        view?.didReceiveError()
+    }
 }
 
 // MARK: - Localizable

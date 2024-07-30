@@ -227,14 +227,15 @@ final class ChainRegistry {
             return
         }
         chains.append(newChain)
-        _ = try ethereumConnectionPool.setupConnection(for: newChain)
+
+        _ = try? ethereumConnectionPool.setupConnection(for: newChain)
     }
 
     private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-        _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
+        _ = try? ethereumConnectionPool.setupConnection(for: updatedChain)
         chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }
@@ -311,16 +312,16 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
-        readLock.concurrentlyRead {
-            guard
-                let ethereumConnectionPool = self.ethereumConnectionPool,
-                let chain = chains.first(where: { $0.chainId == chainId })
-            else {
-                return nil
-            }
-
-            return try? ethereumConnectionPool.setupConnection(for: chain)
+//        readLock.concurrentlyRead {
+        guard
+            let ethereumConnectionPool = self.ethereumConnectionPool,
+            let chain = chains.first(where: { $0.chainId == chainId })
+        else {
+            return nil
         }
+
+        return try? ethereumConnectionPool.setupConnection(for: chain)
+//        }
     }
 
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {

@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
+import SoraKeystore
 
 enum ContactSource {
     case token(chainAsset: ChainAsset)
@@ -63,7 +64,11 @@ enum ContactsAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: AddressBookViewModelFactory(accountScoreFetcher: accountScoreFetcher),
+            viewModelFactory: AddressBookViewModelFactory(
+                accountScoreFetcher: accountScoreFetcher,
+                chain: source.chain,
+                settings: SettingsManager.shared
+            ),
             moduleOutput: moduleOutput,
             source: source,
             wallet: wallet

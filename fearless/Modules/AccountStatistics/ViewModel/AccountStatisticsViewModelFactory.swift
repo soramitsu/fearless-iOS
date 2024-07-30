@@ -6,7 +6,7 @@ protocol AccountStatisticsViewModelFactory {
 }
 
 final class AccountStatisticsViewModelFactoryImpl: AccountStatisticsViewModelFactory {
-    private lazy var timeFormatter = TotalTimeFormatter()
+    private lazy var timeFormatter = HourMinuteFormatter()
 
     func buildViewModel(accountScore: AccountStatistics?, locale: Locale) -> AccountStatisticsViewModel? {
         guard let accountScore, let score = accountScore.score else {
@@ -29,9 +29,13 @@ final class AccountStatisticsViewModelFactoryImpl: AccountStatisticsViewModelFac
         let walletAgeText = accountScore.stats?.walletAge.flatMap { "\($0) month" }
         let totalTransactionsText = accountScore.stats?.totalTransactions.flatMap { "\($0)" }
         let rejectedTransactionsText = accountScore.stats?.totalRejectedTransactions.flatMap { "\($0)" }
-        let avgTransactionTimeText = avgTxTime.flatMap { try? timeFormatter.string(from: $0) }
-        let maxTransactionTimeText = maxTxTime.flatMap { try? timeFormatter.string(from: $0) }
-        let minTransactionTimeText = minTxTime.flatMap { try? timeFormatter.string(from: $0) }
+
+        let avgTransactionTimeText = avgTxTime
+            .flatMap { "\(Decimal($0).string(maximumFractionDigits: 2)) hours" }
+        let maxTransactionTimeText = maxTxTime
+            .flatMap { "\(Decimal($0).string(maximumFractionDigits: 2)) hours" }
+        let minTransactionTimeText = minTxTime
+            .flatMap { "\(Decimal($0).string(maximumFractionDigits: 2)) hours" }
 
         return AccountStatisticsViewModel(
             rating: doubleScore,

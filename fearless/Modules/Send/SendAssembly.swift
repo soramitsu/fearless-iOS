@@ -12,6 +12,7 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
+import SoraKeystore
 
 final class SendAssembly {
     static func configureModule(
@@ -56,7 +57,10 @@ final class SendAssembly {
         let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createAsyncRepository()
         let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
-        let scamInfoFetcher = ScamInfoFetcher(scamServiceOperationFactory: scamServiceOperationFactory, accountScoreFetching: accountStatisticsFetcher)
+        let scamInfoFetcher = ScamInfoFetcher(
+            scamServiceOperationFactory: scamServiceOperationFactory,
+            accountScoreFetching: accountStatisticsFetcher
+        )
         let interactor = SendInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -72,7 +76,11 @@ final class SendAssembly {
         )
         let router = SendRouter()
 
-        let viewModelFactory = SendViewModelFactory(iconGenerator: UniversalIconGenerator())
+        let viewModelFactory = SendViewModelFactory(
+            iconGenerator: UniversalIconGenerator(),
+            accountScoreFetcher: accountStatisticsFetcher,
+            settings: SettingsManager.shared
+        )
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = SendPresenter(
             interactor: interactor,

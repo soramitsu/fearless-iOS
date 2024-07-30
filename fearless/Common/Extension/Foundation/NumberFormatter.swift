@@ -123,4 +123,12 @@ extension NumberFormatter {
         formatter.usesGroupingSeparator = usesIntGrouping
         return formatter
     }
+
+    static var nomisHours: NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 8
+        return formatter
+    }
 }

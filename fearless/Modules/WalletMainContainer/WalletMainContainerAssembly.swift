@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SSFUtils
 import SSFNetwork
+import SoraKeystore
 
 final class WalletMainContainerAssembly {
     static func configureModule(
@@ -82,7 +83,10 @@ final class WalletMainContainerAssembly {
             return nil
         }
 
-        let viewModelFactory = WalletMainContainerViewModelFactory(accountScoreFetcher: accountScoreFetcher)
+        let viewModelFactory = WalletMainContainerViewModelFactory(
+            accountScoreFetcher: accountScoreFetcher,
+            settings: SettingsManager.shared
+        )
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
