@@ -25,6 +25,7 @@ enum ProfileOption: UInt, CaseIterable {
     case changePincode
     case biometry
     case about
+    case accountScore
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -108,7 +109,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         }
 
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0, chain: nil) }
+        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared)
 
         return WalletsManagmentCellViewModel(
             isSelected: false,
@@ -146,6 +147,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
+            case .accountScore:
+                return createAccountScoreViewModel(locale: locale)
             }
         }
 
@@ -288,6 +291,20 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
         return viewModel
     }
+
+    private func createAccountScoreViewModel(locale: Locale) -> ProfileOptionViewModel? {
+        let viewModel = ProfileOptionViewModel(
+            title: R.string.localizable.profileAccountScoreTitle(preferredLanguages: locale.rLanguages),
+            icon: R.image.iconProfleAccountScore(),
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .switcher(settings.accountScoreEnabled ?? false),
+            option: .accountScore
+        )
+        return viewModel
+    }
+
+    // MARK: Additional
 
     private func getDayChangeAttributedString(
         currency: Currency,

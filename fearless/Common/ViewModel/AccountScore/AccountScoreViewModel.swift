@@ -1,4 +1,5 @@
 import UIKit
+import SoraKeystore
 import SSFModels
 
 enum AccountScoreRate {
@@ -29,20 +30,38 @@ enum AccountScoreRate {
 }
 
 class AccountScoreViewModel {
+    private let eventCenter: EventCenterProtocol
     private let fetcher: AccountStatisticsFetching
-    let address: String
-    let scoringEnabled: Bool
+    private let chain: ChainModel?
+    private let settings: SettingsManagerProtocol
+    let address: String?
+    var scoringEnabled: Bool
 
     weak var view: AccountScoreView?
 
-    init(fetcher: AccountStatisticsFetching, address: String, chain: ChainModel?) {
+    init(
+        fetcher: AccountStatisticsFetching,
+        address: String?,
+        chain: ChainModel?,
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol
+    ) {
         self.fetcher = fetcher
         self.address = address
-        scoringEnabled = chain?.isNomisSupported == true || chain == nil
+        self.chain = chain
+        self.settings = settings
+        self.eventCenter = eventCenter
+
+        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true
     }
 
     func setup(with view: AccountScoreView?) {
+        eventCenter.add(observer: self)
         self.view = view
+
+        guard let address else {
+            return
+        }
 
         Task {
             do {
@@ -67,6 +86,16 @@ class AccountScoreViewModel {
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.bind(score: intScore, rate: rate)
+        }
+    }
+}
+
+extension AccountScoreViewModel: EventVisitorProtocol {
+    func processAccountScoreSettingsChanged() {
+        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.bind(viewModel: self)
         }
     }
 }

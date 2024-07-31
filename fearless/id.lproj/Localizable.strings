@@ -1191,3 +1191,4 @@ akan muncul di sini";
 "account.stats.wallet.option.title" = "Show wallet score";
 "scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
 "account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"profile.account.score.title" = "Nomis multichain score";

@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SoraKeystore
 
 protocol AddressBookViewModelFactoryProtocol {
     func buildCellViewModels(
@@ -18,13 +19,16 @@ struct ContactsTableSectionModel {
 final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
     private let accountScoreFetcher: AccountStatisticsFetching
     private let chain: ChainModel
+    private let settings: SettingsManagerProtocol
 
     init(
         accountScoreFetcher: AccountStatisticsFetching,
-        chain: ChainModel
+        chain: ChainModel,
+        settings: SettingsManagerProtocol
     ) {
         self.accountScoreFetcher = accountScoreFetcher
         self.chain = chain
+        self.settings = settings
     }
 
     func buildCellViewModels(
@@ -38,7 +42,9 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
             let accountScoreViewModel = AccountScoreViewModel(
                 fetcher: accountScoreFetcher,
                 address: contactType.address,
-                chain: chain
+                chain: chain,
+                settings: settings,
+                eventCenter: EventCenter.shared
             )
 
             return ContactTableCellModel(
@@ -66,7 +72,9 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                 let accountScoreViewModel = AccountScoreViewModel(
                     fetcher: accountScoreFetcher,
                     address: contact.address,
-                    chain: chain
+                    chain: chain,
+                    settings: settings,
+                    eventCenter: EventCenter.shared
                 )
 
                 return ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate, accountScoreViewModel: accountScoreViewModel)

@@ -12,6 +12,7 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
+import SoraKeystore
 
 final class SendAssembly {
     static func configureModule(
@@ -77,7 +78,8 @@ final class SendAssembly {
 
         let viewModelFactory = SendViewModelFactory(
             iconGenerator: UniversalIconGenerator(),
-            accountScoreFetcher: accountStatisticsFetcher
+            accountScoreFetcher: accountStatisticsFetcher,
+            settings: SettingsManager.shared
         )
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = SendPresenter(

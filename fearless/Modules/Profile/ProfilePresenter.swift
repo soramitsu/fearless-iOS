@@ -90,7 +90,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .currency:
             guard let selectedWallet = selectedWallet else { return }
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
-        case .biometry:
+        case .biometry, .accountScore:
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
@@ -102,6 +102,11 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .biometry:
             settings.biometryEnabled = isOn
+        case .accountScore:
+            settings.accountScoreEnabled = isOn
+
+            let event = AccountScoreSettingsChanged()
+            eventCenter.notify(with: event)
         default:
             break
         }
