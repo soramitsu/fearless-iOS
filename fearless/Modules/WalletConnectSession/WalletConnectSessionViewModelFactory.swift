@@ -3,6 +3,7 @@ import WalletConnectSign
 import SoraFoundation
 import SSFModels
 import SSFUtils
+import SoraKeystore
 
 protocol WalletConnectSessionViewModelFactory {
     func buildViewModel(
@@ -20,6 +21,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
     private let walletConnectPayloaFactory: WalletConnectPayloadFactory
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     private let accountScoreFetcher: AccountStatisticsFetching
+    private let settings: SettingsManagerProtocol
 
     init(
         request: Request,
@@ -27,7 +29,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         walletConnectModelFactory: WalletConnectModelFactory,
         walletConnectPayloaFactory: WalletConnectPayloadFactory,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
-        accountScoreFetcher: AccountStatisticsFetching
+        accountScoreFetcher: AccountStatisticsFetching,
+        settings: SettingsManagerProtocol
     ) {
         self.request = request
         self.session = session
@@ -35,6 +38,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         self.walletConnectPayloaFactory = walletConnectPayloaFactory
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
         self.accountScoreFetcher = accountScoreFetcher
+        self.settings = settings
     }
 
     func buildViewModel(
@@ -106,7 +110,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
         let address = wallet.ethereumAddress?.toHex(includePrefix: true)
-        let accountScoreViewModel = address.flatMap { AccountScoreViewModel(fetcher: accountScoreFetcher, address: $0, chain: nil) }
+        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared)
 
         guard let balance = balanceInfo?[wallet.metaId] else {
             return WalletsManagmentCellViewModel(

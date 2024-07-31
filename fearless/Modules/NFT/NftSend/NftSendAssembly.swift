@@ -71,7 +71,8 @@ enum NftSendAssembly {
                 viewModelFactory:
                 SendViewModelFactory(
                     iconGenerator: UniversalIconGenerator(),
-                    accountScoreFetcher: accountStatisticsFetcher
+                    accountScoreFetcher: accountStatisticsFetcher,
+                    settings: SettingsManager.shared
                 ),
                 dataValidatingFactory: dataValidatingFactory
             )

@@ -4,6 +4,7 @@ import SoraFoundation
 import SoraUI
 import RobinHood
 import SSFNetwork
+import SoraKeystore
 
 enum WalletConnectSessionAssembly {
     static func configureModule(
@@ -45,7 +46,8 @@ enum WalletConnectSessionAssembly {
             walletConnectModelFactory: walletConnectModelFactory,
             walletConnectPayloaFactory: walletConnectPayloaFactory,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
-            accountScoreFetcher: accountScoreFetcher
+            accountScoreFetcher: accountScoreFetcher,
+            settings: SettingsManager.shared
         )
         let presenter = WalletConnectSessionPresenter(
             request: request,

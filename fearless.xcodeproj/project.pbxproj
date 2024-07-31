@@ -3042,7 +3042,6 @@
 		FAF600752C48D79600E56558 /* Cosmos in Frameworks */ = {isa = PBXBuildFile; productRef = FAF600742C48D79600E56558 /* Cosmos */; };
 		FAF600772C48F08B00E56558 /* AccountScoreView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF600762C48F08B00E56558 /* AccountScoreView.swift */; };
 		FAF6007A2C48F12000E56558 /* AccountScoreViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF600792C48F12000E56558 /* AccountScoreViewModel.swift */; };
-		FAF6007C2C48FC2500E56558 /* AccountScoreViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF6007B2C48FC2500E56558 /* AccountScoreViewModelFactory.swift */; };
 		FAF6D90D2C57654F00274E69 /* Decimal+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF6D90C2C57654F00274E69 /* Decimal+Formatting.swift */; };
 		FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF92E6527B4275E005467CE /* Bool+ToInt.swift */; };
 		FAF96B582B636FC700E299C1 /* SystemNumberRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF96B572B636FC700E299C1 /* SystemNumberRequest.swift */; };
@@ -3059,6 +3058,8 @@
 		FAF9C2B42AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */; };
 		FAF9C2B72AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */; };
 		FAFB47D72ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB47D62ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift */; };
+		FAFB5EE02C5A11A30015D3DD /* AccountScoreSettingsChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB5EDF2C5A11A30015D3DD /* AccountScoreSettingsChanged.swift */; };
+		FAFB5EE22C5A2CE80015D3DD /* FWCosmosView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */; };
 		FAFBEE81284621800036D08C /* SelectedValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */; };
 		FAFBEE83284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */; };
 		FAFDB2C329112A00003971FB /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */; };
@@ -6179,7 +6180,6 @@
 		FAF5E9E027E4A4C1005A3448 /* RootViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootViewModel.swift; sourceTree = "<group>"; };
 		FAF600762C48F08B00E56558 /* AccountScoreView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreView.swift; sourceTree = "<group>"; };
 		FAF600792C48F12000E56558 /* AccountScoreViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreViewModel.swift; sourceTree = "<group>"; };
-		FAF6007B2C48FC2500E56558 /* AccountScoreViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreViewModelFactory.swift; sourceTree = "<group>"; };
 		FAF6D90C2C57654F00274E69 /* Decimal+Formatting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+Formatting.swift"; sourceTree = "<group>"; };
 		FAF92E6527B4275E005467CE /* Bool+ToInt.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Bool+ToInt.swift"; sourceTree = "<group>"; };
 		FAF96B572B636FC700E299C1 /* SystemNumberRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNumberRequest.swift; sourceTree = "<group>"; };
@@ -6202,6 +6202,8 @@
 		FAF9C2AD2AAF3FDF00A61D21 /* GetPreinstalledWalletProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletProtocols.swift; sourceTree = "<group>"; };
 		FAF9C2B62AAF3FF100A61D21 /* GetPreinstalledWalletTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GetPreinstalledWalletTests.swift; sourceTree = "<group>"; };
 		FAFB47D62ABD589C0008F8CA /* EthereumBalanceRepositoryCacheWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumBalanceRepositoryCacheWrapper.swift; sourceTree = "<group>"; };
+		FAFB5EDF2C5A11A30015D3DD /* AccountScoreSettingsChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountScoreSettingsChanged.swift; sourceTree = "<group>"; };
+		FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FWCosmosView.swift; sourceTree = "<group>"; };
 		FAFBEE80284621800036D08C /* SelectedValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAFBEE82284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
@@ -9398,6 +9400,7 @@
 				FAC6CDA82BA814F20013A17E /* UIControl+Disable.swift */,
 				FAF6D90C2C57654F00274E69 /* Decimal+Formatting.swift */,
 				FAB482F02C58AC7F00594D89 /* ChainModel+Nomis.swift */,
+				FAFB5EE12C5A2CE80015D3DD /* FWCosmosView.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -10688,6 +10691,7 @@
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
 				FAE39AF22A9E1A4F0011A9D6 /* ChainsSetupCompleted.swift */,
 				C65C7F6A2AD82B8D0069D877 /* LogoutEvent.swift */,
+				FAFB5EDF2C5A11A30015D3DD /* AccountScoreSettingsChanged.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -15590,7 +15594,6 @@
 			isa = PBXGroup;
 			children = (
 				FAF600792C48F12000E56558 /* AccountScoreViewModel.swift */,
-				FAF6007B2C48FC2500E56558 /* AccountScoreViewModelFactory.swift */,
 			);
 			path = AccountScore;
 			sourceTree = "<group>";
@@ -18326,6 +18329,7 @@
 				FAF9C2B22AAF3FDF00A61D21 /* GetPreinstalledWalletPresenter.swift in Sources */,
 				90EFE3768F1375470FDBE6F6 /* PurchaseViewFactory.swift in Sources */,
 				F4A198EE2631AA2000CD6E61 /* StakingBalanceUnbondingItemView.swift in Sources */,
+				FAFB5EE22C5A2CE80015D3DD /* FWCosmosView.swift in Sources */,
 				C63468E228F2C964005CB1F1 /* ContactTableCell.swift in Sources */,
 				076D9D57294B38E1002762E3 /* PolkaswapPreviewParams.swift in Sources */,
 				FA99425528053C8800D771E5 /* SelectExportAccountInteractor.swift in Sources */,
@@ -18513,6 +18517,7 @@
 				FAADC1A529261F7000DA9903 /* PoolRolesConfirmProtocols.swift in Sources */,
 				F022F1444E0F75CCA42F4648 /* YourValidatorListProtocols.swift in Sources */,
 				8493D0E326FF571D00A28008 /* PriceProviderFactory.swift in Sources */,
+				FAFB5EE02C5A11A30015D3DD /* AccountScoreSettingsChanged.swift in Sources */,
 				F7EB8F835CFA7FC949EF4C22 /* YourValidatorListWireframe.swift in Sources */,
 				AEA0C8AC267B6B5200F9666F /* SelectedValidatorListViewFactory.swift in Sources */,
 				DBA436B3B1C90965FE8F9B79 /* YourValidatorListPresenter.swift in Sources */,
@@ -18956,7 +18961,6 @@
 				B15D513381B7626AB90018F0 /* StakingPoolInfoInteractor.swift in Sources */,
 				89C8A9B990B08016A70ED336 /* StakingPoolInfoViewController.swift in Sources */,
 				281D17EF8C45A1FC49FD1523 /* StakingPoolInfoViewLayout.swift in Sources */,
-				FAF6007C2C48FC2500E56558 /* AccountScoreViewModelFactory.swift in Sources */,
 				39DA5795FB9DBF626B72B5C6 /* StakingPoolInfoAssembly.swift in Sources */,
 				4A63ECA587C601999AAEB974 /* StakingPoolCreateProtocols.swift in Sources */,
 				7BC6FB48B9B4EC790923FF1E /* StakingPoolCreateRouter.swift in Sources */,

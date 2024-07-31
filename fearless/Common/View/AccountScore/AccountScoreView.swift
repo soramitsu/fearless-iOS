@@ -7,8 +7,8 @@ class AccountScoreView: UIView {
 
     private var skeletonView: SkrullableView?
 
-    let starView: CosmosView = {
-        let view = CosmosView()
+    let starView: FWCosmosView = {
+        let view = FWCosmosView()
         view.settings.totalStars = 1
         view.settings.starSize = 15
         view.settings.textMargin = 2
@@ -31,12 +31,15 @@ class AccountScoreView: UIView {
     }
 
     func bind(viewModel: AccountScoreViewModel?) {
+        self.viewModel = viewModel
+        viewModel?.setup(with: self)
+
         if viewModel?.scoringEnabled == false {
             isHidden = true
             return
         }
 
-        if viewModel?.address.starts(with: "0x") != true {
+        if viewModel?.address?.starts(with: "0x") != true {
             isHidden = false
             bindEmptyViewModel()
             return
@@ -44,8 +47,6 @@ class AccountScoreView: UIView {
 
         isHidden = false
         startLoadingIfNeeded()
-        self.viewModel = viewModel
-        viewModel?.setup(with: self)
     }
 
     func bind(score: Int, rate: AccountScoreRate) {
@@ -97,6 +98,11 @@ class AccountScoreView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         didUpdateSkeletonLayout()
+    }
+
+    override func point(inside point: CGPoint, with _: UIEvent?) -> Bool {
+        let oprimizedBounds = FWCosmosTouchTarget.optimize(bounds)
+        return oprimizedBounds.contains(point)
     }
 }
 
