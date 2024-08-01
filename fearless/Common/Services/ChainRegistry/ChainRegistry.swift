@@ -228,21 +228,16 @@ final class ChainRegistry {
         }
         chains.append(newChain)
 
-        DispatchQueue.global(qos: .background).async {
-            _ = try? ethereumConnectionPool.setupConnection(for: newChain)
-        }
+        _ = try? ethereumConnectionPool.setupConnection(for: newChain)
     }
 
     private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-        DispatchQueue.global(qos: .background).async { [weak self] in
-            guard let self else { return }
-            _ = try? ethereumConnectionPool.setupConnection(for: updatedChain)
-            self.chains = self.chains.filter { $0.chainId != updatedChain.chainId }
-            self.chains.append(updatedChain)
-        }
+        _ = try? ethereumConnectionPool.setupConnection(for: updatedChain)
+        chains = chains.filter { $0.chainId != updatedChain.chainId }
+        chains.append(updatedChain)
     }
 
     private func handleDeletedEthereumChain(chainId: ChainModel.Id) {

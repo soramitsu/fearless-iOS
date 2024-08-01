@@ -10,7 +10,7 @@ class FWCosmosView: CosmosView {
 
 enum FWCosmosTouchTarget {
     static func optimize(_ bounds: CGRect) -> CGRect {
-        let recommendedHitSize: CGFloat = 60
+        let recommendedHitSize: CGFloat = 44
 
         var hitWidthIncrease: CGFloat = recommendedHitSize - bounds.width
         var hitHeightIncrease: CGFloat = recommendedHitSize - bounds.height
