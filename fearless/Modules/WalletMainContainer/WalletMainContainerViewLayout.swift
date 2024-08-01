@@ -212,7 +212,7 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupWalletBalanceLayout() {
-        addSubview(accountScoreView)
+        insertSubview(accountScoreView, belowSubview: navigationContainerView)
         accountScoreView.snp.makeConstraints { make in
             make.top.equalTo(navigationContainerView.snp.bottom).offset(4)
             make.centerX.equalTo(switchWalletButton.snp.centerX)
