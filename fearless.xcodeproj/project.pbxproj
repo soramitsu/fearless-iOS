@@ -201,7 +201,7 @@
 		07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA455289B78E10035A8AB /* CopyableLabelView.swift */; };
 		07DFA45A289B8D520035A8AB /* WalletBalanceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */; };
 		07E346D4288E616E00A8FAEC /* WalletBalanceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */; };
-		07EA42B82C5D00D500137A70 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07EA42B02C5D00D500137A70 /* SubstrateDataModel.xcdatamodeld */; };
+		07EA42C12C5D02D400137A70 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07EA42B92C5D02D300137A70 /* SubstrateDataModel.xcdatamodeld */; };
 		07F2B75728A3A4B800280C38 /* ChainCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */; };
 		07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75E28AA183C00280C38 /* PrintTimer.swift */; };
 		07F2B76128AB806400280C38 /* SnapshotHotBootBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B76028AB806400280C38 /* SnapshotHotBootBuilder.swift */; };
@@ -3219,13 +3219,13 @@
 		07DFA455289B78E10035A8AB /* CopyableLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CopyableLabelView.swift; path = fearless/Common/View/CopyableLabelView.swift; sourceTree = SOURCE_ROOT; };
 		07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletBalanceInfo.swift; sourceTree = "<group>"; };
 		07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceBuilder.swift; sourceTree = "<group>"; };
-		07EA42B12C5D00D500137A70 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
-		07EA42B22C5D00D500137A70 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
-		07EA42B32C5D00D500137A70 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
-		07EA42B42C5D00D500137A70 /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
-		07EA42B52C5D00D500137A70 /* SubstrateDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
-		07EA42B62C5D00D500137A70 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
-		07EA42B72C5D00D500137A70 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
+		07EA42BA2C5D02D300137A70 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
+		07EA42BB2C5D02D300137A70 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
+		07EA42BC2C5D02D300137A70 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
+		07EA42BD2C5D02D300137A70 /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
+		07EA42BE2C5D02D300137A70 /* SubstrateDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
+		07EA42BF2C5D02D300137A70 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
+		07EA42C02C5D02D300137A70 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainCollectionView.swift; sourceTree = "<group>"; };
 		07F2B75E28AA183C00280C38 /* PrintTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintTimer.swift; sourceTree = "<group>"; };
 		07F2B76028AB806400280C38 /* SnapshotHotBootBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotHotBootBuilder.swift; sourceTree = "<group>"; };
@@ -8789,7 +8789,7 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				07EA42B02C5D00D500137A70 /* SubstrateDataModel.xcdatamodeld */,
+				07EA42B92C5D02D300137A70 /* SubstrateDataModel.xcdatamodeld */,
 				FACD42852A5BE811009975AA /* Migration */,
 				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
@@ -17580,7 +17580,7 @@
 				FA286B112A3043DB008BD527 /* CrossChainConfirmationAssembly.swift in Sources */,
 				07DE95CE28A16C7C00E9C2CB /* SearchTextField.swift in Sources */,
 				841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */,
-				07EA42B82C5D00D500137A70 /* SubstrateDataModel.xcdatamodeld in Sources */,
+				07EA42C12C5D02D400137A70 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				C89D156BA8B690E8E4DE19ED /* ExportSeedProtocols.swift in Sources */,
 				076D9D2E2939B780002762E3 /* PolkaswapOperationFactoryProtocol.swift in Sources */,
 				FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */,
@@ -19429,18 +19429,18 @@
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
-		07EA42B02C5D00D500137A70 /* SubstrateDataModel.xcdatamodeld */ = {
+		07EA42B92C5D02D300137A70 /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				07EA42B12C5D00D500137A70 /* SubstrateDataModel.xcdatamodel */,
-				07EA42B22C5D00D500137A70 /* SubstrateDataModel_v4.xcdatamodel */,
-				07EA42B32C5D00D500137A70 /* SubstrateDataModel_v2.xcdatamodel */,
-				07EA42B42C5D00D500137A70 /* SubstrateDataModel_v7.xcdatamodel */,
-				07EA42B52C5D00D500137A70 /* SubstrateDataModel_v5.xcdatamodel */,
-				07EA42B62C5D00D500137A70 /* SubstrateDataModel_v6.xcdatamodel */,
-				07EA42B72C5D00D500137A70 /* SubstrateDataModel_v3.xcdatamodel */,
+				07EA42BA2C5D02D300137A70 /* SubstrateDataModel.xcdatamodel */,
+				07EA42BB2C5D02D300137A70 /* SubstrateDataModel_v4.xcdatamodel */,
+				07EA42BC2C5D02D300137A70 /* SubstrateDataModel_v2.xcdatamodel */,
+				07EA42BD2C5D02D300137A70 /* SubstrateDataModel_v7.xcdatamodel */,
+				07EA42BE2C5D02D300137A70 /* SubstrateDataModel_v5.xcdatamodel */,
+				07EA42BF2C5D02D300137A70 /* SubstrateDataModel_v6.xcdatamodel */,
+				07EA42C02C5D02D300137A70 /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = 07EA42B42C5D00D500137A70 /* SubstrateDataModel_v7.xcdatamodel */;
+			currentVersion = 07EA42BD2C5D02D300137A70 /* SubstrateDataModel_v7.xcdatamodel */;
 			name = SubstrateDataModel.xcdatamodeld;
 			path = "/Users/soramitsu/Job/fearless-iOS/fearless/Common/Storage/SubstrateDataModel.xcdatamodeld";
 			sourceTree = "<group>";
