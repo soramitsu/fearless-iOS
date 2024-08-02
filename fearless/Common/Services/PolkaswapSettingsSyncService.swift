@@ -128,7 +128,7 @@ final class PolkaswapSettingsSyncService {
             return [remove.version]
         })
 
-        DispatchQueue.global(qos: .userInitiated).async {
+        DispatchQueue.global(qos: .utility).async {
             self.complete(result: .success(save))
         }
 

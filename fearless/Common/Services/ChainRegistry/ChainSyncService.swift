@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 import RobinHood
 import SSFUtils
 import SSFModels
@@ -24,12 +25,14 @@ final class ChainSyncService {
     private let repository: AnyDataProviderRepository<ChainModel>
     private let eventCenter: EventCenterProtocol
     private let retryStrategy: ReconnectionStrategyProtocol
+    private let applicationHandler: ApplicationHandlerProtocol
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol?
 
     private var retryAttempt: Int = 0
     private var isSyncing: Bool = false
     private let mutex = NSLock()
+    private var timer = CountdownTimer(notificationInterval: 300)
 
     private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
@@ -39,7 +42,8 @@ final class ChainSyncService {
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        applicationHandler: ApplicationHandlerProtocol
     ) {
         self.syncService = syncService
         self.repository = repository
@@ -47,6 +51,8 @@ final class ChainSyncService {
         self.operationQueue = operationQueue
         self.retryStrategy = retryStrategy
         self.logger = logger
+        self.applicationHandler = applicationHandler
+        timer.delegate = self
     }
 
     private func performSyncUpIfNeeded() {
@@ -55,7 +61,9 @@ final class ChainSyncService {
             return
         }
 
-        isSyncing = true
+        DispatchQueue.main.async {
+            self.timer.start(with: 300)
+        }
         retryAttempt += 1
 
         logger?.debug("Will start chain sync with attempt \(retryAttempt)")
@@ -64,6 +72,13 @@ final class ChainSyncService {
         eventCenter.notify(with: event)
 
         executeSync()
+    }
+
+    private func setApplicationDelegateIfNeeded() {
+        guard applicationHandler.delegate == nil else {
+            return
+        }
+        applicationHandler.delegate = self
     }
 
     private func executeSync() {
@@ -186,17 +201,28 @@ final class ChainSyncService {
         return try JSONDecoder().decode([ChainModel].self, from: data)
     }
 
-    private func complete(result: Result<SyncChanges, Error>?) {
-        isSyncing = false
-
+    private func complete(result: Result<SyncChanges, Error>) {
         switch result {
         case let .success(changes):
-            logger?.debug(
-                """
-                Sync completed: \(changes.newOrUpdatedItems) (new or updated),
-                \(changes.removedItems) (removed)
-                """
-            )
+            if changes.newOrUpdatedItems.isNotEmpty {
+                logger?.warning(
+                    """
+                    !!!! Make shure what chains.json was changed, if you see this message without chains.json changes, equatable ChainModel is broken !!!!
+                    """
+                )
+                logger?.debug(
+                    """
+                    Sync completed: \(changes.newOrUpdatedItems.map { $0.name }) (new or updated)
+                    """
+                )
+            }
+            if changes.removedItems.isNotEmpty {
+                logger?.debug(
+                    """
+                    Sync completed: \(changes.removedItems.map { $0.name }) (removed)
+                    """
+                )
+            }
 
             retryAttempt = 0
 
@@ -208,15 +234,8 @@ final class ChainSyncService {
             eventCenter.notify(with: event)
         case let .failure(error):
             logger?.error("Sync failed with error: \(error)")
-
+            timer.stop()
             let event = ChainSyncDidFail(error: error)
-            eventCenter.notify(with: event)
-
-            retry()
-        case .none:
-            logger?.error("Sync failed with no result")
-
-            let event = ChainSyncDidFail(error: BaseOperationError.unexpectedDependentResult)
             eventCenter.notify(with: event)
 
             retry()
@@ -244,6 +263,7 @@ extension ChainSyncService: ChainSyncServiceProtocol {
             scheduler.cancel()
         }
 
+        setApplicationDelegateIfNeeded()
         performSyncUpIfNeeded()
     }
 }
@@ -256,6 +276,24 @@ extension ChainSyncService: SchedulerDelegate {
             mutex.unlock()
         }
 
+        performSyncUpIfNeeded()
+    }
+}
+
+extension ChainSyncService: CountdownTimerDelegate {
+    func didStart(with _: TimeInterval) {
+        isSyncing = true
+    }
+
+    func didCountdown(remainedInterval _: TimeInterval) {}
+
+    func didStop(with _: TimeInterval) {
+        isSyncing = false
+    }
+}
+
+extension ChainSyncService: ApplicationHandlerDelegate {
+    func didReceiveDidBecomeActive(notification _: Notification) {
         performSyncUpIfNeeded()
     }
 }

@@ -54,6 +54,9 @@ final class AddressChainDefiner {
                 let chains = try? fetchOperation.extractNoCancellableResultData()
                 let posssibleChains = chains?.filter { [weak self, address] chain in
                     guard let strongSelf = self else { return false }
+                    guard strongSelf.chainIsEnabled(chain: chain) else {
+                        return false
+                    }
                     return strongSelf.validate(address: address, for: chain).isValidOrSame
                 }
                 continuation.resume(returning: posssibleChains)
@@ -69,5 +72,16 @@ final class AddressChainDefiner {
             return .sameAddress(address)
         }
         return .valid(address)
+    }
+
+    private func chainIsEnabled(chain: ChainModel) -> Bool {
+        let chainAssets = chain.chainAssets
+        let enabledAssetIds: [String] = wallet.assetsVisibility
+            .filter { !$0.hidden }
+            .map { $0.assetId }
+        let enabled = chainAssets.filter {
+            enabledAssetIds.contains($0.identifier)
+        }
+        return enabled.isNotEmpty
     }
 }

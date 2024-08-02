@@ -154,7 +154,9 @@ enum AssetManagementMigratorAssembly {
 
         let walletRepository = AccountRepositoryFactory.createRepository()
 
-        let chainRepository = ChainRepositoryFactory().createRepository()
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain()
+        )
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue

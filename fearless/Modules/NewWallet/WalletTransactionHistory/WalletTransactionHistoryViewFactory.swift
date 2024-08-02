@@ -23,8 +23,8 @@ enum WalletTransactionHistoryViewFactory {
             selectedAccount: selectedAccount,
             dependencyContainer: dependencyContainer,
             logger: Logger.shared,
-            defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
-            selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
+            defaultFilter: WalletHistoryRequest(assets: [asset.id]),
+            selectedFilter: WalletHistoryRequest(assets: [asset.id]),
             filters: transactionHistoryFilters(for: chain),
             eventCenter: EventCenter.shared,
             applicationHandler: ApplicationHandler()

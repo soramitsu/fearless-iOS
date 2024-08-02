@@ -18,6 +18,7 @@ protocol PolkaswapAdjustmentViewInput: ControllerBackedProtocol {
     func didReceive(variant: SwapVariant)
     func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?)
     func setButtonLoadingState(isLoading: Bool)
+    func hideBanners()
 }
 
 protocol PolkaswapAdjustmentViewOutput: AnyObject {

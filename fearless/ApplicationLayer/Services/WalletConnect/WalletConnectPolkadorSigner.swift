@@ -55,11 +55,11 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
         let transaction = try params.get(TransactionPayload.self)
         let builder = try await createBuilder(for: transaction)
         let coderFactory = try await fetchCoderFactory()
-        let signature = try builder.buildSignature(
+        let signaturePayload = try builder.buildSignaturePayload(
             encodingBy: coderFactory.createEncoder(),
             metadata: coderFactory.metadata
         )
-        let signedRawData = try transactionSigner.sign(signature).rawData()
+        let signedRawData = try transactionSigner.sign(signaturePayload).rawData()
         let encoded = try encode(rawData: signedRawData, encoder: coderFactory.createEncoder())
         let result = WalletConnectPolkadotSignature(
             id: UInt.random(in: 0 ..< UInt.max),
@@ -101,6 +101,7 @@ final class WalletConnectPolkadorSigner: WalletConnectPayloadSigner {
         .with(address: transaction.address)
         .with(nonce: UInt32(transaction.nonce))
         .with(era: transaction.era, blockHash: transaction.blockHash)
+        .with(payloadType: transaction.method.payloadType)
 
         switch transaction.method {
         case let .callable(value):

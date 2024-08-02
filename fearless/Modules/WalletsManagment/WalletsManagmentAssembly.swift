@@ -22,6 +22,18 @@ final class WalletsManagmentAssembly {
             sortDescriptors: []
         )
 
+        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
+
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: sharedDefaultQueue
+        )
+
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let featureToggleProvider = FeatureToggleProvider(

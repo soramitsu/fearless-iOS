@@ -1,7 +1,7 @@
 import Foundation
 import SSFModels
 
-protocol NodeSelectionViewProtocol: ControllerBackedProtocol {
+protocol NodeSelectionViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(state: NodeSelectionViewState)
     func didReceive(locale: Locale)
 }

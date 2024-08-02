@@ -107,7 +107,9 @@ final class StakingPoolMainPresenter {
               let pendingRewards = pendingRewards,
               let poolInfo = poolInfo
         else {
-            view?.didReceiveNominatorStateViewModel(nil)
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.didReceiveNominatorStateViewModel(nil)
+            }
 
             return nil
         }
@@ -122,7 +124,9 @@ final class StakingPoolMainPresenter {
             pendingRewards: pendingRewards
         )
 
-        view?.didReceiveNominatorStateViewModel(viewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveNominatorStateViewModel(viewModel)
+        }
 
         guard let status = viewModel?.value(for: selectedLocale).status else {
             return nil
@@ -195,7 +199,9 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         self.view = view
         interactor.setup(with: self)
 
-        view.didReceiveNominatorStateViewModel(nil)
+        DispatchQueue.main.async {
+            view.didReceiveNominatorStateViewModel(nil)
+        }
     }
 
     func didTapSelectAsset() {

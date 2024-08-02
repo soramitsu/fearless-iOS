@@ -1,12 +1,17 @@
 import Foundation
 import SSFModels
+import SSFStorageQueryKit
 
-struct StakingErasValidatorRewardRequest: PrefixRequest {
-    var storagePath: StorageCodingPath {
-        .erasValidatorReward
+struct StakingErasValidatorRewardRequest: SSFStorageQueryKit.PrefixRequest {
+    var keyType: SSFStorageQueryKit.MapKeyType {
+        .u32
     }
 
-    var keyType: MapKeyType {
-        .u32
+    var parametersType: SSFStorageQueryKit.PrefixStorageRequestParametersType {
+        .simple
+    }
+
+    var storagePath: any SSFModels.StorageCodingPathProtocol {
+        StorageCodingPath.erasValidatorReward
     }
 }

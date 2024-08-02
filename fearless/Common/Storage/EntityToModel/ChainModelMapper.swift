@@ -263,43 +263,62 @@ final class ChainModelMapper {
             crowdloans = ChainModel.ExternalResource(type: type, url: url)
         }
 
+        var pricing: ChainModel.BlockExplorer?
+        if let type = entity.pricingApiType, let url = entity.pricingApiUrl {
+            pricing = ChainModel.BlockExplorer(type: type, url: url)
+        }
+
         let explorers = createExplorers(from: entity)
 
         if staking != nil || history != nil || crowdloans != nil || explorers != nil {
-            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers)
+            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers, pricing: pricing)
         } else {
             return nil
         }
     }
 
     private func createXcmConfig(from entity: CDChain) -> XcmChain? {
-        guard let versionRaw = entity.xcmConfig?.xcmVersion else {
+        guard
+            let versionRaw = entity.xcmConfig?.xcmVersion,
+            let availableAssets = entity.xcmConfig?.availableAssets,
+            let availableDestinations = entity.xcmConfig?.availableDestinations
+        else {
             return nil
         }
 
         let version = XcmCallFactoryVersion(rawValue: versionRaw)
-        let availableXcmAssets = entity.xcmConfig?.availableAssets?.allObjects as? [CDXcmAvailableAsset] ?? []
-        let assets: [XcmAvailableAsset] = availableXcmAssets.compactMap { entity in
-            guard let id = entity.id, let symbol = entity.symbol else {
+        let assets: [XcmAvailableAsset] = availableAssets.compactMap { entity in
+            guard
+                let entity = entity as? CDXcmAvailableAsset,
+                let id = entity.id,
+                let symbol = entity.symbol
+            else {
                 return nil
             }
-            return XcmAvailableAsset(id: id, symbol: symbol)
+            return XcmAvailableAsset(id: id, symbol: symbol, minAmount: nil)
         }
-        let availableXcmAssetDestinations = entity.xcmConfig?.availableDestinations?.allObjects as? [CDXcmAvailableDestination] ?? []
-        let destinations: [XcmAvailableDestination] = availableXcmAssetDestinations.compactMap {
-            guard let chainId = $0.chainId else {
+        let destinations: [XcmAvailableDestination] = availableDestinations.compactMap { entity in
+            guard
+                let entity = entity as? CDXcmAvailableDestination,
+                let chainId = entity.chainId,
+                let assetsEntities = entity.assets
+            else {
                 return nil
             }
-            let assetsEntities = $0.assets?.allObjects as? [CDXcmAvailableAsset] ?? []
+
             let assets: [XcmAvailableAsset] = assetsEntities.compactMap { entity in
-                guard let id = entity.id, let symbol = entity.symbol else {
+                guard
+                    let entity = entity as? CDXcmAvailableAsset,
+                    let id = entity.id,
+                    let symbol = entity.symbol
+                else {
                     return nil
                 }
-                return XcmAvailableAsset(id: id, symbol: symbol)
+                return XcmAvailableAsset(id: id, symbol: symbol, minAmount: entity.minAmount)
             }
             return XcmAvailableDestination(
                 chainId: chainId,
-                bridgeParachainId: $0.bridgeParachainId,
+                bridgeParachainId: entity.bridgeParachainId,
                 assets: assets
             )
         }
@@ -364,6 +383,9 @@ final class ChainModelMapper {
 
         entity.crowdloansApiType = apis?.crowdloans?.type
         entity.crowdloansApiUrl = apis?.crowdloans?.url
+
+        entity.pricingApiType = apis?.pricing?.type.rawValue
+        entity.pricingApiUrl = apis?.pricing?.url
     }
 
     private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {
@@ -394,7 +416,9 @@ final class ChainModelMapper {
 
         let configEntity = CDChainXcmConfig(context: context)
         configEntity.xcmVersion = xcmConfig.xcmVersion?.rawValue
-        configEntity.destWeightIsPrimitive = xcmConfig.destWeightIsPrimitive ?? false
+        if let destWeightIsPrimitive = xcmConfig.destWeightIsPrimitive {
+            configEntity.destWeightIsPrimitive = destWeightIsPrimitive
+        }
 
         let availableAssets = xcmConfig.availableAssets.map {
             let entity = CDXcmAvailableAsset(context: context)
@@ -404,7 +428,7 @@ final class ChainModelMapper {
         }
         configEntity.availableAssets = Set(availableAssets) as NSSet
 
-        let destinationEntities = xcmConfig.availableDestinations.compactMap {
+        let destinationEntities = xcmConfig.availableDestinations.map {
             let destinationEntity = CDXcmAvailableDestination(context: context)
             destinationEntity.chainId = $0.chainId
 
@@ -412,6 +436,7 @@ final class ChainModelMapper {
                 let entity = CDXcmAvailableAsset(context: context)
                 entity.id = $0.id
                 entity.symbol = $0.symbol
+                entity.minAmount = $0.minAmount
                 return entity
             }
             destinationEntity.assets = Set(availableAssets) as NSSet
@@ -480,7 +505,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             parentId: entity.parentId,
             paraId: entity.paraId,
             name: entity.name!,
-            xcm: xcm, nodes: Set(nodes),
+            xcm: xcm,
+            nodes: Set(nodes),
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon,

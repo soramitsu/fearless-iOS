@@ -43,6 +43,11 @@ protocol WalletBalanceSubscriptionAdapterProtocol {
         listener: WalletBalanceSubscriptionListener
     )
 
+    func subscribeNetworkManagementBalance(
+        wallet: MetaAccountModel,
+        listener: WalletBalanceSubscriptionListener
+    )
+
     func unsubscribe(listener: WalletBalanceSubscriptionListener)
 }
 
@@ -51,9 +56,10 @@ enum WalletBalanceListenerType {
     case wallet(wallet: MetaAccountModel)
     case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
     case chainAssets(chainAssets: [ChainAsset], wallet: MetaAccountModel)
+    case networkManagement(wallet: MetaAccountModel)
 }
 
-final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol {
+final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, ChainAssetListBuilder {
     static let shared = createWalletBalanceAdapter()
 
     // MARK: - PriceLocalStorageSubscriber
@@ -164,6 +170,27 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
+    func subscribeNetworkManagementBalance(
+        wallet: MetaAccountModel,
+        listener: WalletBalanceSubscriptionListener
+    ) {
+        let weakListener = WeakWrapper(target: listener)
+        listenersLock.exclusivelyWrite { [weak self] in
+            self?.listeners.append(weakListener)
+        }
+        updateWalletsIfNeeded(with: wallet)
+        let selectedChainAssets = filterChainAssets(
+            with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
+            chainAssets: chainAssets,
+            wallet: wallet,
+            search: nil
+        )
+
+        if let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
+            notify(listener: listener, result: .success(balances))
+        }
+    }
+
     func unsubscribe(listener: WalletBalanceSubscriptionListener) {
         listenersLock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else {
@@ -195,7 +222,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.chainAssets = chainAssets
         self.wallets = (self.wallets + wallets).uniq(predicate: { $0.metaId })
         subscribeToAccountInfo(for: wallets, chainAssets)
-        let currencies = wallets.map { $0.selectedCurrency }
+        let currencies = self.wallets.map { $0.selectedCurrency }
         subscribeToPrices(for: chainAssets, currencies: currencies)
     }
 
@@ -203,11 +230,12 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         Task {
             do {
                 async let wallets = self.walletRepository.fetchAll()
-                async let chainAssets = chainAssetFetcher.fetchAwait(shouldUseCache: false, filters: [], sortDescriptors: [])
+                async let chainAssets = chainAssetFetcher.fetchAwait(shouldUseCache: false, filters: [.enabledChains], sortDescriptors: [])
                 try await handle(wallets, chainAssets)
 
                 let accountInfos = try await fetchAccountInfos(wallets: wallets, chainAssets: chainAssets)
                 self.accountInfos = accountInfos
+                self.buildAndNotifyIfNeeded(with: try await wallets.map { $0.metaId }, updatedChainAssets: try await chainAssets)
             } catch {
                 let unwrappedListeners = listenersLock.concurrentlyRead {
                     listeners.compactMap {
@@ -319,6 +347,17 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                    let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
                     notify(listener: listener, result: .success(balances))
                 }
+            case let .networkManagement(wallet):
+                let selectedChainAssets = filterChainAssets(
+                    with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
+                    chainAssets: chainAssets,
+                    wallet: wallet,
+                    search: nil
+                )
+                if updatedWalletsIds.contains(wallet.metaId),
+                   let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
+                    notify(listener: listener, result: .success(balances))
+                }
             }
         }
     }
@@ -359,6 +398,10 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
                 let currencies = wallets.map { $0.selectedCurrency }
                 subscribeToPrices(for: chainAssets, currencies: currencies)
             }
+            if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
+                wallets[index] = event.account
+                buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)
+            }
             wallets[index] = event.account
         }
     }
@@ -383,7 +426,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         Task {
             let chainAssets = try await chainAssetFetcher.fetchAwait(
                 shouldUseCache: false,
-                filters: [],
+                filters: [.enabledChains],
                 sortDescriptors: []
             )
             subscribeToAccountInfo(for: wallets, chainAssets)
@@ -450,6 +493,7 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
 private extension WalletBalanceSubscriptionAdapter {
     static func createWalletBalanceAdapter() -> WalletBalanceSubscriptionAdapter {
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)

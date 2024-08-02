@@ -8,8 +8,7 @@ extension StakingStateViewModelFactory {
         [
             findInactiveAlert(state: state),
             findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
-            findWaitingNextEraAlert(nominationStatus: state.status),
-            findMinNominatorBondAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
+            findWaitingNextEraAlert(nominationStatus: state.status)
         ].compactMap { $0 }
     }
 

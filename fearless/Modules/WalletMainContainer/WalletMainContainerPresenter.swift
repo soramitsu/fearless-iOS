@@ -1,4 +1,5 @@
 import Foundation
+import SSFQRService
 import SoraFoundation
 import SSFUtils
 import SSFModels
@@ -161,7 +162,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         wallet = account
         provideViewModel()
 
-        balanceInfoModuleInput?.replace(infoType: .wallet(wallet: account))
+        balanceInfoModuleInput?.replace(infoType: .networkManagement(wallet: account))
     }
 
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {
@@ -258,8 +259,10 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
                 wallet: wallet,
                 initialData: .init(qrInfoType: qrInfoType)
             )
-        case let .uri(uri):
+        case let .walletConnect(uri):
             walletConnect(with: uri)
+        case .preinstalledWallet:
+            break
         }
     }
 }

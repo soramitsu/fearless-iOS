@@ -81,7 +81,7 @@ final class WalletMainContainerAssembly {
     private static func configureBalanceInfoModule(
         wallet: MetaAccountModel
     ) -> BalanceInfoModuleCreationResult? {
-        BalanceInfoAssembly.configureModule(with: .wallet(wallet: wallet))
+        BalanceInfoAssembly.configureModule(with: .networkManagement(wallet: wallet))
     }
 
     private static func configureAssetListModule(

@@ -12,6 +12,7 @@ final class BackupWalletAssembly {
         let logger = Logger.shared
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 

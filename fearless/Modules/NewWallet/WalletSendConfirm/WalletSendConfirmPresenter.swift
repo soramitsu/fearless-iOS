@@ -41,7 +41,7 @@ final class WalletSendConfirmPresenter {
     private let wallet: MetaAccountModel
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
-    private let feeViewModel: BalanceViewModelProtocol?
+    private var feeViewModel: BalanceViewModelProtocol?
 
     private var balance: Decimal?
     private var utilityBalance: Decimal?
@@ -79,6 +79,10 @@ final class WalletSendConfirmPresenter {
         self.scamInfo = scamInfo
         self.feeViewModel = feeViewModel
         self.localizationManager = localizationManager
+        if let feeViewModel {
+            fee = Decimal(string: feeViewModel.amount)
+        }
+        loadingCollector.feeReady = feeViewModel != nil
     }
 
     private func provideViewModel() {
@@ -91,7 +95,7 @@ final class WalletSendConfirmPresenter {
                 assetBalanceViewModel: try await provideAssetVewModel(),
                 tipRequired: chainAsset.chain.isTipRequired,
                 tipViewModel: try await provideTipViewModel(),
-                feeViewModel: try await provideFeeViewModel(),
+                feeViewModel: feeViewModel,
                 wallet: wallet,
                 locale: selectedLocale,
                 scamInfo: scamInfo,
@@ -157,22 +161,18 @@ final class WalletSendConfirmPresenter {
             .value(for: selectedLocale)
     }
 
-    private func provideFeeViewModel() async throws -> BalanceViewModelProtocol? {
+    private func updateFeeViewModel() {
         guard
             let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
-            let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset),
-            feeViewModel == nil
+            let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else {
-            fee = Decimal(string: feeViewModel?.amount ?? "")
-            return feeViewModel
+            return
         }
-        return fee
+
+        let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: utilityPriceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
-    }
-
-    private func refreshFee() {
-        interactor.estimateFee()
+        feeViewModel = viewModel
     }
 
     private func buildBalanceViewModelFactory(
@@ -197,13 +197,10 @@ final class WalletSendConfirmPresenter {
         let tipPaymentPrecision = tipPaymentChainAsset?.asset.precision ?? chainAsset.asset.precision
         let tip = Decimal.fromSubstrateAmount(call.tip ?? .zero, precision: Int16(tipPaymentPrecision)) ?? .zero
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
+        let balanceType: BalanceType = !chainAsset.isUtility ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
 
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
-                self?.refreshFee()
-            }),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: balanceType,
                 feeAndTip: (fee ?? 0) + tip,
@@ -256,8 +253,6 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     func setup() {
         interactor.setup()
         provideViewModel()
-        refreshFee()
-
         loadingCollector.utilityBalanceReady = chainAsset.isUtility
     }
 
@@ -322,7 +317,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
                 utilityBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
-                        precision: Int16(self.chainAsset.asset.precision)
+                        precision: Int16(utilityAsset.asset.precision)
                     )
                 } ?? 0
             }
@@ -351,6 +346,10 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         case let .success(priceData):
             if chainAsset.asset.priceId == priceId {
                 self.priceData = priceData
+                let utilityChainAsset = interactor.getFeePaymentChainAsset(for: chainAsset)
+                if utilityChainAsset?.chainAssetId == chainAsset.chainAssetId {
+                    utilityPriceData = priceData
+                }
             } else {
                 utilityPriceData = priceData
             }
@@ -367,7 +366,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             fee = BigUInt(string: dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
-
+            updateFeeViewModel()
             provideViewModel()
             let amount = Decimal.fromSubstrateAmount(call.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
             let tipPaymentChainAsset = interactor.getFeePaymentChainAsset(for: chainAsset)

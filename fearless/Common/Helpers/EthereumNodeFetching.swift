@@ -95,21 +95,19 @@ enum EthereumChain: String {
 
 final class EthereumNodeFetching {
     func getNode(for chain: ChainModel) throws -> Web3.Eth {
-        guard let ethereumChain = EthereumChain(rawValue: chain.chainId) else {
-            return try getHttps(for: chain)
-        }
-
         let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
         let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("wss") == true
         let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
 
-        guard let wssURL = node?.url else {
+        guard var wssURL = node?.url else {
             return try getHttps(for: chain)
         }
 
-        let finalURL = ethereumChain.apiKeyInjectedURL(baseURL: wssURL)
+        if let ethereumChain = EthereumChain(rawValue: chain.chainId) {
+            wssURL = ethereumChain.apiKeyInjectedURL(baseURL: wssURL)
+        }
 
-        let provider = try Web3WebSocketProvider(wsUrl: finalURL.absoluteString, timeout: .seconds(10))
+        let provider = try Web3WebSocketProvider(wsUrl: wssURL.absoluteString, timeout: .seconds(10))
         let web3 = Web3(provider: provider, rpcId: Int(chain.chainId) ?? 1)
         return web3.eth
     }
