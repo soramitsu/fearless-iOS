@@ -254,7 +254,7 @@
 		07F6002E2C5CEBF400B4FF30 /* TokenPairsIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6002D2C5CEBF400B4FF30 /* TokenPairsIconViewModel.swift */; };
 		07F600322C5CEC2E00B4FF30 /* SubstrateTransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6002F2C5CEC2E00B4FF30 /* SubstrateTransactionObserver.swift */; };
 		07F600332C5CEC2E00B4FF30 /* TransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F600302C5CEC2E00B4FF30 /* TransactionObserver.swift */; };
-		07F600342C5CF17500B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF7A2C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodeld */; };
+		07F6003D2C5CF9A500B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07F600352C5CF9A400B4FF30 /* SubstrateDataModel.xcdatamodeld */; };
 		07F67CA32ACFC4910044047D /* WalletConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F67CA22ACFC4910044047D /* WalletConnectCoordinator.swift */; };
 		07F67CA52ACFEADB0044047D /* BigUInt+EthereumQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F67CA42ACFEADB0044047D /* BigUInt+EthereumQuantity.swift */; };
 		07F6C4BE2BDA3E5C00E4C7B4 /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = 07F6C4BD2BDA3E5C00E4C7B4 /* IrohaCrypto */; };
@@ -3228,6 +3228,13 @@
 		07F6002D2C5CEBF400B4FF30 /* TokenPairsIconViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TokenPairsIconViewModel.swift; sourceTree = "<group>"; };
 		07F6002F2C5CEC2E00B4FF30 /* SubstrateTransactionObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubstrateTransactionObserver.swift; sourceTree = "<group>"; };
 		07F600302C5CEC2E00B4FF30 /* TransactionObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransactionObserver.swift; sourceTree = "<group>"; };
+		07F600362C5CF9A400B4FF30 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
+		07F600372C5CF9A400B4FF30 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
+		07F600382C5CF9A400B4FF30 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
+		07F600392C5CF9A400B4FF30 /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
+		07F6003A2C5CF9A400B4FF30 /* SubstrateDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
+		07F6003B2C5CF9A400B4FF30 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
+		07F6003C2C5CF9A400B4FF30 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		07F67CA22ACFC4910044047D /* WalletConnectCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectCoordinator.swift; sourceTree = "<group>"; };
 		07F67CA42ACFEADB0044047D /* BigUInt+EthereumQuantity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigUInt+EthereumQuantity.swift"; sourceTree = "<group>"; };
 		07F6FF682C5CE94800B4FF30 /* SkeletonLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SkeletonLabel.swift; sourceTree = "<group>"; };
@@ -3238,13 +3245,6 @@
 		07F6FF742C5CEA1300B4FF30 /* NodeApiKeyInjector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NodeApiKeyInjector.swift; sourceTree = "<group>"; };
 		07F6FF762C5CEA2900B4FF30 /* SafeArray.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SafeArray.swift; sourceTree = "<group>"; };
 		07F6FF772C5CEA2900B4FF30 /* SafeDictionary.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SafeDictionary.swift; sourceTree = "<group>"; };
-		07F6FF7B2C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
-		07F6FF7C2C5CEAD400B4FF30 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
-		07F6FF7D2C5CEAD400B4FF30 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
-		07F6FF7E2C5CEAD400B4FF30 /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
-		07F6FF7F2C5CEAD400B4FF30 /* SubstrateDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
-		07F6FF802C5CEAD400B4FF30 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
-		07F6FF812C5CEAD400B4FF30 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		07F6FF832C5CEB7600B4FF30 /* LiquidityPools+ViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LiquidityPools+ViewModel.swift"; sourceTree = "<group>"; };
 		07F6FF842C5CEB7600B4FF30 /* LiquidityPoolsConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LiquidityPoolsConstants.swift; sourceTree = "<group>"; };
 		07F6FF862C5CEB7600B4FF30 /* assets.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = assets.json; sourceTree = "<group>"; };
@@ -8789,7 +8789,7 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				07F6FF7A2C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodeld */,
+				07F600352C5CF9A400B4FF30 /* SubstrateDataModel.xcdatamodeld */,
 				FACD42852A5BE811009975AA /* Migration */,
 				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
@@ -17580,7 +17580,7 @@
 				FA286B112A3043DB008BD527 /* CrossChainConfirmationAssembly.swift in Sources */,
 				07DE95CE28A16C7C00E9C2CB /* SearchTextField.swift in Sources */,
 				841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */,
-				07F600342C5CF17500B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */,
+				07F6003D2C5CF9A500B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				C89D156BA8B690E8E4DE19ED /* ExportSeedProtocols.swift in Sources */,
 				076D9D2E2939B780002762E3 /* PolkaswapOperationFactoryProtocol.swift in Sources */,
 				FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */,
@@ -19429,18 +19429,18 @@
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
-		07F6FF7A2C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodeld */ = {
+		07F600352C5CF9A400B4FF30 /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				07F6FF7B2C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodel */,
-				07F6FF7C2C5CEAD400B4FF30 /* SubstrateDataModel_v4.xcdatamodel */,
-				07F6FF7D2C5CEAD400B4FF30 /* SubstrateDataModel_v2.xcdatamodel */,
-				07F6FF7E2C5CEAD400B4FF30 /* SubstrateDataModel_v7.xcdatamodel */,
-				07F6FF7F2C5CEAD400B4FF30 /* SubstrateDataModel_v5.xcdatamodel */,
-				07F6FF802C5CEAD400B4FF30 /* SubstrateDataModel_v6.xcdatamodel */,
-				07F6FF812C5CEAD400B4FF30 /* SubstrateDataModel_v3.xcdatamodel */,
+				07F600362C5CF9A400B4FF30 /* SubstrateDataModel.xcdatamodel */,
+				07F600372C5CF9A400B4FF30 /* SubstrateDataModel_v4.xcdatamodel */,
+				07F600382C5CF9A400B4FF30 /* SubstrateDataModel_v2.xcdatamodel */,
+				07F600392C5CF9A400B4FF30 /* SubstrateDataModel_v7.xcdatamodel */,
+				07F6003A2C5CF9A400B4FF30 /* SubstrateDataModel_v5.xcdatamodel */,
+				07F6003B2C5CF9A400B4FF30 /* SubstrateDataModel_v6.xcdatamodel */,
+				07F6003C2C5CF9A400B4FF30 /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = 07F6FF7E2C5CEAD400B4FF30 /* SubstrateDataModel_v7.xcdatamodel */;
+			currentVersion = 07F600392C5CF9A400B4FF30 /* SubstrateDataModel_v7.xcdatamodel */;
 			name = SubstrateDataModel.xcdatamodeld;
 			path = "/Users/soramitsu/Job/fearless-iOS/fearless/Common/Storage/SubstrateDataModel.xcdatamodeld";
 			sourceTree = "<group>";
