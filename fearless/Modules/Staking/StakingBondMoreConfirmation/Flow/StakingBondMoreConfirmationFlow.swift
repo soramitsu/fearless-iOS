@@ -1,8 +1,6 @@
 import UIKit
 import SSFModels
 
-enum StakingBondMoreConfirmationFlowError: Error {}
-
 enum StakingBondMoreConfirmationFlow {
     case relaychain(amount: Decimal)
     case parachain(amount: Decimal, candidate: ParachainStakingCandidateInfo)

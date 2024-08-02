@@ -10,21 +10,11 @@ final class BackupWalletAssembly {
     ) -> BackupWalletModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let logger = Logger.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let interactor = BackupWalletInteractor(
             wallet: wallet,

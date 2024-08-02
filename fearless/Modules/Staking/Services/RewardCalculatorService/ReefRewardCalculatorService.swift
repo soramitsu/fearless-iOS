@@ -5,11 +5,6 @@ import BigInt
 import SSFModels
 import SSFStorageQueryKit
 
-enum ReefCalculatorServiceError: Error {
-    case timeout
-    case unexpectedInfo
-}
-
 final class ReefRewardCalculatorService {
     private struct PendingRequest {
         let resultClosure: (RewardCalculatorEngineProtocol) -> Void

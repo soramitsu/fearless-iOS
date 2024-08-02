@@ -11,9 +11,3 @@ struct ValidatorListFilterViewModelSection {
     let title: String
     let cellViewModels: [SelectableViewModel<TitleWithSubtitleViewModel>]
 }
-
-struct ValidatorListFilterCellViewModel {
-    let title: String
-    let subtitle: String?
-    let isSelected: Bool
-}

@@ -20,11 +20,6 @@ enum WalletConnectSessionAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
-        let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let interactor = WalletConnectSessionInteractor(

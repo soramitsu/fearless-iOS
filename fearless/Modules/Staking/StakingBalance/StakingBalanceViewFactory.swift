@@ -66,8 +66,6 @@ struct StakingBalanceViewFactory {
         wallet _: MetaAccountModel,
         strategy: StakingBalanceStrategy
     ) -> StakingBalanceInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingBalanceInteractor(

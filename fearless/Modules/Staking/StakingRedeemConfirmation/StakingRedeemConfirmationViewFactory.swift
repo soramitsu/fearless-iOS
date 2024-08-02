@@ -82,8 +82,6 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
         wallet: MetaAccountModel,
         container: StakingRedeemConfirmationDependencyContainer
     ) -> StakingRedeemConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingRedeemConfirmationInteractor(

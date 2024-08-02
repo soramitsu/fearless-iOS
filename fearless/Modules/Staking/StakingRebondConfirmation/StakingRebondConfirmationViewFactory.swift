@@ -78,7 +78,6 @@ struct StakingRebondConfirmationViewFactory {
         wallet: MetaAccountModel,
         container: StakingRebondConfirmationDependencyContainer
     ) -> StakingRebondConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingRebondConfirmationInteractor(

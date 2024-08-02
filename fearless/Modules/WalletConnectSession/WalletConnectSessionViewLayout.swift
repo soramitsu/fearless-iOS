@@ -4,7 +4,6 @@ final class WalletConnectSessionViewLayout: UIView {
     private enum Constants {
         static let cornerRadius: CGFloat = 20.0
         static let imageViewContainerSize: CGFloat = 80.0
-        static let imageViewSize = CGSize(width: 48, height: 42)
         static let closeButton: CGFloat = 32.0
     }
 
