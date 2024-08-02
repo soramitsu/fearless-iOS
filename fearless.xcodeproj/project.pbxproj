@@ -254,6 +254,7 @@
 		07F6002E2C5CEBF400B4FF30 /* TokenPairsIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6002D2C5CEBF400B4FF30 /* TokenPairsIconViewModel.swift */; };
 		07F600322C5CEC2E00B4FF30 /* SubstrateTransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6002F2C5CEC2E00B4FF30 /* SubstrateTransactionObserver.swift */; };
 		07F600332C5CEC2E00B4FF30 /* TransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F600302C5CEC2E00B4FF30 /* TransactionObserver.swift */; };
+		07F600342C5CF17500B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF7A2C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodeld */; };
 		07F67CA32ACFC4910044047D /* WalletConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F67CA22ACFC4910044047D /* WalletConnectCoordinator.swift */; };
 		07F67CA52ACFEADB0044047D /* BigUInt+EthereumQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F67CA42ACFEADB0044047D /* BigUInt+EthereumQuantity.swift */; };
 		07F6C4BE2BDA3E5C00E4C7B4 /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = 07F6C4BD2BDA3E5C00E4C7B4 /* IrohaCrypto */; };
@@ -293,7 +294,6 @@
 		07F6FF752C5CEA1300B4FF30 /* NodeApiKeyInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF742C5CEA1300B4FF30 /* NodeApiKeyInjector.swift */; };
 		07F6FF782C5CEA2900B4FF30 /* SafeArray.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF762C5CEA2900B4FF30 /* SafeArray.swift */; };
 		07F6FF792C5CEA2900B4FF30 /* SafeDictionary.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF772C5CEA2900B4FF30 /* SafeDictionary.swift */; };
-		07F6FF822C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF7A2C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodeld */; };
 		07F6FFDF2C5CEB7600B4FF30 /* LiquidityPools+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF832C5CEB7600B4FF30 /* LiquidityPools+ViewModel.swift */; };
 		07F6FFE02C5CEB7600B4FF30 /* LiquidityPoolsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6FF842C5CEB7600B4FF30 /* LiquidityPoolsConstants.swift */; };
 		07F6FFE12C5CEB7600B4FF30 /* assets.json in Resources */ = {isa = PBXBuildFile; fileRef = 07F6FF862C5CEB7600B4FF30 /* assets.json */; };
@@ -17580,6 +17580,7 @@
 				FA286B112A3043DB008BD527 /* CrossChainConfirmationAssembly.swift in Sources */,
 				07DE95CE28A16C7C00E9C2CB /* SearchTextField.swift in Sources */,
 				841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */,
+				07F600342C5CF17500B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				C89D156BA8B690E8E4DE19ED /* ExportSeedProtocols.swift in Sources */,
 				076D9D2E2939B780002762E3 /* PolkaswapOperationFactoryProtocol.swift in Sources */,
 				FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */,
@@ -18148,7 +18149,6 @@
 				E5A07BDF3D37C761F453696A /* AddCustomNodeViewFactory.swift in Sources */,
 				07F600122C5CEB7600B4FF30 /* LiquidityPoolsOverviewPresenter.swift in Sources */,
 				0C4F3F7AB14F4851C12974B6 /* WarningAlertProtocols.swift in Sources */,
-				07F6FF822C5CEAD400B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				FAD429082A86567F001D6A16 /* BannersPresenter.swift in Sources */,
 				2B99F241DC91645B1226E10C /* WarningAlertWireframe.swift in Sources */,
 				FA7336C12A0E3B7F0096A291 /* NetworkClientFactory.swift in Sources */,
