@@ -201,6 +201,7 @@
 		07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA455289B78E10035A8AB /* CopyableLabelView.swift */; };
 		07DFA45A289B8D520035A8AB /* WalletBalanceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */; };
 		07E346D4288E616E00A8FAEC /* WalletBalanceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */; };
+		07EA42AF2C5CFD7600137A70 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07EA42A72C5CFD7600137A70 /* SubstrateDataModel.xcdatamodeld */; };
 		07F2B75728A3A4B800280C38 /* ChainCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */; };
 		07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75E28AA183C00280C38 /* PrintTimer.swift */; };
 		07F2B76128AB806400280C38 /* SnapshotHotBootBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B76028AB806400280C38 /* SnapshotHotBootBuilder.swift */; };
@@ -254,7 +255,6 @@
 		07F6002E2C5CEBF400B4FF30 /* TokenPairsIconViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6002D2C5CEBF400B4FF30 /* TokenPairsIconViewModel.swift */; };
 		07F600322C5CEC2E00B4FF30 /* SubstrateTransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F6002F2C5CEC2E00B4FF30 /* SubstrateTransactionObserver.swift */; };
 		07F600332C5CEC2E00B4FF30 /* TransactionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F600302C5CEC2E00B4FF30 /* TransactionObserver.swift */; };
-		07F600462C5CFBAC00B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07F6003E2C5CFBAB00B4FF30 /* SubstrateDataModel.xcdatamodeld */; };
 		07F67CA32ACFC4910044047D /* WalletConnectCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F67CA22ACFC4910044047D /* WalletConnectCoordinator.swift */; };
 		07F67CA52ACFEADB0044047D /* BigUInt+EthereumQuantity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F67CA42ACFEADB0044047D /* BigUInt+EthereumQuantity.swift */; };
 		07F6C4BE2BDA3E5C00E4C7B4 /* IrohaCrypto in Frameworks */ = {isa = PBXBuildFile; productRef = 07F6C4BD2BDA3E5C00E4C7B4 /* IrohaCrypto */; };
@@ -3219,6 +3219,13 @@
 		07DFA455289B78E10035A8AB /* CopyableLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CopyableLabelView.swift; path = fearless/Common/View/CopyableLabelView.swift; sourceTree = SOURCE_ROOT; };
 		07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletBalanceInfo.swift; sourceTree = "<group>"; };
 		07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceBuilder.swift; sourceTree = "<group>"; };
+		07EA42A82C5CFD7600137A70 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
+		07EA42A92C5CFD7600137A70 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
+		07EA42AA2C5CFD7600137A70 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
+		07EA42AB2C5CFD7600137A70 /* SubstrateDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
+		07EA42AC2C5CFD7600137A70 /* SubstrateDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
+		07EA42AD2C5CFD7600137A70 /* SubstrateDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
+		07EA42AE2C5CFD7600137A70 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainCollectionView.swift; sourceTree = "<group>"; };
 		07F2B75E28AA183C00280C38 /* PrintTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintTimer.swift; sourceTree = "<group>"; };
 		07F2B76028AB806400280C38 /* SnapshotHotBootBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotHotBootBuilder.swift; sourceTree = "<group>"; };
@@ -9041,6 +9048,7 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
+				07EA42A72C5CFD7600137A70 /* SubstrateDataModel.xcdatamodeld */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -15694,6 +15702,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				07EA42AF2C5CFD7600137A70 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */,
 				FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */,
 				FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */,
@@ -17580,7 +17589,6 @@
 				FA286B112A3043DB008BD527 /* CrossChainConfirmationAssembly.swift in Sources */,
 				07DE95CE28A16C7C00E9C2CB /* SearchTextField.swift in Sources */,
 				841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */,
-				07F600462C5CFBAC00B4FF30 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				C89D156BA8B690E8E4DE19ED /* ExportSeedProtocols.swift in Sources */,
 				076D9D2E2939B780002762E3 /* PolkaswapOperationFactoryProtocol.swift in Sources */,
 				FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */,
@@ -19429,6 +19437,23 @@
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
+		07EA42A72C5CFD7600137A70 /* SubstrateDataModel.xcdatamodeld */ = {
+			isa = XCVersionGroup;
+			children = (
+				07EA42A82C5CFD7600137A70 /* SubstrateDataModel.xcdatamodel */,
+				07EA42A92C5CFD7600137A70 /* SubstrateDataModel_v4.xcdatamodel */,
+				07EA42AA2C5CFD7600137A70 /* SubstrateDataModel_v2.xcdatamodel */,
+				07EA42AB2C5CFD7600137A70 /* SubstrateDataModel_v7.xcdatamodel */,
+				07EA42AC2C5CFD7600137A70 /* SubstrateDataModel_v5.xcdatamodel */,
+				07EA42AD2C5CFD7600137A70 /* SubstrateDataModel_v6.xcdatamodel */,
+				07EA42AE2C5CFD7600137A70 /* SubstrateDataModel_v3.xcdatamodel */,
+			);
+			currentVersion = 07EA42AB2C5CFD7600137A70 /* SubstrateDataModel_v7.xcdatamodel */;
+			name = SubstrateDataModel.xcdatamodeld;
+			path = "/Users/soramitsu/Job/fearless-iOS/fearless/Common/Storage/SubstrateDataModel.xcdatamodeld";
+			sourceTree = "<group>";
+			versionGroupType = wrapper.xcdatamodel;
+		};
 		07F6003E2C5CFBAB00B4FF30 /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
