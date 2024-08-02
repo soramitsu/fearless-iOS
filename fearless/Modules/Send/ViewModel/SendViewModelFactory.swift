@@ -55,7 +55,8 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
             address: address,
             chain: chain,
             settings: settings,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
         )
     }
 }

@@ -59,7 +59,8 @@ final class SendAssembly {
         let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
         let scamInfoFetcher = ScamInfoFetcher(
             scamServiceOperationFactory: scamServiceOperationFactory,
-            accountScoreFetching: accountStatisticsFetcher
+            accountScoreFetching: accountStatisticsFetcher,
+            localizationManager: LocalizationManager.shared
         )
         let interactor = SendInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(

@@ -44,7 +44,8 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                 address: contactType.address,
                 chain: chain,
                 settings: settings,
-                eventCenter: EventCenter.shared
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared
             )
 
             return ContactTableCellModel(
@@ -74,7 +75,8 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
                     address: contact.address,
                     chain: chain,
                     settings: settings,
-                    eventCenter: EventCenter.shared
+                    eventCenter: EventCenter.shared,
+                    logger: Logger.shared
                 )
 
                 return ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate, accountScoreViewModel: accountScoreViewModel)

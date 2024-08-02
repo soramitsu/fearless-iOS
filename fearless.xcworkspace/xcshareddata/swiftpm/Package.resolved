@@ -140,8 +140,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "network-module-update",
-        "revision" : "ef034cd4466dda1eadec92b1a8a0c4a1f4e8b71e"
+        "branch" : "fearless-wallet",
+        "revision" : "c914f1e729c4238bf6e18030e4f4c3895a94e088"
       }
     },
     {

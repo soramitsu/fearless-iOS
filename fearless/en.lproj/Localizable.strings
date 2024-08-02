@@ -1208,3 +1208,5 @@ belongs to the right network";
 "scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
 "account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
 "profile.account.score.title" = "Nomis multichain score";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";

@@ -221,6 +221,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
             GitHubUrl.url(suffix: "appConfigs/onboarding/mobile v2.json")
         #endif
     }
+
+    var nomisAccountScoreURL: URL {
+        URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/")!
+    }
 }
 
 private enum GitHubUrl {

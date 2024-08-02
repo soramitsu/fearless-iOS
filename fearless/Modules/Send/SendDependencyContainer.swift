@@ -80,7 +80,6 @@ final class SendDepencyContainer {
             storageRequestPerformer: storageRequestPerformer
         )
 
-//        cachedDependencies[chainAsset.uniqueKey(accountId: accountResponse.accountId)] = dependencies
         currentDependecies = dependencies
 
         return dependencies

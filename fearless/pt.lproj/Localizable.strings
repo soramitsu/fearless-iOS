@@ -66,6 +66,7 @@
 "account.option" = "Opção de conta";
 "account.stats.avg.transaction.time.title" = "Avg. transaction time";
 "account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
 "account.stats.hold.tokens.usd.title" = "Hold tokens USD";
 "account.stats.max.transaction.time.title" = "Max transaction time";
 "account.stats.min.transactions.time.title" = "Min transaction time";
@@ -75,6 +76,7 @@
 "account.stats.total.transactions.title" = "Total transactions";
 "account.stats.updated.title" = "Updated";
 "account.stats.wallet.age.title" = "Wallet age";
+"account.stats.wallet.option.title" = "Show wallet score";
 "account.template" = "%s conta";
 "account.unique.secret" = "Contas com segredos exclusivos";
 "accounts.add.account" = "Adicionar conta";
@@ -710,6 +712,7 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "pools.limit.has.reached.error.message" = "O limite de pools nesta rede foi atingido";
 "pools.limit.has.reached.error.title" = "Você não pode criar mais pools";
 "profile.about.title" = "Sobre";
+"profile.account.score.title" = "Nomis multichain score";
 "profile.accounts.title" = "Contas";
 "profile.language.title" = "Idioma";
 "profile.logout.description" = "Esta ação resultará na eliminação de todas as contas deste dispositivo. Certifique-se de que fez o backup da sua frase-chave antes de prosseguir.";
@@ -737,8 +740,11 @@ Estes documentos são cruciais para uma experiência segura e positiva do utiliz
 "scam.additional.stub" = "Adicional:";
 "scam.description.donation.stub" = "Este endereço foi sinalizado como suspeito. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.exchange.stub" = "Este endereço está marcado como uma corretora, tome cuidado pois os endereços de depósito e saque podem ser diferentes.";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
 "scam.description.sanctions.stub" = "Este endereço foi sinalizado devido a uma entidade relacionada a um país sob sanções. Recomendamos fortemente que você não envie %s para esta conta.";
 "scam.description.scam.stub" = "Este endereço foi sinalizado devido a evidências de fraude. Recomendamos fortemente que você não envie %s para esta conta.";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "Nome:";
 "scam.reason.stub" = "Motivo:";
 "scam.warning.alert.subtitle" = "Recomendamos fortemente que você não envie %s para esta conta.";

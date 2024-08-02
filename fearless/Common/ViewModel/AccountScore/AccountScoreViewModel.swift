@@ -34,6 +34,8 @@ class AccountScoreViewModel {
     private let fetcher: AccountStatisticsFetching
     private let chain: ChainModel?
     private let settings: SettingsManagerProtocol
+    private let logger: LoggerProtocol?
+
     let address: String?
     var scoringEnabled: Bool
 
@@ -44,13 +46,15 @@ class AccountScoreViewModel {
         address: String?,
         chain: ChainModel?,
         settings: SettingsManagerProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        logger: LoggerProtocol?
     ) {
         self.fetcher = fetcher
         self.address = address
         self.chain = chain
         self.settings = settings
         self.eventCenter = eventCenter
+        self.logger = logger
 
         scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true
     }
@@ -70,7 +74,7 @@ class AccountScoreViewModel {
                     handle(response: statistics.value)
                 }
             } catch {
-                print("Account statistics fetching error: ", error)
+                logger?.debug("Account statistics fetching error: \(error)")
             }
         }
     }

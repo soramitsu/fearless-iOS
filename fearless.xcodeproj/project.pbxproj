@@ -1314,7 +1314,6 @@
 		85B1B7387F09A8405C4E688A /* WalletSendConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1AF4258723E2FACBBA556D00 /* WalletSendConfirmTests.swift */; };
 		872DF7DE5A001DF5B8A4E288 /* StakingBondMoreConfirmationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96BA5883C1103D3A2218D839 /* StakingBondMoreConfirmationFlow.swift */; };
 		87C1FC2909A8360DDBA625E5 /* LiquidityPoolSupplyInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BA528679A82B9A327853804 /* LiquidityPoolSupplyInteractor.swift */; };
-		8852522BE02B6244A00E85A1 /* AccountStatisticsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26222D0DBE5CEF0BA7DCCEF7 /* AccountStatisticsTests.swift */; };
 		885551F78A5926D16D5AF0CB /* ControllerAccountPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E5CB64B91B35804B3671456 /* ControllerAccountPresenter.swift */; };
 		886E8CF81EF2566D98D9693E /* ExportSeedViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62FA66143B25AA70B02CE461 /* ExportSeedViewFactory.swift */; };
 		887CE12C7C59F5DB092E9227 /* AccountStatisticsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FDD63BEB84A28855006BE680 /* AccountStatisticsRouter.swift */; };
@@ -3403,7 +3402,6 @@
 		25B80FDDB5C3032A0BBBD826 /* NftCollectionPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NftCollectionPresenter.swift; sourceTree = "<group>"; };
 		25D9454047EBBD8D8A0174A4 /* LiquidityPoolRemoveLiquidityRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LiquidityPoolRemoveLiquidityRouter.swift; sourceTree = "<group>"; };
 		25FF82C2FD912021A1F20876 /* PolkaswapAdjustmentViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapAdjustmentViewLayout.swift; sourceTree = "<group>"; };
-		26222D0DBE5CEF0BA7DCCEF7 /* AccountStatisticsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountStatisticsTests.swift; sourceTree = "<group>"; };
 		262F98DEF54FA9592BE22B94 /* AllDoneAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneAssembly.swift; sourceTree = "<group>"; };
 		2648EEF96694A7FEC94520E8 /* WalletHistoryFilterTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletHistoryFilterTests.swift; sourceTree = "<group>"; };
 		26635BD49FBF19DB1253906E /* NetworkInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoTests.swift; sourceTree = "<group>"; };
@@ -7321,14 +7319,6 @@
 			path = ExportMnemonicConfirm;
 			sourceTree = "<group>";
 		};
-		2CFE52D4FA09CD95EA70283E /* AccountStatistics */ = {
-			isa = PBXGroup;
-			children = (
-				26222D0DBE5CEF0BA7DCCEF7 /* AccountStatisticsTests.swift */,
-			);
-			path = AccountStatistics;
-			sourceTree = "<group>";
-		};
 		2E04CA9A3624EA1AD62722E8 /* WalletOption */ = {
 			isa = PBXGroup;
 			children = (
@@ -7760,7 +7750,6 @@
 				749EAA035EECE4D63C56C358 /* LiquidityPoolSupplyConfirm */,
 				48EAF80DCC0C537917FC5A23 /* LiquidityPoolRemoveLiquidity */,
 				BDB80385E6818AE7707DDFF8 /* LiquidityPoolRemoveLiquidityConfirm */,
-				2CFE52D4FA09CD95EA70283E /* AccountStatistics */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -19266,7 +19255,6 @@
 				B40863AA7377BFE5F8A30259 /* LiquidityPoolSupplyConfirmTests.swift in Sources */,
 				6BF307ADE63FA92389340779 /* LiquidityPoolRemoveLiquidityTests.swift in Sources */,
 				ECA54AB8148BBA63084353FD /* LiquidityPoolRemoveLiquidityConfirmTests.swift in Sources */,
-				8852522BE02B6244A00E85A1 /* AccountStatisticsTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -19817,7 +19805,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "network-module-update";
+				branch = "fearless-wallet";
 				kind = branch;
 			};
 		};

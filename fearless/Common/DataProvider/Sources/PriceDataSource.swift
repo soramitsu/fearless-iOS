@@ -183,7 +183,6 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
     }
 
     private func createChainlinkOperations() -> [BaseOperation<PriceData>] {
-        return []
         guard currencies?.count == 1, currencies?.first?.id == Currency.defaultCurrency().id else {
             return []
         }
