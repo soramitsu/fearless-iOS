@@ -23,7 +23,8 @@ struct PriceLocalStorageSubscriberListener {
 
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     static let shared = PriceLocalStorageSubscriberImpl()
-
+    private let eventCenter = EventCenter.shared
+    private let chainRegistry = ChainRegistryFacade.sharedRegistry
     private lazy var provider: AnySingleValueProvider<[PriceData]> = {
         setupProvider()
     }()
@@ -38,8 +39,18 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
 
     private var listeners: [PriceLocalStorageSubscriberListener] = []
     private var sourcedCurrencies: Set<Currency> = []
+    private var chainAssets: [ChainAsset] = []
+    private let chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>
 
-    private init() {}
+    init() {
+        chainsRepository = ChainRepositoryFactory().createAsyncRepository()
+        setup()
+    }
+
+    private func setup() {
+        eventCenter.add(observer: self)
+        refreshChainsAndSubscribe()
+    }
 
     // MARK: - PriceLocalStorageSubscriber
 
@@ -118,7 +129,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
 
     private func setupProvider() -> AnySingleValueProvider<[PriceData]> {
         let providerCurrencies = listeners.map { $0.currencies }.compactMap { $0 }.reduce([], +).uniq(predicate: { $0.id })
-        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies)
+        let priceProvider = priceLocalSubscriber.getPricesProvider(currencies: providerCurrencies, chainAssets: chainAssets)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
             guard let prices: [PriceData] = changes.reduceToLastChange() else {
@@ -231,5 +242,28 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
             handler: handler
         )
         listeners.append(listener)
+    }
+
+    private func refreshChainsAndSubscribe() {
+        Task {
+            let chains = try await chainsRepository.fetchAll()
+            chainAssets = chains.map { $0.chainAssets }.reduce([], +)
+
+            print("Chain assets to subsctibe : ", chainAssets)
+            remoteFetchTimer?.invalidate()
+            remoteFetchTimer = nil
+            provider = setupProvider()
+            refreshProviderIfPossible()
+        }
+    }
+}
+
+extension PriceLocalStorageSubscriberImpl: EventVisitorProtocol {
+    func processChainSyncDidComplete(event: ChainSyncDidComplete) {
+        guard event.newOrUpdatedChains.isNotEmpty else {
+            return
+        }
+
+        refreshChainsAndSubscribe()
     }
 }

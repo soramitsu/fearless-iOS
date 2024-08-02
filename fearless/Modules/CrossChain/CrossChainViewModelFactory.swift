@@ -5,7 +5,7 @@ import SSFModels
 
 protocol CrossChainViewModelFactoryProtocol {
     func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel
-    func buildRecipientViewModel(address: String) -> RecipientViewModel
+    func buildRecipientViewModel(address: String, isValid: Bool) -> RecipientViewModel
 }
 
 final class CrossChainViewModelFactory: CrossChainViewModelFactoryProtocol {
@@ -23,11 +23,11 @@ final class CrossChainViewModelFactory: CrossChainViewModelFactoryProtocol {
         )
     }
 
-    func buildRecipientViewModel(address: String) -> RecipientViewModel {
+    func buildRecipientViewModel(address: String, isValid: Bool) -> RecipientViewModel {
         RecipientViewModel(
             address: address,
             icon: try? iconGenerator.generateFromAddress(address),
-            isValid: true,
+            isValid: isValid,
             canEditing: true
         )
     }
