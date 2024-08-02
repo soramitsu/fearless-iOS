@@ -83,7 +83,7 @@ enum LiquidityPoolSupplyConfirmAssembly {
         return (view, presenter)
     }
 
-    static func fetchSecretKey(
+    private static func fetchSecretKey(
         for chain: ChainModel,
         metaId: String,
         accountResponse: ChainAccountResponse

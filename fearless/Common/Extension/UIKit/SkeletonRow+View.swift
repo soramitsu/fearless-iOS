@@ -64,8 +64,7 @@ extension SingleSkeleton {
     }
 
     static func createRow(
-        position: CGPoint,
-        size _: CGSize
+        position: CGPoint
     ) -> SingleSkeleton {
         SingleSkeleton(position: position, size: CGSize(width: 1, height: 1)).round()
     }

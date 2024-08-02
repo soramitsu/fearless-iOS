@@ -20,7 +20,7 @@ extension SkeletonLoadableView {
             size: skeletonSize,
             decorations: [],
             skeletons: [
-                SingleSkeleton.createRow(position: CGPoint(x: 0, y: 0), size: skeletonSize)
+                SingleSkeleton.createRow(position: CGPoint(x: 0, y: 0))
             ]
         )
         .fillSkeletonStart(R.color.colorSkeletonStart()!)

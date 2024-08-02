@@ -146,6 +146,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         let newPrices: [PriceData] = prices.compactMap { price in
             guard let chainAsset = typePriceChainAsset.first(where: { $0.asset.coingeckoPriceId == price.coingeckoPriceId }) else {
                 return nil
+
             }
             return PriceData(
                 currencyId: price.currencyId,

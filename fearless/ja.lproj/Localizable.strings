@@ -472,6 +472,8 @@
 "lp.apy.alert.title" = "戦略的ボーナス年利";
 "lp.apy.title" = "戦略的ボーナス年利";
 "lp.available.pools.title" = "利用可能なプール";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
 "lp.confirm.liquidity.screen.title" = "流動性を確認";
 "lp.confirm.liquidity.warning.text" = "出力は推定です。価格が0.5%以上変動した場合、取引は元に戻されます。";
 "lp.network.fee.alert.text" = "ネットワーク手数料はSORAシステムの成長と安定したパフォーマンスを確保するために使用されます。";

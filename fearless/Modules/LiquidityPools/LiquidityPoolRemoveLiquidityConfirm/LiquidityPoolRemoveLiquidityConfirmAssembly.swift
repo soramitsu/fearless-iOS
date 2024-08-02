@@ -44,7 +44,15 @@ final class LiquidityPoolRemoveLiquidityConfirmAssembly {
             selectedMetaAccount: wallet
         )
 
-        let interactor = LiquidityPoolRemoveLiquidityInteractor(lpOperationService: lpOperationService, lpDataService: lpDataService, liquidityPair: liquidityPair, priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared, chain: chain, accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter, wallet: wallet)
+        let interactor = LiquidityPoolRemoveLiquidityInteractor(
+            lpOperationService: lpOperationService,
+            lpDataService: lpDataService,
+            liquidityPair: liquidityPair,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
+            chain: chain,
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+            wallet: wallet
+        )
         let router = LiquidityPoolRemoveLiquidityRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = LiquidityPoolRemoveLiquidityPresenter(
@@ -69,7 +77,7 @@ final class LiquidityPoolRemoveLiquidityConfirmAssembly {
         return (view, presenter)
     }
 
-    static func fetchSecretKey(
+    private static func fetchSecretKey(
         for chain: ChainModel,
         metaId: String,
         accountResponse: ChainAccountResponse

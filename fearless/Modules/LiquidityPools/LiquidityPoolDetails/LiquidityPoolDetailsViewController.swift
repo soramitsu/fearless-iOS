@@ -42,6 +42,12 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder, Hi
         super.viewDidLoad()
         output.didLoad(view: self)
 
+        setupActions()
+    }
+
+    // MARK: - Private methods
+
+    private func setupActions() {
         rootView.navigationBar.backButton.addAction { [weak self] in
             self?.output.backButtonClicked()
         }
@@ -59,8 +65,6 @@ final class LiquidityPoolDetailsViewController: UIViewController, ViewHolder, Hi
         rootView.apyView
             .addGestureRecognizer(tapApyInfo)
     }
-
-    // MARK: - Private methods
 
     @objc private func handleTapApyInfo() {
         output.didTapApyInfo()

@@ -472,6 +472,8 @@ Seed: %@";
 "lp.apy.alert.title" = "Strategic Bonus APY";
 "lp.apy.title" = "Strategic Bonus APY";
 "lp.available.pools.title" = "Available pools";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
 "lp.confirm.liquidity.screen.title" = "Confirm Liquidity";
 "lp.confirm.liquidity.warning.text" = "Output is estimated. If the price changes more than 0.5% your transaction will revert.";
 "lp.network.fee.alert.text" = "Network fee is used to ensure SORA system’s growth and stable performance.";

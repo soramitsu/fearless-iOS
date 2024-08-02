@@ -1,6 +1,6 @@
 import UIKit
 
-class LiquidityPoolListCell: UITableViewCell {
+final class LiquidityPoolListCell: UITableViewCell {
     let tokenPairIconsView = TokenPairIconsView()
     let tokenPairNameLabel: SkeletonLabel = {
         let label = SkeletonLabel(skeletonSize: CGSize(width: 50, height: 12))

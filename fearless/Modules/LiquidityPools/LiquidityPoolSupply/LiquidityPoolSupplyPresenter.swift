@@ -24,7 +24,6 @@ protocol LiquidityPoolSupplyViewInput: ControllerBackedProtocol {
     func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?)
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?)
     func setButtonLoadingState(isLoading: Bool)
-    func didUpdating()
     func didReceiveViewModel(_ viewModel: LiquidityPoolSupplyViewModel)
     func didReceiveSwapQuoteReady()
 }
@@ -42,7 +41,7 @@ final class LiquidityPoolSupplyPresenter {
     }
 
     private enum Constants {
-        static let slippadgeTolerance: Float = 0.5
+        static let slippadgeTolerance: Decimal = 0.5
     }
 
     // MARK: Private properties
@@ -64,7 +63,7 @@ final class LiquidityPoolSupplyPresenter {
     private var pairs: [LiquidityPair]?
 
     private var apyInfo: PoolApyInfo?
-    private var slippadgeTolerance: Float = Constants.slippadgeTolerance
+    private var slippadgeTolerance: Decimal = Constants.slippadgeTolerance
     private var baseAssetInputResult: AmountInputResult?
     private var baseAssetBalance: Decimal?
     private var targetAssetInputResult: AmountInputResult?
@@ -135,13 +134,14 @@ final class LiquidityPoolSupplyPresenter {
 
     private func provideViewModel() {
         let viewModel = viewModelFactory.buildViewModel(
-            slippage: Decimal(floatLiteral: Double(slippadgeTolerance)),
+            slippage: slippadgeTolerance,
             apy: apyInfo,
             liquidityPair: liquidityPair,
             chain: chain
         )
-
-        view?.didReceiveViewModel(viewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveViewModel(viewModel)
+        }
     }
 
     private func refreshFee() {
@@ -164,7 +164,7 @@ final class LiquidityPoolSupplyPresenter {
             targetAsset: targetAssetInfo,
             baseAssetAmount: baseAssetAmount,
             targetAssetAmount: targetAssetAmount,
-            slippage: Decimal(floatLiteral: Double(slippadgeTolerance)),
+            slippage: slippadgeTolerance,
             availablePairs: pairs
         )
 
@@ -303,9 +303,9 @@ final class LiquidityPoolSupplyPresenter {
 
         DispatchQueue.main.async {
             self.view?.didReceiveNetworkFee(fee: nil)
-            self.provideViewModel()
         }
 
+        provideViewModel()
         provideToAssetVewModel()
         provideFromAssetVewModel()
         refreshFee()
@@ -348,6 +348,26 @@ final class LiquidityPoolSupplyPresenter {
 
         baseAssetInputResult = .absolute(targetAssetAmount * scale)
     }
+
+    private func handleBaseAssetAmountChanged(updateAmountInput: Bool) {
+        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
+        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
+
+        provideFromAssetVewModel(updateAmountInput: updateAmountInput)
+        provideToAssetVewModel()
+
+        refreshFee()
+    }
+
+    private func handleTargetAssetAmountChanged(updateAmountInput: Bool) {
+        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
+        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
+
+        provideFromAssetVewModel()
+        provideToAssetVewModel(updateAmountInput: updateAmountInput)
+
+        refreshFee()
+    }
 }
 
 // MARK: - LiquidityPoolSupplyViewOutput
@@ -358,25 +378,17 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
     }
 
     func didTapApyInfo() {
-        var infoText: String
-        var infoTitle: String
-        infoTitle = R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        infoText = R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
-            message: infoText,
-            title: infoTitle,
+            message: R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages),
             from: view
         )
     }
 
     func didTapFeeInfo() {
-        var infoText: String
-        var infoTitle: String
-        infoTitle = R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        infoText = R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
-            message: infoText,
-            title: infoTitle,
+            message: R.string.localizable.lpNetworkFeeAlertText(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.lpNetworkFeeAlertTitle(preferredLanguages: selectedLocale.rLanguages),
             from: view
         )
     }
@@ -419,7 +431,7 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
             let inputData = LiquidityPoolSupplyConfirmInputData(
                 baseAssetAmount: baseAssetResultAmount,
                 targetAssetAmount: targetAssetResultAmount,
-                slippageTolerance: Decimal(floatLiteral: Double(self.slippadgeTolerance)),
+                slippageTolerance: slippadgeTolerance,
                 availablePools: pairs
             )
 
@@ -436,81 +448,26 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyViewOutput {
 
     func selectFromAmountPercentage(_ percentage: Float) {
         swapVariant = .desiredInput
-
         baseAssetInputResult = .rate(Decimal(Double(percentage)))
-
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
-        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel()
-
-        refreshFee()
+        handleBaseAssetAmountChanged(updateAmountInput: true)
     }
 
     func updateFromAmount(_ newValue: Decimal) {
         swapVariant = .desiredInput
         baseAssetInputResult = .absolute(newValue)
-
-        let baseAssetAbsolulteValue = baseAssetInputResult?.absoluteValue(from: baseAssetBalance.or(.zero))
-        recalculateTargetAssetAmount(baseAssetAmount: baseAssetAbsolulteValue)
-
-        provideFromAssetVewModel(updateAmountInput: false)
-        provideToAssetVewModel()
-
-        refreshFee()
+        handleBaseAssetAmountChanged(updateAmountInput: false)
     }
 
     func selectToAmountPercentage(_ percentage: Float) {
         swapVariant = .desiredOutput
         targetAssetInputResult = .rate(Decimal(Double(percentage)))
-
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
-        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel()
-
-        refreshFee()
+        handleTargetAssetAmountChanged(updateAmountInput: true)
     }
 
     func updateToAmount(_ newValue: Decimal) {
         swapVariant = .desiredOutput
         targetAssetInputResult = .absolute(newValue)
-
-        let targetAssetAbsoluteValue = targetAssetInputResult?.absoluteValue(from: targetAssetBalance.or(.zero))
-        recalculateBaseAssetAmount(targetAssetAmount: targetAssetAbsoluteValue)
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel(updateAmountInput: false)
-
-        refreshFee()
-    }
-
-    func didTapSelectFromAsset() {
-        let showChainAssets = chain.chainAssets
-            .filter { $0.chainAssetId != swapToChainAsset?.chainAssetId }
-        router.showSelectAsset(
-            from: view,
-            wallet: wallet,
-            chainAssets: showChainAssets,
-            selectedAssetId: swapFromChainAsset?.asset.id,
-            contextTag: InputTag.swapFrom.rawValue,
-            output: self
-        )
-    }
-
-    func didTapSelectToAsset() {
-        let showChainAssets = chain.chainAssets
-            .filter { $0.chainAssetId != swapFromChainAsset?.chainAssetId }
-        router.showSelectAsset(
-            from: view,
-            wallet: wallet,
-            chainAssets: showChainAssets,
-            selectedAssetId: swapToChainAsset?.asset.id,
-            contextTag: InputTag.swapTo.rawValue,
-            output: self
-        )
+        handleTargetAssetAmountChanged(updateAmountInput: false)
     }
 
     func didLoad(view: LiquidityPoolSupplyViewInput) {
@@ -624,7 +581,7 @@ extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyInteractorOutput {
                 } ?? .zero
             }
         case let .failure(error):
-            router.present(error: error, from: view, locale: selectedLocale)
+            logger.customError(error)
         }
     }
 }
@@ -636,36 +593,3 @@ extension LiquidityPoolSupplyPresenter: Localizable {
 }
 
 extension LiquidityPoolSupplyPresenter: LiquidityPoolSupplyModuleInput {}
-
-// MARK: - SelectAssetModuleOutput
-
-extension LiquidityPoolSupplyPresenter: SelectAssetModuleOutput {
-    func assetSelection(
-        didCompleteWith chainAsset: ChainAsset?,
-        contextTag: Int?
-    ) {
-        DispatchQueue.main.async { [weak self] in
-            self?.view?.didUpdating()
-        }
-
-        guard let rawValue = contextTag,
-              let input = InputTag(rawValue: rawValue),
-              let chainAsset = chainAsset
-        else {
-            return
-        }
-
-        switch input {
-        case .swapFrom:
-            swapFromChainAsset = chainAsset
-            provideFromAssetVewModel()
-        case .swapTo:
-            swapToChainAsset = chainAsset
-            provideToAssetVewModel()
-        }
-
-        runLoadingState()
-
-        refreshFee()
-    }
-}
