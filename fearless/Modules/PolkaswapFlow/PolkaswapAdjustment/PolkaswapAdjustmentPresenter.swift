@@ -21,6 +21,7 @@ final class PolkaswapAdjustmentPresenter {
     private weak var confirmationScreenModuleInput: PolkaswapSwapConfirmationModuleInput?
     private let router: PolkaswapAdjustmentRouterInput
     private let interactor: PolkaswapAdjustmentInteractorInput
+    weak var bannersModuleInput: BannersModuleInput?
 
     private let wallet: MetaAccountModel
     private let viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol
@@ -499,6 +500,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     func viewDidAppear() {
         interactor.fetchDisclaimerVisible()
         disclaimerWasShown = true
+
+        #if F_RELEASE
+            bannersModuleInput?.update(banners: [.liquidityPools])
+        #else
+            bannersModuleInput?.update(banners: [.liquidityPools, .liquidityPoolsTest])
+        #endif
     }
 
     func didLoad(view: PolkaswapAdjustmentViewInput) {
@@ -943,5 +950,15 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
             }
             detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
         }
+    }
+}
+
+// MARK: - BannersModuleOutput
+
+extension PolkaswapAdjustmentPresenter: BannersModuleOutput {
+    func reloadBannersView() {}
+
+    func didTapCloseBanners() {
+        view?.hideBanners()
     }
 }

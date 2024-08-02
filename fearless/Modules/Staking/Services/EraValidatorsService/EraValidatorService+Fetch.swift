@@ -4,6 +4,8 @@ import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
 
+private typealias IdentifiableExposure = (Data, ValidatorExposure)
+
 extension EraValidatorService {
     private func handleEraDecodingResult(result: Result<ActiveEraInfo, Error>?) {
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {

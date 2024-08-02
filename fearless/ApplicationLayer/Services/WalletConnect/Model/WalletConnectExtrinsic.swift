@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import BigInt
+import SSFModels
 
 struct WalletConnectExtrinsic: Codable {
     let address: String

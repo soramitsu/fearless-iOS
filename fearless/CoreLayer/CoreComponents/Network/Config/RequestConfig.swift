@@ -7,6 +7,7 @@ class RequestConfig {
     var queryItems: [URLQueryItem]?
     var headers: [HTTPHeader]?
     var body: Data?
+    var timeout: TimeInterval?
 
     var requestType: NetworkRequestType = .plain
     var signingType: RequestSigningType = .none
@@ -19,7 +20,8 @@ class RequestConfig {
         endpoint: String?,
         queryItems: [URLQueryItem]? = nil,
         headers: [HTTPHeader]?,
-        body: Data?
+        body: Data?,
+        timeout: TimeInterval? = nil
     ) {
         self.baseURL = baseURL
         self.method = method
@@ -27,5 +29,6 @@ class RequestConfig {
         self.queryItems = queryItems
         self.headers = headers
         self.body = body
+        self.timeout = timeout
     }
 }

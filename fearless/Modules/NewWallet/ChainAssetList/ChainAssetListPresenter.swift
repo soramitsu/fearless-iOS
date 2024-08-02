@@ -364,6 +364,8 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
 // MARK: - BannersModuleOutput?
 
 extension ChainAssetListPresenter: BannersModuleOutput {
+    func didTapCloseBanners() {}
+
     func reloadBannersView() {
         DispatchQueue.main.async {
             self.view?.reloadBanners()

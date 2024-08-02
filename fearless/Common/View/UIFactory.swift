@@ -104,6 +104,11 @@ protocol UIFactoryProtocol {
     ) -> UIToolbar
     func createDisabledButton() -> TriangularedButton
     func createRoundedButton() -> UIButton
+    func createWarningView(title: String, text: String) -> UIView
+    func createDoneAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar
 }
 
 extension UIFactoryProtocol {
@@ -364,6 +369,43 @@ final class UIFactory: UIFactoryProtocol {
         return createActionsAccessoryView(
             for: toolBar,
             actions: actions,
+            doneAction: doneAction,
+            target: toolBar,
+            spacing: spacing
+        )
+    }
+
+    func createDoneAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar {
+        let frame = CGRect(
+            x: 0.0,
+            y: 0.0,
+            width: UIScreen.main.bounds.width,
+            height: UIConstants.accessoryBarHeight
+        )
+
+        let toolBar = AmountInputAccessoryView(frame: frame)
+        toolBar.actionDelegate = delegate
+
+        let doneTitle = R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
+        let doneAction = ViewSelectorAction(
+            title: doneTitle,
+            selector: #selector(toolBar.actionSelectDone)
+        )
+
+        let spacing: CGFloat
+
+        if toolBar.isAdaptiveWidthDecreased {
+            spacing = UIConstants.accessoryItemsSpacing * toolBar.designScaleRatio.width
+        } else {
+            spacing = UIConstants.accessoryItemsSpacing
+        }
+
+        return createActionsAccessoryView(
+            for: toolBar,
+            actions: [],
             doneAction: doneAction,
             target: toolBar,
             spacing: spacing
@@ -732,5 +774,34 @@ final class UIFactory: UIFactoryProtocol {
         button.titleLabel?.font = .h6Title
         button.layer.cornerRadius = 12
         return button
+    }
+
+    func createWarningView(title _: String, text _: String) -> UIView {
+        let iconView = UIImageView(image: R.image.iconWarning())
+        iconView.snp.makeConstraints { make in
+            make.size.equalTo(16)
+        }
+
+        let hStack = UIFactory.default.createHorizontalStackView(spacing: 8)
+        hStack.alignment = .top
+        hStack.distribution = .fillProportionally
+
+        let vStack = UIFactory.default.createVerticalStackView(spacing: 4)
+
+        hStack.addArrangedSubview(iconView)
+        hStack.addArrangedSubview(vStack)
+
+        let titleLabel = UILabel()
+        titleLabel.textColor = R.color.colorOrange()
+        titleLabel.font = .h6Title
+
+        let textLabel = UILabel()
+        textLabel.textColor = R.color.colorWhite50()
+        textLabel.font = .p3Paragraph
+
+        vStack.addArrangedSubview(titleLabel)
+        vStack.addArrangedSubview(textLabel)
+
+        return hStack
     }
 }

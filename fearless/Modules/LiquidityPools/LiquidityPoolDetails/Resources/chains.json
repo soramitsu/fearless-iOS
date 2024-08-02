@@ -4799,6 +4799,10 @@
             "staking": {
                 "type": "sora",
                 "url": "https://squid.subsquid.io/sora-stage/v/v5/graphql"
+            },
+            "pricing": {
+                "type": "sora",
+                "url": "https://api.subquery.network/sq/sora-xor/sora-test"
             }
         },
         "xcm": {
@@ -4832,7 +4836,11 @@
             "color": "EE2233",
             "isUtility": true,
             "type": "soraAsset",
-            "staking": "relaychain"
+            "staking": "relaychain",
+            "priceProvider": {
+                "type": "sorasubquery",
+                "id": "0x0200000000000000000000000000000000000000000000000000000000000000"
+            }
         },
             {
                 "id": "0ecacd48-ffd4-4a2e-87e3-c5f72f9a9877",
@@ -5065,7 +5073,11 @@
             },
             "staking": {
                 "type" : "sora",
-                "url": "https://squid.subsquid.io/sora/v/v5/graphql"
+                "url": "https://sora.squids.live/sora/v/v7/graphql"
+            },
+            "pricing": {
+                "type": "sora",
+                "url": "https://api.subquery.network/sq/sora-xor/sora-prod"
             },
             "explorers": [{
                 "type": "subscan",
@@ -5087,7 +5099,11 @@
             "color": "EE2233",
             "isUtility": true,
             "type": "soraAsset",
-            "staking": "relaychain"
+            "staking": "relaychain",
+            "priceProvider": {
+                "type": "sorasubquery",
+                "id": "0x0200000000000000000000000000000000000000000000000000000000000000"
+            }
         },
             {
                 "id": "24d0809e-0a4c-42ea-bdd8-dc7a518f389c",
@@ -5099,7 +5115,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/VAL.svg",
                 "color": "F3B966",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0200040000000000000000000000000000000000000000000000000000000000"
+                }
             },
             {
                 "id": "37a999a2-5e90-4448-8b0e-98d06ac8f9d4",
@@ -5111,7 +5131,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/PSWAP.svg",
                 "color": "FF0066",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0200050000000000000000000000000000000000000000000000000000000000"
+                }
             },
             {
                 "id": "75a0bc9b-a1fb-446e-8781-621036bfd979",
@@ -5123,7 +5147,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XST.svg",
                 "color": "EE2233",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0200090000000000000000000000000000000000000000000000000000000000"
+                }
             },
             {
                 "id": "217925d8-c529-4480-98e5-b8bf651129ef",
@@ -5135,7 +5163,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XSTUSD.svg",
                 "color": "EE2233",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0200080000000000000000000000000000000000000000000000000000000000"
+                }
             },
             {
                 "id": "5e3de486-789e-4e47-8f49-870852cfebb6",
@@ -5147,7 +5179,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DEO.svg",
                 "color": "54B198",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00f2f4fda40a4bf1fc3769d156fa695532eec31e265d75068524462c0b80f674"
+                }
             },
             {
                 "id": "8fe0cbf4-7ece-45f6-968b-5c1b77accff0",
@@ -5159,7 +5195,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/CERES.svg",
                 "color": "243579",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x008bcfd2387d3fc453333557eecb0efe59fcba128769b2feefdd306e98e66440"
+                }
             },
             {
                 "id": "079f2a74-1440-440c-b826-6d85a7dd3a91",
@@ -5171,7 +5211,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/NOIR.svg",
                 "color": "A0A7FF",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0044aee0776cfb826434af8ef0f8e2c7e9e6644cfda0ae0f02c471b1eebc2483"
+                }
             },
             {
                 "id": "2de2b668-33cd-4e85-a501-4921481e618f",
@@ -5182,7 +5226,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/UMI.svg",
                 "color": "3C7EB2",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x003252667a82d2dd70fa046eea663eaec1f2e37c20879f113b880b04c5ebd805"
+                }
             },
             {
                 "id": "4c7b8da9-b297-4093-b8bc-28d477e7b5ad",
@@ -5193,7 +5241,11 @@
                 "priceId": "tether",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDT.svg",
                 "color": "26A17B",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0083a6b3fbc6edae06f115c8953ddd7cbfba0b74579d6ea190f96853073b76f4"
+                }
             },
             {
                 "id": "23c41bbb-2e1a-4d64-bbab-5080975ecc1c",
@@ -5204,7 +5256,11 @@
                 "priceId": "binance-usd",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BUSD.svg",
                 "color": "F3BA2F",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00567d096a736f33bf78cad7b01e33463923b9c933ee13ab7e3fb7b23f5f953a"
+                }
             },
             {
                 "id": "c8ce20ed-8690-4b46-9b3d-872e325ae636",
@@ -5215,7 +5271,11 @@
                 "priceId": "usd-coin",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/USDC.svg",
                 "color": "3E73C4",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00ef6658f79d8b560f77b7b20a5d7822f5bc22539c7b4056128258e5829da517"
+                }
             },
             {
                 "id": "1e6f8ba3-5aeb-41d8-b80e-a44ce0f33716",
@@ -5226,7 +5286,11 @@
                 "priceId": "dai",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DAI.svg",
                 "color": "F9AF1A",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0200060000000000000000000000000000000000000000000000000000000000"
+                }
             },
             {
                 "id": "82f45df3-b6d8-43e7-a440-c0e73ab59785",
@@ -5237,7 +5301,11 @@
                 "priceId": "ethereum",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
                 "color": "627EEA",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0200070000000000000000000000000000000000000000000000000000000000"
+                }
             },
             {
                 "id": "94e573f3-a9f3-4f7e-9244-8492288ca558",
@@ -5247,7 +5315,11 @@
                 "precision": 18,
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/SHIB.svg",
                 "color": "FFA409",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x005aa73d7a4a3fdbe830c7d0ee26c09ba7f1db119da86d5b4dcb6609dac5ceb5"
+                }
             },
             {
                 "id": "68a46965-94e8-4a03-af65-6237f83d482f",
@@ -5258,7 +5330,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/TBCD.svg",
                 "color":"6D8954",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x02000a0000000000000000000000000000000000000000000000000000000000"
+                }
             },
             {
                 "id": "61f864b5-9fe0-4ba5-b5b6-c338ceaeee91",
@@ -5269,7 +5345,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/tokens/coloured/HMX.svg",
                 "color":"FFFFFF",
                 "type": "soraAsset",
-                "isNative": true
+                "isNative": true,
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x002d4e9e03f192cc33b128319a049f353db98fbf4d98f717fd0b7f66a0462142"
+                }
             },
             {
                 "id": "a13169a1-32fa-4b44-aecb-c404c5f3cdbc",
@@ -5279,7 +5359,11 @@
                 "precision": 18,
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/BCSD.svg",
                 "color": "FFFFFF",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00eacaea6599a04358fda986388ef0bb0c17a553ec819d5de2900c0af0862502"
+                }
             },
             {
                 "id": "5416b261-a759-4ba6-bc83-ea79a83c5101",
@@ -5290,7 +5374,11 @@
                 "priceId": "kusama",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/KSM.svg",
                 "color": "FFFFFF",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00117b0fa73c4672e03a7d9d774e3b3f91beb893e93d9a8d0430295f44225db8"
+                }
             },
             {
                 "id": "cd092a5a-4eb6-4318-9f11-4bf8454d67a2",
@@ -5298,10 +5386,14 @@
                 "symbol": "dot",
                 "currencyId": "0x0003b1dbee890acfb1b3bc12d1bb3b4295f52755423f84d1751b2545cebf000b",
                 "precision": 18,
-                "priceId": "polkadot",
+                "priceId": "polkadot-sora",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/DOT.svg",
                 "color": "FF0066",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0003b1dbee890acfb1b3bc12d1bb3b4295f52755423f84d1751b2545cebf000b"
+                }
             },
             {
                 "id": "fb88fa55-b8c8-4ff1-afa8-f72a86a238a4",
@@ -5312,7 +5404,11 @@
                 "priceId": "acala",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ACA.svg",
                 "color": "FFFFFF",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x001ddbe1a880031da72f7ea421260bec635fa7d1aa72593d5412795408b6b2ba"
+                }
             },
             {
                 "id": "acc32ee0-8fdc-4743-91e1-f70cc4f3069b",
@@ -5323,7 +5419,11 @@
                 "priceId": "astar",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ASTR.svg",
                 "color": "0AE2FF",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x009dd037fcb32f4fe17c513abd4641a2ece844d106e30788124f0c0acc6e748e"
+                }
             },
             {
                 "id": "0ef3afdc-cdd3-47cc-bd52-817c54ae65b5",
@@ -5333,7 +5433,11 @@
                 "precision": 18,
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LLM.svg",
                 "color": "EFB900",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00073edd278e1bd6a7f9d0b27d4f3e93b73c8f0832b58a4df13c69611a99f156"
+                }
             },
             {
                 "id": "1c3b4fcb-5a5f-4319-9dce-d178006eb9bf",
@@ -5344,7 +5448,11 @@
                 "priceId": "liberland-lld",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LLD.svg",
                 "color": "00437F",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00513be65493a7fc3e2128d4230061a530acf40478a4affa20bbba27a310673e"
+                }
             },
             {
                 "id": "a543b9a2-f85a-4974-92fc-435d6bc418e5",
@@ -5355,7 +5463,11 @@
                 "priceId": "the-open-network",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/TON.svg",
                 "color": "0098EA",
-                "type": "soraAsset"
+                "type": "soraAsset",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x00e8c8923623335128807857dfa38f9212e9803394a2c976e97245d7063bbe10"
+                }
             }
         ],
         "xcm": {
@@ -5838,7 +5950,11 @@
             "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
             "color": "EE2233",
             "isUtility": true,
-            "type": "normal"
+            "type": "normal",
+            "priceProvider": {
+                "type": "sorasubquery",
+                "id": "0x0200000000000000000000000000000000000000000000000000000000000000"
+            }
         }],
         "nodes": [{
             "url": "wss://ws.parachain-collator-1.c1.sora2.soramitsu.co.jp",
@@ -5862,7 +5978,11 @@
             "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
             "color": "EE2233",
             "isUtility": true,
-            "type": "normal"
+            "type": "normal",
+            "priceProvider": {
+                "type": "sorasubquery",
+                "id": "0x0200000000000000000000000000000000000000000000000000000000000000"
+            }
         }],
         "nodes": [{
             "url": "wss://ws.parachain-collator-1.pc1.sora2.soramitsu.co.jp",
@@ -6039,7 +6159,11 @@
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/XOR.svg",
                 "color": "EE2233",
                 "type": "normal",
-                "ethereumType": "erc20"
+                "ethereumType": "erc20",
+                "priceProvider": {
+                    "type": "sorasubquery",
+                    "id": "0x0200000000000000000000000000000000000000000000000000000000000000"
+                }
               },
               {
                 "isUtility": false,
@@ -7555,6 +7679,153 @@
                 }
             ]
         },
+        "nodes": [
+          {
+            "url": "wss://mainnet.liberland.org",
+            "name": "Liberland node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/liberland.svg",
+        "addressPrefix": 42
+      },
+      {
+        "disabled": false,
+        "chainId": "f3c7ad88f6a80f366c4be216691411ef0622e8b809b1046ea297ef106058d4eb",
+        "name": "Manta Parachain",
+        "assets": [{
+            "id": "0c41f3da-3c42-413a-aca3-bfb19b717df7",
+            "name": "manta",
+            "symbol": "manta",
+            "precision": 18,
+            "priceId": "manta-network",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MANTA.svg",
+            "color": "29CCB9",
+            "isUtility": true,
+            "type": "normal"
+        }],
+        "externalApi": {
+            "explorers": [{
+                "type": "subscan",
+                "types": [
+                    "extrinsic",
+                    "account"
+                ],
+                "url": "https://manta.subscan.io/{type}/{value}"
+            }]
+        },
+        "nodes": [{
+            "url": "wss://ws.manta.systems",
+            "name": "Manta Community node"
+        }
+    
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/mantachain.svg",
+        "addressPrefix": 77
+      },
+      {
+        "disabled": false,
+        "chainId": "169",
+        "name": "Manta Pacific Mainnet",
+        "assets": [
+          {
+            "isUtility": true,
+            "id": "af44954d-2be1-4021-ae0b-f05d8180400a",
+            "name": "ethereum",
+            "symbol": "eth",
+            "precision": 18,
+            "priceId": "ethereum",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ETH.svg",
+            "color":"627EEA",
+            "type": "normal",
+            "ethereumType": "normal"
+          },
+          {
+            "isUtility": false,
+            "id": "0x95CeF13441Be50d20cA4558CC0a27B601aC544E5",
+            "name": "manta",
+            "symbol": "manta",
+            "precision": 18,
+            "priceId": "manta-network",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/MANTA.svg",
+            "color": "8247E5",
+            "type": "normal",
+            "ethereumType": "erc20"
+        }
+        ],
+        "externalApi": {
+            "history": {
+                "type": "zeta",
+                "url": "https://pacific-explorer.manta.network/api/v2/addresses/"
+            }
+        },
+        "nodes": [
+            {
+                "url": "https://pacific-rpc.manta.network/http",
+                "name": "Manta https node"
+            },
+            {
+                "url": "https://1rpc.io/manta",
+                "name": "1RPC https node"
+            }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/mantachain.svg",
+        "addressPrefix": 0,
+        "options": [
+          "ethereum",
+          "utilityFeePayment"
+        ]
+      },
+      {
+        "disabled": true,
+        "chainId": "d8761d3c88f26dc12875c00d3165f7d67243d56fc85b4cf19937601a7916e5a9",
+        "name": "Enjin Relaychain",
+        "externalApi": {
+          "explorers": [{
+            "type": "subscan",
+            "types": [
+              "extrinsic",
+              "account"
+            ],
+            "url": "https://enjin.subscan.io/{type}/{value}"
+          }]
+        },
+        "assets": [{
+          "id": "43748d94-90ba-41b2-8732-326cd943a501",
+          "name": "enjin coin",
+          "symbol": "enj",
+          "precision": 18,
+          "priceId": "enjincoin",
+          "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/ENJ.svg",
+          "color": "5A27ED",
+          "isUtility": true,
+          "type": "normal"
+        }],
+        "nodes": [{
+          "url": "wss://rpc.relay.blockchain.enjin.io",
+          "name": "Enjin Foundation node"
+        }
+      
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/chains/white/Enjin.svg",
+        "addressPrefix": 2135
+      },
+      {
+        "disabled": false,
+        "chainId": "6bd89e052d67a45bb60a9a23e8581053d5e0d619f15cb9865946937e690c42d6",
+        "name": "Liberland",
+        "assets": [
+          {
+            "id": "a6b83d39-a488-4b34-8352-280705a792ea",
+            "name": "liberland lld",
+            "symbol": "lld",
+            "precision": 12,
+            "priceId": "liberland-lld",
+            "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/LLD.svg",
+            "color": "00437F",
+            "isUtility": true,
+            "type": "normal"
+        }
+      ],
         "nodes": [
           {
             "url": "wss://mainnet.liberland.org",
