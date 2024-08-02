@@ -4,12 +4,30 @@ import SSFModels
 import SSFPools
 
 protocol LiquidityPoolsModelFactory {
-    func buildReserves(pool: LiquidityPair, chain: ChainModel, reserves: PolkaswapPoolReservesInfo?, baseAssetPrice: PriceData?, targetAssetPrice: PriceData?) -> Decimal?
-    func buildReserves(accountPool: AccountPool, chain: ChainModel, reserves: PolkaswapPoolReservesInfo?, baseAssetPrice: PriceData?, targetAssetPrice: PriceData?) -> Decimal?
+    func buildReserves(
+        pool: LiquidityPair,
+        chain: ChainModel,
+        reservesInfo: PolkaswapPoolReservesInfo?,
+        baseAssetPrice: PriceData?,
+        targetAssetPrice: PriceData?
+    ) -> Decimal?
+    func buildReserves(
+        accountPool: AccountPool,
+        chain: ChainModel,
+        reservesInfo: PolkaswapPoolReservesInfo?,
+        baseAssetPrice: PriceData?,
+        targetAssetPrice: PriceData?
+    ) -> Decimal?
 }
 
 final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
-    func buildReserves(pool: LiquidityPair, chain: ChainModel, reserves: PolkaswapPoolReservesInfo?, baseAssetPrice: PriceData?, targetAssetPrice: PriceData?) -> Decimal? {
+    func buildReserves(
+        pool: LiquidityPair,
+        chain: ChainModel,
+        reservesInfo: PolkaswapPoolReservesInfo?,
+        baseAssetPrice: PriceData?,
+        targetAssetPrice: PriceData?
+    ) -> Decimal? {
         let baseAsset = chain.assets.first(where: { $0.currencyId == pool.baseAssetId })
         let targetAsset = chain.assets.first(where: { $0.currencyId == pool.targetAssetId })
 
@@ -17,10 +35,10 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
             return nil
         }
 
-        let poolReservesValue = (reserves?.reserves.reserves).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(baseAsset.precision)) }
+        let poolReservesValue = (reservesInfo?.reserves.reserves).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(baseAsset.precision)) }
         let baseAssetPriceValue = (baseAssetPrice?.price).flatMap { Decimal(string: $0) }
 
-        let poolFeeValue = (reserves?.reserves.fee).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetAsset.precision)) }
+        let poolFeeValue = (reservesInfo?.reserves.fee).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetAsset.precision)) }
         let targetAssetPriceValue = (targetAssetPrice?.price).flatMap { Decimal(string: $0) }
 
         let poolReservesFiatValue: Decimal? = poolReservesValue.flatMap { poolReserves in
@@ -34,7 +52,13 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
         return poolReservesFiatValue
     }
 
-    func buildReserves(accountPool: AccountPool, chain: ChainModel, reserves: PolkaswapPoolReservesInfo?, baseAssetPrice: PriceData?, targetAssetPrice: PriceData?) -> Decimal? {
+    func buildReserves(
+        accountPool: AccountPool,
+        chain: ChainModel,
+        reservesInfo: PolkaswapPoolReservesInfo?,
+        baseAssetPrice: PriceData?,
+        targetAssetPrice: PriceData?
+    ) -> Decimal? {
         let baseAsset = chain.assets.first(where: { $0.currencyId == accountPool.baseAssetId })
         let targetAsset = chain.assets.first(where: { $0.currencyId == accountPool.targetAssetId })
 
@@ -42,10 +66,10 @@ final class LiquidityPoolsModelFactoryDefault: LiquidityPoolsModelFactory {
             return nil
         }
 
-        let poolReservesValue = (reserves?.reserves.reserves).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(baseAsset.precision)) }
+        let poolReservesValue = (reservesInfo?.reserves.reserves).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(baseAsset.precision)) }
         let baseAssetPriceValue = (baseAssetPrice?.price).flatMap { Decimal(string: $0) }
 
-        let poolFeeValue = (reserves?.reserves.fee).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetAsset.precision)) }
+        let poolFeeValue = (reservesInfo?.reserves.fee).flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetAsset.precision)) }
         let targetAssetPriceValue = (targetAssetPrice?.price).flatMap { Decimal(string: $0) }
 
         let poolReservesFiatValue: Decimal? = poolReservesValue.flatMap { poolReserves in

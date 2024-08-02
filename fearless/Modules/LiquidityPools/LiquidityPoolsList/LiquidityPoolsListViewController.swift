@@ -41,23 +41,9 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder, Hidd
         super.viewDidLoad()
         output.didLoad(view: self)
 
-        rootView.tableView.delegate = self
-        rootView.tableView.dataSource = self
-        rootView.tableView.registerClassForCell(LiquidityPoolListCell.self)
-
-        rootView.moreButton.addAction { [weak self] in
-            self?.output.didTapMoreButton()
-        }
-
-        rootView.backButton.addAction { [weak self] in
-            self?.output.didTapBackButton()
-        }
-
         bindSearchTextView()
-        addEndEditingTapGesture(for: rootView)
-
-        rootView.tableView.addSubview(refreshControl)
-        refreshControl.addTarget(self, action: #selector(handleRefreshControlEvent), for: .valueChanged)
+        setupTableView()
+        setupActions()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -82,6 +68,27 @@ final class LiquidityPoolsListViewController: UIViewController, ViewHolder, Hidd
     }
 
     // MARK: - Private methods
+
+    private func setupTableView() {
+        rootView.tableView.delegate = self
+        rootView.tableView.dataSource = self
+        rootView.tableView.registerClassForCell(LiquidityPoolListCell.self)
+
+        rootView.tableView.addSubview(refreshControl)
+        refreshControl.addTarget(self, action: #selector(handleRefreshControlEvent), for: .valueChanged)
+    }
+
+    private func setupActions() {
+        rootView.moreButton.addAction { [weak self] in
+            self?.output.didTapMoreButton()
+        }
+
+        rootView.backButton.addAction { [weak self] in
+            self?.output.didTapBackButton()
+        }
+
+        addEndEditingTapGesture(for: rootView)
+    }
 
     private func bindSearchTextView() {
         rootView.searchTextField.onTextDidChanged = { [weak self] text in

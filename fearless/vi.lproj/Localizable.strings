@@ -481,6 +481,7 @@ Seed: %@";
 "label.testnet" = "Testnet";
 "language.title" = "Ngôn ngữ";
 "learn.more.about.crowdloans" = "Tìm hiểu thêm về Crowdloans";
+<<<<<<< HEAD
 "lp.apy.alert.text" = "Phần thưởng canh tác để cung cấp thanh khoản";
 "lp.apy.alert.title" = "APY tiền thưởng chiến lược";
 "lp.apy.title" = "APY tiền thưởng chiến lược";
@@ -503,6 +504,30 @@ Seed: %@";
 "lp.supply.liquidity.screen.title" = "Nguồnn cung thanh khoản";
 "lp.token.pooled.text" = "%@ của bạn đã đóng góp";
 "lp.user.pools.title" = "Pool người dùng";
+=======
+"lp.apy.alert.text" = "Farming reward for liquidity provision";
+"lp.apy.alert.title" = "Strategic Bonus APY";
+"lp.apy.title" = "Strategic Bonus APY";
+"lp.available.pools.title" = "Available pools";
+"lp.banner.action.details.title" = "Show details";
+"lp.banner.text" = "Invest your funds in Liquidity\npools and receive rewards";
+"lp.confirm.liquidity.screen.title" = "Confirm Liquidity";
+"lp.confirm.liquidity.warning.text" = "Output is estimated. If the price changes more than 0.5% your transaction will revert.";
+"lp.network.fee.alert.text" = "Network fee is used to ensure SORA system’s growth and stable performance.";
+"lp.network.fee.alert.title" = "Network fee";
+"lp.pool.details.title" = "Pool details";
+"lp.pool.remove.warning.text" = "Removing pool tokens converts your position back into underlying tokens at the current rate, proportional to your share of the pool. Accrued fees are included in the amounts you receive.";
+"lp.pool.remove.warning.title" = "NOTE";
+"lp.remove.button.title" = "Remove Liquidity";
+"lp.remove.liquidity.screen.title" = "Remove Liquidity";
+"lp.reward.token.text" = "Earn %@";
+"lp.reward.token.title" = "Rewards Payout In";
+"lp.slippage.title" = "Slippage";
+"lp.supply.button.title" = "Supply Liquidity";
+"lp.supply.liquidity.screen.title" = "Supply Liquidity";
+"lp.token.pooled.text" = "Your %@ Pooled";
+"lp.user.pools.title" = "User pools";
+>>>>>>> 90f6e29d154045caf46fefca3c8403f8d95482ea
 "manage.assets.account.missing.text" = "Thêm một tài khoản...";
 "manage.assets.search.hint" = "Tìm kiếm theo tài sản";
 "members.common" = "Các thành viên";

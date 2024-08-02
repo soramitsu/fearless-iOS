@@ -5,76 +5,6 @@ import SSFModels
 import SSFPools
 import SSFStorageQueryKit
 
-enum LiquidityPoolDetailsInput {
-    case initial
-    case userPool(liquidityPair: LiquidityPair?, reserves: PolkaswapPoolReservesInfo?, apyInfo: PoolApyInfo?, accountPool: AccountPool?, availablePairs: [LiquidityPair]?)
-    case availablePool(liquidityPair: LiquidityPair?, reserves: PolkaswapPoolReservesInfo?, apyInfo: PoolApyInfo?, availablePairs: [LiquidityPair]?)
-
-    var availablePairs: [LiquidityPair]? {
-        switch self {
-        case .initial:
-            return nil
-        case let .userPool(_, _, _, _, availablePairs):
-            return availablePairs
-        case let .availablePool(_, _, _, availablePairs):
-            return availablePairs
-        }
-    }
-
-    var liquidityPair: LiquidityPair? {
-        switch self {
-        case .initial:
-            return nil
-        case let .userPool(liquidityPair, _, _, _, _):
-            return liquidityPair
-        case let .availablePool(liquidityPair, _, _, _):
-            return liquidityPair
-        }
-    }
-
-    var reserves: PolkaswapPoolReservesInfo? {
-        switch self {
-        case .initial:
-            return nil
-        case let .userPool(_, reserves, _, _, _):
-            return reserves
-        case let .availablePool(_, reserves, _, _):
-            return reserves
-        }
-    }
-
-    var apyInfo: PoolApyInfo? {
-        switch self {
-        case .initial:
-            return nil
-        case let .userPool(_, _, apyInfo, _, _):
-            return apyInfo
-        case let .availablePool(_, _, apyInfo, _):
-            return apyInfo
-        }
-    }
-
-    var accountPool: AccountPool? {
-        switch self {
-        case .initial:
-            return nil
-        case let .userPool(_, _, _, accountPool, _):
-            return accountPool
-        case .availablePool:
-            return nil
-        }
-    }
-
-    var isUserPool: Bool {
-        switch self {
-        case .userPool:
-            return true
-        default:
-            return false
-        }
-    }
-}
-
 protocol LiquidityPoolDetailsViewInput: ControllerBackedProtocol {
     func bind(viewModel: LiquidityPoolDetailsViewModel?)
 }
@@ -177,7 +107,14 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
             return
         }
 
-        router.showSupplyFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, availablePairs: input.availablePairs, didSubmitTransactionClosure: didSubmitTransactionClosure, from: view)
+        router.showSupplyFlow(
+            liquidityPair: liquidityPair,
+            chain: chain,
+            wallet: wallet,
+            availablePairs: input.availablePairs,
+            didSubmitTransactionClosure: didSubmitTransactionClosure,
+            from: view
+        )
     }
 
     func removeButtonClicked() {
@@ -185,17 +122,19 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsViewOutput {
             return
         }
 
-        router.showRemoveFlow(liquidityPair: liquidityPair, chain: chain, wallet: wallet, didSubmitTransactionClosure: didSubmitTransactionClosure, from: view)
+        router.showRemoveFlow(
+            liquidityPair: liquidityPair,
+            chain: chain,
+            wallet: wallet,
+            didSubmitTransactionClosure: didSubmitTransactionClosure,
+            from: view
+        )
     }
 
     func didTapApyInfo() {
-        var infoText: String
-        var infoTitle: String
-        infoTitle = R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        infoText = R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages)
         router.presentInfo(
-            message: infoText,
-            title: infoTitle,
+            message: R.string.localizable.lpApyAlertText(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.lpApyAlertTitle(preferredLanguages: selectedLocale.rLanguages),
             from: view
         )
     }

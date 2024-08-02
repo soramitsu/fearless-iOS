@@ -10,7 +10,7 @@ final class LiquidityPoolDetailsViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.push)
-        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        bar.backButton.backgroundColor = R.color.colorWhite8()
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
         bar.backgroundColor = R.color.colorBlack19()
         return bar
@@ -95,7 +95,7 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         super.init(frame: frame)
 
         backgroundColor = R.color.colorBlack19()
-        drawSubviews()
+        addSubviews()
         setupConstraints()
         applyLocalization()
     }
@@ -127,11 +127,11 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         baseAssetPooledView.bindBalance(viewModel: viewModel?.baseAssetViewModel)
         targetAssetPooledView.bindBalance(viewModel: viewModel?.targetAssetViewModel)
 
-        if let baseAssetName = viewModel?.baseAssetName.uppercased() {
+        if let baseAssetName = viewModel?.baseAssetName {
             baseAssetPooledView.titleLabel.text = R.string.localizable.lpTokenPooledText(baseAssetName, preferredLanguages: locale.rLanguages)
         }
 
-        if let targetAssetName = viewModel?.targetAssetName.uppercased() {
+        if let targetAssetName = viewModel?.targetAssetName {
             targetAssetPooledView.titleLabel.text = R.string.localizable.lpTokenPooledText(targetAssetName, preferredLanguages: locale.rLanguages)
         }
 
@@ -142,7 +142,7 @@ final class LiquidityPoolDetailsViewLayout: UIView {
         )
     }
 
-    private func drawSubviews() {
+    private func addSubviews() {
         addSubview(navigationBar)
         addSubview(contentView)
 

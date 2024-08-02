@@ -187,11 +187,15 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         guard currencies?.count == 1, currencies?.first?.id == Currency.defaultCurrency().id else {
             return []
         }
+
+        let chainlinkProvider = chainAssets.map { $0.chain }.first(where: { $0.options?.contains(.chainlinkProvider) == true })
+        let connection = chainlinkProvider.flatMap { chainRegistry.getEthereumConnection(for: $0.chainId) }
+
         let chainlinkPriceChainAsset = chainAssets
             .filter { $0.asset.priceProvider?.type == .chainlink }
 
         let operations = chainlinkPriceChainAsset
-            .map { chainlinkOperationFactory.priceCall(for: $0) }
+            .map { chainlinkOperationFactory.priceCall(for: $0, connection: connection) }
         return operations.compactMap { $0 }
     }
 
