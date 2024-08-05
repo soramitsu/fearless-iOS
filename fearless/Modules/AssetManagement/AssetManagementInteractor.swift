@@ -127,11 +127,11 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
         return accountInfo
     }
 
-    func updatedVisibility(for _: [ChainAsset]) async -> MetaAccountModel {
+//    func updatedVisibility(for _: [ChainAsset]) async -> MetaAccountModel {
 //        let updatedWallet = await walletAssetObserver.updateVisibility(wallet: bufferWallet, chainAssets: chainAssets)
 //        bufferWallet = updatedWallet
-        bufferWallet
-    }
+//        bufferWallet
+//    }
 }
 
 // MARK: - PriceLocalSubscriptionHandler
