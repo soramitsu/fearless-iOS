@@ -64,7 +64,7 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.walletConnect(uri: uri)
             } catch {
-                await MainActor.run(body: {
+                _ = await MainActor.run(body: {
                     router.present(error: error, from: view, locale: selectedLocale)
                 })
             }

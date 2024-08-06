@@ -70,21 +70,6 @@ final class WalletMainContainerInteractor {
         operationQueue.addOperation(operation)
     }
 
-    private func save(
-        _ updatedAccount: MetaAccountModel
-    ) {
-        SelectedWalletSettings.shared.performSave(value: updatedAccount) { [weak self] result in
-            switch result {
-            case let .success(account):
-                self?.wallet = account
-                self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                self?.fetchNetworkManagmentFilter()
-            case .failure:
-                break
-            }
-        }
-    }
-
     private func checkDeprecatedAccountIssues() {
         Task {
             if let issue = try? await deprecatedAccountsCheckService.checkAccountDeprecations(wallet: wallet) {

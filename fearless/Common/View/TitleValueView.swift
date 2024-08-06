@@ -36,7 +36,7 @@ class TitleValueView: UIView {
     let activityIndicator: UIActivityIndicatorView = {
         let view = UIActivityIndicatorView()
         view.hidesWhenStopped = true
-        view.style = UIActivityIndicatorView.Style.medium
+        view.style = .medium
         return view
     }()
 

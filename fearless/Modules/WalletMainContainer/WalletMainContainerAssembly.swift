@@ -20,22 +20,6 @@ final class WalletMainContainerAssembly {
             sortDescriptors: []
         )
 
-        let missingAccountHelper = MissingAccountFetcher(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let userRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = userRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetcher = AccountInfoFetching(
-            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
-            chainRegistry: chainRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: OperationManagerFacade.sharedManager

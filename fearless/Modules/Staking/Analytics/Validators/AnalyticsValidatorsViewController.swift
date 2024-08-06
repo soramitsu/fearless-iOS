@@ -163,12 +163,6 @@ extension AnalyticsValidatorsViewController: AnalyticsValidatorsCellDelegate {
     }
 }
 
-extension AnalyticsValidatorsViewController: AnalyticsValidatorsPageSelectorDelegate {
-    func didSelectPage(_ page: AnalyticsValidatorsPage) {
-        presenter.handlePageAction(page: page)
-    }
-}
-
 extension AnalyticsValidatorsViewController: FWPieChartViewDelegate {
     func didSelectSegment(index: Int) {
         guard case let .loaded(viewModel) = state else {

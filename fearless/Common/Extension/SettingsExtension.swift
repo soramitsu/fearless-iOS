@@ -32,20 +32,6 @@ extension SettingsManagerProtocol {
         }
     }
 
-    var selectedConnection: ConnectionItem {
-        get {
-            if let nodeItem = value(of: ConnectionItem.self, for: SettingsKey.selectedConnection.rawValue) {
-                return nodeItem
-            } else {
-                return .defaultConnection
-            }
-        }
-
-        set {
-            set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
-        }
-    }
-
     var crowdloanChainId: String? {
         get {
             string(for: SettingsKey.crowdloadChainId.rawValue)

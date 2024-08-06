@@ -7,10 +7,6 @@ final class ChainAssetListViewController:
     UIViewController,
     ViewHolder,
     KeyboardViewAdoptable {
-    enum Constants {
-        static let sectionHeaderHeight: CGFloat = 44
-    }
-
     typealias RootViewType = ChainAssetListViewLayout
 
     var keyboardHandler: FearlessKeyboardHandler?

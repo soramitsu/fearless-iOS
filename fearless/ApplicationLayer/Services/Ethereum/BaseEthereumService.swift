@@ -2,10 +2,6 @@ import Foundation
 import Web3
 import Web3ContractABI
 
-enum BaseEthereumServiceError: Error {
-    case continuationError
-}
-
 class BaseEthereumService {
     let ws: Web3.Eth
 
