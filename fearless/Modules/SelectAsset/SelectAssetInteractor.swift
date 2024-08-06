@@ -7,10 +7,9 @@ final class SelectAssetInteractor {
 
     private weak var output: SelectAssetInteractorOutput?
 
-    private let operationQueue: OperationQueue
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private let assetRepository: AnyDataProviderRepository<AssetModel>
+    private let wallet: MetaAccountModel
 
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
@@ -25,16 +24,14 @@ final class SelectAssetInteractor {
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
-        assetRepository: AnyDataProviderRepository<AssetModel>,
         chainAssets: [ChainAsset]?,
-        operationQueue: OperationQueue
+        wallet: MetaAccountModel
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriber = priceLocalSubscriber
-        self.assetRepository = assetRepository
         self.chainAssets = chainAssets
-        self.operationQueue = operationQueue
+        self.wallet = wallet
     }
 
     private func fetchChainAssets() {
@@ -46,7 +43,7 @@ final class SelectAssetInteractor {
         }
         chainAssetFetching.fetch(
             shouldUseCache: true,
-            filters: [],
+            filters: [.enabled(wallet: wallet)],
             sortDescriptors: []
         ) { [weak self] result in
             guard let result = result else {
@@ -86,15 +83,6 @@ extension SelectAssetInteractor: AccountInfoSubscriptionAdapterHandler {
 
 extension SelectAssetInteractor: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            DispatchQueue.global().async {
-                self.updatePrices(with: prices)
-            }
-        case .failure:
-            break
-        }
-
         output?.didReceivePricesData(result: result)
     }
 }
@@ -114,24 +102,5 @@ private extension SelectAssetInteractor {
             handler: self,
             deliveryOn: accountInfosDeliveryQueue
         )
-    }
-
-    func updatePrices(with priceData: [PriceData]) {
-        let updatedAssets = priceData.compactMap { priceData -> AssetModel? in
-            let chainAsset = chainAssets?.first(where: { $0.asset.priceId == priceData.priceId })
-
-            guard let asset = chainAsset?.asset else {
-                return nil
-            }
-            return asset.replacingPrice(priceData)
-        }
-
-        let saveOperation = assetRepository.saveOperation {
-            updatedAssets
-        } _: {
-            []
-        }
-
-        operationQueue.addOperation(saveOperation)
     }
 }

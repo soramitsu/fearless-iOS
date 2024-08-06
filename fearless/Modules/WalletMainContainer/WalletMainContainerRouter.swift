@@ -76,21 +76,6 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         view?.controller.navigationController?.present(module.view.controller, animated: true)
     }
 
-    func showIssueNotification(
-        from view: WalletMainContainerViewInput?,
-        issues: [ChainIssue],
-        wallet: MetaAccountModel
-    ) {
-        guard let module = NetworkIssuesNotificationAssembly.configureModule(
-            wallet: wallet,
-            issues: issues
-        ) else {
-            return
-        }
-
-        view?.controller.present(module.view.controller, animated: true)
-    }
-
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,

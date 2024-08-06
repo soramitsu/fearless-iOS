@@ -24,14 +24,7 @@ protocol BalanceInfoInteractorOutput: AnyObject {
     func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
 }
 
-protocol BalanceInfoRouterInput: AnyObject {
-    func presentLockedInfo(
-        from view: ControllerBackedProtocol?,
-        balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo,
-        currency: Currency
-    )
-}
+protocol BalanceInfoRouterInput: AnyObject {}
 
 protocol BalanceInfoModuleInput: AnyObject {
     func replace(infoType: BalanceInfoType)

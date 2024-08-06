@@ -218,7 +218,6 @@ extension MainNftContainerViewController: EmptyStateDataSource {
         emptyView.text = R.string.localizable
             .nftListEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
         emptyView.iconMode = .bigFilledShadow
-        emptyView.contentAlignment = ContentAlignment(vertical: .center, horizontal: .center)
         emptyView.verticalOffset = -LayoutConstants.tabBarHeight
         return emptyView
     }

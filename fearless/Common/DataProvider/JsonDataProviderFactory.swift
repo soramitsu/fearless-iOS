@@ -1,8 +1,9 @@
 import Foundation
 import RobinHood
+import SSFSingleValueCache
 
 protocol JsonDataProviderFactoryProtocol {
-    func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
+    func getJson<T: Codable & Equatable>(for url: URL) throws -> AnySingleValueProvider<T>
 }
 
 class JsonDataProviderFactory: JsonDataProviderFactoryProtocol {
@@ -18,7 +19,7 @@ class JsonDataProviderFactory: JsonDataProviderFactoryProtocol {
         self.useCache = useCache
     }
 
-    func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T> {
+    func getJson<T: Codable & Equatable>(for url: URL) throws -> AnySingleValueProvider<T> {
         let localKey = url.absoluteString
 
         if let provider = providers[localKey]?.target as? SingleValueProvider<T>, useCache {
@@ -27,7 +28,7 @@ class JsonDataProviderFactory: JsonDataProviderFactoryProtocol {
 
         let source = JsonSingleProviderSource<T>(url: url)
 
-        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = storageFacade.createRepository()
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
 
         let singleValueProvider = SingleValueProvider(
             targetIdentifier: localKey,

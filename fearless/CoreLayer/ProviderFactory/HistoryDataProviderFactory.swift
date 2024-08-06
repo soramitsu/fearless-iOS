@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import SSFModels
 
 protocol HistoryDataProviderFactoryProtocol {
@@ -9,7 +9,6 @@ protocol HistoryDataProviderFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         targetIdentifier: String,
-        using _: DispatchQueue,
         filters: [WalletTransactionHistoryFilter]
     ) throws
         -> SingleValueProvider<AssetTransactionPageData>
@@ -20,13 +19,10 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
     let executionQueue = OperationQueue()
     let operationFactory: HistoryOperationFactoryProtocol
 
-    init(
-        cacheFacade: StorageFacadeProtocol,
-        operationFactory: HistoryOperationFactoryProtocol
-    ) {
+    init(operationFactory: HistoryOperationFactoryProtocol) {
         self.operationFactory = operationFactory
 
-        super.init(cacheFacade: cacheFacade)
+        super.init()
     }
 
     enum Constants {
@@ -38,7 +34,6 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
         asset: AssetModel,
         chain: ChainModel,
         targetIdentifier: String,
-        using _: DispatchQueue,
         filters: [WalletTransactionHistoryFilter]
     ) throws
         -> SingleValueProvider<AssetTransactionPageData> {

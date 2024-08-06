@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import IrohaCrypto
 import SSFUtils
 import SSFModels

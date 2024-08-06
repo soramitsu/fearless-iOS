@@ -3,6 +3,7 @@ import SSFCloudStorage
 import RobinHood
 import SoraKeystore
 import IrohaCrypto
+import SSFModels
 
 protocol BackupCreatePasswordInteractorOutput: AnyObject {
     func didReceive(error: Error)
@@ -10,7 +11,7 @@ protocol BackupCreatePasswordInteractorOutput: AnyObject {
 }
 
 final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
-    var cloudStorage: FearlessCompatibilityProtocol?
+    var cloudStorage: CloudStorageServiceProtocol?
 
     // MARK: - Private properties
 
@@ -199,18 +200,15 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         password: String,
         wallet: MetaAccountModel
     ) {
-        cloudStorage?.saveBackupAccount(
-            account: account,
-            password: password
-        ) { [weak self] result in
-            switch result {
-            case .success:
-                self?.didBackuped(wallet: wallet)
-                DispatchQueue.main.async {
-                    self?.output?.didComplete()
+        Task {
+            do {
+                try await cloudStorage?.saveBackup(account: account, password: password)
+                didBackuped(wallet: wallet)
+                await MainActor.run {
+                    self.output?.didComplete()
                 }
-            case let .failure(failure):
-                self?.output?.didReceive(error: failure)
+            } catch {
+                self.output?.didReceive(error: error)
             }
         }
     }

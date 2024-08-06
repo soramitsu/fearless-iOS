@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
 
-class JSONRPCWorker<P: Encodable, T: Decodable> {
+class JSONRPCWorker<P: Codable, T: Decodable> {
     private let engine: JSONRPCEngine
     private let method: String
     private let parameters: P
@@ -52,8 +52,4 @@ class JSONRPCWorker<P: Encodable, T: Decodable> {
     func cancel() {
         currentTask?.cancel()
     }
-}
-
-public struct JSONRPCWorkerContinuationError: LocalizedError {
-    public var errorDescription: String? = "timeout"
 }

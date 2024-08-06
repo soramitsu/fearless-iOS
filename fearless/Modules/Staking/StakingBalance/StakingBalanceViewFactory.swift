@@ -3,6 +3,7 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFAccountManagmentStorage
 
 struct StakingBalanceViewFactory {
     static func createView(
@@ -65,8 +66,6 @@ struct StakingBalanceViewFactory {
         wallet _: MetaAccountModel,
         strategy: StakingBalanceStrategy
     ) -> StakingBalanceInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingBalanceInteractor(

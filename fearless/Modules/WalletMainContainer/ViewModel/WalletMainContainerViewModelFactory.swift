@@ -1,25 +1,30 @@
 import Foundation
 import SSFModels
+import SoraKeystore
 
 protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
         selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
-        chainsIssues: [ChainIssue],
-        locale: Locale,
-        chainSettings: [ChainSettings]
+        locale: Locale
     ) -> WalletMainContainerViewModel
 }
 
 final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFactoryProtocol {
+    private let accountScoreFetcher: AccountStatisticsFetching
+    private let settings: SettingsManagerProtocol
+
+    init(accountScoreFetcher: AccountStatisticsFetching, settings: SettingsManagerProtocol) {
+        self.accountScoreFetcher = accountScoreFetcher
+        self.settings = settings
+    }
+
     func buildViewModel(
         selectedFilter: NetworkManagmentFilter,
         selectedChains: [ChainModel],
         selectedMetaAccount: MetaAccountModel,
-        chainsIssues: [ChainIssue],
-        locale: Locale,
-        chainSettings: [ChainSettings]
+        locale: Locale
     ) -> WalletMainContainerViewModel {
         var selectedChain: ChainModel?
         let selectedFilterName: String
@@ -50,27 +55,22 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             address = address1
         }
 
-        let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
-        var hasNetworkIssues: Bool = false
-        var hasAccountIssues: Bool = false
-        let unusedChains = selectedMetaAccount.unusedChainIds ?? []
-        chainsIssues.forEach { issue in
-            switch issue {
-            case let .network(chains):
-                hasNetworkIssues = chains.first(where: { !mutedIssuesChainIds.contains($0.chainId) }) != nil
-            case let .missingAccount(chains):
-                hasAccountIssues = chains.first(where: { !unusedChains.contains($0.chainId) }) != nil
-            }
-        }
-
-        let hasIssues = hasNetworkIssues || hasAccountIssues
+        let ethAddress = selectedMetaAccount.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = AccountScoreViewModel(
+            fetcher: accountScoreFetcher,
+            address: ethAddress,
+            chain: nil,
+            settings: settings,
+            eventCenter: EventCenter.shared,
+            logger: Logger.shared
+        )
 
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedFilter: selectedFilterName,
             selectedFilterImage: selectedFilterImage,
             address: address,
-            hasNetworkIssues: hasIssues
+            accountScoreViewModel: accountScoreViewModel
         )
     }
 }

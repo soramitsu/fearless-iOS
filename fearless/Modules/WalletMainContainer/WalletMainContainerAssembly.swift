@@ -2,6 +2,8 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFNetwork
+import SoraKeystore
 
 final class WalletMainContainerAssembly {
     static func configureModule(
@@ -18,32 +20,6 @@ final class WalletMainContainerAssembly {
             sortDescriptors: []
         )
 
-        let missingAccountHelper = MissingAccountFetcher(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let userRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: UserDataStorageFacade.shared
-        )
-
-        let accountInfoRepository = userRepositoryFactory.createAccountInfoStorageItemRepository()
-        let accountInfoFetcher = AccountInfoFetching(
-            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
-            chainRegistry: chainRegistry,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let chainsIssuesCenter = ChainsIssuesCenter(
-            wallet: wallet,
-            networkIssuesCenter: NetworkIssuesCenter.shared,
-            eventCenter: EventCenter.shared,
-            missingAccountHelper: missingAccountHelper,
-            accountInfoFetcher: accountInfoFetcher
-        )
-
-        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let chainSettingsRepostiry = chainSettingsRepositoryFactory.createRepository()
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: OperationManagerFacade.sharedManager
@@ -59,6 +35,15 @@ final class WalletMainContainerAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
+
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -66,31 +51,32 @@ final class WalletMainContainerAssembly {
             wallet: wallet,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            chainsIssuesCenter: chainsIssuesCenter,
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
-            walletConnectService: walletConnect
+            walletConnectService: walletConnect,
+            featureToggleService: featureToggleProvider
         )
 
         let router = WalletMainContainerRouter()
 
         guard
             let balanceInfoModule = Self.configureBalanceInfoModule(wallet: wallet),
-            let assetListModule = Self.configureAssetListModule(
-                metaAccount: wallet
-            ),
+            let assetListModule = Self.configureAssetListModule(metaAccount: wallet),
             let nftModule = Self.configureNftModule(wallet: wallet)
         else {
             return nil
         }
 
+        let viewModelFactory = WalletMainContainerViewModelFactory(
+            accountScoreFetcher: accountScoreFetcher,
+            settings: SettingsManager.shared
+        )
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
             nftModuleInput: nftModule.input,
             wallet: wallet,
-            viewModelFactory: WalletMainContainerViewModelFactory(),
+            viewModelFactory: viewModelFactory,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager
@@ -106,20 +92,18 @@ final class WalletMainContainerAssembly {
         return (view, presenter)
     }
 
+    // MARK: - Cofigure Modules
+
     private static func configureBalanceInfoModule(
         wallet: MetaAccountModel
     ) -> BalanceInfoModuleCreationResult? {
-        BalanceInfoAssembly.configureModule(with: .wallet(wallet: wallet))
+        BalanceInfoAssembly.configureModule(with: .networkManagement(wallet: wallet))
     }
 
     private static func configureAssetListModule(
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        let chainAssetListModule = ChainAssetListAssembly.configureModule(
-            wallet: metaAccount
-        )
-
-        return chainAssetListModule
+        ChainAssetListAssembly.configureModule(wallet: metaAccount, keyboardAdoptable: false)
     }
 
     private static func configureNftModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {

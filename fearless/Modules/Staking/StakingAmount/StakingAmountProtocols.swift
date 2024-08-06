@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
-import CommonWallet
+
 import SSFModels
 
 protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {

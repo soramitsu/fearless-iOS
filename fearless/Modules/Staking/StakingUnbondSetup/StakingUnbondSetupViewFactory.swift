@@ -4,6 +4,7 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFAccountManagmentStorage
 
 struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     static func createView(
@@ -62,8 +63,6 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         wallet: MetaAccountModel,
         strategy: StakingUnbondSetupStrategy
     ) -> StakingUnbondSetupInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingUnbondSetupInteractor(

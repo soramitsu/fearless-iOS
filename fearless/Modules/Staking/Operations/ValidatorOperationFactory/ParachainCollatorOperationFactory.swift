@@ -2,8 +2,8 @@ import Foundation
 import SSFUtils
 import RobinHood
 import BigInt
-import CommonWallet
 import SSFModels
+import SSFRuntimeCodingService
 
 final class ParachainCollatorOperationFactory {
     private let asset: AssetModel
@@ -386,19 +386,16 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createStakedOperation(
-        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-        roundOperation: CompoundOperationWrapper<[StorageResponse<ParachainStakingRoundInfo>]>
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<String>]> {
         guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
         }
 
-        let params: (() throws -> [String]) = { ["\(try roundOperation.targetOperation.extractNoCancellableResultData().first?.value?.current ?? 0)"] }
-
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
             storageRequestFactory.queryItems(
                 engine: connection,
-                keyParams: params,
+                keys: { [try StorageKeyFactory().key(from: .staked)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .staked
             )
@@ -789,14 +786,7 @@ extension ParachainCollatorOperationFactory {
         }
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let roundOperation = createRoundOperation(dependingOn: runtimeOperation)
-
-        let stakedWrapper = createStakedOperation(dependingOn: runtimeOperation, roundOperation: roundOperation)
-
-        stakedWrapper.allOperations.forEach {
-            $0.addDependency(roundOperation.targetOperation)
-        }
+        let stakedWrapper = createStakedOperation(dependingOn: runtimeOperation)
 
         let mapOperation = ClosureOperation<String?> {
             try stakedWrapper.targetOperation.extractNoCancellableResultData().first?.value
@@ -804,7 +794,7 @@ extension ParachainCollatorOperationFactory {
 
         mapOperation.addDependency(stakedWrapper.targetOperation)
 
-        let dependencies = [runtimeOperation] + roundOperation.allOperations + stakedWrapper.allOperations
+        let dependencies = [runtimeOperation] + stakedWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }

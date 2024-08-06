@@ -39,37 +39,16 @@ extension ExtrinsicOptionsPresentable {
 
         alertController.addAction(copy)
 
-        if let url = chain.subscanExtrinsicUrl(extrinsicHash) {
-            let subscanTitle = R.string.localizable
-                .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
-            let viewSubscan = UIAlertAction(title: subscanTitle, style: .default) { _ in
+        chain.externalApi?.explorers?.forEach { explorer in
+            guard let url = explorer.explorerUrl(for: extrinsicHash, type: explorer.transactionType) else {
+                return
+            }
+            let title = explorer.type.actionTitle().value(for: locale)
+            let action = UIAlertAction(title: title, style: .default) { _ in
                 let webController = WebViewFactory.createWebViewController(for: url, style: .automatic)
                 view?.controller.present(webController, animated: true, completion: nil)
             }
-
-            alertController.addAction(viewSubscan)
-        }
-
-        if let url = chain.etherscanTransactionURL(extrinsicHash) {
-            let etherscanTitle = R.string.localizable
-                .transactionDetailsViewEtherscan(preferredLanguages: locale.rLanguages)
-            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
-                let webController = WebViewFactory.createWebViewController(for: url, style: .automatic)
-                view?.controller.present(webController, animated: true, completion: nil)
-            }
-
-            alertController.addAction(viewEtherscan)
-        }
-
-        if let url = chain.reefscanTransactionURL(extrinsicHash) {
-            let etherscanTitle = R.string.localizable
-                .transactionDetailsViewReefscan(preferredLanguages: locale.rLanguages)
-            let viewEtherscan = UIAlertAction(title: etherscanTitle, style: .default) { _ in
-                let webController = WebViewFactory.createWebViewController(for: url, style: .automatic)
-                view?.controller.present(webController, animated: true, completion: nil)
-            }
-
-            alertController.addAction(viewEtherscan)
+            alertController.addAction(action)
         }
 
         let cancelTitle = R.string.localizable

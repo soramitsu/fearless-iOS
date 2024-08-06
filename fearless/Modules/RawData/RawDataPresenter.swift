@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 protocol RawDataViewInput: ControllerBackedProtocol {
     func didReceive(text: String)

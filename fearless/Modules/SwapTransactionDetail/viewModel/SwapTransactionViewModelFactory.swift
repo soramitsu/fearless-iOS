@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+import UIKit
 import SSFModels
 
 protocol SwapTransactionViewModelFactoryProtocol {

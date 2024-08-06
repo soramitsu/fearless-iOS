@@ -13,6 +13,8 @@ enum SettingsKey: String {
     case stakingNetworkExpansion
     case referralEthereumAccount
     case selectedCurrency
+    case shouldPlayAssetManagementAnimateKey
+    case accountScoreEnabled
 }
 
 extension SettingsManagerProtocol {
@@ -27,20 +29,6 @@ extension SettingsManagerProtocol {
             } else {
                 removeValue(for: SettingsKey.biometryEnabled.rawValue)
             }
-        }
-    }
-
-    var selectedConnection: ConnectionItem {
-        get {
-            if let nodeItem = value(of: ConnectionItem.self, for: SettingsKey.selectedConnection.rawValue) {
-                return nodeItem
-            } else {
-                return .defaultConnection
-            }
-        }
-
-        set {
-            set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
         }
     }
 
@@ -79,6 +67,29 @@ extension SettingsManagerProtocol {
 
         set {
             set(value: newValue, for: SettingsKey.stakingNetworkExpansion.rawValue)
+        }
+    }
+
+    var shouldRunManageAssetAnimate: Bool {
+        get {
+            bool(for: SettingsKey.shouldPlayAssetManagementAnimateKey.rawValue) == nil
+        }
+        set {
+            set(value: newValue, for: SettingsKey.shouldPlayAssetManagementAnimateKey.rawValue)
+        }
+    }
+
+    var accountScoreEnabled: Bool? {
+        get {
+            bool(for: SettingsKey.accountScoreEnabled.rawValue) ?? true
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.accountScoreEnabled.rawValue)
+            } else {
+                removeValue(for: SettingsKey.accountScoreEnabled.rawValue)
+            }
         }
     }
 }

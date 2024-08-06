@@ -125,6 +125,9 @@ extension ChainsIssuesCenter: EventVisitorProtocol {
         wallet = event.account
 
         missingAccountFetcher.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in
+            guard self?.missingAccountsChains != missingAccounts else {
+                return
+            }
             self?.missingAccountsChains = missingAccounts
             self?.notify()
         }

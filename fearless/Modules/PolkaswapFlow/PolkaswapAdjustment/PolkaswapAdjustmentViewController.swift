@@ -1,6 +1,5 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
 import SnapKit
 
 final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -14,7 +13,7 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
     // MARK: Private properties
 
     private let output: PolkaswapAdjustmentViewOutput
-
+    private let bannersViewController: UIViewController
     private var amountFromInputViewModel: IAmountInputViewModel?
     private var amountToInputViewModel: IAmountInputViewModel?
 
@@ -22,9 +21,11 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 
     init(
         output: PolkaswapAdjustmentViewOutput,
+        bannersViewController: UIViewController,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
+        self.bannersViewController = bannersViewController
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -46,6 +47,7 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         setupActions()
         configure()
         addEndEditingTapGesture(for: rootView.contentView)
+        setupEmbededBannersView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -67,6 +69,17 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
     }
 
     // MARK: - Private methods
+
+    private func setupEmbededBannersView() {
+        addChild(bannersViewController)
+
+        guard let view = bannersViewController.view else {
+            return
+        }
+
+        rootView.addBanners(view)
+        controller.didMove(toParent: self)
+    }
 
     private func configure() {
         navigationController?.setNavigationBarHidden(true, animated: true)
@@ -158,6 +171,10 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 // MARK: - PolkaswapAdjustmentViewInput
 
 extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
+    func hideBanners() {
+        rootView.removeBanners()
+    }
+
     func setButtonLoadingState(isLoading: Bool) {
         rootView.previewButton.set(loading: isLoading)
     }

@@ -1,4 +1,4 @@
-import CommonWallet
+import Foundation
 import BigInt
 import SSFModels
 
@@ -15,6 +15,7 @@ protocol SendViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didStopFeeCalculation()
     func didStopTipCalculation()
     func didReceive(viewModel: RecipientViewModel)
+    func didReceive(accountScoreViewModel: AccountScoreViewModel?)
     func didBlockUserInteractive(isUserInteractiveAmount: Bool)
     func setInputAccessoryView(visible: Bool)
     func setHistoryButton(isVisible: Bool)
@@ -44,11 +45,12 @@ protocol SendInteractorInput: AnyObject {
     func updateSubscriptions(for chainAsset: ChainAsset)
     func defineAvailableChains(
         for asset: AssetModel,
+        wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     )
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset)
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
-    func fetchScamInfo(for address: String)
+    func fetchScamInfo(for address: String, chain: ChainModel)
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
     func getPossibleChains(for address: String) async -> [ChainModel]?
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal)
@@ -106,6 +108,10 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
         selectedAssetId: AssetModel.Id?,
         chainAssets: [ChainAsset]?,
         output: SelectAssetModuleOutput
+    )
+    func showManageAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel
     )
 }
 

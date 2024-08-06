@@ -11,6 +11,8 @@ final class SearchTriangularedView: UIView {
         static let pasteButtonSize: CGFloat = 76
     }
 
+    var isValid = false
+
     var onPasteTapped: (() -> Void)?
     private let withPasteButton: Bool
 
@@ -85,6 +87,8 @@ final class SearchTriangularedView: UIView {
         return view
     }()
 
+    let accountScoreView = AccountScoreView()
+
     init(withPasteButton: Bool = false) {
         self.withPasteButton = withPasteButton
         super.init(frame: .zero)
@@ -98,6 +102,11 @@ final class SearchTriangularedView: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func bind(accountScoreViewModel: AccountScoreViewModel?) {
+        textField.text = accountScoreViewModel?.address
+        accountScoreView.bind(viewModel: accountScoreViewModel)
     }
 
     func updateState(icon: DrawableIcon?, clearButtonIsHidden: Bool? = nil) {
@@ -147,13 +156,24 @@ final class SearchTriangularedView: UIView {
             .default
             .createVerticalStackView(spacing: UIConstants.minimalOffset)
         addSubview(vStackView)
+
+        vStackView.addArrangedSubview(titleLabel)
+
+        let hStackView = UIFactory.default.createHorizontalStackView(spacing: 4)
+        vStackView.addArrangedSubview(hStackView)
+
+        hStackView.addArrangedSubview(textField)
+        hStackView.addArrangedSubview(accountScoreView)
+
+        accountScoreView.snp.makeConstraints { make in
+            make.width.equalTo(32)
+        }
+
         vStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(LayoutConstants.verticalOffset)
             make.leading.equalTo(addressImage.snp.trailing).offset(UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(LayoutConstants.verticalOffset)
         }
-        vStackView.addArrangedSubview(titleLabel)
-        vStackView.addArrangedSubview(textField)
 
         addSubview(cleanButton)
         cleanButton.snp.makeConstraints { make in

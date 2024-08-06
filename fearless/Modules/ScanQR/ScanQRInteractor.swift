@@ -1,18 +1,18 @@
 import UIKit
-import CommonWallet
+import SSFQRService
 
 final class ScanQRInteractor {
     // MARK: - Private properties
 
     private weak var output: ScanQRInteractorOutput?
-    private let qrExtractionService: QRExtractionServiceProtocol
+    private let qrService: QRService
     private let qrScanService: QRCaptureServiceProtocol
 
     init(
-        qrExtractionService: QRExtractionServiceProtocol,
+        qrService: QRService,
         qrScanService: QRCaptureServiceProtocol
     ) {
-        self.qrExtractionService = qrExtractionService
+        self.qrService = qrService
         self.qrScanService = qrScanService
     }
 }
@@ -26,16 +26,20 @@ extension ScanQRInteractor: ScanQRInteractorInput {
     }
 
     func extractQr(from image: UIImage) {
-        qrExtractionService.extract(
-            from: image,
-            dispatchCompletionIn: .global()
-        ) { [weak self] result in
-            switch result {
-            case let .success(code):
-                self?.output?.handleMatched(code: code)
-            case let .failure(error):
-                self?.output?.handleQRService(error: error)
-            }
+        do {
+            let matcher = try qrService.extractQrCode(from: image)
+            output?.didReceive(matcher: matcher)
+        } catch {
+            output?.handleQRService(error: error)
+        }
+    }
+
+    func lookingMatcher(for code: String) {
+        do {
+            let matcher = try qrService.lookingMatcher(for: code)
+            output?.didReceive(matcher: matcher)
+        } catch {
+            output?.handleQRService(error: error)
         }
     }
 

@@ -1,6 +1,8 @@
 import Foundation
 import SSFUtils
 import RobinHood
+import SSFModels
+import SSFNetwork
 
 class StakingRewardsRequest: RequestConfig {
     init(

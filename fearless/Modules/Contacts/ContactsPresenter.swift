@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import CommonWallet
+
 import SSFModels
 
 final class ContactsPresenter {
@@ -100,6 +100,10 @@ extension ContactsPresenter: ContactTableCellModelDelegate {
             output: self,
             view: view
         )
+    }
+
+    func didTapAccountScore(address: String) {
+        router.presentAccountScore(address: address, from: view)
     }
 }
 

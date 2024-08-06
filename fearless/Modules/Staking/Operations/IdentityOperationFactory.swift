@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import IrohaCrypto
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol IdentityOperationFactoryProtocol {
     func createIdentityWrapper(
@@ -62,7 +63,7 @@ final class IdentityOperationFactory {
                             chainFormat: chain.chainFormat
                         )
 
-                        result[address] = value
+                        result[address] = value.identity
                     }
                 }
 
@@ -84,7 +85,7 @@ final class IdentityOperationFactory {
                         result[address] = AccountIdentity(
                             name: value.data.stringValue ?? "",
                             parentAddress: parentAddress,
-                            parentName: parentIdentity.info.display.stringValue,
+                            parentName: parentIdentity.info.display?.stringValue,
                             identity: parentIdentity.info
                         )
                     } else {
@@ -93,7 +94,7 @@ final class IdentityOperationFactory {
 
                 } else if let identity = identities[address] {
                     result[address] = AccountIdentity(
-                        name: identity.info.display.stringValue ?? "",
+                        name: identity.info.display?.stringValue ?? "",
                         parentAddress: nil,
                         parentName: nil,
                         identity: identity.info

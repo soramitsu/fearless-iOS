@@ -1,4 +1,5 @@
 import SSFUtils
+import Foundation
 
 struct ValidatorSearchCellViewModel {
     let icon: DrawableIcon?

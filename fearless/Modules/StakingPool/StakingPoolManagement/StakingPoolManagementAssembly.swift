@@ -27,7 +27,6 @@ final class StakingPoolManagementAssembly {
         stakingSettings.setup()
 
         guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
             let settings = stakingSettings.value
         else {

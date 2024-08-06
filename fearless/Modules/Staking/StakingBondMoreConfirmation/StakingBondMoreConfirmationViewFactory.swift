@@ -4,6 +4,7 @@ import SoraKeystore
 import RobinHood
 import SSFModels
 import SSFUtils
+import SSFAccountManagmentStorage
 
 struct StakingBondMoreConfirmViewFactory {
     static func createView(
@@ -107,8 +108,6 @@ struct StakingBondMoreConfirmViewFactory {
         wallet: MetaAccountModel,
         strategy: StakingBondMoreConfirmationStrategy
     ) -> StakingBondMoreConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingBondMoreConfirmationInteractor(

@@ -1,6 +1,5 @@
 import Foundation
 import UIKit
-import CommonWallet
 
 protocol ApplicationSettingsPresentable {
     func askOpenApplicationSettings(

@@ -43,45 +43,13 @@ final class BalanceInfoPresenter {
         let viewModel = balanceInfoViewModelFactoryProtocol.buildBalanceInfo(
             with: interactor.balanceInfoType,
             balances: balances,
-            infoButtonEnabled: createBalanceContext() != nil,
+            infoButtonEnabled: balanceLocks != nil,
             locale: selectedLocale
         )
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceiveViewModel(viewModel)
         }
-    }
-
-    private func createBalanceContext() -> BalanceContext? {
-        guard case let .chainAsset(wallet, chainAsset) = interactor.balanceInfoType,
-              let balance = balances[wallet.metaId] else {
-            return nil
-        }
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-           let accountInfo = balance.accountInfos[chainAsset.uniqueKey(accountId: accountId)],
-           let info = accountInfo,
-           let free = Decimal.fromSubstratePerbill(value: info.data.free),
-           let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
-           let frozen = Decimal.fromSubstratePerbill(value: info.data.frozen),
-           let minBalance = minimumBalance,
-           let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance),
-           let locks = balanceLocks {
-            var price: Decimal = 0
-            let priceData = balance.prices.first(where: { $0.priceId == chainAsset.asset.priceId })
-            if let data = priceData, let decimalPrice = Decimal(string: data.price) {
-                price = decimalPrice
-            }
-            return BalanceContext(
-                free: free,
-                reserved: reserved,
-                frozen: frozen,
-                price: price,
-                priceChange: priceData?.fiatDayChange ?? 0,
-                minimalBalance: decimalMinBalance,
-                balanceLocks: locks
-            )
-        }
-        return nil
     }
 }
 
@@ -104,7 +72,7 @@ extension BalanceInfoPresenter: BalanceInfoInteractorOutput {
             self.balances = balances
             buildBalance()
         case let .failure(error):
-            print(error)
+            logger.error(error.localizedDescription)
         }
     }
 
@@ -152,8 +120,12 @@ extension BalanceInfoPresenter: EventVisitorProtocol {
             let newType = BalanceInfoType.wallet(wallet: event.account)
             interactor.balanceInfoType = newType
             interactor.fetchBalanceInfo()
-        case let .chainAssets(chainAssets, wallet):
+        case let .chainAssets(chainAssets, _):
             let newType = BalanceInfoType.chainAssets(chainAssets: chainAssets, wallet: event.account)
+            interactor.balanceInfoType = newType
+            interactor.fetchBalanceInfo()
+        case .networkManagement:
+            let newType = BalanceInfoType.networkManagement(wallet: event.account)
             interactor.balanceInfoType = newType
             interactor.fetchBalanceInfo()
         }

@@ -1,5 +1,11 @@
 import Foundation
+import SSFModels
 import SoraFoundation
+
+enum BannersModuleType {
+    case independent
+    case embed
+}
 
 protocol BannersViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: BannersViewModel)
@@ -8,6 +14,7 @@ protocol BannersViewInput: ControllerBackedProtocol {
 protocol BannersInteractorInput: AnyObject {
     func setup(with output: BannersInteractorOutput)
     func markWalletAsBackedUp(_ wallet: MetaAccountModel)
+    func subscribeToWallet()
 }
 
 final class BannersPresenter {
@@ -17,6 +24,7 @@ final class BannersPresenter {
     private let router: BannersRouterInput
     private let interactor: BannersInteractorInput
     private weak var moduleOutput: BannersModuleOutput?
+    private let type: BannersModuleType
 
     private let logger: LoggerProtocol
     private lazy var viewModelFactory: BannersViewModelFactoryProtocol = {
@@ -32,12 +40,17 @@ final class BannersPresenter {
         moduleOutput: BannersModuleOutput?,
         interactor: BannersInteractorInput,
         router: BannersRouterInput,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        type: BannersModuleType,
+        wallet: MetaAccountModel?
     ) {
         self.logger = logger
         self.moduleOutput = moduleOutput
         self.interactor = interactor
         self.router = router
+        self.type = type
+        self.wallet = wallet
+
         self.localizationManager = localizationManager
     }
 
@@ -88,39 +101,45 @@ final class BannersPresenter {
 // MARK: - BannersViewOutput
 
 extension BannersPresenter: BannersViewOutput {
-    func didTapOnCell(at indexPath: IndexPath) {
-        guard
-            let wallet = wallet,
-            let tappedOption = Banners(rawValue: indexPath.row) else {
+    func didTapOnBanner(_ banner: Banners) {
+        guard let wallet = wallet else {
             return
         }
 
-        switch tappedOption {
+        switch banner {
         case .backup:
             router.showWalletBackupScreen(for: wallet, from: view)
         case .buyXor:
             break
+        case .liquidityPools:
+            router.presentLiquidityPools(on: view, wallet: wallet, chainId: Chain.soraMain.genesisHash)
+        case .liquidityPoolsTest:
+            router.presentLiquidityPools(on: view, wallet: wallet, chainId: Chain.soraTest.genesisHash)
         }
     }
 
-    func didCloseCell(at indexPath: IndexPath) {
-        guard
-            let wallet = wallet,
-            let tappedOption = Banners(rawValue: indexPath.row) else {
+    func didCloseBanner(_ banner: Banners) {
+        guard let wallet = wallet else {
             return
         }
 
-        switch tappedOption {
+        switch banner {
         case .backup:
             showNotBackedUpAlert(wallet: wallet)
         case .buyXor:
             break
+        case .liquidityPools, .liquidityPoolsTest:
+            moduleOutput?.didTapCloseBanners()
         }
     }
 
     func didLoad(view: BannersViewInput) {
         self.view = view
         interactor.setup(with: self)
+
+        if type == .independent {
+            interactor.subscribeToWallet()
+        }
     }
 }
 
@@ -147,5 +166,10 @@ extension BannersPresenter: BannersModuleInput {
     func reload(with wallet: MetaAccountModel) {
         self.wallet = wallet
         provideViewModel()
+    }
+
+    func update(banners: [Banners]) {
+        let viewModel = viewModelFactory.createViewModel(banners: banners, locale: selectedLocale)
+        view?.didReceive(viewModel: viewModel)
     }
 }

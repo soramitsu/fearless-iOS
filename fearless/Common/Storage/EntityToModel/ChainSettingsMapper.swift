@@ -2,11 +2,7 @@ import Foundation
 import RobinHood
 import CoreData
 import IrohaCrypto
-
-enum ChainSettingsMapperError: Error {
-    case missedRequiredFields
-    case notSupported
-}
+import SSFAccountManagmentStorage
 
 final class ChainSettingsMapper: CoreDataMapperProtocol {
     var entityIdentifierFieldName: String { "chainId" }

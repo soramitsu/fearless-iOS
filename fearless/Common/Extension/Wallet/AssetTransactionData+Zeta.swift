@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import SoraFoundation
 import SSFModels
 
@@ -27,8 +27,8 @@ extension AssetTransactionData {
         let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(utilityAsset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
-            identifier: asset.identifier,
-            assetId: asset.identifier,
+            identifier: asset.id,
+            assetId: asset.id,
             amount: AmountDecimal(value: feeDecimal),
             context: nil
         )

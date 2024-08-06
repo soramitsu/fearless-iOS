@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import SoraFoundation
 import SSFUtils
 import BigInt
@@ -107,7 +107,7 @@ final class CrowdloansViewModelFactory {
                     contentScale: UIScreen.main.scale
                 )
 
-                return WalletStaticImageViewModel(staticImage: icon ?? UIImage())
+                return BundleImageViewModel(image: icon)
             }
 
         }()

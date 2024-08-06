@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import SSFModels
 
 final class ProfilePresenter {
     private weak var view: ProfileViewProtocol?
@@ -55,7 +56,9 @@ final class ProfilePresenter {
             missingAccountIssue: missingAccountIssue
         )
         let state = ProfileViewState.loaded(viewModel)
-        view?.didReceive(state: state)
+        DispatchQueue.main.async {
+            self.view?.didReceive(state: state)
+        }
     }
 }
 
@@ -87,9 +90,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .currency:
             guard let selectedWallet = selectedWallet else { return }
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
-        case .biometry:
-            break
-        case .zeroBalances:
+        case .biometry, .accountScore:
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
@@ -101,8 +102,11 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .biometry:
             settings.biometryEnabled = isOn
-        case .zeroBalances:
-            interactor.update(zeroBalanceAssetsHidden: isOn)
+        case .accountScore:
+            settings.accountScoreEnabled = isOn
+
+            let event = AccountScoreSettingsChanged()
+            eventCenter.notify(with: event)
         default:
             break
         }
@@ -142,6 +146,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         )
 
         wireframe.present(viewModel: viewModel, from: view)
+    }
+
+    func didTapAccountScore(address: String) {
+        wireframe.presentAccountScore(address: address, from: view)
     }
 }
 
@@ -188,7 +196,9 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
         case let .success(balances):
             if let wallet = selectedWallet {
                 balance = balances[wallet.metaId]
-                receiveState()
+                DispatchQueue.main.async {
+                    self.receiveState()
+                }
             }
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
@@ -197,9 +207,7 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
 
     func didReceiveMissingAccount(issues: [ChainIssue]) {
         missingAccountIssue = issues
-        DispatchQueue.main.async {
-            self.receiveState()
-        }
+        receiveState()
     }
 }
 
@@ -213,9 +221,12 @@ extension ProfilePresenter: Localizable {
 
 extension ProfilePresenter: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        let currency = event.account.selectedCurrency
+        if selectedCurrency != event.account.selectedCurrency {
+            selectedWallet = event.account
+            let currency = event.account.selectedCurrency
+            interactor.update(currency: currency)
+        }
         selectedWallet = event.account
-        interactor.update(currency: currency)
     }
 }
 

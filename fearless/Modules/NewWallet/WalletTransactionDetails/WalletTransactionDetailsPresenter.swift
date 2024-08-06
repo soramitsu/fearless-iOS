@@ -1,5 +1,5 @@
 import Foundation
-import CommonWallet
+
 import SoraFoundation
 import SSFModels
 
@@ -95,35 +95,11 @@ extension WalletTransactionDetailsPresenter: WalletTransactionDetailsPresenterPr
     }
 
     func didTapExtrinsicView() {
-        if let viewModel = viewModel as? ExtrinsicTransactionDetailsViewModel {
+        if let viewModel = viewModel {
             wireframe.presentOptions(
                 with: viewModel.extrinsicHash,
                 locale: selectedLocale,
                 chain: chain,
-                from: view
-            )
-        }
-
-        if let viewModel = viewModel as? RewardTransactionDetailsViewModel {
-            wireframe.presentCopy(
-                with: viewModel.extrinsicHash,
-                locale: selectedLocale,
-                from: view
-            )
-        }
-
-        if let viewModel = viewModel as? SlashTransactionDetailsViewModel {
-            wireframe.presentCopy(
-                with: viewModel.extrinsicHash,
-                locale: selectedLocale,
-                from: view
-            )
-        }
-
-        if let viewModel = viewModel {
-            wireframe.presentCopy(
-                with: viewModel.extrinsicHash,
-                locale: selectedLocale,
                 from: view
             )
         }

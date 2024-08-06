@@ -149,7 +149,7 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     }
 
     private func handleRemote(_ data: Data) -> [ScamInfo] {
-        var scamInfos: [ScamInfo] = []
+        var scamInfos: Set<ScamInfo> = []
 
         guard let stringValue = String(data: data, encoding: .utf8) else {
             return []
@@ -176,10 +176,10 @@ final class ScamSyncService: ScamSyncServiceProtocol {
                 subtype: subtype
             )
 
-            scamInfos.append(scamInfo)
+            scamInfos.insert(scamInfo)
         }
 
-        return scamInfos
+        return Array(scamInfos)
     }
 
     private func retry() {

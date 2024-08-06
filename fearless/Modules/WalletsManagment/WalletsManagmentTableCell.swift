@@ -4,6 +4,7 @@ import SoraUI
 
 protocol WalletsManagmentTableCellDelegate: AnyObject {
     func didTapOptionsCell(with indexPath: IndexPath?)
+    func didTapAccountScore(address: String)
 }
 
 final class WalletsManagmentTableCell: UITableViewCell {
@@ -59,6 +60,8 @@ final class WalletsManagmentTableCell: UITableViewCell {
         return button
     }()
 
+    private let accountScoreView = AccountScoreView()
+
     private var skeletonView: SkrullableView?
 
     weak var delegate: WalletsManagmentTableCellDelegate? {
@@ -95,6 +98,14 @@ final class WalletsManagmentTableCell: UITableViewCell {
             startLoadingIfNeeded()
         } else {
             stopLoadingIfNeeded()
+        }
+
+        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
+
+        accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
+            if let address = viewModel.accountScoreViewModel?.address {
+                self?.delegate?.didTapAccountScore(address: address)
+            }
         }
     }
 
@@ -141,6 +152,14 @@ final class WalletsManagmentTableCell: UITableViewCell {
             make.size.equalTo(Constants.optionsButtonSize)
             make.trailing.equalToSuperview()
             make.leading.equalTo(vStackView.snp.trailing).offset(UIConstants.defaultOffset)
+        }
+
+        backgroundTriangularedView.addSubview(accountScoreView)
+        accountScoreView.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(optionsButton.snp.leading).offset(-8)
+            make.height.equalTo(15)
+            make.width.equalTo(32)
         }
     }
 }

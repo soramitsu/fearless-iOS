@@ -3,6 +3,9 @@ import SoraKeystore
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFChainRegistry
+import SSFNetwork
+import SSFStorageQueryKit
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -15,6 +18,7 @@ final class ServiceCoordinator {
     private let scamSyncService: ScamSyncServiceProtocol
     private let polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
     private let walletConnect: WalletConnectService
+    private let walletAssetsObserver: WalletAssetsObserver
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -22,7 +26,8 @@ final class ServiceCoordinator {
         githubPhishingService: ApplicationServiceProtocol,
         scamSyncService: ScamSyncServiceProtocol,
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
-        walletConnect: WalletConnectService
+        walletConnect: WalletConnectService,
+        walletAssetsObserver: WalletAssetsObserver
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -30,6 +35,7 @@ final class ServiceCoordinator {
         self.scamSyncService = scamSyncService
         self.polkaswapSettingsService = polkaswapSettingsService
         self.walletConnect = walletConnect
+        self.walletAssetsObserver = walletAssetsObserver
     }
 }
 
@@ -37,24 +43,28 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func updateOnAccountChange() {
         if let seletedMetaAccount = walletSettings.value {
             accountInfoService.update(selectedMetaAccount: seletedMetaAccount)
+            walletAssetsObserver.update(wallet: seletedMetaAccount)
         }
     }
 
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         chainRegistry.syncUp()
+        chainRegistry.subscribeToChians()
 
         githubPhishingService.setup()
         accountInfoService.setup()
         scamSyncService.syncUp()
         polkaswapSettingsService.syncUp()
         walletConnect.setup()
+        walletAssetsObserver.setup()
     }
 
     func throttle() {
         githubPhishingService.throttle()
         accountInfoService.throttle()
         walletConnect.throttle()
+        walletAssetsObserver.throttle()
     }
 }
 
@@ -102,13 +112,41 @@ extension ServiceCoordinator {
             eventCenter: EventCenter.shared
         )
 
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createAsyncRepository()
+
+        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
+            chainRegistry: chainRegistry,
+            repositoryWrapper: ethereumBalanceRepositoryWrapper
+        )
+
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
+        )
+
+        let accountInfoRemote = AccountInfoRemoteServiceDefault(
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            storagePerformer: storagePerformer
+        )
+
+        let walletAssetsObserver = WalletAssetsObserverImpl(
+            wallet: selectedMetaAccount,
+            chainRegistry: chainRegistry,
+            accountInfoRemote: accountInfoRemote,
+            eventCenter: EventCenter.shared,
+            logger: logger,
+            userDefaultsStorage: SettingsManager.shared
+        )
+
         return ServiceCoordinator(
             walletSettings: walletSettings,
             accountInfoService: accountInfoService,
             githubPhishingService: githubPhishingAPIService,
             scamSyncService: scamSyncService,
             polkaswapSettingsService: polkaswapSettingsService,
-            walletConnect: walletConnect
+            walletConnect: walletConnect,
+            walletAssetsObserver: walletAssetsObserver
         )
     }
 }

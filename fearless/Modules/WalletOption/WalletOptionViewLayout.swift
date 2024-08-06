@@ -37,6 +37,14 @@ final class WalletOptionViewLayout: UIView {
         return button
     }()
 
+    let accountScoreButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.triangularedView?.fillColor = R.color.colorBlack1()!
+        button.triangularedView?.shadowOpacity = 0
+        button.imageWithTitleView?.titleFont = .h4Title
+        return button
+    }()
+
     let deleteWalletButton: TriangularedButton = {
         let button = TriangularedButton()
         button.triangularedView?.fillColor = R.color.colorBlack1()!
@@ -57,6 +65,7 @@ final class WalletOptionViewLayout: UIView {
             backupWalletButton,
             walletDetailsButton,
             changeWalletNameButton,
+            accountScoreButton,
             deleteWalletButton
         ]
     }()
@@ -87,6 +96,7 @@ final class WalletOptionViewLayout: UIView {
         deleteWalletButton.imageWithTitleView?.title = R.string.localizable.walletOptionsDelete(
             preferredLanguages: locale.rLanguages
         )
+        accountScoreButton.imageWithTitleView?.title = R.string.localizable.accountStatsWalletOptionTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -130,9 +140,8 @@ final class WalletOptionViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.accessoryItemsSpacing)
         }
 
-        vStackView.addArrangedSubview(backupWalletButton)
-        vStackView.addArrangedSubview(walletDetailsButton)
-        vStackView.addArrangedSubview(changeWalletNameButton)
-        vStackView.addArrangedSubview(deleteWalletButton)
+        buttons.forEach {
+            vStackView.addArrangedSubview($0)
+        }
     }
 }

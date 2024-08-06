@@ -1,5 +1,4 @@
 import SSFModels
-// import WalletConnectSwiftV2
 
 typealias WalletMainContainerModuleCreationResult = (
     view: WalletMainContainerViewInput,
@@ -8,6 +7,7 @@ typealias WalletMainContainerModuleCreationResult = (
 
 protocol WalletMainContainerViewInput: ControllerBackedProtocol, HiddableBarWhenPushed {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel)
+    func didReceiveNftAvailability(isNftAvailable: Bool)
 }
 
 protocol WalletMainContainerViewOutput: AnyObject {
@@ -17,13 +17,12 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapSearch()
     func didTapSelectNetwork()
     func didTapOnBalance()
-    func didTapIssueButton()
     func addressDidCopied()
+    func didTapAccountScore()
 }
 
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
-    func saveNetworkManagment(_ select: NetworkManagmentFilter)
     func walletConnect(uri: String) async throws
 }
 
@@ -31,13 +30,12 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveAccount(_ account: MetaAccountModel)
     func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [ChainModel]))
     func didReceiveError(_ error: Error)
-    func didReceiveChainsIssues(chainsIssues: [ChainIssue])
-    func didReceive(chainSettings: [ChainSettings])
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool)
     func didReceiveStashAccountIssue(address: String)
+    func didReceiveNftAvailability(isNftAvailable: Bool)
 }
 
-protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
+protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable, AccountScorePresentable {
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?
@@ -51,11 +49,6 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
     )
     func showSelectCurrency(
         from view: WalletMainContainerViewInput?,
-        wallet: MetaAccountModel
-    )
-    func showIssueNotification(
-        from view: WalletMainContainerViewInput?,
-        issues: [ChainIssue],
         wallet: MetaAccountModel
     )
 

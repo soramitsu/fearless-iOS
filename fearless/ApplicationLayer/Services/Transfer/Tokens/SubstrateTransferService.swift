@@ -45,6 +45,11 @@ final class SubstrateTransferService: TransferServiceProtocol {
             if let tip = transfer.tip {
                 resultBuilder = resultBuilder.with(tip: tip)
             }
+
+            if let appId = transfer.appId {
+                resultBuilder = resultBuilder.with(appId: appId)
+            }
+
             return resultBuilder
         }
 
@@ -83,6 +88,11 @@ final class SubstrateTransferService: TransferServiceProtocol {
             if let tip = transfer.tip {
                 resultBuilder = resultBuilder.with(tip: tip)
             }
+
+            if let appId = transfer.appId {
+                resultBuilder = resultBuilder.with(appId: appId)
+            }
+
             return resultBuilder
         }
 
@@ -118,6 +128,11 @@ final class SubstrateTransferService: TransferServiceProtocol {
             if let tip = transfer.tip {
                 resultBuilder = resultBuilder.with(tip: tip)
             }
+
+            if let appId = transfer.appId {
+                resultBuilder = resultBuilder.with(appId: appId)
+            }
+
             return resultBuilder
         }
 

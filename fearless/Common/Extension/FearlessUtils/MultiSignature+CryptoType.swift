@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 extension MultiSignature {
     static func signature(from cryptoType: CryptoType, data: Data) -> MultiSignature {

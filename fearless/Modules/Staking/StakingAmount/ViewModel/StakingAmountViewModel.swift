@@ -1,6 +1,5 @@
 import Foundation
 import SoraFoundation
-import CommonWallet
 
 struct StakingAmountMainViewModel {
     let assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?

@@ -5,6 +5,7 @@ import SoraKeystore
 import Web3
 import RobinHood
 import SSFUtils
+import SSFNetwork
 
 enum NftSendAssemblyError: Error {
     case substrateNftNotImplemented
@@ -44,10 +45,17 @@ enum NftSendAssembly {
                 logger: Logger.shared
             )
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, selectedMetaAccount: wallet)
+
+            let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+            let scamInfoFetcher = ScamInfoFetcher(
+                scamServiceOperationFactory: scamServiceOperationFactory,
+                accountScoreFetching: accountStatisticsFetcher,
+                localizationManager: LocalizationManager.shared
+            )
             let interactor = NftSendInteractor(
                 transferService: transferService,
                 operationManager: OperationManagerFacade.sharedManager,
-                scamServiceOperationFactory: scamServiceOperationFactory,
+                scamInfoFetching: scamInfoFetcher,
                 addressChainDefiner: addressChainDefiner,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
@@ -65,7 +73,11 @@ enum NftSendAssembly {
                 wallet: wallet,
                 logger: Logger.shared,
                 viewModelFactory:
-                SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
+                SendViewModelFactory(
+                    iconGenerator: UniversalIconGenerator(),
+                    accountScoreFetcher: accountStatisticsFetcher,
+                    settings: SettingsManager.shared
+                ),
                 dataValidatingFactory: dataValidatingFactory
             )
 

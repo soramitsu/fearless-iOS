@@ -2,8 +2,8 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFUtils
-import CommonWallet
 import SSFModels
+import SSFAccountManagmentStorage
 
 struct StakingBondMoreViewFactory {
     static func createView(
@@ -63,7 +63,6 @@ struct StakingBondMoreViewFactory {
         wallet: MetaAccountModel,
         strategy: StakingBondMoreStrategy
     ) -> StakingBondMoreInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let interactor = StakingBondMoreInteractor(

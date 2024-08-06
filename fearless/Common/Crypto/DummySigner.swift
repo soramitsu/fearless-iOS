@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import SSFModels
 
 enum DummySigningType {
     case sr25519(secretKeyData: Data, publicKeyData: Data)

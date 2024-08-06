@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SSFModels
 
 enum ProfileInteractorError: Error {
     case noSelectedAccount
@@ -73,7 +74,6 @@ final class ProfileInteractor {
     private func fetchBalances() {
         walletBalanceSubscriptionAdapter.subscribeWalletBalance(
             wallet: selectedMetaAccount,
-            deliverOn: .main,
             listener: self
         )
     }
@@ -113,27 +113,6 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     func update(currency: Currency) {
         currentCurrency = currency
         provideSelectedCurrency()
-    }
-
-    func update(zeroBalanceAssetsHidden: Bool) {
-        let updatedWallet = selectedMetaAccount.replacingZeroBalanceAssetsHidden(zeroBalanceAssetsHidden)
-
-        let saveOperation = walletRepository.saveOperation {
-            [updatedWallet]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [weak self] in
-            let event = MetaAccountModelChangedEvent(account: updatedWallet)
-            self?.eventCenter.notify(with: event)
-
-            DispatchQueue.main.async {
-                self?.presenter?.didReceive(wallet: updatedWallet)
-            }
-        }
-
-        operationQueue.addOperation(saveOperation)
     }
 }
 

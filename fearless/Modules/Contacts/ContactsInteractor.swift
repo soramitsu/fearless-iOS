@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import CommonWallet
+
 import SSFModels
 
 final class ContactsInteractor {
@@ -81,7 +81,7 @@ private extension ContactsInteractor {
                 savedContacts: [Contact],
                 recentContacts: [ContactType]
             )> = ClosureOperation {
-                let savedContacts = try? savedContactsOperation.extractNoCancellableResultData().filter { [weak self] in
+                let savedContacts = try? savedContactsOperation.extractNoCancellableResultData().filter {
                     $0.chainId == chainAsset.chain.chainId
                 }
                 let transactionsData = try? operationWrapper.targetOperation.extractNoCancellableResultData()

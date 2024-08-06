@@ -1,5 +1,6 @@
 import RobinHood
 import SSFModels
+import Foundation
 
 final class WalletDetailsInteractor {
     weak var presenter: WalletDetailsInteractorOutputProtocol!
@@ -76,21 +77,6 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
         case let .export(_, accounts):
             presenter.didReceive(chains: accounts.map(\.chain))
         }
-    }
-
-    func update(walletName: String) {
-        let updatedWallet = flow.wallet.replacingName(walletName)
-        let saveOperation = repository.saveOperation {
-            [updatedWallet]
-        } _: {
-            []
-        }
-
-        saveOperation.completionBlock = { [eventCenter] in
-            eventCenter.notify(with: WalletNameChanged(wallet: updatedWallet))
-        }
-
-        operationManager.enqueue(operations: [saveOperation], in: .transient)
     }
 
     func getAvailableExportOptions(for chainAccount: ChainAccountInfo) {

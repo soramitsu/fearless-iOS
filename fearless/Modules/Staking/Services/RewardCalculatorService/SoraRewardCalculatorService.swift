@@ -3,11 +3,7 @@ import RobinHood
 import SSFUtils
 import BigInt
 import SSFModels
-
-enum SoraCalculatorServiceError: Error {
-    case timedOut
-    case unexpectedInfo
-}
+import SSFStorageQueryKit
 
 final class SoraRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
@@ -52,7 +48,7 @@ final class SoraRewardCalculatorService {
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>
     private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let storageRequestPerformer: StorageRequestPerformer
+    private let storageRequestPerformer: SSFStorageQueryKit.StorageRequestPerformer
 
     init(
         chainAsset: ChainAsset,
@@ -68,7 +64,7 @@ final class SoraRewardCalculatorService {
         settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
         logger: LoggerProtocol? = nil,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        storageRequestPerformer: StorageRequestPerformer
+        storageRequestPerformer: SSFStorageQueryKit.StorageRequestPerformer
     ) {
         self.chainAsset = chainAsset
         self.assetPrecision = assetPrecision
@@ -312,9 +308,9 @@ final class SoraRewardCalculatorService {
 
         Task {
             do {
-                async let totalStake: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(totalStakeRequest)
-                async let rewardPoints: [String: EraRewardPoints]? = try await storageRequestPerformer.performPrefix(rewardPointsRequest)
-                async let validatorRewards: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(validatorRewardRequest)
+                async let totalStake: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(totalStakeRequest, chain: chainAsset.chain)
+                async let rewardPoints: [String: EraRewardPoints]? = try await storageRequestPerformer.performPrefix(rewardPointsRequest, chain: chainAsset.chain)
+                async let validatorRewards: [String: StringScaleMapper<BigUInt>]? = try await storageRequestPerformer.performPrefix(validatorRewardRequest, chain: chainAsset.chain)
 
                 let totalStakeValue = try await totalStake
                 let totalStakeByEra = totalStakeValue?.keys.reduce([EraIndex: BigUInt]()) { partialResult, key in

@@ -15,11 +15,8 @@ final class SelectAssetAssembly {
         isFullSize: Bool = false
     ) -> SelectAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-
-        let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
-            mapper: AnyCoreDataMapper(AssetModelMapper())
-        )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
 
@@ -42,9 +39,8 @@ final class SelectAssetAssembly {
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriber: priceLocalSubscriber,
-            assetRepository: AnyDataProviderRepository(assetRepository),
             chainAssets: chainAssets,
-            operationQueue: operationQueue
+            wallet: wallet
         )
         let router = SelectAssetRouter()
 

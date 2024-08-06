@@ -8,10 +8,10 @@ enum OnboardingServiceError: Error {
 }
 
 protocol OnboardingServiceProtocol {
-    func fetchConfig() async throws -> OnboardingConfigWrapper
+    func fetchConfigs() async throws -> OnboardingConfigPlatform
 }
 
-final class OnboardingService {
+actor OnboardingService {
     private let networkOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
 
@@ -22,24 +22,10 @@ final class OnboardingService {
         self.networkOperationFactory = networkOperationFactory
         self.operationQueue = operationQueue
     }
-
-    private func handle(
-        result: Result<OnboardingConfigWrapper, Error>?,
-        executing closure: @escaping (OnboardingConfigWrapper) -> Void
-    ) {
-        switch result {
-        case let .success(config):
-            closure(config)
-        case let .failure(error):
-            Logger.shared.customError(error)
-        case .none:
-            Logger.shared.customError(OnboardingServiceError.empty)
-        }
-    }
 }
 
 extension OnboardingService: OnboardingServiceProtocol {
-    func fetchConfig() async throws -> OnboardingConfigWrapper {
+    func fetchConfigs() async throws -> OnboardingConfigPlatform {
         guard let onboardingConfigUrl = ApplicationConfig.shared.onboardingConfig else {
             throw OnboardingServiceError.urlBroken
         }
@@ -48,9 +34,10 @@ extension OnboardingService: OnboardingServiceProtocol {
             method: .get,
             endpoint: nil,
             headers: nil,
-            body: nil
+            body: nil,
+            timeout: 5
         )
-        let worker = NetworkWorker()
+        let worker = NetworkWorkerImpl()
         return try await worker.performRequest(with: request)
     }
 }

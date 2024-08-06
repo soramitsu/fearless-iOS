@@ -13,7 +13,6 @@ final class CrossChainAssembly {
     ) -> CrossChainModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let repositoryFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
@@ -22,6 +21,7 @@ final class CrossChainAssembly {
         )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let operationQueue = OperationQueue()

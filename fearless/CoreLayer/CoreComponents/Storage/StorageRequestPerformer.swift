@@ -28,7 +28,7 @@ protocol StorageRequestPerformer {
     ) async throws -> [K: T]?
 }
 
-final class StorageRequestPerformerDefault: StorageRequestPerformer {
+actor StorageRequestPerformerDefault: StorageRequestPerformer {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let connection: JSONRPCEngine
     private lazy var storageRequestFactory: AsyncStorageRequestFactory = {

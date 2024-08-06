@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 enum NetworkStakingInfo {
     case relaychain(

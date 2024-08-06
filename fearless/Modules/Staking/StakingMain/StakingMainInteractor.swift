@@ -4,6 +4,7 @@ import RobinHood
 import SSFUtils
 import SoraFoundation
 import SSFModels
+import SSFRuntimeCodingService
 
 final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol?
@@ -248,20 +249,26 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
+        let path: ConstantCodingPath = .maxNominatorRewardedPerValidator
 
-        let maxNominatorsConstantCodingPath: ConstantCodingPath = oldArgumentExists ? .maxNominatorRewardedPerValidator : .maxExposurePageSize
-
-        fetchConstant(
-            for: maxNominatorsConstantCodingPath,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] result in
-            self?.presenter?.didReceiveMaxNominatorsPerValidator(result: result)
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+        let constOperation = PrimitiveConstantOperation<UInt32>(path: path)
+        constOperation.configurationBlock = {
+            do {
+                constOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+            } catch {
+                constOperation.result = .failure(error)
+            }
         }
+
+        constOperation.addDependency(codingFactoryOperation)
+
+        constOperation.completionBlock = { [weak self] in
+            let maxNominators = try? constOperation.extractNoCancellableResultData()
+            self?.presenter?.didReceiveMaxNominatorsPerValidator(maxNominators)
+        }
+
+        operationManager.enqueue(operations: [constOperation, codingFactoryOperation], in: .transient)
     }
 
     func provideNewChain() {

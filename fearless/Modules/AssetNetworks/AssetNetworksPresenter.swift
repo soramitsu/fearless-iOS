@@ -21,6 +21,8 @@ final class AssetNetworksPresenter {
     private var prices: PriceDataUpdated = ([], false)
     private var filterValue: AssetNetworksFilter = .allNetworks
     private var sort: AssetNetworksSortType = .fiat
+    private var chainsWithIssue: [ChainIssue] = []
+    private var chainSettings: [ChainSettings] = []
 
     // MARK: - Constructors
 
@@ -48,7 +50,9 @@ final class AssetNetworksPresenter {
             wallet: wallet,
             locale: selectedLocale,
             filter: filterValue,
-            sort: sort
+            sort: sort,
+            chainsWithIssue: chainsWithIssue,
+            chainSettings: chainSettings
         )
 
         DispatchQueue.main.async { [weak self] in
@@ -85,6 +89,24 @@ extension AssetNetworksPresenter: AssetNetworksViewOutput {
         )
         let title = R.string.localizable.commonFilterSortHeader(preferredLanguages: selectedLocale.rLanguages)
         router.showFilters(title: title, filters: [sorts], moduleOutput: self, from: view)
+    }
+
+    func didTapResolveIssue(for chainAsset: ChainAsset) {
+        let issues: [ChainIssue] = chainsWithIssue.compactMap {
+            switch $0 {
+            case let .network(chains):
+                let chain = chains.filter { $0.chainId == chainAsset.chain.chainId }
+                return .network(chains: chain)
+            case let .missingAccount(chains):
+                let chain = chains.filter { $0.chainId == chainAsset.chain.chainId }
+                return .missingAccount(chains: chain)
+            }
+        }
+        router.showIssueNotification(
+            from: view,
+            issues: issues,
+            wallet: wallet
+        )
     }
 }
 
@@ -131,6 +153,16 @@ extension AssetNetworksPresenter: AssetNetworksInteractorOutput {
             prices = priceDataUpdated
         }
 
+        provideViewModel()
+    }
+
+    func didReceive(chainSettings: [ChainSettings]) {
+        self.chainSettings = chainSettings
+        provideViewModel()
+    }
+
+    func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
+        chainsWithIssue = issues
         provideViewModel()
     }
 }

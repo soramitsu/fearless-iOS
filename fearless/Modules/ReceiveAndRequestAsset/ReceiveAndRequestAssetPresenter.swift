@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFModels
 import SSFUtils
+import SSFQRService
 
 protocol ReceiveAndRequestAssetViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ReceiveAssetViewModel)
@@ -27,10 +28,10 @@ final class ReceiveAndRequestAssetPresenter {
 
     private let wallet: MetaAccountModel
     private var chainAsset: ChainAsset
-    private let qrService: QRServiceProtocol
+    private let qrService: QRService
     private let sharingFactory: AccountShareFactoryProtocol
 
-    private var qrOperation: Operation?
+    private var qrOperation: Task<UIImage?, Error>?
     private var inputResult: AmountInputResult?
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var pricesData: [PriceData]? = []
@@ -44,7 +45,7 @@ final class ReceiveAndRequestAssetPresenter {
     init(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        qrService: QRServiceProtocol,
+        qrService: QRService,
         sharingFactory: AccountShareFactoryProtocol,
         interactor: ReceiveAndRequestAssetInteractorInput,
         router: ReceiveAndRequestAssetRouterInput,
@@ -133,44 +134,44 @@ final class ReceiveAndRequestAssetPresenter {
     private func generateQR() {
         cancelQRGeneration()
 
-        guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()), let address = account.toAddress() else {
-            processOperation(result: .failure(ChainAccountFetchingError.accountNotExists))
-            return
-        }
-        var qrType: QRType = .address(address)
-        if chainAsset.chain.isSora {
-            let balance = getBalance()
-            var inputAmount = inputResult?.absoluteValue(from: balance).stringWithPointSeparator
-            if
-                chainAsset.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId,
-                var input = inputResult?.absoluteValue(from: balance) {
-                var drounded = Decimal()
-                NSDecimalRound(&drounded, &input, 2, .plain)
-                inputAmount = input.stringWithPointSeparator
-            }
-            let addressInfo = SoraQRInfo(
-                prefix: SubstrateQR.prefix,
-                address: address,
-                rawPublicKey: account.publicKey,
-                username: wallet.name,
-                assetId: chainAsset.asset.currencyId ?? "",
-                amount: inputAmount
-            )
-            qrType = .addressInfo(addressInfo)
-        }
-        do {
-            qrOperation = try qrService.generate(
-                with: qrType,
-                qrSize: Constants.qrSize,
-                runIn: .main
-            ) { [weak self] operationResult in
-                if let result = operationResult {
-                    self?.qrOperation = nil
-                    self?.processOperation(result: result)
+        qrOperation = Task {
+            do {
+                guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()), let address = account.toAddress() else {
+                    throw ChainAccountFetchingError.accountNotExists
                 }
+                var qrType: QRType = .address(address)
+                if chainAsset.chain.isSora {
+                    let balance = getBalance()
+                    var inputAmount = inputResult?.absoluteValue(from: balance).stringWithPointSeparator
+                    if
+                        chainAsset.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId,
+                        var input = inputResult?.absoluteValue(from: balance) {
+                        var drounded = Decimal()
+                        NSDecimalRound(&drounded, &input, 2, .plain)
+                        inputAmount = input.stringWithPointSeparator
+                    }
+                    let addressInfo = SoraQRInfo(
+                        prefix: SubstrateQRConstants.prefix,
+                        address: address,
+                        rawPublicKey: account.publicKey,
+                        username: wallet.name,
+                        assetId: chainAsset.asset.currencyId ?? "",
+                        amount: inputAmount
+                    )
+                    qrType = .addressInfo(addressInfo)
+                }
+
+                let image = try await qrService.generate(with: qrType, qrSize: Constants.qrSize)
+                await MainActor.run {
+                    processOperation(result: .success(image))
+                }
+                return image
+            } catch {
+                await MainActor.run {
+                    processOperation(result: .failure(error))
+                }
+                return nil
             }
-        } catch {
-            processOperation(result: .failure(error))
         }
     }
 
@@ -196,7 +197,7 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            selectedAssetId: chainAsset.asset.identifier,
+            selectedAssetId: chainAsset.asset.id,
             chainAssets: chainAsset.chain.chainAssets,
             output: self
         )

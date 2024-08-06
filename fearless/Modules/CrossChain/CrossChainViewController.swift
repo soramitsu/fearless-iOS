@@ -112,7 +112,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
     }
 
     private func updatePreviewButton() {
-        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty
+        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty && rootView.searchView.isValid
         rootView.actionButton.set(enabled: isEnabled)
     }
 }
@@ -122,6 +122,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
 extension CrossChainViewController: CrossChainViewInput {
     func setButtonLoadingState(isLoading: Bool) {
         rootView.actionButton.set(loading: isLoading)
+        updatePreviewButton()
     }
 
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
@@ -153,21 +154,12 @@ extension CrossChainViewController: CrossChainViewInput {
         rootView.bind(originalSelectNetworkViewModel: originSelectNetworkViewModel)
     }
 
-    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel) {
+    func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel?) {
         rootView.bind(destSelectNetworkViewModel: destSelectNetworkViewModel)
     }
 
     func didReceive(recipientViewModel: RecipientViewModel) {
         rootView.bind(recipientViewModel: recipientViewModel)
-        updatePreviewButton()
-    }
-
-    func didStartLoading() {
-        rootView.actionButton.set(loading: true)
-    }
-
-    func didStopLoading() {
-        rootView.actionButton.set(loading: false)
         updatePreviewButton()
     }
 }

@@ -132,7 +132,7 @@ final class ChainAccountPresenter {
                 }
             }
 
-            let providersAggregator = PurchaseAggregator(providers: availableProviders)
+            let providersAggregator = PurchaseAggregator.defaultAggregator(with: availableProviders)
             actions = providersAggregator.buildPurchaseActions(asset: chainAsset.asset, address: address)
         }
         return actions
@@ -353,6 +353,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
     func didReceiveBalanceLocksError(_ error: Error) {
         balanceLocks = .value(nil)
+        provideBalanceViewModel()
         logger.error("Did receive balance locks error: \(error)")
     }
 
@@ -363,6 +364,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             provideBalanceViewModel()
         case let .failure(error):
             balance = .value(nil)
+            provideBalanceViewModel()
             logger.error(error.localizedDescription)
         }
     }

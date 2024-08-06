@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 import RobinHood
 import SSFModels
 import SSFNetwork
@@ -22,7 +23,7 @@ final class ChainRegistryFactory {
      *  - Returns: new instance conforming to `ChainRegistryProtocol`.
      */
 
-    static func createDefaultRegistry() -> ChainRegistryProtocol {
+    static func createDefaultRegistry() -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
         let repositoryFacade = SubstrateDataStorageFacade.shared
         return createDefaultRegistry(from: repositoryFacade)
     }
@@ -41,7 +42,7 @@ final class ChainRegistryFactory {
      */
     static func createDefaultRegistry(
         from repositoryFacade: StorageFacadeProtocol
-    ) -> ChainRegistryProtocol {
+    ) -> ChainRegistryProtocol & SSFChainRegistry.ChainRegistryProtocol {
         let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             repositoryFacade.createRepository()
 
@@ -82,7 +83,8 @@ final class ChainRegistryFactory {
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
             operationQueue: OperationManagerFacade.syncQueue,
-            logger: Logger.shared
+            logger: Logger.shared,
+            applicationHandler: ApplicationHandler()
         )
 
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(
@@ -109,10 +111,8 @@ final class ChainRegistryFactory {
             logger: Logger.shared
         )
 
-        let queue = OperationQueue()
         let substrateConnectionPool = ConnectionPool(
-            connectionFactory: ConnectionFactory(logger: Logger.shared),
-            operationQueue: queue
+            connectionFactory: ConnectionFactory(logger: Logger.shared)
         )
         let ethereumConnectionPool = EthereumConnectionPool()
 
@@ -130,8 +130,6 @@ final class ChainRegistryFactory {
             eventCenter: EventCenter.shared
         )
     }
-
-    // swiftlint:enable function_body_length
 
     private static func createFilesOperationFactory() -> RuntimeFilesOperationFactoryProtocol {
         let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??

@@ -1,6 +1,7 @@
 import UIKit
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 final class SelectCurrencyInteractor {
     // MARK: - Private properties
@@ -33,7 +34,7 @@ final class SelectCurrencyInteractor {
         fiatInfoProvider = nil
 
         guard let fiatUrl = ApplicationConfig.shared.fiatsURL else { return }
-        fiatInfoProvider = jsonDataProviderFactory.getJson(for: fiatUrl)
+        fiatInfoProvider = try? jsonDataProviderFactory.getJson(for: fiatUrl)
 
         let updateClosure: ([DataProviderChange<[Currency]>]) -> Void = { [weak self] changes in
             if let result = changes.reduceToLastChange() {

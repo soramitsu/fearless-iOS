@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import BigInt
 import SSFModels
+import SSFQRService
 
 final class NftSendPresenter {
     // MARK: Private properties

@@ -9,6 +9,7 @@ final class AssetNetworksAssembly {
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let chainAssetFetching = ChainAssetsFetching(
@@ -19,11 +20,35 @@ final class AssetNetworksAssembly {
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
+        let missingAccountHelper = MissingAccountFetcher(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetcher = AccountInfoFetching(
+            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let chainsIssuesCenter = ChainsIssuesCenter(
+            wallet: wallet,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetcher
+        )
+        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let interactor = AssetNetworksInteractor(
             chainAsset: chainAsset,
             chainAssetFetching: chainAssetFetching,
             priceLocalSubscriber: priceLocalSubscriber,
-            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+            chainsIssuesCenter: chainsIssuesCenter,
+            chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry)
         )
         let router = AssetNetworksRouter()
 

@@ -1,4 +1,5 @@
 import Foundation
+import SSFQRService
 import SoraFoundation
 import SSFUtils
 import SSFModels
@@ -15,14 +16,11 @@ final class WalletMainContainerPresenter {
 
     private var wallet: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
-    private var chainSettings: [ChainSettings]?
 
     // MARK: - State
 
     private var selectedChains: [ChainModel]?
     private var selectedNetworkManagmentFilter: NetworkManagmentFilter?
-    private var issues: [ChainIssue] = []
-    private var onceLoaded: Bool = false
 
     // MARK: - Constructors
 
@@ -54,12 +52,11 @@ final class WalletMainContainerPresenter {
             selectedFilter: selectedNetworkManagmentFilter ?? .all,
             selectedChains: selectedChains ?? [],
             selectedMetaAccount: wallet,
-            chainsIssues: issues,
-            locale: selectedLocale,
-            chainSettings: chainSettings ?? []
+            locale: selectedLocale
         )
-
-        view?.didReceiveViewModel(viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceiveViewModel(viewModel)
+        }
     }
 
     private func walletConnect(with uri: String) {
@@ -67,7 +64,7 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.walletConnect(uri: uri)
             } catch {
-                await MainActor.run(body: {
+                _ = await MainActor.run(body: {
                     router.present(error: error, from: view, locale: selectedLocale)
                 })
             }
@@ -104,13 +101,10 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapSelectNetwork() {
-        guard let select = selectedNetworkManagmentFilter else {
-            return
-        }
         router.showSelectNetwork(
             from: view,
             wallet: wallet,
-            delegate: self
+            delegate: nil
         )
     }
 
@@ -121,12 +115,9 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         )
     }
 
-    func didTapIssueButton() {
-        router.showIssueNotification(
-            from: view,
-            issues: issues,
-            wallet: wallet
-        )
+    func didTapAccountScore() {
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        router.presentAccountScore(address: address, from: view)
     }
 }
 
@@ -134,7 +125,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     func didReceiveSelected(tuple: (select: NetworkManagmentFilter, chains: [SSFModels.ChainModel])) {
-        let needsReloadAssetsList: Bool = (tuple.select.identifier != selectedNetworkManagmentFilter?.identifier) || !onceLoaded
         selectedNetworkManagmentFilter = tuple.select
 
         let chains = tuple.chains
@@ -161,14 +151,12 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 
         provideViewModel()
 
-        guard needsReloadAssetsList else {
-            return
-        }
-
-        assetListModuleInput?.updateChainAssets(using: filters, sorts: [])
+        assetListModuleInput?.updateChainAssets(
+            using: filters,
+            sorts: [],
+            networkFilter: tuple.select
+        )
         nftModuleInput?.didSelect(chains: selectedChains)
-
-        onceLoaded = true
     }
 
     func didReceiveError(_ error: Error) {
@@ -179,17 +167,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         wallet = account
         provideViewModel()
 
-        balanceInfoModuleInput?.replace(infoType: .wallet(wallet: account))
-    }
-
-    func didReceiveChainsIssues(chainsIssues: [ChainIssue]) {
-        issues = chainsIssues
-        provideViewModel()
-    }
-
-    func didReceive(chainSettings: [ChainSettings]) {
-        self.chainSettings = chainSettings
-        provideViewModel()
+        balanceInfoModuleInput?.replace(infoType: .networkManagement(wallet: account))
     }
 
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool) {
@@ -245,6 +223,10 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             actions: [action]
         )
     }
+
+    func didReceiveNftAvailability(isNftAvailable: Bool) {
+        view?.didReceiveNftAvailability(isNftAvailable: isNftAvailable)
+    }
 }
 
 // MARK: - Localizable
@@ -275,14 +257,6 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
     }
 }
 
-// MARK: - NetworkManagmentModuleOutput
-
-extension WalletMainContainerPresenter: NetworkManagmentModuleOutput {
-    func did(select: NetworkManagmentFilter, contextTag _: Int?) {
-        interactor.saveNetworkManagment(select)
-    }
-}
-
 // MARK: - ScanQRModuleOutput
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
@@ -294,8 +268,10 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
                 wallet: wallet,
                 initialData: .init(qrInfoType: qrInfoType)
             )
-        case let .uri(uri):
+        case let .walletConnect(uri):
             walletConnect(with: uri)
+        case .preinstalledWallet:
+            break
         }
     }
 }

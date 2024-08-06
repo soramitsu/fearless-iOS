@@ -1,29 +1,26 @@
 import Foundation
 import SSFUtils
+import SSFRuntimeCodingService
+import SSFModels
 
 final class StorageKeyDataExtractor {
     private let runtimeService: RuntimeCodingServiceProtocol
-
-    private lazy var storageKeyFactory = {
-        StorageKeyFactory()
-    }()
 
     init(runtimeService: RuntimeCodingServiceProtocol) {
         self.runtimeService = runtimeService
     }
 
-    func extractKey<T: Decodable & ScaleCodable>(
+    func extractKey<T: Decodable>(
         storageKey: Data,
         storagePath: StorageCodingPath,
         type: MapKeyType
     ) async throws -> T {
         let storageKeyHex = storageKey.toHex()
-        let bytesPerHexSymbol = 2
-        let parameterHex = String(storageKeyHex.suffix(type.bytesCount * bytesPerHexSymbol))
+        let parameterHex = type.extractKeys(from: storageKeyHex)
 
         let coderFactory = try await runtimeService.fetchCoderFactory()
 
-        let storagePathMetadata = coderFactory.metadata.getStorageMetadata(for: storagePath)
+        let storagePathMetadata = coderFactory.metadata.getStorageMetadata(in: storagePath.moduleName, storageName: storagePath.itemName)
 
         guard let keyName = try storagePathMetadata?.type.keyName(schemaResolver: coderFactory.metadata.schemaResolver) else {
             throw ConvenienceError(error: "type not found")

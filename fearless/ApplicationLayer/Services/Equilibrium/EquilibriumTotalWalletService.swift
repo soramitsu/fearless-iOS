@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import BigInt
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol EquilibriumTotalBalanceServiceProtocol {
     var accountInfos: [ChainAssetKey: AccountInfo?] { get }
@@ -65,15 +66,12 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
     }
 
     func totalBalanceAfterTransfer(chainAsset: ChainAsset, amount: Decimal) -> Decimal? {
-        let request = equilibriumChainAsset.chain.accountRequest()
         guard oraclePricesMap.isNotEmpty,
-              let accountId = wallet.fetch(for: request)?.accountId,
               let currencyId = UInt64(chainAsset.asset.currencyId.or("")),
               let equlibriumTotalBalance = equlibriumTotalBalance else {
             return nil
         }
         let precision = Int16(equilibriumChainAsset.asset.precision)
-        let uniqueKey = chainAsset.uniqueKey(accountId: accountId)
         let price = oraclePricesMap[currencyId].or(.zero)
 
         let priceDecimal = Decimal

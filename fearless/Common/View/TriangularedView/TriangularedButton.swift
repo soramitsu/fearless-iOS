@@ -27,7 +27,7 @@ class TriangularedButton: BackgroundedContentControl {
             return UIActivityIndicatorView(style: .medium)
         }
 
-        return UIActivityIndicatorView(style: .white)
+        return UIActivityIndicatorView(style: .medium)
     }()
 
     // MARK: Overriden initializers
@@ -90,7 +90,7 @@ class TriangularedButton: BackgroundedContentControl {
             applyDisabledStyle()
         } else {
             activityIndicator.stopAnimating()
-            set(enabled: isEnabled)
+            set(enabled: isEnabled, changeStyle: false)
         }
     }
 }

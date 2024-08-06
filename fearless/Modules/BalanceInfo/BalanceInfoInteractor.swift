@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFRuntimeCodingService
 
 final class BalanceInfoInteractor {
     // MARK: - Private properties
@@ -65,21 +66,23 @@ private extension BalanceInfoInteractor {
         case let .wallet(metaAccount):
             walletBalanceSubscriptionAdapter.subscribeWalletBalance(
                 wallet: metaAccount,
-                deliverOn: .main,
                 listener: self
             )
         case let .chainAsset(metaAccount, chainAsset):
             walletBalanceSubscriptionAdapter.subscribeChainAssetBalance(
                 wallet: metaAccount,
                 chainAsset: chainAsset,
-                deliverOn: .main,
                 listener: self
             )
         case let .chainAssets(chainAssets, wallet):
             walletBalanceSubscriptionAdapter.subscribeChainAssetsBalance(
                 chainAssets: chainAssets,
                 wallet: wallet,
-                deliverOn: .main,
+                listener: self
+            )
+        case let .networkManagement(wallet):
+            walletBalanceSubscriptionAdapter.subscribeNetworkManagementBalance(
+                wallet: wallet,
                 listener: self
             )
         }
@@ -164,6 +167,8 @@ extension BalanceInfoInteractor: WalletBalanceSubscriptionListener {
             return .chainAsset(wallet: wallet, chainAsset: chainAsset)
         case let .chainAssets(chainAssets, wallet):
             return .chainAssets(chainAssets: chainAssets, wallet: wallet)
+        case let .networkManagement(wallet):
+            return .networkManagement(wallet: wallet)
         }
     }
 

@@ -68,6 +68,17 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
                 infoButtonEnabled: infoButtonEnabled,
                 locale: locale
             )
+        case let .networkManagement(wallet):
+            guard let info = balances[wallet.metaId] else {
+                return zeroBalanceViewModel(
+                    balanceString: wallet.selectedCurrency.symbol + "0",
+                    infoButtonEnabled: false
+                )
+            }
+            balanceInfoViewModel = buildWalletBalance(
+                with: info,
+                locale: locale
+            )
         }
 
         return balanceInfoViewModel
@@ -82,7 +93,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             locale: locale
         )
 
-        let totalBalance = balanceTokenFormatterValue.stringFromDecimal(balanceInfo.totalFiatValue) ?? "0"
+        let totalBalance = balanceTokenFormatterValue.stringFromDecimal(balanceInfo.enabledAssetFiatBalance) ?? "0"
         let dayChangeAttributedString = getDayChangeAttributedString(
             currency: balanceInfo.currency,
             dayChange: balanceInfo.dayChangePercent,

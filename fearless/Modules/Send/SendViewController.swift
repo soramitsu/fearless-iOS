@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import CommonWallet
+
 import SnapKit
 
 final class SendViewController: UIViewController, ViewHolder {
@@ -200,6 +200,10 @@ extension SendViewController: SendViewInput {
         rootView.bind(viewModel: viewModel)
     }
 
+    func didReceive(accountScoreViewModel: AccountScoreViewModel?) {
+        rootView.bind(accountScoreViewModel: accountScoreViewModel)
+    }
+
     func didStartLoading() {
         rootView.actionButton.set(loading: true)
     }
@@ -297,6 +301,15 @@ extension SendViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
 
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(updateAmount),
+            object: nil
+        )
+        perform(#selector(updateAmount), with: nil, afterDelay: 0.75)
+    }
+
+    @objc private func updateAmount() {
         let amount = amountInputViewModel?.decimalAmount ?? 0.0
         output.updateAmount(amount)
     }

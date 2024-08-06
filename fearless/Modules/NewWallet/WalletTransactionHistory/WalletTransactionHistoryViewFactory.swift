@@ -1,6 +1,5 @@
 import Foundation
 import SSFUtils
-import CommonWallet
 import RobinHood
 import SoraFoundation
 import SSFModels
@@ -24,8 +23,8 @@ enum WalletTransactionHistoryViewFactory {
             selectedAccount: selectedAccount,
             dependencyContainer: dependencyContainer,
             logger: Logger.shared,
-            defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
-            selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
+            defaultFilter: WalletHistoryRequest(assets: [asset.id]),
+            selectedFilter: WalletHistoryRequest(assets: [asset.id]),
             filters: transactionHistoryFilters(for: chain),
             eventCenter: EventCenter.shared,
             applicationHandler: ApplicationHandler()
@@ -85,7 +84,6 @@ enum WalletTransactionHistoryViewFactory {
     private static func createHistoryDeps(
         for chain: ChainModel
     ) -> (HistoryServiceProtocol, HistoryDataProviderFactoryProtocol)? {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
@@ -99,7 +97,6 @@ enum WalletTransactionHistoryViewFactory {
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
-            cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory
         )
 

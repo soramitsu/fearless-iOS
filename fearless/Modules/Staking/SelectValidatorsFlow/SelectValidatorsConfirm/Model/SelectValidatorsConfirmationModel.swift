@@ -1,5 +1,4 @@
 import Foundation
-import CommonWallet
 
 struct SelectValidatorsConfirmRelaychainModel {
     let wallet: DisplayAddress

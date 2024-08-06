@@ -138,4 +138,8 @@ extension WalletsManagmentViewController: WalletsManagmentTableCellDelegate {
         }
         output.didTapOptions(for: indexPath)
     }
+
+    func didTapAccountScore(address: String) {
+        output.didTapAccountScore(address: address)
+    }
 }

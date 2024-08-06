@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import RobinHood
 import SSFModels
+import SSFRuntimeCodingService
 
 protocol RuntimeHotBootSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
@@ -45,8 +46,6 @@ final class RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol
             )
 
             return RuntimeSnapshot(
-                localCommonHash: nil,
-                localChainTypes: chainTypes,
                 typeRegistryCatalog: catalog,
                 specVersion: strongSelf.runtimeItem.version,
                 txVersion: strongSelf.runtimeItem.txVersion,

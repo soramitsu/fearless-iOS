@@ -4,6 +4,7 @@ import SoraKeystore
 import SSFUtils
 import RobinHood
 import SSFModels
+import SSFAccountManagmentStorage
 
 final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewFactoryProtocol {
     static func createView(
@@ -68,7 +69,6 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         wallet: MetaAccountModel,
         strategy: StakingPayoutConfirmationStrategy
     ) -> StakingPayoutConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingPayoutConfirmationInteractor(

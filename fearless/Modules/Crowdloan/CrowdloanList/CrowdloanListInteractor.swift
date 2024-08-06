@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import SSFModels
+import SSFRuntimeCodingService
 
 final class CrowdloanListInteractor: RuntimeConstantFetching {
     weak var presenter: CrowdloanListInteractorOutputProtocol!
@@ -160,7 +161,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             return
         }
 
-        displayInfoProvider = jsonDataProviderFactory.getJson(for: crowdloanUrl)
+        displayInfoProvider = try? jsonDataProviderFactory.getJson(for: crowdloanUrl)
 
         let updateClosure: ([DataProviderChange<CrowdloanDisplayInfoList>]) -> Void = { [weak self] changes in
             if let result = changes.reduceToLastChange() {

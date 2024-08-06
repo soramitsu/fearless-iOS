@@ -12,6 +12,7 @@ protocol WalletsManagmentViewOutput: AnyObject {
     func didTapOptions(for indexPath: IndexPath)
     func didTapClose()
     func didTap(on indexPath: IndexPath)
+    func didTapAccountScore(address: String)
 }
 
 protocol WalletsManagmentInteractorInput: AnyObject {
@@ -28,7 +29,7 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
     func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?)
 }
 
-protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable {
+protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable, AccountScorePresentable {
     func showOptions(
         from view: WalletsManagmentViewInput?,
         metaAccount: ManagedMetaAccountModel,

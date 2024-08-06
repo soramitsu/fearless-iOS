@@ -1,15 +1,8 @@
-import CommonWallet
 import RobinHood
+import SSFSingleValueCache
 
 class BaseDataProviderFactory {
-    let cacheFacade: StorageFacadeProtocol
-
-    init(cacheFacade: StorageFacadeProtocol) {
-        self.cacheFacade = cacheFacade
-    }
-
-    func createSingleValueCache()
-        -> CoreDataRepository<SingleValueProviderObject, CDSingleValue> {
-        cacheFacade.createRepository()
+    func createSingleValueCache() -> CoreDataRepository<SingleValueProviderObject, CDSingleValue> {
+        SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
     }
 }

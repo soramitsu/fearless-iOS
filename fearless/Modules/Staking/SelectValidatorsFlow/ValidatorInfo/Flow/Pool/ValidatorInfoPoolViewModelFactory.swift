@@ -65,7 +65,7 @@ final class ValidatorInfoPoolViewModelFactory {
         let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
         let nominatorsCount = validatorInfo.stakeInfo?.nominators.count ?? 0
-        let maxNominatorsReward = validatorInfo.stakeInfo?.maxNominatorsRewarded ?? 0
+        let maxNominatorsReward = validatorInfo.stakeInfo?.maxNominatorsRewarded ?? UInt32.max
 
         let nominators = R.string.localizable.stakingValidatorInfoNominators(
             formatter.string(from: NSNumber(value: nominatorsCount)) ?? "",
@@ -96,7 +96,7 @@ final class ValidatorInfoPoolViewModelFactory {
         let minStake = validatorInfo.stakeInfo?.nominators
             .compactMap { $0.stake }
             .sorted()
-            .suffix(validatorInfo.stakeInfo.map { Int($0.maxNominatorsRewarded) } ?? 0)
+            .suffix(validatorInfo.stakeInfo.map { Int($0.maxNominatorsRewarded ?? 0) } ?? 0)
             .first
         let minStakeViewModel = minStake.map {
             balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto).value(for: locale)

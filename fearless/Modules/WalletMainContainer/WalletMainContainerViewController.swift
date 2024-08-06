@@ -10,6 +10,7 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
 
     private let balanceInfoViewController: UIViewController
     private let pageControllers: [UIViewController]
+    var accountScoreTapGesture: UITapGestureRecognizer?
 
     // MARK: - Constructor
 
@@ -77,10 +78,13 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
         rootView.scanQRButton.addTarget(self, action: #selector(handleScanQRTap), for: .touchUpInside)
         rootView.searchButton.addTarget(self, action: #selector(handleSearchTap), for: .touchUpInside)
         rootView.selectNetworkButton.addTarget(self, action: #selector(handleSelectNetworkTap), for: .touchUpInside)
-        rootView.issuesButton.addTarget(self, action: #selector(handleIssueButtonDidTap), for: .touchUpInside)
 
         let walletBalanceTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBalanceDidTap))
         rootView.walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
+
+        rootView.accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
+            self?.output.didTapAccountScore()
+        }
     }
 
     // MARK: - Actions
@@ -104,10 +108,6 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
     @objc private func handleBalanceDidTap() {
         output.didTapOnBalance()
     }
-
-    @objc private func handleIssueButtonDidTap() {
-        output.didTapIssueButton()
-    }
 }
 
 // MARK: - WalletMainContainerViewInput
@@ -115,6 +115,14 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder, All
 extension WalletMainContainerViewController: WalletMainContainerViewInput {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel) {
         rootView.bind(viewModel: viewModel)
+    }
+
+    func didReceiveAccountScoreViewModel(_ viewModel: AccountScoreViewModel) {
+        rootView.bind(accountScoreViewModel: viewModel)
+    }
+
+    func didReceiveNftAvailability(isNftAvailable: Bool) {
+        rootView.segmentContainer.isHidden = !isNftAvailable
     }
 }
 

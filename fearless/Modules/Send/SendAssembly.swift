@@ -12,6 +12,7 @@ import SSFExtrinsicKit
 import SSFNetwork
 import SSFChainRegistry
 import SSFChainConnection
+import SoraKeystore
 
 final class SendAssembly {
     static func configureModule(
@@ -39,6 +40,7 @@ final class SendAssembly {
             repository: AnyDataProviderRepository(scamRepository)
         )
         let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let operationQueue = OperationQueue()
@@ -52,26 +54,34 @@ final class SendAssembly {
             chainModelRepository: AnyDataProviderRepository(chainRepository),
             wallet: wallet
         )
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createAsyncRepository()
+        let accountStatisticsFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
+        let scamInfoFetcher = ScamInfoFetcher(
+            scamServiceOperationFactory: scamServiceOperationFactory,
+            accountScoreFetching: accountStatisticsFetcher,
+            localizationManager: LocalizationManager.shared
+        )
         let interactor = SendInteractor(
-            feeProxy: ExtrinsicFeeProxy(),
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             ),
             priceLocalSubscriber: priceLocalSubscriber,
             operationManager: operationManager,
-            scamServiceOperationFactory: scamServiceOperationFactory,
+            scamInfoFetching: scamInfoFetcher,
             chainAssetFetching: chainAssetFetching,
             dependencyContainer: dependencyContainer,
             addressChainDefiner: addressChainDefiner,
-            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
-            operationQueue: OperationQueue()
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository)
         )
         let router = SendRouter()
 
-        let viewModelFactory = SendViewModelFactory(iconGenerator: UniversalIconGenerator())
+        let viewModelFactory = SendViewModelFactory(
+            iconGenerator: UniversalIconGenerator(),
+            accountScoreFetcher: accountStatisticsFetcher,
+            settings: SettingsManager.shared
+        )
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = SendPresenter(
             interactor: interactor,
@@ -79,7 +89,6 @@ final class SendAssembly {
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            qrParser: SubstrateQRParser(),
             logger: Logger.shared,
             wallet: wallet,
             initialData: initialData

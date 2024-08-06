@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import CommonWallet
+
 import IrohaCrypto
 import SSFUtils
 import SSFModels
@@ -130,6 +130,7 @@ final class ReefSubsquidHistoryOperationFactory {
                               id
                             }
                 signedData
+                blockHash
                           }
                         }
                         pageInfo {

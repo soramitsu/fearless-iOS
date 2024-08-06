@@ -25,7 +25,7 @@ enum ProfileOption: UInt, CaseIterable {
     case changePincode
     case biometry
     case about
-    case zeroBalances
+    case accountScore
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -35,17 +35,20 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let biometry: BiometryAuthProtocol
     private let settings: SettingsManagerProtocol
     private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+    private let accountScoreFetcher: AccountStatisticsFetching
 
     // MARK: - Constructors
 
     init(
         iconGenerator: IconGenerating,
         biometry: BiometryAuthProtocol,
-        settings: SettingsManagerProtocol
+        settings: SettingsManagerProtocol,
+        accountScoreFetcher: AccountStatisticsFetching
     ) {
         self.iconGenerator = iconGenerator
         self.biometry = biometry
         self.settings = settings
+        self.accountScoreFetcher = accountScoreFetcher
     }
 
     // MARK: - Public methods
@@ -67,7 +70,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             language: language,
             currency: currency,
             locale: locale,
-            wallet: wallet,
             missingAccountIssue: missingAccountIssue
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
@@ -106,11 +108,15 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             )
         }
 
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
+
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
             fiatBalance: fiatBalance,
-            dayChange: dayChange
+            dayChange: dayChange,
+            accountScoreViewModel: accountScoreViewModel
         )
     }
 
@@ -118,7 +124,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         language: Language,
         currency: Currency,
         locale: Locale,
-        wallet: MetaAccountModel,
         missingAccountIssue: [ChainIssue]
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
@@ -142,8 +147,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
-            case .zeroBalances:
-                return createZeroBalancesViewModel(for: locale, wallet: wallet)
+            case .accountScore:
+                return createAccountScoreViewModel(locale: locale)
             }
         }
 
@@ -271,19 +276,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         )
     }
 
-    private func createZeroBalancesViewModel(for locale: Locale, wallet: MetaAccountModel) -> ProfileOptionViewModel {
-        let title = R.string.localizable
-            .settingsHideZeroBalances(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(
-            title: title,
-            icon: R.image.iconZeroBalances()!,
-            accessoryTitle: nil,
-            accessoryImage: nil,
-            accessoryType: .switcher(wallet.zeroBalanceAssetsHidden),
-            option: .zeroBalances
-        )
-    }
-
     private func createCurrencyViewModel(from currency: Currency, locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .commonCurrency(preferredLanguages: locale.rLanguages)
@@ -299,6 +291,20 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
         return viewModel
     }
+
+    private func createAccountScoreViewModel(locale: Locale) -> ProfileOptionViewModel? {
+        let viewModel = ProfileOptionViewModel(
+            title: R.string.localizable.profileAccountScoreTitle(preferredLanguages: locale.rLanguages),
+            icon: R.image.iconProfleAccountScore(),
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .switcher(settings.accountScoreEnabled ?? false),
+            option: .accountScore
+        )
+        return viewModel
+    }
+
+    // MARK: Additional
 
     private func getDayChangeAttributedString(
         currency: Currency,

@@ -2,12 +2,6 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
-enum AssetListDisplayType {
-    case chain
-    case assetChains
-    case search
-}
-
 typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
 
 final class ChainAssetListPresenter {
@@ -26,9 +20,10 @@ final class ChainAssetListPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
-    private var chainsWithMissingAccounts: [ChainModel.Id] = []
+    private var chainsWithIssue: [ChainIssue] = []
+    private var chainSettings: [ChainSettings] = []
 
-    private var activeFilters: [ChainAssetsFetching.Filter] = []
+    private var networkFilter: NetworkManagmentFilter?
 
     // MARK: - Constructors
 
@@ -56,7 +51,9 @@ final class ChainAssetListPresenter {
 
             let accountInfosCopy = self.accountInfos
             let prices = self.prices
-            let chainsWithMissingAccounts = self.chainsWithMissingAccounts
+            let chainsWithIssue = self.chainsWithIssue
+            let shouldRunManageAssetAnimate = self.interactor.shouldRunManageAssetAnimate
+            let chainSettings = self.chainSettings
 
             let viewModel = self.viewModelFactory.buildViewModel(
                 wallet: self.wallet,
@@ -64,8 +61,10 @@ final class ChainAssetListPresenter {
                 locale: self.selectedLocale,
                 accountInfos: accountInfosCopy,
                 prices: prices,
-                chainsWithMissingAccounts: chainsWithMissingAccounts,
-                activeFilters: self.activeFilters
+                chainsWithIssue: chainsWithIssue,
+                shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
+                displayType: self.displayType,
+                chainSettings: chainSettings
             )
 
             DispatchQueue.main.async {
@@ -165,21 +164,35 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 chainAsset: viewModel.chainAsset,
                 wallet: wallet
             )
-        case .teleport:
-            break
         case .hide:
             interactor.hideChainAsset(viewModel.chainAsset)
-        case .show:
-            interactor.showChainAsset(viewModel.chainAsset)
+        case .teleport, .show:
+            break
         }
-    }
-
-    func didTapExpandSections(state: HiddenSectionState) {
-        interactor.saveHiddenSection(state: state)
     }
 
     func didPullToRefresh() {
         interactor.reload()
+    }
+
+    func didTapManageAsset() {
+        router.showManageAsset(
+            from: view,
+            wallet: wallet,
+            filter: networkFilter
+        )
+    }
+
+    func didFinishManageAssetAnimate() {
+        interactor.shouldRunManageAssetAnimate = false
+    }
+
+    func didTapResolveAccountIssue(for chain: ChainModel) {
+        showMissingAccountOptions(chain: chain)
+    }
+
+    func didTapResolveNetworkIssue(for chain: ChainModel) {
+        interactor.retryConnection(for: chain.chainId)
     }
 }
 
@@ -264,17 +277,12 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
     func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
         guard issues.isNotEmpty else {
-            chainsWithMissingAccounts = []
+            chainsWithIssue = []
             provideViewModel()
             return
         }
         lock.exclusivelyWrite { [weak self] in
-            guard let self = self else { return }
-            issues.forEach { chainIssue in
-                if case let .missingAccount(chains) = chainIssue {
-                    self.chainsWithMissingAccounts = chains.map { $0.chainId }
-                }
-            }
+            self?.chainsWithIssue = issues
         }
         provideViewModel()
     }
@@ -298,6 +306,13 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         }
         provideViewModel()
     }
+
+    func didReceive(chainSettings: [ChainSettings]) {
+        lock.exclusivelyWrite { [weak self] in
+            self?.chainSettings = chainSettings
+        }
+        provideViewModel()
+    }
 }
 
 // MARK: - Localizable
@@ -311,9 +326,10 @@ extension ChainAssetListPresenter: Localizable {
 extension ChainAssetListPresenter: ChainAssetListModuleInput {
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
+        sorts: [ChainAssetsFetching.SortDescriptor],
+        networkFilter: NetworkManagmentFilter?
     ) {
-        activeFilters = filters
+        self.networkFilter = networkFilter
 
         let filteredByChain = filters.contains(where: { filter in
             if case ChainAssetsFetching.Filter.chainId = filter {
@@ -348,6 +364,8 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
 // MARK: - BannersModuleOutput?
 
 extension ChainAssetListPresenter: BannersModuleOutput {
+    func didTapCloseBanners() {}
+
     func reloadBannersView() {
         DispatchQueue.main.async {
             self.view?.reloadBanners()

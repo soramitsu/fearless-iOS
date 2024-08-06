@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol ProfileViewProtocol: ControllerBackedProtocol {
     func didReceive(state: ProfileViewState)
@@ -10,6 +11,7 @@ protocol ProfilePresenterProtocol: AnyObject {
     func activateOption(_ option: ProfileOption)
     func logout()
     func switcherValueChanged(isOn: Bool, index: Int)
+    func didTapAccountScore(address: String)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {
@@ -17,7 +19,6 @@ protocol ProfileInteractorInputProtocol: AnyObject {
     func updateWallet(_ wallet: MetaAccountModel)
     func logout(completion: @escaping () -> Void)
     func update(currency: Currency)
-    func update(zeroBalanceAssetsHidden: Bool)
 }
 
 protocol ProfileInteractorOutputProtocol: AnyObject {
@@ -33,7 +34,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     WebPresentable,
     ModalAlertPresenting,
     AddressOptionsPresentable,
-    AccountManagementPresentable {
+    AccountManagementPresentable, AccountScorePresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel

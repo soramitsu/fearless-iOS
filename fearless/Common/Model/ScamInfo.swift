@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct ScamInfo: Identifiable, Codable, Equatable {
+struct ScamInfo: Identifiable, Codable, Equatable, Hashable {
     var identifier: String {
         address
     }
@@ -24,6 +24,7 @@ struct ScamInfo: Identifiable, Codable, Equatable {
         case donation
         case exchange
         case sanctions
+        case lowScore = "Low network activity"
 
         init?(from string: String) {
             self.init(rawValue: string.lowercased())
@@ -54,6 +55,8 @@ struct ScamInfo: Identifiable, Codable, Equatable {
             case .sanctions:
                 return R.string.localizable
                     .scamDescriptionSanctionsStub(assetName, preferredLanguages: locale.rLanguages)
+            case .lowScore:
+                return R.string.localizable.scamDescriptionLowscoreText(preferredLanguages: locale.rLanguages)
             }
         }
     }

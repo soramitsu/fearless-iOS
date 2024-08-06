@@ -4,7 +4,6 @@ final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
         static let walletIconSize: CGFloat = 40.0
         static let accessoryButtonSize: CGFloat = 32.0
-        static let issuesButtonSize = CGSize(width: 140, height: 24)
     }
 
     var locale: Locale = .current {
@@ -35,6 +34,8 @@ final class WalletMainContainerViewLayout: UIView {
         button.setImage(R.image.iconFearlessRounded(), for: .normal)
         return button
     }()
+
+    let accountScoreView = AccountScoreView()
 
     private let walletNameTitle: UILabel = {
         let label = UILabel()
@@ -72,22 +73,9 @@ final class WalletMainContainerViewLayout: UIView {
 
     let addressCopyableLabel = CopyableLabelView()
 
-    // MARK: - Ussues button
-
-    let issuesButton: UIButton = {
-        let button = UIButton()
-        button.semanticContentAttribute = .forceRightToLeft
-        button.setImage(R.image.iconWarning(), for: .normal)
-        button.titleLabel?.font = .h6Title
-        button.layer.masksToBounds = true
-        button.backgroundColor = R.color.colorWhite8()
-        button.layer.cornerRadius = Constants.issuesButtonSize.height / 2
-        button.setTextAndImage(spacing: 5)
-        return button
-    }()
-
     // MARK: - FWSegmentedControl
 
+    let segmentContainer = UIView()
     let segmentedControl = FWSegmentedControl()
 
     // MARK: - UIPageViewController
@@ -126,7 +114,7 @@ final class WalletMainContainerViewLayout: UIView {
             addressCopyableLabel.isHidden = true
         }
 
-        issuesButton.isHidden = !viewModel.hasNetworkIssues
+        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
     }
 
     func addBalance(_ view: UIView) {
@@ -134,6 +122,10 @@ final class WalletMainContainerViewLayout: UIView {
         view.snp.makeConstraints { make in
             make.center.equalToSuperview()
         }
+    }
+
+    func bind(accountScoreViewModel: AccountScoreViewModel) {
+        accountScoreView.bind(viewModel: accountScoreViewModel)
     }
 
     // MARK: - Private methods
@@ -144,10 +136,6 @@ final class WalletMainContainerViewLayout: UIView {
             R.string.localizable.nftsStub(preferredLanguages: locale.rLanguages)
         ]
         segmentedControl.setSegmentItems(localizedItems)
-        issuesButton.setTitle(
-            R.string.localizable.networkIssueStub(preferredLanguages: locale.rLanguages),
-            for: .normal
-        )
     }
 
     // MARK: - Private layout methods
@@ -168,6 +156,8 @@ final class WalletMainContainerViewLayout: UIView {
         setupWalletBalanceLayout()
         setupSegmentedLayout()
         setupListLayout()
+
+        segmentContainer.isHidden = true
     }
 
     private func setupNavigationViewLayout() {
@@ -221,13 +211,15 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupWalletBalanceLayout() {
+        insertSubview(accountScoreView, belowSubview: navigationContainerView)
+        accountScoreView.snp.makeConstraints { make in
+            make.top.equalTo(navigationContainerView.snp.bottom).offset(4)
+            make.centerX.equalTo(switchWalletButton.snp.centerX)
+        }
+
         addressCopyableLabel.snp.makeConstraints { make in
             make.width.lessThanOrEqualTo(200)
             make.height.equalTo(24)
-        }
-
-        issuesButton.snp.makeConstraints { make in
-            make.size.equalTo(Constants.issuesButtonSize)
         }
 
         walletBalanceViewContainer.snp.makeConstraints { make in
@@ -237,7 +229,6 @@ final class WalletMainContainerViewLayout: UIView {
         walletBalanceVStackView.distribution = .fill
         walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
         walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
-        walletBalanceVStackView.addArrangedSubview(issuesButton)
         walletBalanceVStackView.setCustomSpacing(4, after: addressCopyableLabel)
 
         contentView.setCustomSpacing(32, after: navigationContainerView)
@@ -246,7 +237,6 @@ final class WalletMainContainerViewLayout: UIView {
 
     private func setupSegmentedLayout() {
         contentView.setCustomSpacing(32, after: walletBalanceVStackView)
-        let segmentContainer = UIView()
         contentView.addArrangedSubview(segmentContainer)
         segmentContainer.addSubview(segmentedControl)
         segmentedControl.snp.makeConstraints { make in

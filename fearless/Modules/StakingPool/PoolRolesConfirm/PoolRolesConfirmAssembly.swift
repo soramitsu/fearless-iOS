@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFModels
+import SSFAccountManagmentStorage
 
 final class PoolRolesConfirmAssembly {
     static func configureModule(
@@ -34,8 +35,6 @@ final class PoolRolesConfirmAssembly {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared

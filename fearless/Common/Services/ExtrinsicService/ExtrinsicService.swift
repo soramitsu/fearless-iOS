@@ -2,6 +2,8 @@ import Foundation
 import SSFUtils
 import RobinHood
 import IrohaCrypto
+import SSFModels
+import SSFRuntimeCodingService
 
 typealias FeeExtrinsicResult = Result<RuntimeDispatchInfo, Error>
 typealias EstimateFeeClosure = (FeeExtrinsicResult) -> Void
@@ -53,24 +55,6 @@ protocol ExtrinsicServiceProtocol {
 final class ExtrinsicService {
     let operationFactory: ExtrinsicOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
-
-    @available(*, deprecated, message: "Use init(accountId:cryptoType:) instead")
-    init(
-        address: String,
-        cryptoType: CryptoType,
-        runtimeRegistry: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine,
-        operationManager: OperationManagerProtocol
-    ) {
-        operationFactory = ExtrinsicOperationFactory(
-            address: address,
-            cryptoType: cryptoType,
-            runtimeRegistry: runtimeRegistry,
-            engine: engine
-        )
-
-        self.operationManager = operationManager
-    }
 
     init(
         accountId: AccountId,

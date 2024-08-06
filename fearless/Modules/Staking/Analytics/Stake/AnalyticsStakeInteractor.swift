@@ -1,6 +1,7 @@
 import RobinHood
 import BigInt
 import SSFModels
+import Foundation
 
 final class AnalyticsStakeInteractor {
     weak var presenter: AnalyticsStakeInteractorOutputProtocol!
