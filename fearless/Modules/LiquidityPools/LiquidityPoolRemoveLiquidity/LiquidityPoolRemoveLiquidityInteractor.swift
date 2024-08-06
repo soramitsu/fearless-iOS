@@ -53,7 +53,6 @@ final class LiquidityPoolRemoveLiquidityInteractor {
 
     private func subscribeToPrices() {
         let chainAssets = chain.chainAssets
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
 
         guard chainAssets.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))

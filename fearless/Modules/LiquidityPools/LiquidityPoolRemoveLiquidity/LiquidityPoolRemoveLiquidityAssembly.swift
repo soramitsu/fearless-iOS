@@ -12,15 +12,14 @@ final class LiquidityPoolRemoveLiquidityAssembly {
         liquidityPair: LiquidityPair,
         didSubmitTransactionClosure: @escaping (String) -> Void
     ) -> LiquidityPoolRemoveLiquidityModuleCreationResult? {
-        guard let response = wallet.fetch(for: chain.accountRequest()) else {
-            return nil
-        }
-
-        guard let secretKeyData = try? fetchSecretKey(
-            for: chain,
-            metaId: wallet.metaId,
-            accountResponse: response
-        ) else {
+        guard
+            let response = wallet.fetch(for: chain.accountRequest()),
+            let secretKeyData = try? fetchSecretKey(
+                for: chain,
+                metaId: wallet.metaId,
+                accountResponse: response
+            )
+        else {
             return nil
         }
 
@@ -43,7 +42,15 @@ final class LiquidityPoolRemoveLiquidityAssembly {
             selectedMetaAccount: wallet
         )
 
-        let interactor = LiquidityPoolRemoveLiquidityInteractor(lpOperationService: lpOperationService, lpDataService: lpDataService, liquidityPair: liquidityPair, priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared, chain: chain, accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter, wallet: wallet)
+        let interactor = LiquidityPoolRemoveLiquidityInteractor(
+            lpOperationService: lpOperationService,
+            lpDataService: lpDataService,
+            liquidityPair: liquidityPair,
+            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
+            chain: chain,
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+            wallet: wallet
+        )
         let router = LiquidityPoolRemoveLiquidityRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let presenter = LiquidityPoolRemoveLiquidityPresenter(
@@ -70,7 +77,7 @@ final class LiquidityPoolRemoveLiquidityAssembly {
         return (view, presenter)
     }
 
-    static func fetchSecretKey(
+    private static func fetchSecretKey(
         for chain: ChainModel,
         metaId: String,
         accountResponse: ChainAccountResponse

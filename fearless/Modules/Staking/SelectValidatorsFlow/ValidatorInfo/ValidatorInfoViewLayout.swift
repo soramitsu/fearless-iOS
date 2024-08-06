@@ -204,33 +204,41 @@ final class ValidatorInfoViewLayout: UIView {
     }
 
     @discardableResult
-    func addTotalStakeView(
-        _ totalStake: BalanceViewModelProtocol,
-        locale: Locale
+    func addBalanceView(
+        title: String,
+        viewModel: BalanceViewModelProtocol,
+        clickable: Bool = true
     ) -> UIControl {
-        let titleView = factory.createInfoIndicatingView()
-        titleView.title = R.string.localizable.stakingValidatorTotalStake(
-            preferredLanguages: locale.rLanguages
+        var titleView: UIView?
+        if clickable {
+            let view = factory.createInfoIndicatingView()
+            view.titleLabel.text = title
+            titleView = view
+        } else {
+            let view = factory.createTitleLabel()
+            view.text = title
+            titleView = view
+        }
+
+        let rowContentView = titleView.map { GenericTitleValueView<UIView, MultiValueView>(titleView: $0) }
+
+        rowContentView?.valueView.bind(
+            topValue: viewModel.amount,
+            bottomValue: viewModel.price
         )
 
-        let rowContentView = GenericTitleValueView<ImageWithTitleView, MultiValueView>(titleView: titleView)
-
-        rowContentView.valueView.bind(
-            topValue: totalStake.amount,
-            bottomValue: totalStake.price
-        )
-
-        let rowView = RowView(contentView: rowContentView, preferredHeight: 48.0)
+        let rowView = RowView(contentView: rowContentView, preferredHeight: 48)
 
         stackView.addArrangedSubview(rowView)
         rowView.snp.makeConstraints { make in
             make.width.equalTo(self)
         }
 
-        rowContentView.valueView.setContentHuggingPriority(.defaultLow, for: .horizontal)
-        rowContentView.titleView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        rowContentView.valueView.setContentCompressionResistancePriority(.required, for: .horizontal)
-
+        rowContentView?.valueView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        rowContentView?.titleView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        rowContentView?.valueView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        rowContentView?.valueView.valueTop.setContentCompressionResistancePriority(.required, for: .horizontal)
+        rowContentView?.valueView.valueBottom.setContentCompressionResistancePriority(.required, for: .horizontal)
         return rowView
     }
 

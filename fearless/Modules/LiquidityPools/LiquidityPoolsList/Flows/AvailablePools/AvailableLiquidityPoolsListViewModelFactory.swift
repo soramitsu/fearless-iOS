@@ -19,7 +19,10 @@ protocol AvailableLiquidityPoolsListViewModelFactory {
         searchText: String?
     ) -> LiquidityPoolListViewModel
 
-    func buildLoadingViewModel(type: LiquidityPoolListType) -> LiquidityPoolListViewModel
+    func buildLoadingViewModel(
+        type: LiquidityPoolListType,
+        locale: Locale
+    ) -> LiquidityPoolListViewModel
 }
 
 final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidityPoolsListViewModelFactory {
@@ -32,10 +35,24 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
     }
 
     private func buildLoadingCellViewModel() -> LiquidityPoolListCellModel {
-        LiquidityPoolListCellModel(tokenPairIconsVieWModel: TokenPairsIconViewModel(firstTokenIconViewModel: nil, secondTokenIconViewModel: nil), tokenPairNameLabelText: nil, rewardTokenNameLabelText: nil, apyLabelText: nil, stakingStatusLabelText: nil, reservesLabelText: nil, sortValue: 0, liquidityPair: nil)
+        let tokenPairIconsViewModel = TokenPairsIconViewModel(
+            firstTokenIconViewModel: nil,
+            secondTokenIconViewModel: nil
+        )
+
+        return LiquidityPoolListCellModel(
+            tokenPairIconsVieWModel: tokenPairIconsViewModel,
+            tokenPairNameLabelText: nil,
+            rewardTokenNameLabelText: nil,
+            apyLabelText: nil,
+            stakingStatusLabelText: nil,
+            reservesLabelText: nil,
+            sortValue: 0,
+            liquidityPair: nil
+        )
     }
 
-    func buildLoadingViewModel(type: LiquidityPoolListType) -> LiquidityPoolListViewModel {
+    func buildLoadingViewModel(type: LiquidityPoolListType, locale: Locale) -> LiquidityPoolListViewModel {
         var poolViewModels: [LiquidityPoolListCellModel] = []
         for _ in 0 ... 19 {
             poolViewModels.append(buildLoadingCellViewModel())
@@ -43,7 +60,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
 
         return LiquidityPoolListViewModel(
             poolViewModels: poolViewModels,
-            titleLabelText: "Available pools",
+            titleLabelText: R.string.localizable.lpAvailablePoolsTitle(preferredLanguages: locale.rLanguages),
             moreButtonVisible: type == .embed,
             backgroundVisible: type == .full,
             refreshAvailable: type == .full,
@@ -90,7 +107,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
             let reservesValue = modelFactory.buildReserves(
                 pool: pair,
                 chain: chain,
-                reserves: poolReservesInfo,
+                reservesInfo: poolReservesInfo,
                 baseAssetPrice: baseAssetPrice,
                 targetAssetPrice: targetAssetPrice
             )
@@ -107,7 +124,9 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
                 sortValue: reservesValue.or(.zero),
                 liquidityPair: pair
             )
-        }.sorted(by: { $0.sortValue > $1.sortValue }).filter {
+        }
+        .sorted(by: { $0.sortValue > $1.sortValue })
+        .filter {
             guard let searchText, searchText.isNotEmpty else {
                 return true
             }
@@ -117,7 +136,7 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
 
         return LiquidityPoolListViewModel(
             poolViewModels: poolViewModels,
-            titleLabelText: "Available pools",
+            titleLabelText: R.string.localizable.lpAvailablePoolsTitle(preferredLanguages: locale.rLanguages),
             moreButtonVisible: type == .embed,
             backgroundVisible: type == .full,
             refreshAvailable: type == .full,

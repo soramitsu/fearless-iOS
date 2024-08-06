@@ -183,7 +183,7 @@ final class SelectValidatorsViewLayout: UIView {
         view.hidesWhenStopped = true
         view.isUserInteractionEnabled = false
         view.color = R.color.colorWhite()
-        view.style = .white
+        view.style = UIActivityIndicatorView.Style.medium
         return view
     }
 

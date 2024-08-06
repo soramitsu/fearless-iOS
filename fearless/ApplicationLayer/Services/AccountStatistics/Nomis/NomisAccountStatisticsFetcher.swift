@@ -23,12 +23,8 @@ extension NomisAccountStatisticsFetcher: AccountStatisticsFetching {
         address: String,
         cacheOptions: CachedNetworkRequestTrigger
     ) async throws -> AsyncThrowingStream<CachedNetworkResponse<AccountStatisticsResponse>, Error> {
-        guard let baseURL = URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/") else {
-            throw NomisAccountStatisticsFetcherError.badBaseURL
-        }
-
         let request = try NomisAccountStatisticsRequest(
-            baseURL: baseURL,
+            baseURL: ApplicationConfig.shared.nomisAccountScoreURL,
             address: address,
             endpoint: "score"
         )
@@ -38,12 +34,8 @@ extension NomisAccountStatisticsFetcher: AccountStatisticsFetching {
     }
 
     func fetchStatistics(address: String) async throws -> AccountStatisticsResponse? {
-        guard let baseURL = URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/") else {
-            throw NomisAccountStatisticsFetcherError.badBaseURL
-        }
-
         let request = try NomisAccountStatisticsRequest(
-            baseURL: baseURL,
+            baseURL: ApplicationConfig.shared.nomisAccountScoreURL,
             address: address,
             endpoint: "score"
         )

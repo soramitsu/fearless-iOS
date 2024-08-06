@@ -16,7 +16,6 @@ protocol KeystoreExportWrapperProtocol {
 }
 
 enum KeystoreExportWrapperError: Error {
-    case missingSecretKey
     case unsupportedCryptoType
 }
 
@@ -28,8 +27,6 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         encoder.outputFormatting = .sortedKeys
         return encoder
     }()
-
-    private lazy var ss58Factory = SS58AddressFactory()
 
     init(keystore: KeystoreProtocol) {
         self.keystore = keystore

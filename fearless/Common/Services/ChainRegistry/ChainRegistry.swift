@@ -17,7 +17,6 @@ protocol ChainRegistryProtocol: AnyObject {
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func getChain(for chainId: ChainModel.Id) -> ChainModel?
-    func getChainUnsafe(for chainId: ChainModel.Id) -> ChainModel?
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
@@ -114,7 +113,7 @@ final class ChainRegistry {
                         self.handleDelete(chainId)
                     }
                 } catch {
-                    self.logger?.error("Unexpected error on handling chains update: \(error)")
+                    self.logger?.error("Chain: \(change.item?.name), Unexpected error on handling chains update: \(error)")
                 }
             }
 
@@ -228,14 +227,24 @@ final class ChainRegistry {
         }
         chains.append(newChain)
 
-        _ = try? ethereumConnectionPool.setupConnection(for: newChain)
+        do {
+            _ = try ethereumConnectionPool.setupConnection(for: newChain)
+        } catch {
+            logger?.customError(error)
+        }
     }
 
     private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-        _ = try? ethereumConnectionPool.setupConnection(for: updatedChain)
+
+        do {
+            _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
+        } catch {
+            logger?.customError(error)
+        }
+
         chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }
@@ -312,24 +321,20 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {
-//        readLock.concurrentlyRead {
-        guard
-            let ethereumConnectionPool = self.ethereumConnectionPool,
-            let chain = chains.first(where: { $0.chainId == chainId })
-        else {
-            return nil
-        }
+        readLock.concurrentlyRead {
+            guard
+                let ethereumConnectionPool = self.ethereumConnectionPool,
+                let chain = chains.first(where: { $0.chainId == chainId })
+            else {
+                return nil
+            }
 
-        return try? ethereumConnectionPool.setupConnection(for: chain)
-//        }
+            return try? ethereumConnectionPool.setupConnection(for: chain)
+        }
     }
 
     func getChain(for chainId: ChainModel.Id) -> ChainModel? {
         readLock.concurrentlyRead { chains.first(where: { $0.chainId == chainId }) }
-    }
-
-    func getChainUnsafe(for chainId: ChainModel.Id) -> ChainModel? {
-        chains.first(where: { $0.chainId == chainId })
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {

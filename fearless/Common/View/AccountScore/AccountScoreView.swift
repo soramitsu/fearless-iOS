@@ -3,6 +3,10 @@ import SoraUI
 import Cosmos
 
 class AccountScoreView: UIView {
+    private enum Constants {
+        static let skeletonSize = CGSize(width: 32, height: 15)
+    }
+
     private var viewModel: AccountScoreViewModel?
 
     private var skeletonView: SkrullableView?
@@ -151,12 +155,7 @@ extension AccountScoreView: SkeletonLoadable {
     }
 
     private func setupSkeleton() {
-        let spaceSize = CGSize(width: 32, height: 15)
-
-        guard spaceSize != .zero else {
-            self.skeletonView = Skrull(size: .zero, decorations: [], skeletons: []).build()
-            return
-        }
+        let spaceSize = Constants.skeletonSize
 
         let skeletonView = Skrull(
             size: spaceSize,
@@ -181,7 +180,7 @@ extension AccountScoreView: SkeletonLoadable {
             SingleSkeleton.createRow(
                 spaceSize: spaceSize,
                 position: CGPoint(x: 0, y: 0.5),
-                size: CGSize(width: 32, height: 15)
+                size: Constants.skeletonSize
             )
         ]
     }

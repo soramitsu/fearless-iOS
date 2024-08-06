@@ -1,12 +1,12 @@
 import Foundation
 
-public enum AssetTransactionStatus: String, Codable {
+enum AssetTransactionStatus: String, Codable {
     case pending = "PENDING"
     case commited = "COMMITTED"
     case rejected = "REJECTED"
 }
 
-public struct AssetTransactionData: Codable, Equatable {
+struct AssetTransactionData: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
         case transactionId
         case status
@@ -24,22 +24,22 @@ public struct AssetTransactionData: Codable, Equatable {
         case context
     }
 
-    public let transactionId: String
-    public let status: AssetTransactionStatus
-    public let assetId: String
-    public let peerId: String
-    public let peerFirstName: String?
-    public let peerLastName: String?
-    public let peerName: String?
-    public let details: String
-    public let amount: AmountDecimal
-    public let fees: [AssetTransactionFee]
-    public let timestamp: Int64
-    public let type: String
-    public let reason: String?
-    public let context: [String: String]?
+    let transactionId: String
+    let status: AssetTransactionStatus
+    let assetId: String
+    let peerId: String
+    let peerFirstName: String?
+    let peerLastName: String?
+    let peerName: String?
+    let details: String
+    let amount: AmountDecimal
+    let fees: [AssetTransactionFee]
+    let timestamp: Int64
+    let type: String
+    let reason: String?
+    let context: [String: String]?
 
-    public init(
+    init(
         transactionId: String,
         status: AssetTransactionStatus,
         assetId: String,
@@ -72,11 +72,11 @@ public struct AssetTransactionData: Codable, Equatable {
     }
 }
 
-public struct AssetTransactionPageData: Codable, Equatable {
-    public let transactions: [AssetTransactionData]
-    public let context: PaginationContext?
+struct AssetTransactionPageData: Codable, Equatable {
+    let transactions: [AssetTransactionData]
+    let context: PaginationContext?
 
-    public init(
+    init(
         transactions: [AssetTransactionData],
         context: PaginationContext? = nil
     ) {

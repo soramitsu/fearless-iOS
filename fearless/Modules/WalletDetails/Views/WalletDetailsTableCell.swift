@@ -7,7 +7,6 @@ protocol WalletDetailsTableCellDelegate: AnyObject {
 class WalletDetailsTableCell: UITableViewCell {
     enum LayoutConstants {
         static let chainImageSize: CGFloat = 27
-        static let addressImageSize: CGFloat = 16
         static let actionImageSize: CGFloat = 18
     }
 

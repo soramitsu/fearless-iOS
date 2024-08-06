@@ -213,14 +213,6 @@ final class LiquidityPoolSupplyConfirmViewLayout: UIView {
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-//        apyView.addSubview(apyInfoButton)
-//
-//        apyInfoButton.snp.makeConstraints { make in
-//            make.leading.equalTo(apyView.titleLabel.snp.trailing).offset(4)
-//            make.centerY.equalToSuperview()
-//            make.size.equalTo(12)
-//        }
-
         rewardTokenView.addSubview(tokenIconImageView)
 
         rewardTokenView.valueTop.snp.makeConstraints { make in

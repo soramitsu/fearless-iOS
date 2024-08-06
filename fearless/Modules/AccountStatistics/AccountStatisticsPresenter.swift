@@ -18,6 +18,7 @@ final class AccountStatisticsPresenter {
     private let router: AccountStatisticsRouterInput
     private let interactor: AccountStatisticsInteractorInput
     private let viewModelFactory: AccountStatisticsViewModelFactory
+    private let logger: LoggerProtocol?
 
     private var accountStatistics: AccountStatistics?
 
@@ -27,11 +28,13 @@ final class AccountStatisticsPresenter {
         interactor: AccountStatisticsInteractorInput,
         router: AccountStatisticsRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        viewModelFactory: AccountStatisticsViewModelFactory
+        viewModelFactory: AccountStatisticsViewModelFactory,
+        logger: LoggerProtocol?
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
+        self.logger = logger
 
         self.localizationManager = localizationManager
     }
@@ -81,7 +84,9 @@ extension AccountStatisticsPresenter: AccountStatisticsInteractorOutput {
         provideViewModel()
     }
 
-    func didReceiveAccountStatisticsError(_: Error) {}
+    func didReceiveAccountStatisticsError(_ error: Error) {
+        logger?.debug("didReceiveAccountStatisticsError \(error)")
+    }
 
     func didReceiveNoDataAvailableState() {
         view?.didReceiveError()

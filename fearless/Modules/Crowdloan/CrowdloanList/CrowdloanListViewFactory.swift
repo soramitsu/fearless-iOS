@@ -19,13 +19,8 @@ struct CrowdloanListViewFactory {
         }
 
         let wireframe = CrowdloanListWireframe(state: sharedState)
-
         let localizationManager = LocalizationManager.shared
-
-        var iconGenerator: IconGenerating?
-        if let chain = sharedState.settings.value {
-            iconGenerator = UniversalIconGenerator()
-        }
+        let iconGenerator: IconGenerating = UniversalIconGenerator()
 
         let viewModelFactory = CrowdloansViewModelFactory(
             amountFormatterFactory: AssetBalanceFormatterFactory(),

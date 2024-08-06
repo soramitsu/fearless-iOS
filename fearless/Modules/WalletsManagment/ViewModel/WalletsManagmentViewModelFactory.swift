@@ -47,7 +47,8 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 address: address,
                 chain: nil,
                 settings: SettingsManager.shared,
-                eventCenter: EventCenter.shared
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared
             )
 
             guard let walletBalance = balances[key] else {

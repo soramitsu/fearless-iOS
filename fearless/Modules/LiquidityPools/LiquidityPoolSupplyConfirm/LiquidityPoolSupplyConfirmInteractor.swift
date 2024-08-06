@@ -46,8 +46,6 @@ final class LiquidityPoolSupplyConfirmInteractor {
 
     private func subscribeToPrices() {
         let chainAssets = chain.chainAssets
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
-
         guard chainAssets.isNotEmpty else {
             output?.didReceivePricesData(result: .success([]))
             return

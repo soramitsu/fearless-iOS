@@ -215,7 +215,7 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
             return AnySingleValueProvider(provider)
         }
 
-        let repository = try SubstrateRepositoryFactory(
+        let repository = SubstrateRepositoryFactory(
             storageFacade: storageFacade
         ).createSingleValueRepository()
 

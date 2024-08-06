@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SoraFoundation
 
 protocol ScamInfoFetching {
     func fetch(address: String, chain: ChainModel) async throws -> ScamInfo?
@@ -12,10 +13,13 @@ final class ScamInfoFetcher: ScamInfoFetching {
 
     init(
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
-        accountScoreFetching: AccountStatisticsFetching
+        accountScoreFetching: AccountStatisticsFetching,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.accountScoreFetching = accountScoreFetching
+
+        self.localizationManager = localizationManager
     }
 
     func fetch(address: String, chain: ChainModel) async throws -> ScamInfo? {
@@ -59,13 +63,17 @@ final class ScamInfoFetcher: ScamInfoFetching {
             }
 
             return ScamInfo(
-                name: "Nomis multi-chain score",
+                name: R.string.localizable.scamInfoNomisName(preferredLanguages: selectedLocale.rLanguages),
                 address: address,
                 type: .lowScore,
-                subtype: "Proceed with caution"
+                subtype: R.string.localizable.scamInfoNomisSubtypeText(preferredLanguages: selectedLocale.rLanguages)
             )
         }
 
         return scamInfo
     }
+}
+
+extension ScamInfoFetcher: Localizable {
+    func applyLocalization() {}
 }

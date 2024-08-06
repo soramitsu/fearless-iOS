@@ -5,13 +5,10 @@ import SSFXCM
 protocol ApplicationConfigProtocol {
     var termsURL: URL { get }
     var privacyPolicyURL: URL { get }
-    var devStatusURL: URL { get }
-    var roadmapURL: URL { get }
     var supportEmail: String { get }
     var websiteURL: URL { get }
     var version: String { get }
     var opensourceURL: URL { get }
-    var appName: String { get }
     var logoURL: URL { get }
     var purchaseAppName: String { get }
     var moonPayApiKey: String { get }
@@ -51,14 +48,6 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
         URL(string: "https://fearlesswallet.io/privacy")!
     }
 
-    var devStatusURL: URL {
-        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
-    }
-
-    var roadmapURL: URL {
-        URL(string: "https://soramitsucoltd.aha.io/shared/97bc3006ee3c1baa0598863615cf8d14")!
-    }
-
     var supportEmail: String {
         "fearless@soramitsu.co.jp"
     }
@@ -83,14 +72,7 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
         URL(string: "https://github.com/soramitsu/fearless-iOS")!
     }
 
-    // swiftlint:disable force_cast
-    var appName: String {
-        let bundle = Bundle(for: ApplicationConfig.self)
-        return bundle.infoDictionary?["CFBundleDisplayName"] as! String
-    }
-
     // swiftlint:enable force_cast
-
     var logoURL: URL {
         // swiftlint:disable:next line_length
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
@@ -222,8 +204,8 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
         #endif
     }
 
-    var soraSubqueryUrl: URL {
-        URL(string: "https://api.subquery.network/sq/sora-xor/sora-prod")!
+    var nomisAccountScoreURL: URL {
+        URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/")!
     }
 }
 

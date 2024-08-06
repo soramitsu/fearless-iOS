@@ -35,11 +35,6 @@ final class ProfileViewLayout: UIView {
         )
 
         tableView.register(
-            UINib(resource: R.nib.profileDetailsTableViewCell),
-            forCellReuseIdentifier: R.reuseIdentifier.profileDetailsCellId.identifier
-        )
-
-        tableView.register(
             UINib(resource: R.nib.profileSectionTableViewCell),
             forCellReuseIdentifier: R.reuseIdentifier.profileSectionCellId.identifier
         )

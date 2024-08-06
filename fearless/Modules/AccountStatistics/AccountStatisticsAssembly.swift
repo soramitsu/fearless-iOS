@@ -14,7 +14,8 @@ final class AccountStatisticsAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: AccountStatisticsViewModelFactoryImpl()
+            viewModelFactory: AccountStatisticsViewModelFactoryImpl(),
+            logger: Logger.shared
         )
 
         let view = AccountStatisticsViewController(

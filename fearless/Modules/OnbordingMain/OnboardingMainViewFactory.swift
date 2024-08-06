@@ -15,11 +15,6 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         return createView(for: wireframe)
     }
 
-    // TODO: Remove with connection refactoring
-    static func createViewForConnection(item _: ConnectionItem) -> OnboardingMainViewProtocol? {
-        nil
-    }
-
     static func createViewForAccountSwitch() -> OnboardingMainViewProtocol? {
         let wireframe = SwitchAccount.OnboardingMainWireframe()
         return createView(for: wireframe)
