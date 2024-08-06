@@ -64,6 +64,17 @@
 "account.needed.message" = "このネットワークのアカウントがありません。アカウントを作成またはインポートできます";
 "account.needed.title" = "アカウントが必要";
 "account.option" = "アカウントオプション";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
 "account.template" = "%sアカウント";
 "account.unique.secret" = "一意のシークレットを持つアカウント";
 "accounts.add.account" = "アカウントを追加";
@@ -536,6 +547,7 @@
 "nft.collection.title" = "コレクション";
 "nft.creator.title" = "作成者";
 "nft.list.empty.message" = "There aren't any NFTs yet. Buy or mint NFTs to see them here.";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "所有";
 "nft.share.address" = "受信するパブリック・アドレス： %s";
 "nft.spam.warning" = "Beware of a scam/spam NFT collection – verify authenticity before engaging. Stay safe!";
@@ -1182,3 +1194,9 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
+"account.stats.wallet.option.title" = "Show wallet score";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"profile.account.score.title" = "Nomis multichain score";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";

@@ -251,4 +251,8 @@ extension ProfileViewController: WalletsManagmentTableCellDelegate {
     func didTapOptionsCell(with _: IndexPath?) {
         presenter.activateAccountDetails()
     }
+
+    func didTapAccountScore(address: String) {
+        presenter.didTapAccountScore(address: address)
+    }
 }

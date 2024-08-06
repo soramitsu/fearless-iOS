@@ -12,7 +12,7 @@ final class SendInteractor: RuntimeConstantFetching {
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
-    private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
+    private let scamInfoFetching: ScamInfoFetching
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let addressChainDefiner: AddressChainDefiner
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
@@ -30,7 +30,7 @@ final class SendInteractor: RuntimeConstantFetching {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationManager: OperationManagerProtocol,
-        scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
+        scamInfoFetching: ScamInfoFetching,
         chainAssetFetching: ChainAssetFetchingProtocol,
         dependencyContainer: SendDepencyContainer,
         addressChainDefiner: AddressChainDefiner,
@@ -39,7 +39,7 @@ final class SendInteractor: RuntimeConstantFetching {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriber = priceLocalSubscriber
         self.operationManager = operationManager
-        self.scamServiceOperationFactory = scamServiceOperationFactory
+        self.scamInfoFetching = scamInfoFetching
         self.chainAssetFetching = chainAssetFetching
         self.dependencyContainer = dependencyContainer
         self.addressChainDefiner = addressChainDefiner
@@ -175,24 +175,11 @@ extension SendInteractor: SendInteractorInput {
         dependencies.transferService.subscribeForFee(transfer: transfer, listener: self)
     }
 
-    func fetchScamInfo(for address: String) {
-        let allOperation = scamServiceOperationFactory.fetchScamInfoOperation(for: address)
-
-        allOperation.completionBlock = { [weak self] in
-            guard let result = allOperation.result else {
-                return
-            }
-
-            switch result {
-            case let .success(scamInfo):
-                DispatchQueue.main.async {
-                    self?.output?.didReceive(scamInfo: scamInfo)
-                }
-            case .failure:
-                break
-            }
+    func fetchScamInfo(for address: String, chain: ChainModel) {
+        Task {
+            let scamInfo = try await scamInfoFetching.fetch(address: address, chain: chain)
+            output?.didReceive(scamInfo: scamInfo)
         }
-        operationManager.enqueue(operations: [allOperation], in: .transient)
     }
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {

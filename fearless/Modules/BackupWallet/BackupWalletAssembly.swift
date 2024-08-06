@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SoraKeystore
 import SSFCloudStorage
+import SSFNetwork
 
 final class BackupWalletAssembly {
     static func configureModule(
@@ -24,13 +25,19 @@ final class BackupWalletAssembly {
             operationManager: OperationManagerFacade.sharedManager
         )
         let router = BackupWalletRouter()
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
 
+        let viewModelFactory = BackupWalletViewModelFactory(accountScoreFetcher: accountScoreFetcher, settings: SettingsManager.shared)
         let presenter = BackupWalletPresenter(
             wallet: wallet,
             interactor: interactor,
             router: router,
             logger: logger,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            viewModelFactory: viewModelFactory
         )
 
         let view = BackupWalletViewController(

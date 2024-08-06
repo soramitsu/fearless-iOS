@@ -5,4 +5,5 @@ struct WalletsManagmentCellViewModel {
     let walletName: String
     let fiatBalance: String?
     let dayChange: NSAttributedString?
+    let accountScoreViewModel: AccountScoreViewModel?
 }

@@ -82,15 +82,21 @@ extension AssetTransactionData {
             BigUInt(string: transfer.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
-        let feeValue = BigUInt(string: transfer.fee) ?? BigUInt(0)
-        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
 
-        let fee = AssetTransactionFee(
-            identifier: asset.id,
-            assetId: asset.id,
-            amount: AmountDecimal(value: feeDecimal),
-            context: nil
-        )
+        var fees: [AssetTransactionFee] = []
+
+        if let fee = transfer.fee {
+            let feeValue = BigUInt(string: fee) ?? BigUInt(0)
+            let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) ?? .zero
+
+            let fee = AssetTransactionFee(
+                identifier: asset.id,
+                assetId: asset.id,
+                amount: AmountDecimal(value: feeDecimal),
+                context: nil
+            )
+            fees.append(fee)
+        }
 
         let type = transfer.sender == address ? TransactionType.outgoing :
             TransactionType.incoming
@@ -107,7 +113,7 @@ extension AssetTransactionData {
             peerName: peerAddress,
             details: "",
             amount: AmountDecimal(value: amount),
-            fees: [fee],
+            fees: fees,
             timestamp: timestamp,
             type: type.rawValue,
             reason: "",

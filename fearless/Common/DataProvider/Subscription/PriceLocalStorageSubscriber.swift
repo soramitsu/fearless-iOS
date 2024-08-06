@@ -24,6 +24,7 @@ struct PriceLocalStorageSubscriberListener {
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     static let shared = PriceLocalStorageSubscriberImpl()
     private let eventCenter = EventCenter.shared
+
     private let chainRegistry = ChainRegistryFacade.sharedRegistry
     private lazy var provider: AnySingleValueProvider<[PriceData]> = {
         setupProvider()
@@ -249,7 +250,6 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
             let chains = try await chainsRepository.fetchAll()
             chainAssets = chains.map { $0.chainAssets }.reduce([], +)
 
-            print("Chain assets to subsctibe : ", chainAssets)
             remoteFetchTimer?.invalidate()
             remoteFetchTimer = nil
             provider = setupProvider()

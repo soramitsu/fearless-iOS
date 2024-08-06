@@ -279,12 +279,14 @@ final class SendPresenter {
             canEditing: true
         )
 
+        let accountScoreViewModel = viewModelFactory.buildAccountScoreViewModel(address: newAddress, chain: chainAsset.chain)
         DispatchQueue.main.async {
             self.view?.didReceive(viewModel: viewModel)
+            self.view?.didReceive(accountScoreViewModel: accountScoreViewModel)
         }
 
         interactor.updateSubscriptions(for: chainAsset)
-        interactor.fetchScamInfo(for: newAddress)
+        interactor.fetchScamInfo(for: newAddress, chain: chainAsset.chain)
     }
 
     private func handle(selectedChain: ChainModel?) {
@@ -1035,7 +1037,10 @@ extension SendPresenter: SendInteractorOutput {
 
     func didReceive(scamInfo: ScamInfo?) {
         self.scamInfo = scamInfo
-        view?.didReceive(scamInfo: scamInfo)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(scamInfo: scamInfo)
+        }
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {

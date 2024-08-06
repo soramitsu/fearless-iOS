@@ -64,6 +64,19 @@
 "account.needed.message" = "您还没有此网络的账户，您可以创建或导入一个账户。";
 "account.needed.title" = "所需账户";
 "account.option" = "账户选项";
+"account.stats.avg.transaction.time.title" = "Avg. transaction time";
+"account.stats.description.text" = "Your Multichain Score is based on your onchain journey through 3 ecosystems: Ethereum, Polygon and Binance Smart Chain";
+"account.stats.error.message" = "Unable to retrieve account score information. Please try again later.";
+"account.stats.hold.tokens.usd.title" = "Hold tokens USD";
+"account.stats.max.transaction.time.title" = "Max transaction time";
+"account.stats.min.transactions.time.title" = "Min transaction time";
+"account.stats.native.balance.usd.title" = "Native balance USD";
+"account.stats.rejected.transactions.title" = "Rejected transactions";
+"account.stats.title" = "Your score";
+"account.stats.total.transactions.title" = "Total transactions";
+"account.stats.updated.title" = "Updated";
+"account.stats.wallet.age.title" = "Wallet age";
+"account.stats.wallet.option.title" = "Show wallet score";
 "account.template" = "%s账户";
 "account.unique.secret" = "拥有独特密钥的账户";
 "accounts.add.account" = "添加一个账户";
@@ -537,6 +550,7 @@
 "nft.collection.title" = "收藏品";
 "nft.creator.title" = "创作者";
 "nft.list.empty.message" = "目前还没有任何NFT。购买或铸造NFT以在此处查看。";
+"nft.load.error" = "Failed to load NFTs";
 "nft.owner.title" = "拥有";
 "nft.share.address" = "我要接收的公共地址：%s";
 "nft.spam.warning" = "小心某些 NFT 收藏品可能是骗局或垃圾邮件,在参与之前请先验证其真实性。保持安全!";
@@ -693,6 +707,7 @@
 "pools.limit.has.reached.error.message" = "这个网络的池子数量已经达到了上限";
 "pools.limit.has.reached.error.title" = "你不能创建更多的池子";
 "profile.about.title" = "关于";
+"profile.account.score.title" = "Nomis multichain score";
 "profile.accounts.title" = "账户";
 "profile.language.title" = "语言";
 "profile.logout.description" = "此操作将导致删除该设备上的所有账户。在继续之前，请确保已备份您的密码短语。";
@@ -720,8 +735,11 @@
 "scam.additional.stub" = "附加：";
 "scam.description.donation.stub" = "此地址已被标记为可疑。我们强烈建议您不要向该账户发送%s。";
 "scam.description.exchange.stub" = "这个地址被标记为交易所，请注意存款和提款地址可能不同。";
+"scam.description.lowscore.text" = "The address you are about to transfer to has low onchain activity, which may indicate a potential scammer or sybil attacker";
 "scam.description.sanctions.stub" = "由于与受制裁国家相关的实体,此地址已被标记。我们强烈建议您不要向此账户发送%s。";
 "scam.description.scam.stub" = "此地址已被标记存在诈骗嫌疑。我们强烈建议您不要将{asset}发送到此账户。";
+"scam.info.nomis.name" = "Nomis multi-chain score";
+"scam.info.nomis.subtype.text" = "Proceed with caution";
 "scam.name.stub" = "姓名：";
 "scam.reason.stub" = "原因：";
 "scam.warning.alert.subtitle" = "我们强烈建议您不要向此账户发送%s。";

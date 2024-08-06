@@ -117,11 +117,6 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         let caPriceIds = Set(chainAssets.compactMap { $0.asset.priceId })
         let sqPriceIds = Set(soraSubqueryPrices.compactMap { $0.priceId })
 
-        let replacedFiatDayChange: [PriceData] = soraSubqueryPrices.compactMap { soraSubqueryPrice in
-            let coingeckoPrice = coingeckoPrices.first(where: { $0.priceId == soraSubqueryPrice.priceId })
-            return soraSubqueryPrice.replaceFiatDayChange(fiatDayChange: coingeckoPrice?.fiatDayChange)
-        }
-
         let filtered = coingeckoPrices.filter { coingeckoPrice in
             let chainAsset = chainAssets.first { $0.asset.coingeckoPriceId == coingeckoPrice.priceId }
             guard let priceId = chainAsset?.asset.priceId else {
@@ -130,7 +125,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             return !caPriceIds.intersection(sqPriceIds).contains(priceId)
         }
 
-        return filtered + replacedFiatDayChange
+        return filtered + soraSubqueryPrices
     }
 
     private func makePrices(from coingeckoPrices: [PriceData], for type: PriceProviderType) -> [PriceData] {
@@ -169,6 +164,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         guard chainAssets.isNotEmpty else {
             return BaseOperation.createWithResult([])
         }
+
         let operation = soraOperationFactory.fetchPriceOperation(for: chainAssets)
         return operation
     }
@@ -179,6 +175,9 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             .map { $0.asset.coingeckoPriceId }
             .compactMap { $0 }
             .uniq(predicate: { $0 })
+        guard priceIds.isNotEmpty else {
+            return BaseOperation.createWithResult([])
+        }
         let operation = coingeckoOperationFactory.fetchPriceOperation(for: priceIds, currencies: currencies)
         return operation
     }

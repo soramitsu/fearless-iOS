@@ -20,7 +20,7 @@ abstract_target 'fearlessAll' do
   pod 'SVGKit'
   pod 'Charts', '~> 4.1.0'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
-  pod 'FearlessKeys', '0.1.3'
+  pod 'FearlessKeys', '0.1.4'
 
   target 'fearlessTests' do
     inherit! :search_paths

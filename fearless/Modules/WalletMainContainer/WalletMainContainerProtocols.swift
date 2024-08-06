@@ -7,6 +7,7 @@ typealias WalletMainContainerModuleCreationResult = (
 
 protocol WalletMainContainerViewInput: ControllerBackedProtocol, HiddableBarWhenPushed {
     func didReceiveViewModel(_ viewModel: WalletMainContainerViewModel)
+    func didReceiveNftAvailability(isNftAvailable: Bool)
 }
 
 protocol WalletMainContainerViewOutput: AnyObject {
@@ -17,6 +18,7 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapSelectNetwork()
     func didTapOnBalance()
     func addressDidCopied()
+    func didTapAccountScore()
 }
 
 protocol WalletMainContainerInteractorInput: AnyObject {
@@ -30,9 +32,10 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveError(_ error: Error)
     func didReceiveControllerAccountIssue(issue: ControllerAccountIssue, hasStashItem: Bool)
     func didReceiveStashAccountIssue(address: String)
+    func didReceiveNftAvailability(isNftAvailable: Bool)
 }
 
-protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
+protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable, AccountScorePresentable {
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?

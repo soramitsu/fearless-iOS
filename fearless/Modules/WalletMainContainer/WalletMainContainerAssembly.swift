@@ -2,6 +2,8 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFNetwork
+import SoraKeystore
 
 final class WalletMainContainerAssembly {
     static func configureModule(
@@ -33,6 +35,15 @@ final class WalletMainContainerAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
+
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -42,7 +53,8 @@ final class WalletMainContainerAssembly {
             eventCenter: EventCenter.shared,
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
-            walletConnectService: walletConnect
+            walletConnectService: walletConnect,
+            featureToggleService: featureToggleProvider
         )
 
         let router = WalletMainContainerRouter()
@@ -55,12 +67,16 @@ final class WalletMainContainerAssembly {
             return nil
         }
 
+        let viewModelFactory = WalletMainContainerViewModelFactory(
+            accountScoreFetcher: accountScoreFetcher,
+            settings: SettingsManager.shared
+        )
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
             nftModuleInput: nftModule.input,
             wallet: wallet,
-            viewModelFactory: WalletMainContainerViewModelFactory(),
+            viewModelFactory: viewModelFactory,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager
