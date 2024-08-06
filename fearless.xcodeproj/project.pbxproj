@@ -1829,6 +1829,7 @@
 		FA004899282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA004898282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift */; };
 		FA00489B282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA00489A282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift */; };
 		FA0066E92935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0066E82935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift */; };
+		FA01B2BB2C6213740078A35B /* InfoTitleView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA01B2BA2C6213740078A35B /* InfoTitleView.swift */; };
 		FA054A9A2BCD1FA3007B8F6D /* AvailableLiquidityPoolsListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA054A992BCD1FA3007B8F6D /* AvailableLiquidityPoolsListPresenter.swift */; };
 		FA054A9C2BCD1FAF007B8F6D /* AvailableLiquidityPoolsListViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA054A9B2BCD1FAF007B8F6D /* AvailableLiquidityPoolsListViewModelFactory.swift */; };
 		FA072C14277AE2FE00731718 /* QRCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C13277AE2FE00731718 /* QRCaptureService.swift */; };
@@ -4845,6 +4846,7 @@
 		FA004898282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA00489A282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA0066E82935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolStrategy.swift; sourceTree = "<group>"; };
+		FA01B2BA2C6213740078A35B /* InfoTitleView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InfoTitleView.swift; sourceTree = "<group>"; };
 		FA054A992BCD1FA3007B8F6D /* AvailableLiquidityPoolsListPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableLiquidityPoolsListPresenter.swift; sourceTree = "<group>"; };
 		FA054A9B2BCD1FAF007B8F6D /* AvailableLiquidityPoolsListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableLiquidityPoolsListViewModelFactory.swift; sourceTree = "<group>"; };
 		FA072C13277AE2FE00731718 /* QRCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCaptureService.swift; sourceTree = "<group>"; };
@@ -9373,6 +9375,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				FA01B2BA2C6213740078A35B /* InfoTitleView.swift */,
 				FA1D02032BBE71F2005B7071 /* TokenPairIconsView.swift */,
 				FA34EE9D2B9871BD0042E73E /* TriangularedTitleMultiValueView.swift */,
 				FAD429312A865695001D6A16 /* CheckboxButton.swift */,
@@ -17151,6 +17154,7 @@
 				84EBC55124F660A700459D15 /* EventVisitor.swift in Sources */,
 				FA93A313283653B70021330F /* ValidatorListFilterFlow.swift in Sources */,
 				8454C21D2632A78900657DAD /* EventRecord.swift in Sources */,
+				FA01B2BB2C6213740078A35B /* InfoTitleView.swift in Sources */,
 				FAD429002A86567F001D6A16 /* BackupRiskWarningsViewController.swift in Sources */,
 				FAC0BBE6291D11D600E6F106 /* SelectableAmountInputView.swift in Sources */,
 				84C4C2F9255DB9510045B582 /* PinChangeInteractor.swift in Sources */,

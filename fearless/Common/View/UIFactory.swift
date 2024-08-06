@@ -90,7 +90,7 @@ protocol UIFactoryProtocol {
     func createHintView() -> HintView
     func createLearnMoreView() -> LearnMoreView
     func createRewardSelectionView() -> RewardSelectionView
-    func createInfoIndicatingView() -> ImageWithTitleView
+    func createInfoIndicatingView() -> InfoTitleView
     func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout) -> DetailsTriangularedView
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
@@ -104,6 +104,7 @@ protocol UIFactoryProtocol {
     ) -> UIToolbar
     func createDisabledButton() -> TriangularedButton
     func createRoundedButton() -> UIButton
+    func createTitleLabel() -> UILabel
     func createWarningView(title: String, text: String) -> UIView
     func createDoneAccessoryView(
         for delegate: AmountInputAccessoryViewDelegate?,
@@ -125,6 +126,14 @@ extension UIFactoryProtocol {
 
 final class UIFactory: UIFactoryProtocol {
     static let `default` = UIFactory()
+
+    func createTitleLabel() -> UILabel {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.textColor = R.color.colorLightGray()
+        label.font = .p1Paragraph
+        return label
+    }
 
     func createVerticalStackView(spacing: CGFloat = 0) -> UIStackView {
         let stackView = UIStackView()
@@ -658,13 +667,11 @@ final class UIFactory: UIFactoryProtocol {
         return view
     }
 
-    func createInfoIndicatingView() -> ImageWithTitleView {
-        let view = ImageWithTitleView()
-        view.titleColor = R.color.colorLightGray()
-        view.titleFont = .p1Paragraph
-        view.layoutType = .horizontalLabelFirst
-        view.spacingBetweenLabelAndIcon = 5.0
-        view.iconImage = R.image.iconInfoFilled()
+    func createInfoIndicatingView() -> InfoTitleView {
+        let view = InfoTitleView()
+        view.titleLabel.textColor = R.color.colorLightGray()
+        view.titleLabel.font = .p1Paragraph
+        view.iconImageView.image = R.image.iconInfoFilled()
         return view
     }
 
