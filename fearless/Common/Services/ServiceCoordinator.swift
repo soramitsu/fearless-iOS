@@ -115,25 +115,9 @@ extension ServiceCoordinator {
         let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createAsyncRepository()
 
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryWrapper
-        )
-
-        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
-            chainRegistry: chainRegistry
-        )
-
-        let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
-            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            storagePerformer: storagePerformer
-        )
-
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: selectedMetaAccount,
             chainRegistry: chainRegistry,
-            accountInfoRemote: accountInfoRemote,
             eventCenter: EventCenter.shared,
             logger: logger,
             userDefaultsStorage: SettingsManager.shared

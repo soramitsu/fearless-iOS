@@ -68,7 +68,6 @@ final class AssetManagementAssembly {
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: wallet,
             chainRegistry: chainRegistry,
-            accountInfoRemote: accountInfoRemote,
             eventCenter: EventCenter.shared,
             logger: Logger.shared,
             userDefaultsStorage: SettingsManager.shared
