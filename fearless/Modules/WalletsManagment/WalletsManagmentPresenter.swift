@@ -183,7 +183,7 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
         interactor.setup(with: self)
     }
 
-    func didTapAccountScore(address: String) {
+    func didTapAccountScore(address: String?) {
         router.presentAccountScore(address: address, from: view)
     }
 }

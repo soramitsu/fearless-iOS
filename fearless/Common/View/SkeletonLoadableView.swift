@@ -13,7 +13,7 @@ protocol SkeletonLoadableView: UIView {
 
 extension SkeletonLoadableView {
     func startSkeletonAnimation() {
-        guard skeletonView == nil else {
+        guard skeletonView == nil, frame.origin != .zero else {
             return
         }
 

@@ -20,7 +20,8 @@ public class NomisAccountStatisticsRequest: RequestConfig {
             method: .get,
             endpoint: finalEndpoint,
             headers: nil,
-            body: nil
+            body: nil,
+            timeout: 10
         )
     }
 

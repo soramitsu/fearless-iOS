@@ -56,7 +56,7 @@ class AccountScoreViewModel {
         self.eventCenter = eventCenter
         self.logger = logger
 
-        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true
+        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true && address.isNullOrEmpty == false
     }
 
     func setup(with view: AccountScoreView?) {
@@ -70,8 +70,14 @@ class AccountScoreViewModel {
         Task {
             do {
                 let stream = try await fetcher.subscribeForStatistics(address: address, cacheOptions: .onAll)
-                for try await statistics in stream {
-                    handle(response: statistics.value)
+
+                do {
+                    for try await statistics in stream {
+                        handle(response: statistics.value)
+                    }
+                } catch {
+                    logger?.debug("Account statistics fetching error: \(error)")
+                    handle(response: nil)
                 }
             } catch {
                 logger?.debug("Account statistics fetching error: \(error)")
@@ -81,7 +87,9 @@ class AccountScoreViewModel {
 
     private func handle(response: AccountStatisticsResponse?) {
         guard let score = response?.data?.score else {
-            view?.bindEmptyViewModel()
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.bindEmptyViewModel()
+            }
             return
         }
 
