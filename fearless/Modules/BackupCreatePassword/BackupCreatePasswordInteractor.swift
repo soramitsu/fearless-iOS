@@ -4,6 +4,7 @@ import RobinHood
 import SoraKeystore
 import IrohaCrypto
 import SSFModels
+import SSFCrypto
 
 protocol BackupCreatePasswordInteractorOutput: AnyObject {
     func didReceive(error: Error)
@@ -128,7 +129,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         seeds: [ExportSeedData],
         password: String
     ) {
-        let substrateRestoreSeed = seeds.first(where: { $0.chain.chainBaseType == .substrate })
+        let substrateRestoreSeed = seeds.first(where: { $0.chain.ecosystem == .substrate })
         let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
         let substrateSeed = substrateRestoreSeed?.seed.toHex(includePrefix: true)
@@ -157,7 +158,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         jsons: [RestoreJson],
         password: String
     ) {
-        let substrateRestoreJson = jsons.first(where: { $0.chain.chainBaseType == .substrate })
+        let substrateRestoreJson = jsons.first(where: { $0.chain.ecosystem == .substrate })
         let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
         let json = OpenBackupAccount.Json(
@@ -365,7 +366,7 @@ extension BackupCreatePasswordInteractor: BackupCreatePasswordInteractorInput {
             switch flow {
             case let .multiple(wallet, accounts):
                 let ethereum = accounts.first(where: { $0.chain.isEthereumBased })
-                guard let substrate = accounts.first(where: { $0.chain.chainBaseType == .substrate }) else {
+                guard let substrate = accounts.first(where: { $0.chain.ecosystem == .substrate }) else {
                     return
                 }
                 let accounts = [substrate, ethereum].compactMap { $0 }

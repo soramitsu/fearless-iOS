@@ -2,6 +2,7 @@
 import RobinHood
 import IrohaCrypto
 import SSFModels
+import SSFCrypto
 
 enum SearchServiceError: Error {
     case addressInvalid

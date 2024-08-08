@@ -127,67 +127,69 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     completionBlock(chainAsset, nil)
                     return
                 }
-                if chainAsset.chain.isEthereum {
-                    self?.handleEthereumAccountInfo(
-                        chainAsset: chainAsset,
-                        item: item, completionBlock:
-                        completionBlock
-                    )
-                    return
-                }
-                switch chainAsset.chainAssetType {
-                case .normal:
-                    self?.handleAccountInfo(
-                        chainAsset: chainAsset,
-                        item: item,
-                        completionBlock: completionBlock
-                    )
-                case
-                    .ormlChain,
-                    .ormlAsset,
-                    .foreignAsset,
-                    .stableAssetPoolToken,
-                    .liquidCrowdloan,
-                    .vToken,
-                    .vsToken,
-                    .stable,
-                    .assetId,
-                    .token2,
-                    .xcm:
-                    self?.handleOrmlAccountInfo(
-                        chainAsset: chainAsset,
-                        item: item,
-                        completionBlock: completionBlock
-                    )
-                case .equilibrium:
-                    self?.handleEquilibrium(
-                        chainAsset: chainAsset,
-                        accountId: accountId,
-                        item: item,
-                        completionBlock: completionBlock
-                    )
-                case .assets:
-                    self?.handleAssetAccount(
-                        chainAsset: chainAsset,
-                        item: item,
-                        completionBlock: completionBlock
-                    )
-                case .soraAsset:
-                    if chainAsset.isUtility {
+
+                switch chainAsset.chain.ecosystem {
+                case .substrate, .ethereumBased:
+                    switch chainAsset.chainAssetType.substrateAssetType {
+                    case .normal:
                         self?.handleAccountInfo(
                             chainAsset: chainAsset,
                             item: item,
                             completionBlock: completionBlock
                         )
-                    } else {
+                    case
+                        .ormlChain,
+                        .ormlAsset,
+                        .foreignAsset,
+                        .stableAssetPoolToken,
+                        .liquidCrowdloan,
+                        .vToken,
+                        .vsToken,
+                        .stable,
+                        .assetId,
+                        .token2,
+                        .xcm:
                         self?.handleOrmlAccountInfo(
                             chainAsset: chainAsset,
                             item: item,
                             completionBlock: completionBlock
                         )
+                    case .equilibrium:
+                        self?.handleEquilibrium(
+                            chainAsset: chainAsset,
+                            accountId: accountId,
+                            item: item,
+                            completionBlock: completionBlock
+                        )
+                    case .assets:
+                        self?.handleAssetAccount(
+                            chainAsset: chainAsset,
+                            item: item,
+                            completionBlock: completionBlock
+                        )
+                    case .soraAsset:
+                        if chainAsset.isUtility {
+                            self?.handleAccountInfo(
+                                chainAsset: chainAsset,
+                                item: item,
+                                completionBlock: completionBlock
+                            )
+                        } else {
+                            self?.handleOrmlAccountInfo(
+                                chainAsset: chainAsset,
+                                item: item,
+                                completionBlock: completionBlock
+                            )
+                        }
+                    case .none:
+                        break
                     }
-                case .none:
-                    break
+                case .ethereum, .ton:
+                    self?.handleEthereumAccountInfo(
+                        chainAsset: chainAsset,
+                        item: item, completionBlock:
+                        completionBlock
+                    )
                 }
             default:
                 completionBlock(chainAsset, nil)
@@ -266,101 +268,102 @@ private extension AccountInfoFetching {
             return ClosureOperation { [:] }
         }
 
-        if chainAsset.chain.isEthereum {
+        switch chainAsset.chain.ecosystem {
+        case .substrate, .ethereumBased:
+            let chainAssetType = chainAsset.chainAssetType.substrateAssetType.map { type in
+                guard type == .soraAsset else {
+                    return type
+                }
+
+                /* Sora assets logic */
+                if chainAsset.isUtility {
+                    return .normal
+                } else {
+                    return .soraAsset
+                }
+            }
+            switch chainAssetType {
+            case .none:
+                return ClosureOperation { [chainAsset: nil] }
+            case .normal:
+                guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = createDecodingOperation(
+                    for: accountInfoStorageWrapper.data,
+                    chainAsset: chainAsset,
+                    storagePath: .account
+                ) else {
+                    return ClosureOperation { [chainAsset: nil] }
+                }
+
+                let operation = createNormalMappingOperation(
+                    chainAsset: chainAsset,
+                    dependingOn: decodingOperation
+                )
+
+                return operation
+            case
+                .ormlChain,
+                .ormlAsset,
+                .foreignAsset,
+                .stableAssetPoolToken,
+                .liquidCrowdloan,
+                .vToken,
+                .vsToken,
+                .stable,
+                .soraAsset,
+                .assetId,
+                .token2,
+                .xcm:
+                guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = createDecodingOperation(
+                    for: accountInfoStorageWrapper.data,
+                    chainAsset: chainAsset,
+                    storagePath: .tokens
+                ) else {
+                    return ClosureOperation { [chainAsset: nil] }
+                }
+
+                let operation = createOrmlMappingOperation(
+                    chainAsset: chainAsset,
+                    dependingOn: decodingOperation
+                )
+
+                return operation
+            case .equilibrium:
+                guard let decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?> = createDecodingOperation(
+                    for: accountInfoStorageWrapper.data,
+                    chainAsset: chainAsset,
+                    storagePath: chainAsset.storagePath
+                ) else {
+                    return ClosureOperation { [chainAsset: nil] }
+                }
+
+                let operation = createEquilibriumMappingOperation(
+                    chainAsset: chainAsset,
+                    dependingOn: decodingOperation
+                )
+
+                return operation
+            case .assets:
+                guard let decodingOperation: StorageDecodingOperation<AssetAccount?> = createDecodingOperation(
+                    for: accountInfoStorageWrapper.data,
+                    chainAsset: chainAsset,
+                    storagePath: .assetsAccount
+                ) else {
+                    return ClosureOperation { [chainAsset: nil] }
+                }
+
+                let operation = createAssetMappingOperation(
+                    chainAsset: chainAsset,
+                    dependingOn: decodingOperation
+                )
+
+                return operation
+            }
+        case .ethereum, .ton:
             return ClosureOperation {
                 let accountInfo = try JSONDecoder().decode(AccountInfo?.self, from: accountInfoStorageWrapper.data)
 
                 return [chainAsset: accountInfo]
             }
-        }
-
-        let chainAssetType = chainAsset.chainAssetType.map { type in
-            guard type == .soraAsset else {
-                return type
-            }
-
-            /* Sora assets logic */
-            if chainAsset.isUtility {
-                return .normal
-            } else {
-                return .soraAsset
-            }
-        }
-        switch chainAssetType {
-        case .none:
-            return ClosureOperation { [chainAsset: nil] }
-        case .normal:
-            guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = createDecodingOperation(
-                for: accountInfoStorageWrapper.data,
-                chainAsset: chainAsset,
-                storagePath: .account
-            ) else {
-                return ClosureOperation { [chainAsset: nil] }
-            }
-
-            let operation = createNormalMappingOperation(
-                chainAsset: chainAsset,
-                dependingOn: decodingOperation
-            )
-
-            return operation
-        case
-            .ormlChain,
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .soraAsset,
-            .assetId,
-            .token2,
-            .xcm:
-            guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = createDecodingOperation(
-                for: accountInfoStorageWrapper.data,
-                chainAsset: chainAsset,
-                storagePath: .tokens
-            ) else {
-                return ClosureOperation { [chainAsset: nil] }
-            }
-
-            let operation = createOrmlMappingOperation(
-                chainAsset: chainAsset,
-                dependingOn: decodingOperation
-            )
-
-            return operation
-        case .equilibrium:
-            guard let decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?> = createDecodingOperation(
-                for: accountInfoStorageWrapper.data,
-                chainAsset: chainAsset,
-                storagePath: chainAsset.storagePath
-            ) else {
-                return ClosureOperation { [chainAsset: nil] }
-            }
-
-            let operation = createEquilibriumMappingOperation(
-                chainAsset: chainAsset,
-                dependingOn: decodingOperation
-            )
-
-            return operation
-        case .assets:
-            guard let decodingOperation: StorageDecodingOperation<AssetAccount?> = createDecodingOperation(
-                for: accountInfoStorageWrapper.data,
-                chainAsset: chainAsset,
-                storagePath: .assetsAccount
-            ) else {
-                return ClosureOperation { [chainAsset: nil] }
-            }
-
-            let operation = createAssetMappingOperation(
-                chainAsset: chainAsset,
-                dependingOn: decodingOperation
-            )
-
-            return operation
         }
     }
 

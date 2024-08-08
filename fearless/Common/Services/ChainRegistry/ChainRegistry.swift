@@ -15,15 +15,19 @@ protocol ChainRegistryProtocol: AnyObject {
     func resetConnection(for chainId: ChainModel.Id)
     func retryConnection(for chainId: ChainModel.Id)
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
-    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
-    func getChain(for chainId: ChainModel.Id) -> ChainModel?
+    func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
+
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
-    func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth?
     func chainsUnsubscribe(_ target: AnyObject)
+
+    func getTonApiAssembly() throws -> TonAPIAssembly
+
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
+    func getChain(for chainId: ChainModel.Id) -> ChainModel?
     func syncUp()
     func performHotBoot()
     func performColdBoot()
@@ -52,6 +56,8 @@ final class ChainRegistry {
     private var ethereumConnectionPool: EthereumConnectionPool? {
         connectionPools.first(where: { $0 is EthereumConnectionPool }) as? EthereumConnectionPool
     }
+
+    private(set) var tonApiAssembly: TonAPIAssembly?
 
     // MARK: - State
 
@@ -124,18 +130,24 @@ final class ChainRegistry {
     // MARK: - Private DataProviderChange handle methods
 
     private func handleInsert(_ chain: ChainModel) throws {
-        if chain.isEthereum {
-            try handleNewEthereumChain(newChain: chain)
-        } else {
+        switch chain.ecosystem {
+        case .substrate, .ethereumBased:
             try handleNewSubstrateChain(newChain: chain)
+        case .ethereum:
+            try handleNewEthereumChain(newChain: chain)
+        case .ton:
+            handle(ton: chain)
         }
     }
 
     private func handleUpdate(_ chain: ChainModel) throws {
-        if chain.isEthereum {
-            try handleUpdatedEthereumChain(updatedChain: chain)
-        } else {
+        switch chain.ecosystem {
+        case .substrate, .ethereumBased:
             try handleUpdatedSubstrateChain(updatedChain: chain)
+        case .ethereum:
+            try handleUpdatedEthereumChain(updatedChain: chain)
+        case .ton:
+            handle(ton: chain)
         }
     }
 
@@ -144,10 +156,11 @@ final class ChainRegistry {
             return
         }
 
-        if removedChain.isEthereum {
-            handleDeletedEthereumChain(chainId: chainId)
-        } else {
+        switch removedChain.ecosystem {
+        case .substrate, .ethereumBased:
             handleDeletedSubstrateChain(chainId: chainId)
+        case .ethereum, .ton:
+            handleDeletedChain(chainId: chainId)
         }
     }
 
@@ -238,15 +251,29 @@ final class ChainRegistry {
         chains.append(updatedChain)
     }
 
-    private func handleDeletedEthereumChain(chainId: ChainModel.Id) {
-        chains = chains.filter { $0.chainId != chainId }
-    }
-
     private func resetEthereumConnection(for _: ChainModel.Id) {
         // TODO: Reset eth connection
     }
 
+    // MARK: - Private Ton methods
+
+    private func handle(ton chain: ChainModel) {
+        chains.append(chain)
+        guard
+            let node = chain.nodes.first,
+            node.url != tonApiAssembly?.tonAPIURL
+        else {
+            return
+        }
+        let apiAssembly = TonAPIAssembly(tonAPIURL: node.url)
+        tonApiAssembly = apiAssembly
+    }
+
     // MARK: - Private others methods
+
+    private func handleDeletedChain(chainId: ChainModel.Id) {
+        chains = chains.filter { $0.chainId != chainId }
+    }
 
     private func syncUpServices() {
         chainSyncService.syncUp()
@@ -258,7 +285,7 @@ final class ChainRegistry {
 
 extension ChainRegistry: ChainRegistryProtocol {
     var availableChainIds: Set<ChainModel.Id>? {
-        readLock.concurrentlyRead { Set(runtimeVersionSubscriptions.keys + chains.filter { $0.isEthereum }.map { $0.chainId }) }
+        readLock.concurrentlyRead { Set(chains.map { $0.chainId }) }
     }
 
     var availableChains: [ChainModel] {
@@ -375,21 +402,28 @@ extension ChainRegistry: ChainRegistryProtocol {
             return
         }
 
-        if chain.isEthereum {
-            resetEthereumConnection(for: chain.chainId)
-        } else {
+        switch chain.ecosystem {
+        case .substrate, .ethereumBased:
             resetSubstrateConnection(for: chain.chainId)
+        case .ethereum:
+            resetEthereumConnection(for: chain.chainId)
+        case .ton:
+            break
         }
     }
 
     func retryConnection(for chainId: ChainModel.Id) {
-        guard
-            let chain = chains.first(where: { $0.chainId == chainId }),
-            let currentConnection = getConnection(for: chainId)
-        else {
+        guard let currentConnection = getConnection(for: chainId) else {
             return
         }
         currentConnection.connectIfNeeded()
+    }
+
+    func getTonApiAssembly() throws -> TonAPIAssembly {
+        guard let tonApiAssembly else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+        return tonApiAssembly
     }
 }
 

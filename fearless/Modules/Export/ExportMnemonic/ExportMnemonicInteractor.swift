@@ -43,10 +43,11 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                     KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
                 let derivationPath: String? = try keystore.fetchDeriviationForAddress(derivationPathTag)
 
+                let isEthereum = chainAccount.account.ecosystem.isEthereum || chainAccount.account.ecosystem.isEthereumBased
                 let data = ExportMnemonicData(
                     mnemonic: mnemonic,
                     derivationPath: derivationPath,
-                    cryptoType: chainAccount.account.isEthereumBased ? nil : chainAccount.account.cryptoType,
+                    cryptoType: isEthereum ? nil : chainAccount.account.cryptoType,
                     chain: chainAccount.chain
                 )
 

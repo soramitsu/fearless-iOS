@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 protocol StakingMainRelaychainStrategyOutput: AnyObject {
     func didReceive(totalReward: Result<TotalRewardItem, Error>)

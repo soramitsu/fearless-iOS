@@ -4,6 +4,7 @@ import SSFUtils
 import IrohaCrypto
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 typealias ExtrinsicBuilderClosure = (ExtrinsicBuilderProtocol) throws -> (ExtrinsicBuilderProtocol)
 typealias ExtrinsicBuilderIndexedClosure = (ExtrinsicBuilderProtocol, Int) throws -> (ExtrinsicBuilderProtocol)
@@ -96,22 +97,6 @@ final class ExtrinsicOperationFactory {
     let engine: JSONRPCEngine
     let eraOperationFactory: ExtrinsicEraOperationFactoryProtocol
 
-    @available(*, deprecated, message: "Use init(accountId:cryptoType:) instead")
-    init(
-        address: String,
-        cryptoType _: CryptoType,
-        runtimeRegistry: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine,
-        eraOperationFactory: ExtrinsicEraOperationFactoryProtocol = MortalEraOperationFactory()
-    ) {
-        accountId = (try? address.toAccountId()) ?? Data(repeating: 0, count: 32)
-        chainFormat = .ethereum
-        cryptoType = .ecdsa
-        self.runtimeRegistry = runtimeRegistry
-        self.engine = engine
-        self.eraOperationFactory = eraOperationFactory
-    }
-
     init(
         accountId: AccountId,
         chainFormat: ChainFormat,
@@ -197,9 +182,9 @@ final class ExtrinsicOperationFactory {
             let era = try eraWrapper.targetOperation.extractNoCancellableResultData().extrinsicEra
             let eraBlockHash = try eraBlockOperation.extractNoCancellableResultData()
 
-            let account: MultiAddress = codingFactory.metadata.multiAddressParameter(
+            let account: MultiAddress = try codingFactory.metadata.multiAddressParameter(
                 accountId: currentAccountId,
-                chainFormat: currentChainFormat.asSfCrypto()
+                chainFormat: currentChainFormat
             )
             let extrinsics: [Data] = try (0 ..< numberOfExtrinsics).map { index in
                 var builder: ExtrinsicBuilderProtocol =

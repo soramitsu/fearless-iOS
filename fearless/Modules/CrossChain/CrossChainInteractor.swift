@@ -4,6 +4,7 @@ import RobinHood
 import BigInt
 import SSFExtrinsicKit
 import SSFModels
+import SSFCrypto
 
 protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveAccountInfo(

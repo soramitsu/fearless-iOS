@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias NftCollectionModuleCreationResult = (view: NftCollectionViewInput, input: NftCollectionModuleInput)
 
 protocol NftCollectionViewInput: ControllerBackedProtocol {

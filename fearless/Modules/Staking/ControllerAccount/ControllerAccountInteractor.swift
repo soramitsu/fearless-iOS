@@ -5,6 +5,7 @@ import IrohaCrypto
 import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!

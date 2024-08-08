@@ -5,6 +5,7 @@ import IrohaCrypto
 import SSFUtils
 import SoraFoundation
 import SSFModels
+import SSFCrypto
 
 extension AssetTransactionData {
     static func createTransaction(

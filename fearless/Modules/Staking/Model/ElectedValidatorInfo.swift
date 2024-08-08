@@ -1,5 +1,7 @@
 import Foundation
 import IrohaCrypto
+import SSFModels
+import SSFCrypto
 
 struct ElectedValidatorInfo: Equatable, Hashable, Recommendable {
     let address: String

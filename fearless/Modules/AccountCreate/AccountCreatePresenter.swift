@@ -267,7 +267,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 username: usernameSetup.username,
                 derivationPath: model.chain.isEthereumBased ? ethereumDerivationPath : substrateDerivationPath,
                 cryptoType: model.chain.isEthereumBased ? .ecdsa : selectedCryptoType,
-                isEthereum: model.chain.isEthereumBased,
+                ecosystem: model.chain.ecosystem,
                 meta: model.meta,
                 chainId: model.chain.chainId
             )

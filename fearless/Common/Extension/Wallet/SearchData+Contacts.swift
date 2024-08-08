@@ -1,5 +1,5 @@
 import Foundation
-
+import SSFCrypto
 import IrohaCrypto
 import SSFModels
 

@@ -3,6 +3,7 @@ import IrohaCrypto
 import SSFUtils
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class AccountImportInteractor: BaseAccountImportInteractor {
     private(set) var settings: SelectedWalletSettings

@@ -142,6 +142,8 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 self.wireframe.present(from: view, url: url)
             case let .reefscan(url):
                 self.wireframe.present(from: view, url: url)
+            case let .tonviewer(url):
+                self.wireframe.present(from: view, url: url)
             case .replace:
                 let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
                 let options: [ReplaceChainOption] = ReplaceChainOption.allCases
@@ -229,6 +231,10 @@ private extension WalletDetailsPresenter {
                 case .oklink:
                     if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
                         return .oklink(url: url)
+                    }
+                case .tonviewer:
+                    if $0.types.contains(.tonAccount), let url = $0.explorerUrl(for: address, type: .tonAccount) {
+                        return .tonviewer(url: url)
                     }
                 }
                 return nil

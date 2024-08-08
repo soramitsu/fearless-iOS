@@ -2,6 +2,7 @@ import UIKit
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SSFModels
 
 class BaseAccountConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!

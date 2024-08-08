@@ -5,6 +5,7 @@ import RobinHood
 import BigInt
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 struct TransactionSubscriptionResult {
     let processingResult: ExtrinsicProcessingResult

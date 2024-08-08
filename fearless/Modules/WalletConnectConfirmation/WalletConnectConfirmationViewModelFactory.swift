@@ -31,7 +31,7 @@ final class WalletConnectConfirmationViewModelFactoryImpl: WalletConnectConfirma
             hex: inputData.chain.utilityAssets().first?.color
         )?.cgColor
         let symbolViewModel = SymbolViewModel(
-            symbolViewModel: RemoteImageViewModel(url: inputData.chain.icon),
+            iconViewModel: RemoteImageViewModel(url: inputData.chain.icon),
             shadowColor: originShadowColor
         )
 

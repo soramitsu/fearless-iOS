@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SoraKeystore
 import SSFCloudStorage
+import SSFModels
 
 final class BackupWalletAssembly {
     static func configureModule(

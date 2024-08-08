@@ -24,12 +24,12 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         )
     }
 
-    func presentSendFlow(
+    @MainActor func presentSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let controller = SendAssembly.configureModule(
+        guard let controller = TransferAssembly.configureModule(
             wallet: wallet,
             initialData: .chainAsset(chainAsset)
         )?.view.controller else {

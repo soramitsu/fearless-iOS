@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 final class WalletNameAssembly {
     static func configureModule(with wallet: MetaAccountModel?) -> WalletNameModuleCreationResult? {

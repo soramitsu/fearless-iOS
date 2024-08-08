@@ -4,6 +4,7 @@ import IrohaCrypto
 import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol SlashesOperationFactoryProtocol {
     func createSlashingSpansOperationForStash(

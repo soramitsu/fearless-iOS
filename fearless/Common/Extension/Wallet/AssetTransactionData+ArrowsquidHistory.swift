@@ -4,6 +4,7 @@ import BigInt
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import SSFCrypto
 
 extension AssetTransactionData {
     static func createTransaction(

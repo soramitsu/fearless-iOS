@@ -3,6 +3,7 @@ import RobinHood
 import BigInt
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol StakingPayoutConfirmationrelaychainStrategyOutput {
     func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal)

@@ -20,7 +20,7 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let dependencyContainer: ChainAssetListDependencyContainer
-    private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private let remoteBalanceService: AccountInfoRemoteService
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
@@ -30,6 +30,7 @@ final class ChainAssetListInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     private let chainRegistry: ChainRegistryProtocol
+    private let logger: LoggerProtocol
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -47,12 +48,13 @@ final class ChainAssetListInteractor {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoFetchingProvider: AccountInfoFetching,
         dependencyContainer: ChainAssetListDependencyContainer,
-        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        remoteBalanceService: AccountInfoRemoteService,
         chainAssetFetching: ChainAssetFetchingProtocol,
         userDefaultsStorage: SettingsManagerProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AsyncAnyRepository<ChainSettings>,
-        chainRegistry: ChainRegistryProtocol
+        chainRegistry: ChainRegistryProtocol,
+        logger: LoggerProtocol
     ) {
         self.wallet = wallet
         self.priceLocalSubscriber = priceLocalSubscriber
@@ -60,12 +62,13 @@ final class ChainAssetListInteractor {
         self.accountRepository = accountRepository
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.dependencyContainer = dependencyContainer
-        self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
+        self.remoteBalanceService = remoteBalanceService
         self.chainAssetFetching = chainAssetFetching
         self.userDefaultsStorage = userDefaultsStorage
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
         self.chainRegistry = chainRegistry
+        self.logger = logger
     }
 
     // MARK: - Private methods
@@ -176,7 +179,13 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
                 self?.accountInfoFetchingProvider.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
-                    self?.ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { _ in }
+                    Task {
+                        do {
+                            _ = try await strongSelf.remoteBalanceService.fetchAccountInfos(for: chainAssets, wallet: strongSelf.wallet)
+                        } catch {
+                            strongSelf.logger.customError(error)
+                        }
+                    }
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
                 }
@@ -217,7 +226,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             self?.remoteFetchTimer = nil
         })
 
-        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
+//        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
     }
 
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
@@ -283,7 +292,8 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
-            output?.updateViewModel(isInitSearchState: false)
+//            output?.updateViewModel(isInitSearchState: false)
+            updateChainAssets(using: filters, sorts: sorts, useCashe: false)
         }
 
         if wallet.unusedChainIds != event.account.unusedChainIds {

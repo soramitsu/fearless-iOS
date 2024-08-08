@@ -21,7 +21,7 @@ final class StakingRewardsFetcherAssembly {
             return SoraStakingRewardsFetcher(chain: chain)
         case .reef:
             return ReefStakingRewardsFetcher(chain: chain)
-        case .alchemy, .etherscan, .oklink, .zeta:
+        case .alchemy, .etherscan, .oklink, .zeta, .ton:
             throw StakingRewardsFetcherError.missingBlockExplorer(chain: chain.name)
         }
     }

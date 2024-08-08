@@ -5,13 +5,9 @@ import SSFModels
 extension ChainAsset {
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
 
-    var identifier: String {
-        [chain.identifier, asset.id].joined(separator: " : ")
-    }
-
     var storagePath: StorageCodingPath {
         var storagePath: StorageCodingPath
-        switch chainAssetType {
+        switch chainAssetType.substrateAssetType {
         case .normal, .equilibrium, .none:
             storagePath = StorageCodingPath.account
         case

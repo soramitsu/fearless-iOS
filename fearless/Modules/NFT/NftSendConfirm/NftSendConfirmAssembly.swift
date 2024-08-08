@@ -4,6 +4,7 @@ import SSFUtils
 import SSFModels
 import SoraKeystore
 import Web3
+import SSFAccountManagment
 
 final class NftSendConfirmAssembly {
     static func configureModule(
@@ -66,8 +67,8 @@ final class NftSendConfirmAssembly {
         }
         let keystore = Keychain()
 
-        switch chain.chainBaseType {
-        case .substrate:
+        switch chain.ecosystem {
+        case .substrate, .ethereumBased:
             throw NftSendAssemblyError.substrateNftNotImplemented
         case .ethereum:
             let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
@@ -89,6 +90,8 @@ final class NftSendConfirmAssembly {
                 senderAddress: address,
                 logger: Logger.shared
             )
+        case .ton:
+            throw NftSendAssemblyError.tonNftNotImplemented
         }
     }
 }

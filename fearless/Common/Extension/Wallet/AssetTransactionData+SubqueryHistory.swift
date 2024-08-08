@@ -1,5 +1,5 @@
 import Foundation
-
+import SSFCrypto
 import BigInt
 import IrohaCrypto
 import SSFUtils

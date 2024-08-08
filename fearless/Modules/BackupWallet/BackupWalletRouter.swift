@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class BackupWalletRouter: BackupWalletRouterInput {
     func showMnemonicExport(

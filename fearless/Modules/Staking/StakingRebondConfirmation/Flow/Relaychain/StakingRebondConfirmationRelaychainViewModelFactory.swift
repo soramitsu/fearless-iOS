@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import SSFModels
+import SSFCrypto
 
 final class StakingRebondConfirmationRelaychainViewModelFactory: StakingRebondConfirmationViewModelFactoryProtocol {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol

@@ -1,5 +1,6 @@
 import UIKit
 import IrohaCrypto
+import SSFModels
 
 final class ExportMnemonicConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!

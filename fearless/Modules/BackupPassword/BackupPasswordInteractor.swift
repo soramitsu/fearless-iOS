@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import SSFCloudStorage
+import SSFModels
 
 protocol BackupPasswordInteractorOutput: AnyObject {
     func didReceiveBackup(result: Result<OpenBackupAccount, Error>)

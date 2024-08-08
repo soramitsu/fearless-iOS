@@ -1,4 +1,5 @@
 import UIKit
+import SSFAccountManagment
 import SoraFoundation
 import SSFModels
 import SoraKeystore
@@ -8,6 +9,7 @@ import SSFUtils
 
 enum NftSendAssemblyError: Error {
     case substrateNftNotImplemented
+    case tonNftNotImplemented
 }
 
 enum NftSendAssembly {
@@ -65,7 +67,7 @@ enum NftSendAssembly {
                 wallet: wallet,
                 logger: Logger.shared,
                 viewModelFactory:
-                SendViewModelFactory(iconGenerator: UniversalIconGenerator()),
+                SendViewModelFactory(wallet: wallet, iconGenerator: UniversalIconGenerator()),
                 dataValidatingFactory: dataValidatingFactory
             )
 
@@ -89,8 +91,8 @@ enum NftSendAssembly {
         }
         let keystore = Keychain()
 
-        switch chain.chainBaseType {
-        case .substrate:
+        switch chain.ecosystem {
+        case .substrate, .ethereumBased:
             throw NftSendAssemblyError.substrateNftNotImplemented
         case .ethereum:
             let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
@@ -112,6 +114,8 @@ enum NftSendAssembly {
                 senderAddress: address,
                 logger: Logger.shared
             )
+        case .ton:
+            throw NftSendAssemblyError.substrateNftNotImplemented
         }
     }
 }

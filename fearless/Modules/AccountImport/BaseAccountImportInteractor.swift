@@ -120,7 +120,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 username: request.username,
                 derivationPath: data.derivationPath,
                 cryptoType: request.cryptoType,
-                isEthereum: request.chain.isEthereumBased,
+                ecosystem: request.chain.ecosystem,
                 meta: request.meta,
                 chainId: request.chain.chainId
             )
@@ -131,7 +131,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 username: request.username,
                 derivationPath: data.derivationPath,
                 cryptoType: request.cryptoType,
-                isEthereum: request.chain.isEthereumBased,
+                ecosystem: request.chain.ecosystem,
                 meta: request.meta,
                 chainId: request.chain.chainId
             )
@@ -142,7 +142,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 password: data.password,
                 username: request.username,
                 cryptoType: request.cryptoType,
-                isEthereum: request.chain.isEthereumBased,
+                ecosystem: request.chain.ecosystem,
                 meta: request.meta,
                 chainId: request.chain.chainId
             )

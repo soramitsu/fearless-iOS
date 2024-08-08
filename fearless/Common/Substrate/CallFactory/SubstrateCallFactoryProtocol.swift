@@ -27,7 +27,8 @@ protocol SubstrateCallFactoryProtocol {
     func nominate(targets: [SelectedValidatorInfo], chainAsset: ChainAsset) throws -> any RuntimeCallable
     func poolNominate(
         poolId: UInt32,
-        targets: [SelectedValidatorInfo]
+        targets: [SelectedValidatorInfo],
+        chainFormat: ChainFormat
     ) throws -> any RuntimeCallable
     func payout(validatorId: Data, era: EraIndex) throws -> any RuntimeCallable
     func setPayee(for destination: RewardDestinationArg) -> any RuntimeCallable

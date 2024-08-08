@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias WalletOptionModuleCreationResult = (view: WalletOptionViewInput, input: WalletOptionModuleInput)
 
 protocol WalletOptionViewInput: ControllerBackedProtocol {

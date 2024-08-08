@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SoraUI
+import SSFModels
 
 final class SelectCurrencyAssembly {
     static func configureModule(

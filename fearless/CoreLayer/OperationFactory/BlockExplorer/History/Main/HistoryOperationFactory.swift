@@ -32,6 +32,8 @@ final class HistoryOperationFactoriesAssembly {
             return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
         case .zeta:
             return ZetaHistoryOperationFactory()
+        case .ton:
+            return TonHistoryOperationFactory()
         case .none:
             return nil
         }

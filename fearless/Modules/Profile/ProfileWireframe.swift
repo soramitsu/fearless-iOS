@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()

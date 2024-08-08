@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import IrohaCrypto
 import SSFModels
+import SSFCrypto
 
 enum AccountExportPasswordInteractorError: Error {
     case missingAccount

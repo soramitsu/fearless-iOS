@@ -15,7 +15,6 @@ final class AccountInfoUpdatingService {
     private(set) var selectedMetaAccount: MetaAccountModel
     private let chainRegistry: ChainRegistryProtocol
     private let substrateRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
-    private let ethereumRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private var chains: [ChainModel.Id: ChainModel] = [:]
@@ -36,14 +35,12 @@ final class AccountInfoUpdatingService {
         selectedAccount: MetaAccountModel,
         chainRegistry: ChainRegistryProtocol,
         remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
-        ethereumRemoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol,
         logger: LoggerProtocol?,
         eventCenter: EventCenterProtocol
     ) {
         selectedMetaAccount = selectedAccount
         self.chainRegistry = chainRegistry
         substrateRemoteSubscriptionService = remoteSubscriptionService
-        self.ethereumRemoteSubscriptionService = ethereumRemoteSubscriptionService
         self.logger = logger
         self.eventCenter = eventCenter
     }
@@ -51,14 +48,6 @@ final class AccountInfoUpdatingService {
     private func removeAllSubscriptions() {
         for chainAssetKey in subscribedChains.keys {
             removeSubscription(for: chainAssetKey)
-        }
-    }
-
-    private func getRemoteSubscriptionService(for chainAsset: ChainAsset) -> WalletRemoteSubscriptionServiceProtocol {
-        if chainAsset.chain.isEthereum {
-            return ethereumRemoteSubscriptionService
-        } else {
-            return substrateRemoteSubscriptionService
         }
     }
 
@@ -99,11 +88,11 @@ final class AccountInfoUpdatingService {
                 return
             }
 
-            guard !chainAsset.chain.isEthereum else {
+            guard chainAsset.chain.ecosystem.isSubstrate else {
                 return
             }
 
-            let maybeSubscriptionId = await getRemoteSubscriptionService(for: chainAsset).attachToAccountInfo(
+            let maybeSubscriptionId = await substrateRemoteSubscriptionService.attachToAccountInfo(
                 of: accountId,
                 chainAsset: chainAsset,
                 queue: nil,
@@ -142,7 +131,7 @@ final class AccountInfoUpdatingService {
             return
         }
 
-        getRemoteSubscriptionService(for: chainAsset).detachFromAccountInfo(
+        substrateRemoteSubscriptionService.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
             chainAssetKey: key,
             queue: nil

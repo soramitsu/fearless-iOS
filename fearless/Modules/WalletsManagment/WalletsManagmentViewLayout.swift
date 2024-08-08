@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SSFModels
 
 enum WalletsManagmentType {
     case wallets

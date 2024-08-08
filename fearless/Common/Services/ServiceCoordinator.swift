@@ -6,6 +6,7 @@ import SSFUtils
 import SSFChainRegistry
 import SSFNetwork
 import SSFStorageQueryKit
+import SSFModels
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -88,47 +89,21 @@ extension ServiceCoordinator {
             logger: logger
         )
 
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
             logger: logger,
             repository: repository,
             operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let ethereumWalletRemoteSubscription = EthereumWalletRemoteSubscriptionService(
-            chainRegistry: chainRegistry,
-            logger: logger,
-            repository: repository,
-            operationManager: OperationManagerFacade.sharedManager,
-            repositoryWrapper: ethereumBalanceRepositoryWrapper
         )
 
         let accountInfoService = AccountInfoUpdatingService(
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
             remoteSubscriptionService: walletRemoteSubscription,
-            ethereumRemoteSubscriptionService: ethereumWalletRemoteSubscription,
             logger: logger,
             eventCenter: EventCenter.shared
         )
 
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
-
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryWrapper
-        )
-
-        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
-            chainRegistry: chainRegistry
-        )
-
-        let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
-            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            storagePerformer: storagePerformer
-        )
-
+        let accountInfoRemote = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: selectedMetaAccount,
             chainRegistry: chainRegistry,

@@ -77,45 +77,45 @@ extension WalletLocalStorageSubscriber {
             return
         }
 
-        if chainAsset.chain.isEthereum {
-            handleEthereumAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
-            return
-        }
-
-        if chainAsset.chain.isSora, chainAsset.isUtility {
-            handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
-            return
-        }
-
-        switch chainAsset.chainAssetType {
-        case .normal:
-            handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
-
-        case
-            .ormlChain,
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .assetId,
-            .token2,
-            .xcm:
-            handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
-        case .equilibrium:
-            handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)
-        case .assets:
-            handleAssetAccount(for: accountId, chainAsset: chainAsset, item: item)
-        case .soraAsset:
-            if chainAsset.isUtility {
+        switch chainAsset.chain.ecosystem {
+        case .substrate, .ethereumBased:
+            if chainAsset.chain.isSora, chainAsset.isUtility {
                 handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
-            } else {
-                handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+                return
             }
-        case .none:
-            break
+
+            switch chainAsset.chainAssetType.substrateAssetType {
+            case .normal:
+                handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+
+            case
+                .ormlChain,
+                .ormlAsset,
+                .foreignAsset,
+                .stableAssetPoolToken,
+                .liquidCrowdloan,
+                .vToken,
+                .vsToken,
+                .stable,
+                .assetId,
+                .token2,
+                .xcm:
+                handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+            case .equilibrium:
+                handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)
+            case .assets:
+                handleAssetAccount(for: accountId, chainAsset: chainAsset, item: item)
+            case .soraAsset:
+                if chainAsset.isUtility {
+                    handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+                } else {
+                    handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+                }
+            case .none:
+                break
+            }
+        case .ethereum, .ton:
+            handleEthereumAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
         }
     }
 

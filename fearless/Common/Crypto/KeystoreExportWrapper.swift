@@ -43,9 +43,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         accountId: AccountId?,
         genesisHash: String?
     ) throws -> Data {
-        let secretKeyTag = chainAccount.isEthereumBased
-            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
-            : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+        let secretKeyTag = KeystoreTagV2.secretKeyTag(for: chainAccount.ecosystem, metaId: metaId, accountId: accountId)
 
         let secretKey = try keystore.fetchKey(for: secretKeyTag)
 
@@ -69,7 +67,7 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
         let definition = try builder.build(
             from: keystoreData,
             password: password,
-            isEthereum: chainAccount.isEthereumBased
+            isEthereum: chainAccount.ecosystem.isEthereum || chainAccount.ecosystem.isEthereumBased
         )
 
         return try jsonEncoder.encode(definition)

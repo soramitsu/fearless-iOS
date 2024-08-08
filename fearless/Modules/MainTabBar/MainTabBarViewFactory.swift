@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
-
+import SSFModels
 import SSFUtils
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {

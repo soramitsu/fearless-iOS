@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 protocol BannersInteractorOutput: AnyObject {
     func didReceive(error: Error)

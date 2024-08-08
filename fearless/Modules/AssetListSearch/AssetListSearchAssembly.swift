@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 final class AssetListSearchAssembly {
     static func configureModule(wallet: MetaAccountModel) -> AssetListSearchModuleCreationResult? {

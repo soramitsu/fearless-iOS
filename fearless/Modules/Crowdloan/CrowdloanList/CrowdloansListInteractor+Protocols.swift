@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFAccountManagment
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {

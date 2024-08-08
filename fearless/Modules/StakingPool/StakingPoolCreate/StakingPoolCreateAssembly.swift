@@ -59,8 +59,7 @@ final class StakingPoolCreateAssembly {
 
         let existentialDepositService = ExistentialDepositService(
             operationManager: operationManager,
-            chainRegistry: chainRegistry,
-            chainId: chainAsset.chain.chainId
+            chainRegistry: chainRegistry
         )
 
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)

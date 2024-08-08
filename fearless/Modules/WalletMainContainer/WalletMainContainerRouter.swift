@@ -91,12 +91,12 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         view?.controller.present(module.view.controller, animated: true)
     }
 
-    func showSendFlow(
+    @MainActor func showSendFlow(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         initialData: SendFlowInitialData
     ) {
-        let sendModule = SendAssembly.configureModule(wallet: wallet, initialData: initialData)
+        let sendModule = TransferAssembly.configureModule(wallet: wallet, initialData: initialData)
         guard let controller = sendModule?.view.controller else {
             return
         }

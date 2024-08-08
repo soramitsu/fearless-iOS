@@ -1,4 +1,6 @@
 import Foundation
+import SSFModels
+
 typealias WalletsManagmentModuleCreationResult = (view: WalletsManagmentViewInput, input: WalletsManagmentModuleInput)
 
 protocol WalletsManagmentViewInput: ControllerBackedProtocol {

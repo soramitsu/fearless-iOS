@@ -103,8 +103,7 @@ final class StakingPoolManagementAssembly {
 
         let existentialDepositService = ExistentialDepositService(
             operationManager: operationManager,
-            chainRegistry: chainRegistry,
-            chainId: chainAsset.chain.chainId
+            chainRegistry: chainRegistry
         )
 
         let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)

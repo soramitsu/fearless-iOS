@@ -3,6 +3,7 @@ import RobinHood
 import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol StakingBalanceRelaychainStrategyOutput: AnyObject {
     func didReceive(ledgerResult: Result<StakingLedger?, Error>)

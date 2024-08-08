@@ -1,17 +1,10 @@
 import Foundation
 import UIKit
 import WalletConnectSign
+import SSFModels
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
     func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
-//        guard
-//            let tabBarController = view?.controller,
-//            let viewController = LiquidityPoolsOverviewAssembly.configureModule(wallet: wallet)?.view.controller
-//        else {
-//            return
-//        }
-//        let navigationController = FearlessNavigationController(rootViewController: viewController)
-
         guard
             let tabBarController = view?.controller,
             let viewController = PolkaswapAdjustmentAssembly.configureModule(chainAsset: nil, wallet: wallet)?.view.controller

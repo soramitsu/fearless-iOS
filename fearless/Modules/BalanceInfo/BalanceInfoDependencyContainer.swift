@@ -20,8 +20,7 @@ final class BalanceInfoDepencyContainer {
         let operationManager = OperationManagerFacade.sharedManager
         let existentialDepositService = ExistentialDepositService(
             operationManager: operationManager,
-            chainRegistry: chainRegistry,
-            chainId: chainAsset.chain.chainId
+            chainRegistry: chainRegistry
         )
         let balanceLocksFetcher = BalanceLocksFetchingFactory.buildBalanceLocksFetcher(for: chainAsset)
 

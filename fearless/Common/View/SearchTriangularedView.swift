@@ -11,7 +11,17 @@ final class SearchTriangularedView: UIView {
         static let pasteButtonSize: CGFloat = 76
     }
 
-    var isValid = false
+    var isValid: Bool? = false {
+        didSet {
+            guard let isValid else {
+                backgroundView.set(highlighted: false, animated: true)
+                return
+            }
+            let color = isValid ? .clear : R.color.colorRed()!
+            backgroundView.highlightedStrokeColor = color
+            backgroundView.set(highlighted: !isValid, animated: true)
+        }
+    }
 
     var onPasteTapped: (() -> Void)?
     private let withPasteButton: Bool
@@ -27,7 +37,6 @@ final class SearchTriangularedView: UIView {
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!
         view.strokeColor = R.color.colorWhite8()!
-        view.highlightedStrokeColor = R.color.colorPink()!
         view.strokeWidth = 0.5
         view.shadowOpacity = 0
         return view

@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class ChainAssetListAssembly {
     static func configureModule(
@@ -26,15 +27,6 @@ final class ChainAssetListAssembly {
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let dependencyContainer = ChainAssetListDependencyContainer()
 
-        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
-            logger: Logger.shared,
-            repository: accountInfoRepository,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
-        )
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -60,6 +52,7 @@ final class ChainAssetListAssembly {
             accountInfoFetcher: accountInfoFetcher
         )
 
+        let remoteBalanceService = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let interactor = ChainAssetListInteractor(
@@ -69,12 +62,13 @@ final class ChainAssetListAssembly {
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer,
-            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            remoteBalanceService: remoteBalanceService,
             chainAssetFetching: chainAssetFetching,
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
-            chainRegistry: ChainRegistryFacade.sharedRegistry
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            logger: Logger.shared
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import Kingfisher
+import SSFModels
 
 final class NftDetailsPresenter {
     // MARK: Private properties

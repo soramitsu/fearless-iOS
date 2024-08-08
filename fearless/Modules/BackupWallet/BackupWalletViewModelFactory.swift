@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFCloudStorage
 import SSFModels
+import SSFCrypto
 
 protocol BackupWalletViewModelFactoryProtocol {
     func createViewModel(

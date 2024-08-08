@@ -17,11 +17,11 @@ struct AccountInfo: Codable, Equatable {
     @StringCodable var providers: UInt32
     let data: AccountData
 
-    init(ethBalance: BigUInt) {
+    init(balance: BigUInt) {
         nonce = 0
         consumers = 0
         providers = 0
-        data = AccountData(ethBalance: ethBalance)
+        data = AccountData(ethBalance: balance)
     }
 
     init(nonce: UInt32, consumers: UInt32, providers: UInt32, data: AccountData) {

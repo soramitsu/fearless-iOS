@@ -187,8 +187,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let existentialDepositService = ExistentialDepositService(
             operationManager: operationManager,
-            chainRegistry: chainRegistry,
-            chainId: chainAsset.chain.chainId
+            chainRegistry: chainRegistry
         )
 
         switch flow {

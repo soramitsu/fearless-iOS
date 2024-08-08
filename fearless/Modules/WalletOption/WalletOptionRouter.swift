@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class WalletOptionRouter: WalletOptionRouterInput {
     func showExportWallet(from view: ControllerBackedProtocol?, wallet: ManagedMetaAccountModel) {

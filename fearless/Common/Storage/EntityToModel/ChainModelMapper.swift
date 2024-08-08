@@ -5,6 +5,10 @@ import SSFModels
 import SSFUtils
 
 final class ChainModelMapper {
+    enum MapperError: Error {
+        case missingEcosystem
+    }
+
     var entityIdentifierFieldName: String { #keyPath(CDChain.chainId) }
 
     typealias DataProviderModel = ChainModel
@@ -50,6 +54,10 @@ final class ChainModelMapper {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
+        guard let assetType = ChainAssetType(storageValue: entity.type) else {
+            return nil
+        }
+
         return AssetModel(
             id: id,
             name: name,
@@ -65,8 +73,7 @@ final class ChainModelMapper {
             isNative: entity.isNative,
             staking: staking,
             purchaseProviders: purchaseProviders,
-            type: createChainAssetModelType(from: entity.type),
-            ethereumType: createEthereumAssetType(from: entity.ethereumType),
+            assetType: assetType,
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId
         )
@@ -106,11 +113,10 @@ final class ChainModelMapper {
             assetEntity.color = $0.color
             assetEntity.name = $0.name
             assetEntity.currencyId = $0.currencyId
-            assetEntity.type = $0.type?.rawValue
+            assetEntity.type = $0.assetType.rawValue
             assetEntity.isUtility = $0.isUtility
             assetEntity.isNative = $0.isNative
             assetEntity.staking = $0.staking?.rawValue
-            assetEntity.ethereumType = $0.ethereumType?.rawValue
 
             let priceProviderContext = CDPriceProvider(context: context)
             priceProviderContext.type = $0.priceProvider?.type.rawValue
@@ -388,22 +394,6 @@ final class ChainModelMapper {
         entity.pricingApiUrl = apis?.pricing?.url
     }
 
-    private func createChainAssetModelType(from rawValue: String?) -> SubstrateAssetType? {
-        guard let rawValue = rawValue else {
-            return nil
-        }
-
-        return SubstrateAssetType(rawValue: rawValue)
-    }
-
-    private func createEthereumAssetType(from rawValue: String?) -> EthereumAssetType? {
-        guard let rawValue = rawValue else {
-            return nil
-        }
-
-        return EthereumAssetType(rawValue: rawValue)
-    }
-
     private func updateXcmConfig(
         in entity: CDChain,
         from xcmConfig: XcmChain?,
@@ -452,6 +442,9 @@ final class ChainModelMapper {
 
 extension ChainModelMapper: CoreDataMapperProtocol {
     func transform(entity: CDChain) throws -> ChainModel {
+        guard let ecosystemRaw = entity.ecosystem, let ecosystem = Ecosystem(rawValue: ecosystemRaw) else {
+            throw ChainModelMapper.MapperError.missingEcosystem
+        }
         let nodes: [ChainNodeModel] = entity.nodes?.compactMap { anyNode in
             guard let node = anyNode as? CDChainNode else {
                 return nil
@@ -499,6 +492,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         }
 
         let chainModel = ChainModel(
+            ecosystem: ecosystem,
             rank: rank,
             disabled: entity.disabled,
             chainId: entity.chainId!,
@@ -540,6 +534,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         if let rank = model.rank {
             entity.rank = "\(rank)"
         }
+        entity.ecosystem = model.ecosystem.rawValue
         entity.disabled = model.disabled
         entity.chainId = model.chainId
         entity.paraId = model.paraId

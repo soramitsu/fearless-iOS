@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SSFCrypto
 
 protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
@@ -38,19 +39,22 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             selectedFilterImage = selectedFilter.filterImage
         }
 
-        var address: String?
+        var chainAddress: String?
         if
             let selectedChain = selectedChain,
             let chainAccountResponse = selectedMetaAccount.fetch(for: selectedChain.accountRequest()),
-            let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chain: selectedChain) {
-            address = address1
+            let address = try? AddressFactory.address(
+                for: chainAccountResponse.accountId,
+                chainFormat: selectedChain.chainFormat(bounceable: false)
+            ) {
+            chainAddress = address
         }
 
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedFilter: selectedFilterName,
             selectedFilterImage: selectedFilterImage,
-            address: address
+            address: chainAddress
         )
     }
 }
