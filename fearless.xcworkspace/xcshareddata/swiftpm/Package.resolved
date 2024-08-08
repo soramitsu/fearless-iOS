@@ -1,4 +1,5 @@
 {
+  "originHash" : "63872357be3b8d8ea5520be135fe981d8816f9791ecdf1f6a79c9211e5ad62a2",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -136,6 +137,15 @@
       }
     },
     {
+      "identity" : "shared-features-spm",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/soramitsu/shared-features-spm.git",
+      "state" : {
+        "branch" : "fearless-wallet",
+        "revision" : "c914f1e729c4238bf6e18030e4f4c3895a94e088"
+      }
+    },
+    {
       "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
@@ -226,15 +236,6 @@
       }
     },
     {
-      "identity" : "swiftformat",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/nicklockwood/SwiftFormat",
-      "state" : {
-        "revision" : "d6309f7440889427426143b4a0b100b959d3f3e6",
-        "version" : "0.54.3"
-      }
-    },
-    {
       "identity" : "swiftimagereadwrite",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/SwiftImageReadWrite",
@@ -307,5 +308,5 @@
       }
     }
   ],
-  "version" : 2
+  "version" : 3
 }

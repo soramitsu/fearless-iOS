@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -5635,7 +5635,6 @@
 		FABA16382B0C9510001AF2F0 /* NetworkManagmentInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManagmentInteractor.swift; sourceTree = "<group>"; };
 		FABA16392B0C9510001AF2F0 /* NetworkManagmentViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManagmentViewController.swift; sourceTree = "<group>"; };
 		FABA163A2B0C9510001AF2F0 /* NetworkManagmentViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManagmentViewModel.swift; sourceTree = "<group>"; };
-		FABCFB6B2C62313A00614C6E /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FAC0BBAE291CE2B700E6F106 /* StakingPoolMainError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolMainError.swift; sourceTree = "<group>"; };
 		FAC0BBB1291D074400E6F106 /* RuntimeCallPath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RuntimeCallPath.swift; sourceTree = "<group>"; };
 		FAC0BBB5291D0EAF00E6F106 /* SendViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendViewModelFactory.swift; sourceTree = "<group>"; };
@@ -8770,7 +8769,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FABCFB6A2C62313A00614C6E /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -14289,14 +14287,6 @@
 				FABA163A2B0C9510001AF2F0 /* NetworkManagmentViewModel.swift */,
 			);
 			path = NetworkManagment;
-			sourceTree = "<group>";
-		};
-		FABCFB6A2C62313A00614C6E /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				FABCFB6B2C62313A00614C6E /* shared-features-spm */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		FAC0BBB0291D074400E6F106 /* RuntimeCall */ = {
