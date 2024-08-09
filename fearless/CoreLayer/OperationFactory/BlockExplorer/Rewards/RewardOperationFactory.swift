@@ -40,7 +40,7 @@ enum RewardOperationFactory {
             return SoraRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         case .reef:
             return ReefRewardOperationFactory(url: blockExplorer?.url, chain: chain)
-        case .alchemy, .etherscan, .oklink, .zeta:
+        case .alchemy, .etherscan, .oklink, .zeta, .fire, .vicscan, .zchain, .klaytn:
             return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         }
     }
