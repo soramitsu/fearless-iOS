@@ -251,6 +251,9 @@ final class CrossChainPresenter {
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
         let isValid = processDestinationAddress() != nil
+        if selectedDestChainModel != nil, !isValid, newAddress.isNotEmpty {
+            showInvalidAddressAlert()
+        }
         let viewModel = viewModelFactory.buildRecipientViewModel(address: newAddress, isValid: isValid)
         view?.didReceive(recipientViewModel: viewModel)
     }
@@ -265,7 +268,7 @@ final class CrossChainPresenter {
             let isValid = interactor.validate(address: recipientAddress, for: chain).isValidOrSame
             if isValid, let recipientAddress = recipientAddress {
                 handle(newAddress: recipientAddress)
-            } else {
+            } else if recipientAddress?.isNotEmpty == true {
                 handle(newAddress: "")
             }
         }

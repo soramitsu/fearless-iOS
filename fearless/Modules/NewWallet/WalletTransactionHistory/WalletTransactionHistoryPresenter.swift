@@ -53,7 +53,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
         interactor.applyFilters(filters)
     }
 
-    func setup() {
+    func setup(with view: WalletTransactionHistoryViewProtocol) {
+        self.view = view
         interactor.setup(with: self)
     }
 
@@ -85,6 +86,10 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorOutputProtocol {
+    func didReceiveUnsupported() {
+        view?.didReceive(state: .unsupported)
+    }
+
     func didReceive(filters: [FilterSet]) {
         self.filters = filters
     }

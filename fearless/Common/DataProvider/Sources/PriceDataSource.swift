@@ -6,6 +6,7 @@ import SSFModels
 
 enum PriceDataSourceError: Swift.Error {
     case memoryError
+    case inputDataMissed
 }
 
 final class PriceDataSource: SingleValueProviderSourceProtocol {
@@ -46,8 +47,8 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
-        guard chainAssets.isNotEmpty else {
-            return CompoundOperationWrapper.createWithResult([])
+        guard chainAssets.isNotEmpty, currencies?.isNotEmpty == true else {
+            return CompoundOperationWrapper.createWithError(PriceDataSourceError.inputDataMissed)
         }
 
         let coingeckoOperation = createCoingeckoOperation()
@@ -65,6 +66,9 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
                 try? $0.extractNoCancellableResultData()
             }
             let soraSubqueryPrices = (try? soraSubqueryOperation.extractNoCancellableResultData()) ?? []
+            print("coingecko prices : ", coingeckoPrices)
+            print("chainlink prices : ", chainlinkPrices)
+            print("soraSubqueryPrices prices : ", soraSubqueryPrices)
 
             prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
             prices = self.merge(coingeckoPrices: prices, soraSubqueryPrices: soraSubqueryPrices)

@@ -65,7 +65,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        presenter.setup()
+        presenter.setup(with: self)
 
         setupLocalization()
 

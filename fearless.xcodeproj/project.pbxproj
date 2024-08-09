@@ -5144,7 +5144,6 @@
 		FA41B61C2C64856D00D0713A /* FireHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FireHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA41B61F2C6495EE00D0713A /* 5ireHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = 5ireHistoryResponse.swift; sourceTree = "<group>"; };
 		FA41B6212C64988700D0713A /* AssetTransactionData+FireHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+FireHistory.swift"; sourceTree = "<group>"; };
-		FA41B6242C64997A00D0713A /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FA41B6252C64BE6800D0713A /* ViscanHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViscanHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA41B6282C64C15000D0713A /* VicscanHistoryResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VicscanHistoryResponse.swift; sourceTree = "<group>"; };
 		FA41B62A2C64C5A200D0713A /* AssetTransactionData+VicscanHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+VicscanHistory.swift"; sourceTree = "<group>"; };
@@ -8794,7 +8793,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FA41B6232C64997A00D0713A /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -12980,14 +12978,6 @@
 				FA41B61F2C6495EE00D0713A /* 5ireHistoryResponse.swift */,
 			);
 			path = 5ire;
-			sourceTree = "<group>";
-		};
-		FA41B6232C64997A00D0713A /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				FA41B6242C64997A00D0713A /* shared-features-spm */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		FA41B6272C64C14500D0713A /* Viscan */ = {

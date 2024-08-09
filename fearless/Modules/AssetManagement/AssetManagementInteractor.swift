@@ -20,8 +20,6 @@ actor AssetManagementInteractor {
     private let accountInfoRemoteService: AccountInfoRemoteService
     private let walletAssetObserver: WalletAssetsObserver
 
-    private var bufferWallet: MetaAccountModel?
-
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
@@ -40,20 +38,6 @@ actor AssetManagementInteractor {
         self.eventCenter.add(observer: self)
     }
 
-    deinit {
-        guard let bufferWallet else {
-            return
-        }
-        SelectedWalletSettings.shared.performSave(value: bufferWallet) { [eventCenter, bufferWallet] result in
-            switch result {
-            case .success:
-                eventCenter.notify(with: MetaAccountModelChangedEvent(account: bufferWallet))
-            case .failure:
-                break
-            }
-        }
-    }
-
     // MARK: - Private methods
 
     private func fetchPrices(for chainAssets: [ChainAsset]) {
@@ -70,8 +54,19 @@ actor AssetManagementInteractor {
         visibilities.append(assetVisibility)
 
         let updatedWallet = wallet.replacingAssetsVisibility(visibilities)
-        bufferWallet = updatedWallet
+        performSave(wallet: updatedWallet)
         return updatedWallet
+    }
+
+    private func performSave(wallet: MetaAccountModel) {
+        SelectedWalletSettings.shared.performSave(value: wallet) { [eventCenter] result in
+            switch result {
+            case .success:
+                eventCenter.notify(with: MetaAccountModelChangedEvent(account: wallet))
+            case .failure:
+                break
+            }
+        }
     }
 }
 
@@ -83,7 +78,6 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
         assetId: String,
         wallet: MetaAccountModel
     ) async -> MetaAccountModel {
-        let wallet = bufferWallet ?? wallet
         let updatedWallet = await updateVisibility(
             wallet: wallet,
             assetId: assetId,
@@ -127,11 +121,14 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
         return accountInfo
     }
 
-//    func updatedVisibility(for _: [ChainAsset]) async -> MetaAccountModel {
-//        let updatedWallet = await walletAssetObserver.updateVisibility(wallet: bufferWallet, chainAssets: chainAssets)
-//        bufferWallet = updatedWallet
-//        bufferWallet
-//    }
+    func updatedVisibility(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) async -> MetaAccountModel {
+        let updatedWallet = await walletAssetObserver.updateVisibility(wallet: wallet, chainAssets: chainAssets)
+        performSave(wallet: updatedWallet)
+        return updatedWallet
+    }
 }
 
 // MARK: - PriceLocalSubscriptionHandler

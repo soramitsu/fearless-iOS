@@ -183,6 +183,7 @@ final class CrossChainViewLayout: UIView {
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
 
+        searchView.titleLabel.isHidden = true
         contentView.stackView.addArrangedSubview(searchView)
         searchView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)

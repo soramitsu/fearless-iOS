@@ -3,6 +3,10 @@ import RobinHood
 import SSFModels
 import SoraFoundation
 
+enum WalletTransactionHistoryDependencyContainerError: Error {
+    case unsupported
+}
+
 final class WalletTransactionHistoryDependencyContainer {
     struct WalletTransactionHistoryDependencies {
         let dataProvider: SingleValueProvider<AssetTransactionPageData>?
@@ -16,7 +20,7 @@ final class WalletTransactionHistoryDependencyContainer {
         self.selectedAccount = selectedAccount
     }
 
-    func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) {
+    func createDependencies(for chainAsset: ChainAsset, selectedAccount: MetaAccountModel) throws {
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
@@ -26,7 +30,7 @@ final class WalletTransactionHistoryDependencyContainer {
                 txStorage: AnyDataProviderRepository(txStorage)
             )
         else {
-            return
+            throw WalletTransactionHistoryDependencyContainerError.unsupported
         }
 
         let dataProviderFactory = HistoryDataProviderFactory(
