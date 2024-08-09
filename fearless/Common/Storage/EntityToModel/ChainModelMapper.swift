@@ -15,7 +15,7 @@ final class ChainModelMapper {
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
         } else {
-            symbol = entity.id
+            symbol = entity.assetId
         }
 
         var name: String?
@@ -25,7 +25,7 @@ final class ChainModelMapper {
             name = entity.symbol
         }
         guard
-            let id = entity.id,
+            let assetId = entity.assetId,
             let symbol = symbol,
             let name = name
         else {
@@ -51,13 +51,11 @@ final class ChainModelMapper {
         }
 
         return AssetModel(
-            id: id,
+            assetId: assetId,
             name: name,
             symbol: symbol,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
-            price: entity.price as Decimal?,
-            fiatDayChange: entity.fiatDayChange as Decimal?,
             currencyId: entity.currencyId,
             existentialDeposit: entity.existentialDeposit,
             color: entity.color,
@@ -68,7 +66,8 @@ final class ChainModelMapper {
             type: createChainAssetModelType(from: entity.type),
             ethereumType: createEthereumAssetType(from: entity.ethereumType),
             priceProvider: priceProvider,
-            coingeckoPriceId: entity.priceId
+            coingeckoPriceId: entity.priceId,
+            priceData: (entity.priceData as? [PriceData]) ?? []
         )
     }
 
@@ -95,12 +94,10 @@ final class ChainModelMapper {
     ) {
         let assets = model.assets.map {
             let assetEntity = CDAsset(context: context)
-            assetEntity.id = $0.id
+            assetEntity.assetId = $0.assetId
             assetEntity.icon = $0.icon
             assetEntity.precision = Int16(bitPattern: $0.precision)
             assetEntity.priceId = $0.coingeckoPriceId
-            assetEntity.price = $0.price as NSDecimalNumber?
-            assetEntity.fiatDayChange = $0.fiatDayChange as NSDecimalNumber?
             assetEntity.symbol = $0.symbol
             assetEntity.existentialDeposit = $0.existentialDeposit
             assetEntity.color = $0.color
