@@ -15,7 +15,7 @@ final class ChainModelMapper {
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
         } else {
-            symbol = entity.assetId
+            symbol = entity.id
         }
 
         var name: String?
@@ -25,7 +25,7 @@ final class ChainModelMapper {
             name = entity.symbol
         }
         guard
-            let assetId = entity.assetId,
+            let id = entity.id,
             let symbol = symbol,
             let name = name
         else {
@@ -51,7 +51,7 @@ final class ChainModelMapper {
         }
 
         return AssetModel(
-            assetId: assetId,
+            id: id,
             name: name,
             symbol: symbol,
             precision: UInt16(bitPattern: entity.precision),
@@ -94,7 +94,7 @@ final class ChainModelMapper {
     ) {
         let assets = model.assets.map {
             let assetEntity = CDAsset(context: context)
-            assetEntity.assetId = $0.assetId
+            assetEntity.id = $0.id
             assetEntity.icon = $0.icon
             assetEntity.precision = Int16(bitPattern: $0.precision)
             assetEntity.priceId = $0.coingeckoPriceId

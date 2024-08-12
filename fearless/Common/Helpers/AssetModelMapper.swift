@@ -30,7 +30,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
         } else {
-            symbol = entity.assetId
+            symbol = entity.id
         }
 
         var name: String?
@@ -59,7 +59,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         }
 
         return AssetModel(
-            assetId: entity.assetId!,
+            id: entity.id!,
             name: name!,
             symbol: symbol!,
             precision: UInt16(bitPattern: entity.precision),
@@ -84,7 +84,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
         from model: AssetModel,
         using context: NSManagedObjectContext
     ) throws {
-        entity.assetId = model.assetId
+        entity.id = model.id
         entity.icon = model.icon
         entity.precision = Int16(bitPattern: model.precision)
         entity.priceId = model.coingeckoPriceId
