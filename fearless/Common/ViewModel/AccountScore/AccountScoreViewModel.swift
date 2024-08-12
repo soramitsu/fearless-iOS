@@ -56,7 +56,7 @@ class AccountScoreViewModel {
         self.eventCenter = eventCenter
         self.logger = logger
 
-        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true && address.isNullOrEmpty == false
+        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true && address?.isNotEmpty == true
     }
 
     func setup(with view: AccountScoreView?) {
@@ -104,7 +104,7 @@ class AccountScoreViewModel {
 
 extension AccountScoreViewModel: EventVisitorProtocol {
     func processAccountScoreSettingsChanged() {
-        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true
+        scoringEnabled = (chain?.isNomisSupported == true || chain == nil) && settings.accountScoreEnabled == true && address?.isNotEmpty == true
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.bind(viewModel: self)
