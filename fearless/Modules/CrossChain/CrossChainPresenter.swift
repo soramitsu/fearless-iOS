@@ -250,7 +250,7 @@ final class CrossChainPresenter {
         checkLoadingState()
         interactor.fetchDestinationAccountInfo(address: newAddress)
         recipientAddress = newAddress
-        let isValid = processDestinationAddress() != nil
+        let isValid = selectedDestChainModel.map { interactor.validate(address: recipientAddress, for: $0).isValidOrSame }.or(true)
         if selectedDestChainModel != nil, !isValid, newAddress.isNotEmpty {
             showInvalidAddressAlert()
         }
@@ -478,7 +478,7 @@ final class CrossChainPresenter {
         provideAssetViewModel()
     }
 
-    private func processDestinationAddress() -> String? {
+    private func processDestinationWallet() -> String? {
         guard
             let chain = selectedDestChainModel,
             let destWallet = destWallet,
@@ -811,7 +811,7 @@ extension CrossChainPresenter: ContactsModuleOutput {
 extension CrossChainPresenter: WalletsManagmentModuleOutput {
     func selectedWallet(_ wallet: MetaAccountModel, for _: Int) {
         destWallet = wallet
-        guard let address = processDestinationAddress() else {
+        guard let address = processDestinationWallet() else {
             let viewModel = viewModelFactory.buildRecipientViewModel(address: wallet.name, isValid: false)
             view?.didReceive(recipientViewModel: viewModel)
             return

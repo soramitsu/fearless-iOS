@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraKeystore
+import SSFStorageQueryKit
 
 final class ChainAssetListAssembly {
     static func configureModule(
@@ -59,9 +60,20 @@ final class ChainAssetListAssembly {
             missingAccountHelper: missingAccountHelper,
             accountInfoFetcher: accountInfoFetcher
         )
-
+        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createAsyncRepository()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
+        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+            chainRegistry: chainRegistry
+        )
+
+        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
+            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
+            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            storagePerformer: storagePerformer
+        )
+
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             priceLocalSubscriber: priceLocalSubscriber,
@@ -74,7 +86,8 @@ final class ChainAssetListAssembly {
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
-            chainRegistry: ChainRegistryFacade.sharedRegistry
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            accountInfoRemoteService: accountInfoRemoteService
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

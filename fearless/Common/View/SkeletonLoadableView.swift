@@ -13,7 +13,7 @@ protocol SkeletonLoadableView: UIView {
 
 extension SkeletonLoadableView {
     func startSkeletonAnimation() {
-        guard skeletonView == nil, frame.origin != .zero else {
+        guard skeletonView == nil else {
             return
         }
 
@@ -21,7 +21,7 @@ extension SkeletonLoadableView {
             size: skeletonSize,
             decorations: [],
             skeletons: [
-                SingleSkeleton.createRow(spaceSize: .zero, position: CGPoint(x: 0.5, y: 0.5), size: skeletonSize)
+                SingleSkeleton.createRow(spaceSize: skeletonSize, position: CGPoint(x: 0.5, y: 0.5), size: skeletonSize)
             ]
         )
         .fillSkeletonStart(R.color.colorSkeletonStart()!)
