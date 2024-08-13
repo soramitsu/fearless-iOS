@@ -5,7 +5,7 @@ import SSFModels
 
 extension AssetTransactionData {
     static func createTransaction(
-        from item: ZetaItem,
+        from item: BlockscoutItem,
         address: String,
         chain: ChainModel,
         asset: AssetModel

@@ -30,8 +30,8 @@ final class HistoryOperationFactoriesAssembly {
             return OklinkHistoryOperationFactory()
         case .reef:
             return ReefSubsquidHistoryOperationFactory(txStorage: txStorage)
-        case .zeta:
-            return ZetaHistoryOperationFactory()
+        case .blockscout:
+            return BlockscoutHistoryOperationFactory()
         case .fire:
             return FireHistoryOperationFactory()
         case .vicscan:

@@ -6,12 +6,12 @@ import SSFModels
 import FearlessKeys
 import BigInt
 
-final class ZetaHistoryOperationFactory {
+final class BlockscoutHistoryOperationFactory {
     private func createOperation(
         address: String,
         url: URL,
         chainAsset: ChainAsset
-    ) -> BaseOperation<ZetaHistoryResponse> {
+    ) -> BaseOperation<BlockscoutHistoryResponse> {
         let requestFactory = BlockNetworkRequestFactory {
             var url = url.appendingPathComponent(address)
 
@@ -38,12 +38,12 @@ final class ZetaHistoryOperationFactory {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<ZetaHistoryResponse> { data, response, error in
+        let resultFactory = AnyNetworkResultFactory<BlockscoutHistoryResponse> { data, response, error in
 
             do {
                 if let data = data {
                     let response = try JSONDecoder().decode(
-                        ZetaHistoryResponse.self,
+                        BlockscoutHistoryResponse.self,
                         from: data
                     )
 
@@ -67,7 +67,7 @@ final class ZetaHistoryOperationFactory {
     }
 
     private func createMapOperation(
-        dependingOn remoteOperation: BaseOperation<ZetaHistoryResponse>,
+        dependingOn remoteOperation: BaseOperation<BlockscoutHistoryResponse>,
         address: String,
         asset: AssetModel,
         chain: ChainModel
@@ -86,7 +86,7 @@ final class ZetaHistoryOperationFactory {
     }
 }
 
-extension ZetaHistoryOperationFactory: HistoryOperationFactoryProtocol {
+extension BlockscoutHistoryOperationFactory: HistoryOperationFactoryProtocol {
     func fetchTransactionHistoryOperation(
         asset: AssetModel,
         chain: ChainModel,
@@ -119,8 +119,8 @@ extension ZetaHistoryOperationFactory: HistoryOperationFactoryProtocol {
 
 // MARK: - Zeta response
 
-struct ZetaHistoryResponse: Codable {
-    let items: [ZetaItem]
+struct BlockscoutHistoryResponse: Codable {
+    let items: [BlockscoutItem]
     let nextPageParams: NextPageParams?
 
     enum CodingKeys: String, CodingKey {
@@ -129,14 +129,14 @@ struct ZetaHistoryResponse: Codable {
     }
 }
 
-struct ZetaItem: Codable {
+struct BlockscoutItem: Codable {
     let timestamp: String
-    let from: ZetaAddress
-    let to: ZetaAddress
-    let fee: ZetaFee?
+    let from: BlockscoutAddress
+    let to: BlockscoutAddress
+    let fee: BlockscoutFee?
 
     @OptionStringCodable var value: BigUInt?
-    let total: ZetaTotal?
+    let total: BlockscoutTotal?
 
     let hash: String?
     let txHash: String?
@@ -145,28 +145,28 @@ struct ZetaItem: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         timestamp = try container.decode(String.self, forKey: .timestamp)
-        from = try container.decode(ZetaAddress.self, forKey: .from)
-        to = try container.decode(ZetaAddress.self, forKey: .to)
-        fee = try container.decodeIfPresent(ZetaFee.self, forKey: .fee)
+        from = try container.decode(BlockscoutAddress.self, forKey: .from)
+        to = try container.decode(BlockscoutAddress.self, forKey: .to)
+        fee = try container.decodeIfPresent(BlockscoutFee.self, forKey: .fee)
 
         if let value = try container.decodeIfPresent(String.self, forKey: .value) {
             self.value = BigUInt(string: value)
         } else {
             value = nil
         }
-        total = try container.decodeIfPresent(ZetaTotal.self, forKey: .total)
+        total = try container.decodeIfPresent(BlockscoutTotal.self, forKey: .total)
 
         hash = try container.decodeIfPresent(String.self, forKey: .hash)
         txHash = try container.decodeIfPresent(String.self, forKey: .txHash)
     }
 }
 
-struct ZetaFee: Codable {
+struct BlockscoutFee: Codable {
     let type: String
     @StringCodable var value: BigUInt
 }
 
-struct ZetaAddress: Codable {
+struct BlockscoutAddress: Codable {
     let hash: String
 }
 
@@ -180,7 +180,7 @@ struct NextPageParams: Codable {
     }
 }
 
-struct ZetaTotal: Codable {
+struct BlockscoutTotal: Codable {
     let decimals: String
     @StringCodable var value: BigUInt
 }
