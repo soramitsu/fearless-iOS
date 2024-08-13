@@ -12916,7 +12916,6 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				FA45423D2C6B2A0E00610A71 /* okx-dex-aggregator */,
 				FAD5FF232C463BEE003201F5 /* AccountStatistics */,
 				FA09AD332C37AB9400BE0B9C /* TransactionObserver */,
 				FA34EE902B98711F0042E73E /* CrowdloanService.swift */,
@@ -12990,21 +12989,6 @@
 				FA41B6282C64C15000D0713A /* VicscanHistoryResponse.swift */,
 			);
 			path = Viscan;
-			sourceTree = "<group>";
-		};
-		FA45423D2C6B2A0E00610A71 /* okx-dex-aggregator */ = {
-			isa = PBXGroup;
-			children = (
-				FA45423E2C6B2A2300610A71 /* Network */,
-			);
-			path = "okx-dex-aggregator";
-			sourceTree = "<group>";
-		};
-		FA45423E2C6B2A2300610A71 /* Network */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Network;
 			sourceTree = "<group>";
 		};
 		FA4B098C2C4674C9001B73F9 /* Request */ = {
