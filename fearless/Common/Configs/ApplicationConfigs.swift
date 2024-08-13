@@ -143,11 +143,11 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     // MARK: - GitHub
 
     var chainsSourceUrl: URL {
-//        #if F_DEV
-            GitHubUrl.url(suffix: "chains/v11/chains_dev.json", branch: .developFree)
-//        #else
-//        GitHubUrl.url(suffix: "chains/v11/chains.json")
-//        #endif
+#if F_DEV
+        GitHubUrl.url(suffix: "chains/v11/chains_dev.json", branch: .developFree)
+#else
+        GitHubUrl.url(suffix: "chains/v11/chains.json")
+#endif
     }
 
     var chainTypesSourceUrl: URL {
