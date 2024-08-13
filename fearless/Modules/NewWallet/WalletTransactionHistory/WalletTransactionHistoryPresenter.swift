@@ -136,6 +136,9 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         if chain.isReef {
             return .single
         }
+        guard chainAsset.chain.externalApi?.history?.type?.hasFilters == true else {
+            return .disabled
+        }
 
         return (chainAsset.chain.externalApi?.history?.type != .etherscan && chainAsset.chain.externalApi?.history != nil) ? .multiple : .disabled
     }

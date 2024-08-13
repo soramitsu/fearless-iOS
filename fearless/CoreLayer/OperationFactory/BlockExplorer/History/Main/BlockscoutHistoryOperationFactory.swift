@@ -13,7 +13,9 @@ final class BlockscoutHistoryOperationFactory {
         chainAsset: ChainAsset
     ) -> BaseOperation<BlockscoutHistoryResponse> {
         let requestFactory = BlockNetworkRequestFactory {
-            var url = url.appendingPathComponent(address)
+            var url = url
+                .appendingPathComponent("addresses")
+                .appendingPathComponent(address)
 
             if case .erc20 = chainAsset.asset.ethereumType {
                 let contract = chainAsset.asset.id
