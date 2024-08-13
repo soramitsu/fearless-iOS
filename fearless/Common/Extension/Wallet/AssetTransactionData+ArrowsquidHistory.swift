@@ -61,7 +61,7 @@ extension AssetTransactionData {
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus = item.success ? .commited : .rejected
 
-        let peerAddress = transfer.sender == address ? transfer.receiver : transfer.sender
+        let peerAddress = transfer.sender.lowercased() == address.lowercased() ? transfer.receiver : transfer.sender
 
         let accountId = try? AddressFactory.accountId(
             from: peerAddress,
