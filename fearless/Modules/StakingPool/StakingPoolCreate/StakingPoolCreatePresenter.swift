@@ -29,7 +29,6 @@ final class StakingPoolCreatePresenter {
 
     private var totalAmount: BigUInt?
     private var inputResult: AmountInputResult?
-    private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) - (existentialDeposit ?? 0) }
@@ -40,6 +39,10 @@ final class StakingPoolCreatePresenter {
     private var lastPoolId: UInt32?
     private var poolNameInputViewModel: InputViewModelProtocol
     private var existentialDeposit: Decimal?
+    
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     // MARK: - Constructors
 
@@ -314,19 +317,6 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
             minCreateBond,
             precision: Int16(chainAsset.asset.precision)
         )
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetVewModel()
-            provideInputViewModel()
-            provideFeeViewModel()
-        case let .failure(error):
-            logger.error("error: \(error)")
-        }
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {

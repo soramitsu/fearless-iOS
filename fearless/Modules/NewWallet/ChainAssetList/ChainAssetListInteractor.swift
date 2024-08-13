@@ -14,7 +14,6 @@ final class ChainAssetListInteractor {
 
     private weak var output: ChainAssetListInteractorOutput?
 
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -25,7 +24,6 @@ final class ChainAssetListInteractor {
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let userDefaultsStorage: SettingsManagerProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
@@ -42,7 +40,6 @@ final class ChainAssetListInteractor {
 
     init(
         wallet: MetaAccountModel,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         eventCenter: EventCenter,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoFetchingProvider: AccountInfoFetching,
@@ -55,7 +52,6 @@ final class ChainAssetListInteractor {
         chainRegistry: ChainRegistryProtocol
     ) {
         self.wallet = wallet
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.eventCenter = eventCenter
         self.accountRepository = accountRepository
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
@@ -80,14 +76,6 @@ final class ChainAssetListInteractor {
                 break
             }
         }
-    }
-
-    private func subscribeToPrice(for chainAssets: [ChainAsset]) {
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func resetAccountInfoSubscription() {
@@ -170,8 +158,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
             switch result {
             case let .success(chainAssets):
-                self?.subscribeToPrice(for: chainAssets)
-
                 self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
@@ -207,7 +193,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             self?.subscribeToAccountInfo(for: chainAssets)
         }
 
-        subscribeToPrice(for: chainAssets)
         guard remoteFetchTimer == nil else {
             return
         }
@@ -255,12 +240,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     }
 }
 
-extension ChainAssetListInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
-    }
-}
-
 extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         guard let selectedAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, selectedAccountId == accountId else {
@@ -279,7 +258,6 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             guard let chainAssets = chainAssets else {
                 return
             }
-            subscribeToPrice(for: chainAssets)
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {

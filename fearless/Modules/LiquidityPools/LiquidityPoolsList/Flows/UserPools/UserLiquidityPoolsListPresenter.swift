@@ -27,7 +27,6 @@ final class UserLiquidityPoolsListPresenter {
     private var reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?
     private var apy: [PoolApyInfo]?
     private var accountPools: [AccountPool]?
-    private var prices: [PriceData]?
     private var searchText: String?
 
     init(
@@ -59,7 +58,6 @@ final class UserLiquidityPoolsListPresenter {
             reserves: reserves,
             apyInfos: apy,
             chain: chain,
-            prices: prices,
             locale: selectedLocale,
             wallet: wallet,
             type: type,
@@ -155,16 +153,6 @@ extension UserLiquidityPoolsListPresenter: UserLiquidityPoolsListInteractorOutpu
     func didReceivePoolsAPY(apy: [PoolApyInfo]) {
         self.apy = apy
         provideViewModel()
-    }
-
-    func didReceivePrices(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            self.prices = prices
-            provideViewModel()
-        case let .failure(error):
-            logger.customError(error)
-        }
     }
 
     func didReceiveLiquidityPairsError(error: Error) {

@@ -33,12 +33,9 @@ final class SelectAssetAssembly {
             selectedMetaAccount: wallet
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let interactor = SelectAssetInteractor(
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAssets: chainAssets,
             wallet: wallet
         )

@@ -48,10 +48,10 @@ extension PricesService: PriceLocalSubscriptionHandler {
         chainAsset _: ChainAsset
     ) {}
 
-    func handlePrices(result: Result<[PriceData], Error>) {
+    func handlePrices(result: Result<[PriceData], Error>, for chainAssets: [ChainAsset]) {
         switch result {
         case .success(let priceDatas):
-            handle(prices: priceDatas)
+            handle(prices: priceDatas, for: chainAssets)
         case .failure(let error):
             handle(error: error)
         }
@@ -59,13 +59,13 @@ extension PricesService: PriceLocalSubscriptionHandler {
 }
 
 private extension PricesService {
-    func handle(prices: [PriceData]) {
+    func handle(prices: [PriceData], for chainAssets: [ChainAsset]) {
         var updatedAssets: [AssetModel] = []
-        assets.forEach { asset in
+        chainAssets.forEach { chainAsset in
             let assetPrices = prices.filter { price in
-                price.priceId == asset.priceId
+                price.priceId == chainAsset.asset.priceId
             }
-            let updatedAsset = asset.replacingPrice(assetPrices)
+            let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
             updatedAssets.append(updatedAsset)
         }
         let saveOperation = assetRepository.saveOperation({

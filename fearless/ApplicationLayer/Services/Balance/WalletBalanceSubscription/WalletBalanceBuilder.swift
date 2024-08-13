@@ -45,7 +45,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 dayChangePercent: dayChangePercent.isNaN ? .zero : dayChangePercent,
                 dayChangeValue: totalDayChange,
                 currency: wallet.selectedCurrency,
-                prices: prices(for: wallet.selectedCurrency, from: chainAssets),
+                prices: PriceDataHelper.prices(for: wallet.selectedCurrency, from: chainAssets),
                 accountInfos: accountInfos
             )
 
@@ -55,13 +55,6 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         }
 
         return walletBalanceMap
-    }
-    
-    private func prices(for currency: Currency, from chainAssets: [ChainAsset]) -> [PriceData] {
-        let pricesForCurrency: [PriceData] = chainAssets.compactMap { chainAsset in
-            chainAsset.asset.getPrice(for: currency)
-        }
-        return pricesForCurrency.uniq { $0.priceId }
     }
 
     private func countBalance(

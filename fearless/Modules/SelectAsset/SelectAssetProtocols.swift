@@ -16,7 +16,6 @@ protocol SelectAssetInteractorInput: AnyObject {
 
 protocol SelectAssetInteractorOutput: AnyObject {
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>)
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 

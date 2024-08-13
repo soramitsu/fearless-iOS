@@ -23,7 +23,6 @@ protocol StakingPoolMainViewModelFactoryProtocol {
     // swiftlint:disable function_parameter_count
     func buildNominatorStateViewModel(
         stakeInfo: StakingPoolMember,
-        priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
         poolInfo: StakingPool,
@@ -262,7 +261,6 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
 
     func buildNominatorStateViewModel(
         stakeInfo: StakingPoolMember,
-        priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
         poolInfo: StakingPool,

@@ -18,9 +18,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private let extrinsicService: ExtrinsicServiceProtocol
     private let userDefaultsStorage: SettingsManagerProtocol
     private let callFactory: SubstrateCallFactoryProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private var dexIds: [UInt32] = []
     private var swapValues: [SwapValues] = []
     private var swapValueErrors: [Error] = []
@@ -31,7 +29,6 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         xorChainAsset: ChainAsset,
         subscriptionService: PolkaswapRemoteSubscriptionServiceProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         feeProxy: ExtrinsicFeeProxyProtocol,
         settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -43,7 +40,6 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         self.xorChainAsset = xorChainAsset
         self.subscriptionService = subscriptionService
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.feeProxy = feeProxy
         self.settingsRepository = settingsRepository
         self.extrinsicService = extrinsicService
@@ -61,14 +57,6 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
             handler: self,
             deliveryOn: .main
         )
-    }
-
-    private func subscribeToPrices(for chainAssets: [ChainAsset]) {
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func fetchIsPairAvailableAndMarkets(
@@ -156,7 +144,6 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
 
     func didReceive(_ fromChainAsset: ChainAsset?, _ toChainAsset: ChainAsset?) {
         let chainAssets = [xorChainAsset, fromChainAsset, toChainAsset].compactMap { $0 }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
         subscribeToAccountInfo(for: chainAssets)
 
         guard let fromAssetId = fromChainAsset?.asset.currencyId,
@@ -280,14 +267,6 @@ extension PolkaswapAdjustmentInteractor: AccountInfoSubscriptionAdapterHandler {
         chainAsset: ChainAsset
     ) {
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
-    }
-}
-
-// MARK: - PriceLocalStorageSubscriber
-
-extension PolkaswapAdjustmentInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
     }
 }
 

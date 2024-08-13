@@ -11,9 +11,6 @@ final class SelectAssetInteractor {
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let wallet: MetaAccountModel
 
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
-
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private var chainAssets: [ChainAsset]?
 
     private lazy var accountInfosDeliveryQueue = {
@@ -23,13 +20,11 @@ final class SelectAssetInteractor {
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAssets: [ChainAsset]?,
         wallet: MetaAccountModel
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAssets = chainAssets
         self.wallet = wallet
     }
@@ -37,7 +32,6 @@ final class SelectAssetInteractor {
     private func fetchChainAssets() {
         if let chainAssets = self.chainAssets {
             subscribeToAccountInfo(for: chainAssets)
-            subscribeToPrice(for: chainAssets)
             output?.didReceiveChainAssets(result: .success(chainAssets))
             return
         }
@@ -58,7 +52,6 @@ final class SelectAssetInteractor {
                     self?.output?.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
                 }
                 self?.subscribeToAccountInfo(for: chainAssets)
-                self?.subscribeToPrice(for: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
@@ -81,21 +74,7 @@ extension SelectAssetInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension SelectAssetInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
-    }
-}
-
 private extension SelectAssetInteractor {
-    func subscribeToPrice(for chainAssets: [ChainAsset]) {
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
-    }
-
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,

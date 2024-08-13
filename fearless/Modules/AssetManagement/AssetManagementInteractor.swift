@@ -3,7 +3,6 @@ import SSFModels
 import RobinHood
 
 protocol AssetManagementInteractorOutput: AnyObject {
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveUpdated(wallet: MetaAccountModel)
 }
 
@@ -13,8 +12,6 @@ actor AssetManagementInteractor {
     private weak var output: AssetManagementInteractorOutput?
 
     private let chainAssetFetching: ChainAssetFetchingProtocol
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let eventCenter: EventCenterProtocol
     private let accountInfoRemoteService: AccountInfoRemoteService
@@ -24,14 +21,12 @@ actor AssetManagementInteractor {
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoFetchingProvider: AccountInfoFetching,
         eventCenter: EventCenterProtocol,
         accountInfoRemoteService: AccountInfoRemoteService,
         walletAssetObserver: WalletAssetsObserver
     ) {
         self.chainAssetFetching = chainAssetFetching
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.eventCenter = eventCenter
         self.accountInfoRemoteService = accountInfoRemoteService
@@ -52,12 +47,6 @@ actor AssetManagementInteractor {
                 break
             }
         }
-    }
-
-    // MARK: - Private methods
-
-    private func fetchPrices(for chainAssets: [ChainAsset]) {
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func updateVisibility(
@@ -102,7 +91,6 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
             filters: [.enabledChains],
             sortDescriptors: []
         )
-        fetchPrices(for: chainAssets)
         return chainAssets
     }
 
@@ -131,16 +119,6 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
         let updatedWallet = await walletAssetObserver.updateVisibility(wallet: bufferWallet, chainAssets: chainAssets)
         bufferWallet = updatedWallet
         return updatedWallet
-    }
-}
-
-// MARK: - PriceLocalSubscriptionHandler
-
-extension AssetManagementInteractor: PriceLocalSubscriptionHandler {
-    nonisolated func handlePrices(result: Result<[PriceData], Error>) {
-        Task {
-            await output?.didReceivePricesData(result: result)
-        }
     }
 }
 

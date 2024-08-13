@@ -8,13 +8,13 @@ final class StakingPayoutConfirmationPresenter {
     var wireframe: StakingPayoutConfirmationWireframeProtocol!
     var interactor: StakingPayoutConfirmationInteractorInputProtocol!
 
-    private var pricesData: [PriceData] = []
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmationViewModelFactoryProtocol
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     private let chainAsset: ChainAsset
     private let logger: LoggerProtocol?
     private let viewModelState: StakingPayoutConfirmationViewModelState
+    private let wallet: MetaAccountModel
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
@@ -22,7 +22,8 @@ final class StakingPayoutConfirmationPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
         logger: LoggerProtocol? = nil,
-        viewModelState: StakingPayoutConfirmationViewModelState
+        viewModelState: StakingPayoutConfirmationViewModelState,
+        wallet: MetaAccountModel
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.payoutConfirmViewModelFactory = payoutConfirmViewModelFactory
@@ -30,6 +31,7 @@ final class StakingPayoutConfirmationPresenter {
         self.chainAsset = chainAsset
         self.logger = logger
         self.viewModelState = viewModelState
+        self.wallet = wallet
     }
 
     // MARK: - Private functions
@@ -84,21 +86,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     }
 }
 
-// MARK: - StakingPayoutConfirmationInteractorOutputProtocol
-
-extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(pricesData):
-            self.pricesData = pricesData
-            provideFee()
-            provideViewModel()
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
-        }
-    }
-}
-
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStateListener {
     func didReceiveError(error: Error) {
         logger?.error("StakingPayoutConfirmationPresenter:didReceiveError: \(error)")
@@ -141,7 +128,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
 
     func provideFee() {
         if let fee = viewModelState.fee {
-            let price = pricesData.first(where: { $0.priceId == chainAsset.chain.utilityChainAssets().first?.asset.priceId })
+            let price = chainAsset.chain.utilityChainAssets().first?.asset.getPrice(for: wallet.selectedCurrency)
             let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: price, usageCase: .detailsCrypto)
             view?.didReceive(feeViewModel: viewModel)
         } else {
@@ -150,7 +137,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
     }
 
     func provideViewModel() {
-        let price = pricesData.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let price = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
             viewModelState: viewModelState,
             priceData: price

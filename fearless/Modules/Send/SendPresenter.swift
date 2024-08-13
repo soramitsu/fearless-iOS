@@ -45,7 +45,6 @@ final class SendPresenter {
     private var selectedAsset: AssetModel?
     private var balance: Decimal?
     private var utilityBalance: Decimal?
-    private var prices: [PriceData] = []
     private var tip: Decimal?
     private var tipValue: BigUInt?
     private var fee: Decimal?
@@ -138,7 +137,7 @@ final class SendPresenter {
 
     private func provideAssetVewModel() {
         guard let chainAsset = selectedChainAsset, case .value = assetAccountInfo else { return }
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset)
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
@@ -163,7 +162,7 @@ final class SendPresenter {
               let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = tip
             .map { balanceViewModelFactory
                 .balanceFromPrice(
@@ -195,7 +194,7 @@ final class SendPresenter {
             let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityAsset)
         else { return }
 
-        let priceData = prices.first(where: { $0.priceId == utilityAsset.asset.priceId })
+        let priceData = utilityAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -639,7 +638,7 @@ final class SendPresenter {
     private func provideBokoloFeeViewModel(for chainAsset: ChainAsset) {
         guard let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: chainAsset) else { return }
 
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = bokoloSwapValues?.fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -1087,20 +1086,6 @@ extension SendPresenter: SendInteractorOutput {
         case let .failure(error):
             checkSendAllVisibility()
             logger?.error("Did receive minimum balance error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            if let priceData = priceData {
-                prices.append(priceData)
-            }
-            provideAssetVewModel()
-            handleFeeReceived()
-            provideTipViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 

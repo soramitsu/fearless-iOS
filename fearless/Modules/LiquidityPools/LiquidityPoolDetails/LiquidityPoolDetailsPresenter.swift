@@ -31,7 +31,6 @@ final class LiquidityPoolDetailsPresenter {
     private var accountPoolInfo: AccountPool?
     private var reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?
     private var apyInfo: PoolApyInfo?
-    private var priceData: [PriceData]?
 
     // MARK: - Constructors
 
@@ -79,7 +78,6 @@ final class LiquidityPoolDetailsPresenter {
             reserves: reserves,
             apyInfo: apy,
             chain: chain,
-            prices: priceData,
             locale: selectedLocale,
             wallet: wallet,
             accountPoolInfo: accountPoolInfo,
@@ -161,16 +159,6 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsInteractorOutput {
     func didReceivePoolAPY(apy: PoolApyInfo?) {
         apyInfo = apy
         provideViewModel()
-    }
-
-    func didReceivePrices(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            priceData = prices
-            provideViewModel()
-        case let .failure(error):
-            logger.customError(error)
-        }
     }
 
     func didReceiveLiquidityPairError(error: Error) {
