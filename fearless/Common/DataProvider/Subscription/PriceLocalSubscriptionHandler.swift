@@ -11,7 +11,7 @@ protocol PriceLocalSubscriptionHandler: AnyObject {
 }
 
 extension PriceLocalSubscriptionHandler {
-    func handlePrices(result _: Result<[PriceData], Error>, for chainAssets: [ChainAsset]) {}
+    func handlePrices(result _: Result<[PriceData], Error>, for _: [ChainAsset]) {}
 
     func handlePrice(
         result _: Result<PriceData?, Error>,

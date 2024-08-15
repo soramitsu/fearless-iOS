@@ -40,7 +40,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         guard let presenter = createPresenter(
             view: view,
             wireframe: wireframe,
-            amount: amount,
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
@@ -73,7 +72,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
     private static func createPresenter(
         view: StakingAmountViewProtocol,
         wireframe: StakingAmountWireframeProtocol,
-        amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
@@ -104,7 +102,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         let presenter = StakingAmountPresenter(
-            amount: amount,
             asset: asset,
             chain: chain,
             selectedAccount: selectedAccount,
@@ -205,10 +202,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 wallet: wallet,
                 chainAsset: chainAsset,
                 amount: amount,
-                callFactory: callFactory
+                callFactory: callFactory,
+                rewardChainAsset: rewardChainAsset
             )
-
-            let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
             let strategy = StakingAmountRelaychainStrategy(
                 chainAsset: chainAsset,
@@ -220,14 +216,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
                 eraValidatorService: eraValidatorService,
                 existentialDepositService: existentialDepositService,
-                rewardChainAsset: rewardChainAsset,
-                priceLocalSubscriber: priceLocalSubscriber
+                rewardChainAsset: rewardChainAsset
             )
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
                 rewardDestViewModelFactory: rewardDestViewModelFactory,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                wallet: wallet
             )
 
             return StakingAmountDependencyContainer(
@@ -248,7 +244,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 wallet: wallet,
                 chainAsset: chainAsset,
                 amount: amount,
-                callFactory: callFactory
+                callFactory: callFactory,
+                rewardChainAsset: rewardChainAsset
             )
 
             let strategy = StakingAmountParachainStrategy(
@@ -331,7 +328,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let facade = UserDataStorageFacade.shared
         let mapper = MetaAccountMapper()
 
@@ -342,7 +338,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         return StakingAmountInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount

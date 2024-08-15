@@ -32,11 +32,8 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             localizationManager: LocalizationManager.shared
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let interactor = StakingRewardDetailsInteractor(
-            chainAsset: chainAsset,
-            priceLocalSubscriber: priceLocalSubscriber
+            chainAsset: chainAsset
         )
         let wireframe = StakingRewardDetailsWireframe()
 

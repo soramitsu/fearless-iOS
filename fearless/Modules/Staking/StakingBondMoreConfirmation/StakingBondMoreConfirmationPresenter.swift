@@ -15,7 +15,9 @@ final class StakingBondMoreConfirmationPresenter {
     let logger: LoggerProtocol?
     let wallet: MetaAccountModel
 
-    private var priceData: PriceData?
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: StakingBondMoreConfirmationInteractorInputProtocol,
@@ -79,19 +81,6 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPrese
 }
 
 extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetViewModel()
-            provideFeeViewModel()
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price data error: \(error)")
-        }
-    }
-
     func didSubmitBonding(result: Result<String, Error>) {
         view?.didStopLoading()
 

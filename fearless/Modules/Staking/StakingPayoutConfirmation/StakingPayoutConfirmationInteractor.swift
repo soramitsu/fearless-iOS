@@ -7,7 +7,6 @@ import BigInt
 import SSFModels
 
 final class StakingPayoutConfirmationInteractor: AccountFetching {
-
     private let strategy: StakingPayoutConfirmationStrategy
 
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol?

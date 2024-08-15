@@ -23,7 +23,6 @@ final class ChainAssetListAssembly {
             operationQueue: OperationQueue()
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let dependencyContainer = ChainAssetListDependencyContainer()
 
         let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
@@ -64,7 +63,6 @@ final class ChainAssetListAssembly {
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
-            priceLocalSubscriber: priceLocalSubscriber,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,

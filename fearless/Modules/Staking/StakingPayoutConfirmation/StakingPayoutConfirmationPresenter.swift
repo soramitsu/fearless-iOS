@@ -46,6 +46,8 @@ final class StakingPayoutConfirmationPresenter {
     }
 }
 
+extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {}
+
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenterProtocol {
     func setup() {
         viewModelState.setStateListener(self)

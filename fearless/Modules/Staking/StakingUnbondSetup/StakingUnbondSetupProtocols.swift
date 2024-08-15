@@ -29,9 +29,7 @@ protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {
     func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String)
 }
 
-protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {}
 
 protocol StakingUnbondSetupWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AnyDismissable, WebPresentable {

@@ -10,10 +10,13 @@ final class ValidatorInfoPresenter {
     private let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
     private let viewModelState: ValidatorInfoViewModelState
     private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
     private let logger: LoggerProtocol?
     private var viewModel: ValidatorInfoViewModel?
 
-    private(set) var priceDataResult: Result<PriceData?, Error>?
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: ValidatorInfoInteractorInputProtocol,
@@ -21,6 +24,7 @@ final class ValidatorInfoPresenter {
         viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
         viewModelState: ValidatorInfoViewModelState,
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
@@ -29,6 +33,7 @@ final class ValidatorInfoPresenter {
         self.viewModelFactory = viewModelFactory
         self.viewModelState = viewModelState
         self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
         self.localizationManager = localizationManager
     }
@@ -61,8 +66,6 @@ final class ValidatorInfoPresenter {
     }
 
     private func updateView() {
-        let priceData = try? priceDataResult?.get()
-
         if let viewModel = viewModelFactory.buildViewModel(
             viewModelState: viewModelState,
             priceData: priceData,
@@ -75,6 +78,8 @@ final class ValidatorInfoPresenter {
         }
     }
 }
+
+extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {}
 
 extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     func setup() {
@@ -99,8 +104,6 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentTotalStake() {
-        let priceData = try? priceDataResult?.get()
-
         guard let viewModel = viewModelFactory.buildStakingAmountViewModels(
             viewModelState: viewModelState,
             priceData: priceData
@@ -142,13 +145,6 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
                 show(url)
             }
         }
-    }
-}
-
-extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        priceDataResult = result
-        updateView()
     }
 }
 

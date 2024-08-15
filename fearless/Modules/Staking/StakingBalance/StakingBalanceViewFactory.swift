@@ -66,11 +66,8 @@ struct StakingBalanceViewFactory {
         wallet _: MetaAccountModel,
         strategy: StakingBalanceStrategy
     ) -> StakingBalanceInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingBalanceInteractor(
+        StakingBalanceInteractor(
             chainAsset: chainAsset,
-            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }

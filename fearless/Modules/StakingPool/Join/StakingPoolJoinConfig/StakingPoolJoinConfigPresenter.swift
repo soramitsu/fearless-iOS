@@ -19,12 +19,15 @@ final class StakingPoolJoinConfigPresenter {
 
     private var inputResult: AmountInputResult?
     private var balance: Decimal?
-    private var priceData: PriceData?
     private var amountViewModel: IAmountInputViewModel?
     private var fee: Decimal?
     private var minJoinBond: Decimal?
     private var existentialDeposit: BigUInt?
     private var totalAmount: BigUInt?
+
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     private lazy var balanceMinusFeeAndED: Decimal = {
         let existentialDepositDecimal = Decimal.fromSubstrateAmount(existentialDeposit ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0.0
@@ -194,19 +197,6 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
             self.existentialDeposit = existentialDeposit
         case let .failure(error):
             logger?.error(error.localizedDescription)
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetVewModel()
-            provideInputViewModel()
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("StakingPoolJoinConfigPresenter.didReceivePriceData.error: \(error)")
         }
     }
 

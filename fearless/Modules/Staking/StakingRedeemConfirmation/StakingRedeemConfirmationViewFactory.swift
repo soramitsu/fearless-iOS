@@ -23,8 +23,6 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             flow: flow,
             dataValidatingFactory: dataValidatingFactory
         ), let interactor = createInteractor(
-            chainAsset: chainAsset,
-            wallet: wallet,
             container: container
         ) else {
             return nil
@@ -61,7 +59,6 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
     ) -> StakingRedeemConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
             selectedMetaAccount: wallet
         )
 
@@ -73,21 +70,15 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
             chainAsset: chainAsset,
+            wallet: wallet,
             logger: Logger.shared
         )
     }
 
     private static func createInteractor(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
         container: StakingRedeemConfirmationDependencyContainer
     ) -> StakingRedeemConfirmationInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingRedeemConfirmationInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
-            chainAsset: chainAsset,
-            wallet: wallet,
+        StakingRedeemConfirmationInteractor(
             strategy: container.strategy
         )
     }

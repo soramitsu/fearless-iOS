@@ -271,7 +271,7 @@ extension StakingStateCommonData {
         )
     }
 
-    func byReplacing(rewardAssetPrice: PriceData?) -> StakingStateCommonData {
+    func byReplacing(rewardAssetPrice _: PriceData?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
             chainAsset: chainAsset,

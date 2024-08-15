@@ -39,7 +39,7 @@ final class StakingPoolCreatePresenter {
     private var lastPoolId: UInt32?
     private var poolNameInputViewModel: InputViewModelProtocol
     private var existentialDeposit: Decimal?
-    
+
     private var priceData: PriceData? {
         chainAsset.asset.getPrice(for: wallet.selectedCurrency)
     }

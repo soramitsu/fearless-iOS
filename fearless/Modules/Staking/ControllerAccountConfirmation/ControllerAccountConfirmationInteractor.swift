@@ -10,7 +10,6 @@ final class ControllerAccountConfirmationInteractor {
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let runtimeService: RuntimeCodingServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let signingWrapper: SigningWrapperProtocol
@@ -23,7 +22,6 @@ final class ControllerAccountConfirmationInteractor {
     private let selectedAccount: MetaAccountModel
     private let callFactory: SubstrateCallFactoryProtocol
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
@@ -31,7 +29,6 @@ final class ControllerAccountConfirmationInteractor {
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         runtimeService: RuntimeCodingServiceProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         signingWrapper: SigningWrapperProtocol,
@@ -47,7 +44,6 @@ final class ControllerAccountConfirmationInteractor {
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.runtimeService = runtimeService
         self.extrinsicService = extrinsicService
         self.signingWrapper = signingWrapper
@@ -91,8 +87,6 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
         if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
-
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         estimateFee()
         feeProxy.delegate = self
@@ -212,12 +206,6 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
                 self.presenter.didReceiveStashAccount(result: .failure(error))
             }
         }
-    }
-}
-
-extension ControllerAccountConfirmationInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        presenter.didReceivePriceData(result: result)
     }
 }
 

@@ -57,7 +57,8 @@ struct CrowdloanContributionConfirmViewFactory {
             assetInfo: assetInfo,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            chainAsset: ChainAsset(chain: chain, asset: asset)
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            wallet: selectedAccount
         )
 
         let view = CrowdloanContributionConfirmVC(
@@ -130,7 +131,6 @@ struct CrowdloanContributionConfirmViewFactory {
             extrinsicService: extrinsicService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
             signingWrapper: signingWrapper,
             bonusService: bonusService,

@@ -8,7 +8,6 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!
 
     internal let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     internal let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
     let paraId: ParaId
     let selectedMetaAccount: MetaAccountModel
@@ -23,7 +22,6 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ormlBalanceProvider: AnyDataProvider<DecodedOrmlAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var crowdloanProvider: AnyDataProvider<DecodedCrowdloanFunds>?
     private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
 
@@ -38,7 +36,6 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         extrinsicService: ExtrinsicServiceProtocol,
         crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         existentialDepositService: ExistentialDepositServiceProtocol,
@@ -52,7 +49,6 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         self.extrinsicService = extrinsicService
         self.crowdloanLocalSubscriptionFactory = crowdloanLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
         self.existentialDepositService = existentialDepositService
         self.operationManager = operationManager
@@ -123,16 +119,11 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
     }
 
-    private func subscribeToPrice() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-    }
-
     func setup() {
         feeProxy.delegate = self
 
         blockNumberProvider = subscribeToBlockNumber(for: chainAsset.chain.chainId)
 
-        subscribeToPrice()
         subscribeToAccountInfo()
         subscribeToDisplayInfo()
         subscribeToCrowdloanFunds()
@@ -184,12 +175,6 @@ extension CrowdloanContributionInteractor: AccountInfoSubscriptionAdapterHandler
         chainAsset _: ChainAsset
     ) {
         presenter.didReceiveAccountInfo(result: result)
-    }
-}
-
-extension CrowdloanContributionInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        presenter.didReceivePriceData(result: result)
     }
 }
 

@@ -13,12 +13,12 @@ final class StakingRewardDestConfirmPresenter {
     let chain: ChainModel
     let asset: AssetModel
     let logger: LoggerProtocol?
+    private let wallet: MetaAccountModel
 
     private var controllerAccount: ChainAccountResponse?
     private var stashItem: StashItem?
     private var fee: Decimal?
     private var balance: Decimal?
-    private var priceData: PriceData?
 
     init(
         interactor: StakingRewardDestConfirmInteractorInputProtocol,
@@ -29,6 +29,7 @@ final class StakingRewardDestConfirmPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chain: ChainModel,
         asset: AssetModel,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -39,10 +40,12 @@ final class StakingRewardDestConfirmPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
         self.asset = asset
+        self.wallet = wallet
         self.logger = logger
     }
 
     private func provideFeeViewModel() {
+        let priceData = asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = fee.map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }
         view?.didReceiveFee(viewModel: viewModel)
     }
@@ -139,17 +142,6 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
             provideFeeViewModel()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 

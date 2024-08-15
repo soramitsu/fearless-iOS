@@ -20,9 +20,7 @@ protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {
     func submitPayout(builderClosure: ExtrinsicBuilderClosure?)
 }
 
-protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<[PriceData], Error>)
-}
+protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {}
 
 protocol StakingPayoutConfirmationWireframeProtocol: SheetAlertPresentable,
     ErrorPresentable,

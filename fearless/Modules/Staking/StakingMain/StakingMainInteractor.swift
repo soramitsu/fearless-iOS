@@ -54,7 +54,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
     private var chainSubscriptionId: UUID?
     private var accountSubscriptionId: UUID?
-    
+
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var validatorProvider: AnyDataProvider<DecodedValidator>?

@@ -17,9 +17,7 @@ protocol StakingBalanceInteractorInputProtocol: AnyObject {
     func refresh()
 }
 
-protocol StakingBalanceInteractorOutputProtocol: AnyObject {
-    func didReceive(priceResult: Result<PriceData?, Error>)
-}
+protocol StakingBalanceInteractorOutputProtocol: AnyObject {}
 
 protocol StakingBalanceWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showBondMore(

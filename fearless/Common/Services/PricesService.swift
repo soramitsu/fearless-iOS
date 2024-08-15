@@ -32,7 +32,7 @@ final class PricesService: PricesServiceProtocol {
             currencies: currencies,
             listener: self
         )
-        self.assets = chainAssets.map { $0.asset }.uniq(predicate: { assetModel in
+        assets = chainAssets.map { $0.asset }.uniq(predicate: { assetModel in
             assetModel.id
         })
     }
@@ -50,9 +50,9 @@ extension PricesService: PriceLocalSubscriptionHandler {
 
     func handlePrices(result: Result<[PriceData], Error>, for chainAssets: [ChainAsset]) {
         switch result {
-        case .success(let priceDatas):
+        case let .success(priceDatas):
             handle(prices: priceDatas, for: chainAssets)
-        case .failure(let error):
+        case let .failure(error):
             handle(error: error)
         }
     }
@@ -75,9 +75,9 @@ private extension PricesService {
         })
         operationQueue.addOperation(saveOperation)
     }
-    
+
     func handle(error: Error) {
-        logger.error("Prices service failed to get prices")
+        logger.error("Prices service failed to get prices: \(error.localizedDescription)")
     }
 }
 

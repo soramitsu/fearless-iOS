@@ -9,6 +9,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
+    let rewardChainAsset: ChainAsset?
     private let callFactory: SubstrateCallFactoryProtocol
 
     private var networkStakingInfo: NetworkStakingInfo?
@@ -23,7 +24,6 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var inputViewModel: IAmountInputViewModel?
     private(set) var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
     private(set) var maxNominations: Int?
-    private(set) var rewardAssetPrice: PriceData?
     var payoutAccount: ChainAccountResponse?
     var fee: Decimal?
     var amount: Decimal? {
@@ -59,13 +59,14 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         amount: Decimal?,
-        callFactory: SubstrateCallFactoryProtocol
-
+        callFactory: SubstrateCallFactoryProtocol,
+        rewardChainAsset: ChainAsset?
     ) {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
         self.callFactory = callFactory
+        self.rewardChainAsset = rewardChainAsset
 
         if let amount = amount {
             inputResult = .absolute(amount)
@@ -269,12 +270,6 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
 
     func didReceive(networkStakingInfoError: Error) {
         Logger.shared.error("StakingAmountRelaychainViewModelState.didReceiveNetworkStakingInfoError: \(networkStakingInfoError)")
-    }
-
-    func didReceive(rewardAssetPrice: PriceData?) {
-        self.rewardAssetPrice = rewardAssetPrice
-
-        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }
 

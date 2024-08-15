@@ -58,7 +58,6 @@ enum NftSendAssembly {
                 scamInfoFetching: scamInfoFetcher,
                 addressChainDefiner: addressChainDefiner,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
                 chain: nft.chain,
                 wallet: wallet
             )

@@ -79,12 +79,6 @@ class BaseStakingState: StakingStateProtocol {
         stateMachine?.transit(to: self)
     }
 
-    func process(price: PriceData?) {
-        commonData = commonData.byReplacing(price: price)
-
-        stateMachine?.transit(to: self)
-    }
-
     func process(calculator: RewardCalculatorEngineProtocol?) {
         commonData = commonData.byReplacing(calculatorEngine: calculator)
 

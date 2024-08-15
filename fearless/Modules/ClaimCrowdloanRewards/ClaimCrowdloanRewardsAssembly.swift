@@ -64,7 +64,6 @@ final class ClaimCrowdloanRewardsAssembly {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             signer: signer,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             chainRegistry: chainRegistry,
             storageRequestPerformer: storageRequestPerformer,
             accountInfoFetcher: accountInfoFetcher

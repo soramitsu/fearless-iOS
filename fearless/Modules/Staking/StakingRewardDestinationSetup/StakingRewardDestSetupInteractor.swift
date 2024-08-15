@@ -8,7 +8,6 @@ import SSFRuntimeCodingService
 final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!
 
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
@@ -22,10 +21,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let connection: JSONRPCEngine
-    private let rewardChainAsset: ChainAsset?
 
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var payeeProvider: AnyDataProvider<DecodedPayee>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -38,7 +35,6 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
 
     init(
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
@@ -49,10 +45,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         connection: JSONRPCEngine,
-        callFactory: SubstrateCallFactoryProtocol,
-        rewardChainAsset: ChainAsset?
+        callFactory: SubstrateCallFactoryProtocol
     ) {
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.substrateProviderFactory = substrateProviderFactory
@@ -65,7 +59,6 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         self.accountRepository = accountRepository
         self.connection = connection
         self.callFactory = callFactory
-        self.rewardChainAsset = rewardChainAsset
     }
 
     private func provideRewardCalculator() {
@@ -140,7 +133,6 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
         if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
 
         provideRewardCalculator()
 
@@ -161,18 +153,6 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
 extension StakingRewardDestSetupInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
-    }
-}
-
-extension StakingRewardDestSetupInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset: ChainAsset) {
-        if chainAsset.asset.priceId == chainAsset.asset.priceId {
-            presenter.didReceivePriceData(result: result)
-        }
-
-        if chainAsset.asset.priceId == rewardChainAsset?.asset.priceId {
-            presenter.didReceiveRewardAssetPriceData(result: result)
-        }
     }
 }
 

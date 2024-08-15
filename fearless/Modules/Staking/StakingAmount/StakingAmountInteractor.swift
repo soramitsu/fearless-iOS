@@ -10,7 +10,6 @@ import SSFRuntimeCodingService
 final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol?
 
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let rewardService: RewardCalculatorServiceProtocol
@@ -21,10 +20,8 @@ final class StakingAmountInteractor {
     private let strategy: StakingAmountStrategy?
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         rewardService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -34,7 +31,6 @@ final class StakingAmountInteractor {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         strategy: StakingAmountStrategy?
     ) {
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.rewardService = rewardService
         self.runtimeService = runtimeService
@@ -69,8 +65,6 @@ final class StakingAmountInteractor {
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching,
     AccountFetching {
     func setup() {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
@@ -99,17 +93,6 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
 
     func estimateFee(extrinsicBuilderClosure: @escaping ExtrinsicBuilderClosure) {
         strategy?.estimateFee(extrinsicBuilderClosure: extrinsicBuilderClosure)
-    }
-}
-
-extension StakingAmountInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        switch result {
-        case let .success(priceData):
-            presenter?.didReceive(price: priceData)
-        case let .failure(error):
-            presenter?.didReceive(error: error)
-        }
     }
 }
 

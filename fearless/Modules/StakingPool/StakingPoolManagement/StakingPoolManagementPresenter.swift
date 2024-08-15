@@ -37,9 +37,9 @@ final class StakingPoolManagementPresenter {
     private var pendingRewards: BigUInt?
 
     private var electedValidators: [ElectedValidatorInfo]?
-    
+
     private var priceData: PriceData? {
-        return chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
     }
 
     // MARK: - Constructors

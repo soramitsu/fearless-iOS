@@ -63,7 +63,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     static let shared = createWalletBalanceAdapter()
 
     // MARK: - Private properties
-    
+
     private lazy var walletBalanceBuilder = {
         WalletBalanceBuilder()
     }()
