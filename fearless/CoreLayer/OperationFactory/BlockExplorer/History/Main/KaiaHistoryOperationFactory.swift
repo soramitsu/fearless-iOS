@@ -5,8 +5,7 @@ import RobinHood
 final class KaiaHistoryOperationFactory {
     private func createOperation(
         address: String,
-        url: URL,
-        chainAsset _: ChainAsset
+        url: URL
     ) -> BaseOperation<KaiaHistoryResponse> {
         let requestFactory = BlockNetworkRequestFactory {
             var url = url
@@ -82,8 +81,7 @@ extension KaiaHistoryOperationFactory: HistoryOperationFactoryProtocol {
 
         let remoteOperation = createOperation(
             address: address,
-            url: baseUrl,
-            chainAsset: ChainAsset(chain: chain, asset: asset)
+            url: baseUrl
         )
 
         let mapOperation = createMapOperation(
