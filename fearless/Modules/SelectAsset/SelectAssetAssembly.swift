@@ -12,7 +12,8 @@ final class SelectAssetAssembly {
         searchTextsViewModel: TextSearchViewModel?,
         output: SelectAssetModuleOutput,
         contextTag: Int? = nil,
-        isFullSize: Bool = false
+        isFullSize: Bool = false,
+        isEmbed: Bool = false
     ) -> SelectAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -62,7 +63,8 @@ final class SelectAssetAssembly {
         let view = SelectAssetViewController(
             isFullSize: isFullSize,
             output: presenter,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            embed: isEmbed
         )
         if !isFullSize {
             view.modalPresentationStyle = .custom
