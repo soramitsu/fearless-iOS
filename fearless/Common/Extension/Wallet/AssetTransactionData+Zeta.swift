@@ -10,7 +10,7 @@ extension AssetTransactionData {
         chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
-        let peerAddress = item.from.hash == address ? item.to.hash : item.from.hash
+        let peerAddress = item.from.hash.lowercased() == address.lowercased() ? item.to.hash : item.from.hash
         let type = item.from.hash.lowercased() == address.lowercased() ? TransactionType.outgoing : TransactionType.incoming
 
         let timestamp: Int64 = {

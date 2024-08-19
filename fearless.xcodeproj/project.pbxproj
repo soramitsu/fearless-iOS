@@ -12956,7 +12956,6 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
-				FA45423D2C6B2A0E00610A71 /* okx-dex-aggregator */,
 				FAD5FF232C463BEE003201F5 /* AccountStatistics */,
 				FA09AD332C37AB9400BE0B9C /* TransactionObserver */,
 				FA34EE902B98711F0042E73E /* CrowdloanService.swift */,
