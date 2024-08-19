@@ -4,33 +4,28 @@ import SSFModels
 
 extension AssetTransactionData {
     static func createTransaction(
-        from item: EtherscanHistoryElement,
+        from item: ViscanHistoryElement,
         address: String,
-        chain: ChainModel,
+        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
-        let peerAddress = item.from == address ? item.to : item.from
+        let peerAddress = item.from?.lowercased() == address.lowercased() ? item.to : item.from
         let type = item.from?.lowercased() == address.lowercased() ? TransactionType.outgoing :
             TransactionType.incoming
 
         let timestamp: Int64 = {
-            guard let timestampValue = item.timeStamp else {
+            guard let timestampValue = item.timestamp else {
                 return 0
             }
 
-            let timestamp = Int64(timestampValue) ?? 0
+            let timestamp = Int64(timestampValue)
             return timestamp
         }()
-
-        let feeValue = item.gasUsed * item.gasPrice
-
-        let utilityAsset = chain.utilityChainAssets().first?.asset ?? asset
-        let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: Int16(utilityAsset.precision)) ?? .zero
 
         let fee = AssetTransactionFee(
             identifier: asset.id,
             assetId: asset.id,
-            amount: AmountDecimal(value: feeDecimal),
+            amount: AmountDecimal(value: item.fee),
             context: nil
         )
         let amount = Decimal.fromSubstrateAmount(item.value, precision: Int16(asset.precision)) ?? .zero

@@ -15,14 +15,17 @@ final class AccountStatisticsViewController: UIViewController, ViewHolder {
 
     private let output: AccountStatisticsViewOutput
     private var shouldDisplayEmptyView: Bool = false
+    private let address: String?
 
     // MARK: - Constructor
 
     init(
         output: AccountStatisticsViewOutput,
-        localizationManager: LocalizationManagerProtocol?
+        localizationManager: LocalizationManagerProtocol?,
+        address: String?
     ) {
         self.output = output
+        self.address = address
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }

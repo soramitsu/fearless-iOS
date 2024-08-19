@@ -144,9 +144,9 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v10/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v11/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v10/chains.json")
+            GitHubUrl.url(suffix: "chains/v11/chains.json")
         #endif
     }
 

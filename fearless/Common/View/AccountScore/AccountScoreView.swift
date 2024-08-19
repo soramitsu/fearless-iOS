@@ -10,6 +10,7 @@ class AccountScoreView: UIView {
     private var viewModel: AccountScoreViewModel?
 
     private var skeletonView: SkrullableView?
+    private var rate: AccountScoreRate?
 
     let starView: FWCosmosView = {
         let view = FWCosmosView()
@@ -35,6 +36,7 @@ class AccountScoreView: UIView {
     }
 
     func bind(viewModel: AccountScoreViewModel?) {
+        rate = nil
         self.viewModel = viewModel
         viewModel?.setup(with: self)
 
@@ -54,6 +56,7 @@ class AccountScoreView: UIView {
     }
 
     func bind(score: Int, rate: AccountScoreRate) {
+        self.rate = rate
         stopLoadingIfNeeded()
         starView.text = "\(score)"
 
@@ -75,6 +78,10 @@ class AccountScoreView: UIView {
     }
 
     func bindEmptyViewModel() {
+        guard rate == nil else {
+            return
+        }
+        stopLoadingIfNeeded()
         starView.text = "N/A"
         starView.rating = 0
         starView.settings.textFont = .p2Paragraph

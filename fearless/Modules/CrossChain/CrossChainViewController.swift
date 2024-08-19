@@ -113,7 +113,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
 
     private func updatePreviewButton() {
         let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty && rootView.searchView.isValid
-        rootView.actionButton.set(enabled: isEnabled)
+        rootView.actionButton.set(enabled: isEnabled, changeStyle: true)
     }
 }
 

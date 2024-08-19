@@ -65,7 +65,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        presenter.setup()
+        presenter.setup(with: self)
 
         setupLocalization()
 
@@ -120,7 +120,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
             handleNextPageOnScroll(scrollView: rootView.tableView)
         case .unsupported:
             rootView.tableView.isHidden = false
-            rootView.filterButton.isHidden = false
+            rootView.filterButton.isHidden = true
             reloadContent()
         }
 

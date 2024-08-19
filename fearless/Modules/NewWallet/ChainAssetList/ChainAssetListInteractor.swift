@@ -30,6 +30,7 @@ final class ChainAssetListInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     private let chainRegistry: ChainRegistryProtocol
+    private let accountInfoRemoteService: AccountInfoRemoteService
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -52,7 +53,8 @@ final class ChainAssetListInteractor {
         userDefaultsStorage: SettingsManagerProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AsyncAnyRepository<ChainSettings>,
-        chainRegistry: ChainRegistryProtocol
+        chainRegistry: ChainRegistryProtocol,
+        accountInfoRemoteService: AccountInfoRemoteService
     ) {
         self.wallet = wallet
         self.priceLocalSubscriber = priceLocalSubscriber
@@ -66,6 +68,7 @@ final class ChainAssetListInteractor {
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
         self.chainRegistry = chainRegistry
+        self.accountInfoRemoteService = accountInfoRemoteService
     }
 
     // MARK: - Private methods
@@ -109,7 +112,7 @@ final class ChainAssetListInteractor {
             chainsAssets: chainAssets,
             handler: self,
             deliveryOn: accountInfosDeliveryQueue,
-            notifyJustWhenUpdated: true
+            notifyJustWhenUpdated: false
         )
     }
 

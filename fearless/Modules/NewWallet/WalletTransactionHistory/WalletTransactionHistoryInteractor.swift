@@ -265,33 +265,37 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDependencies(for chainAsset: ChainAsset) {
-        dependencyContainer.createDependencies(for: chainAsset, selectedAccount: selectedAccount)
+        do {
+            try dependencyContainer.createDependencies(for: chainAsset, selectedAccount: selectedAccount)
 
-        let changesBlock = { [weak self] (changes: [DataProviderChange<AssetTransactionPageData>]) -> Void in
-            if let change = changes.first {
-                switch change {
-                case let .insert(item), let .update(item):
-                    self?.handleDataProvider(transactionData: item)
-                default:
-                    break
+            let changesBlock = { [weak self] (changes: [DataProviderChange<AssetTransactionPageData>]) -> Void in
+                if let change = changes.first {
+                    switch change {
+                    case let .insert(item), let .update(item):
+                        self?.handleDataProvider(transactionData: item)
+                    default:
+                        break
+                    }
+                } else {
+                    self?.handleDataProvider(transactionData: nil)
                 }
-            } else {
-                self?.handleDataProvider(transactionData: nil)
             }
-        }
 
-        let failBlock: (Error) -> Void = { [weak self] (error: Error) in
-            self?.handleDataProvider(error: error)
-        }
+            let failBlock: (Error) -> Void = { [weak self] (error: Error) in
+                self?.handleDataProvider(error: error)
+            }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true)
-        dependencyContainer.dependencies?.dataProvider?.addObserver(
-            self,
-            deliverOn: .main,
-            executing: changesBlock,
-            failing: failBlock,
-            options: options
-        )
+            let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true)
+            dependencyContainer.dependencies?.dataProvider?.addObserver(
+                self,
+                deliverOn: .main,
+                executing: changesBlock,
+                failing: failBlock,
+                options: options
+            )
+        } catch {
+            presenter?.didReceiveUnsupported()
+        }
     }
 }
 

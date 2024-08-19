@@ -148,7 +148,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         wireframe.present(viewModel: viewModel, from: view)
     }
 
-    func didTapAccountScore(address: String) {
+    func didTapAccountScore(address: String?) {
         wireframe.presentAccountScore(address: address, from: view)
     }
 }

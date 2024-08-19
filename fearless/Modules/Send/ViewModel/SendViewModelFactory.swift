@@ -9,7 +9,7 @@ protocol SendViewModelFactoryProtocol {
         canEditing: Bool
     ) -> RecipientViewModel
     func buildNetworkViewModel(chain: ChainModel, canEdit: Bool) -> SelectNetworkViewModel
-    func buildAccountScoreViewModel(address: String, chain: ChainModel) -> AccountScoreViewModel?
+    func buildAccountScoreViewModel(address: String?, chain: ChainModel) -> AccountScoreViewModel?
 }
 
 final class SendViewModelFactory: SendViewModelFactoryProtocol {
@@ -49,7 +49,7 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
         )
     }
 
-    func buildAccountScoreViewModel(address: String, chain: ChainModel) -> AccountScoreViewModel? {
+    func buildAccountScoreViewModel(address: String?, chain: ChainModel) -> AccountScoreViewModel? {
         AccountScoreViewModel(
             fetcher: accountScoreFetcher,
             address: address,

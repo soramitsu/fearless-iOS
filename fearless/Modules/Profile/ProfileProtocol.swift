@@ -11,7 +11,7 @@ protocol ProfilePresenterProtocol: AnyObject {
     func activateOption(_ option: ProfileOption)
     func logout()
     func switcherValueChanged(isOn: Bool, index: Int)
-    func didTapAccountScore(address: String)
+    func didTapAccountScore(address: String?)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {

@@ -4,7 +4,7 @@ import SoraUI
 
 protocol WalletsManagmentTableCellDelegate: AnyObject {
     func didTapOptionsCell(with indexPath: IndexPath?)
-    func didTapAccountScore(address: String)
+    func didTapAccountScore(address: String?)
 }
 
 final class WalletsManagmentTableCell: UITableViewCell {
@@ -103,9 +103,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
         accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
 
         accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
-            if let address = viewModel.accountScoreViewModel?.address {
-                self?.delegate?.didTapAccountScore(address: address)
-            }
+            self?.delegate?.didTapAccountScore(address: viewModel.accountScoreViewModel?.address)
         }
     }
 
