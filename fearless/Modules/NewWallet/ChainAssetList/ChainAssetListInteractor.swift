@@ -28,6 +28,8 @@ final class ChainAssetListInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     private let chainRegistry: ChainRegistryProtocol
+    private let pricesService: PricesServiceProtocol
+    private let operationQueue: OperationQueue
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -49,7 +51,9 @@ final class ChainAssetListInteractor {
         userDefaultsStorage: SettingsManagerProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AsyncAnyRepository<ChainSettings>,
-        chainRegistry: ChainRegistryProtocol
+        chainRegistry: ChainRegistryProtocol,
+        pricesService: PricesServiceProtocol,
+        operationQueue: OperationQueue
     ) {
         self.wallet = wallet
         self.eventCenter = eventCenter
@@ -62,6 +66,8 @@ final class ChainAssetListInteractor {
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
         self.chainRegistry = chainRegistry
+        self.pricesService = pricesService
+        self.operationQueue = operationQueue
     }
 
     // MARK: - Private methods
@@ -105,6 +111,18 @@ final class ChainAssetListInteractor {
         Task {
             let settings = try await chainSettingsRepository.fetchAll()
             output?.didReceive(chainSettings: settings)
+        }
+    }
+
+    private func getUpdatedChainAssets() {
+        let chainAssetFetching = dependencyContainer.buildDependencies(for: wallet).chainAssetFetching
+        chainAssetFetching.fetch(
+            shouldUseCache: false,
+            filters: filters,
+            sortDescriptors: sorts
+        ) { [weak self] result in
+            guard let result = result else { return }
+            self?.output?.didReceiveChainAssets(result: result)
         }
     }
 }
@@ -166,11 +184,21 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
                 }
-
+                self?.subscribeOnPrices(chainAssets: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
         }
+    }
+
+    func subscribeOnPrices(chainAssets: [ChainAsset]) {
+        let operation = accountRepository.fetchAllOperation(with: RepositoryFetchOptions.none)
+        operation.completionBlock = { [weak self] in
+            let wallets = try? operation.extractNoCancellableResultData()
+            let currencies = wallets?.map { $0.selectedCurrency } ?? []
+            self?.pricesService.startPricesObserving(for: chainAssets, currencies: currencies)
+        }
+        OperationManagerFacade.sharedDefaultQueue.addOperation(operation)
     }
 
     func markUnused(chain: ChainModel) {
@@ -293,6 +321,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
         updateChainAssets(using: filters, sorts: sorts, useCashe: false)
+    }
+
+    func processPricesUpdated() {
+        getUpdatedChainAssets()
     }
 }
 

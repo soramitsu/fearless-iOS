@@ -61,6 +61,9 @@ final class ChainAssetListAssembly {
 
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
+        let operationQueue = OperationManagerFacade.sharedDefaultQueue
+        let assetRepository = AssetRepositoryFactory().createRepository()
+        let pricesService = PricesService.shared
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             eventCenter: EventCenter.shared,
@@ -72,7 +75,9 @@ final class ChainAssetListAssembly {
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
-            chainRegistry: ChainRegistryFacade.sharedRegistry
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            pricesService: pricesService,
+            operationQueue: operationQueue
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

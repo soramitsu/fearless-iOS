@@ -14,16 +14,18 @@ final class PricesService: PricesServiceProtocol {
     private let operationQueue: OperationQueue
     private let logger: Logger
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    private var assets: [AssetModel] = []
+    private let eventCenter: EventCenter
 
     private init(
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
-        logger: Logger
+        logger: Logger,
+        eventCenter: EventCenter
     ) {
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
         self.logger = logger
+        self.eventCenter = eventCenter
     }
 
     func startPricesObserving(for chainAssets: [SSFModels.ChainAsset], currencies: [SSFModels.Currency]) {
@@ -32,9 +34,6 @@ final class PricesService: PricesServiceProtocol {
             currencies: currencies,
             listener: self
         )
-        assets = chainAssets.map { $0.asset }.uniq(predicate: { assetModel in
-            assetModel.id
-        })
     }
 
     func updatePrices() {
@@ -73,6 +72,9 @@ private extension PricesService {
         }, {
             []
         })
+        saveOperation.completionBlock = { [weak self] in
+            self?.eventCenter.notify(with: PricesUpdated())
+        }
         operationQueue.addOperation(saveOperation)
     }
 
@@ -87,7 +89,8 @@ private extension PricesService {
         return PricesService(
             assetRepository: AnyDataProviderRepository(repository),
             operationQueue: OperationQueue(),
-            logger: Logger.shared
+            logger: Logger.shared,
+            eventCenter: EventCenter.shared
         )
     }
 }
