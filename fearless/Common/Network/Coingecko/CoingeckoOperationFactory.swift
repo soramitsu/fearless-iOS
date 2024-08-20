@@ -38,14 +38,11 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
         for tokenIds: [String],
         currencies: [Currency]
     ) -> BaseOperation<[PriceData]> {
-        print("coingecko currencies: ", currencies)
         guard let url = buildURLForAssets(
             tokenIds,
             method: CoingeckoAPI.price,
             currencies: currencies
         ) else {
-            print("coingecko invalid url")
-
             return BaseOperation.createWithError(NetworkBaseError.invalidUrl)
         }
 
@@ -63,13 +60,10 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
         }
 
         let resultFactory = AnyNetworkResultFactory<[PriceData]> { data in
-            print("Coingecko response received")
 
             let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
-            print("Coingecko json: ", json)
             return tokenIds.compactMap { assetId in
                 guard let priceDataJson = json?[assetId] as? [String: Any] else {
-                    print("no assetId: ", assetId)
                     return nil
                 }
 
@@ -78,8 +72,6 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
                     let dayChange = priceDataJson["\(currency.id)_24h_change"] as? CGFloat
 
                     guard let price = price else {
-                        print("no price")
-
                         return nil
                     }
 

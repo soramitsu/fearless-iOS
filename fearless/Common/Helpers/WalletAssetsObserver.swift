@@ -96,7 +96,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     }
 
     private func updateCurrentWallet(with chains: [ChainModel]) {
-        let filtered = chains.filter { wallet.assetsVisibility.map { $0.identifier }.contains($0.identifier) == false }
+        let filtered = chains.filter { wallet.assetsVisibility.map { $0.identifier }.contains($0.utilityChainAssets().first?.identifier) == false }
         setDefaultVisibilitiesIfNeeded(chains: filtered)
     }
 

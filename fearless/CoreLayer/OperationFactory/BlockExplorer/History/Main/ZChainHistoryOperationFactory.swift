@@ -5,8 +5,7 @@ import RobinHood
 final class ZChainHistoryOperationFactory {
     private func createOperation(
         address: String,
-        url: URL,
-        chainAsset _: ChainAsset
+        url: URL
     ) -> BaseOperation<ZChainHistoryResponse> {
         let requestFactory = BlockNetworkRequestFactory {
             var url = url
@@ -90,8 +89,7 @@ extension ZChainHistoryOperationFactory: HistoryOperationFactoryProtocol {
 
         let remoteOperation = createOperation(
             address: address,
-            url: baseUrl,
-            chainAsset: ChainAsset(chain: chain, asset: asset)
+            url: baseUrl
         )
 
         let mapOperation = createMapOperation(

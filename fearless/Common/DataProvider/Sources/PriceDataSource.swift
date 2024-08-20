@@ -66,9 +66,6 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
                 try? $0.extractNoCancellableResultData()
             }
             let soraSubqueryPrices = (try? soraSubqueryOperation.extractNoCancellableResultData()) ?? []
-            print("coingecko prices : ", coingeckoPrices)
-            print("chainlink prices : ", chainlinkPrices)
-            print("soraSubqueryPrices prices : ", soraSubqueryPrices)
 
             prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
             prices = self.merge(coingeckoPrices: prices, soraSubqueryPrices: soraSubqueryPrices)
