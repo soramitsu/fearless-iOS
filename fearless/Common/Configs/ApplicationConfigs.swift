@@ -207,6 +207,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     var nomisAccountScoreURL: URL {
         URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/")!
     }
+
+    var okxDexAggregatorURL: URL {
+        URL(string: "https://www.okx.com")!
+    }
 }
 
 private enum GitHubUrl {
