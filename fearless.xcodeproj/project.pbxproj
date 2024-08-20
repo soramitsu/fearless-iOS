@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1576,6 +1576,25 @@
 		C6DC2D602B18411000BAA4DB /* UIImageView+gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC2D5F2B18411000BAA4DB /* UIImageView+gif.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
 		C6FB932E27C9334100563E61 /* AvailableExportOptionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */; };
+		C6FBA6FD2C743D21008B18D9 /* OKXDexAggregatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA6FC2C743D21008B18D9 /* OKXDexAggregatorService.swift */; };
+		C6FBA6FF2C743D45008B18D9 /* OKXDexRequestSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA6FE2C743D45008B18D9 /* OKXDexRequestSigner.swift */; };
+		C6FBA7052C743D52008B18D9 /* OKXDexSwapRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7002C743D51008B18D9 /* OKXDexSwapRequestParameters.swift */; };
+		C6FBA7062C743D52008B18D9 /* OKXDexAllTokensRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7012C743D51008B18D9 /* OKXDexAllTokensRequestParameters.swift */; };
+		C6FBA7072C743D52008B18D9 /* OKXDexApproveRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7022C743D51008B18D9 /* OKXDexApproveRequestParameters.swift */; };
+		C6FBA7082C743D52008B18D9 /* OKXDexLiquiditySourceRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7032C743D52008B18D9 /* OKXDexLiquiditySourceRequestParameters.swift */; };
+		C6FBA7092C743D52008B18D9 /* OKXDexQuotesRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7042C743D52008B18D9 /* OKXDexQuotesRequestParameters.swift */; };
+		C6FBA7162C743D5F008B18D9 /* OKXResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA70A2C743D5D008B18D9 /* OKXResponse.swift */; };
+		C6FBA7172C743D5F008B18D9 /* OKXToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA70B2C743D5D008B18D9 /* OKXToken.swift */; };
+		C6FBA7182C743D5F008B18D9 /* OKXSupportedChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA70C2C743D5D008B18D9 /* OKXSupportedChain.swift */; };
+		C6FBA7192C743D5F008B18D9 /* OKXDexQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA70D2C743D5D008B18D9 /* OKXDexQuote.swift */; };
+		C6FBA71A2C743D5F008B18D9 /* OKXSwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA70E2C743D5E008B18D9 /* OKXSwap.swift */; };
+		C6FBA71B2C743D5F008B18D9 /* OKXDexProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA70F2C743D5E008B18D9 /* OKXDexProtocol.swift */; };
+		C6FBA71C2C743D5F008B18D9 /* OKXDexRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7102C743D5E008B18D9 /* OKXDexRouter.swift */; };
+		C6FBA71D2C743D5F008B18D9 /* OKXDexSubrouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7112C743D5E008B18D9 /* OKXDexSubrouter.swift */; };
+		C6FBA71F2C743D5F008B18D9 /* OKXLiquiditySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7132C743D5F008B18D9 /* OKXLiquiditySource.swift */; };
+		C6FBA7202C743D5F008B18D9 /* OKXQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7142C743D5F008B18D9 /* OKXQuote.swift */; };
+		C6FBA7212C743D5F008B18D9 /* OKXSwapTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7152C743D5F008B18D9 /* OKXSwapTransaction.swift */; };
+		C6FBA7222C743EE4008B18D9 /* OKXApproveTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA7122C743D5E008B18D9 /* OKXApproveTransaction.swift */; };
 		C77CCA7FF969A2F006A0B6C4 /* WalletChainAccountDashboardProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8E1C5E0E16867BDA51B6734 /* WalletChainAccountDashboardProtocols.swift */; };
 		C7D77690E10875CF1856EBA1 /* StakingRewardPayoutsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7911693957DFAF141EBDAFEC /* StakingRewardPayoutsProtocols.swift */; };
 		C80B2FDBD395CDEAD1B7E996 /* AnalyticsRewardDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC2C9D26B9F9CC048C67796F /* AnalyticsRewardDetailsViewLayout.swift */; };
@@ -2121,7 +2140,6 @@
 		FA44284229D44E51000142EB /* ChainStakingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA44284129D44E51000142EB /* ChainStakingSettings.swift */; };
 		FA4441342BF75FD90067C633 /* LiquidityPoolListType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4441332BF75FD90067C633 /* LiquidityPoolListType.swift */; };
 		FA4542422C6B367B00610A71 /* BlockExplorerType+Filters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4542412C6B367B00610A71 /* BlockExplorerType+Filters.swift */; };
-		FA4542442C6B5A3500610A71 /* OKXDexRequestSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4542432C6B5A3500610A71 /* OKXDexRequestSigner.swift */; };
 		FA46D2C7283DDD07005A112B /* ParachainStakingCandidateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA46D2C6283DDD07005A112B /* ParachainStakingCandidateMetadata.swift */; };
 		FA4889672B7F5E360092ABF8 /* GiantsquidExtrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4889662B7F5E360092ABF8 /* GiantsquidExtrinsic.swift */; };
 		FA4B098E2C47804F001B73F9 /* NomisRequestSigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4B098D2C47804F001B73F9 /* NomisRequestSigner.swift */; };
@@ -2893,25 +2911,7 @@
 		FAEDC1392820E62F00E6582C /* StakingAmountRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDC1382820E62F00E6582C /* StakingAmountRelaychainViewModelState.swift */; };
 		FAEDC13D2820F59100E6582C /* StakingAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDC13C2820F59100E6582C /* StakingAmountViewModel.swift */; };
 		FAEDC13F2821264E00E6582C /* StakingAmountRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEDC13E2821264E00E6582C /* StakingAmountRelaychainViewModelFactory.swift */; };
-		FAEFA6B62C6C7DEE00095C07 /* OKXDexAggregatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6B52C6C7DEE00095C07 /* OKXDexAggregatorService.swift */; };
-		FAEFA6BB2C6C7EC900095C07 /* OKXSupportedChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6BA2C6C7EC900095C07 /* OKXSupportedChain.swift */; };
-		FAEFA6BF2C6CB8A800095C07 /* OKXToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6BE2C6CB8A800095C07 /* OKXToken.swift */; };
-		FAEFA6C12C6DA49000095C07 /* OKXResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6C02C6DA49000095C07 /* OKXResponse.swift */; };
-		FAEFA6C32C6DA4B700095C07 /* OKXLiquiditySource.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6C22C6DA4B700095C07 /* OKXLiquiditySource.swift */; };
-		FAEFA6C52C6DB9D600095C07 /* OKXQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6C42C6DB9D600095C07 /* OKXQuote.swift */; };
-		FAEFA6C72C6DC31D00095C07 /* OKXDexRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6C62C6DC31C00095C07 /* OKXDexRouter.swift */; };
-		FAEFA6C92C6DC35700095C07 /* OKXDexSubrouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6C82C6DC35700095C07 /* OKXDexSubrouter.swift */; };
-		FAEFA6CB2C6DC36B00095C07 /* OKXDexProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6CA2C6DC36B00095C07 /* OKXDexProtocol.swift */; };
-		FAEFA6CD2C6DC6A700095C07 /* OKXDexQuote.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6CC2C6DC6A700095C07 /* OKXDexQuote.swift */; };
-		FAEFA6CF2C6DCBE700095C07 /* OKXSwapTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6CE2C6DCBE700095C07 /* OKXSwapTransaction.swift */; };
-		FAEFA6D22C6DCCF900095C07 /* OKXDexQuotesRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6D12C6DCCF900095C07 /* OKXDexQuotesRequestParameters.swift */; };
 		FAEFA6D52C6DCF7C00095C07 /* NetworkRequestUrlParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6D42C6DCF7C00095C07 /* NetworkRequestUrlParameters.swift */; };
-		FAEFA6D72C6DD00B00095C07 /* OKXDexSwapRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6D62C6DD00B00095C07 /* OKXDexSwapRequestParameters.swift */; };
-		FAEFA6D92C6DEB4900095C07 /* OKXSwap.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6D82C6DEB4900095C07 /* OKXSwap.swift */; };
-		FAEFA6DB2C6DEBFD00095C07 /* OKXApproveTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6DA2C6DEBFD00095C07 /* OKXApproveTransaction.swift */; };
-		FAEFA6DD2C6DEC4800095C07 /* OKXDexApproveRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6DC2C6DEC4800095C07 /* OKXDexApproveRequestParameters.swift */; };
-		FAEFA6DF2C6DEE2800095C07 /* OKXDexLiquiditySourceRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6DE2C6DEE2800095C07 /* OKXDexLiquiditySourceRequestParameters.swift */; };
-		FAEFA6E12C6DEE4B00095C07 /* OKXDexAllTokensRequestParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAEFA6E02C6DEE4B00095C07 /* OKXDexAllTokensRequestParameters.swift */; };
 		FAF5E9CD27E46D3E005A3448 /* GithubJSONDecoder.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9CA27E46D3E005A3448 /* GithubJSONDecoder.swift */; };
 		FAF5E9CE27E46D3E005A3448 /* URLConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9CC27E46D3E005A3448 /* URLConstants.swift */; };
 		FAF5E9D127E46D6A005A3448 /* AppVersionObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF5E9D027E46D6A005A3448 /* AppVersionObserver.swift */; };
@@ -4630,6 +4630,25 @@
 		C6E992712B999A8B00806910 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = id; path = id.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableExportOptionsProvider.swift; sourceTree = "<group>"; };
+		C6FBA6FC2C743D21008B18D9 /* OKXDexAggregatorService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexAggregatorService.swift; sourceTree = "<group>"; };
+		C6FBA6FE2C743D45008B18D9 /* OKXDexRequestSigner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexRequestSigner.swift; sourceTree = "<group>"; };
+		C6FBA7002C743D51008B18D9 /* OKXDexSwapRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexSwapRequestParameters.swift; sourceTree = "<group>"; };
+		C6FBA7012C743D51008B18D9 /* OKXDexAllTokensRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexAllTokensRequestParameters.swift; sourceTree = "<group>"; };
+		C6FBA7022C743D51008B18D9 /* OKXDexApproveRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexApproveRequestParameters.swift; sourceTree = "<group>"; };
+		C6FBA7032C743D52008B18D9 /* OKXDexLiquiditySourceRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexLiquiditySourceRequestParameters.swift; sourceTree = "<group>"; };
+		C6FBA7042C743D52008B18D9 /* OKXDexQuotesRequestParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexQuotesRequestParameters.swift; sourceTree = "<group>"; };
+		C6FBA70A2C743D5D008B18D9 /* OKXResponse.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXResponse.swift; sourceTree = "<group>"; };
+		C6FBA70B2C743D5D008B18D9 /* OKXToken.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXToken.swift; sourceTree = "<group>"; };
+		C6FBA70C2C743D5D008B18D9 /* OKXSupportedChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXSupportedChain.swift; sourceTree = "<group>"; };
+		C6FBA70D2C743D5D008B18D9 /* OKXDexQuote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexQuote.swift; sourceTree = "<group>"; };
+		C6FBA70E2C743D5E008B18D9 /* OKXSwap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXSwap.swift; sourceTree = "<group>"; };
+		C6FBA70F2C743D5E008B18D9 /* OKXDexProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexProtocol.swift; sourceTree = "<group>"; };
+		C6FBA7102C743D5E008B18D9 /* OKXDexRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexRouter.swift; sourceTree = "<group>"; };
+		C6FBA7112C743D5E008B18D9 /* OKXDexSubrouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXDexSubrouter.swift; sourceTree = "<group>"; };
+		C6FBA7122C743D5E008B18D9 /* OKXApproveTransaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXApproveTransaction.swift; sourceTree = "<group>"; };
+		C6FBA7132C743D5F008B18D9 /* OKXLiquiditySource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXLiquiditySource.swift; sourceTree = "<group>"; };
+		C6FBA7142C743D5F008B18D9 /* OKXQuote.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXQuote.swift; sourceTree = "<group>"; };
+		C6FBA7152C743D5F008B18D9 /* OKXSwapTransaction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXSwapTransaction.swift; sourceTree = "<group>"; };
 		C705CA1083C1EE58426D90CD /* AllDoneInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneInteractor.swift; sourceTree = "<group>"; };
 		C7416F3AFA5F4D1130B1C410 /* WalletTransactionDetailsWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsWireframe.swift; sourceTree = "<group>"; };
 		C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewFactory.swift; sourceTree = "<group>"; };
@@ -9972,6 +9991,25 @@
 		84CFF1CA26526C4700DB7CF7 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
+				FA4542432C6B5A3500610A71 /* OKXDexRequestSigner.swift */,
+				FAEFA6DA2C6DEBFD00095C07 /* OKXApproveTransaction.swift */,
+				FAEFA6BA2C6C7EC900095C07 /* OKXSupportedChain.swift */,
+				FAEFA6CA2C6DC36B00095C07 /* OKXDexProtocol.swift */,
+				FAEFA6C82C6DC35700095C07 /* OKXDexSubrouter.swift */,
+				FAEFA6D62C6DD00B00095C07 /* OKXDexSwapRequestParameters.swift */,
+				FAEFA6DE2C6DEE2800095C07 /* OKXDexLiquiditySourceRequestParameters.swift */,
+				FAEFA6CC2C6DC6A700095C07 /* OKXDexQuote.swift */,
+				FAEFA6C22C6DA4B700095C07 /* OKXLiquiditySource.swift */,
+				FAEFA6CE2C6DCBE700095C07 /* OKXSwapTransaction.swift */,
+				FAEFA6DC2C6DEC4800095C07 /* OKXDexApproveRequestParameters.swift */,
+				FAEFA6D82C6DEB4900095C07 /* OKXSwap.swift */,
+				FAEFA6D12C6DCCF900095C07 /* OKXDexQuotesRequestParameters.swift */,
+				FAEFA6C42C6DB9D600095C07 /* OKXQuote.swift */,
+				FAEFA6C62C6DC31C00095C07 /* OKXDexRouter.swift */,
+				FAEFA6BE2C6CB8A800095C07 /* OKXToken.swift */,
+				FAEFA6E02C6DEE4B00095C07 /* OKXDexAllTokensRequestParameters.swift */,
+				FAEFA6C02C6DA49000095C07 /* OKXResponse.swift */,
+				FAEFA6B52C6C7DEE00095C07 /* OKXDexAggregatorService.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -11362,6 +11400,64 @@
 				C6CA20432B072B98001503C2 /* NftCollectionFilters.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		C6FBA6E52C743BDD008B18D9 /* okx-dex-aggregator */ = {
+			isa = PBXGroup;
+			children = (
+				C6FBA6FC2C743D21008B18D9 /* OKXDexAggregatorService.swift */,
+				C6FBA6E82C743C31008B18D9 /* Network */,
+			);
+			path = "okx-dex-aggregator";
+			sourceTree = "<group>";
+		};
+		C6FBA6E82C743C31008B18D9 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				C6FBA6FE2C743D45008B18D9 /* OKXDexRequestSigner.swift */,
+				C6FBA6F02C743C88008B18D9 /* Response */,
+				C6FBA6EF2C743C82008B18D9 /* Request */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		C6FBA6EF2C743C82008B18D9 /* Request */ = {
+			isa = PBXGroup;
+			children = (
+				C6FBA6F12C743C96008B18D9 /* Parameters */,
+			);
+			path = Request;
+			sourceTree = "<group>";
+		};
+		C6FBA6F02C743C88008B18D9 /* Response */ = {
+			isa = PBXGroup;
+			children = (
+				C6FBA7122C743D5E008B18D9 /* OKXApproveTransaction.swift */,
+				C6FBA70F2C743D5E008B18D9 /* OKXDexProtocol.swift */,
+				C6FBA70D2C743D5D008B18D9 /* OKXDexQuote.swift */,
+				C6FBA7102C743D5E008B18D9 /* OKXDexRouter.swift */,
+				C6FBA7112C743D5E008B18D9 /* OKXDexSubrouter.swift */,
+				C6FBA7132C743D5F008B18D9 /* OKXLiquiditySource.swift */,
+				C6FBA7142C743D5F008B18D9 /* OKXQuote.swift */,
+				C6FBA70A2C743D5D008B18D9 /* OKXResponse.swift */,
+				C6FBA70C2C743D5D008B18D9 /* OKXSupportedChain.swift */,
+				C6FBA70E2C743D5E008B18D9 /* OKXSwap.swift */,
+				C6FBA7152C743D5F008B18D9 /* OKXSwapTransaction.swift */,
+				C6FBA70B2C743D5D008B18D9 /* OKXToken.swift */,
+			);
+			path = Response;
+			sourceTree = "<group>";
+		};
+		C6FBA6F12C743C96008B18D9 /* Parameters */ = {
+			isa = PBXGroup;
+			children = (
+				C6FBA7012C743D51008B18D9 /* OKXDexAllTokensRequestParameters.swift */,
+				C6FBA7022C743D51008B18D9 /* OKXDexApproveRequestParameters.swift */,
+				C6FBA7032C743D52008B18D9 /* OKXDexLiquiditySourceRequestParameters.swift */,
+				C6FBA7042C743D52008B18D9 /* OKXDexQuotesRequestParameters.swift */,
+				C6FBA7002C743D51008B18D9 /* OKXDexSwapRequestParameters.swift */,
+			);
+			path = Parameters;
 			sourceTree = "<group>";
 		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
@@ -12956,6 +13052,7 @@
 		FA38C9A32760700B005C5577 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				C6FBA6E52C743BDD008B18D9 /* okx-dex-aggregator */,
 				FAD5FF232C463BEE003201F5 /* AccountStatistics */,
 				FA09AD332C37AB9400BE0B9C /* TransactionObserver */,
 				FA34EE902B98711F0042E73E /* CrowdloanService.swift */,
@@ -13029,25 +13126,6 @@
 				FA41B6282C64C15000D0713A /* VicscanHistoryResponse.swift */,
 			);
 			path = Viscan;
-			sourceTree = "<group>";
-		};
-		FA45423D2C6B2A0E00610A71 /* okx-dex-aggregator */ = {
-			isa = PBXGroup;
-			children = (
-				FAEFA6B52C6C7DEE00095C07 /* OKXDexAggregatorService.swift */,
-				FA45423E2C6B2A2300610A71 /* Network */,
-			);
-			path = "okx-dex-aggregator";
-			sourceTree = "<group>";
-		};
-		FA45423E2C6B2A2300610A71 /* Network */ = {
-			isa = PBXGroup;
-			children = (
-				FAEFA6D02C6DCCED00095C07 /* Request */,
-				FAEFA6B72C6C7E2300095C07 /* Response */,
-				FA4542432C6B5A3500610A71 /* OKXDexRequestSigner.swift */,
-			);
-			path = Network;
 			sourceTree = "<group>";
 		};
 		FA4B098C2C4674C9001B73F9 /* Request */ = {
@@ -14986,51 +15064,12 @@
 			path = Adapter;
 			sourceTree = "<group>";
 		};
-		FAEFA6B72C6C7E2300095C07 /* Response */ = {
-			isa = PBXGroup;
-			children = (
-				FAEFA6BA2C6C7EC900095C07 /* OKXSupportedChain.swift */,
-				FAEFA6BE2C6CB8A800095C07 /* OKXToken.swift */,
-				FAEFA6C02C6DA49000095C07 /* OKXResponse.swift */,
-				FAEFA6C22C6DA4B700095C07 /* OKXLiquiditySource.swift */,
-				FAEFA6C42C6DB9D600095C07 /* OKXQuote.swift */,
-				FAEFA6C62C6DC31C00095C07 /* OKXDexRouter.swift */,
-				FAEFA6C82C6DC35700095C07 /* OKXDexSubrouter.swift */,
-				FAEFA6CA2C6DC36B00095C07 /* OKXDexProtocol.swift */,
-				FAEFA6CC2C6DC6A700095C07 /* OKXDexQuote.swift */,
-				FAEFA6CE2C6DCBE700095C07 /* OKXSwapTransaction.swift */,
-				FAEFA6D82C6DEB4900095C07 /* OKXSwap.swift */,
-				FAEFA6DA2C6DEBFD00095C07 /* OKXApproveTransaction.swift */,
-			);
-			path = Response;
-			sourceTree = "<group>";
-		};
-		FAEFA6D02C6DCCED00095C07 /* Request */ = {
-			isa = PBXGroup;
-			children = (
-				FAEFA6E22C6DEEC300095C07 /* Parameters */,
-			);
-			path = Request;
-			sourceTree = "<group>";
-		};
 		FAEFA6D32C6DCF6500095C07 /* Network */ = {
 			isa = PBXGroup;
 			children = (
 				FAEFA6D42C6DCF7C00095C07 /* NetworkRequestUrlParameters.swift */,
 			);
 			path = Network;
-			sourceTree = "<group>";
-		};
-		FAEFA6E22C6DEEC300095C07 /* Parameters */ = {
-			isa = PBXGroup;
-			children = (
-				FAEFA6D12C6DCCF900095C07 /* OKXDexQuotesRequestParameters.swift */,
-				FAEFA6D62C6DD00B00095C07 /* OKXDexSwapRequestParameters.swift */,
-				FAEFA6DC2C6DEC4800095C07 /* OKXDexApproveRequestParameters.swift */,
-				FAEFA6DE2C6DEE2800095C07 /* OKXDexLiquiditySourceRequestParameters.swift */,
-				FAEFA6E02C6DEE4B00095C07 /* OKXDexAllTokensRequestParameters.swift */,
-			);
-			path = Parameters;
 			sourceTree = "<group>";
 		};
 		FAF5E9C827E46D3E005A3448 /* Codable */ = {
@@ -16027,7 +16066,6 @@
 				8470D6D2253E3382009E9A5D /* StorageSubscriptionContainer.swift in Sources */,
 				84038FEE26FFBA6200C73F3F /* PriceLocalSubscriptionHandler.swift in Sources */,
 				FA4B929B2844D0470003BCEF /* WalletDetailsTableHeaderView.swift in Sources */,
-				FA4542442C6B5A3500610A71 /* OKXDexRequestSigner.swift in Sources */,
 				84C7DA5425EE2DF000F8C318 /* StakingErrorPresentable.swift in Sources */,
 				8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */,
 				8425EB1B25EADD8600C307C9 /* StakingConstants.swift in Sources */,
@@ -16206,7 +16244,6 @@
 				84963D7026F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift in Sources */,
 				8468B87624F63D5900B76BC6 /* AddAccount+AccountImportWireframe.swift in Sources */,
 				07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */,
-				FAEFA6DB2C6DEBFD00095C07 /* OKXApproveTransaction.swift in Sources */,
 				FAFDB2C529112A0F003971FB /* UsedRuntimeModules.swift in Sources */,
 				84F6B6482619A87C0038F10D /* ExtrinsicIndexWrapper.swift in Sources */,
 				FA90865827915D2500F785A7 /* WalletTransactionDetailsViewModel.swift in Sources */,
@@ -16331,6 +16368,7 @@
 				84CA68D926BE9E7F003B9453 /* SpecVersionSubscription.swift in Sources */,
 				84C74363251E4C2F009576C6 /* DummySigner.swift in Sources */,
 				FA1D02042BBE71F2005B7071 /* TokenPairIconsView.swift in Sources */,
+				C6FBA71B2C743D5F008B18D9 /* OKXDexProtocol.swift in Sources */,
 				07AC51132AD8040C000970B8 /* XorlessTransfer.swift in Sources */,
 				84BEE22D2564765F00D05EB3 /* UIAlertViewController+Account.swift in Sources */,
 				FA8FD1902AFBA34700354482 /* AssetNetworksViewModelFactory.swift in Sources */,
@@ -16387,6 +16425,7 @@
 				8463A70325E2FCD0003B8160 /* WeakWrapper.swift in Sources */,
 				FAAA29292B8DCE3E0089AFE6 /* StorageResponseValueExtractor.swift in Sources */,
 				8401620B25E144D50087A5F3 /* AmountInputAccessoryView.swift in Sources */,
+				C6FBA7172C743D5F008B18D9 /* OKXToken.swift in Sources */,
 				FAD4290C2A86567F001D6A16 /* BannersProtocols.swift in Sources */,
 				84D2F45F25EF0599008B914D /* RecommendedValidatorCell.swift in Sources */,
 				FAD429222A865680001D6A16 /* BackupWalletViewLayout.swift in Sources */,
@@ -16396,6 +16435,7 @@
 				FA9A8F2B2A725B30008FA99F /* SubstrateAccountInfoFetching.swift in Sources */,
 				AEF507BA262486F80098574D /* MoonpayProviderFactory.swift in Sources */,
 				84100F3826A6085C00A5054E /* YourValidatorListDescSectionView.swift in Sources */,
+				C6FBA7062C743D52008B18D9 /* OKXDexAllTokensRequestParameters.swift in Sources */,
 				FAE9EB9F288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift in Sources */,
 				AE528E4F26852E410058935A /* ValidatorSearchViewModelFactory.swift in Sources */,
 				841AAC2526F692EF00F0A25E /* AddressConversion.swift in Sources */,
@@ -16469,7 +16509,6 @@
 				FACD429B2A5BE811009975AA /* SubstrateStorageMigrator.swift in Sources */,
 				F4A6C9E4265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift in Sources */,
 				FAD5FF2E2C464717003201F5 /* NomisAccountStatisticsRequest.swift in Sources */,
-				FAEFA6BB2C6C7EC900095C07 /* OKXSupportedChain.swift in Sources */,
 				FAD429202A865680001D6A16 /* WalletNameProtocols.swift in Sources */,
 				FA7741DE2B6A350200358315 /* StakingRewardFetcher.swift in Sources */,
 				84452F5825D5C30600F47EC5 /* FilesRepository.swift in Sources */,
@@ -16577,6 +16616,7 @@
 				8494D87A2525350000614D8F /* SubscanStatusData.swift in Sources */,
 				FA2FC7FF28B3807C00CC0A42 /* StakingPoolJoinChoosePoolAssembly.swift in Sources */,
 				842876A724AE049B00D91AD8 /* SelectionListProtocols.swift in Sources */,
+				C6FBA7182C743D5F008B18D9 /* OKXSupportedChain.swift in Sources */,
 				F4871DE626D63DC000D27F23 /* AnalyticsRewardDetailsModel.swift in Sources */,
 				AE6F7FE22685E812002BBC3E /* ValidatorListFilterWireframe.swift in Sources */,
 				FAA013A928DA133E000A5230 /* StakeAmountView.swift in Sources */,
@@ -16710,8 +16750,6 @@
 				F43A8A95265B9CF400A8A5A8 /* CustomValidatorCell.swift in Sources */,
 				FA62625E2AC2E35A005D3D95 /* RawDataViewController.swift in Sources */,
 				FA5137AE29AC6F2F00560EBA /* PolkaswapDisclaimerAssembly.swift in Sources */,
-				FAEFA6CB2C6DC36B00095C07 /* OKXDexProtocol.swift in Sources */,
-				FAEFA6C92C6DC35700095C07 /* OKXDexSubrouter.swift in Sources */,
 				FA9A8F052A6FADBD008FA99F /* EtherscanHistoryResponse.swift in Sources */,
 				8406B5AB26FBD9EB00635B61 /* AccountInfoUpdatingService.swift in Sources */,
 				FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */,
@@ -16733,7 +16771,6 @@
 				8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */,
 				FA34EEE42B98723C0042E73E /* BalanceLocksDetailStakingViewModel.swift in Sources */,
 				F4D6FF4126B3E4C2002313AF /* AnalyticsRewardsWireframe.swift in Sources */,
-				FAEFA6D72C6DD00B00095C07 /* OKXDexSwapRequestParameters.swift in Sources */,
 				FAADC1BB2926597400DA9903 /* ScanQRProtocols.swift in Sources */,
 				F4A12BF7260B61E900392C33 /* StakingManageOption.swift in Sources */,
 				FAD428F92A86567F001D6A16 /* BackupPasswordInteractor.swift in Sources */,
@@ -16856,6 +16893,7 @@
 				FA86441D2767194B00956D8E /* WalletTransactionHistoryCell.swift in Sources */,
 				FAE39B092AA1D4410011A9D6 /* NftSendConfirmViewModelFactory.swift in Sources */,
 				FAABC4752845DB95002CF40E /* ValidatorListFilterParachainViewModelFactory.swift in Sources */,
+				C6FBA7212C743D5F008B18D9 /* OKXSwapTransaction.swift in Sources */,
 				84DB4E6C25EA740600A6DF41 /* ConstantCodingPath.swift in Sources */,
 				84FA835A265CE5BE00FDF727 /* TitleMultiValueView.swift in Sources */,
 				C6398F36287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift in Sources */,
@@ -16877,7 +16915,6 @@
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
 				FA4CC6642817C3AC00A7E85F /* StackedTableView.swift in Sources */,
 				FAD429042A86567F001D6A16 /* BackupCreatePasswordInteractor.swift in Sources */,
-				FAEFA6DF2C6DEE2800095C07 /* OKXDexLiquiditySourceRequestParameters.swift in Sources */,
 				FAA0138B28DA1303000A5230 /* StakingPayoutConfirmationFlow.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */,
 				FAD428F62A86567F001D6A16 /* BackupPasswordAssembly.swift in Sources */,
@@ -16905,7 +16942,6 @@
 				845B821526EF657700D25C72 /* PersistentValueSettings.swift in Sources */,
 				F4DCAE4726207EF900CCA6BF /* PayoutRewardsServiceProtocol.swift in Sources */,
 				FAA0139128DA1303000A5230 /* StakingPayoutConfirmationPoolStrategy.swift in Sources */,
-				FAEFA6CD2C6DC6A700095C07 /* OKXDexQuote.swift in Sources */,
 				FAC0BBD0291D0EB000E6F106 /* TipViewModel.swift in Sources */,
 				FA72543E2AC2E48500EC47A6 /* ABIEncoding.swift in Sources */,
 				F4F65C3826D8B86F002EE838 /* FWXAxisEmptyValueFormatter.swift in Sources */,
@@ -16920,7 +16956,6 @@
 				F40966FF26B29A58008CD244 /* FWBarChartView.swift in Sources */,
 				8468B86C24F63CEF00B76BC6 /* AddAccount+AccountConfirmInteractor.swift in Sources */,
 				F43A597B26D53775005E973D /* AnalyticsBaseViewController.swift in Sources */,
-				FAEFA6C32C6DA4B700095C07 /* OKXLiquiditySource.swift in Sources */,
 				FA256999274CE65100875A53 /* HTTPRequestBuilderProtocol.swift in Sources */,
 				FAA0138C28DA1303000A5230 /* StakingPayoutConfirmationViewModelFactory.swift in Sources */,
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
@@ -16980,7 +17015,6 @@
 				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
 				FAF5E9D727E46D77005A3448 /* AppSupportConfig.swift in Sources */,
 				844DB61F262D9C070025A8F0 /* ChainHistoryRange.swift in Sources */,
-				FAEFA6CF2C6DCBE700095C07 /* OKXSwapTransaction.swift in Sources */,
 				FA34EED82B98723C0042E73E /* OnboardingStartAssembly.swift in Sources */,
 				FA2569C3274CE74100875A53 /* BottomSheetInfoTableCell.swift in Sources */,
 				FA004897282CCECA0032FF49 /* SelectValidatorsStartRelaychainViewModelState.swift in Sources */,
@@ -17023,6 +17057,7 @@
 				845C407B27027AA000BFA50B /* SubscriptionStorageKeys.swift in Sources */,
 				076D9D4A29419745002762E3 /* PolkaswapRemoteSubscriptionService.swift in Sources */,
 				FA4B92B62844D0E60003BCEF /* SelectCurrencyViewLayout.swift in Sources */,
+				C6FBA71D2C743D5F008B18D9 /* OKXDexSubrouter.swift in Sources */,
 				FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */,
 				847119CD262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift in Sources */,
 				C6398F38287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift in Sources */,
@@ -17045,6 +17080,7 @@
 				2E57C70427E8AB3D00AF075A /* CrowdloanWikiTableViewCell.swift in Sources */,
 				8468B86524F59D1D00B76BC6 /* IconTitleHeaderView.swift in Sources */,
 				FAD429282A865680001D6A16 /* BackupWalletInteractor.swift in Sources */,
+				C6FBA71C2C743D5F008B18D9 /* OKXDexRouter.swift in Sources */,
 				0702B31829701864003519F5 /* WalletViewModelObserverContainer.swift in Sources */,
 				C600C4D52802B87100111316 /* UsernameSetupViewLayout.swift in Sources */,
 				FAC6CD982BA807D30013A17E /* AccessoryView.swift in Sources */,
@@ -17071,6 +17107,7 @@
 				8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				F418E887264D308700699085 /* StakingAlert.swift in Sources */,
+				C6FBA7092C743D52008B18D9 /* OKXDexQuotesRequestParameters.swift in Sources */,
 				FAA0139E28DA131B000A5230 /* StakingBondMorePoolViewModelFactory.swift in Sources */,
 				8444D1742671372800AF6D8C /* BytesCodable.swift in Sources */,
 				84DD5F7C263DFEC600425ACF /* StakingDataValidatorFactory.swift in Sources */,
@@ -17116,7 +17153,6 @@
 				FABA161B2B0C941B001AF2F0 /* MultiassetV11MigrationPolicy.swift in Sources */,
 				8472974D260A9CDF009B86D0 /* SelectValidatorsConfirmationModel.swift in Sources */,
 				847C966325536455002D288F /* ExportRestoreJsonViewFactory.swift in Sources */,
-				FAEFA6DD2C6DEC4800095C07 /* OKXDexApproveRequestParameters.swift in Sources */,
 				FAFFAE3829AC84180074AF1F /* ParachainSubsquidHistoryOperationFactory.swift in Sources */,
 				FA6262372AC2E35A005D3D95 /* WalletConnectConfirmationViewController.swift in Sources */,
 				C67E781B27B3AD510053346B /* CheckPincodeViewLayout.swift in Sources */,
@@ -17126,6 +17162,7 @@
 				84BB3CF8267D276D00676FFE /* BaseCrowdloanTableViewCell.swift in Sources */,
 				84113B91255B2CA0009BD21A /* MainTransitionHelper.swift in Sources */,
 				8428768524AE046300D91AD8 /* LanguageSelectionProtocols.swift in Sources */,
+				C6FBA6FD2C743D21008B18D9 /* OKXDexAggregatorService.swift in Sources */,
 				AEA0C8A4267B6B1900F9666F /* SelectedValidatorListProtocols.swift in Sources */,
 				FA2FC81528B3807D00CC0A42 /* StakingPoolStartInteractor.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
@@ -17281,7 +17318,6 @@
 				84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */,
 				AE6F7FE02685E812002BBC3E /* ValidatorListFilterProtocols.swift in Sources */,
 				84C6801624D7036B00006BF5 /* SubtitleActionControl.swift in Sources */,
-				FAEFA6D92C6DEB4900095C07 /* OKXSwap.swift in Sources */,
 				FAD429232A865680001D6A16 /* BackupWalletAssembly.swift in Sources */,
 				8461CC8726BC1F1F007460E4 /* ExtrinsicOperationFactory.swift in Sources */,
 				840DCBF125DFEE4800D45C6A /* AmountInputView.swift in Sources */,
@@ -17300,7 +17336,6 @@
 				FA38C98E275DFB8E005C5577 /* BaseTopBar.swift in Sources */,
 				FAB707652BB3C06900A1131C /* AssetsAccountRequest.swift in Sources */,
 				AE6DE7322627EA930018D5B5 /* PayoutCall.swift in Sources */,
-				FAEFA6D22C6DCCF900095C07 /* OKXDexQuotesRequestParameters.swift in Sources */,
 				FAD0068127EA252400C97E09 /* AboutViewState.swift in Sources */,
 				84DD5F26263D72C400425ACF /* ExtrinsicFeeProxy.swift in Sources */,
 				C633AD2B29C1955000EA8C29 /* ExtendedTouchAreaButton.swift in Sources */,
@@ -17362,6 +17397,7 @@
 				C6264C342799DBFB00FCA0DB /* WalletDetailsProtocols.swift in Sources */,
 				FA46D2C7283DDD07005A112B /* ParachainStakingCandidateMetadata.swift in Sources */,
 				FA2FC80228B3807C00CC0A42 /* StakingPoolJoinChoosePoolProtocols.swift in Sources */,
+				C6FBA71F2C743D5F008B18D9 /* OKXLiquiditySource.swift in Sources */,
 				FAA0133028DA12B6000A5230 /* StakingPoolMainInteractor.swift in Sources */,
 				8444D137267117A200AF6D8C /* BifrostBonusService.swift in Sources */,
 				FAEDC1392820E62F00E6582C /* StakingAmountRelaychainViewModelState.swift in Sources */,
@@ -17461,7 +17497,6 @@
 				F4F65C3D26D8B9DD002EE838 /* FWYAxisChartFormatter.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
 				07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */,
-				FAEFA6C52C6DB9D600095C07 /* OKXQuote.swift in Sources */,
 				F40966D026B297D7008CD244 /* AnalyticsStakeInteractor.swift in Sources */,
 				8416A2D8265A99DE0052EE89 /* CrowdloanViewConstants.swift in Sources */,
 				84CA68D526BE9E62003B9453 /* ChainRegistry.swift in Sources */,
@@ -17484,6 +17519,7 @@
 				FA34EE972B9871200042E73E /* OnboardingPageInfo.swift in Sources */,
 				FA2FC81B28B3807D00CC0A42 /* StakingPoolStartViewLayout.swift in Sources */,
 				8460516D25536C4800A1F0B4 /* ExportOption+ViewModel.swift in Sources */,
+				C6FBA6FF2C743D45008B18D9 /* OKXDexRequestSigner.swift in Sources */,
 				FA286B192A3043DB008BD527 /* CrossChainPresenter.swift in Sources */,
 				F458D3982642911B0055CB75 /* ControllerAccountViewModel.swift in Sources */,
 				FAADC1A629261F7000DA9903 /* PoolRolesConfirmViewModelFactory.swift in Sources */,
@@ -17560,7 +17596,6 @@
 				AE7E5BFE2615D23A006D5637 /* ProgressView + Manage.swift in Sources */,
 				84CA68DF26BEAA0F003B9453 /* ChainModelMapper.swift in Sources */,
 				FABA16442B0C9511001AF2F0 /* NetworkManagmentInteractor.swift in Sources */,
-				FAEFA6C72C6DC31D00095C07 /* OKXDexRouter.swift in Sources */,
 				84F13F1C26F2B8C2006725FF /* JSONRPCError+Presentable.swift in Sources */,
 				84BAFCD226AF5EE700871E86 /* IconDetailsView.swift in Sources */,
 				B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */,
@@ -17588,7 +17623,6 @@
 				FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */,
 				07BF3D9F2B3D98850046ABF4 /* BlockscoutHistoryOperationFactory.swift in Sources */,
 				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Status.swift in Sources */,
-				FAEFA6BF2C6CB8A800095C07 /* OKXToken.swift in Sources */,
 				84CEAAF326D6ED870021B881 /* KeystoreTag.swift in Sources */,
 				074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */,
 				FA34EEED2B98723C0042E73E /* BalanceLocksDetailProtocols.swift in Sources */,
@@ -17706,6 +17740,7 @@
 				84B64E3F2704567700914E88 /* RelaychainStakingLocalStorageSubscriber.swift in Sources */,
 				BD571417BD18C711B76E1D62 /* ExportSeedWireframe.swift in Sources */,
 				8463A73825E3AA47003B8160 /* AccountInfo.swift in Sources */,
+				C6FBA71A2C743D5F008B18D9 /* OKXSwap.swift in Sources */,
 				FA53D8922C08510000173ADB /* LiquidityPoolSupplyViewModelFactory.swift in Sources */,
 				ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */,
 				FA5DD0E3278EFE2500967047 /* WalletTransactionHistoryTableSectionHeader.swift in Sources */,
@@ -17761,6 +17796,7 @@
 				0702B31529701759003519F5 /* AmountInputViewModel.swift in Sources */,
 				6BAF97802DB9C640515F47C7 /* StakingMainInteractor.swift in Sources */,
 				8466BB42263F501000E065A8 /* StakingUnbondConfirmViewModel.swift in Sources */,
+				C6FBA7082C743D52008B18D9 /* OKXDexLiquiditySourceRequestParameters.swift in Sources */,
 				FA93A2DF28323CE60021330F /* CustomValidatorListRelaychainViewModelFactory.swift in Sources */,
 				E5F3DF66415E54AE04D0C9A9 /* StakingMainViewController.swift in Sources */,
 				F44CCBEE26D38D1900A9E02E /* AnalyticsMagentaButton.swift in Sources */,
@@ -17879,7 +17915,6 @@
 				20B2942A4241F6713A1C70D9 /* StakingRewardDetailsViewFactory.swift in Sources */,
 				84F13F0A26F14122006725FF /* ChainAsset.swift in Sources */,
 				078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */,
-				FAEFA6E12C6DEE4B00095C07 /* OKXDexAllTokensRequestParameters.swift in Sources */,
 				FAF96B582B636FC700E299C1 /* SystemNumberRequest.swift in Sources */,
 				84BB3CEE267CD6B500676FFE /* CrowdloanContributionDict.swift in Sources */,
 				849842EC26587B20006BBB9F /* YourCrowdloansTableViewCell.swift in Sources */,
@@ -18016,6 +18051,7 @@
 				83A98B972B3EA69B357E5002 /* ControllerAccountViewController.swift in Sources */,
 				EB5F587A71CCE1F0F86154CF /* ControllerAccountViewFactory.swift in Sources */,
 				FAD0068527EA255900C97E09 /* AboutViewLayout.swift in Sources */,
+				C6FBA7072C743D52008B18D9 /* OKXDexApproveRequestParameters.swift in Sources */,
 				9A940CBA3F309D438945A90C /* ControllerAccountConfirmationProtocols.swift in Sources */,
 				D886425A55425810AD070AB5 /* ControllerAccountConfirmationWireframe.swift in Sources */,
 				0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */,
@@ -18026,6 +18062,7 @@
 				FA2569B2274CE71700875A53 /* RemarkCall.swift in Sources */,
 				C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */,
 				FAA0137428DA12E3000A5230 /* StakingRedeemConfirmationRelaychainViewModelState.swift in Sources */,
+				C6FBA7162C743D5F008B18D9 /* OKXResponse.swift in Sources */,
 				FA37AE272859AB1B001DCA96 /* DelegatorBondMoreCall.swift in Sources */,
 				076D9D4F2946E665002762E3 /* PolkaswapSwapCall.swift in Sources */,
 				270C21973CB61F0BF3D2D1E3 /* CrowdloanListProtocols.swift in Sources */,
@@ -18194,7 +18231,6 @@
 				E8B8D3D290DC7057144559CE /* WalletChainAccountDashboardPresenter.swift in Sources */,
 				B7021EF189E8215B22DDCB09 /* WalletChainAccountDashboardInteractor.swift in Sources */,
 				93E53195ABD9DA7466A8AAF8 /* WalletChainAccountDashboardViewController.swift in Sources */,
-				FAEFA6C12C6DA49000095C07 /* OKXResponse.swift in Sources */,
 				FA37AE412859E0DB001DCA96 /* StakingRedeemParachainViewModelState.swift in Sources */,
 				7BEEF481CD12F404AD746FB5 /* WalletChainAccountDashboardViewLayout.swift in Sources */,
 				D23DD717E3EA941FA78B59C9 /* WalletChainAccountDashboardViewFactory.swift in Sources */,
@@ -18253,6 +18289,7 @@
 				9C8AAE31F22421A975A17DF4 /* AddCustomNodeWireframe.swift in Sources */,
 				FA34EEB42B9872240042E73E /* StakingCurrentEraRequest.swift in Sources */,
 				07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */,
+				C6FBA7192C743D5F008B18D9 /* OKXDexQuote.swift in Sources */,
 				07D05E6728EF0BE500B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift in Sources */,
 				AE552BD2B83A94626F109CA9 /* AddCustomNodePresenter.swift in Sources */,
 				FA34EE9A2B98712D0042E73E /* BalanceLocksFetching.swift in Sources */,
@@ -18297,6 +18334,7 @@
 				070CDD852ACBE59700F3F20A /* ReceiveAndRequestAssetRouter.swift in Sources */,
 				23398AEC756086FEEEE91E65 /* WalletsManagmentRouter.swift in Sources */,
 				DA5B38EE4622B33AFCA11A50 /* WalletsManagmentPresenter.swift in Sources */,
+				C6FBA7222C743EE4008B18D9 /* OKXApproveTransaction.swift in Sources */,
 				F7B2663F06E07CD716236C6D /* WalletsManagmentInteractor.swift in Sources */,
 				0D05777212DFA8CFC5A692E3 /* WalletsManagmentViewController.swift in Sources */,
 				25A837D8E6138EDAFA9240CD /* WalletsManagmentViewLayout.swift in Sources */,
@@ -18362,6 +18400,7 @@
 				7DFB3D265846A31807E1A663 /* StakingPoolCreateConfirmRouter.swift in Sources */,
 				FA34EEEC2B98723C0042E73E /* BalanceLocksDetailViewController.swift in Sources */,
 				FAAA29442B8DCED90089AFE6 /* ChildStorageResponseDecodingWorker.swift in Sources */,
+				C6FBA7052C743D52008B18D9 /* OKXDexSwapRequestParameters.swift in Sources */,
 				FAFFAE8129AC84B10074AF1F /* SubqueryDelegatorHistoryElement.swift in Sources */,
 				10B4951F5E0C515EFBDBC32E /* StakingPoolCreateConfirmPresenter.swift in Sources */,
 				FA7254362AC2E48500EC47A6 /* String+EIP55.swift in Sources */,
@@ -18455,7 +18494,6 @@
 				FB214D3851B28AA8FF05AA41 /* NftCollectionViewLayout.swift in Sources */,
 				FE65F897D63CAA8F8AE4B972 /* NftCollectionAssembly.swift in Sources */,
 				FA6262572AC2E35A005D3D95 /* MultiSelectNetworksViewModelFactory.swift in Sources */,
-				FAEFA6B62C6C7DEE00095C07 /* OKXDexAggregatorService.swift in Sources */,
 				762BB1AC2F45142B6319B59F /* NftSendProtocols.swift in Sources */,
 				FC54046997436059EF436983 /* NftSendRouter.swift in Sources */,
 				20F28EF4AD17FC56A5A6697B /* NftSendPresenter.swift in Sources */,
@@ -18526,6 +18564,7 @@
 				5142E2C6609188D529BB558A /* LiquidityPoolRemoveLiquidityConfirmProtocols.swift in Sources */,
 				8A957CAF82C856E61054B02F /* LiquidityPoolRemoveLiquidityConfirmViewController.swift in Sources */,
 				10DEF797CB3DC5BF0903EC4C /* LiquidityPoolRemoveLiquidityConfirmViewLayout.swift in Sources */,
+				C6FBA7202C743D5F008B18D9 /* OKXQuote.swift in Sources */,
 				E667BD4B6BA45B9B3464AD85 /* LiquidityPoolRemoveLiquidityConfirmAssembly.swift in Sources */,
 				00E9DD69FCE94A4F4929B419 /* AccountStatisticsProtocols.swift in Sources */,
 				887CE12C7C59F5DB092E9227 /* AccountStatisticsRouter.swift in Sources */,
