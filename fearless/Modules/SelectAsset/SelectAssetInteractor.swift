@@ -73,6 +73,16 @@ extension SelectAssetInteractor: SelectAssetInteractorInput {
         self.output = output
         fetchChainAssets()
     }
+
+    func update(with chainAssets: [ChainAsset]) {
+        self.chainAssets = chainAssets
+        output?.didReceiveChainAssets(result: .success(chainAssets))
+        if chainAssets.isEmpty {
+            output?.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
+        }
+        subscribeToAccountInfo(for: chainAssets)
+        subscribeToPrice(for: chainAssets)
+    }
 }
 
 extension SelectAssetInteractor: AccountInfoSubscriptionAdapterHandler {
