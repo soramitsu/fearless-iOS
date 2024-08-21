@@ -372,16 +372,16 @@ final class ChainModelMapper {
     }
 
     private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApiSet?) {
-        entity.stakingApiType = apis?.staking?.type.rawValue
+        entity.stakingApiType = apis?.staking?.type?.rawValue
         entity.stakingApiUrl = apis?.staking?.url
 
-        entity.historyApiType = apis?.history?.type.rawValue
+        entity.historyApiType = apis?.history?.type?.rawValue
         entity.historyApiUrl = apis?.history?.url
 
         entity.crowdloansApiType = apis?.crowdloans?.type
         entity.crowdloansApiUrl = apis?.crowdloans?.url
 
-        entity.pricingApiType = apis?.pricing?.type.rawValue
+        entity.pricingApiType = apis?.pricing?.type?.rawValue
         entity.pricingApiUrl = apis?.pricing?.url
     }
 

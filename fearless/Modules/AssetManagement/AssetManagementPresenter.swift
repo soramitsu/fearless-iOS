@@ -28,7 +28,8 @@ protocol AssetManagementInteractorInput: AnyObject {
         wallet: MetaAccountModel
     ) async throws -> AccountInfo?
     func updatedVisibility(
-        for chainAssets: [ChainAsset]
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
     ) async -> MetaAccountModel
 }
 
@@ -170,11 +171,13 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
                 guard !invertedAssetHidden else {
                     return
                 }
-                await fetchAccountInfoAndUpdateViewModel(
-                    chainAsset: cellViewModel.chainAsset,
-                    viewModel: viewModel,
-                    indexPath: indexPath
-                )
+                Task {
+                    await fetchAccountInfoAndUpdateViewModel(
+                        chainAsset: cellViewModel.chainAsset,
+                        viewModel: viewModel,
+                        indexPath: indexPath
+                    )
+                }
             }
         }
     }
@@ -216,7 +219,7 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
             guard let chainAssets = viewModel?.dispayedChainAssets else {
                 return
             }
-            let updatedWallet = await interactor.updatedVisibility(for: chainAssets)
+            let updatedWallet = await interactor.updatedVisibility(for: chainAssets, wallet: wallet)
             wallet = updatedWallet
             provideViewModel()
         }

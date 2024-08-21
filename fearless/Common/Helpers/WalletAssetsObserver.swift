@@ -79,63 +79,25 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
 
     // MARK: - Private methods
 
-    private func handleChains(changes: [DataProviderChange<ChainModel>], accounts: [ChainAccountModel]?) {
+    private func handleChains(changes: [DataProviderChange<ChainModel>], accounts _: [ChainAccountModel]?) {
         Task {
-            let result = await withTaskGroup(
-                of: (ChainModel, [ChainAssetId: AccountInfo?]).self,
-                returning: [ChainModel: [ChainAssetId: AccountInfo?]].self,
-                body: { group in
-                    changes.forEach { change in
-                        switch change {
-                        case let .insert(chain):
-                            self.handleChange(for: chain, accounts: accounts, group: &group)
-                        case let .update(chain):
-                            self.handleChange(for: chain, accounts: accounts, group: &group)
-                        case .delete:
-                            break
-                        }
-                    }
-
-                    var taskResults = [ChainModel: [ChainAssetId: AccountInfo?]]()
-                    for await result in group {
-                        taskResults[result.0] = result.1
-                    }
-                    return taskResults
+            let chains = changes.filter {
+                switch $0 {
+                case .insert, .update:
+                    return true
+                default:
+                    return false
                 }
-            )
-            guard result.isNotEmpty else {
-                return
-            }
-            updateCurrentWallet(with: result)
+            }.compactMap { $0.item }
+
+            updateCurrentWallet(with: chains)
             performSaveAndNotify()
         }
     }
 
-    private func handleChange(
-        for chain: ChainModel,
-        accounts: [ChainAccountModel]?,
-        group: inout TaskGroup<(ChainModel, [ChainAssetId: AccountInfo?])>
-    ) {
-        let chainAssetsIds = chain.chainAssets.map { $0.identifier }
-        let existVisibility = wallet.assetsVisibility.map { $0.assetId }
-        let perhapsExistVisibility = existVisibility.filter { chainAssetsIds.contains($0) }
-
-        guard !chain.disabled, chainAssetsIds.count > perhapsExistVisibility.count else {
-            return
-        }
-        if let accounts {
-            if accounts.contains(where: { $0.chainId == chain.chainId }) {
-                group.addTask { [wallet] in
-                    await self.fetchAccountInfos(chain: chain, wallet: wallet)
-                }
-            } else {
-                return
-            }
-        } else {
-            group.addTask { [wallet] in
-                await self.fetchAccountInfos(chain: chain, wallet: wallet)
-            }
-        }
+    private func updateCurrentWallet(with chains: [ChainModel]) {
+        let filtered = chains.filter { wallet.assetsVisibility.map { $0.identifier }.contains($0.utilityChainAssets().first?.identifier) == false }
+        setDefaultVisibilitiesIfNeeded(chains: filtered)
     }
 
     private func updateVisibility(for chains: [ChainModel]) async -> MetaAccountModel {
@@ -165,17 +127,6 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         }
         updateCurrentWallet(with: result)
         return wallet
-    }
-
-    private func fetchAccountInfos(chain: ChainModel, wallet: MetaAccountModel) async -> (ChainModel, [ChainAssetId: AccountInfo?]) {
-        do {
-            let accountInfos = try await accountInfoRemote.fetchAccountInfos(for: chain, wallet: wallet)
-            return (chain, accountInfos)
-        } catch {
-            logger.customError(error)
-            let empty = emptyAccountInfos(for: chain)
-            return (chain, empty)
-        }
     }
 
     private func checkNewAccounts(for wallet: MetaAccountModel) {

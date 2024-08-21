@@ -1,5 +1,4 @@
 import Foundation
-
 import SoraFoundation
 import SSFModels
 
@@ -11,7 +10,7 @@ extension AssetTransactionData {
         asset: AssetModel
     ) -> AssetTransactionData {
         let peerAddress = item.from == address ? item.to : item.from
-        let type = item.from == address ? TransactionType.outgoing :
+        let type = item.from?.lowercased() == address.lowercased() ? TransactionType.outgoing :
             TransactionType.incoming
 
         let timestamp: Int64 = {

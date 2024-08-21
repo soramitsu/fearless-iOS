@@ -267,6 +267,13 @@ final class SendPresenter {
     }
 
     private func handle(newAddress: String) {
+        if let chainAsset = selectedChainAsset {
+            let accountScoreViewModel = viewModelFactory.buildAccountScoreViewModel(address: newAddress, chain: chainAsset.chain)
+            DispatchQueue.main.async {
+                self.view?.didReceive(accountScoreViewModel: accountScoreViewModel)
+            }
+        }
+
         guard newAddress.isNotEmpty else {
             return
         }
@@ -278,10 +285,8 @@ final class SendPresenter {
             canEditing: true
         )
 
-        let accountScoreViewModel = viewModelFactory.buildAccountScoreViewModel(address: newAddress, chain: chainAsset.chain)
         DispatchQueue.main.async {
             self.view?.didReceive(viewModel: viewModel)
-            self.view?.didReceive(accountScoreViewModel: accountScoreViewModel)
         }
 
         interactor.updateSubscriptions(for: chainAsset)

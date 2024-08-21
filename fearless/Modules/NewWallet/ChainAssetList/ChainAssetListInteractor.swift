@@ -28,6 +28,7 @@ final class ChainAssetListInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     private let chainRegistry: ChainRegistryProtocol
+    private let accountInfoRemoteService: AccountInfoRemoteService
     private let pricesService: PricesServiceProtocol
     private let operationQueue: OperationQueue
 
@@ -52,6 +53,7 @@ final class ChainAssetListInteractor {
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AsyncAnyRepository<ChainSettings>,
         chainRegistry: ChainRegistryProtocol,
+        accountInfoRemoteService: AccountInfoRemoteService,
         pricesService: PricesServiceProtocol,
         operationQueue: OperationQueue
     ) {
@@ -66,6 +68,7 @@ final class ChainAssetListInteractor {
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
         self.chainRegistry = chainRegistry
+        self.accountInfoRemoteService = accountInfoRemoteService
         self.pricesService = pricesService
         self.operationQueue = operationQueue
     }
@@ -103,7 +106,7 @@ final class ChainAssetListInteractor {
             chainsAssets: chainAssets,
             handler: self,
             deliveryOn: accountInfosDeliveryQueue,
-            notifyJustWhenUpdated: true
+            notifyJustWhenUpdated: false
         )
     }
 

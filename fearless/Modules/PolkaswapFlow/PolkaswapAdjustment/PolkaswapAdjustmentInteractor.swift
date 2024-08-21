@@ -192,7 +192,7 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
                 errors: self.swapValueErrors
             )
         }
-        group.notify(queue: .global(), work: workItem)
+        group.notify(queue: .main, work: workItem)
     }
 
     func subscribeOnBlocks() {

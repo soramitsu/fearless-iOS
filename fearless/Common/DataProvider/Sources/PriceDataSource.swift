@@ -6,6 +6,7 @@ import SSFModels
 
 enum PriceDataSourceError: Swift.Error {
     case memoryError
+    case inputDataMissed
 }
 
 final class PriceDataSource: SingleValueProviderSourceProtocol {
@@ -46,8 +47,8 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
-        guard chainAssets.isNotEmpty else {
-            return CompoundOperationWrapper.createWithResult([])
+        guard chainAssets.isNotEmpty, currencies?.isNotEmpty == true else {
+            return CompoundOperationWrapper.createWithError(PriceDataSourceError.inputDataMissed)
         }
 
         let coingeckoOperation = createCoingeckoOperation()

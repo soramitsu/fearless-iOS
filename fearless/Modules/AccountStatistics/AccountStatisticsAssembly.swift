@@ -20,7 +20,8 @@ final class AccountStatisticsAssembly {
 
         let view = AccountStatisticsViewController(
             output: presenter,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            address: address
         )
 
         return (view, presenter)

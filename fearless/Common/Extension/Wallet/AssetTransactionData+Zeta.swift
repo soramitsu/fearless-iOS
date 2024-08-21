@@ -5,13 +5,13 @@ import SSFModels
 
 extension AssetTransactionData {
     static func createTransaction(
-        from item: ZetaItem,
+        from item: BlockscoutItem,
         address: String,
         chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
-        let peerAddress = item.from.hash == address ? item.to.hash : item.from.hash
-        let type = item.from.hash == address ? TransactionType.outgoing : TransactionType.incoming
+        let peerAddress = item.from.hash.lowercased() == address.lowercased() ? item.to.hash : item.from.hash
+        let type = item.from.hash.lowercased() == address.lowercased() ? TransactionType.outgoing : TransactionType.incoming
 
         let timestamp: Int64 = {
             let locale = LocalizationManager.shared.selectedLocale

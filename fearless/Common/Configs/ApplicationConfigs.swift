@@ -144,9 +144,9 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainsSourceUrl: URL {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/v10/chains_dev.json", branch: .developFree)
+            GitHubUrl.url(suffix: "chains/v11/chains_dev.json", branch: .developFree)
         #else
-            GitHubUrl.url(suffix: "chains/v10/chains.json")
+            GitHubUrl.url(suffix: "chains/v11/chains.json")
         #endif
     }
 
@@ -206,6 +206,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var nomisAccountScoreURL: URL {
         URL(string: "https://api.nomis.cc/api/v1/multichain-score/wallet/")!
+    }
+
+    var okxDexAggregatorURL: URL {
+        URL(string: "https://www.okx.com")!
     }
 }
 

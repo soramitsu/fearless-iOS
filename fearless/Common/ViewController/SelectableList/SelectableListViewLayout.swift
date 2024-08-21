@@ -70,6 +70,11 @@ final class SelectableListViewLayout: UIView {
         emptyView.bind(viewModel: viewModel)
     }
 
+    func bind(isEmbed: Bool) {
+        indicator.isHidden = isEmbed
+        layer.cornerRadius = isEmbed ? 0 : Constants.cornerRadius
+    }
+
     private func setupLayout() {
         layer.cornerRadius = Constants.cornerRadius
         layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]

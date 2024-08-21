@@ -12,7 +12,7 @@ protocol WalletsManagmentViewOutput: AnyObject {
     func didTapOptions(for indexPath: IndexPath)
     func didTapClose()
     func didTap(on indexPath: IndexPath)
-    func didTapAccountScore(address: String)
+    func didTapAccountScore(address: String?)
 }
 
 protocol WalletsManagmentInteractorInput: AnyObject {

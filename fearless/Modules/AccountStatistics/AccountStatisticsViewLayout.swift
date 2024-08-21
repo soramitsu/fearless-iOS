@@ -248,7 +248,7 @@ final class AccountStatisticsViewLayout: UIView {
     }
 
     private static func makeRowView() -> TitleValueView {
-        let view = TitleValueView()
+        let view = TitleValueView(skeletonSize: CGSize(width: 50, height: 12))
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorWhite50()
         view.titleLabel.numberOfLines = 0
