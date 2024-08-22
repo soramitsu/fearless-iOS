@@ -74,6 +74,14 @@ private extension PricesService {
         })
         saveOperation.completionBlock = { [weak self] in
             self?.eventCenter.notify(with: PricesUpdated())
+            switch saveOperation.result {
+            case .success:
+                break
+            case let .failure(error):
+                print(error)
+            case .none:
+                break
+            }
         }
         operationQueue.addOperation(saveOperation)
     }

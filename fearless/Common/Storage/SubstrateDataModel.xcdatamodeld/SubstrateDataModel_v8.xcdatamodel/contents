@@ -11,12 +11,12 @@
         <attribute name="isUtility" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="priceData" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer"/>
         <attribute name="priceId" optional="YES" attributeType="String"/>
         <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="symbol" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
+        <relationship name="priceData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDPriceData"/>
         <relationship name="priceProvider" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDPriceProvider" inverseName="asset" inverseEntity="CDPriceProvider"/>
     </entity>
     <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
@@ -115,6 +115,13 @@
         <attribute name="version" attributeType="String"/>
         <attribute name="xstusdId" optional="YES" attributeType="String"/>
         <relationship name="availableDexIds" toMany="YES" deletionRule="Nullify" destinationEntity="CDPolkaswapDex"/>
+    </entity>
+    <entity name="CDPriceData" representedClassName="CDPriceData" syncable="YES" codeGenerationType="class">
+        <attribute name="coingeckoPriceId" optional="YES" attributeType="String"/>
+        <attribute name="currencyId" attributeType="String"/>
+        <attribute name="fiatDayByChange" optional="YES" attributeType="String"/>
+        <attribute name="price" attributeType="String"/>
+        <attribute name="priceId" attributeType="String"/>
     </entity>
     <entity name="CDPriceProvider" representedClassName="CDPriceProvider" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="String"/>

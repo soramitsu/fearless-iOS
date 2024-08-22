@@ -1558,6 +1558,7 @@
 		C640416028F5191100845780 /* CreateContactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640415F28F5191100845780 /* CreateContactViewModel.swift */; };
 		C640416228F51F9900845780 /* CreateContactViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */; };
 		C648FFC828DC43A70072951B /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C648FFC728DC43A70072951B /* EmptyView.swift */; };
+		C64DD7582C75C53A00E97804 /* PriceDataMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64DD7572C75C53A00E97804 /* PriceDataMapper.swift */; };
 		C64ECCE328873F2500CFF434 /* ChainAssetsFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */; };
 		C6584E352982524700592A92 /* WalletTransactionHistoryDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6584E342982524700592A92 /* WalletTransactionHistoryDependencyContainer.swift */; };
 		C65A6592288E5CF400679D65 /* AccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */; };
@@ -4564,6 +4565,7 @@
 		C640415F28F5191100845780 /* CreateContactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModel.swift; sourceTree = "<group>"; };
 		C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModelFactory.swift; sourceTree = "<group>"; };
 		C648FFC728DC43A70072951B /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
+		C64DD7572C75C53A00E97804 /* PriceDataMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDataMapper.swift; sourceTree = "<group>"; };
 		C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetsFetching.swift; sourceTree = "<group>"; };
 		C6584E342982524700592A92 /* WalletTransactionHistoryDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryDependencyContainer.swift; sourceTree = "<group>"; };
 		C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoFetching.swift; sourceTree = "<group>"; };
@@ -8380,6 +8382,7 @@
 				845B822026EF8F1A00D25C72 /* ManagedMetaAccountMapper.swift */,
 				FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */,
 				076D9D6729509F1C002762E3 /* PolkaswapSettingMapper.swift */,
+				C64DD7572C75C53A00E97804 /* PriceDataMapper.swift */,
 			);
 			path = EntityToModel;
 			sourceTree = "<group>";
@@ -18228,6 +18231,7 @@
 				7FC8C78DD68304B05B501F83 /* NodeSelectionProtocols.swift in Sources */,
 				1F6A32CBF7B43390AF412B1A /* NodeSelectionWireframe.swift in Sources */,
 				07089AFC28B783B5001566CA /* SheetAletViewController.swift in Sources */,
+				C64DD7582C75C53A00E97804 /* PriceDataMapper.swift in Sources */,
 				C3D915637D26E807B85957CF /* NodeSelectionPresenter.swift in Sources */,
 				FA6C178E29935EEE00A55254 /* DateFormats.swift in Sources */,
 				FA8EE741294C4DB80052C888 /* AllDoneViewModelFactory.swift in Sources */,

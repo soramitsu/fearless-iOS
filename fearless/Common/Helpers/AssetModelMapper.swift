@@ -25,6 +25,21 @@ final class AssetModelMapper {
 extension AssetModelMapper: CoreDataMapperProtocol {
     var entityIdentifierFieldName: String { #keyPath(CDAsset.priceId) }
 
+    private func createPriceData(from entity: CDPriceData) -> PriceData? {
+        guard let currencyId = entity.currencyId,
+              let priceId = entity.priceId,
+              let price = entity.price else {
+            return nil
+        }
+        return PriceData(
+            currencyId: currencyId,
+            priceId: priceId,
+            price: price,
+            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
+            coingeckoPriceId: entity.coingeckoPriceId
+        )
+    }
+
     func transform(entity: CDAsset) throws -> AssetModel {
         var symbol: String?
         if let entitySymbol = entity.symbol {
@@ -58,6 +73,15 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
+        let priceDatas: [PriceData] = entity.priceData.or([]).compactMap { data in
+            guard let priceData = data as? CDPriceData else {
+                return nil
+            }
+            return createPriceData(from: priceData)
+        }
+
+        print("asset mapper create, array: \(priceDatas)")
+
         return AssetModel(
             id: entity.id!,
             name: name!,
@@ -75,7 +99,7 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             ethereumType: createEthereumAssetType(from: entity.ethereumType),
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId,
-            priceData: (entity.priceData as? [PriceData]) ?? []
+            priceData: priceDatas
         )
     }
 
@@ -109,5 +133,19 @@ extension AssetModelMapper: CoreDataMapperProtocol {
 
         let purchaseProviders: [String]? = model.purchaseProviders?.map(\.rawValue)
         entity.purchaseProviders = purchaseProviders
+
+        let priceData: [CDPriceData] = model.priceData.map { priceData in
+            let entity = CDPriceData(context: context)
+            entity.currencyId = priceData.currencyId
+            entity.priceId = priceData.priceId
+            entity.price = priceData.price
+            entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
+            entity.coingeckoPriceId = priceData.coingeckoPriceId
+            return entity
+        }
+
+        entity.priceData = Set(priceData) as NSSet
+
+        print("asset mapper populate, array: \(priceData)")
     }
 }

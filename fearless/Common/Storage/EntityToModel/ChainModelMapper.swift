@@ -10,6 +10,21 @@ final class ChainModelMapper {
     typealias DataProviderModel = ChainModel
     typealias CoreDataEntity = CDChain
 
+    private func createPriceData(from entity: CDPriceData) -> PriceData? {
+        guard let currencyId = entity.currencyId,
+              let priceId = entity.priceId,
+              let price = entity.price else {
+            return nil
+        }
+        return PriceData(
+            currencyId: currencyId,
+            priceId: priceId,
+            price: price,
+            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
+            coingeckoPriceId: entity.coingeckoPriceId
+        )
+    }
+
     private func createAsset(from entity: CDAsset) -> AssetModel? {
         var symbol: String?
         if let entitySymbol = entity.symbol {
@@ -50,6 +65,15 @@ final class ChainModelMapper {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
+        let priceDatas: [PriceData] = entity.priceData.or([]).compactMap { data in
+            guard let priceData = data as? CDPriceData else {
+                return nil
+            }
+            return createPriceData(from: priceData)
+        }
+
+        print("chain mapper create, array: \(priceDatas)")
+
         return AssetModel(
             id: id,
             name: name,
@@ -67,7 +91,7 @@ final class ChainModelMapper {
             ethereumType: createEthereumAssetType(from: entity.ethereumType),
             priceProvider: priceProvider,
             coingeckoPriceId: entity.priceId,
-            priceData: (entity.priceData as? [PriceData]) ?? []
+            priceData: priceDatas
         )
     }
 
@@ -119,6 +143,20 @@ final class ChainModelMapper {
 
             let purchaseProviders: [String]? = $0.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders
+
+            let priceData: [CDPriceData] = $0.priceData.map { priceData in
+                let entity = CDPriceData(context: context)
+                entity.currencyId = priceData.currencyId
+                entity.priceId = priceData.priceId
+                entity.price = priceData.price
+                entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
+                entity.coingeckoPriceId = priceData.coingeckoPriceId
+                return entity
+            }
+
+            assetEntity.priceData = Set(priceData) as NSSet
+
+            print("chain mapper populate, array: \(priceData)")
 
             return assetEntity
         }
