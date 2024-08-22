@@ -1,5 +1,4 @@
 {
-  "originHash" : "63872357be3b8d8ea5520be135fe981d8816f9791ecdf1f6a79c9211e5ad62a2",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -15,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/attaswift/BigInt.git",
       "state" : {
-        "revision" : "793a7fac0bfc318e85994bf6900652e827aef33e",
-        "version" : "5.4.1"
+        "revision" : "0ed110f7555c34ff468e72e1686e59721f2b0da6",
+        "version" : "5.3.0"
       }
     },
     {
@@ -141,7 +140,6 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "fearless-wallet",
         "revision" : "466a8c6819d6601c026eb7a97816eea344dbaa0b"
       }
     },
@@ -308,5 +306,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }

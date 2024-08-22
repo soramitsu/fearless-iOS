@@ -29,13 +29,9 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let controller = SendAssembly.configureModule(
-            wallet: wallet,
-            initialData: .chainAsset(chainAsset)
-        )?.view.controller else {
+        guard let controller = CrossChainSwapSetupAssembly.configureModule(wallet: wallet, chainAsset: chainAsset)?.view.controller else {
             return
         }
-
         let navigationController = FearlessNavigationController(rootViewController: controller)
 
         view?.controller.present(navigationController, animated: true)

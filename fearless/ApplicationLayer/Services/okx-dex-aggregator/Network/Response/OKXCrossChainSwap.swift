@@ -1,17 +1,20 @@
 import Foundation
 
-struct OKXSwap: Decodable {
-    let routerResult: OKXQuote
-    let tx: OKXSwapTransaction
+struct OKXCrossChainSwap: Decodable {
+    let fromTokenAmount: String?
+    let router: OKXCrossChainRouter
+    let toTokenAmount: String?
+    let minimumReceive: String?
+    let tx: OKXCrossChainSwapTransaction
 }
 
-extension OKXSwap: CrossChainSwap {
+extension OKXCrossChainSwap: CrossChainSwap {
     var fromAmount: String? {
-        routerResult.fromTokenAmount
+        fromTokenAmount
     }
     
     var toAmount: String? {
-        routerResult.toTokenAmount
+        toTokenAmount
     }
     
     var txData: String? {
@@ -19,7 +22,7 @@ extension OKXSwap: CrossChainSwap {
     }
     
     var gasLimit: String? {
-        tx.gas
+        tx.gasLimit
     }
     
     var gasPrice: String? {
@@ -29,6 +32,4 @@ extension OKXSwap: CrossChainSwap {
     var maxPriorityFeePerGas: String? {
         tx.maxPriorityFeePerGas
     }
-    
-    
 }

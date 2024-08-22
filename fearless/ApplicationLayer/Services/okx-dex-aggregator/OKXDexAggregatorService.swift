@@ -8,6 +8,7 @@ protocol OKXDexAggregatorService {
     func fetchQuotes(parameters: OKXDexQuotesRequestParameters) async throws -> OKXResponse<OKXQuote>
     func fetchSwapInfo(parameters: OKXDexSwapRequestParameters) async throws -> OKXResponse<OKXSwap>
     func fetchApproveTransactionInfo(parameters: OKXDexApproveRequestParameters) async throws -> OKXResponse<OKXApproveTransaction>
+    func fetchSwapInfo(parameters: OKXDexCrossChainBuildTxParameters) async throws -> OKXResponse<OKXCrossChainSwap>
 }
 
 final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
@@ -23,6 +24,11 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         let request = RequestConfig(baseURL: ApplicationConfig.shared.okxDexAggregatorURL, method: .get, endpoint: "/api/v5/dex/aggregator/supported/chain", headers: nil, body: nil)
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXSupportedChain> = try await networkWorker.performRequest(with: request)
+
+        guard response.code == "0" else {
+            throw ConvenienceError(error: response.msg ?? "")
+        }
+
         return response
     }
 
@@ -38,6 +44,11 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXToken> = try await networkWorker.performRequest(with: request)
+
+        guard response.code == "0" else {
+            throw ConvenienceError(error: response.msg ?? "")
+        }
+
         return response
     }
 
@@ -53,6 +64,11 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXLiquiditySource> = try await networkWorker.performRequest(with: request)
+
+        guard response.code == "0" else {
+            throw ConvenienceError(error: response.msg ?? "")
+        }
+
         return response
     }
 
@@ -68,6 +84,11 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXQuote> = try await networkWorker.performRequest(with: request)
+
+        guard response.code == "0" else {
+            throw ConvenienceError(error: response.msg ?? "")
+        }
+
         return response
     }
 
@@ -83,6 +104,11 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXSwap> = try await networkWorker.performRequest(with: request)
+
+        guard response.code == "0" else {
+            throw ConvenienceError(error: response.msg ?? "")
+        }
+
         return response
     }
 
@@ -98,6 +124,31 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXApproveTransaction> = try await networkWorker.performRequest(with: request)
+
+        guard response.code == "0" else {
+            throw ConvenienceError(error: response.msg ?? "")
+        }
+
+        return response
+    }
+
+    func fetchSwapInfo(parameters: OKXDexCrossChainBuildTxParameters) async throws -> OKXResponse<OKXCrossChainSwap> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/dex/cross-chain/build-tx",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<OKXCrossChainSwap> = try await networkWorker.performRequest(with: request)
+
+        guard response.code == "0" else {
+            throw ConvenienceError(error: response.msg ?? "")
+        }
+
         return response
     }
 }

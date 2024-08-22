@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFNetwork
 
 final class MultichainAssetSelectionAssembly {
     static func configureModule(flow: MultichainChainFetchingFlow, wallet: MetaAccountModel, selectAssetModuleOutput: SelectAssetModuleOutput?) -> MultichainAssetSelectionModuleCreationResult? {
@@ -11,13 +12,15 @@ final class MultichainAssetSelectionAssembly {
         )
         let router = MultichainAssetSelectionRouter()
 
+        let assetFetching = buildAssetFetching(flow: flow)
         let presenter = MultichainAssetSelectionPresenter(
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
             viewModelFactory: MultichainAssetSelectionViewModelFactoryImpl(),
             logger: Logger.shared,
-            selectAssetModuleOutput: selectAssetModuleOutput
+            selectAssetModuleOutput: selectAssetModuleOutput,
+            assetFetching: assetFetching
         )
         guard let selectAssetModule = createSelectAssetModule(wallet: wallet, moduleOutput: presenter) else {
             return nil
@@ -36,11 +39,15 @@ final class MultichainAssetSelectionAssembly {
 
     private static func buildChainFetching(flow _: MultichainChainFetchingFlow) -> MultichainChainFetching {
         let chainsRepository = ChainRepositoryFactory().createAsyncRepository()
-        return OKXMultichainChainFetching(chainsRepository: chainsRepository)
+        let networkWorker = NetworkWorkerImpl()
+        let okxService = OKXDexAggregatorServiceImpl(networkWorker: networkWorker, signer: OKXDexRequestSigner())
+        return OKXMultichainChainFetching(chainsRepository: chainsRepository, okxService: okxService)
     }
 
     private static func buildAssetFetching(flow _: MultichainChainFetchingFlow) -> MultichainAssetFetching {
-        OKXMultichainAssetFetching()
+        let networkWorker = NetworkWorkerImpl()
+        let okxService = OKXDexAggregatorServiceImpl(networkWorker: networkWorker, signer: OKXDexRequestSigner())
+        return OKXMultichainAssetFetching(okxService: okxService)
     }
 
     private static func createSelectAssetModule(wallet: MetaAccountModel, moduleOutput: SelectAssetModuleOutput) -> SelectAssetModuleCreationResult? {

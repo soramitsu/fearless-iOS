@@ -25,6 +25,7 @@ final class MultichainAssetSelectionPresenter {
     weak var selectAssetModuleInput: SelectAssetModuleInput?
     private var selectedChainId: ChainModel.Id?
     private var chains: [ChainModel]?
+    private let assetFetching: MultichainAssetFetching
 
     // MARK: - Constructors
 
@@ -34,13 +35,15 @@ final class MultichainAssetSelectionPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: MultichainAssetSelectionViewModelFactory,
         logger: LoggerProtocol,
-        selectAssetModuleOutput: SelectAssetModuleOutput?
+        selectAssetModuleOutput: SelectAssetModuleOutput?,
+        assetFetching: MultichainAssetFetching
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.logger = logger
         self.selectAssetModuleOutput = selectAssetModuleOutput
+        self.assetFetching = assetFetching
 
         self.localizationManager = localizationManager
     }
@@ -85,9 +88,17 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
     }
 
     func didSelect(chain: ChainModel) {
-        selectAssetModuleInput?.update(with: chain.chainAssets)
+        selectAssetModuleInput?.runLoading()
         selectedChainId = chain.chainId
         provideViewModel()
+
+        Task {
+            let availableChainAssets = try await assetFetching.fetchAssets(for: chain)
+
+            await MainActor.run {
+                selectAssetModuleInput?.update(with: availableChainAssets)
+            }
+        }
     }
 
     func didTapCloseButton() {

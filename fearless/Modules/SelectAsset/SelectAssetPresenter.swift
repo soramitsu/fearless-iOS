@@ -207,4 +207,8 @@ extension SelectAssetPresenter: SelectAssetModuleInput {
     func update(with chainAssets: [ChainAsset]) {
         interactor.update(with: chainAssets)
     }
+
+    func runLoading() {
+        view?.didStartLoading()
+    }
 }

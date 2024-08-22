@@ -4,12 +4,19 @@ import RobinHood
 
 class OKXMultichainChainFetching: MultichainChainFetching {
     private let chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>
+    private let okxService: OKXDexAggregatorService
 
-    init(chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>) {
+    init(
+        chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>,
+        okxService: OKXDexAggregatorService
+    ) {
         self.chainsRepository = chainsRepository
+        self.okxService = okxService
     }
 
     func fetchChains() async throws -> [ChainModel] {
-        try await chainsRepository.fetchAll().filter { $0.rank != nil }
+        let okxChainIds = try await okxService.fetchAvailableChains().data.map { "\($0.chainId)" }
+
+        return try await chainsRepository.fetchAll().filter { okxChainIds.contains($0.chainId) }
     }
 }

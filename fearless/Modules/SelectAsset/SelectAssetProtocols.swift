@@ -3,7 +3,7 @@ import SSFModels
 
 typealias SelectAssetModuleCreationResult = (view: SelectAssetViewInput, input: SelectAssetModuleInput)
 
-protocol SelectAssetViewInput: SelectionListViewProtocol {}
+protocol SelectAssetViewInput: SelectionListViewProtocol, LoadableViewProtocol {}
 
 protocol SelectAssetViewOutput: SelectionListPresenterProtocol {
     func didLoad(view: SelectAssetViewInput)
@@ -25,6 +25,7 @@ protocol SelectAssetRouterInput: SheetAlertPresentable, ErrorPresentable, Presen
 
 protocol SelectAssetModuleInput: AnyObject {
     func update(with chainAssets: [ChainAsset])
+    func runLoading()
 }
 
 protocol SelectAssetModuleOutput: AnyObject {
