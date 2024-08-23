@@ -23,8 +23,8 @@ final class CrossChainSwapSetupInteractor {
         self.okxService = okxService
         self.wallet = wallet
     }
-    
-    private func getCrossChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount _: BigUInt) async throws -> [CrossChainSwap] {
+
+    private func getCrossChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
         guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             throw CrossChainSwapSetupInteractorError.accountNotFound
         }
@@ -45,7 +45,7 @@ final class CrossChainSwapSetupInteractor {
         let parameters = OKXDexCrossChainBuildTxParameters(
             fromChainId: chainAsset.chain.chainId,
             toChainId: destinationChainAsset.chain.chainId,
-            amount: "1478437000000000000",
+            amount: amount,
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
             sort: 0,
@@ -56,8 +56,11 @@ final class CrossChainSwapSetupInteractor {
         let quotes = try await okxService.fetchSwapInfo(parameters: parameters)
         return quotes.data
     }
-    
-    private func getSameChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount _: BigUInt) async throws -> [CrossChainSwap] {
+
+    private func getSameChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
+        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+            throw CrossChainSwapSetupInteractorError.accountNotFound
+        }
         let fromTokensParameters = OKXDexAllTokensRequestParameters(chainId: chainAsset.chain.chainId)
         let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters)
 
@@ -71,7 +74,14 @@ final class CrossChainSwapSetupInteractor {
             throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
         }
 
-        let parameters = OKXDexSwapRequestParameters(chainId: chainAsset.chain.chainId, amount: "11111111111", fromTokenAddress: fromTokenAddress, toTokenAddress: toTokenAddress, slippage: "0.01", userWalletAddress: <#T##String#>)
+        let parameters = OKXDexSwapRequestParameters(
+            chainId: chainAsset.chain.chainId,
+            amount: amount,
+            fromTokenAddress: fromTokenAddress,
+            toTokenAddress: toTokenAddress,
+            slippage: "0.01",
+            userWalletAddress: address
+        )
 
         let quotes = try await okxService.fetchSwapInfo(parameters: parameters)
         return quotes.data
@@ -85,36 +95,11 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
         self.output = output
     }
 
-    func getQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount _: BigUInt) async throws -> [CrossChainSwap] {
-        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
-            throw CrossChainSwapSetupInteractorError.accountNotFound
+    func getQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
+        if chainAsset.chain.chainId == destinationChainAsset.chain.chainId {
+            return try await getSameChainQuotes(chainAsset: chainAsset, destinationChainAsset: destinationChainAsset, amount: amount)
+        } else {
+            return try await getCrossChainQuotes(chainAsset: chainAsset, destinationChainAsset: destinationChainAsset, amount: amount)
         }
-
-        let fromTokensParameters = OKXDexAllTokensRequestParameters(chainId: chainAsset.chain.chainId)
-        let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters)
-
-        let toTokensParameters = OKXDexAllTokensRequestParameters(chainId: destinationChainAsset.chain.chainId)
-        let toTokens = try await okxService.fetchAllTokens(parameters: toTokensParameters)
-
-        guard
-            let fromTokenAddress = fromTokens.data.first(where: { $0.tokenSymbol.lowercased() == chainAsset.asset.symbol.lowercased() })?.tokenContractAddress,
-            let toTokenAddress = toTokens.data.first(where: { $0.tokenSymbol.lowercased() == destinationChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
-        else {
-            throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
-        }
-
-        let parameters = OKXDexCrossChainBuildTxParameters(
-            fromChainId: chainAsset.chain.chainId,
-            toChainId: destinationChainAsset.chain.chainId,
-            amount: "1478437000000000000",
-            fromTokenAddress: fromTokenAddress,
-            toTokenAddress: toTokenAddress,
-            sort: 0,
-            slippage: "0.01",
-            userWalletAddress: address
-        )
-
-        let quotes = try await okxService.fetchSwapInfo(parameters: parameters)
-        return quotes.data
     }
 }

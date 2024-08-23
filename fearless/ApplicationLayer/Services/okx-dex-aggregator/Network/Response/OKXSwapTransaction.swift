@@ -6,7 +6,7 @@ struct OKXSwapTransaction: Decodable {
     let from: String
     let gas: String
     let gasPrice: String
-    let isEstimateError: Bool
+    let isEstimateError: Bool?
     let maxPriorityFeePerGas: String
     let minReceiveAmount: String
     let to: String

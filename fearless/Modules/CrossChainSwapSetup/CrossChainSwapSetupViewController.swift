@@ -5,8 +5,6 @@ import SnapKit
 protocol CrossChainSwapSetupViewOutput: AnyObject {
     func didLoad(view: CrossChainSwapSetupViewInput)
     func didTapSelectAsset()
-    func updateAmount(_ newValue: Decimal)
-    func selectAmountPercentage(_ percentage: Float)
     func didTapBackButton()
     func didTapContinueButton()
     func didTapScanButton()
@@ -14,6 +12,12 @@ protocol CrossChainSwapSetupViewOutput: AnyObject {
     func didTapMyWalletsButton()
     func didTapPasteButton()
     func searchTextDidChanged(_ text: String)
+    func selectFromAmountPercentage(_ percentage: Float)
+    func updateFromAmount(_ newValue: Decimal)
+    func selectToAmountPercentage(_ percentage: Float)
+    func updateToAmount(_ newValue: Decimal)
+
+    func didTapSwitchInputsButton()
 }
 
 final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -29,7 +33,8 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
 
     private let output: CrossChainSwapSetupViewOutput
 
-    private var amountInputViewModel: IAmountInputViewModel?
+    private var amountFromInputViewModel: IAmountInputViewModel?
+    private var amountToInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
 
@@ -104,7 +109,7 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
     }
 
     private func updatePreviewButton() {
-        let isEnabled = amountInputViewModel?.isValid == true
+        let isEnabled = amountFromInputViewModel?.isValid == true && amountToInputViewModel?.isValid == true
         rootView.actionButton.set(enabled: isEnabled, changeStyle: true)
     }
 }
@@ -139,13 +144,19 @@ extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
         updatePreviewButton()
     }
 
-    func didReceive(amountInputViewModel: IAmountInputViewModel?) {
-        self.amountInputViewModel = amountInputViewModel
-        if let amountViewModel = amountInputViewModel {
-            amountViewModel.observable.remove(observer: self)
-            amountViewModel.observable.add(observer: self)
-            rootView.amountView.inputFieldText = amountViewModel.displayAmount
-        }
+    func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?) {
+        amountFromInputViewModel = amountInputViewModel
+        amountInputViewModel?.observable.remove(observer: self)
+        amountInputViewModel?.observable.add(observer: self)
+        rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
+        updatePreviewButton()
+    }
+
+    func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?) {
+        amountToInputViewModel = amountInputViewModel
+        amountInputViewModel?.observable.remove(observer: self)
+        amountInputViewModel?.observable.add(observer: self)
+        rootView.receiveView.inputFieldText = amountInputViewModel?.displayAmount
         updatePreviewButton()
     }
 }
@@ -171,21 +182,35 @@ extension CrossChainSwapSetupViewController: KeyboardViewAdoptable {
 
 extension CrossChainSwapSetupViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
+        rootView.amountView.inputFieldText = amountFromInputViewModel?.displayAmount
+        rootView.receiveView.inputFieldText = amountToInputViewModel?.displayAmount
 
         NSObject.cancelPreviousPerformRequests(
             withTarget: self,
             selector: #selector(updateAmounts),
             object: nil
         )
-        perform(#selector(updateAmounts), with: nil, afterDelay: Constants.amountInputDidChangeDelay)
+        perform(#selector(updateAmounts), with: nil, afterDelay: 0.7)
     }
 
     @objc private func updateAmounts() {
-        guard let amount = amountInputViewModel?.decimalAmount else {
-            return
+        if rootView.amountView.textField.isFirstResponder {
+            guard let amountFrom = amountFromInputViewModel?.decimalAmount else {
+                output.updateFromAmount(0)
+
+                return
+            }
+            output.updateFromAmount(amountFrom)
         }
-        output.updateAmount(amount)
+
+        if rootView.receiveView.textField.isFirstResponder {
+            guard let amountTo = amountToInputViewModel?.decimalAmount else {
+                output.updateToAmount(0)
+
+                return
+            }
+            output.updateToAmount(amountTo)
+        }
     }
 }
 
@@ -193,11 +218,19 @@ extension CrossChainSwapSetupViewController: AmountInputViewModelObserver {
 
 extension CrossChainSwapSetupViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
-        output.selectAmountPercentage(percentage)
+        if rootView.amountView.textField.isFirstResponder {
+            output.selectFromAmountPercentage(percentage)
+        } else if rootView.receiveView.textField.isFirstResponder {
+            output.selectToAmountPercentage(percentage)
+        }
     }
 
     func didSelectDone(on _: AmountInputAccessoryView) {
-        rootView.amountView.textField.resignFirstResponder()
+        if rootView.amountView.textField.isFirstResponder {
+            rootView.amountView.textField.resignFirstResponder()
+        } else if rootView.receiveView.textField.isFirstResponder {
+            rootView.receiveView.textField.resignFirstResponder()
+        }
     }
 }
 
@@ -210,18 +243,29 @@ extension CrossChainSwapSetupViewController: UITextFieldDelegate {
         replacementString string: String
     ) -> Bool {
         if textField == rootView.amountView.textField {
-            return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+            return amountFromInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+        } else if textField == rootView.receiveView.textField {
+            return amountToInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         }
         return true
     }
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
-        let amountIsFirstResponder = textField == rootView.amountView.textField
-        rootView.amountView.set(highlighted: amountIsFirstResponder, animated: false)
+        let swapFromIsFirstResponder = textField == rootView.amountView.textField
+        rootView.amountView.set(highlighted: swapFromIsFirstResponder, animated: false)
+
+        if textField == rootView.receiveView.textField, amountToInputViewModel != nil {
+            let swapToIsFirstResponder = textField == rootView.receiveView.textField
+            rootView.receiveView.set(highlighted: swapToIsFirstResponder, animated: false)
+        } else if textField == rootView.receiveView.textField {
+            rootView.receiveView.textField.resignFirstResponder()
+            output.didTapSelectAsset()
+        }
     }
 
     func textFieldDidEndEditing(_: UITextField) {
         rootView.amountView.set(highlighted: false, animated: false)
+        rootView.receiveView.set(highlighted: false, animated: false)
     }
 
     func textFieldShouldClear(_: UITextField) -> Bool {

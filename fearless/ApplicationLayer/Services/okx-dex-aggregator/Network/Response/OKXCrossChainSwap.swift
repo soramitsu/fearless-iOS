@@ -12,23 +12,23 @@ extension OKXCrossChainSwap: CrossChainSwap {
     var fromAmount: String? {
         fromTokenAmount
     }
-    
+
     var toAmount: String? {
         toTokenAmount
     }
-    
+
     var txData: String? {
         tx.data
     }
-    
+
     var gasLimit: String? {
         tx.gasLimit
     }
-    
+
     var gasPrice: String? {
         tx.gasPrice
     }
-    
+
     var maxPriorityFeePerGas: String? {
         tx.maxPriorityFeePerGas
     }

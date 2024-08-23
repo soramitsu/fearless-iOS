@@ -6,8 +6,8 @@ protocol OKXDexAggregatorService {
     func fetchAllTokens(parameters: OKXDexAllTokensRequestParameters) async throws -> OKXResponse<OKXToken>
     func fetchLiquiditySources(parameters: OKXDexLiquiditySourceRequestParameters) async throws -> OKXResponse<OKXLiquiditySource>
     func fetchQuotes(parameters: OKXDexQuotesRequestParameters) async throws -> OKXResponse<OKXQuote>
-    func fetchSwapInfo(parameters: OKXDexSwapRequestParameters) async throws -> OKXResponse<OKXSwap>
     func fetchApproveTransactionInfo(parameters: OKXDexApproveRequestParameters) async throws -> OKXResponse<OKXApproveTransaction>
+    func fetchSwapInfo(parameters: OKXDexSwapRequestParameters) async throws -> OKXResponse<OKXSwap>
     func fetchSwapInfo(parameters: OKXDexCrossChainBuildTxParameters) async throws -> OKXResponse<OKXCrossChainSwap>
 }
 
