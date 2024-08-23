@@ -55,7 +55,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             applicationHandler: ApplicationHandler(),
             networkStatusPresenter: networkStatusPresenter,
             reachability: ReachabilityManager.shared,
-            walletConnectCoordinator: WalletConnectCoordinator(),
+            walletConnectCoordinator: WalletConnectCoordinator.shared,
             localizationManager: localizationManager
         )
 
@@ -78,7 +78,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let walletController = createWalletController(walletConnect: walletConnect)
         viewControllers.append(walletController)
 
-        let crowdloanController = createCrowdloanController()
+        let crowdloanController = createBrowserController(wallet: wallet)
         viewControllers.append(crowdloanController)
 
         let polkaswapControoller = createPolkaswapController(wallet: wallet)
@@ -91,16 +91,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         viewControllers.append(settingsController)
 
         return viewControllers.compactMap { $0 }
-    }
-
-    static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
-        guard let crowdloanController = createCrowdloanController() else {
-            return nil
-        }
-
-        view.didReplaceView(for: crowdloanController, for: Self.crowdloanIndex)
-
-        return crowdloanController
     }
 
     @discardableResult
@@ -208,22 +198,14 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return navigationController
     }
 
-    static func createCrowdloanController() -> UIViewController? {
-        let crowdloanState = CrowdloanSharedState()
-        crowdloanState.settings.setup()
-
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
-              let crowloanView = CrowdloanListViewFactory.createView(
-                  with: crowdloanState,
-                  selectedMetaAccount: selectedMetaAccount
-              )
-        else {
+    static func createBrowserController(wallet: MetaAccountModel) -> UIViewController? {
+        guard let controller = DappBrowserAssembly.configureModule(wallet: wallet)?.view.controller else {
             return nil
         }
 
-        let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
+        let navigationController = FearlessNavigationController(rootViewController: controller)
 
-        let icon = R.image.iconTabCrowloan()
+        let icon = R.image.iconBrowser()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?

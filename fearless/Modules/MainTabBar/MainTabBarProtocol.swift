@@ -17,12 +17,10 @@ protocol MainTabBarInteractorInputProtocol: AnyObject {
 }
 
 protocol MainTabBarInteractorOutputProtocol: AnyObject {
-    func didReloadSelectedAccount()
     func didRequestImportAccount()
 }
 
 protocol MainTabBarWireframeProtocol: SheetAlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
     func presentAccountImport(on view: MainTabBarViewProtocol?)
     func replaceStaking(on view: MainTabBarViewProtocol?, type: AssetSelectionStakingType, moduleOutput: StakingMainModuleOutput?)
     func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel)
@@ -30,8 +28,4 @@ protocol MainTabBarWireframeProtocol: SheetAlertPresentable, AuthorizationAccess
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {
     static func createView() -> MainTabBarViewProtocol?
-
-    static func reloadCrowdloanView(
-        on view: MainTabBarViewProtocol
-    ) -> UIViewController?
 }

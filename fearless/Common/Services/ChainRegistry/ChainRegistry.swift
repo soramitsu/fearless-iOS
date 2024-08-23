@@ -265,7 +265,7 @@ final class ChainRegistry {
         else {
             return
         }
-        let apiAssembly = TonAPIAssembly(tonAPIURL: node.url)
+        let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: "AHCGOAHBPVILMQIAAAADDH734BNIZUMGZNBT6KZ3WZENQJOHZRLQVXQOD3UTUUHCDC4B5RI")
         tonApiAssembly = apiAssembly
     }
 

@@ -44,8 +44,13 @@ final class RootInteractor {
             callbackUrl: callbackUrl,
             eventCenter: eventCenter
         )
+        let tonConnectUrlHandler = TonConnectUrlHandling()
 
-        URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
+        URLHandlingService.shared.setup(children: [
+            purchaseHandler,
+            keystoreImportService,
+            tonConnectUrlHandler
+        ])
     }
 
     private func runMigrators() {

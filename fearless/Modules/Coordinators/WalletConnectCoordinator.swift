@@ -2,11 +2,17 @@ import Foundation
 import SoraFoundation
 import WalletConnectSign
 import UIKit
+import SSFNetwork
+import SSFModels
 
 final class WalletConnectCoordinator: DefaultCoordinator {
+    static let shared = WalletConnectCoordinator()
+
     // MARK: - Private properties
 
     private let walletConnect: WalletConnectService = WalletConnectServiceImpl.shared
+    private let tonConnect: TonConnectService = ServiceAssembly.shared.tonConnectService()
+
     private lazy var router: WalletConnectCoordinatorRouter = {
         WalletConnectCoordinatorRouterImpl()
     }()
@@ -15,9 +21,10 @@ final class WalletConnectCoordinator: DefaultCoordinator {
         ApplicationHandler()
     }()
 
-    override init() {
+    override private init() {
         super.init()
         walletConnect.set(listener: self)
+        Task { await tonConnect.set(listener: self) }
         applicationHandler.delegate = self
     }
 
@@ -52,7 +59,10 @@ final class WalletConnectCoordinator: DefaultCoordinator {
 
 extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     func sign(request: Request, session: Session?) {
-        let coordinator = WalletConnectSessionCoordinator(router: router, request: request, session: session)
+        let coordinator = WalletConnectSessionCoordinator(
+            router: router,
+            variant: .walletConnect(request: request, session: session)
+        )
         coordinator.finishFlow = { [weak self, weak coordinator] in
             self?.removeChildCoordinator(coordinator)
             self?.router.dismiss { [weak self] in
@@ -63,7 +73,10 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
     }
 
     func session(proposal: Session.Proposal) {
-        let coordinator = WalletConnectProposalCoordinator(router: router, proposal: proposal)
+        let coordinator = WalletConnectProposalCoordinator(
+            router: router,
+            proposal: .walletConnect(proposal)
+        )
         coordinator.finishFlow = { [weak self, weak coordinator] in
             self?.removeChildCoordinator(coordinator)
             self?.router.dismiss { [weak self] in
@@ -71,6 +84,95 @@ extension WalletConnectCoordinator: WalletConnectServiceDelegate {
             }
         }
         startIfPossible(with: coordinator)
+    }
+}
+
+extension WalletConnectCoordinator: TonConnectServiceDelegate {
+    func send(
+        request: TonConnect.AppRequest,
+        walletId: SSFModels.MetaAccountId,
+        app: TonConnectApp
+    ) {
+        let coordinator = WalletConnectSessionCoordinator(
+            router: router,
+            variant: .tonConnect(
+                request: request,
+                walletId: walletId,
+                app: app
+            )
+        )
+        coordinator.finishFlow = { [weak self, weak coordinator] in
+            self?.removeChildCoordinator(coordinator)
+            self?.router.dismiss { [weak self] in
+                self?.presentNextIfPossible()
+            }
+        }
+        Task { @MainActor in
+            startIfPossible(with: coordinator)
+        }
+    }
+
+    func send(
+        request: TonConnect.AppRequest,
+        invocationId: String,
+        wallet: MetaAccountModel,
+        dapp: TonDapp,
+        delegate: (any WalletConnectSessionModuleOutput)?
+    ) {
+        let coordinator = WalletConnectSessionCoordinator(
+            router: router,
+            variant: .tonJsBridge(
+                invocationId: invocationId,
+                wallet: wallet,
+                dapp: dapp,
+                request: request,
+                delegate: delegate
+            )
+        )
+        coordinator.finishFlow = { [weak self, weak coordinator] in
+            self?.removeChildCoordinator(coordinator)
+            self?.router.dismiss { [weak self] in
+                self?.presentNextIfPossible()
+            }
+        }
+        Task { @MainActor in
+            startIfPossible(with: coordinator)
+        }
+    }
+
+    func suggestConnect(
+        manifest: TonConnectManifest,
+        requestPayload: TonConnectParameters,
+        invocationId: String?,
+        delegate: (any WalletConnectProposalModuleOutput)?
+    ) {
+        let proposal: ConnectProposal
+        if let invocationId, let delegate {
+            proposal = .tonJsBridge(
+                manifest: manifest,
+                requestPayload: requestPayload,
+                invocationId: invocationId,
+                delegate: delegate
+            )
+        } else {
+            proposal = .tonConnect(
+                manifest: manifest,
+                requestPayload: requestPayload
+            )
+        }
+        let coordinator = WalletConnectProposalCoordinator(
+            router: router,
+            proposal: proposal
+        )
+        coordinator.finishFlow = { [weak self, weak coordinator] in
+            self?.removeChildCoordinator(coordinator)
+            self?.router.dismiss { [weak self] in
+                self?.presentNextIfPossible()
+            }
+        }
+        Task { @MainActor in
+            startIfPossible(with: coordinator)
+        }
     }
 }
 

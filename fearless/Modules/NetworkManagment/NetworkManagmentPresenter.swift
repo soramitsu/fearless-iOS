@@ -34,6 +34,7 @@ final class NetworkManagmentPresenter {
     // MARK: - Constructors
 
     init(
+        initialFilter: NetworkManagmentFilter?,
         wallet: MetaAccountModel,
         interactor: NetworkManagmentInteractorInput,
         router: NetworkManagmentRouterInput,
@@ -51,7 +52,7 @@ final class NetworkManagmentPresenter {
         self.viewModelFactory = viewModelFactory
         self.contextTag = contextTag
 
-        initialFilter = NetworkManagmentFilter(identifier: wallet.networkManagmentFilter)
+        self.initialFilter = initialFilter ?? NetworkManagmentFilter(identifier: wallet.networkManagmentFilter)
 
         self.localizationManager = localizationManager
     }

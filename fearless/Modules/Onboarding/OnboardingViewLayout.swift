@@ -27,8 +27,6 @@ final class OnboardingViewLayout: UIView {
         return view
     }()
 
-    let segmentedControl = FWSegmentedControl()
-
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()

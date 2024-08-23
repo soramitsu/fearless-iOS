@@ -5,7 +5,7 @@ import RobinHood
 
 final class WalletConnectProposalAssembly {
     static func configureModule(
-        status: WalletConnectProposalPresenter.SessionStatus
+        status: SessionStatus
     ) -> WalletConnectProposalModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -20,7 +20,8 @@ final class WalletConnectProposalAssembly {
             walletConnect: WalletConnectServiceImpl.shared,
             walletRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            tonConnectService: ServiceAssembly.shared.tonConnectService()
         )
         let router = WalletConnectProposalRouter()
 

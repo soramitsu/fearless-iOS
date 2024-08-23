@@ -8,8 +8,11 @@ protocol ConfirmTransferViewOutput: AnyObject {
     func didTapScamWarningButton()
 }
 
-final class ConfirmTransferViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+final class ConfirmTransferViewController: UIViewController, ViewHolder, HiddableBarWhenPushed, LoadableViewProtocol {
     typealias RootViewType = WalletSendConfirmViewLayout
+    var loadableContentView: UIView {
+        rootView.contentView
+    }
 
     // MARK: Private properties
 
@@ -52,6 +55,7 @@ final class ConfirmTransferViewController: UIViewController, ViewHolder, Hiddabl
     }
 
     @objc private func continueButtonClicked() {
+        didStartLoading()
         output.didTapConfirmButton()
     }
 

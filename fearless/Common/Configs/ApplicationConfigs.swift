@@ -36,6 +36,7 @@ protocol ApplicationConfigProtocol {
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
     var polkaswapSettingsURL: URL? { get }
+    var dappSourceUrl: URL { get }
 }
 
 final class ApplicationConfig {
@@ -170,6 +171,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
 
     var chainTypesSourceUrl: URL {
         GitHubUrl.url(suffix: "chains/all_chains_types.json")
+    }
+
+    var dappSourceUrl: URL {
+        URL(string: "")!
     }
 
     // MARK: - xcm

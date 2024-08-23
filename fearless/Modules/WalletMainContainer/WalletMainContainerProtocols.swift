@@ -22,6 +22,7 @@ protocol WalletMainContainerViewOutput: AnyObject {
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
     func walletConnect(uri: String) async throws
+    func tonConnect(uri: String) async throws
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {

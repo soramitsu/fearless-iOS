@@ -5,6 +5,7 @@ import SSFStorageQueryKit
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFNetwork
 
 final class ServiceAssembly {
     static let shared = ServiceAssembly()
@@ -17,6 +18,7 @@ final class ServiceAssembly {
     lazy var keystore: KeystoreProtocol = Keychain()
     lazy var priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
     lazy var eventCenter = EventCenter.shared
+    lazy var userDefaults = SettingsManager.shared
 
     private var _accountInfoRemoteServiceDefault: AccountInfoRemoteService?
     func accountInfoRemoteServiceDefault() -> AccountInfoRemoteService {
@@ -232,5 +234,94 @@ final class ServiceAssembly {
         )
         _tonJettonInjector = injector
         return injector
+    }
+
+    private var _tonConnectService: TonConnectService?
+    func tonConnectService() -> TonConnectService {
+        if let _tonConnectService {
+            return _tonConnectService
+        }
+
+        let networkWorker = SSFNetwork.NetworkWorkerImpl()
+        let eventCenter = TonConnectEventsCenter(
+            chainRegistry: chainRegistry,
+            lastEventStore: SettingsManager.shared,
+            logger: logger
+        )
+        let service = TonConnectServiceImpl(
+            chainRegistry: chainRegistry,
+            tonService: tonSendService(),
+            networkWorker: networkWorker,
+            messageBuilder: TonWebBridgeMessagesBuilderImpl(),
+            appRepository: tonConnectAppAsyncRepository(),
+            eventCenter: eventCenter,
+            logger: logger
+        )
+        _tonConnectService = service
+        return service
+    }
+
+    private var _tonDappAsyncRepository: AsyncAnyRepository<TonDapp>?
+    func tonDappAsyncRepository() -> AsyncAnyRepository<TonDapp> {
+        if let _tonDappAsyncRepository {
+            return _tonDappAsyncRepository
+        }
+
+        let mapper: CodableCoreDataMapper<TonDapp, CDTonDapp> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDTonDapp.identifier))
+        let repo = substrateRepositoryFacade.createAsyncRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+        let anyRepo = AsyncAnyRepository(repo)
+        _tonDappAsyncRepository = anyRepo
+        return anyRepo
+    }
+
+    private var _tonConnectAppAsyncRepository: AsyncAnyRepository<TonConnectApp>?
+    func tonConnectAppAsyncRepository() -> AsyncAnyRepository<TonConnectApp> {
+        if let _tonConnectAppAsyncRepository {
+            return _tonConnectAppAsyncRepository
+        }
+
+        let mapper: CodableCoreDataMapper<TonConnectApp, CDTonConnectedApp> = CodableCoreDataMapper()
+        let repo = substrateRepositoryFacade.createAsyncRepository(
+            filter: nil,
+            sortDescriptors: [],
+            mapper: AnyCoreDataMapper(mapper)
+        )
+        let anyRepo = AsyncAnyRepository(repo)
+        _tonConnectAppAsyncRepository = anyRepo
+        return anyRepo
+    }
+
+    private var _tonSendService: TonSendService?
+    func tonSendService() -> TonSendService {
+        if let _tonSendService {
+            return _tonSendService
+        }
+
+        let service = TonSendServiceDefault(
+            chainRegistry: chainRegistry
+        )
+        _tonSendService = service
+        return service
+    }
+
+    func tonBocFactory(
+        metaId: String,
+        accountResponse: ChainAccountResponse
+    ) throws -> BocFactory {
+        let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
+        let tag: String = KeystoreTagV2.secretKeyTag(
+            for: .ton,
+            metaId: metaId,
+            accountId: accountId
+        )
+
+        let secretKey = try keystore.fetchKey(for: tag)
+        let factory = BocFactoryImpl(secretKey: secretKey)
+        return factory
     }
 }

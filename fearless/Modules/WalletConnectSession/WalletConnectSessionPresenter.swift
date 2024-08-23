@@ -11,18 +11,22 @@ protocol WalletConnectSessionInteractorInput: AnyObject {
     func setup(with output: WalletConnectSessionInteractorOutput)
     func submit(proposalDecision: WalletConnectProposalDecision) async throws
     func submit(signDecision: WalletConnectSignDecision) async throws
+    func cancelTonConnect(
+        appRequest: TonConnect.AppRequest,
+        app: TonConnectApp
+    ) async throws
 }
 
 final class WalletConnectSessionPresenter {
     // MARK: Private properties
 
     private weak var view: WalletConnectSessionViewInput?
+    private weak var moduleOutput: WalletConnectSessionModuleOutput?
     private let router: WalletConnectSessionRouterInput
     private let interactor: WalletConnectSessionInteractorInput
     private let logger: LoggerProtocol
 
-    private let request: Request
-    private let session: Session?
+    private let variant: ConnectRequestVariant
     private let viewModelFactory: WalletConnectSessionViewModelFactory
     private let walletConnectModelFactory: WalletConnectModelFactory
 
@@ -34,8 +38,7 @@ final class WalletConnectSessionPresenter {
     // MARK: - Constructors
 
     init(
-        request: Request,
-        session: Session?,
+        variant: ConnectRequestVariant,
         viewModelFactory: WalletConnectSessionViewModelFactory,
         walletConnectModelFactory: WalletConnectModelFactory,
         logger: LoggerProtocol,
@@ -43,8 +46,8 @@ final class WalletConnectSessionPresenter {
         router: WalletConnectSessionRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
-        self.request = request
-        self.session = session
+        moduleOutput = variant.moduleOutput
+        self.variant = variant
         self.viewModelFactory = viewModelFactory
         self.walletConnectModelFactory = walletConnectModelFactory
         self.interactor = interactor
@@ -75,7 +78,12 @@ final class WalletConnectSessionPresenter {
 
             } catch {
                 await MainActor.run(body: {
-                    handle(error: error, request: request)
+                    switch variant {
+                    case let .walletConnect(request, _):
+                        handle(error: error, request: request)
+                    case .tonJsBridge, .tonConnect:
+                        logger.customError(error)
+                    }
                 })
             }
         }
@@ -93,28 +101,114 @@ final class WalletConnectSessionPresenter {
 
     private func prepareConfirmationData() {
         do {
-            let chain = try walletConnectModelFactory.resolveChain(for: request.chainId, chains: chainModels)
-            let method = try walletConnectModelFactory.parseMethod(from: request)
-            guard
-                let session = session,
-                let viewModel = viewModel
-            else {
-                throw JSONRPCError.invalidRequest
+            switch variant {
+            case let .walletConnect(request, session):
+                try prepereWalletConnectConfirmData(
+                    request: request,
+                    session: session
+                )
+            case let .tonJsBridge(invocationId, wallet, dapp, request, delegate):
+                try prepareTonJsBridgConfirmData(
+                    invocationId: invocationId,
+                    wallet: wallet,
+                    dapp: dapp,
+                    request: request
+                )
+            case let .tonConnect(request: request, walletId: walletId, app: app):
+                try prepareTonConnectConfirmData(
+                    request: request,
+                    walletId: walletId,
+                    app: app
+                )
             }
+        } catch {
+            switch variant {
+            case let .walletConnect(request, _):
+                handle(error: error, request: request)
+            case .tonJsBridge, .tonConnect:
+                logger.customError(error)
+            }
+        }
+    }
 
-            let inputData = WalletConnectConfirmationInputData(
-                wallet: viewModel.wallet,
-                chain: chain,
+    private func prepereWalletConnectConfirmData(
+        request: Request,
+        session: Session?
+    ) throws {
+        let chain = try walletConnectModelFactory.resolveChain(for: request.chainId, chains: chainModels)
+        let method = try walletConnectModelFactory.parseMethod(from: request)
+        guard
+            let session = session,
+            let viewModel = viewModel
+        else {
+            throw JSONRPCError.invalidRequest
+        }
+
+        let inputData = WalletConnectConfirmationInputData(
+            wallet: viewModel.wallet,
+            chain: chain,
+            variant: .walletConnect(
                 resuest: request,
                 session: session,
-                method: method,
-                payload: viewModel.payload
-            )
-            view?.didStopLoading()
-            router.showConfirmation(inputData: inputData)
-        } catch {
-            handle(error: error, request: request)
+                method: method
+            ),
+            payload: viewModel.payload
+        )
+        view?.didStopLoading()
+        router.showConfirmation(inputData: inputData)
+    }
+
+    private func prepareTonJsBridgConfirmData(
+        invocationId: String,
+        wallet: MetaAccountModel,
+        dapp: TonDapp,
+        request: TonConnect.AppRequest
+    ) throws {
+        guard let chain = chainModels.first(where: { $0.ecosystem == .ton }) else {
+            throw ConvenienceError(error: "Missing Ton ChainModel")
         }
+        guard let payload = viewModel?.payload else {
+            return
+        }
+        let inputData = WalletConnectConfirmationInputData(
+            wallet: wallet,
+            chain: chain,
+            variant: .tonJsBridge(
+                invocationId: invocationId,
+                dapp: dapp,
+                request: request,
+                moduleOutput: moduleOutput
+            ),
+            payload: payload
+        )
+        view?.didStopLoading()
+        router.showConfirmation(inputData: inputData)
+    }
+
+    private func prepareTonConnectConfirmData(
+        request: TonConnect.AppRequest,
+        walletId: SSFModels.MetaAccountId,
+        app: TonConnectApp
+    ) throws {
+        guard
+            let wallet = wallets.first(where: { $0.metaId == walletId }),
+            let chain = chainModels.first(where: { $0.ecosystem == .ton }),
+            let payload = viewModel?.payload
+        else {
+            throw ConvenienceError(error: "Missing wallet or chain")
+        }
+
+        let inputData = WalletConnectConfirmationInputData(
+            wallet: wallet,
+            chain: chain,
+            variant: .tonConnect(
+                request: request,
+                app: app
+            ),
+            payload: payload
+        )
+        view?.didStopLoading()
+        router.showConfirmation(inputData: inputData)
     }
 
     private func handle(error: Error, request: Request?) {
@@ -151,7 +245,23 @@ final class WalletConnectSessionPresenter {
 extension WalletConnectSessionPresenter: WalletConnectSessionViewOutput {
     func viewDidDisappear() {
         view?.controller.onInteractionDismiss()
-        sumbitReject(request: request, error: JSONRPCError.userRejected)
+        switch variant {
+        case let .walletConnect(request, _):
+            sumbitReject(request: request, error: JSONRPCError.userRejected)
+        case let .tonJsBridge(invocationId, _, _, _, _):
+            moduleOutput?.tonConnectSend(
+                dessision: .declined(
+                    invocationId: invocationId
+                )
+            )
+        case let .tonConnect(request: request, walletId: walletId, app: app):
+            Task {
+                try await interactor.cancelTonConnect(
+                    appRequest: request,
+                    app: app
+                )
+            }
+        }
     }
 
     func closeButtonDidTapped() {

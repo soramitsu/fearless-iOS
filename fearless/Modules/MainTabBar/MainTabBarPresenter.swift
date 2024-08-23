@@ -59,10 +59,6 @@ extension MainTabBarPresenter: MainTabBarPresenterProtocol {
 }
 
 extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
-    func didReloadSelectedAccount() {
-        crowdloanListView = wireframe.showNewCrowdloan(on: view) as? UINavigationController
-    }
-
     func didRequestImportAccount() {
         wireframe.presentAccountImport(on: view)
     }

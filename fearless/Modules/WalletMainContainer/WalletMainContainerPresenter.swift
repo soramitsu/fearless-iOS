@@ -64,9 +64,21 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.walletConnect(uri: uri)
             } catch {
-                await MainActor.run(body: {
+                Task { @MainActor in
                     router.present(error: error, from: view, locale: selectedLocale)
-                })
+                }
+            }
+        }
+    }
+
+    private func tonConnect(with uri: String) {
+        Task {
+            do {
+                try await interactor.tonConnect(uri: uri)
+            } catch {
+                Task { @MainActor in
+                    router.present(error: error, from: view, locale: selectedLocale)
+                }
             }
         }
     }
@@ -261,6 +273,8 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
             )
         case let .walletConnect(uri):
             walletConnect(with: uri)
+        case let .tonConnect(uri):
+            tonConnect(with: uri)
         case .preinstalledWallet:
             break
         }

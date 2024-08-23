@@ -17,16 +17,6 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         presentingController.present(navigationController, animated: true, completion: nil)
     }
 
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
-        if let view = view {
-            return MainTabBarViewFactory.reloadCrowdloanView(
-                on: view
-            )
-        }
-
-        return nil
-    }
-
     func presentAccountImport(on view: MainTabBarViewProtocol?) {
         guard let tabBarController = view?.controller else {
             return

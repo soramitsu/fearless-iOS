@@ -7,30 +7,38 @@ extension ChainAsset {
 
     var storagePath: StorageCodingPath {
         var storagePath: StorageCodingPath
-        switch chainAssetType.substrateAssetType {
-        case .normal, .equilibrium, .none:
-            storagePath = StorageCodingPath.account
-        case
-            .ormlChain,
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .assetId,
-            .token2,
-            .xcm:
-            storagePath = StorageCodingPath.tokens
-        case .assets:
-            storagePath = StorageCodingPath.assetsAccount
-        case .soraAsset:
-            if isUtility {
+        
+        switch chainAssetType {
+        case .substrate(substrateType: let substrateType):
+            switch substrateType {
+            case .normal, .equilibrium:
                 storagePath = StorageCodingPath.account
-            } else {
+            case
+                .ormlChain,
+                .ormlAsset,
+                .foreignAsset,
+                .stableAssetPoolToken,
+                .liquidCrowdloan,
+                .vToken,
+                .vsToken,
+                .stable,
+                .assetId,
+                .token2,
+                .xcm:
                 storagePath = StorageCodingPath.tokens
+            case .assets:
+                storagePath = StorageCodingPath.assetsAccount
+            case .soraAsset:
+                if isUtility {
+                    storagePath = StorageCodingPath.account
+                } else {
+                    storagePath = StorageCodingPath.tokens
+                }
             }
+        case .ethereum(ethereumType: let ethereumType):
+            storagePath = .account
+        case .ton(tonType: let tonType):
+            storagePath = .tokens
         }
 
         return storagePath

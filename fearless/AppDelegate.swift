@@ -30,4 +30,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         URLHandlingService.shared.handle(url: url)
     }
+
+    func application(
+        _: UIApplication,
+        continue userActivity: NSUserActivity,
+        restorationHandler _: @escaping ([any UIUserActivityRestoring]?) -> Void
+    ) -> Bool {
+        guard
+            userActivity.activityType == NSUserActivityTypeBrowsingWeb,
+            let url = userActivity.webpageURL
+        else {
+            return false
+        }
+        return URLHandlingService.shared.handle(url: url)
+    }
 }

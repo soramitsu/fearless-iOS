@@ -7,6 +7,7 @@ import SSFModels
 protocol ConfirmTransferViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: WalletSendConfirmViewModel)
     func didReceiveContinueButton(isReady: Bool)
+    func didStopLoading()
 }
 
 protocol ConfirmTransferInteractorInput: AnyObject {
@@ -103,12 +104,13 @@ final class ConfirmTransferPresenter {
                 }
                 let hash = try await interactor.submit(transfer: transfer, chainAsset: chainAsset)
 
+                await view?.didStopLoading()
                 Task { @MainActor in
                     router.complete(on: view, title: hash, chainAsset: chainAsset)
                 }
             } catch {
                 guard let view else { return }
-
+                await view.didStopLoading()
                 Task { @MainActor in
                     if let rpcError = error as? RPCResponse<EthereumData>.Error, rpcError.code == -32000 {
                         router.presentAmountTooHigh(from: view, locale: selectedLocale)
