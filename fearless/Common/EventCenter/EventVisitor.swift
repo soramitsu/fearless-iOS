@@ -27,6 +27,7 @@ protocol EventVisitorProtocol: AnyObject {
     func processRemoteSubscriptionWasUpdated(event: WalletRemoteSubscriptionWasUpdatedEvent)
     func processChainsSetupCompleted()
     func processLogout()
+    func processAccountScoreSettingsChanged()
 }
 
 extension EventVisitorProtocol {
@@ -56,4 +57,5 @@ extension EventVisitorProtocol {
     func processRemoteSubscriptionWasUpdated(event _: WalletRemoteSubscriptionWasUpdatedEvent) {}
     func processChainsSetupCompleted() {}
     func processLogout() {}
+    func processAccountScoreSettingsChanged() {}
 }

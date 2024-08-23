@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SSFNetwork
 
 struct ReefStakingPageReponse {
     let result: [RewardOrSlashData]
@@ -47,7 +48,7 @@ final class ReefStakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString(address: address, offset: max(1, rewards.count))
         )
-        let worker = NetworkWorker()
+        let worker = NetworkWorkerImpl()
         let response: GraphQLResponse<ReefResponseData> = try await worker.performRequest(with: request)
 
         switch response {

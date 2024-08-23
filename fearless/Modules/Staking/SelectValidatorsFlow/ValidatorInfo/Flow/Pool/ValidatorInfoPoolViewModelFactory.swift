@@ -93,13 +93,22 @@ final class ValidatorInfoPoolViewModelFactory {
         let comission = NumberFormatter.percentPlain.localizableResource()
             .value(for: locale).stringFromDecimal(validatorInfo.commission) ?? ""
 
+        let minStake = validatorInfo.stakeInfo?.nominators
+            .compactMap { $0.stake }
+            .sorted()
+            .suffix(validatorInfo.stakeInfo.map { Int($0.maxNominatorsRewarded ?? 0) } ?? 0)
+            .first
+        let minStakeViewModel = minStake.map {
+            balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto).value(for: locale)
+        }
         return ValidatorInfoViewModel.Exposure(
             nominators: nominators,
             myNomination: myNomination,
             totalStake: totalStake,
             estimatedReward: estimatedReward,
             oversubscribed: validatorInfo.stakeInfo?.oversubscribed == true,
-            comission: comission
+            comission: comission,
+            minStakeToGetRewards: minStakeViewModel
         )
     }
 

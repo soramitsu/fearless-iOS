@@ -118,7 +118,7 @@ extension AvailableLiquidityPoolsListPresenter: LiquidityPoolsListViewOutput {
     }
 
     func didAppearView() {
-        let viewModel = viewModelFactory.buildLoadingViewModel(type: type)
+        let viewModel = viewModelFactory.buildLoadingViewModel(type: type, locale: selectedLocale)
         view?.didReceive(viewModel: viewModel)
 
         interactor.fetchPools()

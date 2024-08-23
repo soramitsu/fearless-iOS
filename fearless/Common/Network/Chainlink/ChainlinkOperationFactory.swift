@@ -5,7 +5,7 @@ import RobinHood
 import Web3ContractABI
 
 protocol ChainlinkOperationFactory {
-    func priceCall(for chainAsset: ChainAsset) -> BaseOperation<PriceData>?
+    func priceCall(for chainAsset: ChainAsset, connection: Web3.Eth?) -> BaseOperation<PriceData>?
 }
 
 final class ChainlinkOperationFactoryImpl: ChainlinkOperationFactory {
@@ -13,14 +13,7 @@ final class ChainlinkOperationFactoryImpl: ChainlinkOperationFactory {
         ChainRegistryFacade.sharedRegistry
     }()
 
-    private lazy var connection: Web3.Eth? = {
-        guard let chainlinkProvider = chainRegistry.availableChains.first(where: { $0.options?.contains(.chainlinkProvider) == true }) else {
-            return nil
-        }
-        return chainRegistry.getEthereumConnection(for: chainlinkProvider.chainId)
-    }()
-
-    func priceCall(for chainAsset: ChainAsset) -> BaseOperation<PriceData>? {
+    func priceCall(for chainAsset: ChainAsset, connection: Web3.Eth?) -> BaseOperation<PriceData>? {
         let operation = ManualOperation<PriceData>()
 
         do {
@@ -83,6 +76,8 @@ final class ChainlinkOperationFactoryImpl: ChainlinkOperationFactory {
                 }
             }
         } catch {
+            operation.result = .failure(error)
+            operation.finish()
             Logger.shared.customError(error)
             return nil
         }

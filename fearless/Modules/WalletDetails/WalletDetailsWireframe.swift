@@ -2,18 +2,6 @@ import UIKit
 import SSFModels
 
 final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
-    func close(_ view: WalletDetailsViewProtocol) {
-        if view.controller.presentingViewController != nil {
-            if let navigationController = view.controller.navigationController {
-                navigationController.dismiss(animated: true)
-            } else {
-                view.controller.dismiss(animated: true)
-            }
-        } else {
-            view.controller.navigationController?.popViewController(animated: true)
-        }
-    }
-
     func presentActions(
         from view: ControllerBackedProtocol?,
         items: [ChainAction],

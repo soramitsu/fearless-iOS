@@ -112,7 +112,7 @@ final class ChainAssetListInteractor {
             chainsAssets: chainAssets,
             handler: self,
             deliveryOn: accountInfosDeliveryQueue,
-            notifyJustWhenUpdated: true
+            notifyJustWhenUpdated: false
         )
     }
 

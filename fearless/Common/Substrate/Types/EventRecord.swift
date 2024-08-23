@@ -59,8 +59,6 @@ enum Phase: Decodable {
     }
 }
 
-struct EventWrapper: Decodable {}
-
 struct Event: Decodable {
     let section: String
     let method: String

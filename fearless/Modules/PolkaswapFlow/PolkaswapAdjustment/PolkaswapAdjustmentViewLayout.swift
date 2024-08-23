@@ -151,12 +151,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
     }
 
     func removeBanners() {
-        bannersViewContainer.isHidden = true
-        bannersViewContainer.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(0)
-            make.bottom.equalToSuperview()
-        }
+        bannersViewContainer.removeFromSuperview()
     }
 
     // MARK: - Private methods

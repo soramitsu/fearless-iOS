@@ -20,7 +20,6 @@ final class ClaimCrowdloanRewardsInteractor {
     private let signer: SigningWrapperProtocol
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private var priceProvider: AnySingleValueProvider<[PriceData]>?
-    private let networkInfoFetcher: NetworkInfoFetching
     private let chainRegistry: ChainRegistryProtocol
     private let storageRequestPerformer: StorageRequestPerformer
     private let accountInfoFetcher: AccountInfoFetchingProtocol
@@ -35,7 +34,6 @@ final class ClaimCrowdloanRewardsInteractor {
         extrinsicService: ExtrinsicServiceProtocol,
         signer: SigningWrapperProtocol,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
-        networkInfoFetcher: NetworkInfoFetching,
         chainRegistry: ChainRegistryProtocol,
         storageRequestPerformer: StorageRequestPerformer,
         accountInfoFetcher: AccountInfoFetchingProtocol
@@ -49,7 +47,6 @@ final class ClaimCrowdloanRewardsInteractor {
         self.extrinsicService = extrinsicService
         self.signer = signer
         self.priceLocalSubscriber = priceLocalSubscriber
-        self.networkInfoFetcher = networkInfoFetcher
         self.chainRegistry = chainRegistry
         self.storageRequestPerformer = storageRequestPerformer
         self.accountInfoFetcher = accountInfoFetcher

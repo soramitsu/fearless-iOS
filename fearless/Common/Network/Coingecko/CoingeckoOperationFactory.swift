@@ -60,8 +60,8 @@ extension CoingeckoOperationFactory: CoingeckoOperationFactoryProtocol {
         }
 
         let resultFactory = AnyNetworkResultFactory<[PriceData]> { data in
-            let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
 
+            let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
             return tokenIds.compactMap { assetId in
                 guard let priceDataJson = json?[assetId] as? [String: Any] else {
                     return nil

@@ -10,16 +10,19 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
 
     private let output: SelectAssetViewOutput
     private let isFullSize: Bool
+    private let embed: Bool
 
     // MARK: - Constructor
 
     init(
         isFullSize: Bool,
         output: SelectAssetViewOutput,
-        localizationManager: LocalizationManagerProtocol?
+        localizationManager: LocalizationManagerProtocol?,
+        embed: Bool
     ) {
         self.isFullSize = isFullSize
         self.output = output
+        self.embed = embed
         super.init(listPresenter: output)
         self.localizationManager = localizationManager
     }
@@ -37,6 +40,7 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
         setupTableView()
         setupLayout()
         configure()
+        rootView.bind(isEmbed: embed)
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -61,7 +65,7 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
     }
 
     private func configure() {
-        rootView.backgroundColor = R.color.colorAlmostBlack()
+        rootView.backgroundColor = R.color.colorBlack19()
         rootView.titleLabel.text = R.string.localizable
             .commonSelectAsset(preferredLanguages: selectedLocale.rLanguages)
     }

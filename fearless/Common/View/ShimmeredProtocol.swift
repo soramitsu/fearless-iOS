@@ -52,8 +52,4 @@ extension ShimmeredProtocol {
         layer.mask = nil
         layer.removeAnimation(forKey: Constants.animationKey)
     }
-
-    func startSkeletonAnimation() {}
-
-    func stopSkeletonAnimation() {}
 }

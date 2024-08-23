@@ -43,7 +43,13 @@ final class LiquidityPoolSupplyConfirmViewModelFactoryDefault: LiquidityPoolSupp
             rightShadowColor: rightColor
         )
 
-        let amountsText = buildAmountsText(baseAssetAmount: baseAssetAmount, targetAssetAmount: targetAssetAmount, baseChainAsset: baseChainAsset, targetChainAsset: targetChainAsset, locale: locale)
+        let amountsText = buildAmountsText(
+            baseAssetAmount: baseAssetAmount,
+            targetAssetAmount: targetAssetAmount,
+            baseChainAsset: baseChainAsset,
+            targetChainAsset: targetChainAsset,
+            locale: locale
+        )
 
         return LiquidityPoolSupplyConfirmViewModel(
             amountsText: amountsText,

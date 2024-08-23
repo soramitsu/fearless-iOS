@@ -53,7 +53,3 @@ class JSONRPCWorker<P: Codable, T: Decodable> {
         currentTask?.cancel()
     }
 }
-
-public struct JSONRPCWorkerContinuationError: LocalizedError {
-    public var errorDescription: String? = "timeout"
-}

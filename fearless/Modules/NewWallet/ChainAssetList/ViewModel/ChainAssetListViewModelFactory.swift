@@ -169,6 +169,14 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             shouldShowZero: false
         )
 
+        var haveBalance: Bool = false
+        chainAssets.forEach { chainAsset in
+            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+               accountInfos[chainAsset.uniqueKey(accountId: accountId)] != nil {
+                haveBalance = true
+            }
+        }
+
         let notUtilityChainsWithBalance = chainsAssetsWithBalance.filter { $0 != chainAsset }
         let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }.filter { $0 != chainAsset.chain.icon }
         let chainImages = Array(Set(shownChainAssetsIconsArray))
@@ -181,7 +189,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             chainImages: chainImages.sorted(by: { $0.url.absoluteString > $1.url.absoluteString }) + [mainChainImageUrl]
         )
 
-        var isColdBoot = wallet.assetsVisibility.isEmpty
+        var isColdBoot = wallet.assetsVisibility.isEmpty || !haveBalance
         chainsWithIssue.forEach { issue in
             switch issue {
             case .network:

@@ -69,7 +69,6 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         wallet: MetaAccountModel,
         strategy: StakingPayoutConfirmationStrategy
     ) -> StakingPayoutConfirmationInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingPayoutConfirmationInteractor(

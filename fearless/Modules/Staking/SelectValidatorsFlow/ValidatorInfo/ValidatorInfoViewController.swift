@@ -89,7 +89,10 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
         if case let .elected(exposure) = viewModel.staking.status {
             rootView.addNominatorsView(exposure, locale: selectedLocale)
 
-            let totalStakeView = rootView.addTotalStakeView(exposure.totalStake, locale: selectedLocale)
+            let totalStakeView = rootView.addBalanceView(
+                title: R.string.localizable.stakingValidatorTotalStake(preferredLanguages: selectedLocale.rLanguages),
+                viewModel: exposure.totalStake
+            )
             totalStakeView.addTarget(self, action: #selector(actionOnTotalStake), for: .touchUpInside)
 
             rootView.addTitleValueView(
@@ -103,12 +106,24 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
                 for: R.string.localizable.validatorInfoComissionTitle(preferredLanguages: selectedLocale.rLanguages),
                 value: exposure.comission
             )
+
+            if let minStake = exposure.minStakeToGetRewards {
+                let minStakeView = rootView.addBalanceView(
+                    title: R.string.localizable.validatorInfoMinStakeAmongActiveNominatorsText(preferredLanguages: selectedLocale.rLanguages),
+                    viewModel: minStake
+                )
+
+                minStakeView.addTarget(self, action: #selector(actionOnMinStake), for: .touchUpInside)
+            }
         }
 
         if case let .electedParachain(exposure) = viewModel.staking.status {
             rootView.addDelegationsView(exposure, locale: selectedLocale)
 
-            let totalStakeView = rootView.addTotalStakeView(exposure.totalStake, locale: selectedLocale)
+            let totalStakeView = rootView.addBalanceView(
+                title: R.string.localizable.stakingValidatorTotalStake(preferredLanguages: selectedLocale.rLanguages),
+                viewModel: exposure.totalStake
+            )
             totalStakeView.addTarget(self, action: #selector(actionOnTotalStake), for: .touchUpInside)
 
             rootView.addTitleValueView(
@@ -179,6 +194,10 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
 
     @objc private func actionOnTotalStake() {
         presenter.presentTotalStake()
+    }
+
+    @objc private func actionOnMinStake() {
+        presenter.presentMinStake()
     }
 
     @objc private func actionOnIdentityLink(_ sender: UIControl) {

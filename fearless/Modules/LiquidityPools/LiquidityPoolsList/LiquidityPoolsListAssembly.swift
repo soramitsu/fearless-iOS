@@ -8,7 +8,12 @@ import sorawallet
 import SSFRuntimeCodingService
 
 final class LiquidityPoolsListAssembly {
-    static func configureAvailablePoolsModule(chain: ChainModel, wallet: MetaAccountModel, moduleOutput: LiquidityPoolsListModuleOutput?, type: LiquidityPoolListType) -> LiquidityPoolsListModuleCreationResult? {
+    static func configureAvailablePoolsModule(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        moduleOutput: LiquidityPoolsListModuleOutput?,
+        type: LiquidityPoolListType
+    ) -> LiquidityPoolsListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -43,7 +48,12 @@ final class LiquidityPoolsListAssembly {
         return (view, presenter)
     }
 
-    static func configureUserPoolsModule(chain: ChainModel, wallet: MetaAccountModel, moduleOutput: LiquidityPoolsListModuleOutput?, type: LiquidityPoolListType) -> LiquidityPoolsListModuleCreationResult? {
+    static func configureUserPoolsModule(
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        moduleOutput: LiquidityPoolsListModuleOutput?,
+        type: LiquidityPoolListType
+    ) -> LiquidityPoolsListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 

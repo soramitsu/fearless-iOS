@@ -133,6 +133,8 @@ final class SendViewLayout: UIView {
         }
     }
 
+    let accountScoreView = AccountScoreView()
+
     var keyboardAdoptableConstraint: Constraint?
 
     override init(frame: CGRect) {

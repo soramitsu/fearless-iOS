@@ -119,7 +119,7 @@ final class ChainRegistry {
                         self.handleDelete(chainId)
                     }
                 } catch {
-                    self.logger?.error("Unexpected error on handling chains update: \(error)")
+                    self.logger?.error("Chain: \(change.item?.name), Unexpected error on handling chains update: \(error)")
                 }
             }
 
@@ -239,14 +239,25 @@ final class ChainRegistry {
             return
         }
         chains.append(newChain)
-        _ = try ethereumConnectionPool.setupConnection(for: newChain)
+
+        do {
+            _ = try ethereumConnectionPool.setupConnection(for: newChain)
+        } catch {
+            logger?.customError(error)
+        }
     }
 
     private func handleUpdatedEthereumChain(updatedChain: ChainModel) throws {
         guard let ethereumConnectionPool = self.ethereumConnectionPool else {
             return
         }
-        _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
+
+        do {
+            _ = try ethereumConnectionPool.setupConnection(for: updatedChain)
+        } catch {
+            logger?.customError(error)
+        }
+
         chains = chains.filter { $0.chainId != updatedChain.chainId }
         chains.append(updatedChain)
     }
@@ -333,7 +344,7 @@ extension ChainRegistry: ChainRegistryProtocol {
             return nil
         }
 
-        return readLock.concurrentlyRead { substrateConnectionPool.getConnection(for: chainId) }
+        return substrateConnectionPool.getConnection(for: chainId)
     }
 
     func getEthereumConnection(for chainId: ChainModel.Id) -> Web3.Eth? {

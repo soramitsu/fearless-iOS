@@ -2,6 +2,7 @@ import UIKit
 
 protocol ContactTableCellDelegate: AnyObject {
     func didTapAddButton()
+    func didTapAccountScore()
 }
 
 class ContactTableCell: UITableViewCell {
@@ -42,6 +43,13 @@ class ContactTableCell: UITableViewCell {
         return stackView
     }()
 
+    private let hStackView: UIStackView = {
+        let stackView = UIFactory.default.createHorizontalStackView()
+        stackView.spacing = 4
+        stackView.distribution = .fill
+        return stackView
+    }()
+
     let addButton: TriangularedButton = {
         let button = TriangularedButton()
         button.isHidden = false
@@ -54,6 +62,12 @@ class ContactTableCell: UITableViewCell {
 
         button.contentOpacityWhenDisabled = 1
         return button
+    }()
+
+    let accountScoreView: AccountScoreView = {
+        let view = AccountScoreView()
+        view.isHidden = true
+        return view
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -69,6 +83,7 @@ class ContactTableCell: UITableViewCell {
     }
 
     func bind(to viewModel: ContactTableCellModel) {
+        accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
         delegate = viewModel
         switch viewModel.contactType {
         case let .saved(contact):
@@ -79,6 +94,10 @@ class ContactTableCell: UITableViewCell {
             nameLabel.text = "Undefined"
             addressLabel.text = address
             addButton.isHidden = false
+        }
+
+        accountScoreView.starView.didFinishTouchingCosmos = { [weak self] _ in
+            self?.delegate?.didTapAccountScore()
         }
     }
 
@@ -91,8 +110,19 @@ class ContactTableCell: UITableViewCell {
         contentView.addSubview(addButton)
         contentView.addSubview(labelsStackView)
 
-        labelsStackView.addArrangedSubview(nameLabel)
+        labelsStackView.addArrangedSubview(hStackView)
         labelsStackView.addArrangedSubview(addressLabel)
+
+        hStackView.addArrangedSubview(nameLabel)
+        hStackView.addArrangedSubview(accountScoreView)
+
+        accountScoreView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview()
+        }
+
+        hStackView.snp.makeConstraints { make in
+            make.trailing.leading.equalToSuperview()
+        }
 
         contactImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.contactImageViewSize)

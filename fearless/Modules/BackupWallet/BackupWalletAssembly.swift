@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SoraKeystore
 import SSFCloudStorage
+import SSFNetwork
 import SSFModels
 
 final class BackupWalletAssembly {
@@ -11,21 +12,11 @@ final class BackupWalletAssembly {
     ) -> BackupWalletModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let logger = Logger.shared
-
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
-
-        let chainAssetFetching = ChainAssetsFetching(
-            chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
-        )
-
-        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
         let interactor = BackupWalletInteractor(
             wallet: wallet,
@@ -35,13 +26,19 @@ final class BackupWalletAssembly {
             operationManager: OperationManagerFacade.sharedManager
         )
         let router = BackupWalletRouter()
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
 
+        let viewModelFactory = BackupWalletViewModelFactory(accountScoreFetcher: accountScoreFetcher, settings: SettingsManager.shared)
         let presenter = BackupWalletPresenter(
             wallet: wallet,
             interactor: interactor,
             router: router,
             logger: logger,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            viewModelFactory: viewModelFactory
         )
 
         let view = BackupWalletViewController(

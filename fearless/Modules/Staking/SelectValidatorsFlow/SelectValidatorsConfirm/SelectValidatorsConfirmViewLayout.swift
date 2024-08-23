@@ -2,7 +2,6 @@ import UIKit
 
 final class SelectValidatorsConfirmViewLayout: UIView {
     enum LayoutConstants {
-        static let topOffset: CGFloat = 24
         static let strokeWidth: CGFloat = 0.5
     }
 

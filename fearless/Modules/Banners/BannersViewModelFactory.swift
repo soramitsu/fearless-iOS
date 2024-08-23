@@ -58,9 +58,9 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     bannerType: .buyXor
                 )
             case .liquidityPools:
-                let title = "Liquidity pools"
-                let subtitle = "Invest your funds in Liquidity\npools and receive rewards"
-                let buttonAction = "Show details"
+                let title = R.string.localizable.balanceLocksLiquidityPoolsRowTitle(preferredLanguages: locale.rLanguages)
+                let subtitle = R.string.localizable.lpBannerText(preferredLanguages: locale.rLanguages)
+                let buttonAction = R.string.localizable.lpBannerActionDetailsTitle(preferredLanguages: locale.rLanguages)
 
                 return BannerCellViewModel(
                     title: title,
@@ -74,8 +74,8 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
 
             case .liquidityPoolsTest:
                 let title = "Liquidity pools test"
-                let subtitle = "Invest your funds in Liquidity\npools and receive rewards"
-                let buttonAction = "Show details"
+                let subtitle = R.string.localizable.lpBannerText(preferredLanguages: locale.rLanguages)
+                let buttonAction = R.string.localizable.lpBannerActionDetailsTitle(preferredLanguages: locale.rLanguages)
 
                 return BannerCellViewModel(
                     title: title,

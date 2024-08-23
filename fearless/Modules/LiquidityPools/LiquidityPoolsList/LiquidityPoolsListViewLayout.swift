@@ -74,7 +74,7 @@ final class LiquidityPoolsListViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorBlack19()
-        drawSubviews()
+        addSubviews()
         setupConstraints()
     }
 
@@ -97,7 +97,6 @@ final class LiquidityPoolsListViewLayout: UIView {
 
         titleLabel.snp.remakeConstraints { make in
             make.centerY.equalToSuperview()
-
             if viewModel.isEmbed {
                 make.leading.equalToSuperview().inset(12)
             } else {
@@ -112,7 +111,7 @@ final class LiquidityPoolsListViewLayout: UIView {
         backButton.rounded()
     }
 
-    private func drawSubviews() {
+    private func addSubviews() {
         addSubview(vStackView)
 
         vStackView.addArrangedSubview(topBar)

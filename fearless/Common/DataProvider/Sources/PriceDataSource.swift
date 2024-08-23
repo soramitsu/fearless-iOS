@@ -6,6 +6,7 @@ import SSFModels
 
 enum PriceDataSourceError: Swift.Error {
     case memoryError
+    case inputDataMissed
 }
 
 final class PriceDataSource: SingleValueProviderSourceProtocol {
@@ -46,8 +47,8 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
-        guard chainAssets.isNotEmpty else {
-            return CompoundOperationWrapper.createWithResult([])
+        guard chainAssets.isNotEmpty, currencies?.isNotEmpty == true else {
+            return CompoundOperationWrapper.createWithError(PriceDataSourceError.inputDataMissed)
         }
 
         let coingeckoOperation = createCoingeckoOperation()
@@ -117,11 +118,6 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         let caPriceIds = Set(chainAssets.compactMap { $0.asset.priceId })
         let sqPriceIds = Set(soraSubqueryPrices.compactMap { $0.priceId })
 
-        let replacedFiatDayChange: [PriceData] = soraSubqueryPrices.compactMap { soraSubqueryPrice in
-            let coingeckoPrice = coingeckoPrices.first(where: { $0.priceId == soraSubqueryPrice.priceId })
-            return soraSubqueryPrice.replaceFiatDayChange(fiatDayChange: coingeckoPrice?.fiatDayChange)
-        }
-
         let filtered = coingeckoPrices.filter { coingeckoPrice in
             let chainAsset = chainAssets.first { $0.asset.coingeckoPriceId == coingeckoPrice.priceId }
             guard let priceId = chainAsset?.asset.priceId else {
@@ -130,7 +126,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             return !caPriceIds.intersection(sqPriceIds).contains(priceId)
         }
 
-        return filtered + replacedFiatDayChange
+        return filtered + soraSubqueryPrices
     }
 
     private func makePrices(from coingeckoPrices: [PriceData], for type: PriceProviderType) -> [PriceData] {
@@ -192,11 +188,15 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         guard currencies?.count == 1, currencies?.first?.id == Currency.defaultCurrency().id else {
             return []
         }
+
+        let chainlinkProvider = chainAssets.map { $0.chain }.first(where: { $0.options?.contains(.chainlinkProvider) == true })
+        let connection = chainlinkProvider.flatMap { chainRegistry.getEthereumConnection(for: $0.chainId) }
+
         let chainlinkPriceChainAsset = chainAssets
             .filter { $0.asset.priceProvider?.type == .chainlink }
 
         let operations = chainlinkPriceChainAsset
-            .map { chainlinkOperationFactory.priceCall(for: $0) }
+            .map { chainlinkOperationFactory.priceCall(for: $0, connection: connection) }
         return operations.compactMap { $0 }
     }
 

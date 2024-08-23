@@ -9,7 +9,7 @@ final class NftSendInteractor {
     private weak var output: NftSendInteractorOutput?
     private let transferService: NftTransferService
     private let operationManager: OperationManagerProtocol
-    private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
+    private let scamInfoFetching: ScamInfoFetching
     private let addressChainDefiner: AddressChainDefiner
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let priceLocalSubscriber: PriceLocalStorageSubscriber
@@ -21,7 +21,7 @@ final class NftSendInteractor {
     init(
         transferService: NftTransferService,
         operationManager: OperationManagerProtocol,
-        scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
+        scamInfoFetching: ScamInfoFetching,
         addressChainDefiner: AddressChainDefiner,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriber: PriceLocalStorageSubscriber,
@@ -30,7 +30,7 @@ final class NftSendInteractor {
     ) {
         self.transferService = transferService
         self.operationManager = operationManager
-        self.scamServiceOperationFactory = scamServiceOperationFactory
+        self.scamInfoFetching = scamInfoFetching
         self.addressChainDefiner = addressChainDefiner
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriber = priceLocalSubscriber
@@ -91,23 +91,10 @@ extension NftSendInteractor: NftSendInteractorInput {
     }
 
     func fetchScamInfo(for address: String) {
-        let allOperation = scamServiceOperationFactory.fetchScamInfoOperation(for: address)
-
-        allOperation.completionBlock = { [weak self] in
-            guard let result = allOperation.result else {
-                return
-            }
-
-            switch result {
-            case let .success(scamInfo):
-                DispatchQueue.main.async {
-                    self?.output?.didReceive(scamInfo: scamInfo)
-                }
-            case .failure:
-                break
-            }
+        Task {
+            let scamInfo = try await scamInfoFetching.fetch(address: address, chain: chain)
+            output?.didReceive(scamInfo: scamInfo)
         }
-        operationManager.enqueue(operations: [allOperation], in: .transient)
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {

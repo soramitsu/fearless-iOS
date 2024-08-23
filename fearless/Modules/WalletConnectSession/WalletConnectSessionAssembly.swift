@@ -3,6 +3,8 @@ import WalletConnectSign
 import SoraFoundation
 import SoraUI
 import RobinHood
+import SSFNetwork
+import SoraKeystore
 
 enum WalletConnectSessionAssembly {
     static func configureModule(
@@ -21,6 +23,7 @@ enum WalletConnectSessionAssembly {
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(networkWorker: NetworkWorkerImpl(), signer: NomisRequestSigner())
         let interactor = WalletConnectSessionInteractor(
             walletConnect: WalletConnectServiceImpl.shared,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
@@ -37,7 +40,9 @@ enum WalletConnectSessionAssembly {
             variant: variant,
             walletConnectModelFactory: walletConnectModelFactory,
             walletConnectPayloaFactory: walletConnectPayloaFactory,
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
+            accountScoreFetcher: accountScoreFetcher,
+            settings: SettingsManager.shared
         )
         let presenter = WalletConnectSessionPresenter(
             variant: variant,

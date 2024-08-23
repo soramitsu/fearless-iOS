@@ -126,6 +126,11 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
             wallet: wallet
         )
     }
+
+    func didTapAccountScore() {
+        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        router.presentAccountScore(address: address, from: view)
+    }
 }
 
 // MARK: - WalletMainContainerInteractorOutput
@@ -229,6 +234,10 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
             from: view,
             actions: [action]
         )
+    }
+
+    func didReceiveNftAvailability(isNftAvailable: Bool) {
+        view?.didReceiveNftAvailability(isNftAvailable: isNftAvailable)
     }
 }
 

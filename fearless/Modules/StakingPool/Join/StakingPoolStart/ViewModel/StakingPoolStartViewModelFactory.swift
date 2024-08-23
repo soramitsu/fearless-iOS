@@ -2,10 +2,6 @@ import Foundation
 import UIKit
 import SSFModels
 
-enum StakingPoolStartViewModelFactoryError: Error {
-    case numberFormatterPercentError
-}
-
 protocol StakingPoolStartViewModelFactoryProtocol {
     func buildViewModel(
         rewardsDelay: TimeInterval?,

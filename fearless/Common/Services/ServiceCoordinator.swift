@@ -54,6 +54,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         chainRegistry.syncUp()
+        chainRegistry.subscribeToChians()
 
         githubPhishingService.setup()
         accountInfoService.setup()

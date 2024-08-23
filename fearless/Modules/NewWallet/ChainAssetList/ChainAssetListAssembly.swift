@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraKeystore
+import SSFStorageQueryKit
 import SSFModels
 
 final class ChainAssetListAssembly {

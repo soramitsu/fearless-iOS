@@ -59,6 +59,7 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 
     func presentAccountOptions()
     func presentTotalStake()
+    func presentMinStake()
     func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue)
 }
 

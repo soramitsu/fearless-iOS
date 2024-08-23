@@ -222,6 +222,18 @@ extension TransferViewController: TransferViewInput {
         rootView.bind(viewModel: viewModel)
     }
 
+    func didReceive(accountScoreViewModel: AccountScoreViewModel?) {
+        rootView.accountScoreView.bind(viewModel: accountScoreViewModel)
+    }
+
+    func didStartLoading() {
+        rootView.actionButton.set(loading: true)
+    }
+
+    func didStopLoading() {
+        rootView.actionButton.set(loading: false)
+    }
+
     func setHistoryButton(isVisible: Bool) {
         rootView.historyButton.isHidden = !isVisible
     }

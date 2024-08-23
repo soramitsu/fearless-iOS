@@ -2,6 +2,8 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFNetwork
+import SoraKeystore
 import SSFModels
 
 final class WalletMainContainerAssembly {
@@ -38,6 +40,15 @@ final class WalletMainContainerAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             stashItemRepository: substrateRepositoryFactory.createStashItemRepository()
         )
+        let accountScoreFetcher = NomisAccountStatisticsFetcher(
+            networkWorker: NetworkWorkerImpl(),
+            signer: NomisRequestSigner()
+        )
+
+        let featureToggleProvider = FeatureToggleProvider(
+            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
+            operationQueue: OperationQueue()
+        )
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -48,6 +59,7 @@ final class WalletMainContainerAssembly {
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
             walletConnectService: walletConnect,
+            featureToggleService: featureToggleProvider,
             tonConnectService: ServiceAssembly.shared.tonConnectService()
         )
 
@@ -61,12 +73,16 @@ final class WalletMainContainerAssembly {
             return nil
         }
 
+        let viewModelFactory = WalletMainContainerViewModelFactory(
+            accountScoreFetcher: accountScoreFetcher,
+            settings: SettingsManager.shared
+        )
         let presenter = WalletMainContainerPresenter(
             balanceInfoModuleInput: balanceInfoModule.input,
             assetListModuleInput: assetListModule.input,
             nftModuleInput: nftModule.input,
             wallet: wallet,
-            viewModelFactory: WalletMainContainerViewModelFactory(),
+            viewModelFactory: viewModelFactory,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager

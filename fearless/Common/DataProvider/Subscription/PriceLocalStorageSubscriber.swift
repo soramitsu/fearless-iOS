@@ -24,6 +24,8 @@ struct PriceLocalStorageSubscriberListener {
 final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
     static let shared = PriceLocalStorageSubscriberImpl()
     private let eventCenter = EventCenter.shared
+
+    private let chainRegistry = ChainRegistryFacade.sharedRegistry
     private lazy var provider: AnySingleValueProvider<[PriceData]> = {
         setupProvider()
     }()
@@ -38,7 +40,6 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
 
     private var listeners: [PriceLocalStorageSubscriberListener] = []
     private var sourcedCurrencies: Set<Currency> = []
-
     private var chainAssets: [ChainAsset] = []
     private let chainsRepository: AsyncCoreDataRepositoryDefault<ChainModel, CDChain>
 

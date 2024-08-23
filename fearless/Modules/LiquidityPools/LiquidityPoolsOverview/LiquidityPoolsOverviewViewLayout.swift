@@ -49,7 +49,7 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         super.init(frame: frame)
         backgroundColor = R.color.colorBlack19()
         userPoolsContainerView.isHidden = true
-        drawSubviews()
+        addSubviews()
         setupConstraints()
     }
 
@@ -102,7 +102,7 @@ final class LiquidityPoolsOverviewViewLayout: UIView {
         }
     }
 
-    private func drawSubviews() {
+    private func addSubviews() {
         addSubview(backgroundImageView)
         addSubview(navigationBar)
         addSubview(scrollView)

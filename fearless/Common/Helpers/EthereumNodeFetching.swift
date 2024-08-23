@@ -4,10 +4,6 @@ import Web3
 import FearlessKeys
 import SSFUtils
 
-enum EthereumNodeFetchingError: Error {
-    case unknownChain
-}
-
 enum EthereumChain: String {
     case ethereumMainnet = "1"
     case sepolia = "11155111"
@@ -100,12 +96,16 @@ enum EthereumChain: String {
 
 final class EthereumNodeFetching {
     func getNode(for chain: ChainModel) throws -> Web3.Eth {
+        if let https = try? getHttps(for: chain) {
+            return https
+        }
+
         let randomWssNode = chain.nodes.filter { $0.url.absoluteString.contains("wss") }.randomElement()
         let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("wss") == true
         let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
 
         guard var wssURL = node?.url else {
-            return try getHttps(for: chain)
+            throw ConvenienceError(error: "cannot obtain eth wss url for chain: \(chain.name)")
         }
 
         if let ethereumChain = EthereumChain(rawValue: chain.chainId) {

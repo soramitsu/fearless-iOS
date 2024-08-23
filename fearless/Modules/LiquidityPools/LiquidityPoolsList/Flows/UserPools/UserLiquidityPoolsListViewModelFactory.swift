@@ -70,7 +70,7 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             let reservesValue = modelFactory.buildReserves(
                 accountPool: pair,
                 chain: chain,
-                reserves: poolReservesInfo,
+                reservesInfo: poolReservesInfo,
                 baseAssetPrice: baseAssetPrice,
                 targetAssetPrice: targetAssetPrice
             )

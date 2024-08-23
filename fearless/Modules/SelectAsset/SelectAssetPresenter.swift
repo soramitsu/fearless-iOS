@@ -203,4 +203,8 @@ extension SelectAssetPresenter: Localizable {
     }
 }
 
-extension SelectAssetPresenter: SelectAssetModuleInput {}
+extension SelectAssetPresenter: SelectAssetModuleInput {
+    func update(with chainAssets: [ChainAsset]) {
+        interactor.update(with: chainAssets)
+    }
+}

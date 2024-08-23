@@ -72,8 +72,7 @@ class PinViewFactory: PinViewFactoryProtocol {
         )
         let presenter = LocalAuthPresenter(
             wireframe: wireframe,
-            interactor: interactor,
-            userDefaultsStorage: SettingsManager.shared
+            interactor: interactor
         )
 
         pinVerifyView.presenter = presenter
@@ -124,8 +123,7 @@ class PinViewFactory: PinViewFactoryProtocol {
         )
         let presenter = LocalAuthPresenter(
             wireframe: wireframe,
-            interactor: interactor,
-            userDefaultsStorage: SettingsManager.shared
+            interactor: interactor
         )
 
         pinVerifyView.presenter = presenter

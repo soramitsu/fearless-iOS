@@ -63,8 +63,6 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         wallet: MetaAccountModel,
         strategy: StakingUnbondSetupStrategy
     ) -> StakingUnbondSetupInteractor? {
-        let substrateStorageFacade = SubstrateDataStorageFacade.shared
-
         let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         return StakingUnbondSetupInteractor(

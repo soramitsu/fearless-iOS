@@ -58,7 +58,7 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
         let reservesValue = modelFactory.buildReserves(
             pool: liquidityPair,
             chain: chain,
-            reserves: reserves?.value,
+            reservesInfo: reserves?.value,
             baseAssetPrice: baseAssetPrice,
             targetAssetPrice: targetAssetPrice
         )

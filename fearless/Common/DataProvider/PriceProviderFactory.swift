@@ -17,7 +17,7 @@ final class PriceProviderFactory: PriceProviderFactoryProtocol {
     func getPricesProvider(currencies: [Currency]?, chainAssets: [ChainAsset]) -> AnySingleValueProvider<[SSFModels.PriceData]> {
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = SingleValueCacheRepositoryFactoryDefault().createSingleValueCacheRepository()
         let source = PriceDataSource(currencies: currencies, chainAssets: chainAssets)
-        let trigger: DataProviderEventTrigger = [.onFetchPage]
+        let trigger: DataProviderEventTrigger = [.onFetchPage, .onAddObserver]
         let provider = SingleValueProvider(
             targetIdentifier: PriceDataSource.defaultIdentifier,
             source: AnySingleValueProviderSource(source),

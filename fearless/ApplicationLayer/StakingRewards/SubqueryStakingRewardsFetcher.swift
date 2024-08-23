@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SSFNetwork
 
 final class SubqueryStakingRewardsFetcher {
     private let chain: ChainModel
@@ -69,7 +70,7 @@ extension SubqueryStakingRewardsFetcher: StakingRewardsFetcher {
             baseURL: blockExplorer.url,
             query: queryString
         )
-        let worker = NetworkWorker()
+        let worker = NetworkWorkerImpl()
         let response: GraphQLResponse<SubqueryRewardOrSlashData> = try await worker.performRequest(with: request)
 
         switch response {
