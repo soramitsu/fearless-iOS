@@ -1604,7 +1604,6 @@
 		C6DC2D602B18411000BAA4DB /* UIImageView+gif.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6DC2D5F2B18411000BAA4DB /* UIImageView+gif.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
 		C6FB932E27C9334100563E61 /* AvailableExportOptionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */; };
-		C6FBA6D62C65DC40008B18D9 /* CDAsset + CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA6D52C65DC40008B18D9 /* CDAsset + CoreDataCodable.swift */; };
 		C6FBA6D82C65DDBC008B18D9 /* AssetModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA6D72C65DDBC008B18D9 /* AssetModelMapper.swift */; };
 		C6FBA6DA2C65EA56008B18D9 /* AssetRepositoryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA6D92C65EA56008B18D9 /* AssetRepositoryFactory.swift */; };
 		C6FBA6DC2C69E006008B18D9 /* PriceDataHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FBA6DB2C69E006008B18D9 /* PriceDataHelper.swift */; };
@@ -4622,7 +4621,6 @@
 		C6E992712B999A8B00806910 /* id */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = id; path = id.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableExportOptionsProvider.swift; sourceTree = "<group>"; };
-		C6FBA6D52C65DC40008B18D9 /* CDAsset + CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDAsset + CoreDataCodable.swift"; sourceTree = "<group>"; };
 		C6FBA6D72C65DDBC008B18D9 /* AssetModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetModelMapper.swift; sourceTree = "<group>"; };
 		C6FBA6D92C65EA56008B18D9 /* AssetRepositoryFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetRepositoryFactory.swift; sourceTree = "<group>"; };
 		C6FBA6DB2C69E006008B18D9 /* PriceDataHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceDataHelper.swift; sourceTree = "<group>"; };
@@ -8633,7 +8631,6 @@
 				84786E1E25FA6C390089DFF7 /* CDStashItem+CoreDataCodable.swift */,
 				0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */,
 				C63468E528F37912005CB1F1 /* CDContact + CoreDataCodable.swift */,
-				C6FBA6D52C65DC40008B18D9 /* CDAsset + CoreDataCodable.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -16112,7 +16109,6 @@
 				FA169FAB28BCBAF000E8D2DC /* PoolStakingAccountUpdatingService.swift in Sources */,
 				84403D7F25E91BC100494FD4 /* SuperIdentity.swift in Sources */,
 				842876A824AE049B00D91AD8 /* SelectionListViewController.swift in Sources */,
-				C6FBA6D62C65DC40008B18D9 /* CDAsset + CoreDataCodable.swift in Sources */,
 				84786E1A25FA6A470089DFF7 /* StashItem.swift in Sources */,
 				FAD428FB2A86567F001D6A16 /* BackupRiskWarningsPresenter.swift in Sources */,
 				FAC6CDA92BA814F20013A17E /* UIControl+Disable.swift in Sources */,
