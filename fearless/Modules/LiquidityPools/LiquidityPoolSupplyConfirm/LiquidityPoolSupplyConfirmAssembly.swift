@@ -55,7 +55,6 @@ enum LiquidityPoolSupplyConfirmAssembly {
             lpOperationService: lpOperationService,
             lpDataService: lpDataService,
             liquidityPair: liquidityPair,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             chain: chain,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
         )

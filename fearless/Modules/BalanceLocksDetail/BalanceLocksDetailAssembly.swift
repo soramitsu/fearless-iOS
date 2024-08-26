@@ -14,8 +14,7 @@ final class BalanceLocksDetailAssembly {
         let interactor = BalanceLocksDetailInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
-            balanceLocksFetching: balanceLocksFetching,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared
+            balanceLocksFetching: balanceLocksFetching
         )
         let router = BalanceLocksDetailRouter()
 
@@ -34,7 +33,8 @@ final class BalanceLocksDetailAssembly {
             localizationManager: localizationManager,
             logger: Logger.shared,
             viewModelFactory: viewModelFactory,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            wallet: wallet
         )
 
         let view = BalanceLocksDetailViewController(

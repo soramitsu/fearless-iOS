@@ -6,7 +6,6 @@ import BigInt
 import SSFAccountManagment
 
 protocol LiquidityPoolRemoveLiquidityInteractorOutput: AnyObject {
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveUserPool(pool: AccountPool?)
     func didReceiveUserPoolError(error: Error)
@@ -27,18 +26,14 @@ final class LiquidityPoolRemoveLiquidityInteractor {
     private let lpOperationService: PoolsOperationService
     private let lpDataService: PolkaswapLiquidityPoolService
     private let liquidityPair: LiquidityPair
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chain: ChainModel
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let wallet: MetaAccountModel
-
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         lpOperationService: PoolsOperationService,
         lpDataService: PolkaswapLiquidityPoolService,
         liquidityPair: LiquidityPair,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chain: ChainModel,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         wallet: MetaAccountModel
@@ -46,20 +41,9 @@ final class LiquidityPoolRemoveLiquidityInteractor {
         self.lpOperationService = lpOperationService
         self.lpDataService = lpDataService
         self.liquidityPair = liquidityPair
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chain = chain
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.wallet = wallet
-    }
-
-    private func subscribeToPrices() {
-        let chainAssets = chain.chainAssets
-
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func subscribeToAccountInfo() {
@@ -137,7 +121,6 @@ extension LiquidityPoolRemoveLiquidityInteractor: LiquidityPoolRemoveLiquidityIn
         fetchReserves()
         fetchUserPool()
         fetchTotalIssuance()
-        subscribeToPrices()
         subscribeToAccountInfo()
     }
 
@@ -165,14 +148,6 @@ extension LiquidityPoolRemoveLiquidityInteractor: LiquidityPoolRemoveLiquidityIn
                 }
             }
         }
-    }
-}
-
-// MARK: - PriceLocalStorageSubscriber
-
-extension LiquidityPoolRemoveLiquidityInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
     }
 }
 

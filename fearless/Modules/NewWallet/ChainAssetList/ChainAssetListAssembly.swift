@@ -25,7 +25,6 @@ final class ChainAssetListAssembly {
             operationQueue: OperationQueue()
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let dependencyContainer = ChainAssetListDependencyContainer()
 
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -56,9 +55,11 @@ final class ChainAssetListAssembly {
         let remoteBalanceService = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
+        let operationQueue = OperationManagerFacade.sharedDefaultQueue
+        let pricesService = PricesService.shared
+
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
-            priceLocalSubscriber: priceLocalSubscriber,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
@@ -68,8 +69,10 @@ final class ChainAssetListAssembly {
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            logger: Logger.shared
+            chainRegistry: ChainRegistryFacade.sharedRegistry, 
+            logger: ServiceAssembly.shared.logger,
+            pricesService: pricesService,
+            operationQueue: operationQueue
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

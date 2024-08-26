@@ -13,12 +13,12 @@ final class CrowdloanContributionSetupPresenter {
     let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
     let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
 
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
-    private var priceData: PriceData?
     private var fee: Decimal?
     private var blockNumber: BlockNumber?
     private var blockDuration: BlockTime?
@@ -48,6 +48,10 @@ final class CrowdloanContributionSetupPresenter {
         }
     }
 
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
+
     private var inputResult: AmountInputResult?
 
     init(
@@ -59,7 +63,8 @@ final class CrowdloanContributionSetupPresenter {
         assetInfo: AssetBalanceDisplayInfo,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -69,6 +74,7 @@ final class CrowdloanContributionSetupPresenter {
         self.assetInfo = assetInfo
         self.logger = logger
         self.chainAsset = chainAsset
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
@@ -364,18 +370,6 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
             provideCrowdloanContributionViewModel()
         case let .failure(error):
             logger?.error("Did receive leasing period error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetVewModel()
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 

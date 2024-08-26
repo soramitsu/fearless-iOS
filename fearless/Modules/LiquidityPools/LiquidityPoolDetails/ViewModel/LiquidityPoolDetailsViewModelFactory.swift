@@ -11,7 +11,6 @@ protocol LiquidityPoolDetailsViewModelFactory {
         reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?,
         apyInfo: PoolApyInfo?,
         chain: ChainModel,
-        prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
         accountPoolInfo: AccountPool?,
@@ -36,7 +35,6 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
         reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?,
         apyInfo: PoolApyInfo?,
         chain: ChainModel,
-        prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
         accountPoolInfo: AccountPool?,
@@ -52,8 +50,8 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
 
         let fiatFormatter = fiatFormatter(for: wallet.selectedCurrency, locale: locale)
 
-        let baseAssetPrice = prices?.first(where: { $0.priceId == baseAsset.priceId })
-        let targetAssetPrice = prices?.first(where: { $0.priceId == targetAsset.priceId })
+        let baseAssetPrice = baseAsset.getPrice(for: wallet.selectedCurrency)
+        let targetAssetPrice = targetAsset.getPrice(for: wallet.selectedCurrency)
 
         let reservesValue = modelFactory.buildReserves(
             pool: liquidityPair,

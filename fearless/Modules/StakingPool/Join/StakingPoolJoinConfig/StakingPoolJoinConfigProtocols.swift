@@ -29,7 +29,6 @@ protocol StakingPoolJoinConfigInteractorInput: AnyObject {
 }
 
 protocol StakingPoolJoinConfigInteractorOutput: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveMinBond(_ minJoinBond: BigUInt?)

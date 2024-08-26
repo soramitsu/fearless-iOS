@@ -39,7 +39,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             dataValidatingFactory: dataValidationFactory,
             chainAsset: chainAsset,
             logger: Logger.shared,
-            viewModelState: container.viewModelState
+            viewModelState: container.viewModelState,
+            wallet: wallet
         )
 
         let view = StakingPayoutConfirmationViewController(
@@ -47,13 +48,9 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             localizationManager: LocalizationManager.shared
         )
 
-        guard let interactor = createInteractor(
-            chainAsset: chainAsset,
-            wallet: wallet,
+        let interactor = StakingPayoutConfirmationInteractor(
             strategy: container.strategy
-        ) else {
-            return nil
-        }
+        )
 
         dataValidationFactory.view = view
         presenter.view = view
@@ -62,21 +59,6 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         interactor.presenter = presenter
 
         return view
-    }
-
-    private static func createInteractor(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        strategy: StakingPayoutConfirmationStrategy
-    ) -> StakingPayoutConfirmationInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingPayoutConfirmationInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
-            wallet: wallet,
-            chainAsset: chainAsset,
-            strategy: strategy
-        )
     }
 
     // swiftlint:disable function_body_length

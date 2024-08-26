@@ -12,7 +12,11 @@ final class StakingRebondConfirmationPresenter {
     let viewModelState: StakingRebondConfirmationViewModelState
     let chainAsset: ChainAsset
     let logger: LoggerProtocol?
-    private var priceData: PriceData?
+    private let wallet: MetaAccountModel
+
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: StakingRebondConfirmationInteractorInputProtocol,
@@ -21,6 +25,7 @@ final class StakingRebondConfirmationPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
         viewModelState: StakingRebondConfirmationViewModelState,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -29,6 +34,7 @@ final class StakingRebondConfirmationPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.chainAsset = chainAsset
         self.viewModelState = viewModelState
+        self.wallet = wallet
         self.logger = logger
     }
 
@@ -75,19 +81,6 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationPresenter
 }
 
 extension StakingRebondConfirmationPresenter: StakingRebondConfirmationInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetViewModel()
-            provideFeeViewModel()
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
-        }
-    }
-
     func didSubmitRebonding(result: Result<String, Error>) {
         view?.didStopLoading()
 

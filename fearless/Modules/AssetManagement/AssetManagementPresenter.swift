@@ -47,7 +47,6 @@ final class AssetManagementPresenter {
     private var viewModel: AssetManagementViewModel?
     private var chainAssets: [ChainAsset] = []
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
-    private var prices: [PriceData] = []
     private var pendingAccountInfoChainAssets: [ChainAssetId] = []
     private var searchText: String?
 
@@ -81,7 +80,6 @@ final class AssetManagementPresenter {
             let viewModel = viewModelFactory.buildViewModel(
                 chainAssets: chainAssets,
                 accountInfos: accountInfos,
-                prices: prices,
                 wallet: wallet,
                 locale: selectedLocale,
                 filter: networkFilter,
@@ -146,7 +144,6 @@ final class AssetManagementPresenter {
             at: indexPath,
             pendingAccountInfoChainAssets: pendingAccountInfoChainAssets,
             accountInfos: accountInfos,
-            prices: prices,
             locale: selectedLocale,
             wallet: wallet
         )
@@ -232,21 +229,6 @@ extension AssetManagementPresenter: AssetManagementViewOutput {
 // MARK: - AssetManagementInteractorOutput
 
 extension AssetManagementPresenter: AssetManagementInteractorOutput {
-    func didReceivePricesData(
-        result: Result<[PriceData], Error>
-    ) {
-        switch result {
-        case let .success(priceDataResult):
-            guard prices.isEmpty else {
-                return
-            }
-            prices = priceDataResult
-            provideViewModel()
-        case let .failure(error):
-            logger.customError(error)
-        }
-    }
-
     func didReceiveUpdated(wallet: MetaAccountModel) {
         self.wallet = wallet
     }

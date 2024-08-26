@@ -74,7 +74,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             balanceViewModelFactory: balanceViewModelFactory,
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 
@@ -83,10 +84,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         wallet: MetaAccountModel,
         strategy: StakingUnbondConfirmStrategy
     ) -> StakingUnbondConfirmInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingUnbondConfirmInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
+        StakingUnbondConfirmInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: strategy

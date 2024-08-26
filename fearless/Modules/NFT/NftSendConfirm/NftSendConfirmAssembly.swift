@@ -28,7 +28,6 @@ final class NftSendConfirmAssembly {
             let interactor = NftSendConfirmInteractor(
                 transferService: transferService,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-                priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
                 wallet: wallet,
                 chain: nft.chain
             )

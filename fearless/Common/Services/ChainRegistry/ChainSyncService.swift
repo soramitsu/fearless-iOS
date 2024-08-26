@@ -191,7 +191,7 @@ final class ChainSyncService {
 
         if updatedLocalChain != updatedRemoteChain || localUtilityAsset != remoteUtilityAsset {
             let assets = localItem.assets.union(remoteItem.assets)
-            let remoteChain = remoteItem.replacingAssets(assets)
+            let remoteChain = remoteItem.replacingAssets(Array(assets))
             return remoteChain
         } else {
             return nil

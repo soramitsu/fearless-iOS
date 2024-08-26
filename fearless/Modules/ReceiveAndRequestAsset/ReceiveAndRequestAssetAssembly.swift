@@ -11,15 +11,12 @@ final class ReceiveAndRequestAssetAssembly {
     ) -> ReceiveAndRequestAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 
         let interactor = ReceiveAndRequestAssetInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             chainAsset: chainAsset
         )

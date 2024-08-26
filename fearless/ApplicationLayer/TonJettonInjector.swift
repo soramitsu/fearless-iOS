@@ -32,7 +32,7 @@ actor TonJettonInjectorImpl: TonJettonInjector {
             guard tonChain.assets.symmetricDifference(unionAssets).isNotEmpty else {
                 return
             }
-            let updatedChainModel = tonChain.replacingAssets(unionAssets)
+            let updatedChainModel = tonChain.replacingAssets(Array(unionAssets))
             await chainModelRepository.save(models: [updatedChainModel])
 
             logger.info("The Open Network has been updated with new assets: \(assetModels.map { $0.name })")
@@ -49,8 +49,6 @@ actor TonJettonInjectorImpl: TonJettonInjector {
                 symbol: item.jettonInfo.symbol ?? item.jettonInfo.name,
                 precision: UInt16(item.jettonInfo.fractionDigits),
                 icon: item.jettonInfo.imageURL,
-                price: nil,
-                fiatDayChange: nil,
                 currencyId: item.jettonInfo.address.toRaw(), // wallet
                 existentialDeposit: nil,
                 color: nil,

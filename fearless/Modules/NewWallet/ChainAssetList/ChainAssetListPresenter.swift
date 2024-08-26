@@ -2,8 +2,6 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
-typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
-
 final class ChainAssetListPresenter {
     // MARK: Private properties
 
@@ -18,7 +16,6 @@ final class ChainAssetListPresenter {
     private var chainAssets: [ChainAsset]?
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
-    private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
     private var chainsWithIssue: [ChainIssue] = []
     private var chainSettings: [ChainSettings] = []
@@ -50,7 +47,6 @@ final class ChainAssetListPresenter {
             }
 
             let accountInfosCopy = self.accountInfos
-            let prices = self.prices
             let chainsWithIssue = self.chainsWithIssue
             let shouldRunManageAssetAnimate = self.interactor.shouldRunManageAssetAnimate
             let chainSettings = self.chainSettings
@@ -60,7 +56,6 @@ final class ChainAssetListPresenter {
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,
                 accountInfos: accountInfosCopy,
-                prices: prices,
                 chainsWithIssue: chainsWithIssue,
                 shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
                 displayType: self.displayType,
@@ -254,25 +249,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         case let .failure(error):
             Logger.shared.customError(error)
         }
-    }
-
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        lock.exclusivelyWrite { [weak self] in
-            guard let self = self else { return }
-            switch result {
-            case let .success(priceDataResult):
-                let priceDataUpdated = (pricesData: priceDataResult, updated: true)
-                self.prices = priceDataUpdated
-            case .failure:
-                guard !self.prices.updated else {
-                    return
-                }
-
-                let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
-                self.prices = priceDataUpdated
-            }
-        }
-        provideViewModel()
     }
 
     func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {

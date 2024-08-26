@@ -12,9 +12,6 @@ protocol CrossChainInteractorOutput: AnyObject {
         accountId: AccountId,
         chainAsset: ChainAsset
     )
-    func didReceivePricesData(
-        result: Result<[PriceData], Error>
-    )
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
     func didReceiveDestinationFee(result: Result<DestXcmFee, Error>)
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult)
@@ -35,7 +32,6 @@ final class CrossChainInteractor {
 
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let depsContainer: CrossChainDepsContainer
     private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
     private let operationQueue: OperationQueue
@@ -43,7 +39,6 @@ final class CrossChainInteractor {
     private let wallet: MetaAccountModel
     private let addressChainDefiner: AddressChainDefiner
     private let existentialDepositService: ExistentialDepositServiceProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private var destinationChain: ChainModel?
     private var originalChainAsset: ChainAsset?
     private let storageRequestPerformer: StorageRequestPerformer?
@@ -67,7 +62,6 @@ final class CrossChainInteractor {
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         depsContainer: CrossChainDepsContainer,
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
         operationQueue: OperationQueue,
@@ -79,7 +73,6 @@ final class CrossChainInteractor {
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.depsContainer = depsContainer
         self.runtimeItemRepository = runtimeItemRepository
         self.operationQueue = operationQueue
@@ -129,14 +122,6 @@ final class CrossChainInteractor {
             handler: self,
             deliveryOn: .main
         )
-    }
-
-    private func fetchPrices(for chainAssets: [ChainAsset]) {
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {
@@ -286,7 +271,6 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         originalChainAsset = originChainAsset
         let originalUtilityChainAsset = originChainAsset?.chain.utilityChainAssets().first
         let chainAssets: [ChainAsset] = [originalUtilityChainAsset, originChainAsset].compactMap { $0 }
-        fetchPrices(for: chainAssets)
         subscribeToAccountInfo(for: chainAssets)
         guard let originChainAsset = originChainAsset else {
             return
@@ -366,13 +350,5 @@ extension CrossChainInteractor: AccountInfoSubscriptionAdapterHandler {
             accountId: accountId,
             chainAsset: chainAsset
         )
-    }
-}
-
-// MARK: - PriceLocalStorageSubscriber
-
-extension CrossChainInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
     }
 }

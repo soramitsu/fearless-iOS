@@ -14,6 +14,21 @@ final class ChainModelMapper {
     typealias DataProviderModel = ChainModel
     typealias CoreDataEntity = CDChain
 
+    private func createPriceData(from entity: CDPriceData) -> PriceData? {
+        guard let currencyId = entity.currencyId,
+              let priceId = entity.priceId,
+              let price = entity.price else {
+            return nil
+        }
+        return PriceData(
+            currencyId: currencyId,
+            priceId: priceId,
+            price: price,
+            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
+            coingeckoPriceId: entity.coingeckoPriceId
+        )
+    }
+
     private func createAsset(from entity: CDAsset) -> AssetModel? {
         var symbol: String?
         if let entitySymbol = entity.symbol {
@@ -58,14 +73,18 @@ final class ChainModelMapper {
             return nil
         }
 
+        let priceDatas: [PriceData] = entity.priceData.or([]).compactMap { data in
+            guard let priceData = data as? CDPriceData else {
+                return nil
+            }
+            return createPriceData(from: priceData)
+        }
         return AssetModel(
             id: id,
             name: name,
             symbol: symbol,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
-            price: entity.price as Decimal?,
-            fiatDayChange: entity.fiatDayChange as Decimal?,
             currencyId: entity.currencyId,
             existentialDeposit: entity.existentialDeposit,
             color: entity.color,
@@ -75,7 +94,8 @@ final class ChainModelMapper {
             purchaseProviders: purchaseProviders,
             assetType: assetType,
             priceProvider: priceProvider,
-            coingeckoPriceId: entity.priceId
+            coingeckoPriceId: entity.priceId,
+            priceData: priceDatas
         )
     }
 
@@ -106,8 +126,6 @@ final class ChainModelMapper {
             assetEntity.icon = $0.icon
             assetEntity.precision = Int16(bitPattern: $0.precision)
             assetEntity.priceId = $0.coingeckoPriceId
-            assetEntity.price = $0.price as NSDecimalNumber?
-            assetEntity.fiatDayChange = $0.fiatDayChange as NSDecimalNumber?
             assetEntity.symbol = $0.symbol
             assetEntity.existentialDeposit = $0.existentialDeposit
             assetEntity.color = $0.color
@@ -128,6 +146,20 @@ final class ChainModelMapper {
 
             let purchaseProviders: [String]? = $0.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders
+
+            let priceData: [CDPriceData] = $0.priceData.map { priceData in
+                let entity = CDPriceData(context: context)
+                entity.currencyId = priceData.currencyId
+                entity.priceId = priceData.priceId
+                entity.price = priceData.price
+                entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
+                entity.coingeckoPriceId = priceData.coingeckoPriceId
+                return entity
+            }
+
+            assetEntity.priceData = Set(priceData) as NSSet
+
+            print("chain mapper populate, array: \(priceData)")
 
             return assetEntity
         }

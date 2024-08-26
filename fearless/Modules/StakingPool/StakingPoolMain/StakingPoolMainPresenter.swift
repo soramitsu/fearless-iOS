@@ -25,7 +25,6 @@ final class StakingPoolMainPresenter {
     private var accountInfo: AccountInfo?
     private var balance: Decimal?
     private var rewardCalculatorEngine: RewardCalculatorEngineProtocol?
-    private var priceData: PriceData?
     private var era: EraIndex?
     private var eraStakersInfo: EraStakersInfo?
     private var eraCountdown: EraCountdown?
@@ -92,7 +91,7 @@ final class StakingPoolMainPresenter {
             for: chainAsset,
             accountInfo: accountInfo,
             amount: inputResult?.absoluteValue(from: balance ?? 0.0),
-            priceData: priceData,
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             calculatorEngine: rewardCalculatorEngine
         )
 
@@ -116,7 +115,6 @@ final class StakingPoolMainPresenter {
 
         let viewModel = viewModelFactory.buildNominatorStateViewModel(
             stakeInfo: stakeInfo,
-            priceData: priceData,
             chainAsset: chainAsset,
             era: era,
             poolInfo: poolInfo,
@@ -358,13 +356,6 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         self.rewardCalculatorEngine = rewardCalculatorEngine
 
         provideRewardEstimationViewModel()
-    }
-
-    func didReceive(priceData: PriceData?) {
-        self.priceData = priceData
-
-        provideRewardEstimationViewModel()
-        provideStakeInfoViewModel()
     }
 
     func didReceive(wallet: MetaAccountModel) {

@@ -95,13 +95,15 @@ final class StakingStateViewModelFactory {
         let rewardBalanceViewModelFactory = getBalanceViewModelFactory(for: commonData.rewardChainAsset ?? chainAsset)
 
         let stakedAmount = convertAmount(ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
+        let priceData = commonData.chainAsset?.asset.getPrice(for: selectedMetaAccount.selectedCurrency)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
-            priceData: commonData.price,
+            priceData: priceData,
             usageCase: .listCrypto
         )
 
-        let rewardPrice = commonData.rewardAssetPrice ?? commonData.price
+        let rewardPriceData = commonData.rewardChainAsset?.asset.getPrice(for: selectedMetaAccount.selectedCurrency)
+        let rewardPrice = rewardPriceData ?? priceData
 
         let reward: LocalizableResource<BalanceViewModelProtocol>?
         if let totalReward = state.totalReward {
@@ -125,7 +127,7 @@ final class StakingStateViewModelFactory {
                 totalRewardAmount: rewardViewModel?.amount ?? defaultReward,
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
-                hasPrice: commonData.price != nil,
+                hasPrice: priceData != nil,
                 rewardViewTitle: R.string.localizable
                     .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
             )
@@ -141,9 +143,10 @@ final class StakingStateViewModelFactory {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
         let stakedAmount = convertAmount(state.ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
+        let priceData = commonData.chainAsset?.asset.getPrice(for: selectedMetaAccount.selectedCurrency)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
-            priceData: commonData.price,
+            priceData: priceData,
             usageCase: .listCrypto
         )
 
@@ -151,7 +154,7 @@ final class StakingStateViewModelFactory {
         if let totalReward = state.totalReward {
             reward = balanceViewModelFactory.balanceFromPrice(
                 totalReward.amount.decimalValue,
-                priceData: commonData.price,
+                priceData: priceData,
                 usageCase: .listCrypto
             )
         } else {
@@ -168,7 +171,7 @@ final class StakingStateViewModelFactory {
                 totalRewardAmount: rewardViewModel?.amount ?? "",
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
-                hasPrice: commonData.price != nil
+                hasPrice: priceData != nil
             )
         }
     }
@@ -179,7 +182,8 @@ final class StakingStateViewModelFactory {
         countdownInterval: TimeInterval?
     ) -> [DelegationInfoCellModel]? {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
-        let models: [DelegationInfoCellModel]? = state.delegationInfos?.compactMap { delegationInfo in
+        let models: [DelegationInfoCellModel]? = state.delegationInfos?.compactMap { [weak self] delegationInfo in
+            guard let self = self else { return nil }
             let collator = delegationInfo.collator
             let delegation = delegationInfo.delegation
 
@@ -237,12 +241,12 @@ final class StakingStateViewModelFactory {
                     precision: Int16(chainAsset.asset.precision)
                 ) ?? Decimal.zero
                 let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
-
+                let priceData = state.commonData.chainAsset?.asset.getPrice(for: self.selectedMetaAccount.selectedCurrency)
                 return DelegationViewModel(
                     totalStakedAmount: balanceViewModelFactory.amountFromValue(amount, usageCase: .listCrypto).value(for: locale),
                     totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
                         amount,
-                        priceData: state.commonData.price,
+                        priceData: priceData,
                         usageCase: .listCrypto
                     ).value(for: locale).price ?? "",
                     apr: apyFormatter.string(from: (collator.subqueryData?.apr ?? 0.0) as NSNumber) ?? "",
@@ -270,9 +274,10 @@ final class StakingStateViewModelFactory {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
         let analyticsViewModelFactory = analyticsRewardsViewModelFactoryBuilder(chainAsset, balanceViewModelFactory)
+        let priceData = commonData.chainAsset?.asset.getPrice(for: selectedMetaAccount.selectedCurrency)
         let fullViewModel = analyticsViewModelFactory.createViewModel(
             from: rewards,
-            priceData: commonData.price,
+            priceData: priceData,
             period: rewardsForPeriod.1,
             selectedChartIndex: nil,
             hasPendingRewards: chainAsset.stakingType?.isRelaychain == true
@@ -294,7 +299,9 @@ final class StakingStateViewModelFactory {
             return nil
         }
         let chainAsset = commonData.rewardChainAsset ?? chainAsset
-        let price = commonData.rewardAssetPrice ?? commonData.price
+        let priceData = commonData.chainAsset?.asset.getPrice(for: selectedMetaAccount.selectedCurrency)
+        let rewardPriceData = commonData.rewardChainAsset?.asset.getPrice(for: selectedMetaAccount.selectedCurrency)
+        let price = rewardPriceData ?? priceData
 
         let rewardViewModelFactory = getRewardViewModelFactory(for: chainAsset)
 
@@ -337,12 +344,12 @@ final class StakingStateViewModelFactory {
             for: chainAsset,
             defaultValue: 0.0
         )
-
+        let priceData = commonData.chainAsset?.asset.getPrice(for: selectedMetaAccount.selectedCurrency)
         let balanceViewModel = balanceViewModelFactory
             .createAssetBalanceViewModel(
                 amount ?? 0.0,
                 balance: balance,
-                priceData: commonData.price
+                priceData: priceData
             )
 
         let reward: LocalizableResource<PeriodRewardViewModel>? = try createPeriodReward(

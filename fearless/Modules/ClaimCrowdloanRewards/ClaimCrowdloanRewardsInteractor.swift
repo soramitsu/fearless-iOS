@@ -18,8 +18,6 @@ final class ClaimCrowdloanRewardsInteractor {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let signer: SigningWrapperProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private let chainRegistry: ChainRegistryProtocol
     private let storageRequestPerformer: StorageRequestPerformer
     private let accountInfoFetcher: AccountInfoFetchingProtocol
@@ -33,7 +31,6 @@ final class ClaimCrowdloanRewardsInteractor {
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         signer: SigningWrapperProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainRegistry: ChainRegistryProtocol,
         storageRequestPerformer: StorageRequestPerformer,
         accountInfoFetcher: AccountInfoFetchingProtocol
@@ -46,7 +43,6 @@ final class ClaimCrowdloanRewardsInteractor {
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
         self.signer = signer
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainRegistry = chainRegistry
         self.storageRequestPerformer = storageRequestPerformer
         self.accountInfoFetcher = accountInfoFetcher
@@ -133,7 +129,6 @@ extension ClaimCrowdloanRewardsInteractor: ClaimCrowdloanRewardsInteractorInput 
     func setup(with output: ClaimCrowdloanRewardsInteractorOutput) {
         self.output = output
 
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         fetchBalanceLocks()
         fetchTokenLocks()
         fetchAccountInfo()
@@ -172,17 +167,6 @@ extension ClaimCrowdloanRewardsInteractor: ExtrinsicFeeProxyDelegate {
             output?.didReceiveFee(fee)
         case let .failure(error):
             output?.didReceiveFeeError(error)
-        }
-    }
-}
-
-extension ClaimCrowdloanRewardsInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        switch result {
-        case let .success(price):
-            output?.didReceivePrice(price)
-        case let .failure(error):
-            output?.didReceivePriceError(error)
         }
     }
 }

@@ -13,7 +13,6 @@ protocol AvailableLiquidityPoolsListViewModelFactory {
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
-        prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
         type: LiquidityPoolListType,
@@ -74,7 +73,6 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
-        prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
         type: LiquidityPoolListType,
@@ -102,8 +100,8 @@ final class AvailableLiquidityPoolsListViewModelFactoryDefault: AvailableLiquidi
             let apyValue = apyInfos?.first(where: { $0.poolId == reservesAddress })?.apy
             let apyLabelText = apyValue.flatMap { NumberFormatter.percentAPY.stringFromDecimal($0) }
 
-            let baseAssetPrice = prices?.first(where: { $0.priceId == baseAsset.priceId })
-            let targetAssetPrice = prices?.first(where: { $0.priceId == targetAsset.priceId })
+            let baseAssetPrice = baseAsset.getPrice(for: wallet.selectedCurrency)
+            let targetAssetPrice = targetAsset.getPrice(for: wallet.selectedCurrency)
             let poolReservesInfo = reserves?.value?.first(where: { $0.poolId == pair.pairId })
             let reservesValue = modelFactory.buildReserves(
                 pool: pair,

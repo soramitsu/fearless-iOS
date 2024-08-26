@@ -51,7 +51,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         //  Only relaychain
         provideMaxNominatorsPerValidator(from: runtimeService)
 
-        performPriceSubscription()
         performAccountInfoSubscription()
 
         //  Only relaychain
@@ -123,10 +122,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         provideNewChain()
 
-        clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &delegatorStateProvider)
         collatorIds = nil
-        performPriceSubscription()
         provideRewardChainAsset()
 
         clearNominatorsLimitProviders()
@@ -310,18 +307,10 @@ extension StakingMainInteractor: EventVisitorProtocol {
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
     }
-
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        guard selectedWalletSettings.value?.selectedCurrency != event.account.selectedCurrency else {
-            return
-        }
-        priceProvider?.refresh()
-    }
 }
 
 extension StakingMainInteractor: ApplicationHandlerDelegate {
     func didReceiveDidBecomeActive(notification _: Notification) {
-        priceProvider?.refresh()
         totalRewardProvider?.refresh()
         rewardAnalyticsProvider?.refresh()
     }

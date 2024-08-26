@@ -6,7 +6,6 @@ protocol AssetManagementViewModelFactory: ChainAssetListBuilder {
     func buildViewModel(
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: [PriceData],
         wallet: MetaAccountModel,
         locale: Locale,
         filter: NetworkManagmentFilter?,
@@ -19,7 +18,6 @@ protocol AssetManagementViewModelFactory: ChainAssetListBuilder {
         at indexPath: IndexPath,
         pendingAccountInfoChainAssets: [ChainAssetId],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: [PriceData],
         locale: Locale,
         wallet: MetaAccountModel
     ) -> AssetManagementViewModel
@@ -42,7 +40,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
     func buildViewModel(
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: [PriceData],
         wallet: MetaAccountModel,
         locale: Locale,
         filter: NetworkManagmentFilter?,
@@ -58,7 +55,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         let sectionsChunks = createAssetChainAssets(
             from: filtredChainAssets,
             accountInfos: accountInfos,
-            pricesData: prices,
             wallet: wallet
         )
 
@@ -70,7 +66,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 wallet: wallet,
                 accountInfos: accountInfos,
                 locale: locale,
-                prices: prices,
                 hasGroup: hasView,
                 pendingAccountInfoChainAssets: pendingAccountInfoChainAssets
             )
@@ -117,7 +112,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         at indexPath: IndexPath,
         pendingAccountInfoChainAssets: [ChainAssetId],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: [PriceData],
         locale: Locale,
         wallet: MetaAccountModel
     ) -> AssetManagementViewModel {
@@ -135,7 +129,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 in: cell,
                 locale: locale,
                 wallet: wallet,
-                prices: prices,
                 isLoadingBalance: isLoadingBalance
             )
             viewModel.list[indexPath.section].cells[indexPath.row] = updatedCell
@@ -160,7 +153,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         in cell: AssetManagementTableCellViewModel,
         locale: Locale,
         wallet: MetaAccountModel,
-        prices: [PriceData],
         isLoadingBalance: Bool
     ) -> AssetManagementTableCellViewModel {
         let amount = getBalanceString(
@@ -172,7 +164,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         let price = getFiatBalanceString(
             for: [cell.chainAsset],
             accountInfos: accountInfos,
-            priceData: prices.first(where: { $0.priceId == cell.chainAsset.asset.priceId }),
+            priceData: cell.chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             locale: locale,
             wallet: wallet,
             shouldShowZero: true
@@ -180,7 +172,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         let decimalPrice = getTotalFiatBalance(
             for: [cell.chainAsset],
             accountInfos: accountInfos,
-            priceData: prices.first(where: { $0.priceId == cell.chainAsset.asset.priceId }),
+            priceData: cell.chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             wallet: wallet
         )
         let balance = BalanceViewModel(
@@ -200,7 +192,6 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         wallet: MetaAccountModel,
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
-        prices: [PriceData],
         hasGroup: Bool,
         pendingAccountInfoChainAssets: [ChainAssetId]
     ) -> [AssetManagementTableCellViewModel] {
@@ -214,7 +205,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             let price = getFiatBalanceString(
                 for: [chainAsset],
                 accountInfos: accountInfos,
-                priceData: prices.first(where: { $0.priceId == chainAsset.asset.priceId }),
+                priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
                 locale: locale,
                 wallet: wallet,
                 shouldShowZero: true
@@ -222,7 +213,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             let decimalPrice = getTotalFiatBalance(
                 for: [chainAsset],
                 accountInfos: accountInfos,
-                priceData: prices.first(where: { $0.priceId == chainAsset.asset.priceId }),
+                priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
                 wallet: wallet
             )
             let balance = BalanceViewModel(
