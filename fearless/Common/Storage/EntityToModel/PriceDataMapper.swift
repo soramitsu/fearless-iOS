@@ -37,9 +37,3 @@ final class PriceDataModelMapper: CoreDataMapperProtocol {
 
     var entityIdentifierFieldName: String { "priceId" }
 }
-
-extension PriceData: Identifiable {
-    public var identifier: String {
-        priceId
-    }
-}

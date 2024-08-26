@@ -411,6 +411,17 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
             subscribeToAccountInfo(for: wallets, chainAssets)
         }
     }
+
+    func processPricesUpdated() {
+        Task {
+            self.chainAssets = try await chainAssetFetcher.fetchAwait(
+                shouldUseCache: false,
+                filters: [.enabledChains],
+                sortDescriptors: []
+            )
+            buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
+        }
+    }
 }
 
 // MARK: - AccountInfoSubscriptionAdapterHandler

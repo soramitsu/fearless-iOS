@@ -10,19 +10,19 @@ protocol PricesServiceProtocol {
 final class PricesService: PricesServiceProtocol {
     static let shared: PricesServiceProtocol = PricesService.create()
     private let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-    private let assetRepository: AnyDataProviderRepository<AssetModel>
+    private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
     private let logger: Logger
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
 
     private init(
-        assetRepository: AnyDataProviderRepository<AssetModel>,
+        chainRepository: AnyDataProviderRepository<ChainModel>,
         operationQueue: OperationQueue,
         logger: Logger,
         eventCenter: EventCenter
     ) {
-        self.assetRepository = assetRepository
+        self.chainRepository = chainRepository
         self.operationQueue = operationQueue
         self.logger = logger
         self.eventCenter = eventCenter
@@ -59,16 +59,20 @@ extension PricesService: PriceLocalSubscriptionHandler {
 
 private extension PricesService {
     func handle(prices: [PriceData], for chainAssets: [ChainAsset]) {
-        var updatedAssets: [AssetModel] = []
-        chainAssets.forEach { chainAsset in
-            let assetPrices = prices.filter { price in
-                price.priceId == chainAsset.asset.priceId
+        var updatedChains: [ChainModel] = []
+        let uniqChains: [ChainModel] = chainAssets.compactMap { $0.chain }.uniq { $0.chainId }
+        uniqChains.forEach { chain in
+            var updatedAssets: [AssetModel] = []
+            chain.chainAssets.forEach { chainAsset in
+                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId }
+                let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
+                updatedAssets.append(updatedAsset)
             }
-            let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
-            updatedAssets.append(updatedAsset)
+            let updatedChain = chain.replacing(updatedAssets)
+            updatedChains.append(updatedChain)
         }
-        let saveOperation = assetRepository.saveOperation({
-            updatedAssets
+        let saveOperation = chainRepository.saveOperation({
+            updatedChains
         }, {
             []
         })
@@ -93,18 +97,12 @@ private extension PricesService {
 
 private extension PricesService {
     static func create() -> PricesServiceProtocol {
-        let repository = AssetRepositoryFactory().createRepository()
+        let repository = ChainRepositoryFactory().createRepository()
         return PricesService(
-            assetRepository: AnyDataProviderRepository(repository),
+            chainRepository: AnyDataProviderRepository(repository),
             operationQueue: OperationQueue(),
             logger: Logger.shared,
             eventCenter: EventCenter.shared
         )
-    }
-}
-
-extension AssetModel: Identifiable {
-    public var identifier: String {
-        id
     }
 }
