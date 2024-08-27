@@ -63,6 +63,10 @@ final class ProfilePresenter {
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
+    func openDebugMenu() {
+        wireframe.openDebugMenu(from: view)
+    }
+
     func didLoad(view: ProfileViewProtocol) {
         self.view = view
         interactor.setup(with: self)

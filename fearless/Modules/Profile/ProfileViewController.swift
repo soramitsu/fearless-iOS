@@ -68,6 +68,10 @@ final class ProfileViewController: UIViewController, ViewHolder {
     @objc func switcherValueChanged(sender: UISwitch) {
         presenter.switcherValueChanged(isOn: sender.isOn, index: sender.tag)
     }
+    
+    @objc func debugMenu(tapGesture: UITapGestureRecognizer) {
+        presenter.openDebugMenu()
+    }
 
     // MARK: - tableView
 
@@ -81,7 +85,9 @@ final class ProfileViewController: UIViewController, ViewHolder {
         ) {
             let locale = localizationManager?.selectedLocale
             cell.titleLabel.text = R.string.localizable.profileTitle(preferredLanguages: locale?.rLanguages)
-
+            let tap = UITapGestureRecognizer(target: self, action: #selector(debugMenu))
+            tap.numberOfTapsRequired = 5
+            cell.titleLabel.addGestureRecognizer(tap)
             return cell
         } else {
             assertionFailure("Profile section cell creation failed")

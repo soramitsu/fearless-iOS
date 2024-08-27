@@ -115,6 +115,15 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
         view?.controller.present(navigation, animated: true)
     }
+    
+    func openDebugMenu(from view: (any ControllerBackedProtocol)?) {
+        let module = FeatureToggleListAssembly.configureModule()
+        guard let controller = module?.view.controller else {
+            return
+        }
+        let navigation = FearlessNavigationController(rootViewController: controller)
+        view?.controller.present(navigation, animated: true)
+    }
 
     // MARK: Private
 

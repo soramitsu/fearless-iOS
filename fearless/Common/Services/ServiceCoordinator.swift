@@ -21,6 +21,7 @@ final class ServiceCoordinator {
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
     private let tonConnectService: TonConnectService
+    private let toggleService: LocalToggleService
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -30,7 +31,8 @@ final class ServiceCoordinator {
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
         walletConnect: WalletConnectService,
         walletAssetsObserver: WalletAssetsObserver,
-        tonConnectService: TonConnectService
+        tonConnectService: TonConnectService,
+        toggleService: LocalToggleService
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -40,6 +42,7 @@ final class ServiceCoordinator {
         self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
         self.tonConnectService = tonConnectService
+        self.toggleService = toggleService
     }
 }
 
@@ -63,6 +66,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         walletConnect.setup()
         walletAssetsObserver.setup()
         tonConnectService.setup()
+        toggleService.setup()
     }
 
     func throttle() {
@@ -121,7 +125,8 @@ extension ServiceCoordinator {
             polkaswapSettingsService: polkaswapSettingsService,
             walletConnect: walletConnect,
             walletAssetsObserver: walletAssetsObserver,
-            tonConnectService: ServiceAssembly.shared.tonConnectService()
+            tonConnectService: ServiceAssembly.shared.tonConnectService(), 
+            toggleService: ServiceAssembly.shared.localToggle
         )
     }
 }

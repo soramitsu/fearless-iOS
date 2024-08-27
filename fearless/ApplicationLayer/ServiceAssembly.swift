@@ -19,6 +19,7 @@ final class ServiceAssembly {
     lazy var priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
     lazy var eventCenter = EventCenter.shared
     lazy var userDefaults = SettingsManager.shared
+    lazy var localToggle = LocalToggleService.shared
 
     private var _accountInfoRemoteServiceDefault: AccountInfoRemoteService?
     func accountInfoRemoteServiceDefault() -> AccountInfoRemoteService {
