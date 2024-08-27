@@ -13,7 +13,6 @@ final class TransferAssembly {
         let deps = TransferDepsContainer(wallet: wallet)
         let interactor = TransferInteractor(
             deps: deps,
-            priceLocalSubscriber: ServiceAssembly.shared.priceLocalSubscriber,
             chainAssetFetching: ServiceAssembly.shared.chainAssetFetching(qualityOfService: .default),
             scamRepository: ServiceAssembly.shared.scamInfoAsyncRepository()
         )

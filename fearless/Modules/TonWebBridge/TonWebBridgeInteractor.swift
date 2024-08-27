@@ -37,7 +37,8 @@ extension TonWebBridgeInteractor: TonWebBridgeInteractorInput {
     }
 
     func getTonChain() async throws -> SSFModels.ChainModel? {
-        try await chainRepository.fetch(by: "-239", options: RepositoryFetchOptions())
+        let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
+        return try await chainRepository.fetch(by: network, options: RepositoryFetchOptions())
     }
 
     func fetchManifest(with url: URL) async throws -> TonConnectManifest {

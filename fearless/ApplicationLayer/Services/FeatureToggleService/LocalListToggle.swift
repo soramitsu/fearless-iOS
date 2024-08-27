@@ -26,7 +26,7 @@ extension LocalListToggle {
     )
     static let tonEnv = LocalListToggle(
         key: "1",
-        title: "Ton Enviroment",
+        title: "Ton environment",
         description: "is testnet",
         storageValue: false
     )

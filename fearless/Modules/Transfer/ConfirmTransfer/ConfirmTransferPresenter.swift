@@ -25,8 +25,6 @@ final class ConfirmTransferPresenter {
     private let useCase: TransferFlowUseCase
     private let scamInfo: ScamInfo?
 
-    private var prices: [PriceData] = []
-
     // MARK: - Constructors
 
     init(
@@ -50,9 +48,6 @@ final class ConfirmTransferPresenter {
 
         Task {
             do {
-                if let chainAsset = useCase.selectedChainAsset {
-                    await interactor.subscribeToPrice(for: chainAsset)
-                }
                 try await useCase.handle(initialData: sendFlow)
                 await provideIsReady()
                 await provideViewModel()
@@ -68,7 +63,6 @@ final class ConfirmTransferPresenter {
         do {
             let viewModel = try viewModelFactory.buildViewModel(
                 useCase: useCase,
-                prices: prices,
                 scamInfo: scamInfo,
                 locale: selectedLocale
             )
@@ -182,17 +176,7 @@ extension ConfirmTransferPresenter: ConfirmTransferViewOutput {
 
 // MARK: - ConfirmTransferInteractorOutput
 
-extension ConfirmTransferPresenter: TransferInteractorOutput {
-    func didReceivePriceData(result: Result<[PriceData], any Error>) {
-        switch result {
-        case let .success(success):
-            prices = success
-            Task { await provideViewModel() }
-        case let .failure(error):
-            logger.error("Did receive price error: \(error)")
-        }
-    }
-}
+extension ConfirmTransferPresenter: TransferInteractorOutput {}
 
 // MARK: - Localizable
 

@@ -84,8 +84,6 @@ final class SoraQrTransferFlowUseCase: TransferFlowUseCase {
             provideInputViewModel?()
         }
 
-        await interactor.subscribeToPrice(for: qrChainAsset)
-
         recipientAddress = qrInfo.address
         provideRecipientViewModel?()
         provideNetworkViewModel?()

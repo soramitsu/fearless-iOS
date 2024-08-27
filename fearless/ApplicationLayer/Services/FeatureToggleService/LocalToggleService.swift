@@ -70,6 +70,8 @@ final class LocalToggleService: ApplicationServiceProtocol {
         LocalListToggle.tonEnv
     ]
     
+    /// storageValue => isDev.
+    /// Default value true
     var chainsListToggle: LocalListToggle {
         get {
             getToggle(for: "0") ?? LocalListToggle.chains
@@ -79,6 +81,8 @@ final class LocalToggleService: ApplicationServiceProtocol {
         }
     }
     
+    /// storageValue => isTestnet.
+    /// Default value false
     var tonEnvListToggle: LocalListToggle {
         get {
             getToggle(for: "1") ?? LocalListToggle.tonEnv

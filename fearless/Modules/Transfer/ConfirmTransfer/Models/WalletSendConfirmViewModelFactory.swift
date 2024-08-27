@@ -19,7 +19,6 @@ struct WalletSendConfirmViewModelFactoryParameters {
 protocol WalletSendConfirmViewModelFactoryProtocol {
     func buildViewModel(
         useCase: TransferFlowUseCase,
-        prices: [PriceData],
         scamInfo: ScamInfo?,
         locale: Locale
     ) throws -> WalletSendConfirmViewModel
@@ -42,7 +41,6 @@ final class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory
 
     func buildViewModel(
         useCase: TransferFlowUseCase,
-        prices: [PriceData],
         scamInfo: ScamInfo?,
         locale: Locale
     ) throws -> WalletSendConfirmViewModel {
@@ -83,7 +81,6 @@ final class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory
 
         let priceString = buildPriceString(
             useCase: useCase,
-            prices: prices,
             locale: locale,
             balanceViewModelFactory: balanceViewModelFactory
         )
@@ -91,7 +88,6 @@ final class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory
         let feeViewModel = buildBalanceViewModel(
             amount: useCase.fee,
             chainAsset: utilityChainAsset,
-            prices: prices,
             balanceViewModelFactory: utilityBalanceViewModelFactory,
             locale: locale
         )
@@ -99,7 +95,6 @@ final class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory
         let tipViewModel = buildBalanceViewModel(
             amount: useCase.tip,
             chainAsset: utilityChainAsset,
-            prices: prices,
             balanceViewModelFactory: utilityBalanceViewModelFactory,
             locale: locale
         )
@@ -125,7 +120,6 @@ final class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory
 
     private func buildPriceString(
         useCase: TransferFlowUseCase,
-        prices: [PriceData],
         locale: Locale,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) -> String? {
@@ -137,7 +131,7 @@ final class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory
             return nil
         }
 
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             amount,
@@ -151,14 +145,13 @@ final class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactory
     private func buildBalanceViewModel(
         amount: Decimal?,
         chainAsset: ChainAsset,
-        prices: [PriceData],
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         locale: Locale
     ) -> BalanceViewModelProtocol? {
         guard let amount else {
             return nil
         }
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = balanceViewModelFactory.balanceFromPrice(
             amount,
             priceData: priceData,

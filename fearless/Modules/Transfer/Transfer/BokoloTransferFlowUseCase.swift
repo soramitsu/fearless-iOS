@@ -123,7 +123,6 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
             isUserInteractiveAmount = false
         }
 
-        await interactor.subscribeToPrice(for: qrChainAsset)
         provideInputViewModel?()
 
         try await fetchRequaredInfo(for: qrChainAsset)

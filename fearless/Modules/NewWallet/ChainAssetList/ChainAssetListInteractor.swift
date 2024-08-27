@@ -30,7 +30,6 @@ final class ChainAssetListInteractor {
     private let chainRegistry: ChainRegistryProtocol
     private let logger: LoggerProtocol
     private let pricesService: PricesServiceProtocol
-    private let operationQueue: OperationQueue
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -54,8 +53,7 @@ final class ChainAssetListInteractor {
         chainSettingsRepository: AsyncAnyRepository<ChainSettings>,
         chainRegistry: ChainRegistryProtocol,
         logger: LoggerProtocol,
-        pricesService: PricesServiceProtocol,
-        operationQueue: OperationQueue
+        pricesService: PricesServiceProtocol
     ) {
         self.wallet = wallet
         self.eventCenter = eventCenter
@@ -70,7 +68,6 @@ final class ChainAssetListInteractor {
         self.chainRegistry = chainRegistry
         self.logger = logger
         self.pricesService = pricesService
-        self.operationQueue = operationQueue
     }
 
     // MARK: - Private methods
@@ -205,7 +202,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         operation.completionBlock = { [weak self] in
             let wallets = try? operation.extractNoCancellableResultData()
             let currencies = wallets?.map { $0.selectedCurrency } ?? []
-            self?.pricesService.startPricesObserving(for: chainAssets, currencies: currencies)
+//            self?.pricesService.startPricesObserving(for: chainAssets, currencies: currencies)
         }
         OperationManagerFacade.sharedDefaultQueue.addOperation(operation)
     }

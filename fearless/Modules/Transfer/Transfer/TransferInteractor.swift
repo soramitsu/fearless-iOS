@@ -5,9 +5,7 @@ import SSFStorageQueryKit
 import BigInt
 import RobinHood
 
-protocol TransferInteractorOutput: AnyObject {
-    func didReceivePriceData(result: Result<[PriceData], any Error>)
-}
+protocol TransferInteractorOutput: AnyObject {}
 
 struct TransferDepsContainer {
     let wallet: MetaAccountModel
@@ -57,20 +55,15 @@ actor TransferInteractor: RuntimeConstantFetching {
     private weak var output: TransferInteractorOutput?
 
     private var deps: TransferDepsContainer
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let scamRepository: AsyncAnyRepository<ScamInfo>
 
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
-
     init(
         deps: TransferDepsContainer,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAssetFetching: ChainAssetFetchingProtocol,
         scamRepository: AsyncAnyRepository<ScamInfo>
     ) {
         self.deps = deps
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAssetFetching = chainAssetFetching
         self.scamRepository = scamRepository
     }
@@ -101,11 +94,6 @@ extension TransferInteractor: TransferInteractorInput {
 
     func getPossibleChains(for address: String) async -> [ChainModel] {
         await deps.addressChainDefiner.getPossibleChains(for: address).or([])
-    }
-
-    func subscribeToPrice(for chainAsset: ChainAsset) async {
-        let chainAssets = getChainAssets(for: chainAsset)
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     func fetchTokenStatus(for chainAsset: ChainAsset) async throws -> AssetAccountInfo? {
@@ -201,14 +189,6 @@ extension TransferInteractor: TransferInteractorInput {
             transfer,
             for: chainAsset
         )
-    }
-}
-
-// MARK: - PriceLocalSubscriptionHandler
-
-extension TransferInteractor: PriceLocalSubscriptionHandler {
-    nonisolated func handlePrices(result: Result<[PriceData], any Error>) {
-        Task { await output?.didReceivePriceData(result: result) }
     }
 }
 

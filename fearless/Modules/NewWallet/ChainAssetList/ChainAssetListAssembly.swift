@@ -55,7 +55,6 @@ final class ChainAssetListAssembly {
         let remoteBalanceService = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
-        let operationQueue = OperationManagerFacade.sharedDefaultQueue
         let pricesService = PricesService.shared
 
         let interactor = ChainAssetListInteractor(
@@ -71,8 +70,7 @@ final class ChainAssetListAssembly {
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
             chainRegistry: ChainRegistryFacade.sharedRegistry, 
             logger: ServiceAssembly.shared.logger,
-            pricesService: pricesService,
-            operationQueue: operationQueue
+            pricesService: pricesService
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

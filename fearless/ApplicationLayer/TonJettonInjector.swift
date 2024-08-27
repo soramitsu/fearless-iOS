@@ -23,7 +23,8 @@ actor TonJettonInjectorImpl: TonJettonInjector {
 
     func inject(jettonItems: [TonJettonItem]) async {
         do {
-            guard let tonChain = try await chainModelRepository.fetch(by: "-239", options: RepositoryFetchOptions()) else {
+            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
+            guard let tonChain = try await chainModelRepository.fetch(by: network, options: RepositoryFetchOptions()) else {
                 throw ConvenienceError(error: "Ton chain is not fetched")
             }
             let assetModels = map(jettonItems: jettonItems)

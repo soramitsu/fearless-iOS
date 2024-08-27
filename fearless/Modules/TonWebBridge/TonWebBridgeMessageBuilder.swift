@@ -91,10 +91,11 @@ final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
             throw ConvenienceError(error: "Missing TON")
         }
 
+        let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? -3 : -239
         let replyItem = TonConnect.ConnectItemReply.tonAddress(
             .init(
                 address: address,
-                network: -239,
+                network: Int16(network),
                 publicKey: TonSwift.PublicKey(data: publicKey),
                 walletStateInit: contract.stateInit
             )
@@ -179,10 +180,11 @@ final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
         let replyItems = try requestPayloadItems.compactMap { item in
             switch item {
             case .tonAddress:
+                let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? -3 : -239
                 return TonConnect.ConnectItemReply.tonAddress(
                     .init(
                         address: address,
-                        network: -239,
+                        network: Int16(network),
                         publicKey: TonSwift.PublicKey(data: publicKey),
                         walletStateInit: walletStateInit
                     )
@@ -234,10 +236,11 @@ final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
         let replyItems = try requestPayloadItems.compactMap { item in
             switch item {
             case .tonAddress:
+                let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? -3 : -239
                 return TonConnect.ConnectItemReply.tonAddress(
                     .init(
                         address: address,
-                        network: -239,
+                        network: Int16(network),
                         publicKey: TonSwift.PublicKey(data: publicKey),
                         walletStateInit: walletStateInit
                     )

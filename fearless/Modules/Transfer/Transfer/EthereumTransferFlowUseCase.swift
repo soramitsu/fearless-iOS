@@ -65,12 +65,10 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
         guard case let .chainAsset(chainAsset) = initialData else {
             throw TransferFlowUseCaseError.wrongType
         }
-//        recipientAddress = address
         provideRecipientViewModel?()
 
         selectedChainAsset = chainAsset
         utilityChainAsset = chainAsset.chain.utilityChainAssets().first
-        await interactor.subscribeToPrice(for: chainAsset)
 
         provideNetworkViewModel?()
 

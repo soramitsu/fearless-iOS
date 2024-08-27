@@ -14,7 +14,6 @@ protocol SendViewModelFactoryProtocol {
     func createAssetBalanceViewModel(
         inputAmount: Decimal?,
         availableBalance: Decimal?,
-        prices: [PriceData],
         chainAsset: ChainAsset,
         canSelectAsset: Bool,
         locale: Locale
@@ -27,7 +26,6 @@ protocol SendViewModelFactoryProtocol {
     func balanceFromPrice(
         chainAsset: ChainAsset,
         balance: Decimal,
-        prices: [PriceData],
         locale: Locale
     ) -> BalanceViewModelProtocol
 }
@@ -69,13 +67,12 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
     func createAssetBalanceViewModel(
         inputAmount: Decimal?,
         availableBalance: Decimal?,
-        prices: [PriceData],
         chainAsset: ChainAsset,
         canSelectAsset: Bool,
         locale: Locale
     ) -> AssetBalanceViewModelProtocol {
         let balanceViewModelFactory = buildBalanceViewModelFactory(for: chainAsset)
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount,
             balance: availableBalance,
@@ -100,11 +97,10 @@ final class SendViewModelFactory: SendViewModelFactoryProtocol {
     func balanceFromPrice(
         chainAsset: ChainAsset,
         balance: Decimal,
-        prices: [PriceData],
         locale: Locale
     ) -> BalanceViewModelProtocol {
         let balanceViewModelFactory = buildBalanceViewModelFactory(for: chainAsset)
-        let priceData = prices.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = balanceViewModelFactory.balanceFromPrice(
             balance,
             priceData: priceData,

@@ -356,8 +356,9 @@ actor TonConnectServiceImpl: TonConnectService {
     }
 
     private func createBocFactory(for wallet: MetaAccountModel) throws -> BocFactory {
+        let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
         let request = ChainAccountRequest(
-            chainId: "-239",
+            chainId: network,
             addressPrefix: 0,
             ecosystem: .ton,
             accountId: nil

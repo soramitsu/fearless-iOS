@@ -27,7 +27,6 @@ protocol TransferInteractorInput: AnyObject {
     func setup(with output: TransferInteractorOutput) async
     func getPossibleChains(for address: String) async -> [ChainModel]
     func validate(address: String?, for chain: ChainModel) async -> AddressValidationResult
-    func subscribeToPrice(for chainAsset: ChainAsset) async
     func fetchTokenStatus(for chainAsset: ChainAsset) async throws -> AssetAccountInfo?
     func fetchAccountInfos(for chainAsset: ChainAsset) async throws -> [ChainAssetKey: AccountInfo?]
     func fetchExistentialDeposit(for chainAsset: ChainAsset) async throws -> BigUInt
@@ -69,7 +68,6 @@ final class TransferPresenter {
     private var currentFlowUseCase: TransferFlowUseCase?
     private var sendFlow: SendFlowInitialData
     private var scamInfo: ScamInfo?
-    private var prices: [PriceData] = []
 
     // MARK: - Constructors
 
@@ -141,7 +139,6 @@ final class TransferPresenter {
         let viewModel = viewModelFactory.createAssetBalanceViewModel(
             inputAmount: inputAmount,
             availableBalance: availableBalance,
-            prices: prices,
             chainAsset: selectedChainAsset,
             canSelectAsset: canSelectAsset,
             locale: selectedLocale
@@ -229,7 +226,6 @@ final class TransferPresenter {
         let viewModel = viewModelFactory.balanceFromPrice(
             chainAsset: chainAsset,
             balance: fee,
-            prices: prices,
             locale: selectedLocale
         )
 
@@ -249,7 +245,6 @@ final class TransferPresenter {
         let balanceViewModel = viewModelFactory.balanceFromPrice(
             chainAsset: chainAsset,
             balance: tip,
-            prices: prices,
             locale: selectedLocale
         )
 
@@ -379,7 +374,7 @@ final class TransferPresenter {
         if chainAssets.count == 1,
            let selectedChainAsset = chainAssets.first {
             let address = sendFlow.address
-            sendFlow = .chainAsset(selectedChainAsset /* , address: sendFlow.address */ )
+            sendFlow = .chainAsset(selectedChainAsset)
             await handleSendFlow(address: address)
         } else {
             await router.showSelectAsset(
@@ -772,16 +767,7 @@ extension TransferPresenter: TransferViewOutput {
 
 // MARK: - TransferInteractorOutput
 
-extension TransferPresenter: TransferInteractorOutput {
-    func didReceivePriceData(result: Result<[PriceData], any Error>) {
-        switch result {
-        case let .success(success):
-            prices = success
-        case let .failure(error):
-            logger.error("Did receive price error: \(error)")
-        }
-    }
-}
+extension TransferPresenter: TransferInteractorOutput {}
 
 // MARK: - TransferModuleInput
 
@@ -798,7 +784,7 @@ extension TransferPresenter: SelectAssetModuleOutput {
             return
         }
         let address = sendFlow.address
-        sendFlow = .chainAsset(chainAsset /* , address: sendFlow.address */ )
+        sendFlow = .chainAsset(chainAsset)
         Task { await handleSendFlow(address: address) }
     }
 }

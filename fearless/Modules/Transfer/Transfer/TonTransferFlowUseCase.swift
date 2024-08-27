@@ -69,7 +69,6 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
 
         selectedChainAsset = chainAsset
         utilityChainAsset = chainAsset.chain.utilityChainAssets().first
-        await interactor.subscribeToPrice(for: chainAsset)
 
         provideRecipientViewModel?()
         provideNetworkViewModel?()

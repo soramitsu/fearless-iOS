@@ -270,14 +270,14 @@ final class ChainRegistry {
 
     private func handle(ton chain: ChainModel) {
         chains.append(chain)
-        guard
-            let node = chain.nodes.first,
-            node.url != tonApiAssembly?.tonAPIURL
-        else {
-            return
+        let isTesnet = LocalToggleService.shared.tonEnvListToggle.storageValue
+        if chain.options.or([]).contains(.testnet), isTesnet, let node = chain.nodes.first {
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: "AHCGOAHBPVILMQIAAAADDH734BNIZUMGZNBT6KZ3WZENQJOHZRLQVXQOD3UTUUHCDC4B5RI")
+            tonApiAssembly = apiAssembly
+        } else if !chain.options.or([]).contains(.testnet), !isTesnet, let node = chain.nodes.first {
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: "AHCGOAHBPVILMQIAAAADDH734BNIZUMGZNBT6KZ3WZENQJOHZRLQVXQOD3UTUUHCDC4B5RI")
+            tonApiAssembly = apiAssembly
         }
-        let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: "AHCGOAHBPVILMQIAAAADDH734BNIZUMGZNBT6KZ3WZENQJOHZRLQVXQOD3UTUUHCDC4B5RI")
-        tonApiAssembly = apiAssembly
     }
 
     // MARK: - Private others methods
