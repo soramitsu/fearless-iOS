@@ -7,4 +7,6 @@ protocol TonWebBridgeRouterInput: AnyObject {}
 
 protocol TonWebBridgeModuleInput: AnyObject {}
 
-protocol TonWebBridgeModuleOutput: AnyObject {}
+protocol TonWebBridgeModuleOutput: AnyObject {
+    func didDisconnect()
+}

@@ -22,6 +22,7 @@ final class TonWebBridgePresenter: NSObject {
     // MARK: Private properties
 
     private weak var view: TonWebBridgeViewInput?
+    private weak var moduleOutput: TonWebBridgeModuleOutput?
     private let router: TonWebBridgeRouterInput
     private let interactor: TonWebBridgeInteractorInput
     private let logger: LoggerProtocol
@@ -41,6 +42,7 @@ final class TonWebBridgePresenter: NSObject {
         interactor: TonWebBridgeInteractorInput,
         router: TonWebBridgeRouterInput,
         logger: LoggerProtocol,
+        moduleOutput: TonWebBridgeModuleOutput?,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.dapp = dapp
@@ -49,6 +51,7 @@ final class TonWebBridgePresenter: NSObject {
         self.interactor = interactor
         self.router = router
         self.logger = logger
+        self.moduleOutput = moduleOutput
         super.init()
         self.localizationManager = localizationManager
     }
@@ -71,7 +74,7 @@ final class TonWebBridgePresenter: NSObject {
         invocationId: String
     ) async throws {
         let apps = try await interactor.getConnectedApp(for: wallet)
-        guard apps.first(where: { $0.appUrl == dapp.url }) != nil else {
+        guard apps.first(where: { $0.appUrl.host == dapp.url.host }) != nil else {
             let error: TonConnect.ConnectEventError.Error = .unknownError
             let response = DappBridgeResponse(
                 invocationId: invocationId,
@@ -145,10 +148,12 @@ final class TonWebBridgePresenter: NSObject {
 
     private func handleDisconnect() async throws {
         let apps = try await interactor.getConnectedApp(for: wallet)
-        guard let connectedApp = apps.first(where: { $0.appUrl == dapp.url }) else {
+        guard let connectedApp = apps.first(where: { $0.appUrl.host == dapp.url.host }) else {
+            logger.error("Connected app not found")
             return
         }
         await interactor.disconnected(app: connectedApp)
+        moduleOutput?.didDisconnect()
     }
 
     private func handleSendMessage(
@@ -270,7 +275,7 @@ extension TonWebBridgePresenter: WKScriptMessageHandler {
         _: WKUserContentController,
         didReceive message: WKScriptMessage
     ) {
-        Task {
+        Task { @MainActor in
             do {
                 try await handleMessage(body: message.body)
             } catch {

@@ -43,9 +43,10 @@ final class DappBrowserRouter: DappBrowserRouterInput {
     func showDapp(
         from view: ControllerBackedProtocol?,
         dapp: TonDapp,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        moduleOutput: TonWebBridgeModuleOutput?
     ) {
-        guard let module = TonWebBridgeAssembly.configureModule(for: dapp, wallet: wallet) else {
+        guard let module = TonWebBridgeAssembly.configureModule(for: dapp, wallet: wallet, moduleOutput: moduleOutput) else {
             return
         }
 

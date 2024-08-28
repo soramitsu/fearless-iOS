@@ -7,7 +7,7 @@ final class DappBrowserListRouter: DappBrowserListRouterInput {
         dapp: TonDapp,
         wallet: MetaAccountModel
     ) {
-        guard let module = TonWebBridgeAssembly.configureModule(for: dapp, wallet: wallet) else {
+        guard let module = TonWebBridgeAssembly.configureModule(for: dapp, wallet: wallet, moduleOutput: nil) else {
             return
         }
 

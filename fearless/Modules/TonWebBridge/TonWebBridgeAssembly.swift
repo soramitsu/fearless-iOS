@@ -5,7 +5,8 @@ import SSFModels
 final class TonWebBridgeAssembly {
     static func configureModule(
         for dapp: TonDapp,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        moduleOutput: TonWebBridgeModuleOutput?
     ) -> TonWebBridgeModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -21,7 +22,8 @@ final class TonWebBridgeAssembly {
             messageBuilder: TonWebBridgeMessagesBuilderImpl(),
             interactor: interactor,
             router: router,
-            logger: ServiceAssembly.shared.logger,
+            logger: ServiceAssembly.shared.logger, 
+            moduleOutput: moduleOutput,
             localizationManager: localizationManager
         )
 

@@ -123,7 +123,7 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
     }
     
     func didSelect(dapp: TonDapp) {
-        router.showDapp(from: view, dapp: dapp, wallet: wallet)
+        router.showDapp(from: view, dapp: dapp, wallet: wallet, moduleOutput: self)
     }
 
     func didTapOnWalletSelectButton() {
@@ -214,5 +214,13 @@ extension DappBrowserPresenter: NetworkManagmentModuleOutput {
         interactor.filter = select
         provideTableViewModel()
         provideNetworkViewModel()
+    }
+}
+
+// MARK: - TonWebBridgeModuleOutput
+
+extension DappBrowserPresenter: TonWebBridgeModuleOutput {
+    func didDisconnect() {
+        provideTableViewModel()
     }
 }

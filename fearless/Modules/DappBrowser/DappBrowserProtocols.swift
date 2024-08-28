@@ -20,7 +20,8 @@ protocol DappBrowserRouterInput: AnyObject {
     func showDapp(
         from view: ControllerBackedProtocol?,
         dapp: TonDapp,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        moduleOutput: TonWebBridgeModuleOutput?
     )
     func showList(
         from view: ControllerBackedProtocol?,
