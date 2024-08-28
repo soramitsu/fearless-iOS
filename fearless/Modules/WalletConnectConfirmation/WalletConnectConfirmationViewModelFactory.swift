@@ -1,11 +1,3 @@
-//
-//  WalletConnectConfirmationViewModelFactory.swift
-//  fearless
-//
-//  Created by Soramitsu on 01.09.2023.
-//  Copyright © 2023 Soramitsu. All rights reserved.
-//
-
 import Foundation
 import UIKit
 import WalletConnectSign

@@ -60,7 +60,7 @@ final class DappBrowserPresenter {
                 chains: try await interactor.chains,
                 networkFilter: interactor.filter,
                 locale: selectedLocale,
-                wallet: wallet, 
+                wallet: wallet,
                 page: page
             )
             Task { @MainActor in
@@ -68,13 +68,13 @@ final class DappBrowserPresenter {
             }
         }
     }
-    
+
     private func provideWalletViewModel() {
         Task { @MainActor in
             view?.didReceive(walletName: wallet.name)
         }
     }
-    
+
     private func provideNetworkViewModel() {
         Task {
             let viewModel = viewModelFactory.buildNetworkFilterViewModel(
@@ -87,7 +87,7 @@ final class DappBrowserPresenter {
             }
         }
     }
-    
+
     private func observTonConnect() {
         Task {
             await ServiceAssembly.shared.tonConnectService().set(listener: self)
@@ -110,7 +110,7 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
             case .connected:
                 let connectedApps = try await interactor.connectedApps
                 appsForSearch = appsForSearch.filter { app in
-                    connectedApps.contains(where: { $0.appUrl == app.url })
+                    connectedApps.contains(where: { $0.appUrl.host == app.url.host })
                 }
             }
             Task { @MainActor [appsForSearch] in
@@ -124,12 +124,12 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
             }
         }
     }
-    
+
     func didSelect(page: DappBrowserViewControllerPage) {
         self.page = page
         provideTableViewModel()
     }
-    
+
     func didSelect(dapp: TonDapp) {
         router.showDapp(from: view, dapp: dapp, wallet: wallet, moduleOutput: self)
     }
@@ -170,7 +170,7 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
         router.showList(
             from: view,
             dapps: dapps,
-            title: [all, title].joined(separator: " "), 
+            title: [all, title].joined(separator: " "),
             wallet: wallet
         )
     }
@@ -197,7 +197,7 @@ extension DappBrowserPresenter: DappBrowserInteractorOutput {
             logger.customError(error)
         }
     }
-    
+
     func didUpdate(wallet: MetaAccountModel) {
         self.wallet = wallet
         provideWalletViewModel()

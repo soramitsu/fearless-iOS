@@ -109,7 +109,7 @@
                 "identifier": "8c4ecf28-417e-40bf-99c8-c243d539d628",
                 "chains": ["-239"],
                 "name": "DAOLama",
-                "url": "https://daolama.co/",
+                "url": "https://app.daolama.co",
                 "description": "Use your NFTs as collateral to instantly get TON Coin.",
                 "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/develop-free/icons/dapps/daolama.png"
             }
