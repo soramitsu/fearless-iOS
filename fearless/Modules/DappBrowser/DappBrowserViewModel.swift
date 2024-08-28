@@ -18,4 +18,13 @@ enum DappBrowserViewModel {
             return nil
         }
     }
+    
+    var section: ListSection? {
+        switch self {
+        case .featured:
+            return nil
+        case let .section(list):
+            return list
+        }
+    }
 }

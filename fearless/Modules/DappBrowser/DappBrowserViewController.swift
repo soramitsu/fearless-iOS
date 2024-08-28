@@ -262,9 +262,16 @@ extension DappBrowserViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         let emptyView = EmptyView()
         emptyView.image = R.image.iconWarning()
-        emptyView.title = R.string.localizable
-            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.text = R.string.localizable.selectNetworkSearchEmptySubtitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.title = R.string.localizable.emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        let page = DappBrowserViewControllerPage(rawValue: rootView.segmentedControl.selectedSegmentIndex)
+        switch page {
+        case .dapps:
+            emptyView.text = "No dApps were found"
+        case .connected:
+            emptyView.text = "No connected dApps"
+        case nil:
+            break
+        }
         emptyView.iconMode = .bigFilledShadow
         return emptyView
     }
@@ -278,6 +285,6 @@ extension DappBrowserViewController: EmptyStateDataSource {
 
 extension DappBrowserViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        viewModel.isEmpty
+        viewModel.compactMap { $0.section }.first == nil
     }
 }

@@ -70,7 +70,9 @@ final class DappBrowserPresenter {
     }
     
     private func provideWalletViewModel() {
-        view?.didReceive(walletName: wallet.name)
+        Task { @MainActor in
+            view?.didReceive(walletName: wallet.name)
+        }
     }
     
     private func provideNetworkViewModel() {
