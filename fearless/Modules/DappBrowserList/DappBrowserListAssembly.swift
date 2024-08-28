@@ -9,10 +9,10 @@ final class DappBrowserListAssembly {
         wallet: MetaAccountModel
     ) -> DappBrowserListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-            
+
         let interactor = DappBrowserListInteractor()
         let router = DappBrowserListRouter()
-        
+
         let presenter = DappBrowserListPresenter(
             wallet: wallet,
             dapps: dapps,
@@ -20,9 +20,9 @@ final class DappBrowserListAssembly {
             router: router,
             localizationManager: localizationManager
         )
-        
+
         let view = DappBrowserListViewController(
-            title: title, 
+            title: title,
             output: presenter,
             localizationManager: localizationManager
         )

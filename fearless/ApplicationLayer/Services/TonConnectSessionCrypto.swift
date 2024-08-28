@@ -9,7 +9,7 @@ struct TonConnectSessionCrypto {
 
     let sessionId: String
     let keyPair: KeyPair
-    
+
     init() throws {
         let keyPair = try TweetNacl.NaclBox.keyPair()
         self.keyPair = KeyPair(
@@ -18,7 +18,7 @@ struct TonConnectSessionCrypto {
         )
         sessionId = keyPair.publicKey.hexString()
     }
-    
+
     init(privateKey: PrivateKey) throws {
         let keyPair = try TweetNacl.NaclBox.keyPair(fromSecretKey: privateKey.data)
         self.keyPair = KeyPair(
@@ -27,7 +27,7 @@ struct TonConnectSessionCrypto {
         )
         sessionId = keyPair.publicKey.hexString()
     }
-    
+
     func encrypt(message: Data, receiverPublicKey: Data) throws -> Data {
         let nonce = try createNonce()
         let encrypted = try TweetNacl.NaclBox.box(
@@ -38,7 +38,7 @@ struct TonConnectSessionCrypto {
         )
         return nonce + encrypted
     }
-    
+
     func decrypt(message: Data, senderPublicKey: Data) throws -> Data {
         guard message.count >= Constants.nonceLength else {
             return Data()

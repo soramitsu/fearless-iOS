@@ -125,7 +125,7 @@ final class ChainAssetListInteractor {
             self?.output?.didReceiveChainAssets(result: result)
         }
     }
-    
+
     private func updateTonPricesIfNeeded() {
         Task {
             guard let tonAssets = chainAssets?.filter({ $0.chain.ecosystem == .ton }) else {

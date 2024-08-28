@@ -44,7 +44,7 @@ final class DappBrowserFeaturedCell: UICollectionViewCell {
         posterImageView.kf.cancelDownloadTask()
         posterImageView.image = nil
     }
-    
+
     func configure(model: DappBrowserFeaturedViewModel) {
         model.poster.loadImage(
             on: posterImageView,

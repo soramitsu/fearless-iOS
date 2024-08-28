@@ -27,9 +27,9 @@ final class FeatureToggleListPresenter {
         self.router = router
         self.localizationManager = localizationManager
     }
-    
+
     // MARK: - Private methods
-    
+
     private func provideToggles() {
         Task {
             let toggles = interactor.toggles
@@ -59,7 +59,7 @@ extension FeatureToggleListPresenter: FeatureToggleListViewOutput {
         let updatedToggle = toggle.toggle()
         interactor.set(toggle: updatedToggle)
     }
-    
+
     func didLoad(view: FeatureToggleListViewInput) {
         self.view = view
         interactor.setup(with: self)

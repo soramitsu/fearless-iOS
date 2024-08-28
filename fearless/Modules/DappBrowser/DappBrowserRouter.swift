@@ -17,7 +17,7 @@ final class DappBrowserRouter: DappBrowserRouterInput {
 
         view?.controller.present(module.view.controller, animated: true)
     }
-    
+
     func showSelectNetwork(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
@@ -39,7 +39,7 @@ final class DappBrowserRouter: DappBrowserRouterInput {
 
         view?.controller.present(module.view.controller, animated: true)
     }
-    
+
     func showDapp(
         from view: ControllerBackedProtocol?,
         dapp: TonDapp,
@@ -52,7 +52,7 @@ final class DappBrowserRouter: DappBrowserRouterInput {
 
         view?.controller.present(module.view.controller, animated: true)
     }
-    
+
     func showList(
         from view: ControllerBackedProtocol?,
         dapps: [TonDapp],

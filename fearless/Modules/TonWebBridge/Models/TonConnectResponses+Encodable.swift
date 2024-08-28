@@ -46,14 +46,14 @@ extension TonConnect.TonAddressItemReply {
         case publicKey
         case walletStateInit
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
         try container.encode(address.toRaw(), forKey: .address)
         try container.encode("\(network)", forKey: .network)
         try container.encode(publicKey.hexString, forKey: .publicKey)
-        
+
         let builder = Builder()
         try walletStateInit.storeTo(builder: builder)
         try container.encode(
@@ -67,7 +67,7 @@ extension TonConnect.TonProofItemReplySuccess.Signature {
     func data() -> Data {
         let string = "ton-proof-item-v2/".data(using: .utf8)!
         let addressWorkchain = UInt32(bigEndian: UInt32(address.workchain))
-        
+
         let addressWorkchainData = withUnsafeBytes(of: addressWorkchain) { a in
             Data(a)
         }
@@ -80,7 +80,7 @@ extension TonConnect.TonProofItemReplySuccess.Signature {
             Data(a)
         }
         let payload = payload.data(using: .utf8)!
-        
+
         return string + addressWorkchainData + addressHash + domainLength + domainValue + timestamp + payload
     }
 }
@@ -92,12 +92,12 @@ extension TonConnect.TonProofItemReplySuccess.Proof {
         case signature
         case payload
     }
-    
+
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(timestamp, forKey: .timestamp)
         try container.encode(domain, forKey: .domain)
-        
+
         let signatureMessageData = signature.data()
         let signatureMessage = signatureMessageData.sha256()
         guard let prefixData = Data(tonHex: "ffff"),

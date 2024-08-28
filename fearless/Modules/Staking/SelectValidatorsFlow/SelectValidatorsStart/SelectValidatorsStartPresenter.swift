@@ -105,8 +105,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
         let action = SheetAlertPresentableAction(
-            title: R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages))
-        { [weak self] in
+            title: R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages)) { [weak self] in
             self?.proceedToRecommendedValidators()
         }
 

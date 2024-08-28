@@ -9,7 +9,7 @@ protocol TonWebBridgeViewOutput: AnyObject {
 
 final class TonWebBridgeViewController: UIViewController, ViewHolder, HiddableBarWhenPushed, LoadableViewProtocol {
     typealias RootViewType = TonWebBridgeViewLayout
-    
+
     var loadableContentView: UIView {
         rootView.webView
     }
@@ -72,7 +72,7 @@ final class TonWebBridgeViewController: UIViewController, ViewHolder, HiddableBa
         bindActions()
         didUpdateUrl()
     }
-    
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         if !didLoadInitialURL {

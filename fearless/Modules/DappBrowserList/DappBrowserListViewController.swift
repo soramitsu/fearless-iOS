@@ -16,7 +16,7 @@ final class DappBrowserListViewController: UIViewController, ViewHolder, Hiddabl
 
     // MARK: Private properties
     private let output: DappBrowserListViewOutput
-    
+
     var viewModels: [DappBrowserListCellViewModel] = []
 
     // MARK: - Constructor
@@ -59,9 +59,9 @@ final class DappBrowserListViewController: UIViewController, ViewHolder, Hiddabl
         super.viewDidDisappear(animated)
         clearKeyboardHandler()
     }
-    
+
     // MARK: - Private methods
-    
+
     private func bindActions() {
         rootView.navigationBar.backButton.addAction { [weak self] in
             self?.output.didTapBackButton()
@@ -70,7 +70,7 @@ final class DappBrowserListViewController: UIViewController, ViewHolder, Hiddabl
             self?.output.searchTextDidChanged(text)
         }
     }
-    
+
     private func configureTableView() {
         rootView.tableView.separatorStyle = .none
         rootView.tableView.registerClassForCell(DappBrowserListCell.self)

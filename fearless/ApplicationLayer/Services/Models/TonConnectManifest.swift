@@ -6,7 +6,7 @@ struct TonConnectManifest: Codable, Equatable {
     let iconUrl: URL?
     let termsOfUseUrl: URL?
     let privacyPolicyUrl: URL?
-    
+
     var host: String {
         url.host ?? ""
     }

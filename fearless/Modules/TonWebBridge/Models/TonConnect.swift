@@ -14,7 +14,7 @@ extension TonConnect {
         case success(ConnectEventSuccess)
         case error(ConnectEventError)
     }
-    
+
     struct DeviceInfo: Encodable {
         let platform = "iphone"
         let appName = "Tonkeeper"
@@ -24,11 +24,11 @@ extension TonConnect {
             FeatureCompatible.legacy(Feature()),
             FeatureCompatible.feature(Feature())
         ]
-        
+
         enum FeatureCompatible: Encodable {
             case feature(Feature)
             case legacy(Feature)
-            
+
             func encode(to encoder: Encoder) throws {
                 var container = encoder.singleValueContainer()
                 switch self {
@@ -39,32 +39,32 @@ extension TonConnect {
                 }
             }
         }
-        
+
         struct Feature: Encodable {
             let name = "SendTransaction"
             let maxMessages = 4
         }
-        
+
         init() {}
     }
-    
+
     struct ConnectEventSuccess: Encodable {
         struct Payload: Encodable {
             let items: [ConnectItemReply]
             let device: DeviceInfo
         }
-        
+
         let event = "connect"
         let id = Int(Date().timeIntervalSince1970)
         let payload: Payload
     }
-    
+
     struct ConnectEventError: Encodable {
         struct Payload: Encodable {
             let code: Error
             let message: String
         }
-        
+
         enum Error: Int, Encodable, Swift.Error {
             case unknownError = 0
             case badRequest = 1
@@ -73,17 +73,17 @@ extension TonConnect {
             case unknownApp = 100
             case userDeclinedTheConnection = 300
         }
-        
+
         let event = "connect_error"
         let id = Int(Date().timeIntervalSince1970)
         let payload: Payload
     }
-    
+
     enum ConnectItemReply: Encodable {
         case tonAddress(TonAddressItemReply)
         case tonProof(TonProofItemReply)
     }
-    
+
     struct TonAddressItemReply: Encodable {
         let name = "ton_addr"
         let address: TonSwift.Address
@@ -91,12 +91,12 @@ extension TonConnect {
         let publicKey: TonSwift.PublicKey
         let walletStateInit: TonSwift.StateInit
     }
-    
+
     enum TonProofItemReply: Encodable {
         case success(TonProofItemReplySuccess)
         case error(TonProofItemReplyError)
     }
-    
+
     struct TonProofItemReplySuccess: Encodable {
         struct Proof: Encodable {
             let timestamp: UInt64
@@ -105,34 +105,34 @@ extension TonConnect {
             let payload: String
             let privateKey: PrivateKey
         }
-        
+
         struct Signature: Encodable {
             let address: TonSwift.Address
             let domain: Domain
             let timestamp: UInt64
             let payload: String
         }
-        
+
         struct Domain: Encodable {
             let lengthBytes: UInt32
             let value: String
         }
-        
+
         let name = "ton_proof"
         let proof: Proof
     }
-    
+
     struct TonProofItemReplyError: Encodable {
         struct Error: Encodable {
             let message: String?
             let code: ErrorCode
         }
-        
+
         enum ErrorCode: Int, Encodable {
             case unknownError = 0
             case methodNotSupported = 400
         }
-        
+
         let name = "ton_proof"
         let error: Error
     }
@@ -160,7 +160,7 @@ extension TonConnect.TonProofItemReplySuccess {
             payload: payload,
             privateKey: privateKey
         )
-        
+
         self.init(proof: proof)
     }
 }
@@ -178,28 +178,18 @@ extension TonConnect {
         case success(SendTransactionResponseSuccess)
         case error(SendTransactionResponseError)
     }
-    
+
     struct SendTransactionResponseSuccess: Encodable {
         let result: String
         let id: String
-        
-        init(result: String, id: String) {
-            self.result = result
-            self.id = id
-        }
     }
-    
+
     struct SendTransactionResponseError: Encodable {
         struct Error: Encodable {
             let code: ErrorCode
             let message: String
-            
-            init(code: ErrorCode, message: String) {
-                self.code = code
-                self.message = message
-            }
         }
-        
+
         enum ErrorCode: Int, Encodable, Swift.Error {
             case unknownError = 0
             case badRequest = 1
@@ -207,10 +197,10 @@ extension TonConnect {
             case userDeclinedTransaction = 300
             case methodNotSupported = 400
         }
-        
+
         let id: String
         let error: Error
-        
+
         init(id: String, error: Error) {
             self.id = id
             self.error = error

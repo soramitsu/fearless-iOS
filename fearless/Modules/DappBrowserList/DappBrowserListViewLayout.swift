@@ -30,7 +30,7 @@ final class DappBrowserListViewLayout: UIView {
         searchTextField.textField.tintColor = R.color.colorWhite50()
         return searchTextField
     }()
-    
+
     let container = UIView()
     let tableView: UITableView = {
         let tableView = UITableView()
@@ -47,9 +47,9 @@ final class DappBrowserListViewLayout: UIView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    //MARK: - Private methods
-    
+
+    // MARK: - Private methods
+
     private func setupLayout() {
         backgroundColor = R.color.colorBlack19()
         addSubview(navigationBar)
@@ -78,7 +78,7 @@ final class DappBrowserListViewLayout: UIView {
             make.edges.equalToSuperview()
         }
     }
-    
+
     private func applyLocalization() {
         searchTextField.textField.placeholder = R.string.localizable.commonSearch(preferredLanguages: locale.rLanguages)
     }

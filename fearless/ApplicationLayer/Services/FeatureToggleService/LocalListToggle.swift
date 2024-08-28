@@ -6,7 +6,7 @@ struct LocalListToggle: Codable {
     let title: String
     let description: String
     var storageValue: Bool
-    
+
     func toggle() -> Self {
         LocalListToggle(
             key: key,

@@ -62,7 +62,7 @@ final class DappBrowserViewController: UIViewController, ViewHolder, HiddableBar
 
     private func bindActions() {
         rootView.featuredView.didSelectApp = { [weak self] index in
-            guard 
+            guard
                 case let .featured(models) = self?.viewModel[safe: 0],
                 let dapp = models[safe: index]?.dapp
             else {

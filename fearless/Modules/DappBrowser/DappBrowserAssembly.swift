@@ -12,9 +12,9 @@ final class DappBrowserAssembly {
 
         let interactor = DappBrowserInteractor(
             dappProvider: createProvider(),
-            appRepository: ServiceAssembly.shared.tonConnectAppAsyncRepository(), 
-            chainsRepository: ServiceAssembly.shared.asyncChainModelRepository(sortDescriptors: []), 
-            filterStorage: ServiceAssembly.shared.userDefaults, 
+            appRepository: ServiceAssembly.shared.tonConnectAppAsyncRepository(),
+            chainsRepository: ServiceAssembly.shared.asyncChainModelRepository(sortDescriptors: []),
+            filterStorage: ServiceAssembly.shared.userDefaults,
             eventCenter: ServiceAssembly.shared.eventCenter
         )
         let router = DappBrowserRouter()
@@ -24,7 +24,7 @@ final class DappBrowserAssembly {
             router: router,
             localizationManager: localizationManager,
             logger: ServiceAssembly.shared.logger,
-            viewModelFactory: DappBrowserViewModelFactoryImpl(), 
+            viewModelFactory: DappBrowserViewModelFactoryImpl(),
             wallet: wallet
         )
 

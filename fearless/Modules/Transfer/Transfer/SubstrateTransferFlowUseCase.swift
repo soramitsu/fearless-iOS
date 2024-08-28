@@ -144,7 +144,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
                     feeAndTip: (fee ?? 0) + (tip ?? 0),
                     sendAmount: sendAmount,
                     locale: locale
-                ),
+                )
             ]
         }
     }

@@ -22,7 +22,7 @@ final class TonWebBridgeAssembly {
             messageBuilder: TonWebBridgeMessagesBuilderImpl(),
             interactor: interactor,
             router: router,
-            logger: ServiceAssembly.shared.logger, 
+            logger: ServiceAssembly.shared.logger,
             moduleOutput: moduleOutput,
             localizationManager: localizationManager
         )

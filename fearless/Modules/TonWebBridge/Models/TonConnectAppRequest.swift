@@ -8,17 +8,17 @@ extension TonConnect {
             case sendTransaction
             case disconnect
         }
-        
+
         let method: Method
         let params: [SendTransactionParam]
         let id: String
-        
+
         enum CodingKeys: String, CodingKey {
             case method
             case params
             case id
         }
-        
+
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
             method = try container.decode(Method.self, forKey: .method)

@@ -10,7 +10,7 @@ protocol DappBrowserInteractorOutput: AnyObject {
 
 final class DappBrowserInteractor {
     // MARK: - Private properties
-    
+
     private enum Constants {
         static let filterKey = "jp.co.soramitsu.fearless.dapp.browser.filter"
     }
@@ -67,13 +67,13 @@ extension DappBrowserInteractor: DappBrowserInteractorInput {
             try await appRepository.fetchAll()
         }
     }
-    
+
     var chains: [ChainModel] {
         get async throws {
             try await chainsRepository.fetchAll()
         }
     }
-    
+
     var filter: NetworkManagmentFilter {
         get {
             let id = filterStorage.string(for: Constants.filterKey)

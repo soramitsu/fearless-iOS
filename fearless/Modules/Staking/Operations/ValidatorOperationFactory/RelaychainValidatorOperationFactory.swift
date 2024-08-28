@@ -777,7 +777,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             slashDeferOperation,
             maxNominatorsOperation,
             rewardOperation,
-            eraValidatorsOperation,
+            eraValidatorsOperation
         ]
 
         let dependencies = baseOperations + [allValidatorPrefsOperation] + [allValidatorsOperation] + identityWrapper.allOperations + slashingsWrapper.allOperations

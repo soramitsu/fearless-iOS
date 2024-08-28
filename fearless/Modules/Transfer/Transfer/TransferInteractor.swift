@@ -164,7 +164,7 @@ extension TransferInteractor: TransferInteractorInput {
     ) async throws -> [ChainModel]? {
         let chainAssets = try await chainAssetFetching.fetchAwait(
             shouldUseCache: true,
-            filters: [.enabled(wallet: wallet),],
+            filters: [.enabled(wallet: wallet) ],
             sortDescriptors: []
         )
         let chains = chainAssets.filter { $0.asset.symbolUppercased == asset.symbolUppercased }.map { $0.chain }

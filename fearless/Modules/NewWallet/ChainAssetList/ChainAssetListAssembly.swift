@@ -68,7 +68,7 @@ final class ChainAssetListAssembly {
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
-            chainRegistry: ChainRegistryFacade.sharedRegistry, 
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
             logger: ServiceAssembly.shared.logger,
             pricesService: pricesService
         )

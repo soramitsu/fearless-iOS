@@ -167,7 +167,7 @@ final class PortionRewardCalculatorEngine: RewardCalculatorEngineProtocol {
                 return dailyReturn * Decimal(period.inDays)
             }
         case .avg:
-            let commission = validators.compactMap { Decimal.fromSubstratePerbill(value: $0.prefs.commission) ?? 0.0 }.reduce(0,+) / Decimal(validators.count)
+            let commission = validators.compactMap { Decimal.fromSubstratePerbill(value: $0.prefs.commission) ?? 0.0 }.reduce(0, +) / Decimal(validators.count)
             let eraReturn = calculateReturnForStake(averageStake, commission: commission)
             let dailyReturn = eraReturn * erasPerDay
 

@@ -39,10 +39,6 @@ final class TabBar: UITabBar {
         middleButton.rounded()
     }
 
-    override public func draw(_ rect: CGRect) {
-        super.draw(rect)
-    }
-
     private func setupLayout() {
         backgroundColor = .clear
         addSubview(bluredView)

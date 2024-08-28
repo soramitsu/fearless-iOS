@@ -72,14 +72,14 @@ extension CheckPincodeViewController: PinSetupViewProtocol {
         let useAction = UIAlertAction(
             title: R.string.localizable.commonUse(preferredLanguages: languages),
             style: .default
-        ) { (_: UIAlertAction) -> Void in
+        ) { (_: UIAlertAction) in
             completionBlock(true)
         }
 
         let skipAction = UIAlertAction(
             title: R.string.localizable.commonSkip(preferredLanguages: languages),
             style: .cancel
-        ) { (_: UIAlertAction) -> Void in
+        ) { (_: UIAlertAction) in
             completionBlock(false)
         }
 

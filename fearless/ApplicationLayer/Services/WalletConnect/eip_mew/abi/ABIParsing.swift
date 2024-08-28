@@ -121,7 +121,7 @@ extension ABI.Input {
     func parse() throws -> ABI.Element.InOut {
         let name = self.name != nil ? self.name! : ""
         let parameterType = try ABITypeParser.parseTypeString(type)
-        if case .tuple(types: _) = parameterType {
+        if case .tuple = parameterType {
             let components = try self.components?.compactMap { (inp: ABI.Input) throws -> ABI.Element.ParameterType in
                 let input = try inp.parse()
                 return input.type
@@ -148,7 +148,7 @@ extension ABI.Output {
         let name = self.name != nil ? self.name! : ""
         let parameterType = try ABITypeParser.parseTypeString(type)
         switch parameterType {
-        case .tuple(types: _):
+        case .tuple:
             let components = try self.components?.compactMap { (inp: ABI.Output) throws -> ABI.Element.ParameterType in
                 let input = try inp.parse()
                 return input.type
@@ -158,7 +158,7 @@ extension ABI.Output {
             return nativeInput
         case let .array(type: subtype, length: length):
             switch subtype {
-            case .tuple(types: _):
+            case .tuple:
                 let components = try self.components?.compactMap { (inp: ABI.Output) throws -> ABI.Element.ParameterType in
                     let input = try inp.parse()
                     return input.type

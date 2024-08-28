@@ -17,7 +17,7 @@ protocol DappBrowserViewModelFactory {
         wallet: MetaAccountModel,
         page: DappBrowserViewControllerPage
     ) -> [DappBrowserViewModel]
-    
+
     func buildNetworkFilterViewModel(
         chains: [ChainModel],
         filter: NetworkManagmentFilter,
@@ -52,7 +52,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             )
         }
     }
-    
+
     func buildNetworkFilterViewModel(
         chains: [ChainModel],
         filter: NetworkManagmentFilter,
@@ -82,9 +82,9 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             image: selectedFilterImage
         )
     }
-    
+
     // MARK: - Private methods
-    
+
     private func buildDappsPageViewModel(
         dapps: [DappCategory],
         chains: [ChainModel],
@@ -93,7 +93,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
         wallet: MetaAccountModel
     ) -> [DappBrowserViewModel] {
         var viewModel: [DappBrowserViewModel] = []
-        
+
         if let top = dapps.first(where: { $0.type == .top }) {
             let topViewModel = buildFeaturedViewModel(dapps: top.apps)
             viewModel.append(topViewModel)
@@ -116,7 +116,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             let sections = buildSection(
                 dapps: dapps,
                 chains: popularChains,
-                locale: locale, 
+                locale: locale,
                 maxInSection: 3
             )
             viewModel.append(contentsOf: sections)
@@ -135,7 +135,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
 
         return viewModel
     }
-    
+
     private func buildConnectedPageViewModel(
         dapps: [DappCategory],
         connected: [TonConnectApp],
@@ -156,7 +156,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
                     type: .connected,
                     apps: connected
                 ),
-                locale: locale, 
+                locale: locale,
                 maxInSection: .max
             )
             if let connectedViewModel {
@@ -165,7 +165,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
         }
         return viewModel
     }
-    
+
     private func buildSection(
         dapps: [DappCategory],
         chains: [ChainModel.Id],
@@ -228,7 +228,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
         let viewModel = DappBrowserViewModel.section(listSection)
         return viewModel
     }
-    
+
     private func getTitle(
         for category: DappCategoryType,
         locale: Locale

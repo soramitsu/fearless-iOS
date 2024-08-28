@@ -1,4 +1,3 @@
-
 import RobinHood
 import IrohaCrypto
 import SSFUtils

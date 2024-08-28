@@ -59,7 +59,7 @@ final class DappBrowserListCell: UITableViewCell {
         super.prepareForReuse()
         iconViewImage.kf.cancelDownloadTask()
     }
-    
+
     override func layoutSubviews() {
         super.layoutSubviews()
         iconViewImage.layer.cornerRadius = 8

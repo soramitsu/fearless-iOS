@@ -7,7 +7,7 @@ extension ChainAsset {
 
     var storagePath: StorageCodingPath {
         var storagePath: StorageCodingPath
-        
+
         switch chainAssetType {
         case .substrate(substrateType: let substrateType):
             switch substrateType {

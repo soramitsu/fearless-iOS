@@ -229,12 +229,12 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         }
         return jettons
     }
-    
+
     private func mapJettonRates(
         rates: Components.Schemas.TokenRates?,
         currency: Currency
     ) -> [PriceData] {
-        guard 
+        guard
             let price = rates?.prices?.additionalProperties.first?.value,
             let fiatDayChange = rates?.diff_24h?.additionalProperties.first?.value
         else {

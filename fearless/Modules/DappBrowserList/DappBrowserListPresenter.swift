@@ -15,7 +15,7 @@ final class DappBrowserListPresenter {
     private weak var view: DappBrowserListViewInput?
     private let router: DappBrowserListRouterInput
     private let interactor: DappBrowserListInteractorInput
-    
+
     private let wallet: MetaAccountModel
     private let dapps: [TonDapp]
 
@@ -33,9 +33,9 @@ final class DappBrowserListPresenter {
         self.router = router
         self.localizationManager = localizationManager
     }
-    
+
     // MARK: - Private methods
-    
+
     private func provideViewModel(search: String?) {
         var apps = dapps
         if let search, search.isNotEmpty {
@@ -44,7 +44,7 @@ final class DappBrowserListPresenter {
         let viewModels = apps
             .map {
             DappBrowserListCellViewModel(
-                icon: RemoteImageViewModel(url: $0.url), 
+                icon: RemoteImageViewModel(url: $0.url),
                 iconUrl: $0.icon,
                 name: $0.name,
                 description: $0.description,
@@ -64,15 +64,15 @@ extension DappBrowserListPresenter: DappBrowserListViewOutput {
             wallet: wallet
         )
     }
-    
+
     func searchTextDidChanged(_ text: String?) {
         provideViewModel(search: text)
     }
-    
+
     func didTapBackButton() {
         router.dismiss(view: view)
     }
-    
+
     func didLoad(view: DappBrowserListViewInput) {
         self.view = view
         interactor.setup(with: self)

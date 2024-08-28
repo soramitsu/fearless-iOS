@@ -1,4 +1,3 @@
-
 import SSFModels
 
 typealias PoolRolesConfirmModuleCreationResult = (view: PoolRolesConfirmViewInput, input: PoolRolesConfirmModuleInput)

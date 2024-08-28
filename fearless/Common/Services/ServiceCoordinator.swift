@@ -125,7 +125,7 @@ extension ServiceCoordinator {
             polkaswapSettingsService: polkaswapSettingsService,
             walletConnect: walletConnect,
             walletAssetsObserver: walletAssetsObserver,
-            tonConnectService: ServiceAssembly.shared.tonConnectService(), 
+            tonConnectService: ServiceAssembly.shared.tonConnectService(),
             toggleService: ServiceAssembly.shared.localToggle
         )
     }

@@ -17,7 +17,7 @@ final class EtherscanHistoryOperationFactory {
         var queryItems = [
             URLQueryItem(name: "module", value: "account"),
             URLQueryItem(name: "action", value: action),
-            URLQueryItem(name: "address", value: address),
+            URLQueryItem(name: "address", value: address)
         ]
 
         if let apiKey = BlockExplorerApiKey(chainId: chainAsset.chain.chainId) {

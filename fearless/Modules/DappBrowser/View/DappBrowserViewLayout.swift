@@ -28,7 +28,7 @@ final class DappBrowserViewLayout: UIView {
         label.textAlignment = .center
         return label
     }()
-    
+
     let searchButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = R.color.colorWhite8()
@@ -66,7 +66,7 @@ final class DappBrowserViewLayout: UIView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     override func layoutSubviews() {
         super.layoutSubviews()
         searchButton.rounded()

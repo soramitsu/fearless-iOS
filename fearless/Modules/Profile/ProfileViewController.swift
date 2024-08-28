@@ -68,7 +68,7 @@ final class ProfileViewController: UIViewController, ViewHolder {
     @objc func switcherValueChanged(sender: UISwitch) {
         presenter.switcherValueChanged(isOn: sender.isOn, index: sender.tag)
     }
-    
+
     @objc func debugMenu(tapGesture: UITapGestureRecognizer) {
         presenter.openDebugMenu()
     }

@@ -1,4 +1,3 @@
-
 import SSFModels
 typealias CrossChainConfirmationModuleCreationResult = (
     view: CrossChainConfirmationViewInput,
@@ -10,8 +9,7 @@ protocol CrossChainConfirmationRouterInput:
     ErrorPresentable,
     BaseErrorPresentable,
     ModalAlertPresenting,
-    SheetAlertPresentable
-{
+    SheetAlertPresentable {
     func complete(
         on view: ControllerBackedProtocol?,
         title: String,

@@ -11,7 +11,7 @@ final class FeatureToggleListViewController: UIViewController, ViewHolder {
 
     // MARK: Private properties
     private let output: FeatureToggleListViewOutput
-    
+
     private var viewModels: [SelectableViewModel<TitleWithSubtitleViewModel>] = []
 
     // MARK: - Constructor
@@ -40,9 +40,9 @@ final class FeatureToggleListViewController: UIViewController, ViewHolder {
         title = "Toggle list"
         setupTableView()
     }
-    
+
     // MARK: - Private methods
-    
+
     private func setupTableView() {
         rootView.tableView.registerClassForCell(TitleSubtitleSwitchTableViewCell.self)
         rootView.tableView.dataSource = self
@@ -77,7 +77,7 @@ extension FeatureToggleListViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCellWithType(TitleSubtitleSwitchTableViewCell.self)!
         cell.delegate = self
         cell.bind(viewModel: viewModel)
-        
+
         return cell
     }
 }
