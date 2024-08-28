@@ -289,6 +289,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             guard let chainAssets = chainAssets else {
                 return
             }
+            subscribeOnPrices(chainAssets: chainAssets)
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {

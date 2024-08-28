@@ -80,8 +80,6 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             return createPriceData(from: priceData)
         }
 
-        print("asset mapper create, array: \(priceDatas)")
-
         return AssetModel(
             id: entity.id!,
             name: name!,

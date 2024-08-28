@@ -72,8 +72,6 @@ final class ChainModelMapper {
             return createPriceData(from: priceData)
         }
 
-        print("chain mapper create, array: \(priceDatas)")
-
         return AssetModel(
             id: id,
             name: name,
