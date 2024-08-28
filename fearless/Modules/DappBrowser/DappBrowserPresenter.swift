@@ -195,6 +195,11 @@ extension DappBrowserPresenter: DappBrowserInteractorOutput {
             logger.customError(error)
         }
     }
+    
+    func didUpdate(wallet: MetaAccountModel) {
+        self.wallet = wallet
+        provideWalletViewModel()
+    }
 }
 
 // MARK: - Localizable

@@ -5,6 +5,7 @@ import SSFModels
 
 protocol DappBrowserInteractorOutput: AnyObject {
     func didReceive(dapps: Result<[DappCategory], Error>)
+    func didUpdate(wallet: MetaAccountModel)
 }
 
 final class DappBrowserInteractor {
@@ -19,17 +20,21 @@ final class DappBrowserInteractor {
     private let appRepository: AsyncAnyRepository<TonConnectApp>
     private let chainsRepository: AsyncAnyRepository<ChainModel>
     private let filterStorage: SettingsManagerProtocol
+    private let eventCenter: EventCenterProtocol
 
     init(
         dappProvider: AnySingleValueProvider<[DappCategory]>,
         appRepository: AsyncAnyRepository<TonConnectApp>,
         chainsRepository: AsyncAnyRepository<ChainModel>,
-        filterStorage: SettingsManagerProtocol
+        filterStorage: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.dappProvider = dappProvider
         self.appRepository = appRepository
         self.chainsRepository = chainsRepository
         self.filterStorage = filterStorage
+        self.eventCenter = eventCenter
+        eventCenter.add(observer: self)
     }
 
     private func setupDappProvider() {
@@ -82,5 +87,11 @@ extension DappBrowserInteractor: DappBrowserInteractorInput {
     func setup(with output: DappBrowserInteractorOutput) {
         self.output = output
         setupDappProvider()
+    }
+}
+
+extension DappBrowserInteractor: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        output?.didUpdate(wallet: event.account)
     }
 }

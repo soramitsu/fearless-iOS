@@ -14,7 +14,8 @@ final class DappBrowserAssembly {
             dappProvider: createProvider(),
             appRepository: ServiceAssembly.shared.tonConnectAppAsyncRepository(), 
             chainsRepository: ServiceAssembly.shared.asyncChainModelRepository(sortDescriptors: []), 
-            filterStorage: ServiceAssembly.shared.userDefaults
+            filterStorage: ServiceAssembly.shared.userDefaults, 
+            eventCenter: ServiceAssembly.shared.eventCenter
         )
         let router = DappBrowserRouter()
 

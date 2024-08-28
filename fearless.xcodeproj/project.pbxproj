@@ -249,6 +249,8 @@
 		074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */; };
 		074EB7B1290BA142000A2A6A /* ConnectionOnlineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
+		075E5FCF2C7F1A180044C142 /* TonConnectServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */; };
+		075E5FD12C7F1A630044C142 /* TonConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075E5FD02C7F1A630044C142 /* TonConnectService.swift */; };
 		075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */; };
 		0761DEB228E1F54D00B90D2C /* StakingPoolCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */; };
 		0761DEB428E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0761DEB328E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift */; };
@@ -309,7 +311,7 @@
 		07BF3DA12B3D98BD0046ABF4 /* AssetTransactionData+Zeta.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BF3DA02B3D98BD0046ABF4 /* AssetTransactionData+Zeta.swift */; };
 		07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */; };
 		07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */; };
-		07C438D72C638B2900475B14 /* TonConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C438D62C638B2900475B14 /* TonConnectService.swift */; };
+		07C438D72C638B2900475B14 /* TonConnectServiceImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C438D62C638B2900475B14 /* TonConnectServiceImpl.swift */; };
 		07C438DA2C638BAA00475B14 /* TonConnectParameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C438D92C638BAA00475B14 /* TonConnectParameters.swift */; };
 		07C438DC2C638BB800475B14 /* TonConnectRequestPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C438DB2C638BB800475B14 /* TonConnectRequestPayload.swift */; };
 		07C438DE2C638D3900475B14 /* TonConnectManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C438DD2C638D3900475B14 /* TonConnectManifest.swift */; };
@@ -3429,6 +3431,8 @@
 		074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOfflineEvent.swift; sourceTree = "<group>"; };
 		074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOnlineEvent.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
+		075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectServiceDelegate.swift; sourceTree = "<group>"; };
+		075E5FD02C7F1A630044C142 /* TonConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectService.swift; sourceTree = "<group>"; };
 		075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputViewV2.swift; sourceTree = "<group>"; };
 		0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModel.swift; sourceTree = "<group>"; };
 		0761DEB328E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModelFactory.swift; sourceTree = "<group>"; };
@@ -3494,7 +3498,7 @@
 		07BFF8A92AD666CE005A5C58 /* AutoNamespacesError+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AutoNamespacesError+Extension.swift"; sourceTree = "<group>"; };
 		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
 		07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncService.swift; sourceTree = "<group>"; };
-		07C438D62C638B2900475B14 /* TonConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectService.swift; sourceTree = "<group>"; };
+		07C438D62C638B2900475B14 /* TonConnectServiceImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectServiceImpl.swift; sourceTree = "<group>"; };
 		07C438D92C638BAA00475B14 /* TonConnectParameters.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonConnectParameters.swift; sourceTree = "<group>"; };
 		07C438DB2C638BB800475B14 /* TonConnectRequestPayload.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonConnectRequestPayload.swift; sourceTree = "<group>"; };
 		07C438DD2C638D3900475B14 /* TonConnectManifest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonConnectManifest.swift; sourceTree = "<group>"; };
@@ -7403,7 +7407,9 @@
 			isa = PBXGroup;
 			children = (
 				07C438D82C638B4300475B14 /* Models */,
-				07C438D62C638B2900475B14 /* TonConnectService.swift */,
+				07C438D62C638B2900475B14 /* TonConnectServiceImpl.swift */,
+				075E5FD02C7F1A630044C142 /* TonConnectService.swift */,
+				075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */,
 				07ECB8082C6C6CDE000E0A14 /* TonConnectEventsCenter.swift */,
 				07ECB8022C6B4EA3000E0A14 /* TonConnectSessionCrypto.swift */,
 			);
@@ -16994,6 +17000,7 @@
 				846CD25B265709A800A2E4B6 /* StorageKeySuffixMapper.swift in Sources */,
 				076D9D4D29431C71002762E3 /* SwapQuoteAmountFactory.swift in Sources */,
 				07F2B75728A3A4B800280C38 /* ChainCollectionView.swift in Sources */,
+				075E5FCF2C7F1A180044C142 /* TonConnectServiceDelegate.swift in Sources */,
 				8473D40D2657E9DC00B394B2 /* MultiSigner.swift in Sources */,
 				FA17B4B527E858CB006E0735 /* JsonLoadingFailedAlertConfig.swift in Sources */,
 				FAD9AAC52B8DFF6700AA603B /* PrefixStorageRequestWorker.swift in Sources */,
@@ -19036,6 +19043,7 @@
 				FAFFAE8329AC84B10074AF1F /* SubqueryHistory.swift in Sources */,
 				B071927DF8DD5C3CA84494BA /* RecommendedValidatorListViewController.swift in Sources */,
 				FAD428962A834BA8001D6A16 /* UIApplication+TopViewController.swift in Sources */,
+				075E5FD12C7F1A630044C142 /* TonConnectService.swift in Sources */,
 				D6511F7C3E55197F82AB552C /* RecommendedValidatorListViewFactory.swift in Sources */,
 				C7D77690E10875CF1856EBA1 /* StakingRewardPayoutsProtocols.swift in Sources */,
 				FA936BCE286C41DF0059B97A /* StakingRebondConfirmationRelaychainStrategy.swift in Sources */,
@@ -19589,7 +19597,7 @@
 				E29066A3781333DF890E8F9B /* ContactsAssembly.swift in Sources */,
 				9E2D97A489E8F84A8A0916A8 /* CreateContactProtocols.swift in Sources */,
 				D3C2414CAC720D2D08F0CC4F /* CreateContactRouter.swift in Sources */,
-				07C438D72C638B2900475B14 /* TonConnectService.swift in Sources */,
+				07C438D72C638B2900475B14 /* TonConnectServiceImpl.swift in Sources */,
 				FA7254222AC2E48500EC47A6 /* WalletConnectSigner.swift in Sources */,
 				4641B3CABB5FE1DCFBEDA379 /* CreateContactPresenter.swift in Sources */,
 				152AC909C26E809ACCA55B35 /* CreateContactInteractor.swift in Sources */,
