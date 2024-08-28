@@ -194,7 +194,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
-    func updateViewModel(isInitSearchState _: Bool) {
+    func updateViewModel() {
         provideViewModel()
     }
 

@@ -125,6 +125,15 @@ final class ChainAssetListInteractor {
             self?.output?.didReceiveChainAssets(result: result)
         }
     }
+    
+    private func updateTonPricesIfNeeded() {
+        Task {
+            guard let tonAssets = chainAssets?.filter({ $0.chain.ecosystem == .ton }) else {
+                return
+            }
+            _ = try await remoteBalanceService.fetchAccountInfos(for: tonAssets, wallet: wallet)
+        }
+    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -202,7 +211,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         operation.completionBlock = { [weak self] in
             let wallets = try? operation.extractNoCancellableResultData()
             let currencies = wallets?.map { $0.selectedCurrency } ?? []
-//            self?.pricesService.startPricesObserving(for: chainAssets, currencies: currencies)
+            self?.pricesService.startPricesObserving(for: chainAssets, currencies: currencies)
         }
         OperationManagerFacade.sharedDefaultQueue.addOperation(operation)
     }
@@ -235,8 +244,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             timer.invalidate()
             self?.remoteFetchTimer = nil
         })
-
-//        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
     }
 
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
@@ -292,15 +299,16 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             guard let chainAssets = chainAssets else {
                 return
             }
+            subscribeOnPrices(chainAssets: chainAssets)
+            updateTonPricesIfNeeded()
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
-//            output?.updateViewModel(isInitSearchState: false)
             updateChainAssets(using: filters, sorts: sorts, useCashe: false)
         }
 
         if wallet.unusedChainIds != event.account.unusedChainIds {
-            output?.updateViewModel(isInitSearchState: false)
+            output?.updateViewModel()
         }
 
         wallet = event.account

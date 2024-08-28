@@ -3,7 +3,7 @@ import RobinHood
 import SSFModels
 
 protocol TonJettonInjector {
-    func inject(jettonItems: [TonJettonItem]) async
+    func inject(jettonItems: [TonJettonBalance]) async
 }
 
 actor TonJettonInjectorImpl: TonJettonInjector {
@@ -21,20 +21,20 @@ actor TonJettonInjectorImpl: TonJettonInjector {
         self.logger = logger
     }
 
-    func inject(jettonItems: [TonJettonItem]) async {
+    func inject(jettonItems: [TonJettonBalance]) async {
         do {
             let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
             guard let tonChain = try await chainModelRepository.fetch(by: network, options: RepositoryFetchOptions()) else {
                 throw ConvenienceError(error: "Ton chain is not fetched")
             }
-            let assetModels = map(jettonItems: jettonItems)
-            let unionAssets = tonChain.assets.union(assetModels)
-
-            guard tonChain.assets.symmetricDifference(unionAssets).isNotEmpty else {
-                return
+            var assetModels = map(jettonItems: jettonItems)
+            if let tonAsset = tonChain.utilityAssets().first {
+                assetModels.insert(tonAsset)
             }
-            let updatedChainModel = tonChain.replacingAssets(Array(unionAssets))
+            let updatedChainModel = tonChain.replacingAssets(Array(assetModels))
             await chainModelRepository.save(models: [updatedChainModel])
+            let priceUpdatedEvent = PricesUpdated()
+            eventCenter.notify(with: priceUpdatedEvent)
 
             logger.info("The Open Network has been updated with new assets: \(assetModels.map { $0.name })")
         } catch {
@@ -42,15 +42,15 @@ actor TonJettonInjectorImpl: TonJettonInjector {
         }
     }
 
-    private func map(jettonItems: [TonJettonItem]) -> Set<AssetModel> {
-        let mapped = jettonItems.map { item in
+    private func map(jettonItems: [TonJettonBalance]) -> Set<AssetModel> {
+        let mapped = jettonItems.map { balanceInfo in
             AssetModel(
-                id: item.walletAddress.toRaw(),
-                name: item.jettonInfo.name,
-                symbol: item.jettonInfo.symbol ?? item.jettonInfo.name,
-                precision: UInt16(item.jettonInfo.fractionDigits),
-                icon: item.jettonInfo.imageURL,
-                currencyId: item.jettonInfo.address.toRaw(), // wallet
+                id: balanceInfo.item.walletAddress.toRaw(),
+                name: balanceInfo.item.jettonInfo.name,
+                symbol: balanceInfo.item.jettonInfo.symbol ?? balanceInfo.item.jettonInfo.name,
+                precision: UInt16(balanceInfo.item.jettonInfo.fractionDigits),
+                icon: balanceInfo.item.jettonInfo.imageURL,
+                currencyId: balanceInfo.item.jettonInfo.address.toRaw(), // wallet
                 existentialDeposit: nil,
                 color: nil,
                 isUtility: false,
@@ -59,7 +59,8 @@ actor TonJettonInjectorImpl: TonJettonInjector {
                 purchaseProviders: nil,
                 assetType: .ton(tonType: .jetton),
                 priceProvider: nil,
-                coingeckoPriceId: nil
+                coingeckoPriceId: nil,
+                priceData: balanceInfo.priceData
             )
         }
 

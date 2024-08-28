@@ -39,7 +39,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])
-    func updateViewModel(isInitSearchState: Bool)
+    func updateViewModel()
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
     func handleWalletChanged(wallet: MetaAccountModel)
     func didReceive(chainSettings: [ChainSettings])

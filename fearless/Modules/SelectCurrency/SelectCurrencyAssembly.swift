@@ -12,15 +12,11 @@ final class SelectCurrencyAssembly {
     ) -> SelectCurrencyModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
-        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let interactor = SelectCurrencyInteractor(
             selectedMetaAccount: wallet,
-            repository: accountRepository,
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
-            eventCenter: eventCenter,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            eventCenter: eventCenter
         )
         let router = SelectCurrencyRouter(viewIsModal: isModal)
 

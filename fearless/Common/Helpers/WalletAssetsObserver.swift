@@ -37,6 +37,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         self.eventCenter = eventCenter
         self.logger = logger
         self.userDefaultsStorage = userDefaultsStorage
+        eventCenter.add(observer: self)
     }
 
     // MARK: - WalletAssetsObserver
@@ -232,5 +233,13 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             "asset.management.should.migrate.wallet",
             wallet.metaId
         ].joined(separator: ":")
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension WalletAssetsObserverImpl: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        wallet = event.account
     }
 }

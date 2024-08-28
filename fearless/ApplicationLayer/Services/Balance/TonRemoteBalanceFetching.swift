@@ -46,7 +46,10 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         }
         let jettons = chainAssets.remainder
 
-        let chainAccountInfos = try await getChainAccountInfos(address: address)
+        let chainAccountInfos = try await getChainAccountInfos(
+            address: address,
+            currency: wallet.selectedCurrency
+        )
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
 
@@ -83,7 +86,10 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         case .normal:
             accountInfo = try await getAccountInfo(address: address)
         case .jetton:
-            let jettons = try await getAccountJettonsBalances(address: address)
+            let jettons = try await getAccountJettonsBalances(
+                address: address,
+                currency: wallet.selectedCurrency
+            )
             guard let jetton = jettons.first(where: { jetton in
                 jetton.item.walletAddress.toRaw() == chainAsset.asset.id
             }) else {
@@ -120,7 +126,10 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         }
 
         let address = try accountId.asTonAddress().toRaw()
-        let chainAccountInfos = try await getChainAccountInfos(address: address)
+        let chainAccountInfos = try await getChainAccountInfos(
+            address: address,
+            currency: wallet.selectedCurrency
+        )
         let normalBalance = chainAccountInfos.normal
         let jettonBalances = chainAccountInfos.jettons
 
@@ -159,10 +168,11 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
     }
 
     private func getChainAccountInfos(
-        address: String
+        address: String,
+        currency: Currency
     ) async throws -> (normal: AccountInfo, jettons: [TonJettonBalance]) {
         async let normalBalanceTask = getAccountInfo(address: address)
-        async let jettonBalancesTask = getAccountJettonsBalances(address: address)
+        async let jettonBalancesTask = getAccountJettonsBalances(address: address, currency: currency)
         let normalBalance = try await normalBalanceTask
         let jettonBalances = try await jettonBalancesTask
         return (normalBalance, jettonBalances)
@@ -186,14 +196,15 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
     }
 
     private func getAccountJettonsBalances(
-        address: String
+        address: String,
+        currency: Currency
     ) async throws -> [TonJettonBalance] {
         let assembly = try chainRegistry.getTonApiAssembly()
         let tonAPIClient = assembly.tonAPIClient()
 
         let response = try await tonAPIClient.getAccountJettonsBalances(
             path: .init(account_id: address),
-            query: .init(currencies: "USD")
+            query: .init(currencies: currency.id.uppercased())
         )
 
         let jettons = try response.ok.body.json.balances.compactMap { jetton in
@@ -202,17 +213,41 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 let walletAddress = try TonSwift.Address.parse(jetton.wallet_address.address)
                 let jettonInfo = try TonJettonInfo(jettonPreview: jetton.jetton)
                 let jettonItem = TonJettonItem(jettonInfo: jettonInfo, walletAddress: walletAddress)
-                let jettonBalance = TonJettonBalance(item: jettonItem, quantity: quantity)
+                let rates = mapJettonRates(rates: jetton.price, currency: currency)
+                let jettonBalance = TonJettonBalance(
+                    item: jettonItem,
+                    quantity: quantity,
+                    priceData: rates
+                )
                 return jettonBalance
             } catch {
                 return nil
             }
         }
         Task {
-            let items = jettons.map { $0.item }
-            await jettonInjector.inject(jettonItems: items)
+            await jettonInjector.inject(jettonItems: jettons)
         }
         return jettons
+    }
+    
+    private func mapJettonRates(
+        rates: Components.Schemas.TokenRates?,
+        currency: Currency
+    ) -> [PriceData] {
+        guard 
+            let price = rates?.prices?.additionalProperties.first?.value,
+            let fiatDayChange = rates?.diff_24h?.additionalProperties.first?.value
+        else {
+            return []
+        }
+        let priceData = PriceData(
+            currencyId: currency.id,
+            priceId: "",
+            price: String(price),
+            fiatDayChange: .zero,
+            coingeckoPriceId: nil
+        )
+        return [priceData]
     }
 
     nonisolated private func cache(
