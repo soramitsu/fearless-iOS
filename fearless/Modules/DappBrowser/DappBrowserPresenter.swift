@@ -85,6 +85,12 @@ final class DappBrowserPresenter {
             }
         }
     }
+    
+    private func observTonConnect() {
+        Task {
+            await ServiceAssembly.shared.tonConnectService().set(listener: self)
+        }
+    }
 }
 
 // MARK: - DappBrowserViewOutput
@@ -172,6 +178,7 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
         interactor.setup(with: self)
         provideWalletViewModel()
         provideNetworkViewModel()
+        observTonConnect()
     }
 }
 
@@ -221,6 +228,14 @@ extension DappBrowserPresenter: NetworkManagmentModuleOutput {
 
 extension DappBrowserPresenter: TonWebBridgeModuleOutput {
     func didDisconnect() {
+        provideTableViewModel()
+    }
+}
+
+// MARK: - TonConnectServiceDelegate
+
+extension DappBrowserPresenter: TonConnectServiceDelegate {
+    func didDisconnected(app: TonConnectApp) {
         provideTableViewModel()
     }
 }

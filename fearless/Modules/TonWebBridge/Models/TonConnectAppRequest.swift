@@ -6,6 +6,7 @@ extension TonConnect {
     struct AppRequest: Codable {
         enum Method: String, Codable {
             case sendTransaction
+            case disconnect
         }
         
         let method: Method
