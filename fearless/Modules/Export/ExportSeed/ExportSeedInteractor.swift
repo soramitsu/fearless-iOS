@@ -55,7 +55,15 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
     func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountInfo]) {
         var seeds: [ExportSeedData] = []
 
-        for chainAccount in accounts {
+        let substrateAndEthereumAccounts = accounts.filter {
+            switch $0.account.ecosystem {
+            case .substrate, .ethereumBased, .ethereum:
+                return true
+            case .ton:
+                return false
+            }
+        }
+        for chainAccount in substrateAndEthereumAccounts {
             let chain = chainAccount.chain
             let account = chainAccount.account
             let accountId = account.isChainAccount ? account.accountId : nil

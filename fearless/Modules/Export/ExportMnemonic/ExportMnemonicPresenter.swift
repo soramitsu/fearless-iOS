@@ -109,7 +109,7 @@ extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
                 cryptoType: exportData.cryptoType,
                 derivationPath: exportData.derivationPath,
                 mnemonic: exportData.mnemonic.allWords(),
-                ethereumBased: exportData.chain.isEthereumBased
+                ecosystem: exportData.chain.ecosystem
             )
         }
 

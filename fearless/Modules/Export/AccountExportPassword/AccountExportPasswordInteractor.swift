@@ -44,7 +44,15 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
     ) {
         var jsons: [RestoreJson] = []
 
-        for chainAccount in accounts {
+        let substrateAndEthereumAccounts = accounts.filter {
+            switch $0.account.ecosystem {
+            case .substrate, .ethereumBased, .ethereum:
+                return true
+            case .ton:
+                return false
+            }
+        }
+        for chainAccount in substrateAndEthereumAccounts {
             if let data = try? exportJsonWrapper.export(
                 chainAccount: chainAccount.account,
                 password: password,
