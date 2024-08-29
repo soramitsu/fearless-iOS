@@ -46,7 +46,7 @@ final class TonHistoryOperationFactory {
         before_lt: Int64?
     ) async throws -> TonAccountEvents {
         guard let tonAPIClient else {
-            throw ConvenienceError(error: "Client not initialized")
+            throw ConvenienceError(error: "Client not initialised")
         }
         let response = try await tonAPIClient.getAccountEvents(
             path: .init(account_id: address),
@@ -68,9 +68,9 @@ final class TonHistoryOperationFactory {
             startFrom: before_lt ?? 0,
             nextFrom: entity.next_from
         )
-        return remoteEvents
-//        let tonEvents = filterTonEvents(events: remoteEvents)
-//        return tonEvents
+
+        let tonEvents = filterTonEvents(events: remoteEvents)
+        return tonEvents
     }
 
     private func fetchJettonsHistory(
@@ -79,7 +79,7 @@ final class TonHistoryOperationFactory {
         before_lt: Int64?
     ) async throws -> TonAccountEvents {
         guard let tonAPIClient else {
-            throw ConvenienceError(error: "Client not initialized")
+            throw ConvenienceError(error: "Client not initialised")
         }
         let response = try await tonAPIClient.getAccountJettonHistoryByID(
             path: .init(
@@ -106,25 +106,31 @@ final class TonHistoryOperationFactory {
         )
     }
 
-//    private func filterTonEvents(events: TonAccountEvents) -> TonAccountEvents {
-//        let filteredEvents = events.events.compactMap { event -> TonAccountEvent? in
-//            let filteredActions = event.actions.compactMap { action -> AccountEventAction? in
-//                guard case .tonTransfer = action.type else { return nil }
-//                return action
-//            }
-//            guard !filteredActions.isEmpty else { return nil }
-//            return TonAccountEvent(
-//                eventId: event.eventId,
-//                timestamp: event.timestamp,
-//                account: event.account,
-//                isScam: event.isScam,
-//                isInProgress: event.isInProgress,
-//                fee: event.fee,
-//                actions: filteredActions
-//            )
-//        }
-//        return filteredEvents
-//    }
+    private func filterTonEvents(events: TonAccountEvents) -> TonAccountEvents {
+        let filteredEvents = events.events.compactMap { event -> TonAccountEvent? in
+            let filteredActions = event.actions.compactMap { action -> AccountEventAction? in
+                guard case .tonTransfer = action.type else { return nil }
+                return action
+            }
+            guard !filteredActions.isEmpty else { return nil }
+            return TonAccountEvent(
+                eventId: event.eventId,
+                timestamp: event.timestamp,
+                account: event.account,
+                isScam: event.isScam,
+                isInProgress: event.isInProgress,
+                fee: event.fee,
+                actions: filteredActions
+            )
+        }
+
+        return TonAccountEvents(
+            address: events.address,
+            events: filteredEvents,
+            startFrom: events.startFrom,
+            nextFrom: events.nextFrom
+        )
+    }
 
     private func createMapOperation(
         dependingOn remoteOperation: BaseOperation<TonAccountEvents>,

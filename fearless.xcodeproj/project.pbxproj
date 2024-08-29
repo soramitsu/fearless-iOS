@@ -224,7 +224,6 @@
 		07230EAF2C73608900B92466 /* DappBrowserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07230EAE2C73608900B92466 /* DappBrowserViewModel.swift */; };
 		07230EB12C7456B900B92466 /* dapps.json in Resources */ = {isa = PBXBuildFile; fileRef = 07230EB02C7456B900B92466 /* dapps.json */; };
 		0723EDA02C48E37400880620 /* SoraQrTransferFlowUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0723ED9F2C48E37400880620 /* SoraQrTransferFlowUseCase.swift */; };
-		0723EDA22C48F2C900880620 /* TransferSendFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0723EDA12C48F2C900880620 /* TransferSendFlow.swift */; };
 		0723EDA42C49369D00880620 /* TransferFlowUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0723EDA32C49369D00880620 /* TransferFlowUseCase.swift */; };
 		0723EDA62C50B87B00880620 /* BokoloTransferFlowUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0723EDA52C50B87B00880620 /* BokoloTransferFlowUseCase.swift */; };
 		0723EDA82C50D6FE00880620 /* SubstrateTransferFlowUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0723EDA72C50D6FD00880620 /* SubstrateTransferFlowUseCase.swift */; };
@@ -3406,7 +3405,6 @@
 		07230EAE2C73608900B92466 /* DappBrowserViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappBrowserViewModel.swift; sourceTree = "<group>"; };
 		07230EB02C7456B900B92466 /* dapps.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = dapps.json; sourceTree = "<group>"; };
 		0723ED9F2C48E37400880620 /* SoraQrTransferFlowUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraQrTransferFlowUseCase.swift; sourceTree = "<group>"; };
-		0723EDA12C48F2C900880620 /* TransferSendFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferSendFlow.swift; sourceTree = "<group>"; };
 		0723EDA32C49369D00880620 /* TransferFlowUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferFlowUseCase.swift; sourceTree = "<group>"; };
 		0723EDA52C50B87B00880620 /* BokoloTransferFlowUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BokoloTransferFlowUseCase.swift; sourceTree = "<group>"; };
 		0723EDA72C50D6FD00880620 /* SubstrateTransferFlowUseCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateTransferFlowUseCase.swift; sourceTree = "<group>"; };
@@ -7169,7 +7167,6 @@
 		0723ED9E2C48E35600880620 /* Flows */ = {
 			isa = PBXGroup;
 			children = (
-				0723EDA12C48F2C900880620 /* TransferSendFlow.swift */,
 				0723EDA32C49369D00880620 /* TransferFlowUseCase.swift */,
 				0723ED9F2C48E37400880620 /* SoraQrTransferFlowUseCase.swift */,
 				0723EDA72C50D6FD00880620 /* SubstrateTransferFlowUseCase.swift */,
@@ -19734,7 +19731,6 @@
 				BC2DF589C6623601C39EF8F4 /* LiquidityPoolSupplyPresenter.swift in Sources */,
 				87C1FC2909A8360DDBA625E5 /* LiquidityPoolSupplyInteractor.swift in Sources */,
 				F31469BD18062A4A008FE39E /* LiquidityPoolSupplyViewController.swift in Sources */,
-				0723EDA22C48F2C900880620 /* TransferSendFlow.swift in Sources */,
 				5E8504507116E0177D70314B /* LiquidityPoolSupplyViewLayout.swift in Sources */,
 				DCE13AA9F3BA0EB54F793017 /* LiquidityPoolSupplyAssembly.swift in Sources */,
 				6FAC7E8F0DACB3F2AA0BE825 /* LiquidityPoolSupplyConfirmProtocols.swift in Sources */,

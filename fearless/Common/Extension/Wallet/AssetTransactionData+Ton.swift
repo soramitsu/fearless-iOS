@@ -37,6 +37,11 @@ extension AssetTransactionData {
 
             let friendlyAddress = tonTransfer.sender.address.toFriendly().toString()
             let type: TransactionType = friendlyAddress == address ? .outgoing : .incoming
+
+            var iconContext: [String: String] = [:]
+            if let iconUrl = asset.icon?.absoluteString {
+                iconContext["icon"] = iconUrl
+            }
             return AssetTransactionData(
                 transactionId: event.eventId,
                 status: status,
@@ -51,7 +56,7 @@ extension AssetTransactionData {
                 timestamp: Int64(event.timestamp),
                 type: type.rawValue,
                 reason: "",
-                context: nil
+                context: iconContext
             )
         case let .contractDeploy(deploy):
             return AssetTransactionData(
@@ -93,6 +98,11 @@ extension AssetTransactionData {
 
             let sender = jettonTransfer.sender?.address.toFriendly().toString()
             let type: TransactionType = sender == address ? .outgoing : .incoming
+
+            var iconContext: [String: String] = [:]
+            if let iconUrl = jettonTransfer.jettonInfo.imageURL?.absoluteString {
+                iconContext["icon"] = iconUrl
+            }
             return AssetTransactionData(
                 transactionId: event.eventId,
                 status: status,
@@ -106,6 +116,29 @@ extension AssetTransactionData {
                 fees: fees,
                 timestamp: Int64(event.timestamp),
                 type: type.rawValue,
+                reason: "",
+                context: iconContext
+            )
+        case let .jettonSwap(swap):
+
+            let amountDecimal = Decimal.fromSubstrateAmount(
+                swap.amountIn,
+                precision: Int16(asset.precision)
+            ) ?? .zero
+            let amount = AmountDecimal(value: amountDecimal)
+            return AssetTransactionData(
+                transactionId: swap.dex,
+                status: status,
+                assetId: swap.jettonInfoIn?.symbol ?? "",
+                peerId: swap.jettonInfoOut?.symbol ?? "",
+                peerFirstName: nil,
+                peerLastName: nil,
+                peerName: "",
+                details: String(swap.amountOut),
+                amount: amount,
+                fees: [],
+                timestamp: .zero,
+                type: TransactionType.swap.rawValue,
                 reason: "",
                 context: nil
             )
