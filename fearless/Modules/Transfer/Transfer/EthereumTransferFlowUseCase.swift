@@ -72,7 +72,7 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
 
         provideNetworkViewModel?()
 
-        try await fetchRequaredInfo(for: chainAsset)
+        try await fetchRequiredInfo(for: chainAsset)
         calcFee()
     }
 
@@ -144,10 +144,11 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
             receiver: recipientAddress
         )
         let transfer = TransferType.ethereum(ethereumTransfer)
+        self.transfer = transfer
         return transfer
     }
 
-    private func fetchRequaredInfo(for chainAsset: ChainAsset) async throws {
+    private func fetchRequiredInfo(for chainAsset: ChainAsset) async throws {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             throw TransferFlowUseCaseError.missingAccount
         }
