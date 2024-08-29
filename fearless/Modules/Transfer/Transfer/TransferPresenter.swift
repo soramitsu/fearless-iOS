@@ -465,27 +465,32 @@ final class TransferPresenter {
         with chainAsset: ChainAsset,
         successCompletion: @escaping () -> Void
     ) async {
-        guard let recipientAddress = currentFlowUseCase?.recipientAddress else {
-            return
-        }
-        let validationResult = await interactor.validate(address: recipientAddress, for: chainAsset.chain)
-        switch validationResult {
-        case .valid:
+        switch currentFlowUseCase?.implType {
+        case .bokoloCash:
             successCompletion()
-        case let .invalid(address):
-            guard let address = address else {
-                await showInvalidAddressAlert()
+        default:
+            guard let recipientAddress = currentFlowUseCase?.recipientAddress else {
                 return
             }
-            let possibleChains = await interactor.getPossibleChains(for: address)
-            guard possibleChains.isNotEmpty else {
-                await showInvalidAddressAlert()
-                return
-            }
+            let validationResult = await interactor.validate(address: recipientAddress, for: chainAsset.chain)
+            switch validationResult {
+            case .valid:
+                successCompletion()
+            case let .invalid(address):
+                guard let address = address else {
+                    await showInvalidAddressAlert()
+                    return
+                }
+                let possibleChains = await interactor.getPossibleChains(for: address)
+                guard possibleChains.isNotEmpty else {
+                    await showInvalidAddressAlert()
+                    return
+                }
 
-            await showPossibleChainsAlert(possibleChains)
-        case .sameAddress:
-            await showSameAddressAlert(successCompletion: successCompletion)
+                await showPossibleChainsAlert(possibleChains)
+            case .sameAddress:
+                await showSameAddressAlert(successCompletion: successCompletion)
+            }
         }
     }
 

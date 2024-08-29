@@ -125,7 +125,7 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
 
         provideInputViewModel?()
 
-        try await fetchRequaredInfo(for: qrChainAsset)
+        try await fetchRequiredInfo(for: qrChainAsset)
         transfer = try buildTransfer()
         refreshFee()
     }
@@ -286,7 +286,7 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
         return transfer
     }
 
-    private func fetchRequaredInfo(for chainAsset: ChainAsset) async throws {
+    private func fetchRequiredInfo(for chainAsset: ChainAsset) async throws {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             throw TransferFlowUseCaseError.missingAccount
         }

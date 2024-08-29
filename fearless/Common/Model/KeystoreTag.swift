@@ -27,7 +27,7 @@ enum KeystoreTagV2: String, CaseIterable {
             Self.tonSecretKeyTagForMetaId(metaId, accountId: accountId)
         }
     }
-    
+
     static func seedKeyTag(
         for ecosystem: Ecosystem,
         metaId: String,
