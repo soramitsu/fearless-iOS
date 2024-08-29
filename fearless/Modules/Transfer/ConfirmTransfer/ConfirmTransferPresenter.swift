@@ -94,7 +94,7 @@ final class ConfirmTransferPresenter {
                     let transfer = useCase.transfer,
                     let chainAsset = useCase.selectedChainAsset
                 else {
-                    throw ConvenienceError(error: "Missing requared params")
+                    throw ConvenienceError(error: "Missing required params")
                 }
                 let hash = try await interactor.submit(transfer: transfer, chainAsset: chainAsset)
 

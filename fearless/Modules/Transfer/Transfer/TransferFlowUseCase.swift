@@ -183,6 +183,7 @@ extension TransferFlowUseCase {
             tip: tip
         )
         let transfer = TransferType.substrate(subtrateTransfer)
+        self.transfer = transfer
         return transfer
     }
 

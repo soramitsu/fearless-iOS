@@ -132,7 +132,7 @@ private extension MetaAccountOperationFactory {
         ecosystem: Ecosystem,
         accountId: AccountId? = nil
     ) throws {
-        let tag = KeystoreTagV2.secretKeyTag(for: ecosystem, metaId: metaId, accountId: accountId)
+        let tag = KeystoreTagV2.seedKeyTag(for: ecosystem, metaId: metaId, accountId: accountId)
         try keystore.saveKey(seed, with: tag)
     }
 
