@@ -45,16 +45,6 @@ final class ConfirmTransferPresenter {
         self.logger = logger
         self.localizationManager = localizationManager
         setupBindings()
-
-        Task {
-            do {
-                try await useCase.handle(initialData: sendFlow)
-                await provideIsReady()
-                await provideViewModel()
-            } catch {
-                logger.customError(error)
-            }
-        }
     }
 
     // MARK: - Private methods
@@ -170,7 +160,11 @@ extension ConfirmTransferPresenter: ConfirmTransferViewOutput {
 
     func didLoad(view: ConfirmTransferViewInput) {
         self.view = view
-        Task { await interactor.setup(with: self) }
+        Task {
+            await interactor.setup(with: self)
+            await provideIsReady()
+            await provideViewModel()
+        }
     }
 }
 
