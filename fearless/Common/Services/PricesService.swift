@@ -15,6 +15,8 @@ final class PricesService: PricesServiceProtocol {
     private let logger: Logger
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
+    private var chainAssets: [ChainAsset] = []
+    private var currencies: [SSFModels.Currency] = []
 
     private init(
         chainRepository: AnyDataProviderRepository<ChainModel>,
@@ -29,11 +31,26 @@ final class PricesService: PricesServiceProtocol {
     }
 
     func startPricesObserving(for chainAssets: [SSFModels.ChainAsset], currencies: [SSFModels.Currency]) {
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(
-            for: chainAssets,
-            currencies: currencies,
-            listener: self
-        )
+        let oldAssets = self.chainAssets
+        let uniqueAssets = chainAssets.filter { newAsset in
+            !oldAssets.contains(newAsset)
+        }
+        let oldCurrencies = self.currencies
+        let uniqueCurencies = currencies.filter { newCurrency in
+            !oldCurrencies.contains(newCurrency)
+        }
+        if uniqueAssets.isNotEmpty || uniqueCurencies.isNotEmpty {
+            let updatedAssets = oldAssets + uniqueAssets
+            let updatedCurrencies = oldCurrencies + uniqueCurencies
+
+            pricesProvider = priceLocalSubscriber.subscribeToPrices(
+                for: updatedAssets,
+                currencies: updatedCurrencies,
+                listener: self
+            )
+            self.chainAssets = updatedAssets
+            self.currencies = updatedCurrencies
+        }
     }
 
     func updatePrices() {

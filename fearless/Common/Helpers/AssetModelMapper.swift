@@ -142,8 +142,14 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             return entity
         }
 
-        entity.priceData = Set(priceData) as NSSet
+        if let oldPrices = entity.priceData as? Set<CDPriceData> {
+            oldPrices.forEach { cdPriceData in
+                if !priceData.contains(where: { $0.currencyId == cdPriceData.currencyId }) {
+                    context.delete(cdPriceData)
+                }
+            }
+        }
 
-        print("asset mapper populate, array: \(priceData)")
+        entity.priceData = Set(priceData) as NSSet
     }
 }

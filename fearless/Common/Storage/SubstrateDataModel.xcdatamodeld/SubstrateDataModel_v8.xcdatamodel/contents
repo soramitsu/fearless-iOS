@@ -16,7 +16,8 @@
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="symbol" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
-        <relationship name="priceData" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDPriceData"/>
+        <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="assets" inverseEntity="CDChain"/>
+        <relationship name="priceData" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDPriceData" inverseName="asset" inverseEntity="CDPriceData"/>
         <relationship name="priceProvider" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDPriceProvider" inverseName="asset" inverseEntity="CDPriceProvider"/>
     </entity>
     <entity name="CDChain" representedClassName="CDChain" syncable="YES" codeGenerationType="class">
@@ -46,7 +47,7 @@
         <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
-        <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDAsset"/>
+        <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>
         <relationship name="customNodes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainNode"/>
         <relationship name="explorers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDExternalApi" inverseName="chain" inverseEntity="CDExternalApi"/>
         <relationship name="nodes" optional="YES" toMany="YES" minCount="1" deletionRule="Cascade" destinationEntity="CDChainNode" inverseName="chain" inverseEntity="CDChainNode"/>
@@ -122,6 +123,7 @@
         <attribute name="fiatDayByChange" optional="YES" attributeType="String"/>
         <attribute name="price" attributeType="String"/>
         <attribute name="priceId" attributeType="String"/>
+        <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="priceData" inverseEntity="CDAsset"/>
     </entity>
     <entity name="CDPriceProvider" representedClassName="CDPriceProvider" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="String"/>
