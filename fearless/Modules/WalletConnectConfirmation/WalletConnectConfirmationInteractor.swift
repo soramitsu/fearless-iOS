@@ -55,7 +55,7 @@ final class WalletConnectConfirmationInteractor {
         guard let parameter = request.params.first else {
             throw ConvenienceError(error: "Missing Ton params")
         }
-        let boc = try await tonConnectService.approveTonConnect(
+        let boc = try await tonConnectService.approveTonJsBridgeSend(
             wallet: inputData.wallet,
             parameter: parameter
         )
@@ -70,7 +70,7 @@ final class WalletConnectConfirmationInteractor {
             throw ConvenienceError(error: "Missing Ton params")
         }
 
-        try await tonConnectService.confirmRequest(
+        try await tonConnectService.confirmTonConnectRequest(
             wallet: inputData.wallet,
             appRequest: request,
             app: app,

@@ -103,7 +103,9 @@ actor TonConnectServiceImpl: TonConnectService {
             wallet: wallet,
             clientId: params.clientId,
             appUrl: manifest.url,
-            sessionCrypto: sessionCrypto
+            sessionCrypto: sessionCrypto,
+            name: manifest.name,
+            iconUrl: manifest.iconUrl
         )
         await updateEventCenter()
     }
@@ -130,7 +132,7 @@ actor TonConnectServiceImpl: TonConnectService {
         )
     }
 
-    func approveTonConnect(
+    func approveTonJsBridgeSend(
         wallet: MetaAccountModel,
         parameter: SendTransactionParam
     ) async throws -> String {
@@ -156,7 +158,7 @@ actor TonConnectServiceImpl: TonConnectService {
         return boc
     }
 
-    func confirmRequest(
+    func confirmTonConnectRequest(
         wallet: MetaAccountModel,
         appRequest: TonConnect.AppRequest,
         app: TonConnectApp,
@@ -250,12 +252,16 @@ actor TonConnectServiceImpl: TonConnectService {
         wallet: MetaAccountModel,
         clientId: String,
         appUrl: URL,
-        sessionCrypto: TonConnectSessionCrypto
+        sessionCrypto: TonConnectSessionCrypto,
+        name: String,
+        iconUrl: URL?
     ) async {
         let app = TonConnectApp(
             walletId: wallet.metaId,
             clientId: clientId,
             appUrl: appUrl,
+            name: name,
+            iconUrl: iconUrl,
             publicKey: sessionCrypto.keyPair.publicKey.data,
             privateKey: sessionCrypto.keyPair.privateKey.data
         )
