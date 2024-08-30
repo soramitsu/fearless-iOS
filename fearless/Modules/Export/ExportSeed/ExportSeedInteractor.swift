@@ -69,16 +69,10 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
             let accountId = account.isChainAccount ? account.accountId : nil
 
             do {
-                let seedTag = chain.isEthereumBased
-                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-                    : KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId, accountId: accountId)
-
+                let seedTag = KeystoreTagV2.seedKeyTag(for: chain.ecosystem, metaId: wallet.metaId, accountId: accountId)
                 var optionalSeed: Data? = try keystore.fetchKey(for: seedTag)
 
-                let keyTag = chain.isEthereumBased
-                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-                    : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-
+                let keyTag = KeystoreTagV2.secretKeyTag(for: chain.ecosystem, metaId: wallet.metaId, accountId: accountId)
                 if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
                     optionalSeed = try keystore.fetchKey(for: keyTag)
                 }
