@@ -15,7 +15,7 @@ actor TonConnectServiceImpl: TonConnectService {
     private let chainRegistry: ChainRegistryProtocol
     private let tonService: TonSendService
     private let networkWorker: SSFNetwork.NetworkWorker
-    private let messageBuilder: TonWebBridgeMessagesBuilder
+    private let messageBuilder: TonConnectMessageBuilder
     private let appRepository: AsyncAnyRepository<TonConnectApp>
     private let eventCenter: TonConnectEventsCenter
     private let logger: LoggerProtocol
@@ -26,7 +26,7 @@ actor TonConnectServiceImpl: TonConnectService {
         chainRegistry: ChainRegistryProtocol,
         tonService: TonSendService,
         networkWorker: SSFNetwork.NetworkWorker,
-        messageBuilder: TonWebBridgeMessagesBuilder,
+        messageBuilder: TonConnectMessageBuilder,
         appRepository: AsyncAnyRepository<TonConnectApp>,
         eventCenter: TonConnectEventsCenter,
         logger: LoggerProtocol
@@ -79,7 +79,7 @@ actor TonConnectServiceImpl: TonConnectService {
         params: TonConnectParameters,
         manifest: TonConnectManifest
     ) async throws {
-        let connectSeccussResponseEvent: TonConnect.ConnectEventSuccess = try messageBuilder.getConnectEventSuccesResponse(
+        let connectSuccessResponseEvent: TonConnect.ConnectEventSuccess = try messageBuilder.getConnectEventSuccessResponse(
             requestPayloadItems: params.requestPayload.items,
             wallet: wallet,
             manifest: manifest,
@@ -88,7 +88,7 @@ actor TonConnectServiceImpl: TonConnectService {
 
         let sessionCrypto = try TonConnectSessionCrypto()
         let encrypted = try messageBuilder.encryptSuccessResponse(
-            successResponse: connectSeccussResponseEvent,
+            successResponse: connectSuccessResponseEvent,
             clientId: params.clientId,
             sessionCrypto: sessionCrypto
         )

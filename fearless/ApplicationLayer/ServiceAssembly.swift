@@ -253,7 +253,7 @@ final class ServiceAssembly {
             chainRegistry: chainRegistry,
             tonService: tonSendService(),
             networkWorker: networkWorker,
-            messageBuilder: TonWebBridgeMessagesBuilderImpl(),
+            messageBuilder: TonConnectMessageBuilderImpl(),
             appRepository: tonConnectAppAsyncRepository(),
             eventCenter: eventCenter,
             logger: logger

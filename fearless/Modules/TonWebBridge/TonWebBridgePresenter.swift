@@ -31,14 +31,14 @@ final class TonWebBridgePresenter: NSObject {
     private var dapp: TonDapp
     private let wallet: MetaAccountModel
     private lazy var userContentController = WKUserContentController()
-    private let messageBuilder: TonWebBridgeMessagesBuilder
+    private let messageBuilder: TonConnectMessageBuilder
 
     // MARK: - Constructors
 
     init(
         dapp: TonDapp,
         wallet: MetaAccountModel,
-        messageBuilder: TonWebBridgeMessagesBuilder,
+        messageBuilder: TonConnectMessageBuilder,
         interactor: TonWebBridgeInteractorInput,
         router: TonWebBridgeRouterInput,
         logger: LoggerProtocol,
@@ -197,12 +197,13 @@ final class TonWebBridgePresenter: NSObject {
         guard let tonChainModel = try await interactor.getTonChain() else {
             throw ConvenienceError(error: "Missing Ton Chain Model")
         }
-        let responseString: String = try messageBuilder.getConnectEventSuccesResponse(
+        let responseEvent = try messageBuilder.getConnectEventSuccessResponse(
             requestPayloadItems: params.requestPayload.items,
             wallet: wallet,
             manifest: manifest,
             tonChainModel: tonChainModel
         )
+        let responseString = try  messageBuilder.getString(from: responseEvent)
 
         let response = DappBridgeResponse(
             invocationId: invocationId,

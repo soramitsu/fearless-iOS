@@ -200,7 +200,7 @@
 		0713097F28C6F60D002B17D0 /* ScamSyncServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */; };
 		0713098128C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */; };
 		0715FCD42C65E96000AA674E /* TonWebBridgeHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCD32C65E96000AA674E /* TonWebBridgeHeaderView.swift */; };
-		0715FCD92C6608B700AA674E /* TonWebBridgeMessageBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCD82C6608B700AA674E /* TonWebBridgeMessageBuilder.swift */; };
+		0715FCD92C6608B700AA674E /* TonConnectMessageBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCD82C6608B700AA674E /* TonConnectMessageBuilder.swift */; };
 		0715FCDD2C660AF700AA674E /* DappBridgeMessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCDC2C660AF700AA674E /* DappBridgeMessageType.swift */; };
 		0715FCDF2C661E1D00AA674E /* TonConnect.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCDE2C661E1D00AA674E /* TonConnect.swift */; };
 		0715FCE12C6620B500AA674E /* DappBridgeResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCE02C6620B500AA674E /* DappBridgeResponse.swift */; };
@@ -282,6 +282,7 @@
 		076D9D6229506CFA002762E3 /* polkaswapSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = 076D9D6129506CE3002762E3 /* polkaswapSettings.json */; };
 		076D9D6629507B39002762E3 /* PolkaswapSettingsFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D6529507B39002762E3 /* PolkaswapSettingsFactory.swift */; };
 		076D9D6829509F1C002762E3 /* PolkaswapSettingMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D6729509F1C002762E3 /* PolkaswapSettingMapper.swift */; };
+		0772377A2C819A6600D8061F /* TonConnectMessageBuilderImpl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 077237792C819A6600D8061F /* TonConnectMessageBuilderImpl.swift */; };
 		0778A12A2C5763D6008A1254 /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0778A1292C5763D6008A1254 /* Task.swift */; };
 		0778A12E2C58D0F2008A1254 /* TonJettonInjector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0778A12D2C58D0F2008A1254 /* TonJettonInjector.swift */; };
 		0783EEAE2AE1342F006476F4 /* UIColor+Gradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0783EEAD2AE1342F006476F4 /* UIColor+Gradient.swift */; };
@@ -3380,7 +3381,7 @@
 		0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamSyncServiceFactory.swift; sourceTree = "<group>"; };
 		0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDScamInfo+CoreDataCodable.swift"; sourceTree = "<group>"; };
 		0715FCD32C65E96000AA674E /* TonWebBridgeHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonWebBridgeHeaderView.swift; sourceTree = "<group>"; };
-		0715FCD82C6608B700AA674E /* TonWebBridgeMessageBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonWebBridgeMessageBuilder.swift; sourceTree = "<group>"; };
+		0715FCD82C6608B700AA674E /* TonConnectMessageBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectMessageBuilder.swift; sourceTree = "<group>"; };
 		0715FCDC2C660AF700AA674E /* DappBridgeMessageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappBridgeMessageType.swift; sourceTree = "<group>"; };
 		0715FCDE2C661E1D00AA674E /* TonConnect.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonConnect.swift; sourceTree = "<group>"; };
 		0715FCE02C6620B500AA674E /* DappBridgeResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappBridgeResponse.swift; sourceTree = "<group>"; };
@@ -3463,6 +3464,7 @@
 		076D9D6129506CE3002762E3 /* polkaswapSettings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = polkaswapSettings.json; sourceTree = "<group>"; };
 		076D9D6529507B39002762E3 /* PolkaswapSettingsFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapSettingsFactory.swift; sourceTree = "<group>"; };
 		076D9D6729509F1C002762E3 /* PolkaswapSettingMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapSettingMapper.swift; sourceTree = "<group>"; };
+		077237792C819A6600D8061F /* TonConnectMessageBuilderImpl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectMessageBuilderImpl.swift; sourceTree = "<group>"; };
 		0778A1292C5763D6008A1254 /* Task.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		0778A12D2C58D0F2008A1254 /* TonJettonInjector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonJettonInjector.swift; sourceTree = "<group>"; };
 		0783EEAD2AE1342F006476F4 /* UIColor+Gradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Gradient.swift"; sourceTree = "<group>"; };
@@ -7409,6 +7411,8 @@
 				075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */,
 				07ECB8082C6C6CDE000E0A14 /* TonConnectEventsCenter.swift */,
 				07ECB8022C6B4EA3000E0A14 /* TonConnectSessionCrypto.swift */,
+				0715FCD82C6608B700AA674E /* TonConnectMessageBuilder.swift */,
+				077237792C819A6600D8061F /* TonConnectMessageBuilderImpl.swift */,
 			);
 			name = TonConnect;
 			sourceTree = "<group>";
@@ -11695,7 +11699,6 @@
 				5AA1493E216DF3B3616A9EE6 /* TonWebBridgeProtocols.swift */,
 				381BD34B5A6E2B1625B2C24C /* TonWebBridgeRouter.swift */,
 				4BD26C200A700CCA34980B61 /* TonWebBridgePresenter.swift */,
-				0715FCD82C6608B700AA674E /* TonWebBridgeMessageBuilder.swift */,
 				014B8F922BD4E7BFB8D1483D /* TonWebBridgeInteractor.swift */,
 				9E51A659E2865BD98B6DEF16 /* TonWebBridgeViewController.swift */,
 				75D1886C774F9F63C897CAF1 /* TonWebBridgeViewLayout.swift */,
@@ -17283,7 +17286,7 @@
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
 				AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */,
 				AEFC6D672600A808000BD310 /* StoriesPreviewCollectionItem.swift in Sources */,
-				0715FCD92C6608B700AA674E /* TonWebBridgeMessageBuilder.swift in Sources */,
+				0715FCD92C6608B700AA674E /* TonConnectMessageBuilder.swift in Sources */,
 				07DE95B828A1119400E9C2CB /* BalanceInfoInteractor.swift in Sources */,
 				FA86442027671C7700956D8E /* WalletTransactionHistoryCellViewModel.swift in Sources */,
 				FA17B4C027E97536006E0735 /* DeactivatableView.swift in Sources */,
@@ -18277,6 +18280,7 @@
 				FAD429062A86567F001D6A16 /* BackupCreatePasswordPresenter.swift in Sources */,
 				FAD0679A2C2043FC0050291F /* ChainConnectionVisibilityHelper.swift in Sources */,
 				FAD0068427EA255900C97E09 /* AboutTableViewCell.swift in Sources */,
+				0772377A2C819A6600D8061F /* TonConnectMessageBuilderImpl.swift in Sources */,
 				FAE39AF32A9E1A4F0011A9D6 /* ChainsSetupCompleted.swift in Sources */,
 				AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */,
 				FA99C92F283B4AC5007B1F83 /* SelectValidatorsConfirmRelaychainInitiatedViewModelState.swift in Sources */,

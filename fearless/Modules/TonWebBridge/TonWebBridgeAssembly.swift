@@ -19,7 +19,7 @@ final class TonWebBridgeAssembly {
         let presenter = TonWebBridgePresenter(
             dapp: dapp,
             wallet: wallet,
-            messageBuilder: TonWebBridgeMessagesBuilderImpl(),
+            messageBuilder: TonConnectMessageBuilderImpl(),
             interactor: interactor,
             router: router,
             logger: ServiceAssembly.shared.logger,

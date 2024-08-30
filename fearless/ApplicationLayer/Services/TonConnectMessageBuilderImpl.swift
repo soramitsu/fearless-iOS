@@ -4,63 +4,7 @@ import SSFModels
 import WebKit
 import TonSwift
 
-protocol TonWebBridgeMessagesBuilder {
-    func getConfiguration(
-        userContentController: WKUserContentController
-    ) -> WKWebViewConfiguration
-
-    func getConnectEventSuccess(
-        wallet: MetaAccountModel
-    ) throws -> String
-
-    func getDappFunctionInvokeMessage(
-        from body: Any
-    ) throws -> DappFunctionInvokeMessage
-
-    func getTonConnectRequestPayload(
-        from message: DappFunctionInvokeMessage
-    ) throws -> TonConnectRequestPayload
-
-    func getConnectEventSuccessResponse(
-        requestPayloadItems: [TonConnectRequestPayload.Item],
-        wallet: MetaAccountModel,
-        manifest: TonConnectManifest,
-        tonChainModel: ChainModel
-    ) throws -> String
-
-    func getTonConnectAppRequest(
-        from message: DappFunctionInvokeMessage
-    ) throws -> TonConnect.AppRequest
-
-    func encryptSuccessResponse(
-        successResponse: TonConnect.ConnectEventSuccess,
-        clientId: String,
-        sessionCrypto: TonConnectSessionCrypto
-    ) throws -> String
-
-    func buildSendTransactionResponseError(
-        sessionCrypto: TonConnectSessionCrypto,
-        errorCode: TonConnect.SendTransactionResponseError.ErrorCode,
-        id: String,
-        clientId: String
-    ) throws -> String
-
-    func buildSendTransactionResponseSuccess(
-        sessionCrypto: TonConnectSessionCrypto,
-        boc: String,
-        id: String,
-        clientId: String
-    ) throws -> String
-
-    func getConnectEventSuccessResponse(
-        requestPayloadItems: [TonConnectRequestPayload.Item],
-        wallet: MetaAccountModel,
-        manifest: TonConnectManifest,
-        tonChainModel: ChainModel
-    ) throws -> TonConnect.ConnectEventSuccess
-}
-
-final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
+final class TonConnectMessageBuilderImpl: TonConnectMessageBuilder {
 
     private enum Constants {
         static let windowKey = "tonkeeper"
@@ -161,62 +105,6 @@ final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
         let data = try JSONSerialization.data(withJSONObject: connectPayload)
         let payload = try JSONDecoder().decode(TonConnectRequestPayload.self, from: data)
         return payload
-    }
-
-    func getConnectEventSuccessResponse(
-        requestPayloadItems: [TonConnectRequestPayload.Item],
-        wallet: MetaAccountModel,
-        manifest: TonConnectManifest,
-        tonChainModel: ChainModel
-    ) throws -> String {
-        guard
-            let address = wallet.tonAddress,
-            let publicKey = wallet.tonPublicKey,
-            let walletStateInit = wallet.tonWalletContract()?.stateInit
-        else {
-            throw ConvenienceError(error: "Missing TON")
-        }
-
-        let replyItems = try requestPayloadItems.compactMap { item in
-            switch item {
-            case .tonAddress:
-                let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? -3 : -239
-                return TonConnect.ConnectItemReply.tonAddress(
-                    .init(
-                        address: address,
-                        network: Int16(network),
-                        publicKey: TonSwift.PublicKey(data: publicKey),
-                        walletStateInit: walletStateInit
-                    )
-                )
-            case let .tonProof(payload):
-                guard let accountResponse = wallet.fetch(for: tonChainModel.accountRequest()) else {
-                    throw ConvenienceError(error: "Missing account response")
-                }
-                let walletPrivateKey = try getSecretKey(
-                    for: tonChainModel,
-                    metaId: wallet.metaId,
-                    accountResponse: accountResponse
-                )
-                return TonConnect.ConnectItemReply.tonProof(.success(.init(
-                    address: address,
-                    domain: manifest.host,
-                    payload: payload,
-                    privateKey: TonSwift.PrivateKey(data: walletPrivateKey)
-                )))
-            case .unknown:
-                return nil
-            }
-        }
-        let successEvent = TonConnect.ConnectEventSuccess(
-            payload: .init(
-                items: replyItems,
-                device: .init()
-            )
-        )
-
-        let string = try getString(from: successEvent)
-        return string
     }
 
     func getConnectEventSuccessResponse(
@@ -336,15 +224,15 @@ final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
         return encryptedTransactionResponse.base64EncodedString()
     }
 
-    // MARK: - Private func
-
-    private func getString(from event: Encodable) throws -> String {
+    func getString(from event: Encodable) throws -> String {
         let data = try JSONEncoder().encode(event)
         guard let string = String(data: data, encoding: .utf8) else {
             throw ConvenienceError(error: "Encoding error")
         }
         return string
     }
+
+    // MARK: - Private methods
 
     private func getSecretKey(
         for chain: ChainModel,
