@@ -7818,7 +7818,7 @@
       ],
       "externalApi": {
         "history": {
-          "type": "zeta",
+          "type": "blockscout",
           "url": "https://zetachain-athens-3.blockscout.com/api/v2/addresses/"
         }
       },
@@ -7962,7 +7962,7 @@
       ],
       "externalApi": {
         "history": {
-          "type": "zeta",
+          "type": "blockscout",
           "url": "https://pacific-explorer.manta.network/api/v2/addresses/"
         }
       },
@@ -8454,7 +8454,7 @@
       "ecosystem": "ethereum",
       "externalApi": {
         "history": {
-          "type": "zeta",
+          "type": "blockscout",
           "url": "https://rootstock.blockscout.com//api/v2/addresses/"
         }
       },
@@ -8540,7 +8540,7 @@
       "ecosystem": "ethereum",
       "externalApi": {
         "history": {
-          "type": "zeta",
+          "type": "blockscout",
           "url": "https://testscan.latestchain.io/api/v2/addresses/"
         }
       },
@@ -8577,7 +8577,7 @@
       "ecosystem": "ethereum",
       "externalApi": {
         "history": {
-          "type": "zeta",
+          "type": "blockscout",
           "url": "https://scan.latestchain.io/api/v2/addresses/"
         }
       },
