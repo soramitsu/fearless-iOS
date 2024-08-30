@@ -10,6 +10,8 @@ struct TonConnectApp: Codable, Identifiable {
     let walletId: String
     let clientId: String
     let appUrl: URL
+    let name: String
+    let iconUrl: URL?
     let publicKey: Data
     let privateKey: Data
 
@@ -19,6 +21,8 @@ struct TonConnectApp: Codable, Identifiable {
         case appUrl
         case publicKey
         case privateKey
+        case name
+        case iconUrl
     }
 
     var keyPair: TonSwift.KeyPair {

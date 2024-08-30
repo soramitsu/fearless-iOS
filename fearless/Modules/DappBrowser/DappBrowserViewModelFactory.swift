@@ -46,7 +46,6 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             )
         case .connected:
             return buildConnectedPageViewModel(
-                dapps: dapps,
                 connected: connected,
                 locale: locale
             )
@@ -137,24 +136,27 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
     }
 
     private func buildConnectedPageViewModel(
-        dapps: [DappCategory],
         connected: [TonConnectApp],
         locale: Locale
     ) -> [DappBrowserViewModel] {
         var viewModel: [DappBrowserViewModel] = []
 
-        let allAppd = dapps
-            .map { $0.apps }
-            .reduce([], +)
-            .uniq(predicate: { $0 })
-        let connected = allAppd.filter { app in
-            connected.contains(where: { $0.appUrl.host == app.url.host })
-        }
         if connected.isNotEmpty {
+            let apps = connected.map {
+                TonDapp(
+                    identifier: $0.identifier,
+                    chains: ["-239", "-3"],
+                    name: $0.name,
+                    description: nil,
+                    icon: $0.iconUrl ?? URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/TON.svg")!,
+                    poster: nil,
+                    url: $0.appUrl
+                )
+            }
             let connectedViewModel = buildSectionViewModel(
                 category: .init(
                     type: .connected,
-                    apps: connected
+                    apps: apps
                 ),
                 locale: locale,
                 maxInSection: .max

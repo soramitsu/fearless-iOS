@@ -21,7 +21,7 @@ protocol TonWebBridgeMessagesBuilder {
         from message: DappFunctionInvokeMessage
     ) throws -> TonConnectRequestPayload
 
-    func getConnectEventSuccesResponse(
+    func getConnectEventSuccessResponse(
         requestPayloadItems: [TonConnectRequestPayload.Item],
         wallet: MetaAccountModel,
         manifest: TonConnectManifest,
@@ -52,7 +52,7 @@ protocol TonWebBridgeMessagesBuilder {
         clientId: String
     ) throws -> String
 
-    func getConnectEventSuccesResponse(
+    func getConnectEventSuccessResponse(
         requestPayloadItems: [TonConnectRequestPayload.Item],
         wallet: MetaAccountModel,
         manifest: TonConnectManifest,
@@ -163,7 +163,7 @@ final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
         return payload
     }
 
-    func getConnectEventSuccesResponse(
+    func getConnectEventSuccessResponse(
         requestPayloadItems: [TonConnectRequestPayload.Item],
         wallet: MetaAccountModel,
         manifest: TonConnectManifest,
@@ -219,7 +219,7 @@ final class TonWebBridgeMessagesBuilderImpl: TonWebBridgeMessagesBuilder {
         return string
     }
 
-    func getConnectEventSuccesResponse(
+    func getConnectEventSuccessResponse(
         requestPayloadItems: [TonConnectRequestPayload.Item],
         wallet: MetaAccountModel,
         manifest: TonConnectManifest,

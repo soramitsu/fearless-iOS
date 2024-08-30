@@ -216,6 +216,8 @@ final class TonWebBridgePresenter: NSObject {
             walletId: wallet.metaId,
             clientId: params.clientId,
             appUrl: manifest.url,
+            name: manifest.name,
+            iconUrl: manifest.iconUrl,
             publicKey: sessionCrypto.keyPair.publicKey.data,
             privateKey: sessionCrypto.keyPair.privateKey.data
         )

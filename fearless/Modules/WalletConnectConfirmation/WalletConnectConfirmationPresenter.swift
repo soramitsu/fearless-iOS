@@ -184,6 +184,7 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutpu
                         invocationId: invocationId
                     )
                 case let .tonConnect(request: request, app: app):
+                    handleWalletConnect(error: error)
                     await cancelTonConnect(appRequest: request, app: app)
                 }
             }

@@ -151,7 +151,9 @@
     <entity name="CDTonConnectedApp" representedClassName="CDTonConnectedApp" syncable="YES" codeGenerationType="class">
         <attribute name="appUrl" attributeType="URI"/>
         <attribute name="clientId" attributeType="String"/>
+        <attribute name="iconUrl" optional="YES" attributeType="URI"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
         <attribute name="privateKey" attributeType="Binary"/>
         <attribute name="publicKey" attributeType="Binary"/>
         <attribute name="walletId" attributeType="String"/>
