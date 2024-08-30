@@ -66,6 +66,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
+        eventCenter.add(observer: self)
         chainRegistry.chainsSubscribe(
             self,
             runningInQueue: walletAssetsObserverQueue

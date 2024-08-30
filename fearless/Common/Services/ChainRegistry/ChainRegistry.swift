@@ -269,6 +269,7 @@ final class ChainRegistry {
     // MARK: - Private Ton methods
 
     private func handle(ton chain: ChainModel) {
+        chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
         let isTesnet = LocalToggleService.shared.tonEnvListToggle.storageValue
         if chain.options.or([]).contains(.testnet), isTesnet, let node = chain.nodes.first {

@@ -170,7 +170,6 @@ final class ChainModelMapper {
                     }
                 }
             }
-
             assetEntity.priceData = Set(priceData) as NSSet
 
             return assetEntity
