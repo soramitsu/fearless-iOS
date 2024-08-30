@@ -13,6 +13,18 @@ extension AssetTransactionData {
     ) -> AssetTransactionData? {
         let status: AssetTransactionStatus = event.isInProgress ? .pending : .commited
 
+        var fees: [AssetTransactionFee] = []
+        if let feeValue = BigUInt(string: String(abs(event.fee))),
+           let feeValue = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
+            let fee = AssetTransactionFee(
+                identifier: asset.id,
+                assetId: asset.id,
+                amount: AmountDecimal(value: feeValue),
+                context: nil
+            )
+            fees.append(fee)
+        }
+
         switch action.type {
         case let .tonTransfer(tonTransfer):
             let amountString = String(tonTransfer.amount)
@@ -23,20 +35,9 @@ extension AssetTransactionData {
                 return nil
             }
 
-            var fees: [AssetTransactionFee] = []
-            if let feeValue = BigUInt(string: String(abs(event.fee))),
-               let feeValue = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
-                let fee = AssetTransactionFee(
-                    identifier: asset.id,
-                    assetId: asset.id,
-                    amount: AmountDecimal(value: feeValue),
-                    context: nil
-                )
-                fees.append(fee)
-            }
-
             let friendlyAddress = tonTransfer.sender.address.toFriendly().toString()
             let type: TransactionType = friendlyAddress == address ? .outgoing : .incoming
+            let peerAddress = type == .incoming ? friendlyAddress : address
 
             var iconContext: [String: String] = [:]
             if let iconUrl = asset.icon?.absoluteString {
@@ -49,7 +50,7 @@ extension AssetTransactionData {
                 peerId: "",
                 peerFirstName: nil,
                 peerLastName: nil,
-                peerName: tonTransfer.recipient.address.toFriendly().toString(),
+                peerName: peerAddress,
                 details: "",
                 amount: AmountDecimal(value: amount),
                 fees: fees,
@@ -69,7 +70,7 @@ extension AssetTransactionData {
                 peerName: deploy.address.toFriendly().toString(),
                 details: "",
                 amount: AmountDecimal(value: .zero),
-                fees: [],
+                fees: fees,
                 timestamp: Int64(event.timestamp),
                 type: TransactionType.extrinsic.rawValue,
                 reason: "",
@@ -82,18 +83,6 @@ extension AssetTransactionData {
                 let amount = Decimal.fromSubstrateAmount(amountValue, precision: Int16(asset.precision))
             else {
                 return nil
-            }
-
-            var fees: [AssetTransactionFee] = []
-            if let feeValue = BigUInt(string: String(abs(event.fee))),
-               let feeValue = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
-                let fee = AssetTransactionFee(
-                    identifier: asset.id,
-                    assetId: asset.id,
-                    amount: AmountDecimal(value: feeValue),
-                    context: nil
-                )
-                fees.append(fee)
             }
 
             let sender = jettonTransfer.sender?.address.toFriendly().toString()
@@ -127,7 +116,7 @@ extension AssetTransactionData {
             ) ?? .zero
             let amount = AmountDecimal(value: amountDecimal)
             return AssetTransactionData(
-                transactionId: swap.dex,
+                transactionId: event.eventId,
                 status: status,
                 assetId: swap.jettonInfoIn?.symbol ?? "",
                 peerId: swap.jettonInfoOut?.symbol ?? "",
@@ -136,7 +125,7 @@ extension AssetTransactionData {
                 peerName: "",
                 details: String(swap.amountOut),
                 amount: amount,
-                fees: [],
+                fees: fees,
                 timestamp: .zero,
                 type: TransactionType.swap.rawValue,
                 reason: "",
