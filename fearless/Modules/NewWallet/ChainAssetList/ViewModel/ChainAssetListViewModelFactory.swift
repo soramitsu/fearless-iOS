@@ -216,7 +216,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             ),
             options: options,
             isColdBoot: isColdBoot,
-            priceDataWasUpdated: true,
             locale: locale,
             hideButtonIsVisible: displayType == AssetListDisplayType.chain
         )

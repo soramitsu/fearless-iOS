@@ -58,7 +58,7 @@ struct CrowdloanContributionConfirmViewFactory {
             localizationManager: localizationManager,
             logger: Logger.shared,
             chainAsset: ChainAsset(chain: chain, asset: asset),
-            wallet: selectedAccount
+            selectedCurrency: selectedAccount.selectedCurrency
         )
 
         let view = CrowdloanContributionConfirmVC(

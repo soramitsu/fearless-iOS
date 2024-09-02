@@ -109,9 +109,9 @@ final class ChainRegistry {
                         try self.handleInsert(newChain)
                     case let .update(updatedChain):
                         let currentChain = self.chains.first { $0.chainId == updatedChain.chainId }
-                        if let chain = currentChain, 
-                            chain.nodes != updatedChain.nodes || chain.selectedNode != updatedChain.selectedNode {
-                                try self.handleUpdate(updatedChain)
+                        if let chain = currentChain,
+                           chain.nodes != updatedChain.nodes || chain.selectedNode != updatedChain.selectedNode {
+                            try self.handleUpdate(updatedChain)
                         }
                     case let .delete(chainId):
                         self.handleDelete(chainId)

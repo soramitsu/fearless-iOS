@@ -34,7 +34,7 @@ final class BalanceLocksDetailAssembly {
             logger: Logger.shared,
             viewModelFactory: viewModelFactory,
             chainAsset: chainAsset,
-            wallet: wallet
+            selectedCurrency: wallet.selectedCurrency
         )
 
         let view = BalanceLocksDetailViewController(

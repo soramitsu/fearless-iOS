@@ -15,7 +15,7 @@ final class CrowdloanContributionConfirmPresenter {
     let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
     let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
+    let selectedCurrency: Currency
     private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -58,7 +58,7 @@ final class CrowdloanContributionConfirmPresenter {
     }
 
     private var priceData: PriceData? {
-        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+        chainAsset.asset.getPrice(for: selectedCurrency)
     }
 
     init(
@@ -73,7 +73,7 @@ final class CrowdloanContributionConfirmPresenter {
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        selectedCurrency: Currency
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -85,7 +85,7 @@ final class CrowdloanContributionConfirmPresenter {
         self.assetInfo = assetInfo
         self.logger = logger
         self.chainAsset = chainAsset
-        self.wallet = wallet
+        self.selectedCurrency = selectedCurrency
         self.localizationManager = localizationManager
     }
 
