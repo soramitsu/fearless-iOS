@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import SoraFoundation
 import SSFModels
+import TonSwift
 
 extension AssetTransactionData {
     static func createTransaction(
@@ -35,9 +36,13 @@ extension AssetTransactionData {
                 return nil
             }
 
-            let friendlyAddress = tonTransfer.sender.address.toFriendly().toString()
-            let type: TransactionType = friendlyAddress == address ? .outgoing : .incoming
-            let peerAddress = type == .incoming ? friendlyAddress : address
+            let senderFriendlyAddress = tonTransfer.sender.address.toFriendly().toString()
+            let recipientFriendlyAddress = tonTransfer.recipient.address.toFriendly().toString()
+
+            let type: TransactionType = senderFriendlyAddress == address ? .outgoing : .incoming
+            let peerAddress = type == .incoming ? senderFriendlyAddress : recipientFriendlyAddress
+
+            let peerName = try? TonSwift.Address.parse(peerAddress).toFriendly(bounceable: false).toString()
 
             var iconContext: [String: String] = [:]
             if let iconUrl = asset.icon?.absoluteString {
@@ -50,7 +55,7 @@ extension AssetTransactionData {
                 peerId: "",
                 peerFirstName: nil,
                 peerLastName: nil,
-                peerName: peerAddress,
+                peerName: peerName,
                 details: "",
                 amount: AmountDecimal(value: amount),
                 fees: fees,
