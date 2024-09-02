@@ -17,6 +17,7 @@ final class PricesService: PricesServiceProtocol {
     private let eventCenter: EventCenter
     private var chainAssets: [ChainAsset] = []
     private var currencies: [SSFModels.Currency] = []
+    private var lastRequestDate: Date?
 
     private init(
         chainRepository: AnyDataProviderRepository<ChainModel>,
@@ -39,9 +40,10 @@ final class PricesService: PricesServiceProtocol {
         let uniqueCurencies = currencies.filter { newCurrency in
             !oldCurrencies.contains(newCurrency)
         }
-        if uniqueAssets.isNotEmpty || uniqueCurencies.isNotEmpty {
+        let timeFromLastRequst = Date().timeIntervalSince(lastRequestDate ?? Date.distantPast)
+        if uniqueAssets.isNotEmpty || uniqueCurencies.isNotEmpty || timeFromLastRequst > 30 {
             let updatedAssets = oldAssets + uniqueAssets
-            let updatedCurrencies = oldCurrencies + uniqueCurencies
+            let updatedCurrencies = currencies + uniqueCurencies
 
             pricesProvider = priceLocalSubscriber.subscribeToPrices(
                 for: updatedAssets,
@@ -49,7 +51,8 @@ final class PricesService: PricesServiceProtocol {
                 listener: self
             )
             self.chainAssets = updatedAssets
-            self.currencies = updatedCurrencies
+            self.currencies = currencies
+            lastRequestDate = Date()
         }
     }
 
