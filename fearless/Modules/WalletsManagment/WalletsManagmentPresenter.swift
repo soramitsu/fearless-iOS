@@ -215,8 +215,10 @@ extension WalletsManagmentPresenter: WalletsManagmentInteractorOutput {
     func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>) {
         switch balances {
         case let .success(balances):
-            self.balances = balances
-            provideViewModel()
+            if self.balances != balances {
+                self.balances = balances
+                provideViewModel()
+            }
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
         }
@@ -235,9 +237,7 @@ extension WalletsManagmentPresenter: WalletsManagmentInteractorOutput {
 // MARK: - Localizable
 
 extension WalletsManagmentPresenter: Localizable {
-    func applyLocalization() {
-        provideViewModel()
-    }
+    func applyLocalization() {}
 }
 
 extension WalletsManagmentPresenter: WalletsManagmentModuleInput {}

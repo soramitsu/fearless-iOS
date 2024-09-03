@@ -102,8 +102,7 @@ final class ChainAssetListInteractor {
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,
             handler: self,
-            deliveryOn: accountInfosDeliveryQueue,
-            notifyJustWhenUpdated: false
+            deliveryOn: accountInfosDeliveryQueue
         )
     }
 

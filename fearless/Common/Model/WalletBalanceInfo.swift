@@ -1,7 +1,7 @@
 import Foundation
 import SSFModels
 
-struct WalletBalanceInfo {
+struct WalletBalanceInfo: Equatable {
     let totalFiatValue: Decimal
     let enabledAssetFiatBalance: Decimal
     let dayChangePercent: Decimal
