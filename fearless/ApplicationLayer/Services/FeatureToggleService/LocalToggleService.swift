@@ -72,12 +72,14 @@ final class LocalToggleService: ApplicationServiceProtocol {
 
     /// storageValue => isDev.
     /// Default value true
-    var chainsListToggle: LocalListToggle {
+    var chainsListToggle: LocalListToggle? {
         get {
-            getToggle(for: "0") ?? LocalListToggle.chains
+            getToggle(for: "0")
         }
         set {
-            set(toggle: newValue)
+            if let newValue {
+                set(toggle: newValue)
+            }
         }
     }
 
