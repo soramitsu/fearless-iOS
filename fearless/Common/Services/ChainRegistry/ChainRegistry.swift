@@ -273,9 +273,9 @@ final class ChainRegistry {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
 #if DEBUG
-        let token = TonNodeApiKey.tonApiKey
-#else
         let token = TonNodeApiKeyDebug.tonApiKey
+#else
+        let token = TonNodeApiKey.tonApiKey
 #endif
         let isTesnet = LocalToggleService.shared.tonEnvListToggle.storageValue
         if chain.options.or([]).contains(.testnet), isTesnet, let node = chain.nodes.first {
