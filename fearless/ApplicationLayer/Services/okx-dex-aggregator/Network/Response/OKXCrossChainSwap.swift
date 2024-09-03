@@ -32,4 +32,16 @@ extension OKXCrossChainSwap: CrossChainSwap {
     var maxPriorityFeePerGas: String? {
         tx.maxPriorityFeePerGas
     }
+
+    var route: String? {
+        router.bridgeName
+    }
+
+    var crossChainFee: String? {
+        router.crossChainFee
+    }
+
+    var otherNativeFee: String? {
+        router.otherNativeFee
+    }
 }

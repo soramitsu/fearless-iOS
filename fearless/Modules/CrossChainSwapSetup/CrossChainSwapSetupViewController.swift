@@ -89,15 +89,6 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
         rootView.actionButton.addAction { [weak self] in
             self?.output.didTapContinueButton()
         }
-        rootView.scanButton.addAction { [weak self] in
-            self?.output.didTapScanButton()
-        }
-        rootView.historyButton.addAction { [weak self] in
-            self?.output.didTapHistoryButton()
-        }
-        rootView.myWalletsButton.addAction { [weak self] in
-            self?.output.didTapMyWalletsButton()
-        }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory
@@ -124,10 +115,6 @@ extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
 
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         rootView.bind(originFeeViewModel: originFeeViewModel?.value(for: selectedLocale))
-    }
-
-    func didReceive(destinationFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
-        rootView.bind(destinationFeeViewModel: destinationFeeViewModel?.value(for: selectedLocale))
     }
 
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {
@@ -158,6 +145,10 @@ extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
         amountInputViewModel?.observable.add(observer: self)
         rootView.receiveView.inputFieldText = amountInputViewModel?.displayAmount
         updatePreviewButton()
+    }
+
+    func didReceiveViewModel(viewModel: CrossChainSwapViewModel) {
+        rootView.bind(viewModel: viewModel)
     }
 }
 

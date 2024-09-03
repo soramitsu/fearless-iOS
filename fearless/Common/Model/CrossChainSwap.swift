@@ -8,4 +8,7 @@ protocol CrossChainSwap {
     var gasLimit: String? { get }
     var gasPrice: String? { get }
     var maxPriorityFeePerGas: String? { get }
+    var route: String? { get }
+    var crossChainFee: String? { get }
+    var otherNativeFee: String? { get }
 }

@@ -40,29 +40,11 @@ final class CrossChainSwapSetupViewLayout: UIView {
     let amountView = SelectableAmountInputView(type: .swapSend)
     let receiveView = SelectableAmountInputView(type: .swapReceive)
 
-    let scanButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyStackButtonStyle()
-        button.imageWithTitleView?.iconImage = R.image.iconScanQr()
-        return button
-    }()
-
-    let historyButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyStackButtonStyle()
-        button.imageWithTitleView?.iconImage = R.image.iconHistory()
-        return button
-    }()
-
-    let myWalletsButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyStackButtonStyle()
-        button.imageWithTitleView?.iconImage = R.image.fearlessRoundedIconSmall()
-        return button
-    }()
-
     let originNetworkFeeView = UIFactory.default.createMultiView()
-    let destinationNetworkFeeView = UIFactory.default.createMultiView()
+    let minReceivedView = UIFactory.default.createMultiView()
+    let routeView = UIFactory.default.createMultiView()
+    let sendRatioView = UIFactory.default.createMultiView()
+    let receiveRatioView = UIFactory.default.createMultiView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -90,14 +72,21 @@ final class CrossChainSwapSetupViewLayout: UIView {
 
     // MARK: - Public methods
 
+    func bind(viewModel: CrossChainSwapViewModel) {
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = false }
+
+        minReceivedView.bindBalance(viewModel: viewModel.minimumReceived)
+        routeView.valueTop.text = viewModel.route
+        sendRatioView.valueTop.text = viewModel.sendTokenRatio
+        receiveRatioView.valueTop.text = viewModel.receiveTokenRatio
+        sendRatioView.titleLabel.text = viewModel.sendTokenRatioTitle
+        receiveRatioView.titleLabel.text = viewModel.receiveTokenRatioTitle
+        originNetworkFeeView.bindBalance(viewModel: viewModel.fee)
+    }
+
     func bind(originFeeViewModel: BalanceViewModelProtocol?) {
         originNetworkFeeView.isHidden = originFeeViewModel == nil
         originNetworkFeeView.bindBalance(viewModel: originFeeViewModel)
-    }
-
-    func bind(destinationFeeViewModel: BalanceViewModelProtocol?) {
-        destinationNetworkFeeView.isHidden = destinationFeeViewModel == nil
-        destinationNetworkFeeView.bindBalance(viewModel: destinationFeeViewModel)
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
@@ -114,9 +103,6 @@ final class CrossChainSwapSetupViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(contentView)
         addSubview(actionButton)
-
-        originNetworkFeeView.isHidden = true
-        destinationNetworkFeeView.isHidden = true
 
         actionButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)
@@ -150,37 +136,20 @@ final class CrossChainSwapSetupViewLayout: UIView {
             make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
-        let commonButtonsContainer = UIFactory
-            .default
-            .createHorizontalStackView()
-        commonButtonsContainer.distribution = .equalCentering
-
-        let leftSideButtonContainer = UIFactory
-            .default
-            .createHorizontalStackView(spacing: UIConstants.defaultOffset)
-        leftSideButtonContainer.alignment = .leading
-        leftSideButtonContainer.addArrangedSubview(scanButton)
-        leftSideButtonContainer.addArrangedSubview(historyButton)
-
-        commonButtonsContainer.addArrangedSubview(leftSideButtonContainer)
-        commonButtonsContainer.addArrangedSubview(myWalletsButton)
-
-        contentView.stackView.addArrangedSubview(commonButtonsContainer)
-        commonButtonsContainer.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-        }
-
+        contentView.stackView.addArrangedSubview(minReceivedView)
+        contentView.stackView.addArrangedSubview(routeView)
+        contentView.stackView.addArrangedSubview(sendRatioView)
+        contentView.stackView.addArrangedSubview(receiveRatioView)
         contentView.stackView.addArrangedSubview(originNetworkFeeView)
-        originNetworkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(LayoutConstants.networkFeeViewHeight)
+
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach {
+            $0.snp.makeConstraints { make in
+                make.width.equalTo(self).offset(viewOffset)
+                make.height.equalTo(LayoutConstants.networkFeeViewHeight)
+            }
         }
-        contentView.stackView.addArrangedSubview(destinationNetworkFeeView)
-        destinationNetworkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(LayoutConstants.networkFeeViewHeight)
-        }
-        contentView.stackView.setCustomSpacing(0, after: originNetworkFeeView)
+
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = true }
     }
 
     private func applyLocalization() {
@@ -189,20 +158,9 @@ final class CrossChainSwapSetupViewLayout: UIView {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
 
-        scanButton.imageWithTitleView?.title = R.string.localizable.scanQrTitle(
-            preferredLanguages: locale.rLanguages
-        )
-
-        historyButton.imageWithTitleView?.title = R.string.localizable.walletHistoryTitle_v190(
-            preferredLanguages: locale.rLanguages
-        )
-
-        myWalletsButton.imageWithTitleView?.title = R.string.localizable.xcmMywalletsButtonTitle(
-            preferredLanguages: locale.rLanguages
-        )
-
         navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
         originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
-        destinationNetworkFeeView.titleLabel.text = R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
+        routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
     }
 }

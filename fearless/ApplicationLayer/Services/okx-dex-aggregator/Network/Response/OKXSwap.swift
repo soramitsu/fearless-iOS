@@ -6,6 +6,18 @@ struct OKXSwap: Decodable {
 }
 
 extension OKXSwap: CrossChainSwap {
+    var route: String? {
+        nil
+    }
+
+    var crossChainFee: String? {
+        nil
+    }
+
+    var otherNativeFee: String? {
+        nil
+    }
+
     var fromAmount: String? {
         routerResult.fromTokenAmount
     }

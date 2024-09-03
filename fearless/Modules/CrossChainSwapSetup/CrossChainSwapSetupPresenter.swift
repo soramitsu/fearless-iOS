@@ -6,11 +6,11 @@ import BigInt
 protocol CrossChainSwapSetupViewInput: ControllerBackedProtocol {
     func setButtonLoadingState(isLoading: Bool)
     func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
-    func didReceive(destinationFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceive(destinationAssetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?)
     func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?)
+    func didReceiveViewModel(viewModel: CrossChainSwapViewModel)
 }
 
 protocol CrossChainSwapSetupInteractorInput: AnyObject {
@@ -30,6 +30,7 @@ final class CrossChainSwapSetupPresenter {
     private var swapToChainAsset: ChainAsset?
     private var swapVariant: SwapVariant = .desiredInput
     private var prices: [PriceData]?
+    private var swap: CrossChainSwap?
 
     private var swapFromInputResult: AmountInputResult?
     private var swapFromBalance: Decimal?
@@ -90,11 +91,26 @@ final class CrossChainSwapSetupPresenter {
                     destinationChainAsset: swapToChainAsset,
                     amount: amount
                 )
-                print("quotes: ", quotes)
+
+                self.swap = quotes.first
+                provideViewModel()
+                provideDestinationInput()
             } catch {
                 print("quotes error: ", error)
             }
         }
+    }
+
+    private func provideDestinationInput() {
+        guard let swap, let swapToChainAsset else {
+            return
+        }
+
+        let receiveAmount = swap.toAmount.flatMap { BigUInt(string: $0) }
+        let receiveAmountDecimal = receiveAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(swapToChainAsset.asset.precision)) }
+
+        swapToInputResult = .absolute(receiveAmountDecimal.or(.zero))
+        provideDestinationAssetViewModel()
     }
 
     func toggleSwapDirection() {
@@ -129,6 +145,24 @@ final class CrossChainSwapSetupPresenter {
 //        self.inputViewModel = inputViewModel
 //
 //        view?.didReceive(amountInputViewModel: inputViewModel)
+    }
+
+    private func provideViewModel() {
+        guard let swap, let swapFromChainAsset, let swapToChainAsset else {
+            return
+        }
+
+        let viewModel = viewModelFactory.buildSwapViewModel(
+            swap: swap,
+            sourceChainAsset: swapFromChainAsset,
+            targetChainAsset: swapToChainAsset,
+            wallet: wallet,
+            locale: selectedLocale
+        )
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveViewModel(viewModel: viewModel)
+        }
     }
 
     private func provideAssetViewModel() {
@@ -185,7 +219,7 @@ final class CrossChainSwapSetupPresenter {
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceive(destinationAssetBalanceViewModel: assetBalanceViewModel)
-            self?.view?.didReceiveSwapFrom(amountInputViewModel: inputViewModel)
+            self?.view?.didReceiveSwapTo(amountInputViewModel: inputViewModel)
         }
     }
 
