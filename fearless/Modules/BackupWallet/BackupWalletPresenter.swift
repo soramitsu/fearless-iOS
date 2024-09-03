@@ -309,7 +309,13 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
             googleAuthorized = false
             backupAccounts = nil
             logger.error(failure.localizedDescription)
-            showGoogleIssueAlert()
+            router.present(
+                message: nil, title: "\(failure)",
+                closeAction: nil,
+                from: view,
+                actions: []
+            )
+//            showGoogleIssueAlert()
         }
         provideViewModel()
     }
