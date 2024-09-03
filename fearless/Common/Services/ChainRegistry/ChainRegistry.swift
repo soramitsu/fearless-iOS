@@ -6,6 +6,7 @@ import Web3
 import SSFChainRegistry
 import SSFRuntimeCodingService
 import SSFChainConnection
+import FearlessKeys
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
@@ -271,12 +272,17 @@ final class ChainRegistry {
     private func handle(ton chain: ChainModel) {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
+#if DEBUG
+        let token = TonNodeApiKey.tonApiKey
+#else
+        let token = TonNodeApiKeyDebug.tonApiKey
+#endif
         let isTesnet = LocalToggleService.shared.tonEnvListToggle.storageValue
         if chain.options.or([]).contains(.testnet), isTesnet, let node = chain.nodes.first {
-            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: "AHCGOAHBPVILMQIAAAADDH734BNIZUMGZNBT6KZ3WZENQJOHZRLQVXQOD3UTUUHCDC4B5RI")
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token)
             tonApiAssembly = apiAssembly
         } else if !chain.options.or([]).contains(.testnet), !isTesnet, let node = chain.nodes.first {
-            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: "AHCGOAHBPVILMQIAAAADDH734BNIZUMGZNBT6KZ3WZENQJOHZRLQVXQOD3UTUUHCDC4B5RI")
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token)
             tonApiAssembly = apiAssembly
         }
     }
