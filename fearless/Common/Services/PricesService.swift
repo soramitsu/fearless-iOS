@@ -96,6 +96,9 @@ private extension PricesService {
         }, {
             []
         })
+        saveOperation.completionBlock = { [weak self] in
+            self?.eventCenter.notify(with: PricesUpdated())
+        }
         operationQueue.addOperation(saveOperation)
     }
 
