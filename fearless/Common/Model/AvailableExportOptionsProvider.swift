@@ -36,6 +36,9 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
 
             options.append(.keystore)
         case .ton:
+            guard accountId != nil else {
+                break
+            }
             options.append(.mnemonic)
         }
 
