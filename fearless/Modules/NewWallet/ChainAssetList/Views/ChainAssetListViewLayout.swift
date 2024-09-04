@@ -175,6 +175,11 @@ final class ChainAssetListViewLayout: UIView {
             title = nil
         }
         footerButton.imageWithTitleView?.title = title
+        footerButton.accessibilityLabel = title
+        
+        if UIAccessibility.isVoiceOverRunning {
+        UIAccessibility.post(notification: .layoutChanged, argument: footerButton)
+    }
     }
 
     private func setupLayout() {
