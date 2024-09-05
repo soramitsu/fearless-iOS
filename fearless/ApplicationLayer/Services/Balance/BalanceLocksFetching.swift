@@ -10,6 +10,8 @@ enum BalanceLocksFetchingError: Error {
     case noDataFound
 }
 
+// sourcery: AutoMockable
+// sourcery: import = ["SSFModels"]
 protocol BalanceLocksFetching {
     func fetchStakingLocks(for accountId: AccountId) async throws -> StakingLocks
     func fetchNominationPoolLocks(for accountId: AccountId) async throws -> StakingLocks

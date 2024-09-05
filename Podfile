@@ -15,7 +15,7 @@ abstract_target 'fearlessAll' do
   pod 'ReachabilitySwift'
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
-  pod 'Sourcery', '~> 1.4'
+  pod 'Sourcery'
   pod 'Kingfisher', '7.10.2' , :inhibit_warnings => true
   pod 'SVGKit'
   pod 'Charts', '~> 4.1.0'

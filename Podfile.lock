@@ -65,9 +65,9 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
-  - Sourcery (1.9.2):
-    - Sourcery/CLI-Only (= 1.9.2)
-  - Sourcery/CLI-Only (1.9.2)
+  - Sourcery (2.2.5):
+    - Sourcery/CLI-Only (= 2.2.5)
+  - Sourcery/CLI-Only (2.2.5)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
@@ -86,7 +86,7 @@ DEPENDENCIES:
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
-  - Sourcery (~> 1.4)
+  - Sourcery
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
@@ -141,13 +141,13 @@ SPEC CHECKSUMS:
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
-  Sourcery: 179539341c2261068528cd15a31837b7238fd901
+  Sourcery: 088e2f5a70844da8bc439f9eb9d88f35fc702f93
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
   SwiftyBeaver: 014b0c12065026b731bac80305294f27d63e27f6
 
-PODFILE CHECKSUM: 2765a7ef34d447c0c0be3417855e8ee9fdaba23c
+PODFILE CHECKSUM: a6cedc825b985ec1f7bf991d27b20590e39d9278
 
 COCOAPODS: 1.15.2

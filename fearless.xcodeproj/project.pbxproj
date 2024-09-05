@@ -112,6 +112,8 @@
 		0783EEAE2AE1342F006476F4 /* UIColor+Gradient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0783EEAD2AE1342F006476F4 /* UIColor+Gradient.swift */; };
 		0783EEB02AE1867A006476F4 /* WalletConnectEthereumTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0783EEAF2AE1867A006476F4 /* WalletConnectEthereumTransferService.swift */; };
 		0783EEB22AE193F3006476F4 /* BokoloConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0783EEB12AE193F3006476F4 /* BokoloConstants.swift */; };
+		0784997F2C886A7500B8B170 /* ChainModelsEquatableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0784997E2C886A7500B8B170 /* ChainModelsEquatableTests.swift */; };
+		078499A92C898B6C00B8B170 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078499A82C898B6C00B8B170 /* BalanceLocksFetching.generated.swift */; };
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
@@ -2834,6 +2836,16 @@
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		078499802C886A7500B8B170 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 849013A024A80984008F705E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 849013A724A80984008F705E;
+			remoteInfo = fearless;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		002A29AE58EB53E915330490 /* ControllerAccountViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewFactory.swift; sourceTree = "<group>"; };
 		0033D320A9033F5200279087 /* SelectedValidatorListFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListFlow.swift; sourceTree = "<group>"; };
@@ -2941,6 +2953,11 @@
 		0783EEAD2AE1342F006476F4 /* UIColor+Gradient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Gradient.swift"; sourceTree = "<group>"; };
 		0783EEAF2AE1867A006476F4 /* WalletConnectEthereumTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectEthereumTransferService.swift; sourceTree = "<group>"; };
 		0783EEB12AE193F3006476F4 /* BokoloConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BokoloConstants.swift; sourceTree = "<group>"; };
+		0784997C2C886A7500B8B170 /* FearlessTestCaravan.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FearlessTestCaravan.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		0784997E2C886A7500B8B170 /* ChainModelsEquatableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainModelsEquatableTests.swift; sourceTree = "<group>"; };
+		0784998F2C88882200B8B170 /* Sourcery.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = Sourcery.yml; sourceTree = "<group>"; };
+		078499912C88882200B8B170 /* AutoMockable.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
+		078499A82C898B6C00B8B170 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
@@ -3215,6 +3232,7 @@
 		59FDAE57EE0A97872E76E6CE /* Pods_fearlessTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A05EB4FAF2FDE7DECEA93E4 /* StakingMainViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainViewController.swift; sourceTree = "<group>"; };
 		5A4416B96A9DD5FB5EEA086E /* WalletSendConfirmViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmViewLayout.swift; sourceTree = "<group>"; };
+		5A9E9C746B8297B3E4A4045C /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BalanceLocksFetching.generated.swift; path = FearlessTestCaravan/Mocks/BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
 		5AA3BF0C9C1E0E2C67D962F5 /* PurchaseViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PurchaseViewFactory.swift; sourceTree = "<group>"; };
 		5B0CF2F98779D3C18D0C0A29 /* NodeSelectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NodeSelectionTests.swift; sourceTree = "<group>"; };
 		5B5D683E7DE3533CA418BD21 /* PolkaswapAdjustmentPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapAdjustmentPresenter.swift; sourceTree = "<group>"; };
@@ -5881,6 +5899,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		078499792C886A7500B8B170 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		849013A524A80984008F705E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -6294,6 +6319,48 @@
 				076D9D5D29500F5B002762E3 /* PolkaswapSwapConfirmationViewModel.swift */,
 			);
 			name = ViewModel;
+			sourceTree = "<group>";
+		};
+		0784997D2C886A7500B8B170 /* FearlessTestCaravan */ = {
+			isa = PBXGroup;
+			children = (
+				078499A72C898B4B00B8B170 /* Mocks */,
+				0784997E2C886A7500B8B170 /* ChainModelsEquatableTests.swift */,
+			);
+			path = FearlessTestCaravan;
+			sourceTree = "<group>";
+		};
+		078499902C88882200B8B170 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				0784998F2C88882200B8B170 /* Sourcery.yml */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		078499922C88882200B8B170 /* Templates */ = {
+			isa = PBXGroup;
+			children = (
+				078499912C88882200B8B170 /* AutoMockable.stencil */,
+			);
+			path = Templates;
+			sourceTree = "<group>";
+		};
+		078499932C88882200B8B170 /* SourceryConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				078499902C88882200B8B170 /* Configuration */,
+				078499922C88882200B8B170 /* Templates */,
+			);
+			path = SourceryConfiguration;
+			sourceTree = "<group>";
+		};
+		078499A72C898B4B00B8B170 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				078499A82C898B6C00B8B170 /* BalanceLocksFetching.generated.swift */,
+			);
+			path = Mocks;
 			sourceTree = "<group>";
 		};
 		07B6BC7D28BC71BF00621864 /* ViewModel */ = {
@@ -8673,13 +8740,16 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
+				078499932C88882200B8B170 /* SourceryConfiguration */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
+				0784997D2C886A7500B8B170 /* FearlessTestCaravan */,
 				849013A924A80984008F705E /* Products */,
 				2698CD398B0412EB85D620AB /* Pods */,
 				84CFF1CA26526C4700DB7CF7 /* Recovered References */,
 				C278E98FD96B1805C96BD127 /* Frameworks */,
+				A81CFD4CF9872F37CB8A8080 /* Mocks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -8687,6 +8757,7 @@
 			isa = PBXGroup;
 			children = (
 				849013A824A80984008F705E /* fearless.app */,
+				0784997C2C886A7500B8B170 /* FearlessTestCaravan.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -10466,6 +10537,14 @@
 				9622C6C3102EF12BEE78D63D /* AssetSelectionViewFactory.swift */,
 			);
 			path = AssetSelection;
+			sourceTree = "<group>";
+		};
+		A81CFD4CF9872F37CB8A8080 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				5A9E9C746B8297B3E4A4045C /* BalanceLocksFetching.generated.swift */,
+			);
+			name = Mocks;
 			sourceTree = "<group>";
 		};
 		A8D1128660EFE277FE867C45 /* StakingPoolCreate */ = {
@@ -15188,6 +15267,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		0784997B2C886A7500B8B170 /* FearlessTestCaravan */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 078499852C886A7500B8B170 /* Build configuration list for PBXNativeTarget "FearlessTestCaravan" */;
+			buildPhases = (
+				078499782C886A7500B8B170 /* Sources */,
+				078499792C886A7500B8B170 /* Frameworks */,
+				0784997A2C886A7500B8B170 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				078499812C886A7500B8B170 /* PBXTargetDependency */,
+			);
+			name = FearlessTestCaravan;
+			productName = FearlessTestCaravan;
+			productReference = 0784997C2C886A7500B8B170 /* FearlessTestCaravan.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		849013A724A80984008F705E /* fearless */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 849013C724A80986008F705E /* Build configuration list for PBXNativeTarget "fearless" */;
@@ -15197,6 +15294,7 @@
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
 				849013CE24A92280008F705E /* R.swift */,
+				078499942C88893E00B8B170 /* Sourcery Mocks */,
 				849013A424A80984008F705E /* Sources */,
 				849013A524A80984008F705E /* Frameworks */,
 				849013A624A80984008F705E /* Resources */,
@@ -15259,10 +15357,14 @@
 		849013A024A80984008F705E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 1150;
+				LastSwiftUpdateCheck = 1530;
 				LastUpgradeCheck = 1400;
 				ORGANIZATIONNAME = Soramitsu;
 				TargetAttributes = {
+					0784997B2C886A7500B8B170 = {
+						CreatedOnToolsVersion = 15.3;
+						TestTargetID = 849013A724A80984008F705E;
+					};
 					849013A724A80984008F705E = {
 						CreatedOnToolsVersion = 11.5;
 					};
@@ -15295,11 +15397,19 @@
 			projectRoot = "";
 			targets = (
 				849013A724A80984008F705E /* fearless */,
+				0784997B2C886A7500B8B170 /* FearlessTestCaravan */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		0784997A2C886A7500B8B170 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		849013A624A80984008F705E /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -15361,6 +15471,25 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		078499942C88893E00B8B170 /* Sourcery Mocks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Sourcery Mocks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				$PROJECT_DIR/FearlessTestCaravan/Mocks/BalanceLocksFetching.generated.swift,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$PODS_ROOT/Sourcery/bin/sourcery --config \"${PROJECT_DIR}/SourceryConfiguration/Configuration/Sourcery.yml\" --prune\n";
+		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -15499,6 +15628,15 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		078499782C886A7500B8B170 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				078499A92C898B6C00B8B170 /* BalanceLocksFetching.generated.swift in Sources */,
+				0784997F2C886A7500B8B170 /* ChainModelsEquatableTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		849013A424A80984008F705E /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -18242,6 +18380,14 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		078499812C886A7500B8B170 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 849013A724A80984008F705E /* fearless */;
+			targetProxy = 078499802C886A7500B8B170 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin PBXVariantGroup section */
 		849013B624A80986008F705E /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
@@ -18315,6 +18461,79 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		078499822C886A7500B8B170 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlessTestCaravan.FearlessTestCaravan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fearless.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fearless";
+			};
+			name = Debug;
+		};
+		078499832C886A7500B8B170 /* Dev */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlessTestCaravan.FearlessTestCaravan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fearless.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fearless";
+			};
+			name = Dev;
+		};
+		078499842C886A7500B8B170 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.4;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlessTestCaravan.FearlessTestCaravan;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fearless.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/fearless";
+			};
+			name = Release;
+		};
 		849013C524A80986008F705E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -18579,6 +18798,16 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		078499852C886A7500B8B170 /* Build configuration list for PBXNativeTarget "FearlessTestCaravan" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				078499822C886A7500B8B170 /* Debug */,
+				078499832C886A7500B8B170 /* Dev */,
+				078499842C886A7500B8B170 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		849013A324A80984008F705E /* Build configuration list for PBXProject "fearless" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -18614,8 +18843,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "fearless-wallet";
-				kind = branch;
+				kind = revision;
+				revision = 466a8c6819d6601c026eb7a97816eea344dbaa0b;
 			};
 		};
 		FA8FD1862AF4BEDD00354482 /* XCRemoteSwiftPackageReference "Swime" */ = {

@@ -57,6 +57,17 @@
          </BuildableReference>
       </CodeCoverageTargets>
       <Testables>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "0784997B2C886A7500B8B170"
+               BuildableName = "FearlessTestCaravan.xctest"
+               BlueprintName = "FearlessTestCaravan"
+               ReferencedContainer = "container:fearless.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
