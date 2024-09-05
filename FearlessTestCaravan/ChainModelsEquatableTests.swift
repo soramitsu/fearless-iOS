@@ -10,7 +10,8 @@ final class ChainSyncServiceTests: XCTestCase, EventVisitorProtocol {
     private var service: fearless.ChainSyncService?
     private let eventCenter = EventCenter.shared
 
-    private var expectation = XCTestExpectation()
+    private var rootInteractorExpectation: XCTestExpectation?
+    private var testExpectation: XCTestExpectation?
     private var newOrUpdatedChainsCount: Int?
     private var removedChainsCount: Int?
 
@@ -46,9 +47,11 @@ final class ChainSyncServiceTests: XCTestCase, EventVisitorProtocol {
     }
 
     func testEquatable() throws {
+        rootInteractorExpectation = XCTestExpectation()
+        wait(for: [rootInteractorExpectation].compactMap { $0 }, timeout: 1)
         service?.syncUp()
-        expectation.expectedFulfillmentCount = 2
-        wait(for: [expectation], timeout: 1)
+        testExpectation = XCTestExpectation()
+        wait(for: [testExpectation].compactMap { $0 }, timeout: 1)
         XCTAssertEqual(newOrUpdatedChainsCount, 0)
         XCTAssertEqual(removedChainsCount, 0)
     }
@@ -56,8 +59,13 @@ final class ChainSyncServiceTests: XCTestCase, EventVisitorProtocol {
     // MARK: - EventVisitorProtocol
 
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
-        newOrUpdatedChainsCount = event.newOrUpdatedChains.count
-        removedChainsCount = event.removedChains.count
-        expectation.fulfill()
+        if let rootInteractorExpectation {
+            rootInteractorExpectation.fulfill()
+        }
+        if let testExpectation {
+            testExpectation.fulfill()
+            newOrUpdatedChainsCount = event.newOrUpdatedChains.count
+            removedChainsCount = event.removedChains.count
+        }
     }
 }

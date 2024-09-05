@@ -71,6 +71,7 @@ final class ChainSyncService {
         let event = ChainSyncDidStart()
         eventCenter.notify(with: event)
 
+        isSyncing = true
         executeSync()
     }
 
@@ -82,7 +83,7 @@ final class ChainSyncService {
     }
 
     private func executeSync() {
-        if Self.fetchLocalData {
+        if Self.fetchLocalData || ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil {
             do {
                 let localData = try fetchLocalData()
                 handle(remoteChains: localData)
