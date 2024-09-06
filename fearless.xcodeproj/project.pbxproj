@@ -74,7 +74,7 @@
 		07376DA52C8B067200E05360 /* AutoMockable.stencil in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA02C8B067200E05360 /* AutoMockable.stencil */; };
 		07376DA72C8B067200E05360 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA22C8B067200E05360 /* CIKeys.stencil */; };
 		07376DA82C8B067200E05360 /* sourcery.yml in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA32C8B067200E05360 /* sourcery.yml */; };
-		07376DA92C8B0CAC00E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376DA12C8B067200E05360 /* CIKeys.generated.swift */; };
+		07376DAD2C8B20A500E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376DAC2C8B20A500E05360 /* CIKeys.generated.swift */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
 		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
@@ -2915,9 +2915,9 @@
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
 		07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
 		07376DA02C8B067200E05360 /* AutoMockable.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
-		07376DA12C8B067200E05360 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = "<group>"; };
 		07376DA22C8B067200E05360 /* CIKeys.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CIKeys.stencil; sourceTree = "<group>"; };
 		07376DA32C8B067200E05360 /* sourcery.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = sourcery.yml; sourceTree = "<group>"; };
+		07376DAC2C8B20A500E05360 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = "<group>"; };
 		073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDisconnectService.swift; sourceTree = "<group>"; };
 		073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalDataValidating.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
@@ -8756,9 +8756,9 @@
 				849013E324A92915008F705E /* Configs */,
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
-				07376DA12C8B067200E05360 /* CIKeys.generated.swift */,
 				849013AB24A80984008F705E /* AppDelegate.swift */,
 				849013CF24A9267F008F705E /* R.generated.swift */,
+				07376DAC2C8B20A500E05360 /* CIKeys.generated.swift */,
 				841937862544772F00CFA50C /* animatedBg.gif */,
 				C6DC2D5D2B183D7900BAA4DB /* animatedIcon.gif */,
 				849013B424A80986008F705E /* Assets.xcassets */,
@@ -15540,12 +15540,10 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nCONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryConfiguration/sourcery.yml\"\necho \"Sourcery Config File = $CONFIG\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\" --output \"$OUT_FILE\"\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nCONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryConfiguration/sourcery.yml\"\necho \"Sourcery Config File = $CONFIG\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\"\n";
 		};
 		B60C6E08CACA1CEBC1520619 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -15618,7 +15616,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07376DA92C8B0CAC00E05360 /* CIKeys.generated.swift in Sources */,
 				AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */,
 				FA9A8F072A6FADFB008FA99F /* EtherscanHistoryElement.swift in Sources */,
 				FAF92E6627B4275F005467CE /* Bool+ToInt.swift in Sources */,
@@ -16871,6 +16868,7 @@
 				FA8EE743294C4E3E0052C888 /* AllDoneViewModel.swift in Sources */,
 				FAB0EDE027AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
+				07376DAD2C8B20A500E05360 /* CIKeys.generated.swift in Sources */,
 				8498430326592D29006BBB9F /* CrowdloanStatusSectionView.swift in Sources */,
 				8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
