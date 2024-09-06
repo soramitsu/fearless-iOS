@@ -6232,7 +6232,6 @@
 			isa = PBXGroup;
 			children = (
 				07376DA02C8B067200E05360 /* AutoMockable.stencil */,
-				07376DA12C8B067200E05360 /* CIKeys.generated.swift */,
 				07376DA22C8B067200E05360 /* CIKeys.stencil */,
 				07376DA32C8B067200E05360 /* sourcery.yml */,
 			);
@@ -8757,6 +8756,7 @@
 				849013E324A92915008F705E /* Configs */,
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
+				07376DA12C8B067200E05360 /* CIKeys.generated.swift */,
 				849013AB24A80984008F705E /* AppDelegate.swift */,
 				849013CF24A9267F008F705E /* R.generated.swift */,
 				841937862544772F00CFA50C /* animatedBg.gif */,
@@ -15540,8 +15540,8 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/SourceryCIKeysConfiguration/CIKeys.generated.swift",
-				$PROJECT_DIR/SourceryCIKeysConfiguration/CIKeys.generated.swift,
+				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

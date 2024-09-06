@@ -5,7 +5,7 @@ configurations:
       templates:
         - ./CIKeys.stencil
       output:
-        ./CIKeys.generated.swift
+        "$PROJECT_DIR/CIKeys.generated.swift"
       args:
         moonPaySecretKey: $MOONPAY_PRODUCTION_SECRET
         moonPayTestSecretKey: $MOONPAY_TEST_SECRET
