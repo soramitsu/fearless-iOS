@@ -15258,6 +15258,7 @@
 				078499782C886A7500B8B170 /* Sources */,
 				078499792C886A7500B8B170 /* Frameworks */,
 				0784997A2C886A7500B8B170 /* Resources */,
+				07376D992C8ACCAE00E05360 /* Sourcery Mocks */,
 			);
 			buildRules = (
 			);
@@ -15278,7 +15279,6 @@
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
 				849013CE24A92280008F705E /* R.swift */,
-				078499942C88893E00B8B170 /* Sourcery Mocks */,
 				849013A424A80984008F705E /* Sources */,
 				849013A524A80984008F705E /* Frameworks */,
 				849013A624A80984008F705E /* Resources */,
@@ -15455,7 +15455,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		078499942C88893E00B8B170 /* Sourcery Mocks */ = {
+		07376D992C8ACCAE00E05360 /* Sourcery Mocks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
