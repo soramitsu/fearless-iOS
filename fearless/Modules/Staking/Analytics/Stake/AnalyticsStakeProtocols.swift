@@ -14,7 +14,6 @@ protocol AnalyticsStakeInteractorInputProtocol: AnyObject {
 
 protocol AnalyticsStakeInteractorOutputProtocol: AnyObject {
     func didReceieve(stakeDataResult: Result<[SubqueryStakeChangeData], Error>)
-    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 

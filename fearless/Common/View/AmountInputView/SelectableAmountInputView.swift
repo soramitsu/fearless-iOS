@@ -9,7 +9,7 @@ enum SelectableAmountInputViewType {
 
 final class SelectableAmountInputView: UIView {
     enum LayoutConstants {
-        static let iconSize: CGFloat = 28
+        static let iconSize: CGFloat = 40
         static let offset: CGFloat = 12
     }
 
@@ -30,7 +30,60 @@ final class SelectableAmountInputView: UIView {
         return view
     }()
 
-    private(set) var iconView = UIImageView()
+    // Placeholder state views
+
+    private let placeholderView = UIView()
+
+    private(set) var placeholderIconView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconTokenPlaceholder()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+
+    private let placeholderTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h5Title
+        label.textColor = R.color.colorStrokeGray()
+        label.numberOfLines = 1
+        return label
+    }()
+
+    private let placeholderSymbolLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorStrokeGray()
+        label.numberOfLines = 1
+        return label
+    }()
+
+    private let placeholderSelectIcon: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .center
+        view.image = R.image.iconDownStrokeGray()
+        return view
+    }()
+
+    // Normal state views
+
+    private let leftView: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        return view
+    }()
+
+    private(set) var iconView: UIImageView = {
+        let imageView = UIImageView()
+        return imageView
+    }()
+
+    private let chainLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorStrokeGray()
+        label.numberOfLines = 1
+        return label
+    }()
 
     private let titleLabel: UILabel = {
         let label = UILabel()
@@ -56,6 +109,11 @@ final class SelectableAmountInputView: UIView {
         return label
     }()
 
+    private let symbolView: UIStackView = {
+        let stackView = UIFactory.default.createHorizontalStackView(spacing: 4)
+        return stackView
+    }()
+
     private let symbolLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
@@ -68,6 +126,14 @@ final class SelectableAmountInputView: UIView {
         let view = UIImageView()
         view.contentMode = .center
         view.image = R.image.dropTriangle()
+        return view
+    }()
+
+    private let iconBalance: UIImageView = {
+        let view = UIImageView()
+        view.contentMode = .center
+        view.image = R.image.iconWalletBalance()
+        view.isHidden = true
         return view
     }()
 
@@ -90,9 +156,16 @@ final class SelectableAmountInputView: UIView {
         return textField
     }()
 
-    private let symbolStackView = UIFactory.default.createHorizontalStackView(
-        spacing: UIConstants.minimalOffset
-    )
+    private let leftStackView: UIStackView = {
+        let stackView = UIFactory.default.createVerticalStackView(spacing: 6)
+        return stackView
+    }()
+
+    private let rightStackView: UIStackView = {
+        let stackView = UIFactory.default.createVerticalStackView()
+        stackView.alignment = .trailing
+        return stackView
+    }()
 
     private let selectButton: UIButton = {
         let button = UIButton()
@@ -132,6 +205,10 @@ final class SelectableAmountInputView: UIView {
                 .commonSelectAsset(preferredLanguages: locale.rLanguages)
             return
         }
+
+        leftView.isHidden = false
+        placeholderView.isHidden = true
+
         clearInputView()
 
         priceLabel.text = viewModel.price
@@ -143,6 +220,7 @@ final class SelectableAmountInputView: UIView {
         }
 
         symbolLabel.text = viewModel.symbol.uppercased()
+        chainLabel.text = viewModel.chain
 
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
         iconSelect.isHidden = !viewModel.selectable
@@ -156,12 +234,11 @@ final class SelectableAmountInputView: UIView {
     }
 
     private func applyType(for balance: String) {
+        iconBalance.isHidden = false
+
         switch type {
         case .send, .swapSend, .swapReceive:
-            balanceLabel.text = R.string.localizable.commonAvailableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
+            balanceLabel.text = balance
         }
     }
 
@@ -170,13 +247,21 @@ final class SelectableAmountInputView: UIView {
         case .send:
             titleLabel.text = R.string.localizable
                 .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+            placeholderTitleLabel.text = R.string.localizable
+                .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
         case .swapSend:
             titleLabel.text = R.string.localizable
+                .walletSendTitle(preferredLanguages: locale.rLanguages)
+            placeholderTitleLabel.text = R.string.localizable
                 .walletSendTitle(preferredLanguages: locale.rLanguages)
         case .swapReceive:
             titleLabel.text = R.string.localizable
                 .commonActionReceive(preferredLanguages: locale.rLanguages)
+            placeholderTitleLabel.text = R.string.localizable
+                .commonActionReceive(preferredLanguages: locale.rLanguages)
         }
+
+        placeholderSymbolLabel.text = R.string.localizable.commonSelectAsset(preferredLanguages: locale.rLanguages)
     }
 
     private func configure() {
@@ -186,57 +271,121 @@ final class SelectableAmountInputView: UIView {
         selectButton.addTarget(self, action: #selector(handleSelect), for: .touchUpInside)
     }
 
+    private func setupPlaceholderSubviews() {
+        leftStackView.addArrangedSubview(placeholderView)
+
+        placeholderView.addSubview(placeholderIconView)
+        placeholderView.addSubview(placeholderTitleLabel)
+        placeholderView.addSubview(placeholderSymbolLabel)
+        placeholderView.addSubview(placeholderSelectIcon)
+
+        placeholderIconView.snp.makeConstraints { make in
+            make.leading.equalToSuperview()
+            make.centerY.equalToSuperview()
+        }
+
+        placeholderTitleLabel.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.equalTo(placeholderIconView.snp.trailing).offset(8)
+        }
+
+        placeholderSymbolLabel.snp.makeConstraints { make in
+            make.leading.equalTo(placeholderTitleLabel.snp.leading)
+            make.top.equalTo(placeholderTitleLabel.snp.bottom).offset(8)
+            make.bottom.equalToSuperview()
+        }
+
+        placeholderSelectIcon.snp.makeConstraints { make in
+            make.leading.equalTo(placeholderSymbolLabel.snp.trailing).offset(6)
+            make.trailing.equalToSuperview()
+            make.centerY.equalTo(placeholderSymbolLabel.snp.centerY)
+        }
+    }
+
+    private func setupLeftViews() {
+        leftStackView.addArrangedSubview(leftView)
+
+        leftView.addSubview(iconView)
+        leftView.addSubview(titleLabel)
+        leftView.addSubview(symbolLabel)
+        leftView.addSubview(chainLabel)
+        leftView.addSubview(iconSelect)
+
+        titleLabel.snp.makeConstraints { make in
+            make.leading.top.equalToSuperview()
+        }
+
+        iconView.snp.makeConstraints { make in
+            make.top.equalTo(titleLabel.snp.bottom).offset(4)
+            make.leading.bottom.equalToSuperview()
+            make.size.equalTo(LayoutConstants.iconSize)
+        }
+
+        symbolLabel.snp.makeConstraints { make in
+            make.top.equalTo(iconView.snp.top)
+            make.leading.equalTo(iconView.snp.trailing).offset(4)
+            make.height.equalTo(23)
+        }
+
+        chainLabel.snp.makeConstraints { make in
+            make.leading.equalTo(symbolLabel.snp.leading)
+            make.top.equalTo(symbolLabel.snp.bottom)
+            make.bottom.equalTo(iconView.snp.bottom)
+            make.trailing.equalToSuperview()
+            make.height.equalTo(17)
+        }
+
+        iconSelect.snp.makeConstraints { make in
+            make.leading.equalTo(symbolLabel.snp.trailing).offset(4)
+            make.centerY.equalTo(symbolLabel.snp.centerY)
+            make.width.equalTo(12)
+        }
+    }
+
     private func setupLayout() {
         addSubview(triangularedBackgroundView)
-        addSubview(titleLabel)
-        addSubview(priceLabel)
-        addSubview(symbolStackView)
-        addSubview(selectButton)
-        symbolStackView.addArrangedSubview(iconView)
-        symbolStackView.addArrangedSubview(symbolLabel)
-        symbolStackView.addArrangedSubview(iconSelect)
-        addSubview(textField)
-        addSubview(balanceLabel)
+        addSubview(leftStackView)
+        addSubview(rightStackView)
 
-        symbolLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        setupPlaceholderSubviews()
+        setupLeftViews()
+
+        rightStackView.addArrangedSubview(balanceLabel)
+        rightStackView.addArrangedSubview(textField)
+        rightStackView.addArrangedSubview(priceLabel)
+
+        addSubview(selectButton)
+        addSubview(iconBalance)
+
+        iconSelect.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        titleLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
+
+        iconBalance.snp.makeConstraints { make in
+            make.size.equalTo(16)
+            make.trailing.equalTo(balanceLabel.snp.leading).offset(-4)
+            make.centerY.equalTo(balanceLabel.snp.centerY)
+        }
+        textField.snp.makeConstraints { make in
+            make.centerY.equalTo(self.snp.centerY)
+        }
 
         triangularedBackgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
-        titleLabel.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(LayoutConstants.offset)
+        leftStackView.snp.makeConstraints { make in
+            make.leading.top.equalToSuperview().offset(12)
+            make.bottom.equalToSuperview().offset(-12)
         }
 
-        priceLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(LayoutConstants.offset)
-            make.trailing.equalToSuperview().offset(-LayoutConstants.offset)
-        }
-
-        symbolStackView.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel.snp.leading)
-            make.top.equalTo(titleLabel.snp.bottom).offset(UIConstants.minimalOffset)
+        rightStackView.snp.makeConstraints { make in
+            make.trailing.top.bottom.equalToSuperview().inset(12)
+            make.leading.equalTo(leftStackView.snp.trailing).offset(16)
         }
 
         selectButton.snp.makeConstraints { make in
-            make.edges.equalTo(symbolStackView)
-        }
-
-        iconView.snp.makeConstraints { make in
-            make.size.equalTo(LayoutConstants.iconSize)
-        }
-
-        textField.snp.makeConstraints { make in
-            make.trailing.equalTo(priceLabel)
-            make.centerY.equalTo(symbolStackView)
-            make.leading.equalTo(symbolStackView.snp.trailing).offset(UIConstants.bigOffset)
-        }
-
-        balanceLabel.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel)
-            make.top.equalTo(symbolStackView.snp.bottom).offset(UIConstants.minimalOffset)
-            make.bottom.equalToSuperview().offset(-LayoutConstants.offset)
+            make.edges.equalTo(leftStackView)
         }
     }
 

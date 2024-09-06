@@ -64,7 +64,6 @@ final class ClaimCrowdloanRewardsAssembly {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             signer: signer,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             chainRegistry: chainRegistry,
             storageRequestPerformer: storageRequestPerformer,
             accountInfoFetcher: accountInfoFetcher
@@ -73,7 +72,8 @@ final class ClaimCrowdloanRewardsAssembly {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         let viewModelFactory = ClaimCrowdloanRewardViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,

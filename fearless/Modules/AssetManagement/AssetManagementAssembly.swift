@@ -12,7 +12,6 @@ final class AssetManagementAssembly {
     ) -> AssetManagementModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain()
         )
@@ -76,7 +75,6 @@ final class AssetManagementAssembly {
 
         let interactor = AssetManagementInteractor(
             chainAssetFetching: chainAssetFetching,
-            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoFetchingProvider: accountInfoFetchingProvider,
             eventCenter: EventCenter.shared,
             accountInfoRemoteService: accountInfoRemote,

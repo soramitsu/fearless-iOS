@@ -35,7 +35,8 @@ final class NetworkInfoViewModelFactory {
 
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            chainAsset: chainAsset
         )
 
         self.chainAsset = chainAsset

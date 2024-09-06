@@ -64,7 +64,6 @@ final class LiquidityPoolRemoveLiquidityPresenter {
     private var reserves: PolkaswapPoolReservesInfo?
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
-    private var prices: [PriceData]?
     private var baseAssetInputResult: AmountInputResult?
     private var baseAssetBalance: Decimal?
     private var targetAssetInputResult: AmountInputResult?
@@ -207,9 +206,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
         let feeViewModel = balanceViewModelFactory.balanceFromPrice(
             swapFromFee,
-            priceData: prices?.first(where: { price in
-                price.priceId == xorChainAsset.asset.priceId
-            }),
+            priceData: xorChainAsset.asset.getPrice(for: wallet.selectedCurrency),
             isApproximately: true,
             usageCase: .detailsCrypto
         ).value(for: selectedLocale)
@@ -228,7 +225,8 @@ final class LiquidityPoolRemoveLiquidityPresenter {
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }
@@ -239,9 +237,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             for: swapFromChainAsset
         )
 
-        let swapFromPrice = prices?.first(where: { priceData in
-            swapFromChainAsset?.asset.priceId == priceData.priceId
-        })
+        let swapFromPrice = swapFromChainAsset?.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             baseAssetResultAmount,
@@ -270,9 +266,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             for: swapToChainAsset
         )
 
-        let swapToPrice = prices?.first(where: { priceData in
-            swapToChainAsset?.asset.priceId == priceData.priceId
-        })
+        let swapToPrice = swapToChainAsset?.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             targetAssetResultAmount,
@@ -306,7 +300,8 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             .displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }
@@ -341,9 +336,7 @@ final class LiquidityPoolRemoveLiquidityPresenter {
             for: chain.utilityChainAssets().first
         )
 
-        let xorPrice = prices?.first(where: { priceData in
-            chain.utilityAssets().first?.priceId == priceData.priceId
-        })
+        let xorPrice = chain.utilityAssets().first?.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory?.balanceFromPrice(
             xorBalance,
@@ -641,21 +634,6 @@ extension LiquidityPoolRemoveLiquidityPresenter: LiquidityPoolRemoveLiquidityInt
 
     func didReceiveFeeError(_ error: Error) {
         logger.customError(error)
-    }
-
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(priceData):
-            prices = priceData
-
-            provideXorBalanceViewModel()
-        case let .failure(error):
-            prices = []
-            logger.error("\(error)")
-        }
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel()
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {

@@ -17,7 +17,6 @@ final class StakingPoolJoinConfirmPresenter {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol?
 
-    private var priceData: PriceData?
     private var fee: Decimal?
     private var palletId: Data?
     private var nomination: Nomination?
@@ -65,6 +64,7 @@ final class StakingPoolJoinConfirmPresenter {
     }
 
     private func provideFeeViewModel() {
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let feeViewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
@@ -137,17 +137,6 @@ extension StakingPoolJoinConfirmPresenter: StakingPoolJoinConfirmViewOutput {
 extension StakingPoolJoinConfirmPresenter: StakingPoolJoinConfirmInteractorOutput {
     func didReceive(error: Error) {
         logger?.error(error.localizedDescription)
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("StakingPoolJoinConfigPresenter.didReceivePriceData.error: \(error)")
-        }
     }
 
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {

@@ -15,8 +15,8 @@ struct StakingBalanceViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(
@@ -66,11 +66,8 @@ struct StakingBalanceViewFactory {
         wallet _: MetaAccountModel,
         strategy: StakingBalanceStrategy
     ) -> StakingBalanceInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingBalanceInteractor(
+        StakingBalanceInteractor(
             chainAsset: chainAsset,
-            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }
@@ -84,8 +81,8 @@ struct StakingBalanceViewFactory {
     ) -> StakingBalanceDependencyContainer? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry

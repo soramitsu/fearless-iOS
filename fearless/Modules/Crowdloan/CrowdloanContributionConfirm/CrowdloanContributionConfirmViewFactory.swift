@@ -30,7 +30,8 @@ struct CrowdloanContributionConfirmViewFactory {
         let assetInfo = asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let localizationManager = LocalizationManager.shared
@@ -57,7 +58,8 @@ struct CrowdloanContributionConfirmViewFactory {
             assetInfo: assetInfo,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            chainAsset: ChainAsset(chain: chain, asset: asset)
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            selectedCurrency: selectedAccount.selectedCurrency
         )
 
         let view = CrowdloanContributionConfirmVC(
@@ -130,7 +132,6 @@ struct CrowdloanContributionConfirmViewFactory {
             extrinsicService: extrinsicService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
             signingWrapper: signingWrapper,
             bonusService: bonusService,

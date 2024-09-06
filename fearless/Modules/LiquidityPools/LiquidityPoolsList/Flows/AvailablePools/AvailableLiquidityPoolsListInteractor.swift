@@ -8,7 +8,6 @@ protocol AvailableLiquidityPoolsListInteractorOutput: AnyObject {
     func didReceiveLiquidityPairs(pairs: [LiquidityPair]?)
     func didReceivePoolsReserves(reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>)
     func didReceivePoolsAPY(apy: [PoolApyInfo]?)
-    func didReceivePrices(result: Result<[PriceData], Error>)
 
     func didReceiveLiquidityPairsError(error: Error)
     func didReceivePoolsReservesError(error: Error)
@@ -18,9 +17,7 @@ protocol AvailableLiquidityPoolsListInteractorOutput: AnyObject {
 final class AvailableLiquidityPoolsListInteractor {
     private let liquidityPoolService: PolkaswapLiquidityPoolService
     private weak var output: AvailableLiquidityPoolsListInteractorOutput?
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chain: ChainModel
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     private var receivedPoolIds: [String] = []
 
@@ -30,11 +27,9 @@ final class AvailableLiquidityPoolsListInteractor {
 
     init(
         liquidityPoolService: PolkaswapLiquidityPoolService,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chain: ChainModel
     ) {
         self.liquidityPoolService = liquidityPoolService
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chain = chain
     }
 
@@ -55,17 +50,11 @@ final class AvailableLiquidityPoolsListInteractor {
             }
         }
     }
-
-    private func subscribeForPrices() {
-        let chainAssets = chain.chainAssets
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
-    }
 }
 
 extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInteractorInput {
     func setup(with output: AvailableLiquidityPoolsListInteractorOutput) {
         self.output = output
-        subscribeForPrices()
     }
 
     func cancelTasks() {
@@ -140,11 +129,5 @@ extension AvailableLiquidityPoolsListInteractor: AvailableLiquidityPoolsListInte
                 }
             }
         }
-    }
-}
-
-extension AvailableLiquidityPoolsListInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePrices(result: result)
     }
 }

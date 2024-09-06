@@ -31,8 +31,8 @@ struct StakingBondMoreViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let presenter = StakingBondMorePresenter(
@@ -63,10 +63,7 @@ struct StakingBondMoreViewFactory {
         wallet: MetaAccountModel,
         strategy: StakingBondMoreStrategy
     ) -> StakingBondMoreInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let interactor = StakingBondMoreInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
 

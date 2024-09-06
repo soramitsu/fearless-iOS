@@ -51,6 +51,6 @@ final class MultichainAssetSelectionAssembly {
     }
 
     private static func createSelectAssetModule(wallet: MetaAccountModel, moduleOutput: SelectAssetModuleOutput) -> SelectAssetModuleCreationResult? {
-        SelectAssetAssembly.configureModule(wallet: wallet, selectedAssetId: nil, chainAssets: nil, searchTextsViewModel: .searchAssetPlaceholder, output: moduleOutput, isEmbed: true)
+        SelectAssetAssembly.configureModule(wallet: wallet, selectedAssetId: nil, chainAssets: [], searchTextsViewModel: .searchAssetPlaceholder, output: moduleOutput, isEmbed: true)
     }
 }

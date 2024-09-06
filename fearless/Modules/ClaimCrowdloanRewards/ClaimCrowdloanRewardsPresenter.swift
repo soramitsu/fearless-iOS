@@ -17,10 +17,13 @@ final class ClaimCrowdloanRewardsPresenter {
 
     private var tokenLocks: [LockProtocol]?
     private var balanceLocks: [LockProtocol]?
-    private var priceData: PriceData?
     private var fee: RuntimeDispatchInfo?
     private var currentBlock: UInt32?
     private var accountInfo: AccountInfo?
+
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     // MARK: - Constructors
 
@@ -49,7 +52,8 @@ final class ClaimCrowdloanRewardsPresenter {
     private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactory {
         BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
     }
 
@@ -166,17 +170,6 @@ extension ClaimCrowdloanRewardsPresenter: ClaimCrowdloanRewardsInteractorOutput 
 
     func didReceiveTxError(_ error: Error) {
         router.present(error: error, from: view, locale: selectedLocale)
-    }
-
-    func didReceivePrice(_ price: PriceData?) {
-        priceData = price
-        provideVestingViewModel()
-        provideBalanceViewModel()
-        provideFeeViewModel()
-    }
-
-    func didReceivePriceError(_ error: Error) {
-        logger?.error("Vesting claim price error: \(error.localizedDescription)")
     }
 
     func didReceiveAccountInfo(accountInfo: AccountInfo?) {

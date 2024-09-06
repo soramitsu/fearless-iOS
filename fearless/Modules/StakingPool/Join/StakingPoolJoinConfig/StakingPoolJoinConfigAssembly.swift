@@ -45,7 +45,6 @@ final class StakingPoolJoinConfigAssembly {
             selectedMetaAccount: wallet
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -68,7 +67,6 @@ final class StakingPoolJoinConfigAssembly {
 
         let interactor = StakingPoolJoinConfigInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet,
             extrinsicService: extrinsicService,
@@ -85,7 +83,8 @@ final class StakingPoolJoinConfigAssembly {
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(

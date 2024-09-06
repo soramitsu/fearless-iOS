@@ -4,8 +4,6 @@ import SSFModels
 
 // swiftlint:disable opening_brace multiple_closures_with_trailing_closure
 final class StakingPoolCreateConfirmInteractor {
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
-
     // MARK: - Private properties
 
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
@@ -16,12 +14,10 @@ final class StakingPoolCreateConfirmInteractor {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let createData: StakingPoolCreateData
     private let signingWrapper: SigningWrapperProtocol
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         createData: StakingPoolCreateData,
@@ -30,7 +26,6 @@ final class StakingPoolCreateConfirmInteractor {
     ) {
         chainAsset = createData.chainAsset
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
         self.createData = createData
@@ -120,7 +115,6 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
         self.output = output
 
         feeProxy.delegate = self
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
         subscribeToPoolMembers()
     }
 
@@ -152,12 +146,6 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
             guard let strongSelf = self else { return }
             strongSelf.output?.didReceive(extrinsicResult: result)
         }
-    }
-}
-
-extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        output?.didReceivePriceData(result: result)
     }
 }
 

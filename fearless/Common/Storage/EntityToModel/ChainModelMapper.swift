@@ -10,6 +10,21 @@ final class ChainModelMapper {
     typealias DataProviderModel = ChainModel
     typealias CoreDataEntity = CDChain
 
+    private func createPriceData(from entity: CDPriceData) -> PriceData? {
+        guard let currencyId = entity.currencyId,
+              let priceId = entity.priceId,
+              let price = entity.price else {
+            return nil
+        }
+        return PriceData(
+            currencyId: currencyId,
+            priceId: priceId,
+            price: price,
+            fiatDayChange: Decimal(string: entity.fiatDayByChange ?? ""),
+            coingeckoPriceId: entity.coingeckoPriceId
+        )
+    }
+
     private func createAsset(from entity: CDAsset) -> AssetModel? {
         var symbol: String?
         if let entitySymbol = entity.symbol {
@@ -50,14 +65,19 @@ final class ChainModelMapper {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
+        let priceDatas: [PriceData] = entity.priceData.or([]).compactMap { data in
+            guard let priceData = data as? CDPriceData else {
+                return nil
+            }
+            return createPriceData(from: priceData)
+        }
+
         return AssetModel(
             id: id,
             name: name,
             symbol: symbol,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
-            price: entity.price as Decimal?,
-            fiatDayChange: entity.fiatDayChange as Decimal?,
             currencyId: entity.currencyId,
             existentialDeposit: entity.existentialDeposit,
             color: entity.color,
@@ -68,7 +88,8 @@ final class ChainModelMapper {
             type: createChainAssetModelType(from: entity.type),
             ethereumType: createEthereumAssetType(from: entity.ethereumType),
             priceProvider: priceProvider,
-            coingeckoPriceId: entity.priceId
+            coingeckoPriceId: entity.priceId,
+            priceData: priceDatas
         )
     }
 
@@ -93,37 +114,66 @@ final class ChainModelMapper {
         from model: ChainModel,
         context: NSManagedObjectContext
     ) {
-        let assets = model.assets.map {
+        let assets = model.assets.map { assetModel in
             let assetEntity = CDAsset(context: context)
-            assetEntity.id = $0.id
-            assetEntity.icon = $0.icon
-            assetEntity.precision = Int16(bitPattern: $0.precision)
-            assetEntity.priceId = $0.coingeckoPriceId
-            assetEntity.price = $0.price as NSDecimalNumber?
-            assetEntity.fiatDayChange = $0.fiatDayChange as NSDecimalNumber?
-            assetEntity.symbol = $0.symbol
-            assetEntity.existentialDeposit = $0.existentialDeposit
-            assetEntity.color = $0.color
-            assetEntity.name = $0.name
-            assetEntity.currencyId = $0.currencyId
-            assetEntity.type = $0.type?.rawValue
-            assetEntity.isUtility = $0.isUtility
-            assetEntity.isNative = $0.isNative
-            assetEntity.staking = $0.staking?.rawValue
-            assetEntity.ethereumType = $0.ethereumType?.rawValue
+            assetEntity.id = assetModel.id
+            assetEntity.icon = assetModel.icon
+            assetEntity.precision = Int16(bitPattern: assetModel.precision)
+            assetEntity.priceId = assetModel.coingeckoPriceId
+            assetEntity.symbol = assetModel.symbol
+            assetEntity.existentialDeposit = assetModel.existentialDeposit
+            assetEntity.color = assetModel.color
+            assetEntity.name = assetModel.name
+            assetEntity.currencyId = assetModel.currencyId
+            assetEntity.type = assetModel.type?.rawValue
+            assetEntity.isUtility = assetModel.isUtility
+            assetEntity.isNative = assetModel.isNative
+            assetEntity.staking = assetModel.staking?.rawValue
+            assetEntity.ethereumType = assetModel.ethereumType?.rawValue
 
             let priceProviderContext = CDPriceProvider(context: context)
-            priceProviderContext.type = $0.priceProvider?.type.rawValue
-            priceProviderContext.id = $0.priceProvider?.id
-            if let precision = $0.priceProvider?.precision {
+            priceProviderContext.type = assetModel.priceProvider?.type.rawValue
+            priceProviderContext.id = assetModel.priceProvider?.id
+            if let precision = assetModel.priceProvider?.precision {
                 priceProviderContext.precision = "\(precision)"
             }
             assetEntity.priceProvider = priceProviderContext
 
-            let purchaseProviders: [String]? = $0.purchaseProviders?.map(\.rawValue)
+            let purchaseProviders: [String]? = assetModel.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders
 
+            let priceData: [CDPriceData] = assetModel.priceData.map { priceData in
+                let entity = CDPriceData(context: context)
+                entity.currencyId = priceData.currencyId
+                entity.priceId = priceData.priceId
+                entity.price = priceData.price
+                entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
+                entity.coingeckoPriceId = priceData.coingeckoPriceId
+                return entity
+            }
+
+            if
+                let oldAssets = entity.assets as? Set<CDAsset>,
+                let updatedAsset = oldAssets.first(where: { cdAsset in
+                    cdAsset.id == assetModel.id
+                }) {
+                if let oldPrices = updatedAsset.priceData as? Set<CDPriceData> {
+                    oldPrices.forEach { cdPriceData in
+                        if !priceData.contains(where: { $0.currencyId == cdPriceData.currencyId }) {
+                            context.delete(cdPriceData)
+                        }
+                    }
+                }
+            }
+            assetEntity.priceData = Set(priceData) as NSSet
+
             return assetEntity
+        }
+
+        if let oldAssets = entity.assets as? Set<CDAsset> {
+            oldAssets.forEach { cdAsset in
+                context.delete(cdAsset)
+            }
         }
 
         entity.assets = Set(assets) as NSSet

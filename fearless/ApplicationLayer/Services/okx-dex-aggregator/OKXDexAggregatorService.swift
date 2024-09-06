@@ -25,9 +25,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXSupportedChain> = try await networkWorker.performRequest(with: request)
 
-        guard response.code == "0" else {
-            throw ConvenienceError(error: response.msg ?? "")
-        }
+        try validateResponseCode(response.code, msg: response.msg)
 
         return response
     }
@@ -45,9 +43,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXToken> = try await networkWorker.performRequest(with: request)
 
-        guard response.code == "0" else {
-            throw ConvenienceError(error: response.msg ?? "")
-        }
+        try validateResponseCode(response.code, msg: response.msg)
 
         return response
     }
@@ -65,9 +61,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXLiquiditySource> = try await networkWorker.performRequest(with: request)
 
-        guard response.code == "0" else {
-            throw ConvenienceError(error: response.msg ?? "")
-        }
+        try validateResponseCode(response.code, msg: response.msg)
 
         return response
     }
@@ -85,9 +79,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXQuote> = try await networkWorker.performRequest(with: request)
 
-        guard response.code == "0" else {
-            throw ConvenienceError(error: response.msg ?? "")
-        }
+        try validateResponseCode(response.code, msg: response.msg)
 
         return response
     }
@@ -105,9 +97,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXSwap> = try await networkWorker.performRequest(with: request)
 
-        guard response.code == "0" else {
-            throw ConvenienceError(error: response.msg ?? "")
-        }
+        try validateResponseCode(response.code, msg: response.msg)
 
         return response
     }
@@ -125,9 +115,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXApproveTransaction> = try await networkWorker.performRequest(with: request)
 
-        guard response.code == "0" else {
-            throw ConvenienceError(error: response.msg ?? "")
-        }
+        try validateResponseCode(response.code, msg: response.msg)
 
         return response
     }
@@ -145,10 +133,21 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXCrossChainSwap> = try await networkWorker.performRequest(with: request)
 
-        guard response.code == "0" else {
-            throw ConvenienceError(error: response.msg ?? "")
-        }
+        try validateResponseCode(response.code, msg: response.msg)
 
         return response
+    }
+
+    private func validateResponseCode(_ code: String, msg: String?) throws {
+        guard code == "0" else {
+            switch code {
+            case OKXDexErrorCode.okxMinimumAmountErrorCode.rawValue:
+                throw OKXDexError.minimumAmount(text: msg)
+            case OKXDexErrorCode.okxMaximumAmountErrorCode.rawValue:
+                throw OKXDexError.maximumAmount(text: msg)
+            default:
+                throw OKXDexError.unknown(text: msg)
+            }
+        }
     }
 }

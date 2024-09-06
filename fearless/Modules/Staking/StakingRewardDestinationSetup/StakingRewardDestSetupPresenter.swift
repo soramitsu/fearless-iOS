@@ -17,6 +17,7 @@ final class StakingRewardDestSetupPresenter {
     let asset: AssetModel
     let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
+    private let rewardChainAsset: ChainAsset?
 
     private var rewardDestination: RewardDestination<ChainAccountResponse>? {
         didSet {
@@ -28,13 +29,19 @@ final class StakingRewardDestSetupPresenter {
     private var originalDestination: RewardDestination<AccountAddress>?
     private var stashAccount: ChainAccountResponse?
     private var controllerAccount: ChainAccountResponse?
-    private var priceData: PriceData?
     private var stashItem: StashItem?
     private var bonded: Decimal?
     private var balance: Decimal?
     private var fee: Decimal?
     private var nomination: Nomination?
-    private var rewardAssetPriceData: PriceData?
+
+    private var priceData: PriceData? {
+        asset.getPrice(for: selectedAccount.selectedCurrency)
+    }
+
+    private var rewardAssetPriceData: PriceData? {
+        rewardChainAsset?.asset.getPrice(for: selectedAccount.selectedCurrency)
+    }
 
     init(
         wireframe: StakingRewardDestSetupWireframeProtocol,
@@ -46,6 +53,7 @@ final class StakingRewardDestSetupPresenter {
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -57,6 +65,7 @@ final class StakingRewardDestSetupPresenter {
         self.chain = chain
         self.asset = asset
         self.selectedAccount = selectedAccount
+        self.rewardChainAsset = rewardChainAsset
         self.logger = logger
     }
 
@@ -189,17 +198,6 @@ extension StakingRewardDestSetupPresenter: ModalPickerViewControllerDelegate {
 }
 
 extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-            provideFeeViewModel()
-
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
-        }
-    }
-
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):
@@ -333,15 +331,6 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
             } ?? nil
         case let .failure(error):
             logger?.error("Account info error: \(error)")
-        }
-    }
-
-    func didReceiveRewardAssetPriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            rewardAssetPriceData = priceData
-        case let .failure(error):
-            logger?.error("Reward asset price data error: \(error)")
         }
     }
 }

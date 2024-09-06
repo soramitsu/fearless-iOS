@@ -12,7 +12,6 @@ protocol UserLiquidityPoolsListViewModelFactory {
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
-        prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
         type: LiquidityPoolListType,
@@ -34,7 +33,6 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
         reserves: CachedStorageResponse<[PolkaswapPoolReservesInfo]>?,
         apyInfos: [PoolApyInfo]?,
         chain: ChainModel,
-        prices: [PriceData]?,
         locale: Locale,
         wallet: MetaAccountModel,
         type: LiquidityPoolListType,
@@ -63,8 +61,8 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
             let apyValue = apyInfo?.apy
             let apyLabelText = apyValue.flatMap { NumberFormatter.percentAPY.stringFromDecimal($0) }
 
-            let baseAssetPrice = prices?.first(where: { $0.priceId == baseAsset.priceId })
-            let targetAssetPrice = prices?.first(where: { $0.priceId == targetAsset.priceId })
+            let baseAssetPrice = baseAsset.getPrice(for: wallet.selectedCurrency)
+            let targetAssetPrice = targetAsset.getPrice(for: wallet.selectedCurrency)
             let poolReservesInfo = reserves?.value?.first(where: { $0.poolId == pair.poolId })
             let reservesValue = modelFactory.buildReserves(
                 accountPool: pair,
@@ -142,7 +140,8 @@ final class UserLiquidityPoolsListViewModelFactoryDefault: UserLiquidityPoolsLis
     private func createBalanceViewModelFactory(for chainAsset: ChainAsset, wallet: MetaAccountModel) -> BalanceViewModelFactoryProtocol {
         BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
     }
 }

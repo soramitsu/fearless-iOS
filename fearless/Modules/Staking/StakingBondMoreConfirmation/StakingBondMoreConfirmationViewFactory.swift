@@ -64,8 +64,8 @@ struct StakingBondMoreConfirmViewFactory {
     ) -> StakingBondMoreConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         var confirmationViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol
@@ -108,10 +108,7 @@ struct StakingBondMoreConfirmViewFactory {
         wallet: MetaAccountModel,
         strategy: StakingBondMoreConfirmationStrategy
     ) -> StakingBondMoreConfirmationInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingBondMoreConfirmationInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
+        StakingBondMoreConfirmationInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: strategy

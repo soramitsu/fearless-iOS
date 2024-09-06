@@ -29,7 +29,6 @@ protocol NftSendInteractorOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(scamInfo: ScamInfo?)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
-    func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
 protocol NftSendRouterInput: AnyObject, PushDismissable, BaseErrorPresentable, SheetAlertPresentable {

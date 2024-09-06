@@ -20,7 +20,6 @@ final class ControllerAccountConfirmationPresenter {
 
     private var stashAccountItem: ChainAccountResponse?
     private var fee: Decimal?
-    private var priceData: PriceData?
     private var balance: Decimal?
     private var stakingLedger: StakingLedger?
 
@@ -88,6 +87,7 @@ final class ControllerAccountConfirmationPresenter {
 
     private func provideFeeViewModel() {
         if let fee = fee {
+            let priceData = asset.getPrice(for: selectedAccount.selectedCurrency)
             let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
             view?.didReceiveFee(viewModel: feeViewModel)
         } else {
@@ -186,17 +186,6 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationI
             provideFeeViewModel()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price data error: \(error)")
         }
     }
 

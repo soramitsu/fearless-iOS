@@ -93,8 +93,8 @@ struct AnalyticsValidatorsViewFactory {
     ) -> AnalyticsValidatorsPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
         let viewModelFactory = AnalyticsValidatorsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,

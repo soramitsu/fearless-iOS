@@ -35,6 +35,7 @@ struct StakingRebondConfirmationViewFactory {
 
         let presenter = createPresenter(
             chainAsset: chainAsset,
+            wallet: wallet,
             interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory,
@@ -56,6 +57,7 @@ struct StakingRebondConfirmationViewFactory {
     // swiftlint:disable function_parameter_count
     private static func createPresenter(
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
         wireframe: StakingRebondConfirmationWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
@@ -68,6 +70,7 @@ struct StakingRebondConfirmationViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             chainAsset: chainAsset,
             viewModelState: container.viewModelState,
+            wallet: wallet,
             logger: Logger.shared
         )
     }
@@ -78,10 +81,7 @@ struct StakingRebondConfirmationViewFactory {
         wallet: MetaAccountModel,
         container: StakingRebondConfirmationDependencyContainer
     ) -> StakingRebondConfirmationInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingRebondConfirmationInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
+        StakingRebondConfirmationInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             strategy: container.strategy
@@ -131,8 +131,8 @@ struct StakingRebondConfirmationViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(

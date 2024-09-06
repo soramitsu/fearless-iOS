@@ -11,7 +11,6 @@ enum CustomValidatorListViewFactory {
         flow: CustomValidatorListFlow
     ) -> CustomValidatorListViewProtocol? {
         let wireframe = CustomValidatorListWireframe()
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         guard let container = createContainer(
             flow: flow,
@@ -21,13 +20,7 @@ enum CustomValidatorListViewFactory {
             return nil
         }
 
-        let interactor = CustomValidatorListInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
-            chainAsset: chainAsset
-        )
-
         let presenter = CustomValidatorListPresenter(
-            interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: container.viewModelFactory,
             viewModelState: container.viewModelState,
@@ -42,7 +35,6 @@ enum CustomValidatorListViewFactory {
         )
 
         presenter.view = view
-        interactor.presenter = presenter
 
         return view
     }
@@ -57,7 +49,8 @@ extension CustomValidatorListViewFactory {
     ) -> CustomValidatorListDependencyContainer? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         let iconGenerator = UniversalIconGenerator()
 

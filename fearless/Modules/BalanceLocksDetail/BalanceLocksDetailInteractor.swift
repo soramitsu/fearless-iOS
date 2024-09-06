@@ -8,19 +8,15 @@ final class BalanceLocksDetailInteractor {
     private let balanceLocksFetching: BalanceLocksFetching
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        balanceLocksFetching: BalanceLocksFetching,
-        priceLocalSubscriber: PriceLocalStorageSubscriber
+        balanceLocksFetching: BalanceLocksFetching
     ) {
         self.balanceLocksFetching = balanceLocksFetching
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.priceLocalSubscriber = priceLocalSubscriber
     }
 
     private func fetchStakingLocks() async {
@@ -132,19 +128,6 @@ extension BalanceLocksDetailInteractor: BalanceLocksDetailInteractorInput {
             await fetchVestings()
             await fetchAssetFrozen()
             await fetchAssetBlocked()
-        }
-
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-    }
-}
-
-extension BalanceLocksDetailInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        switch result {
-        case let .success(price):
-            output?.didReceivePrice(price)
-        case let .failure(error):
-            output?.didReceivePriceError(error)
         }
     }
 }

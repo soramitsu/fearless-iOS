@@ -7,7 +7,9 @@ enum CrossChainSwapSetupInteractorError: Error {
     case accountNotFound
 }
 
-protocol CrossChainSwapSetupInteractorOutput: AnyObject {}
+protocol CrossChainSwapSetupInteractorOutput: AnyObject {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
+}
 
 final class CrossChainSwapSetupInteractor {
     // MARK: - Private properties
@@ -15,13 +17,16 @@ final class CrossChainSwapSetupInteractor {
     private weak var output: CrossChainSwapSetupInteractorOutput?
     private let wallet: MetaAccountModel
     private let okxService: OKXDexAggregatorService
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     init(
         okxService: OKXDexAggregatorService,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     ) {
         self.okxService = okxService
         self.wallet = wallet
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
     }
 
     private func getCrossChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
@@ -101,5 +106,25 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
         } else {
             return try await getCrossChainQuotes(chainAsset: chainAsset, destinationChainAsset: destinationChainAsset, amount: amount)
         }
+    }
+
+    func subscribeOnBalance(for chainAssets: [ChainAsset]) {
+        accountInfoSubscriptionAdapter.subscribe(
+            chainsAssets: chainAssets,
+            handler: self,
+            deliveryOn: .main
+        )
+    }
+}
+
+// MARK: - AccountInfoSubscriptionAdapterHandler
+
+extension CrossChainSwapSetupInteractor: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId _: AccountId,
+        chainAsset: ChainAsset
+    ) {
+        output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }

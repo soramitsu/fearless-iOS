@@ -108,7 +108,8 @@ final class NftSendConfirmPresenter {
             .displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }
@@ -201,18 +202,6 @@ extension NftSendConfirmPresenter: NftSendConfirmInteractorOutput {
             } ?? 0.0
         case let .failure(error):
             logger?.error("Did receive account info error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            if let priceData = priceData {
-                self.priceData = priceData
-                provideFeeViewModel()
-            }
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 }

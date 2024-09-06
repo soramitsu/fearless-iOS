@@ -80,7 +80,6 @@ final class StakingPoolInfoAssembly {
         }
         eraValidatorService.setup()
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -118,7 +117,6 @@ final class StakingPoolInfoAssembly {
         )
 
         let interactor = StakingPoolInfoInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             operationManager: operationManager,
             runtimeService: runtimeService,
@@ -132,7 +130,8 @@ final class StakingPoolInfoAssembly {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         let viewModelFactory = StakingPoolInfoViewModelFactory(
             chainAsset: chainAsset,

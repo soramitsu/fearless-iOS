@@ -9,7 +9,6 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private weak var output: SendInteractorOutput?
 
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
     private let scamInfoFetching: ScamInfoFetching
@@ -20,15 +19,11 @@ final class SendInteractor: RuntimeConstantFetching {
 
     let dependencyContainer: SendDepencyContainer
 
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
-    private var utilityPriceProvider: AnySingleValueProvider<[PriceData]>?
-
     private var subscriptionId: UInt16?
     private var dependencies: SendDependencies?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         operationManager: OperationManagerProtocol,
         scamInfoFetching: ScamInfoFetching,
         chainAssetFetching: ChainAssetFetchingProtocol,
@@ -37,7 +32,6 @@ final class SendInteractor: RuntimeConstantFetching {
         runtimeItemRepository: AsyncAnyRepository<RuntimeMetadataItem>
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.operationManager = operationManager
         self.scamInfoFetching = scamInfoFetching
         self.chainAssetFetching = chainAssetFetching
@@ -66,13 +60,6 @@ final class SendInteractor: RuntimeConstantFetching {
                     handler: self
                 )
             }
-        }
-    }
-
-    private func subscribeToPrice(for chainAsset: ChainAsset) {
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-        if let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
-            utilityPriceProvider = priceLocalSubscriber.subscribeToPrice(for: utilityAsset, listener: self)
         }
     }
 
@@ -131,7 +118,6 @@ extension SendInteractor: SendInteractorInput {
     }
 
     func updateSubscriptions(for chainAsset: ChainAsset) {
-        subscribeToPrice(for: chainAsset)
         updateDependencies(for: chainAsset)
     }
 
@@ -273,12 +259,6 @@ extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
         chainAsset: ChainAsset
     ) {
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
-    }
-}
-
-extension SendInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Swift.Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        output?.didReceivePriceData(result: result)
     }
 }
 

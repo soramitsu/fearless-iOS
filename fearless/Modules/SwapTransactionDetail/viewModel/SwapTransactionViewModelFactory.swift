@@ -194,7 +194,8 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }

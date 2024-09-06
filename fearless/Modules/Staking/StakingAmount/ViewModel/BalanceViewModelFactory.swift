@@ -42,17 +42,20 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     private let targetAssetInfo: AssetBalanceDisplayInfo
     private let formatterFactory: AssetBalanceFormatterFactoryProtocol
     private var selectedMetaAccount: MetaAccountModel
+    private let chainAsset: ChainAsset
 
     private let eventCenter = EventCenter.shared
 
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
         formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        chainAsset: ChainAsset
     ) {
         self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
         self.selectedMetaAccount = selectedMetaAccount
+        self.chainAsset = chainAsset
 
         eventCenter.add(observer: self, dispatchIn: .main)
     }
@@ -184,6 +187,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             }
 
             return AssetBalanceViewModel(
+                chain: self.chainAsset.chain.name,
                 symbol: symbol,
                 balance: balanceString,
                 fiatBalance: fiatBalance,

@@ -65,7 +65,12 @@ final class MultichainAssetSelectionPresenter {
 
                 if selectedChainId == nil {
                     selectedChainId = chains.first?.chainId
-                    selectAssetModuleInput?.update(with: (chains.first?.chainAssets).or([]))
+
+                    if let chain = chains.first {
+                        DispatchQueue.main.async { [weak self] in
+                            self?.didSelect(chain: chain)
+                        }
+                    }
                 }
 
                 let viewModels = viewModelFactory.buildViewModels(chains: chains, selectedChainId: selectedChainId)

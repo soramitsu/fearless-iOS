@@ -7,11 +7,15 @@ struct OKXSwap: Decodable {
 
 extension OKXSwap: CrossChainSwap {
     var route: String? {
-        nil
+        routerResult.quoteCompareList.sorted { quote1, quote2 in
+            quote1.amountOut > quote2.amountOut
+        }.first?.dexName
     }
 
     var crossChainFee: String? {
-        nil
+        routerResult.quoteCompareList.sorted { quote1, quote2 in
+            quote1.amountOut > quote2.amountOut
+        }.first?.tradeFee
     }
 
     var otherNativeFee: String? {

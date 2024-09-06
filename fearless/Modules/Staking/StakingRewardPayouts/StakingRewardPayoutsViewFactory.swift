@@ -100,7 +100,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let payoutsViewModelFactory = StakingPayoutViewModelFactory(
@@ -139,7 +140,6 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -148,7 +148,6 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
 
         let interactor = StakingRewardPayoutsInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             payoutService: payoutService,
             chainAsset: chainAsset,

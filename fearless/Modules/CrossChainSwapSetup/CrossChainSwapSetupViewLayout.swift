@@ -38,13 +38,17 @@ final class CrossChainSwapSetupViewLayout: UIView {
     }()
 
     let amountView = SelectableAmountInputView(type: .swapSend)
-    let receiveView = SelectableAmountInputView(type: .swapReceive)
+    let receiveView: SelectableAmountInputView = {
+        let view = SelectableAmountInputView(type: .swapReceive)
+        view.textField.isUserInteractionEnabled = false
+        return view
+    }()
 
-    let originNetworkFeeView = UIFactory.default.createMultiView()
-    let minReceivedView = UIFactory.default.createMultiView()
-    let routeView = UIFactory.default.createMultiView()
-    let sendRatioView = UIFactory.default.createMultiView()
-    let receiveRatioView = UIFactory.default.createMultiView()
+    let originNetworkFeeView = createMultiView()
+    let minReceivedView = createMultiView()
+    let routeView = createMultiView()
+    let sendRatioView = createMultiView()
+    let receiveRatioView = createMultiView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -72,16 +76,16 @@ final class CrossChainSwapSetupViewLayout: UIView {
 
     // MARK: - Public methods
 
-    func bind(viewModel: CrossChainSwapViewModel) {
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = false }
+    func bind(viewModel: CrossChainSwapViewModel?) {
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = viewModel == nil }
 
-        minReceivedView.bindBalance(viewModel: viewModel.minimumReceived)
-        routeView.valueTop.text = viewModel.route
-        sendRatioView.valueTop.text = viewModel.sendTokenRatio
-        receiveRatioView.valueTop.text = viewModel.receiveTokenRatio
-        sendRatioView.titleLabel.text = viewModel.sendTokenRatioTitle
-        receiveRatioView.titleLabel.text = viewModel.receiveTokenRatioTitle
-        originNetworkFeeView.bindBalance(viewModel: viewModel.fee)
+        minReceivedView.bindBalance(viewModel: viewModel?.minimumReceived)
+        routeView.valueTop.text = viewModel?.route
+        sendRatioView.valueTop.text = viewModel?.sendTokenRatio
+        receiveRatioView.valueTop.text = viewModel?.receiveTokenRatio
+        sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
+        receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
+        originNetworkFeeView.bindBalance(viewModel: viewModel?.fee)
     }
 
     func bind(originFeeViewModel: BalanceViewModelProtocol?) {
@@ -127,13 +131,11 @@ final class CrossChainSwapSetupViewLayout: UIView {
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.addArrangedSubview(receiveView)
         receiveView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.addArrangedSubview(minReceivedView)
@@ -162,5 +164,12 @@ final class CrossChainSwapSetupViewLayout: UIView {
         originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
+    }
+
+    private static func createMultiView() -> TitleMultiValueView {
+        let view = UIFactory.default.createMultiView()
+        view.titleLabel.font = .h6Title
+        view.valueTop.font = .h5Title
+        return view
     }
 }

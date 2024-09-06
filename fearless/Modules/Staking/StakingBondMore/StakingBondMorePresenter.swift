@@ -14,8 +14,11 @@ final class StakingBondMorePresenter {
     let viewModelState: StakingBondMoreViewModelState
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
-    private var priceData: PriceData?
     private let networkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol
+
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: StakingBondMoreInteractorInputProtocol,
@@ -52,6 +55,8 @@ final class StakingBondMorePresenter {
         )
     }
 }
+
+extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {}
 
 extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
     func didTapBackButton() {
@@ -93,20 +98,6 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 
     func selectAmountPercentage(_ percentage: Float) {
         viewModelState.selectAmountPercentage(percentage)
-    }
-}
-
-extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAsset()
-            provideFee()
-        case let .failure(error):
-            logger?.error("Did receive price data error: \(error)")
-        }
     }
 }
 

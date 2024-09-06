@@ -14,7 +14,8 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         let iconGenerator = UniversalIconGenerator()
         let balanceViewModelFactory: BalanceViewModelFactoryProtocol = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         switch flow {

@@ -38,7 +38,8 @@ final class StakinkPoolRewardCalculator: StakinkPoolRewardCalculatorProtocol {
     ) -> PoolRewardCalculatorResult {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let precision = Int16(chainAsset.asset.precision)

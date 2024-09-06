@@ -79,8 +79,6 @@ final class StakingPoolManagementAssembly {
             logger: logger
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
             operationManager: operationManager,
             chainRegistry: chainRegistry,
@@ -145,7 +143,6 @@ final class StakingPoolManagementAssembly {
         )
 
         let interactor = StakingPoolManagementInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
             chainAsset: chainAsset,
             wallet: wallet,
@@ -166,7 +163,8 @@ final class StakingPoolManagementAssembly {
         let viewModelFactory = StakingPoolManagementViewModelFactory(chainAsset: chainAsset)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let presenter = StakingPoolManagementPresenter(

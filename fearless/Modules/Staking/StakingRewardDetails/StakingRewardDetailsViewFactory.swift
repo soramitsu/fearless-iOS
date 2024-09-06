@@ -12,8 +12,8 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
     ) -> StakingRewardDetailsViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let viewModelFactory = StakingRewardDetailsViewModelFactory(
@@ -32,11 +32,8 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             localizationManager: LocalizationManager.shared
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let interactor = StakingRewardDetailsInteractor(
-            chainAsset: chainAsset,
-            priceLocalSubscriber: priceLocalSubscriber
+            chainAsset: chainAsset
         )
         let wireframe = StakingRewardDetailsWireframe()
 

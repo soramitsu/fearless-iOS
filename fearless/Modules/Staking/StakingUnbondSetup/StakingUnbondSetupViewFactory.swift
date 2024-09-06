@@ -32,7 +32,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let presenter = StakingUnbondSetupPresenter(
@@ -63,12 +64,9 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         wallet: MetaAccountModel,
         strategy: StakingUnbondSetupStrategy
     ) -> StakingUnbondSetupInteractor? {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return StakingUnbondSetupInteractor(
+        StakingUnbondSetupInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
-            priceLocalSubscriber: priceLocalSubscriber,
             strategy: strategy
         )
     }

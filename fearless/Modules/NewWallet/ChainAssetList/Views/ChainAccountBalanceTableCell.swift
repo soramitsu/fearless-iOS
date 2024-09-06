@@ -248,10 +248,6 @@ extension ChainAccountBalanceTableCell {
             return
         }
 
-        guard viewModel.priceDataWasUpdated else {
-            return
-        }
-
         stopLoadingIfNeeded()
         assetIconImageView.stopShimmeringAnimation()
         chainNameLabel.apply(state: .normal(chainName))

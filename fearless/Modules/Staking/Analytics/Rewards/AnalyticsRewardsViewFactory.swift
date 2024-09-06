@@ -50,11 +50,8 @@ struct AnalyticsRewardsViewFactory {
         chainAsset: ChainAsset,
         strategy: AnalyticsRewardsStrategy
     ) -> AnalyticsRewardsInteractor {
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
-        return AnalyticsRewardsInteractor(
+        AnalyticsRewardsInteractor(
             strategy: strategy,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             wallet: wallet
         )
@@ -73,8 +70,8 @@ struct AnalyticsRewardsViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         switch flow {

@@ -7,16 +7,8 @@ protocol CrossChainSwapSetupViewOutput: AnyObject {
     func didTapSelectAsset()
     func didTapBackButton()
     func didTapContinueButton()
-    func didTapScanButton()
-    func didTapHistoryButton()
-    func didTapMyWalletsButton()
-    func didTapPasteButton()
-    func searchTextDidChanged(_ text: String)
     func selectFromAmountPercentage(_ percentage: Float)
     func updateFromAmount(_ newValue: Decimal)
-    func selectToAmountPercentage(_ percentage: Float)
-    func updateToAmount(_ newValue: Decimal)
-
     func didTapSwitchInputsButton()
 }
 
@@ -147,7 +139,7 @@ extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
         updatePreviewButton()
     }
 
-    func didReceiveViewModel(viewModel: CrossChainSwapViewModel) {
+    func didReceiveViewModel(viewModel: CrossChainSwapViewModel?) {
         rootView.bind(viewModel: viewModel)
     }
 }
@@ -193,15 +185,6 @@ extension CrossChainSwapSetupViewController: AmountInputViewModelObserver {
             }
             output.updateFromAmount(amountFrom)
         }
-
-        if rootView.receiveView.textField.isFirstResponder {
-            guard let amountTo = amountToInputViewModel?.decimalAmount else {
-                output.updateToAmount(0)
-
-                return
-            }
-            output.updateToAmount(amountTo)
-        }
     }
 }
 
@@ -211,16 +194,12 @@ extension CrossChainSwapSetupViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         if rootView.amountView.textField.isFirstResponder {
             output.selectFromAmountPercentage(percentage)
-        } else if rootView.receiveView.textField.isFirstResponder {
-            output.selectToAmountPercentage(percentage)
         }
     }
 
     func didSelectDone(on _: AmountInputAccessoryView) {
         if rootView.amountView.textField.isFirstResponder {
             rootView.amountView.textField.resignFirstResponder()
-        } else if rootView.receiveView.textField.isFirstResponder {
-            rootView.receiveView.textField.resignFirstResponder()
         }
     }
 }
@@ -235,8 +214,6 @@ extension CrossChainSwapSetupViewController: UITextFieldDelegate {
     ) -> Bool {
         if textField == rootView.amountView.textField {
             return amountFromInputViewModel?.didReceiveReplacement(string, for: range) ?? false
-        } else if textField == rootView.receiveView.textField {
-            return amountToInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         }
         return true
     }
@@ -248,9 +225,6 @@ extension CrossChainSwapSetupViewController: UITextFieldDelegate {
         if textField == rootView.receiveView.textField, amountToInputViewModel != nil {
             let swapToIsFirstResponder = textField == rootView.receiveView.textField
             rootView.receiveView.set(highlighted: swapToIsFirstResponder, animated: false)
-        } else if textField == rootView.receiveView.textField {
-            rootView.receiveView.textField.resignFirstResponder()
-            output.didTapSelectAsset()
         }
     }
 

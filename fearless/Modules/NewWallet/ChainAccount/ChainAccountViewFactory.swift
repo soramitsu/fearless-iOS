@@ -74,7 +74,11 @@ enum ChainAccountViewFactory {
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
         let viewModelFactory = ChainAccountViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo, selectedMetaAccount: wallet)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
+        )
         guard let balanceInfoModule = Self.configureBalanceInfoModule(
             wallet: wallet,
             chainAsset: chainAsset

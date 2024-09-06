@@ -294,7 +294,6 @@ extension ChainAssetListBuilder {
     func createAssetChainAssets(
         from chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        pricesData: [PriceData],
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.normalizedSymbol() })
@@ -316,8 +315,7 @@ extension ChainAssetListBuilder {
                 accountInfos: accountInfos,
                 wallet: wallet
             )
-            let priceId = mainChainAsset.asset.priceId ?? mainChainAsset.asset.id
-            let priceData = pricesData.first(where: { $0.priceId == priceId })
+            let priceData = mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)
             let totalFiatBalance = getTotalFiatBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,

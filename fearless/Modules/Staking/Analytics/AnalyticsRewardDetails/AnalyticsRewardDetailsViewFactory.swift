@@ -14,8 +14,8 @@ struct AnalyticsRewardDetailsViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let viewModelFactory = AnalyticsRewardDetailsViewModelFactory(

@@ -20,7 +20,6 @@ final class LiquidityPoolsListAssembly {
         let poolService = PolkaswapLiquidityPoolServiceAssembly.buildService(for: chain, chainRegistry: chainRegistry)
         let interactor = AvailableLiquidityPoolsListInteractor(
             liquidityPoolService: poolService,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             chain: chain
         )
         let router = LiquidityPoolsListRouter()
@@ -60,7 +59,6 @@ final class LiquidityPoolsListAssembly {
         let poolService = PolkaswapLiquidityPoolServiceAssembly.buildService(for: chain, chainRegistry: chainRegistry)
         let interactor = UserLiquidityPoolsListInteractor(
             liquidityPoolService: poolService,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             chain: chain,
             wallet: wallet
         )

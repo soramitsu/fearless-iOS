@@ -31,7 +31,11 @@ struct ControllerAccountViewFactory {
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: asset.displayInfo, selectedMetaAccount: selectedAccount)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: asset.displayInfo,
+            selectedMetaAccount: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset)
+        )
 
         let presenter = ControllerAccountPresenter(
             wireframe: wireframe,

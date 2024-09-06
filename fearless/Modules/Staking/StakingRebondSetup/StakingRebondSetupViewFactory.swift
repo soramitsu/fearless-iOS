@@ -32,8 +32,8 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
@@ -95,7 +95,6 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -118,7 +117,6 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         let callFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
 
         return StakingRebondSetupInteractor(
-            priceLocalSubscriber: priceLocalSubscriber,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount

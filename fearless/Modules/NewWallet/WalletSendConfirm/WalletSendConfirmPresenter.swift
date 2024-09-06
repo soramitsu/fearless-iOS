@@ -45,13 +45,14 @@ final class WalletSendConfirmPresenter {
 
     private var balance: Decimal?
     private var utilityBalance: Decimal?
-    private var priceData: PriceData?
-    private var utilityPriceData: PriceData?
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
     private var eqUilibriumTotalBalance: Decimal?
 
     private var loadingCollector = SendLoadingCollector()
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: WalletSendConfirmInteractorInputProtocol,
@@ -168,6 +169,7 @@ final class WalletSendConfirmPresenter {
         else {
             return
         }
+        let utilityPriceData = utilityAsset.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: utilityPriceData, usageCase: .detailsCrypto) }?
@@ -186,7 +188,8 @@ final class WalletSendConfirmPresenter {
             .displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }
@@ -338,24 +341,6 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             loadingCollector.edReady = true
             checkLoadingState()
             logger?.error("Did receive minimum balance error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?) {
-        switch result {
-        case let .success(priceData):
-            if chainAsset.asset.priceId == priceId {
-                self.priceData = priceData
-                let utilityChainAsset = interactor.getFeePaymentChainAsset(for: chainAsset)
-                if utilityChainAsset?.chainAssetId == chainAsset.chainAssetId {
-                    utilityPriceData = priceData
-                }
-            } else {
-                utilityPriceData = priceData
-            }
-            provideViewModel()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 

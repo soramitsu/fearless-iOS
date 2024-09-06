@@ -26,7 +26,8 @@ struct ControllerAccountConfirmationViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
@@ -83,7 +84,6 @@ struct ControllerAccountConfirmationViewFactory {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -123,7 +123,6 @@ struct ControllerAccountConfirmationViewFactory {
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            priceLocalSubscriber: priceLocalSubscriber,
             runtimeService: runtimeService,
             extrinsicService: extrinsicService,
             signingWrapper: signingWrapper,

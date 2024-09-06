@@ -95,12 +95,10 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             logger: logger
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
-
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let storageOperationFactory = StorageRequestFactory(
@@ -153,7 +151,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -187,7 +184,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             let strategy = SelectValidatorsConfirmRelaychainExistingStrategy(
                 balanceAccountId: bonding.controllerAccount.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -268,7 +264,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -306,7 +301,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-                priceLocalSubscriber: priceLocalSubscriber,
                 extrinsicService: extrinsicService,
                 runtimeService: runtimeService,
                 durationOperationFactory: StakingDurationOperationFactory(),
@@ -353,8 +347,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
             formatterFactory: AssetBalanceFormatterFactory(),
-
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(
@@ -385,6 +379,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
             chainAsset: chainAsset,
+            wallet: wallet,
             logger: Logger.shared
         )
 
@@ -417,7 +412,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         return SelectValidatorsConfirmInteractorBase(
             balanceAccountId: accountId,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared,
             chainAsset: chainAsset,
             strategy: strategy,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter

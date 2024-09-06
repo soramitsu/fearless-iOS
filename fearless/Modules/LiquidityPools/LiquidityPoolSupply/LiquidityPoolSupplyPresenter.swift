@@ -279,7 +279,8 @@ final class LiquidityPoolSupplyPresenter {
             .displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }
@@ -288,7 +289,8 @@ final class LiquidityPoolSupplyPresenter {
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }

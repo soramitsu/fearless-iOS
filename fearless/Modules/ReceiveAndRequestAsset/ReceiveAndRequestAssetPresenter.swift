@@ -34,7 +34,6 @@ final class ReceiveAndRequestAssetPresenter {
     private var qrOperation: Task<UIImage?, Error>?
     private var inputResult: AmountInputResult?
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
-    private var pricesData: [PriceData]? = []
 
     private var address: String? {
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
@@ -81,7 +80,7 @@ final class ReceiveAndRequestAssetPresenter {
         let inputAmount = inputResult?.absoluteValue(from: balance) ?? 0.0
         let balanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, chainAsset: chainAsset)
 
-        let priceData = pricesData?.first(where: { $0.priceId == chainAsset.asset.priceId })
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount,
@@ -126,7 +125,8 @@ final class ReceiveAndRequestAssetPresenter {
             .displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }
@@ -267,16 +267,6 @@ extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetViewOutput {
 // MARK: - ReceiveAndRequestAssetInteractorOutput
 
 extension ReceiveAndRequestAssetPresenter: ReceiveAndRequestAssetInteractorOutput {
-    func didReceivePricesData(result: Result<[SSFModels.PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            pricesData = prices
-            provideAssetVewModel()
-        case let .failure(failure):
-            Logger.shared.customError(failure)
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: SSFModels.ChainAsset) {
         switch result {
         case let .success(accountInfo):

@@ -25,7 +25,6 @@ final class StakingPoolManagementPresenter {
 
     private var balance: Decimal?
     private var stakeInfo: StakingPoolMember?
-    private var priceData: PriceData?
     private var eraStakersInfo: EraStakersInfo?
     private var stakingDuration: StakingDuration?
     private var stakingPool: StakingPool?
@@ -38,6 +37,10 @@ final class StakingPoolManagementPresenter {
     private var pendingRewards: BigUInt?
 
     private var electedValidators: [ElectedValidatorInfo]?
+
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     // MARK: - Constructors
 
@@ -370,15 +373,6 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
             logger.error(error.localizedDescription)
         }
     }
-
-    func didReceive(priceData: PriceData?) {
-        self.priceData = priceData
-
-        provideBalanceViewModel()
-        provideUnstakingViewModel()
-    }
-
-    func didReceive(priceError _: Error) {}
 
     func didReceive(stakeInfo: StakingPoolMember?) {
         self.stakeInfo = stakeInfo

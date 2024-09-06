@@ -17,7 +17,8 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
     func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
         BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            chainAsset: chainAsset
         )
     }
 

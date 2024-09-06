@@ -29,16 +29,17 @@ final class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewMode
         wallet: MetaAccountModel,
         locale: Locale
     ) -> CrossChainSwapViewModel {
+        let utilityFeeChainAsset = sourceChainAsset.chain.utilityChainAssets().first ?? sourceChainAsset
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
         let targetBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: targetChainAsset)
+        let feeBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: utilityFeeChainAsset)
 
         let minimumReceiveAmount = swap.toAmount.flatMap { BigUInt(string: $0) }
         let minimumReceiveAmountDecimal = minimumReceiveAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetChainAsset.asset.precision)) }
-        let minimumReceiveAmountViewModel = minimumReceiveAmountDecimal.flatMap { targetBalanceViewModelFactory?.balanceFromPrice($0, priceData: nil, usageCase: .detailsCrypto) }
+        let minimumReceiveAmountViewModel = minimumReceiveAmountDecimal.flatMap { targetBalanceViewModelFactory?.balanceFromPrice($0, priceData: targetChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
 
         let receiveAmount = swap.toAmount.flatMap { BigUInt(string: $0) }
         let receiveAmountDecimal = receiveAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(targetChainAsset.asset.precision)) }
-        let receiveAmountString = receiveAmountDecimal.flatMap { targetBalanceViewModelFactory?.amountFromValue($0, usageCase: .detailsCrypto) }
 
         let sendAmount = swap.fromAmount.flatMap { BigUInt(string: $0) }
         let sendAmountDecimal = sendAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainAsset.asset.precision)) }
@@ -75,9 +76,9 @@ final class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewMode
         let otherNativeFee = swap.otherNativeFee.flatMap { BigUInt(string: $0) }
 
         let totalFee = fee.or(.zero) + crossChainFee.or(.zero) + otherNativeFee.or(.zero)
-        let totalFeeDecimal = Decimal.fromSubstrateAmount(totalFee, precision: Int16(sourceChainAsset.asset.precision))
+        let totalFeeDecimal = Decimal.fromSubstrateAmount(totalFee, precision: Int16(utilityFeeChainAsset.asset.precision))
 
-        let totalFeeViewModel = totalFeeDecimal.flatMap { sourceBalanceViewModelFactory?.balanceFromPrice($0, priceData: nil, usageCase: .detailsCrypto) }
+        let totalFeeViewModel = totalFeeDecimal.flatMap { feeBalanceViewModelFactory?.balanceFromPrice($0, priceData: utilityFeeChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
         let sendTokenRatioTitle = "\(sourceChainAsset.asset.symbol.uppercased())/\(targetChainAsset.asset.symbol.uppercased())"
         let receiveTokenRatioTitle = "\(targetChainAsset.asset.symbol.uppercased())/\(sourceChainAsset.asset.symbol.uppercased())"
         return CrossChainSwapViewModel(
@@ -102,7 +103,8 @@ final class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewMode
             .displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
         return balanceViewModelFactory
     }

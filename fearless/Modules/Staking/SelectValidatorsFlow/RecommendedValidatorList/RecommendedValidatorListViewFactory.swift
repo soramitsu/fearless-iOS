@@ -45,7 +45,8 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
     ) -> RecommendedValidatorListDependencyContainer? {
         let balanceViewModelFactory: BalanceViewModelFactoryProtocol = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         switch flow {

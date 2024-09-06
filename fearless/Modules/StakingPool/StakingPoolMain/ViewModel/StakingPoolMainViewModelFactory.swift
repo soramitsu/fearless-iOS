@@ -23,7 +23,6 @@ protocol StakingPoolMainViewModelFactoryProtocol {
     // swiftlint:disable function_parameter_count
     func buildNominatorStateViewModel(
         stakeInfo: StakingPoolMember,
-        priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
         poolInfo: StakingPool,
@@ -76,7 +75,8 @@ final class StakingPoolMainViewModelFactory {
 
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: wallet,
+            chainAsset: chainAsset
         )
 
         balanceViewModelFactory = factory
@@ -262,7 +262,6 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
 
     func buildNominatorStateViewModel(
         stakeInfo: StakingPoolMember,
-        priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
         poolInfo: StakingPool,
@@ -299,6 +298,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         var unstakingViewModel: StakingUnitInfoViewModel?
 
         let pendingReward = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
+        let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
 
         guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData, usageCase: .listCrypto),
               let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData, usageCase: .listCrypto)
