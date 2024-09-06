@@ -8740,7 +8740,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				078499932C88882200B8B170 /* SourceryConfiguration */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -8765,6 +8764,7 @@
 		849013AA24A80984008F705E /* fearless */ = {
 			isa = PBXGroup;
 			children = (
+				078499932C88882200B8B170 /* SourceryConfiguration */,
 				FA8644342767AB7E00956D8E /* CoreLayer */,
 				FA38C9A227606FDD005C5577 /* ApplicationLayer */,
 				8490141D24A93027008F705E /* Fonts */,
@@ -15488,7 +15488,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$PODS_ROOT/Sourcery/bin/sourcery --config \"${PROJECT_DIR}/SourceryConfiguration/Configuration/Sourcery.yml\" --prune\n";
+			shellScript = "$PODS_ROOT/Sourcery/bin/sourcery --config \"${PROJECT_DIR}/fearless/SourceryConfiguration/Configuration/Sourcery.yml\" --prune\n";
 		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
