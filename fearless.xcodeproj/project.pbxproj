@@ -15458,7 +15458,6 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				$PROJECT_DIR/FearlessTestCaravan/Mocks/BalanceLocksFetching.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

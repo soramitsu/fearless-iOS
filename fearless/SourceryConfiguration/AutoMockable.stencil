@@ -112,8 +112,6 @@ import {{ import }}
 @testable import {{ import }}
 {% endfor %}
 
-
-
 public class {{ type.name }}Mock: {{ type.name }} {
 public init() {}
 {% for variable in type.allVariables|!definedInExtension %}
