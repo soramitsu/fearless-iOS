@@ -15546,8 +15546,8 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				$PROJECT_DIR/CIKeys.generated.swift,
+				"$(DERIVED_FILE_DIR)/SourceryCIKeysConfiguration/CIKeys.generated.swift",
+				$PROJECT_DIR/SourceryCIKeysConfiguration/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

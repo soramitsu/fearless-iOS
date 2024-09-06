@@ -1,6 +1,6 @@
 sources:
     include:
-    - ./
+    - ../
 templates:
     - ./CIKeys.stencil
 output:
