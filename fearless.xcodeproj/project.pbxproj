@@ -15248,6 +15248,7 @@
 				078499782C886A7500B8B170 /* Sources */,
 				078499792C886A7500B8B170 /* Frameworks */,
 				0784997A2C886A7500B8B170 /* Resources */,
+				07376D992C8ACCAE00E05360 /* Sourcery Mocks */,
 			);
 			buildRules = (
 			);
@@ -15264,7 +15265,6 @@
 			buildConfigurationList = 849013C724A80986008F705E /* Build configuration list for PBXNativeTarget "fearless" */;
 			buildPhases = (
 				94F787D261F4281B7F6AFE26 /* [CP] Check Pods Manifest.lock */,
-				078499942C88893E00B8B170 /* Sourcery Mocks */,
 				AE2060202636DA5900357578 /* Inject keys */,
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
@@ -15445,7 +15445,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		078499942C88893E00B8B170 /* Sourcery Mocks */ = {
+		07376D992C8ACCAE00E05360 /* Sourcery Mocks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
