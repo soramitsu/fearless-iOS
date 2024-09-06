@@ -1,10 +1,10 @@
 sources:
     include:
-    - ../../fearless/SourceryCIKeysConfiguration
+    - ./
 templates:
-    - CIKeys.stencil
+    - ./CIKeys.stencil
 output:
-    - ../../fearless/SourceryCIKeysConfiguration
+    - ./CIKeys.generated.swift
 args:
     moonPaySecretKey: $MOONPAY_PRODUCTION_SECRET
     moonPayTestSecretKey: $MOONPAY_TEST_SECRET
