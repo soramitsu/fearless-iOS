@@ -1,0 +1,40 @@
+sources:
+    include:
+    - ../SourceryCIKeysConfiguration
+templates:
+    - CIKeys.stencil
+output:
+    ../SourceryCIKeysConfiguration
+args:
+    moonPaySecretKey: $MOONPAY_PRODUCTION_SECRET
+    moonPayTestSecretKey: $MOONPAY_TEST_SECRET
+    subscanAPIKey: $SUBSCAN_API_KEY
+    soraCardAPIKey: $SORA_CARD_API_KEY
+    soraCardDomain: $SORA_CARD_DOMAIN
+    soraCardKycEndpoint: $SORA_CARD_KYC_ENDPOINT_URL
+    soraCardKycUsername: $SORA_CARD_KYC_USERNAME
+    soraCardKycPassword: $SORA_CARD_KYC_PASSWORD
+    paywingsRepositoryUrl: $PAY_WINGS_REPOSITORY_URL
+    paywingsUsername: $PAY_WINGS_USERNAME
+    paywingsPassword: $PAY_WINGS_PASSWORD
+    x1EndpointUrlRelease: $X1_ENDPOINT_URL_RELEASE
+    x1WidgetIdRelease: $X1_WIDGET_ID_RELEASE
+    x1EndpointUrlDebug: $X1_ENDPOINT_URL_DEBUG
+    x1WidgetIdDebug: $X1_WIDGET_ID_DEBUG
+    ethereumApiKey: $FL_BLAST_API_ETHEREUM_KEY
+    bscApiKey: $FL_BLAST_API_BSC_KEY
+    sepoliaApiKey: $FL_BLAST_API_SEPOLIA_KEY
+    goerliApiKey: $FL_BLAST_API_GOERLI_KEY
+    polygonApiKey: $FL_BLAST_API_POLYGON_KEY
+    walletConnectProjectId: $FL_WALLET_CONNECT_PROJECT_ID
+    webClientIdRelease: $WEB_CLIENT_ID_RELEASE
+    fearlessGoogleUrlSchemeRelease: $FEARLESS_GOOGLE_URL_SCHEME_RELEASE
+    webClientIdDebug: $WEB_CLIENT_ID_DEBUG
+    fearlessGoogleUrlSchemeDebug: $FEARLESS_GOOGLE_URL_SCHEME_DEBUG
+    etherscanApiKey: $FL_IOS_ETHERSCAN_API_KEY
+    bscscanApiKey: $FL_IOS_BSCSCAN_API_KEY
+    polygonscanApiKey: $FL_IOS_POLYGONSCAN_API_KEY
+    alchemyApiKey: $FL_IOS_ALCHEMY_API_ETHEREUM_KEY
+    oklinkApiKey: $FL_OKLINK_API_KEY
+    opMainnetApiKey: $FL_IOS_OPTIMISTIC_ETHERSCAN_API_KEY
+    dwellirApiKey: $FL_DWELLIR_API_KEY
