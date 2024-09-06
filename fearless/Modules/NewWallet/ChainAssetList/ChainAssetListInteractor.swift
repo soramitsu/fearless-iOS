@@ -187,21 +187,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
                 }
-                self?.subscribeOnPrices(chainAssets: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
         }
-    }
-
-    func subscribeOnPrices(chainAssets: [ChainAsset]) {
-        let operation = accountRepository.fetchAllOperation(with: RepositoryFetchOptions.none)
-        operation.completionBlock = { [weak self] in
-            let wallets = try? operation.extractNoCancellableResultData()
-            let currencies = wallets?.map { $0.selectedCurrency } ?? []
-            self?.pricesService.startPricesObserving(for: chainAssets, currencies: currencies)
-        }
-        OperationManagerFacade.sharedDefaultQueue.addOperation(operation)
     }
 
     func markUnused(chain: ChainModel) {
@@ -234,6 +223,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         })
 
         ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
+        pricesService.updatePrices()
     }
 
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
@@ -289,7 +279,6 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             guard let chainAssets = chainAssets else {
                 return
             }
-            subscribeOnPrices(chainAssets: chainAssets)
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
