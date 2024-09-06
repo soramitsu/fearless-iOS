@@ -74,7 +74,7 @@
 		07376DA52C8B067200E05360 /* AutoMockable.stencil in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA02C8B067200E05360 /* AutoMockable.stencil */; };
 		07376DA72C8B067200E05360 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA22C8B067200E05360 /* CIKeys.stencil */; };
 		07376DA82C8B067200E05360 /* sourcery.yml in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA32C8B067200E05360 /* sourcery.yml */; };
-		07376DAD2C8B20A500E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376DAC2C8B20A500E05360 /* CIKeys.generated.swift */; };
+		07376DAE2C8B2A5400E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376DAC2C8B20A500E05360 /* CIKeys.generated.swift */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
 		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
@@ -16868,7 +16868,7 @@
 				FA8EE743294C4E3E0052C888 /* AllDoneViewModel.swift in Sources */,
 				FAB0EDE027AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
-				07376DAD2C8B20A500E05360 /* CIKeys.generated.swift in Sources */,
+				07376DAE2C8B2A5400E05360 /* CIKeys.generated.swift in Sources */,
 				8498430326592D29006BBB9F /* CrowdloanStatusSectionView.swift in Sources */,
 				8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
