@@ -70,8 +70,8 @@
 		073417B3298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B0298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift */; };
 		073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
-		07376D982C8ABE0000E05360 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */; };
 		07376D9D2C8AF15100E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */; };
+		07376D9F2C8B01E500E05360 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D9E2C8B01E500E05360 /* BalanceLocksFetching.generated.swift */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
 		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
@@ -2912,9 +2912,9 @@
 		073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalWalletService.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
 		07376D922C8ABB7400E05360 /* AutoMockable.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
-		07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
-		07376D9A2C8AD4F000E05360 /* Config.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = Config.yml; sourceTree = "<group>"; };
+		07376D9A2C8AD4F000E05360 /* sourcery.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = sourcery.yml; sourceTree = "<group>"; };
 		07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = "<group>"; };
+		07376D9E2C8B01E500E05360 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
 		073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDisconnectService.swift; sourceTree = "<group>"; };
 		073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalDataValidating.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
@@ -6229,7 +6229,7 @@
 		07376D9B2C8AD5FA00E05360 /* SourceryConfiguration */ = {
 			isa = PBXGroup;
 			children = (
-				07376D9A2C8AD4F000E05360 /* Config.yml */,
+				07376D9A2C8AD4F000E05360 /* sourcery.yml */,
 				AE2060AF2637068700357578 /* CIKeys.stencil */,
 				07376D922C8ABB7400E05360 /* AutoMockable.stencil */,
 				07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */,
@@ -6343,7 +6343,7 @@
 		078499A72C898B4B00B8B170 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
-				07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */,
+				07376D9E2C8B01E500E05360 /* BalanceLocksFetching.generated.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -15264,7 +15264,7 @@
 			buildConfigurationList = 849013C724A80986008F705E /* Build configuration list for PBXNativeTarget "fearless" */;
 			buildPhases = (
 				94F787D261F4281B7F6AFE26 /* [CP] Check Pods Manifest.lock */,
-				AE2060202636DA5900357578 /* Inject keys */,
+				AE2060202636DA5900357578 /* Sourcery */,
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
 				849013CE24A92280008F705E /* R.swift */,
@@ -15504,7 +15504,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AE2060202636DA5900357578 /* Inject keys */ = {
+		AE2060202636DA5900357578 /* Sourcery */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -15513,16 +15513,14 @@
 			);
 			inputPaths = (
 			);
-			name = "Inject keys";
+			name = Sourcery;
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/SourceryCIKeysConfiguration/CIKeys.generated.swift",
-				$PROJECT_DIR/SourceryCIKeysConfiguration/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\n#WORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\n#echo \"Sourcery Work Directory = $WORK_DIR\"\n\n#OUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\n#echo \"Sourcery Output File = $OUT_FILE\"\n\nCONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryConfiguration\"\necho \"Sourcery Config File = $CONFIG\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\"\n\n#add params to the xcconfig files\n#variableNames=(\"FEARLESS_GOOGLE_TOKEN\" \"FEARLESS_GOOGLE_URL_SCHEME\")\n\n# Iterate over the array\n#for variableName in \"${variableNames[@]}\"; do\n#    for file in \"$PROJECT_DIR\"/fearless/Configs/*.xcconfig; do\n#        if ! grep -q \"^$variableName = ${!variableName}$\" \"$file\"; then\n#            echo \"$variableName = ${!variableName}\" >> \"$file\"\n#        fi\n#    done\n#done\n\n#/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $FEARLESS_GOOGLE_URL_SCHEME\" \"$PROJECT_DIR\"/fearless/Info.plist\n\n#/usr/libexec/PlistBuddy -c \"Set :GIDClientID $FEARLESS_GOOGLE_TOKEN\" \"$PROJECT_DIR\"/fearless/Info.plist\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nCONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryConfiguration/sourcery.yml\"\necho \"Sourcery Config File = $CONFIG\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\"\n";
 		};
 		B60C6E08CACA1CEBC1520619 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -15586,7 +15584,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07376D982C8ABE0000E05360 /* BalanceLocksFetching.generated.swift in Sources */,
+				07376D9F2C8B01E500E05360 /* BalanceLocksFetching.generated.swift in Sources */,
 				0784997F2C886A7500B8B170 /* ChainModelsEquatableTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
