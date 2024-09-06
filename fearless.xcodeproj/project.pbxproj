@@ -70,8 +70,11 @@
 		073417B3298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B0298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift */; };
 		073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
-		07376D9D2C8AF15100E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */; };
-		07376D9F2C8B01E500E05360 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D9E2C8B01E500E05360 /* BalanceLocksFetching.generated.swift */; };
+		07376D982C8ABE0000E05360 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */; };
+		07376DA52C8B067200E05360 /* AutoMockable.stencil in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA02C8B067200E05360 /* AutoMockable.stencil */; };
+		07376DA62C8B067200E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376DA12C8B067200E05360 /* CIKeys.generated.swift */; };
+		07376DA72C8B067200E05360 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA22C8B067200E05360 /* CIKeys.stencil */; };
+		07376DA82C8B067200E05360 /* sourcery.yml in Resources */ = {isa = PBXBuildFile; fileRef = 07376DA32C8B067200E05360 /* sourcery.yml */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
 		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
@@ -1197,7 +1200,6 @@
 		ACB3420A31CCBA85ECB3B7C3 /* WalletTransactionHistoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E7F3E6BBE50797A9EB9145 /* WalletTransactionHistoryViewController.swift */; };
 		ADF845374BEF73D90D4BF005 /* SwapTransactionDetailRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F329740EC1B8CC94D02A8ABD /* SwapTransactionDetailRouter.swift */; };
 		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
-		AE2060B02637068700357578 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* CIKeys.stencil */; };
 		AE2C845D25EE833A00986716 /* RewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C845C25EE833A00986716 /* RewardViewModel.swift */; };
 		AE2C846525EE884900986716 /* RewardViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C846425EE884900986716 /* RewardViewModelFactory.swift */; };
 		AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */; };
@@ -2911,10 +2913,11 @@
 		073417B0298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalBalanceServiceFactory.swift; sourceTree = "<group>"; };
 		073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalWalletService.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
-		07376D922C8ABB7400E05360 /* AutoMockable.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
-		07376D9A2C8AD4F000E05360 /* sourcery.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = sourcery.yml; sourceTree = "<group>"; };
-		07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = "<group>"; };
-		07376D9E2C8B01E500E05360 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
+		07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
+		07376DA02C8B067200E05360 /* AutoMockable.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
+		07376DA12C8B067200E05360 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = "<group>"; };
+		07376DA22C8B067200E05360 /* CIKeys.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CIKeys.stencil; sourceTree = "<group>"; };
+		07376DA32C8B067200E05360 /* sourcery.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = sourcery.yml; sourceTree = "<group>"; };
 		073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDisconnectService.swift; sourceTree = "<group>"; };
 		073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalDataValidating.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
@@ -4201,7 +4204,6 @@
 		ADD19595322BF8FEC0F1F746 /* StakingPoolCreatePresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreatePresenter.swift; sourceTree = "<group>"; };
 		ADD348E749EC6A7E3BB069DE /* StakingUnbondConfirmProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmProtocols.swift; sourceTree = "<group>"; };
 		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
-		AE2060AF2637068700357578 /* CIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = CIKeys.stencil; sourceTree = "<group>"; };
 		AE2C101D267A6271004AA8E9 /* CustomValidatorListComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListComposerTests.swift; sourceTree = "<group>"; };
 		AE2C101F267A67DD004AA8E9 /* CustomValidatorListTestDataGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListTestDataGenerator.swift; sourceTree = "<group>"; };
 		AE2C845C25EE833A00986716 /* RewardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModel.swift; sourceTree = "<group>"; };
@@ -6226,13 +6228,13 @@
 			path = Swipable;
 			sourceTree = "<group>";
 		};
-		07376D9B2C8AD5FA00E05360 /* SourceryConfiguration */ = {
+		07376DA42C8B067200E05360 /* SourceryConfiguration */ = {
 			isa = PBXGroup;
 			children = (
-				07376D9A2C8AD4F000E05360 /* sourcery.yml */,
-				AE2060AF2637068700357578 /* CIKeys.stencil */,
-				07376D922C8ABB7400E05360 /* AutoMockable.stencil */,
-				07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */,
+				07376DA02C8B067200E05360 /* AutoMockable.stencil */,
+				07376DA12C8B067200E05360 /* CIKeys.generated.swift */,
+				07376DA22C8B067200E05360 /* CIKeys.stencil */,
+				07376DA32C8B067200E05360 /* sourcery.yml */,
 			);
 			path = SourceryConfiguration;
 			sourceTree = "<group>";
@@ -6343,7 +6345,7 @@
 		078499A72C898B4B00B8B170 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
-				07376D9E2C8B01E500E05360 /* BalanceLocksFetching.generated.swift */,
+				07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -8748,7 +8750,7 @@
 		849013AA24A80984008F705E /* fearless */ = {
 			isa = PBXGroup;
 			children = (
-				07376D9B2C8AD5FA00E05360 /* SourceryConfiguration */,
+				07376DA42C8B067200E05360 /* SourceryConfiguration */,
 				FA8644342767AB7E00956D8E /* CoreLayer */,
 				FA38C9A227606FDD005C5577 /* ApplicationLayer */,
 				8490141D24A93027008F705E /* Fonts */,
@@ -15248,6 +15250,7 @@
 				078499782C886A7500B8B170 /* Sources */,
 				078499792C886A7500B8B170 /* Frameworks */,
 				0784997A2C886A7500B8B170 /* Resources */,
+				07376D992C8ACCAE00E05360 /* Sourcery Mocks */,
 			);
 			buildRules = (
 			);
@@ -15264,7 +15267,7 @@
 			buildConfigurationList = 849013C724A80986008F705E /* Build configuration list for PBXNativeTarget "fearless" */;
 			buildPhases = (
 				94F787D261F4281B7F6AFE26 /* [CP] Check Pods Manifest.lock */,
-				AE2060202636DA5900357578 /* Sourcery */,
+				AE2060202636DA5900357578 /* Inject keys */,
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
 				849013CE24A92280008F705E /* R.swift */,
@@ -15397,6 +15400,7 @@
 				842876AC24AE049B00D91AD8 /* SelectionTitleTableViewCell.xib in Resources */,
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
 				842876AE24AE049B00D91AD8 /* SelectionListViewController.xib in Resources */,
+				07376DA82C8B067200E05360 /* sourcery.yml in Resources */,
 				8428765824ADDE0200D91AD8 /* ProfileTableViewCell.xib in Resources */,
 				84D8F16724D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib in Resources */,
 				84D2F45A25EF0556008B914D /* RecommendedValidatorCell.xib in Resources */,
@@ -15429,11 +15433,12 @@
 				84D2F46425EF6A5A008B914D /* RecommendedValidatorListHeaderView.xib in Resources */,
 				DAD0C626F7AA97E4974486AD /* AccountConfirmViewController.xib in Resources */,
 				8438C45B2655AC2600047E3F /* runtime-rococo.json in Resources */,
-				AE2060B02637068700357578 /* CIKeys.stencil in Resources */,
+				07376DA72C8B067200E05360 /* CIKeys.stencil in Resources */,
 				9D5F6A48E7A9166B9341F417 /* NetworkInfoViewController.xib in Resources */,
 				07F2B75D28A6565900280C38 /* chains.json in Resources */,
 				84FFE50D261290BC0054EA63 /* NetworkInfoView.xib in Resources */,
 				2624D8CEBB61A185A5E8B994 /* AccountExportPasswordViewController.xib in Resources */,
+				07376DA52C8B067200E05360 /* AutoMockable.stencil in Resources */,
 				48E7D7072820F66F286A0B9D /* StakingMainViewController.xib in Resources */,
 				FA93754A2AE928BE002CA482 /* types.json in Resources */,
 				742374EE778D76ABC965E107 /* StakingAmountViewController.xib in Resources */,
@@ -15444,6 +15449,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		07376D992C8ACCAE00E05360 /* Sourcery Mocks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Sourcery Mocks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "$PODS_ROOT/Sourcery/bin/sourcery --config \"${PROJECT_DIR}/fearless/SourceryConfiguration/Sourcery.yml\" --prune\n";
+		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -15504,7 +15527,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		AE2060202636DA5900357578 /* Sourcery */ = {
+		AE2060202636DA5900357578 /* Inject keys */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -15513,10 +15536,12 @@
 			);
 			inputPaths = (
 			);
-			name = Sourcery;
+			name = "Inject keys";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/SourceryCIKeysConfiguration/CIKeys.generated.swift",
+				$PROJECT_DIR/SourceryCIKeysConfiguration/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -15584,7 +15609,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				07376D9F2C8B01E500E05360 /* BalanceLocksFetching.generated.swift in Sources */,
+				07376D982C8ABE0000E05360 /* BalanceLocksFetching.generated.swift in Sources */,
 				0784997F2C886A7500B8B170 /* ChainModelsEquatableTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -16938,7 +16963,7 @@
 				AE2C846525EE884900986716 /* RewardViewModelFactory.swift in Sources */,
 				076D9D3B293E3511002762E3 /* SwapValues.swift in Sources */,
 				DAB29F2A9C864D7FCF1AF934 /* UsernameSetupProtocols.swift in Sources */,
-				07376D9D2C8AF15100E05360 /* CIKeys.generated.swift in Sources */,
+				07376DA62C8B067200E05360 /* CIKeys.generated.swift in Sources */,
 				FA2FC80128B3807C00CC0A42 /* StakingPoolJoinChoosePoolInteractor.swift in Sources */,
 				FA34EED42B98723C0042E73E /* OnboardingStartViewLayout.swift in Sources */,
 				FAA0139728DA1312000A5230 /* StakingBondMoreConfirmationPoolViewModelFactory.swift in Sources */,
