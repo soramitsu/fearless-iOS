@@ -1,11 +1,11 @@
 #Key Injection
 sources:
     include:
-    ../../fearless
+    - ../../fearless
 templates:
-    ./CIKeys.stencil
+    - ./CIKeys.stencil
 output:
-    ./CIKeys.generated.swift
+    - ./CIKeys.generated.swift
 args:
     moonPaySecretKey: $MOONPAY_PRODUCTION_SECRET
     moonPayTestSecretKey: $MOONPAY_TEST_SECRET
@@ -43,10 +43,10 @@ args:
 #Mocks Generation
 sources:
     include:
-    ../../fearless
+    - ../../fearless
 templates:
-    ./AutoMockable.stencil
+    - ./AutoMockable.stencil
 output:
-    ../../FearlessTestCaravan/Mocks
+    - ../../FearlessTestCaravan/Mocks
 args:
     autoMockableTestableImports: ["fearless"]
