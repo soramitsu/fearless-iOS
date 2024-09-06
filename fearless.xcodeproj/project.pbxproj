@@ -71,6 +71,7 @@
 		073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
 		07376D982C8ABE0000E05360 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */; };
+		07376D9D2C8AF15100E05360 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
 		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
@@ -1230,7 +1231,6 @@
 		AE8B883226733BAD00AB0AA9 /* CustomValidatorListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */; };
 		AE8B8835267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8834267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift */; };
 		AE8B8837267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8836267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift */; };
-		AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D028D2638074D00780D18 /* CIKeys.generated.swift */; };
 		AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF254260A82830026910A /* StoriesViewController.swift */; };
 		AE9EF25A260A82970026910A /* StoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF259260A82970026910A /* StoriesInteractor.swift */; };
 		AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF25E260A82A50026910A /* StoriesPresenter.swift */; };
@@ -2912,9 +2912,9 @@
 		073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalWalletService.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
 		07376D922C8ABB7400E05360 /* AutoMockable.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
-		07376D932C8ABB7400E05360 /* Sourcery.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = Sourcery.yml; sourceTree = "<group>"; };
 		07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
-		07376D9A2C8AD4F000E05360 /* CIKeys.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = CIKeys.yml; sourceTree = "<group>"; };
+		07376D9A2C8AD4F000E05360 /* Config.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = Config.yml; sourceTree = "<group>"; };
+		07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = "<group>"; };
 		073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDisconnectService.swift; sourceTree = "<group>"; };
 		073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalDataValidating.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
@@ -4243,7 +4243,6 @@
 		AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListHeaderView.swift; sourceTree = "<group>"; };
 		AE8B8834267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVlidatorRelaychainListFilter.swift; sourceTree = "<group>"; };
 		AE8B8836267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorRelaychainListComposer.swift; sourceTree = "<group>"; };
-		AE8D028D2638074D00780D18 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CIKeys.generated.swift; path = fearless/SourceryCIKeysConfiguration/CIKeys.generated.swift; sourceTree = SOURCE_ROOT; };
 		AE9EF254260A82830026910A /* StoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewController.swift; sourceTree = "<group>"; };
 		AE9EF259260A82970026910A /* StoriesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesInteractor.swift; sourceTree = "<group>"; };
 		AE9EF25E260A82A50026910A /* StoriesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesPresenter.swift; sourceTree = "<group>"; };
@@ -6227,23 +6226,15 @@
 			path = Swipable;
 			sourceTree = "<group>";
 		};
-		07376D942C8ABB7400E05360 /* SourceryMockConfiguration */ = {
+		07376D9B2C8AD5FA00E05360 /* SourceryConfiguration */ = {
 			isa = PBXGroup;
 			children = (
-				07376D922C8ABB7400E05360 /* AutoMockable.stencil */,
-				07376D932C8ABB7400E05360 /* Sourcery.yml */,
-			);
-			path = SourceryMockConfiguration;
-			sourceTree = "<group>";
-		};
-		07376D9B2C8AD5FA00E05360 /* SourceryCIKeysConfiguration */ = {
-			isa = PBXGroup;
-			children = (
-				07376D9A2C8AD4F000E05360 /* CIKeys.yml */,
+				07376D9A2C8AD4F000E05360 /* Config.yml */,
 				AE2060AF2637068700357578 /* CIKeys.stencil */,
-				AE8D028D2638074D00780D18 /* CIKeys.generated.swift */,
+				07376D922C8ABB7400E05360 /* AutoMockable.stencil */,
+				07376D9C2C8AF15100E05360 /* CIKeys.generated.swift */,
 			);
-			path = SourceryCIKeysConfiguration;
+			path = SourceryConfiguration;
 			sourceTree = "<group>";
 		};
 		073B34BD2AE91FC600DC5106 /* Validators */ = {
@@ -8757,8 +8748,7 @@
 		849013AA24A80984008F705E /* fearless */ = {
 			isa = PBXGroup;
 			children = (
-				07376D9B2C8AD5FA00E05360 /* SourceryCIKeysConfiguration */,
-				07376D942C8ABB7400E05360 /* SourceryMockConfiguration */,
+				07376D9B2C8AD5FA00E05360 /* SourceryConfiguration */,
 				FA8644342767AB7E00956D8E /* CoreLayer */,
 				FA38C9A227606FDD005C5577 /* ApplicationLayer */,
 				8490141D24A93027008F705E /* Fonts */,
@@ -15258,7 +15248,6 @@
 				078499782C886A7500B8B170 /* Sources */,
 				078499792C886A7500B8B170 /* Frameworks */,
 				0784997A2C886A7500B8B170 /* Resources */,
-				07376D992C8ACCAE00E05360 /* Sourcery Mocks */,
 			);
 			buildRules = (
 			);
@@ -15455,24 +15444,6 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		07376D992C8ACCAE00E05360 /* Sourcery Mocks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Sourcery Mocks";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "$PODS_ROOT/Sourcery/bin/sourcery --config \"${PROJECT_DIR}/fearless/SourceryConfiguration/Sourcery.yml\" --prune\n";
-		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -15551,7 +15522,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\n#WORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\n#echo \"Sourcery Work Directory = $WORK_DIR\"\n\n#OUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\n#echo \"Sourcery Output File = $OUT_FILE\"\n\nCONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryCIKeysConfiguration\"\necho \"Sourcery Config File = $CONFIG\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\"\n\n#add params to the xcconfig files\n#variableNames=(\"FEARLESS_GOOGLE_TOKEN\" \"FEARLESS_GOOGLE_URL_SCHEME\")\n\n# Iterate over the array\n#for variableName in \"${variableNames[@]}\"; do\n#    for file in \"$PROJECT_DIR\"/fearless/Configs/*.xcconfig; do\n#        if ! grep -q \"^$variableName = ${!variableName}$\" \"$file\"; then\n#            echo \"$variableName = ${!variableName}\" >> \"$file\"\n#        fi\n#    done\n#done\n\n#/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $FEARLESS_GOOGLE_URL_SCHEME\" \"$PROJECT_DIR\"/fearless/Info.plist\n\n#/usr/libexec/PlistBuddy -c \"Set :GIDClientID $FEARLESS_GOOGLE_TOKEN\" \"$PROJECT_DIR\"/fearless/Info.plist\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\n#WORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\n#echo \"Sourcery Work Directory = $WORK_DIR\"\n\n#OUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\n#echo \"Sourcery Output File = $OUT_FILE\"\n\nCONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryConfiguration\"\necho \"Sourcery Config File = $CONFIG\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\"\n\n#add params to the xcconfig files\n#variableNames=(\"FEARLESS_GOOGLE_TOKEN\" \"FEARLESS_GOOGLE_URL_SCHEME\")\n\n# Iterate over the array\n#for variableName in \"${variableNames[@]}\"; do\n#    for file in \"$PROJECT_DIR\"/fearless/Configs/*.xcconfig; do\n#        if ! grep -q \"^$variableName = ${!variableName}$\" \"$file\"; then\n#            echo \"$variableName = ${!variableName}\" >> \"$file\"\n#        fi\n#    done\n#done\n\n#/usr/libexec/PlistBuddy -c \"Set :CFBundleURLTypes:0:CFBundleURLSchemes:0 $FEARLESS_GOOGLE_URL_SCHEME\" \"$PROJECT_DIR\"/fearless/Info.plist\n\n#/usr/libexec/PlistBuddy -c \"Set :GIDClientID $FEARLESS_GOOGLE_TOKEN\" \"$PROJECT_DIR\"/fearless/Info.plist\n";
 		};
 		B60C6E08CACA1CEBC1520619 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -15665,7 +15636,6 @@
 				FAE39AFA2AA063450011A9D6 /* NFTTransferService.swift in Sources */,
 				F458D3C12642B7D80055CB75 /* LearnMoreView.swift in Sources */,
 				8460E11F25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift in Sources */,
-				AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */,
 				076D9D43294051B3002762E3 /* ExpandableSubtitleCell.swift in Sources */,
 				F40966B726B297D6008CD244 /* AnalyticsContainerViewController.swift in Sources */,
 				FA2FC81928B3807D00CC0A42 /* StakingPoolStartViewController.swift in Sources */,
@@ -16970,6 +16940,7 @@
 				AE2C846525EE884900986716 /* RewardViewModelFactory.swift in Sources */,
 				076D9D3B293E3511002762E3 /* SwapValues.swift in Sources */,
 				DAB29F2A9C864D7FCF1AF934 /* UsernameSetupProtocols.swift in Sources */,
+				07376D9D2C8AF15100E05360 /* CIKeys.generated.swift in Sources */,
 				FA2FC80128B3807C00CC0A42 /* StakingPoolJoinChoosePoolInteractor.swift in Sources */,
 				FA34EED42B98723C0042E73E /* OnboardingStartViewLayout.swift in Sources */,
 				FAA0139728DA1312000A5230 /* StakingBondMoreConfirmationPoolViewModelFactory.swift in Sources */,

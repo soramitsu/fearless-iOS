@@ -1,9 +1,0 @@
-sources:
-    include:
-        - ../../fearless
-templates:
-    - AutoMockable.stencil
-output:
-    ../../FearlessTestCaravan/Mocks
-args:
-    autoMockableTestableImports: ["fearless"]
