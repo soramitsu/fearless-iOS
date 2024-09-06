@@ -70,6 +70,7 @@
 		073417B3298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B0298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift */; };
 		073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
+		07376D982C8ABE0000E05360 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */; };
 		073B34BC2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */; };
 		073B34BF2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
@@ -113,7 +114,6 @@
 		0783EEB02AE1867A006476F4 /* WalletConnectEthereumTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0783EEAF2AE1867A006476F4 /* WalletConnectEthereumTransferService.swift */; };
 		0783EEB22AE193F3006476F4 /* BokoloConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0783EEB12AE193F3006476F4 /* BokoloConstants.swift */; };
 		0784997F2C886A7500B8B170 /* ChainModelsEquatableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0784997E2C886A7500B8B170 /* ChainModelsEquatableTests.swift */; };
-		078499A92C898B6C00B8B170 /* BalanceLocksFetching.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078499A82C898B6C00B8B170 /* BalanceLocksFetching.generated.swift */; };
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
@@ -2911,6 +2911,9 @@
 		073417B0298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalBalanceServiceFactory.swift; sourceTree = "<group>"; };
 		073417B1298BA28300104F41 /* EquilibriumTotalWalletService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EquilibriumTotalWalletService.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
+		07376D922C8ABB7400E05360 /* AutoMockable.stencil */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
+		07376D932C8ABB7400E05360 /* Sourcery.yml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.yaml; path = Sourcery.yml; sourceTree = "<group>"; };
+		07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
 		073B34BB2AE8CC4500DC5106 /* WalletConnectDisconnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectDisconnectService.swift; sourceTree = "<group>"; };
 		073B34BE2AE91FE600DC5106 /* WalletConnectProposalDataValidating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletConnectProposalDataValidating.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
@@ -2955,9 +2958,6 @@
 		0783EEB12AE193F3006476F4 /* BokoloConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BokoloConstants.swift; sourceTree = "<group>"; };
 		0784997C2C886A7500B8B170 /* FearlessTestCaravan.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FearlessTestCaravan.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0784997E2C886A7500B8B170 /* ChainModelsEquatableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainModelsEquatableTests.swift; sourceTree = "<group>"; };
-		0784998F2C88882200B8B170 /* Sourcery.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = Sourcery.yml; sourceTree = "<group>"; };
-		078499912C88882200B8B170 /* AutoMockable.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = AutoMockable.stencil; sourceTree = "<group>"; };
-		078499A82C898B6C00B8B170 /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
@@ -3232,7 +3232,6 @@
 		59FDAE57EE0A97872E76E6CE /* Pods_fearlessTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5A05EB4FAF2FDE7DECEA93E4 /* StakingMainViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainViewController.swift; sourceTree = "<group>"; };
 		5A4416B96A9DD5FB5EEA086E /* WalletSendConfirmViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmViewLayout.swift; sourceTree = "<group>"; };
-		5A9E9C746B8297B3E4A4045C /* BalanceLocksFetching.generated.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BalanceLocksFetching.generated.swift; path = FearlessTestCaravan/Mocks/BalanceLocksFetching.generated.swift; sourceTree = "<group>"; };
 		5AA3BF0C9C1E0E2C67D962F5 /* PurchaseViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PurchaseViewFactory.swift; sourceTree = "<group>"; };
 		5B0CF2F98779D3C18D0C0A29 /* NodeSelectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NodeSelectionTests.swift; sourceTree = "<group>"; };
 		5B5D683E7DE3533CA418BD21 /* PolkaswapAdjustmentPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapAdjustmentPresenter.swift; sourceTree = "<group>"; };
@@ -6227,6 +6226,15 @@
 			path = Swipable;
 			sourceTree = "<group>";
 		};
+		07376D942C8ABB7400E05360 /* SourceryConfiguration */ = {
+			isa = PBXGroup;
+			children = (
+				07376D922C8ABB7400E05360 /* AutoMockable.stencil */,
+				07376D932C8ABB7400E05360 /* Sourcery.yml */,
+			);
+			path = SourceryConfiguration;
+			sourceTree = "<group>";
+		};
 		073B34BD2AE91FC600DC5106 /* Validators */ = {
 			isa = PBXGroup;
 			children = (
@@ -6330,35 +6338,10 @@
 			path = FearlessTestCaravan;
 			sourceTree = "<group>";
 		};
-		078499902C88882200B8B170 /* Configuration */ = {
-			isa = PBXGroup;
-			children = (
-				0784998F2C88882200B8B170 /* Sourcery.yml */,
-			);
-			path = Configuration;
-			sourceTree = "<group>";
-		};
-		078499922C88882200B8B170 /* Templates */ = {
-			isa = PBXGroup;
-			children = (
-				078499912C88882200B8B170 /* AutoMockable.stencil */,
-			);
-			path = Templates;
-			sourceTree = "<group>";
-		};
-		078499932C88882200B8B170 /* SourceryConfiguration */ = {
-			isa = PBXGroup;
-			children = (
-				078499902C88882200B8B170 /* Configuration */,
-				078499922C88882200B8B170 /* Templates */,
-			);
-			path = SourceryConfiguration;
-			sourceTree = "<group>";
-		};
 		078499A72C898B4B00B8B170 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
-				078499A82C898B6C00B8B170 /* BalanceLocksFetching.generated.swift */,
+				07376D972C8ABE0000E05360 /* BalanceLocksFetching.generated.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -8748,7 +8731,6 @@
 				2698CD398B0412EB85D620AB /* Pods */,
 				84CFF1CA26526C4700DB7CF7 /* Recovered References */,
 				C278E98FD96B1805C96BD127 /* Frameworks */,
-				A81CFD4CF9872F37CB8A8080 /* Mocks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -8764,7 +8746,7 @@
 		849013AA24A80984008F705E /* fearless */ = {
 			isa = PBXGroup;
 			children = (
-				078499932C88882200B8B170 /* SourceryConfiguration */,
+				07376D942C8ABB7400E05360 /* SourceryConfiguration */,
 				FA8644342767AB7E00956D8E /* CoreLayer */,
 				FA38C9A227606FDD005C5577 /* ApplicationLayer */,
 				8490141D24A93027008F705E /* Fonts */,
@@ -10537,14 +10519,6 @@
 				9622C6C3102EF12BEE78D63D /* AssetSelectionViewFactory.swift */,
 			);
 			path = AssetSelection;
-			sourceTree = "<group>";
-		};
-		A81CFD4CF9872F37CB8A8080 /* Mocks */ = {
-			isa = PBXGroup;
-			children = (
-				5A9E9C746B8297B3E4A4045C /* BalanceLocksFetching.generated.swift */,
-			);
-			name = Mocks;
 			sourceTree = "<group>";
 		};
 		A8D1128660EFE277FE867C45 /* StakingPoolCreate */ = {
@@ -15488,7 +15462,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "$PODS_ROOT/Sourcery/bin/sourcery --config \"${PROJECT_DIR}/fearless/SourceryConfiguration/Configuration/Sourcery.yml\" --prune\n";
+			shellScript = "$PODS_ROOT/Sourcery/bin/sourcery --config \"${PROJECT_DIR}/fearless/SourceryConfiguration/Sourcery.yml\" --prune\n";
 		};
 		849013CD24A92260008F705E /* Swiftlint */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -15632,7 +15606,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				078499A92C898B6C00B8B170 /* BalanceLocksFetching.generated.swift in Sources */,
+				07376D982C8ABE0000E05360 /* BalanceLocksFetching.generated.swift in Sources */,
 				0784997F2C886A7500B8B170 /* ChainModelsEquatableTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
