@@ -15543,7 +15543,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nCONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryConfiguration/sourcery.yml\"\necho \"Sourcery Config File = $CONFIG\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\"\n";
+			shellScript = "\nif [ $ACTION != \"indexbuild\" ]; then\n    #check if env-vars.sh exists\n    if [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\n    then\n    source $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\n    fi\n    #no `else` case needed if the CI works as expected\n\n    CONFIG=\"$PROJECT_DIR/$PROJECT_NAME/SourceryConfiguration/sourcery.yml\"\n    echo \"Sourcery Config File = $CONFIG\"\n\n    \"$PODS_ROOT/Sourcery/bin/sourcery\" --config \"$CONFIG\"\nfi\n";
 		};
 		B60C6E08CACA1CEBC1520619 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
