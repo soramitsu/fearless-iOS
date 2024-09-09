@@ -7,9 +7,9 @@ configurations:
       output:
         ../../fearless
       args:
-        moonPaySecretKey: $MOONPAY_PRODUCTION_SECRET
-        moonPayTestSecretKey: $MOONPAY_TEST_SECRET
-        subscanAPIKey: $SUBSCAN_API_KEY
+        moonPaySecretKey: ${MOONPAY_PRODUCTION_SECRET}
+        moonPayTestSecretKey: ${MOONPAY_TEST_SECRET}
+        subscanAPIKey: ${SUBSCAN_API_KEY}
         soraCardAPIKey: $SORA_CARD_API_KEY
         soraCardDomain: $SORA_CARD_DOMAIN
         soraCardKycEndpoint: $SORA_CARD_KYC_ENDPOINT_URL
