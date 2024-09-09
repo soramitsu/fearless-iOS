@@ -15540,6 +15540,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				$PROJECT_DIR/$PROJECT_NAME/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
