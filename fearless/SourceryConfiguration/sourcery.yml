@@ -5,7 +5,7 @@ configurations:
       templates:
         - ./CIKeys.stencil
       output:
-        $PROJECT_DIR
+        ../../fearless
       args:
         moonPaySecretKey: $MOONPAY_PRODUCTION_SECRET
         moonPayTestSecretKey: $MOONPAY_TEST_SECRET
