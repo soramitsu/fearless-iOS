@@ -161,10 +161,11 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             locale: locale,
             wallet: wallet
         ) ?? "0"
+        let priceData = cell.chainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let price = getFiatBalanceString(
             for: [cell.chainAsset],
             accountInfos: accountInfos,
-            priceData: cell.chainAsset.asset.getPrice(for: wallet.selectedCurrency),
+            priceData: priceData,
             locale: locale,
             wallet: wallet,
             shouldShowZero: true
@@ -172,7 +173,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         let decimalPrice = getTotalFiatBalance(
             for: [cell.chainAsset],
             accountInfos: accountInfos,
-            priceData: cell.chainAsset.asset.getPrice(for: wallet.selectedCurrency),
+            priceData: priceData,
             wallet: wallet
         )
         let balance = BalanceViewModel(
@@ -202,10 +203,11 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 locale: locale,
                 wallet: wallet
             ) ?? "0"
+            let priceData = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
             let price = getFiatBalanceString(
                 for: [chainAsset],
                 accountInfos: accountInfos,
-                priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
+                priceData: priceData,
                 locale: locale,
                 wallet: wallet,
                 shouldShowZero: true
@@ -213,7 +215,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
             let decimalPrice = getTotalFiatBalance(
                 for: [chainAsset],
                 accountInfos: accountInfos,
-                priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
+                priceData: priceData,
                 wallet: wallet
             )
             let balance = BalanceViewModel(

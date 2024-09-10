@@ -166,16 +166,6 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
                 }, {
                     []
                 })
-                saveOperation.completionBlock = { [weak self] in
-                    switch saveOperation.result {
-                    case .success:
-                        break
-                    case let .failure(error):
-                        self?.logger.customError(error)
-                    case .none:
-                        print("no chains")
-                    }
-                }
                 strongSelf.operationQueue.addOperation(saveOperation)
             } catch {
                 strongSelf.logger.customError(error)

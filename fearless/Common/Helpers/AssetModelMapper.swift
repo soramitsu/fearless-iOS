@@ -20,10 +20,6 @@ final class AssetModelMapper {
 
         return EthereumAssetType(rawValue: rawValue)
     }
-}
-
-extension AssetModelMapper: CoreDataMapperProtocol {
-    var entityIdentifierFieldName: String { #keyPath(CDAsset.priceId) }
 
     private func createPriceData(from entity: CDPriceData) -> PriceData? {
         guard let currencyId = entity.currencyId,
@@ -39,6 +35,10 @@ extension AssetModelMapper: CoreDataMapperProtocol {
             coingeckoPriceId: entity.coingeckoPriceId
         )
     }
+}
+
+extension AssetModelMapper: CoreDataMapperProtocol {
+    var entityIdentifierFieldName: String { #keyPath(CDAsset.priceId) }
 
     func transform(entity: CDAsset) throws -> AssetModel {
         var symbol: String?

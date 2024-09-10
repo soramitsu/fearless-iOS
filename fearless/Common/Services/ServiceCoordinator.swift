@@ -20,6 +20,7 @@ final class ServiceCoordinator {
     private let polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
+    private let pricesService: PricesServiceProtocol
     private let tonConnectService: TonConnectService
     private let toggleService: LocalToggleService
 
@@ -31,6 +32,7 @@ final class ServiceCoordinator {
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
         walletConnect: WalletConnectService,
         walletAssetsObserver: WalletAssetsObserver,
+        pricesService: PricesServiceProtocol,
         tonConnectService: TonConnectService,
         toggleService: LocalToggleService
     ) {
@@ -41,6 +43,7 @@ final class ServiceCoordinator {
         self.polkaswapSettingsService = polkaswapSettingsService
         self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
+        self.pricesService = pricesService
         self.tonConnectService = tonConnectService
         self.toggleService = toggleService
     }
@@ -65,6 +68,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         polkaswapSettingsService.syncUp()
         walletConnect.setup()
         walletAssetsObserver.setup()
+        pricesService.setup()
         tonConnectService.setup()
         toggleService.setup()
     }
@@ -125,6 +129,7 @@ extension ServiceCoordinator {
             polkaswapSettingsService: polkaswapSettingsService,
             walletConnect: walletConnect,
             walletAssetsObserver: walletAssetsObserver,
+            pricesService: PricesService.shared,
             tonConnectService: ServiceAssembly.shared.tonConnectService(),
             toggleService: ServiceAssembly.shared.localToggle
         )

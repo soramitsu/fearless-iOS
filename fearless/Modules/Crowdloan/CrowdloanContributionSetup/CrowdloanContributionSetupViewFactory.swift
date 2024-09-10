@@ -53,7 +53,7 @@ struct CrowdloanContributionSetupViewFactory {
             localizationManager: localizationManager,
             logger: Logger.shared,
             chainAsset: ChainAsset(chain: chain, asset: asset),
-            wallet: selectedMetaAccount
+            selectedCurrency: selectedMetaAccount.selectedCurrency
         )
 
         let view = CrowdloanContributionSetupViewController(

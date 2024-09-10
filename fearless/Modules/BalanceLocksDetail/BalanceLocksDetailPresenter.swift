@@ -11,7 +11,7 @@ final class BalanceLocksDetailPresenter {
     private let logger: LoggerProtocol?
     private let viewModelFactory: BalanceLockDetailViewModelFactory
     private let chainAsset: ChainAsset
-    private let wallet: MetaAccountModel
+    private let selectedCurrency: Currency
 
     private var nominationPoolLocks: NoneStateOptional<StakingLocks?> = .none
     private var stakingLocks: NoneStateOptional<StakingLocks?> = .none
@@ -31,14 +31,14 @@ final class BalanceLocksDetailPresenter {
         logger: LoggerProtocol?,
         viewModelFactory: BalanceLockDetailViewModelFactory,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        selectedCurrency: Currency
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
         self.viewModelFactory = viewModelFactory
         self.chainAsset = chainAsset
-        self.wallet = wallet
+        self.selectedCurrency = selectedCurrency
         self.localizationManager = localizationManager
     }
 
@@ -53,7 +53,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildStakingLocksViewModel(
             stakingLocks: stakingLocks,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveStakingLocksViewModel(viewModel)
@@ -68,7 +68,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildNominationPoolLocksViewModel(
             nominationPoolLocks: nominationPoolLocks,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceivePoolLocksViewModel(viewModel)
@@ -86,7 +86,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildCrowdloanLocksViewModel(
             crowdloanLocks: crowdloanLocks,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveCrowdloanLocksViewModel(viewModel)
@@ -102,7 +102,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildVestingLocksViewModel(
             vestingLocks: vestingLocks,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveCrowdloanLocksViewModel(viewModel)
@@ -114,7 +114,7 @@ final class BalanceLocksDetailPresenter {
         }
         let viewModel = viewModelFactory.buildGovernanceLocksViewModel(
             governanceLocks: governanceLocks,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveGovernanceLocksViewModel(viewModel)
@@ -137,7 +137,7 @@ final class BalanceLocksDetailPresenter {
             governanceLocks: governanceLocks,
             crowdloanLocks: crowdloanLocks,
             vestingLocks: vestingLocks,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveTotalLocksViewModel(viewModel)
@@ -165,7 +165,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildAssetFrozenViewModel(
             assetFrozen: assetFrozen,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveAssetFrozenViewModel(viewModel)
@@ -180,7 +180,7 @@ final class BalanceLocksDetailPresenter {
 
         let viewModel = viewModelFactory.buildAssetBlockedViewModel(
             assetBlocked: assetBlocked,
-            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+            priceData: chainAsset.asset.getPrice(for: selectedCurrency)
         )
 
         await view?.didReceiveAssetBlockedViewModel(viewModel)
