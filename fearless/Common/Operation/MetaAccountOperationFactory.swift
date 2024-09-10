@@ -511,9 +511,11 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 try saveSeed(query.seed, metaId: metaId, ecosystem: request.ecosystem)
             case .ton:
                 let tonQuery = try getTonQuery(mnemonic: request.mnemonic)
-                accountId = tonQuery.publicKey
-                privateKey = tonQuery.privateKey
-                publicKey = tonQuery.publicKey
+                return request.meta.replacingTon(
+                    tonPublicKey: tonQuery.publicKey,
+                    tonAddress: tonQuery.address,
+                    tonContractVersion: tonQuery.contractVersion
+                )
             }
 
             try saveSecretKey(
