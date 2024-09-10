@@ -17,8 +17,8 @@ extension TonConnect {
 
     struct DeviceInfo: Encodable {
         let platform = "iphone"
-        let appName = "Tonkeeper"
-        let appVersion = "3.4.0"
+        let appName = "Fearless"
+        let appVersion = AppVersion.stringValue
         let maxProtocolVersion = 2
         let features = [
             FeatureCompatible.legacy(Feature()),

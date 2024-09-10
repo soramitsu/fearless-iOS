@@ -76,9 +76,7 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.tonConnect(uri: uri)
             } catch {
-                Task { @MainActor in
-                    router.present(error: error, from: view, locale: selectedLocale)
-                }
+                Logger.shared.customError(error)
             }
         }
     }

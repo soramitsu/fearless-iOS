@@ -66,4 +66,7 @@ protocol TonConnectService: ApplicationServiceProtocol {
     func saveDisconnected(
         app: TonConnectApp
     ) async
+
+    /// Disconnect from all apps and update event center
+    func disconnectAll() async
 }

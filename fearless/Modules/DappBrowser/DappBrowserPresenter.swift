@@ -242,7 +242,7 @@ extension DappBrowserPresenter: TonWebBridgeModuleOutput {
 // MARK: - TonConnectServiceDelegate
 
 extension DappBrowserPresenter: TonConnectServiceDelegate {
-    func didDisconnected(app: TonConnectApp) {
+    func didDisconnectedApp() {
         provideTableViewModel()
     }
 }

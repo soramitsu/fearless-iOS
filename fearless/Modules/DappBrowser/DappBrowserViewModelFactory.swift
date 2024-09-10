@@ -190,7 +190,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
     ) -> DappBrowserViewModel {
         let featured = dapps.map {
             DappBrowserFeaturedViewModel(
-                poster: RemoteImageViewModel(url: $0.poster) ?? BundleImageViewModel(image: R.image.fearlessBanner()),
+                poster: RemoteImageViewModel(url: $0.poster) ?? BundleImageViewModel(image: R.image.featuredBanner()),
                 icon: RemoteImageViewModel(url: $0.icon),
                 dappName: $0.name,
                 dappDescription: $0.description ?? "",

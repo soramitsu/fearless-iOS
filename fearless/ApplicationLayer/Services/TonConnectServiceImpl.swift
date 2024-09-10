@@ -217,7 +217,18 @@ actor TonConnectServiceImpl: TonConnectService {
         await appRepository.remove(ids: [app.identifier])
         await updateEventCenter()
         listeners.forEach {
-            ($0.target as? TonConnectServiceDelegate)?.didDisconnected(app: app)
+            ($0.target as? TonConnectServiceDelegate)?.didDisconnectedApp()
+        }
+    }
+
+    func disconnectAll() async {
+        guard let apps = try? await appRepository.fetchAll() else {
+            return
+        }
+        await appRepository.remove(ids: apps.map { $0.identifier })
+        await updateEventCenter()
+        listeners.forEach {
+            ($0.target as? TonConnectServiceDelegate)?.didDisconnectedApp()
         }
     }
 

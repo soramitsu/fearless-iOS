@@ -10,10 +10,6 @@ struct TonDapp: Codable, Equatable, Identifiable {
     let poster: URL?
     let url: URL
 
-    static func == (lhs: TonDapp, rhs: TonDapp) -> Bool {
-        lhs.url.host == rhs.url.host
-    }
-
     enum CodingKeys: CodingKey {
         case identifier
         case chains
@@ -22,23 +18,5 @@ struct TonDapp: Codable, Equatable, Identifiable {
         case icon
         case poster
         case url
-    }
-
-    init(
-        identifier: String,
-        chains: [String],
-        name: String,
-        description: String?,
-        icon: URL,
-        poster: URL?,
-        url: URL
-    ) {
-        self.identifier = identifier
-        self.chains = chains
-        self.name = name
-        self.description = description
-        self.icon = icon
-        self.poster = poster
-        self.url = url
     }
 }

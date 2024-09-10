@@ -7,7 +7,11 @@ final class DappBrowserFeaturedCell: UICollectionViewCell {
         imageView.clipsToBounds = true
         return imageView
     }()
-    let iconViewImage = UIImageView()
+    let iconViewImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.clipsToBounds = true
+        return imageView
+    }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -48,12 +52,7 @@ final class DappBrowserFeaturedCell: UICollectionViewCell {
     func configure(model: DappBrowserFeaturedViewModel) {
         model.poster.loadImage(
             on: posterImageView,
-            targetSize: bounds.size,
-            animated: true
-        )
-        model.poster.loadImage(
-            on: posterImageView,
-            placholder: R.image.fearlessBanner(),
+            placholder: R.image.featuredBanner(),
             targetSize: bounds.size,
             animated: true
         )

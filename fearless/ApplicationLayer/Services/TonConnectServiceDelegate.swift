@@ -20,7 +20,7 @@ protocol TonConnectServiceDelegate: AnyObject {
         walletId: MetaAccountId,
         app: TonConnectApp
     )
-    func didDisconnected(app: TonConnectApp)
+    func didDisconnectedApp()
 }
 
 extension TonConnectServiceDelegate {
@@ -42,7 +42,5 @@ extension TonConnectServiceDelegate {
         walletId: MetaAccountId,
         app: TonConnectApp
     ) {}
-    func didDisconnected(
-        app: TonConnectApp
-    ) {}
+    func didDisconnectedApp() {}
 }
