@@ -74,7 +74,8 @@ final class WalletConnectProposalPresenter {
     }
 
     private func buildViewModel() {
-        guard chains.isNotEmpty, wallets.isNotEmpty else {
+        guard chains.isNotEmpty, wallets.filter({ $0.tonPublicKey != nil }).isNotEmpty else {
+            showMissingAccountAlert()
             return
         }
         do {
@@ -294,6 +295,24 @@ final class WalletConnectProposalPresenter {
             } catch {
                 logger.customError(error)
             }
+        }
+    }
+
+    private func showMissingAccountAlert() {
+        Task { @MainActor in
+            let title = R.string.localizable.accountNeededTitle(preferredLanguages: selectedLocale.rLanguages)
+            let message = R.string.localizable.accountNeededMessage(preferredLanguages: selectedLocale.rLanguages)
+            let closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+            let closeAction = SheetAlertPresentableAction(title: closeActionTitle) { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
+            router.present(
+                message: message,
+                title: title,
+                closeAction: nil,
+                from: view,
+                actions: [closeAction]
+            )
         }
     }
 }
