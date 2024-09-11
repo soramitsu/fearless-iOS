@@ -6,11 +6,7 @@ PODS:
   - CocoaLumberjack (3.8.4):
     - CocoaLumberjack/Core (= 3.8.4)
   - CocoaLumberjack/Core (3.8.4)
-  - Cuckoo (1.10.4):
-    - Cuckoo/Swift (= 1.10.4)
-  - Cuckoo/Swift (1.10.4)
   - FearlessKeys (0.1.4)
-  - FireMock (3.1)
   - Kingfisher (7.10.2)
   - MediaView (0.2.0)
   - R.swift (6.1.0):
@@ -69,9 +65,9 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
-  - Sourcery (1.9.2):
-    - Sourcery/CLI-Only (= 1.9.2)
-  - Sourcery/CLI-Only (1.9.2)
+  - Sourcery (2.2.5):
+    - Sourcery/CLI-Only (= 2.2.5)
+  - Sourcery/CLI-Only (2.2.5)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
@@ -81,9 +77,7 @@ PODS:
 
 DEPENDENCIES:
   - Charts (~> 4.1.0)
-  - Cuckoo
   - FearlessKeys (= 0.1.4)
-  - FireMock
   - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - R.swift (= 6.1.0)
@@ -92,7 +86,7 @@ DEPENDENCIES:
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
-  - Sourcery (~> 1.4)
+  - Sourcery
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
@@ -102,8 +96,6 @@ SPEC REPOS:
   https://github.com/CocoaPods/Specs.git:
     - Charts
     - CocoaLumberjack
-    - Cuckoo
-    - FireMock
     - Kingfisher
     - R.swift
     - R.swift.Library
@@ -139,9 +131,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: df59726690390bb8aaaa585938564ba1c8dbbb44
-  Cuckoo: 20b8aed94022e0e43e90f7c9e4fb0c86f0926a01
   FearlessKeys: 5ec2782533624d237c899677a8c10859fbbc6668
-  FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
@@ -151,13 +141,13 @@ SPEC CHECKSUMS:
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
-  Sourcery: 179539341c2261068528cd15a31837b7238fd901
+  Sourcery: 088e2f5a70844da8bc439f9eb9d88f35fc702f93
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: c1de071d9d08c8aba837545f6254315bc900e211
   SwiftyBeaver: 014b0c12065026b731bac80305294f27d63e27f6
 
-PODFILE CHECKSUM: 6eca9a23a0e78699b9b76e0f4a5d70c067f5290f
+PODFILE CHECKSUM: a6cedc825b985ec1f7bf991d27b20590e39d9278
 
 COCOAPODS: 1.15.2

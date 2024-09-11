@@ -51,9 +51,10 @@ iOSInjectionProject/
 #
 # Custom scripts
 fearless/env-vars.sh
-*.generated.swift
 Tests/Mocks/CommonMocks.swift
 Tests/Mocks/ModuleMocks.swift
+CIKeys.generated.swift
+R.generated.swift
 #
 # Generamba
 Templates/
