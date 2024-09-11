@@ -74,7 +74,7 @@ final class WalletConnectProposalPresenter {
     }
 
     private func buildViewModel() {
-        guard chains.isNotEmpty, wallets.filter({ $0.tonPublicKey != nil }).isNotEmpty else {
+        guard chains.isNotEmpty, wallets.isNotEmpty else {
             showMissingAccountAlert()
             return
         }
@@ -242,8 +242,10 @@ final class WalletConnectProposalPresenter {
         switch status {
         case let .proposal(proposalVariant):
             switch proposalVariant {
-            case .walletConnect, .tonConnect:
+            case .walletConnect:
                 self.wallets = wallets
+            case .tonConnect:
+                self.wallets = wallets.filter { $0.tonAddress != nil }
             case .tonJsBridge:
                 self.wallets = [SelectedWalletSettings.shared.value].compactMap { $0 }
             }
