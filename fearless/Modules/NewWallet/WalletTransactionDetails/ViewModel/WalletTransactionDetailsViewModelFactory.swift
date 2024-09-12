@@ -1,5 +1,5 @@
 import Foundation
-
+import TonSwift
 import SoraFoundation
 import SSFModels
 
@@ -66,8 +66,17 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
 
         switch transactionType {
         case .incoming, .outgoing:
-            let from = transactionType == .outgoing ? accountAddress : transaction.peerName
-            let to = transactionType == .incoming ? accountAddress : transaction.peerName
+            let from: String?
+            let to: String?
+            switch chain.ecosystem {
+            case .substrate, .ethereumBased, .ethereum:
+                from = transactionType == .outgoing ? accountAddress : transaction.peerName
+                to = transactionType == .incoming ? accountAddress : transaction.peerName
+            case .ton:
+                let tonAddress = try? TonSwift.Address.parse(accountAddress).toFriendly(bounceable: false).toString()
+                from = transactionType == .outgoing ? tonAddress : transaction.peerName
+                to = transactionType == .incoming ? tonAddress : transaction.peerName
+            }
             let amountString = tokenFormatter.stringFromDecimal(transaction.amount.decimalValue)
             let fee: Decimal = transaction.fees.map(\.amount.decimalValue).reduce(0, +)
             let feeString = feeFormatter?.stringFromDecimal(fee)

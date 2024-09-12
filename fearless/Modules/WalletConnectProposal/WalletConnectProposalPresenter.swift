@@ -75,7 +75,6 @@ final class WalletConnectProposalPresenter {
 
     private func buildViewModel() {
         guard chains.isNotEmpty, wallets.isNotEmpty else {
-            showMissingAccountAlert()
             return
         }
         do {
@@ -246,6 +245,10 @@ final class WalletConnectProposalPresenter {
                 self.wallets = wallets
             case .tonConnect:
                 self.wallets = wallets.filter { $0.tonAddress != nil }
+                if self.wallets.isEmpty {
+                    showMissingAccountAlert()
+                    return
+                }
             case .tonJsBridge:
                 self.wallets = [SelectedWalletSettings.shared.value].compactMap { $0 }
             }

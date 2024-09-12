@@ -7,7 +7,7 @@ import TonSwift
 final class TonConnectMessageBuilderImpl: TonConnectMessageBuilder {
 
     private enum Constants {
-        static let windowKey = "fearless"
+        static let windowKey = "Fearless"
     }
 
     func getConfiguration(
