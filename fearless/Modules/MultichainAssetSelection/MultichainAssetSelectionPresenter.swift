@@ -36,7 +36,8 @@ final class MultichainAssetSelectionPresenter {
         viewModelFactory: MultichainAssetSelectionViewModelFactory,
         logger: LoggerProtocol,
         selectAssetModuleOutput: SelectAssetModuleOutput?,
-        assetFetching: MultichainAssetFetching
+        assetFetching: MultichainAssetFetching,
+        selectedChainAsset: ChainAsset?
     ) {
         self.interactor = interactor
         self.router = router
@@ -44,6 +45,7 @@ final class MultichainAssetSelectionPresenter {
         self.logger = logger
         self.selectAssetModuleOutput = selectAssetModuleOutput
         self.assetFetching = assetFetching
+        selectedChainId = selectedChainAsset?.chain.chainId
 
         self.localizationManager = localizationManager
     }
@@ -70,6 +72,10 @@ final class MultichainAssetSelectionPresenter {
                         DispatchQueue.main.async { [weak self] in
                             self?.didSelect(chain: chain)
                         }
+                    }
+                } else if let chain = chains.first(where: { $0.chainId == selectedChainId }) {
+                    DispatchQueue.main.async { [weak self] in
+                        self?.didSelect(chain: chain)
                     }
                 }
 

@@ -6,6 +6,10 @@ struct OKXSwap: Decodable {
 }
 
 extension OKXSwap: CrossChainSwap {
+    var contractAddress: String? {
+        tx.to
+    }
+
     var route: String? {
         routerResult.quoteCompareList.sorted { quote1, quote2 in
             quote1.amountOut > quote2.amountOut
@@ -44,5 +48,9 @@ extension OKXSwap: CrossChainSwap {
 
     var maxPriorityFeePerGas: String? {
         tx.maxPriorityFeePerGas
+    }
+
+    var from: String? {
+        tx.from
     }
 }

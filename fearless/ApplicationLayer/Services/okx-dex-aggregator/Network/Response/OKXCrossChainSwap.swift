@@ -9,6 +9,10 @@ struct OKXCrossChainSwap: Decodable {
 }
 
 extension OKXCrossChainSwap: CrossChainSwap {
+    var contractAddress: String? {
+        tx.to
+    }
+
     var fromAmount: String? {
         fromTokenAmount
     }
@@ -43,5 +47,9 @@ extension OKXCrossChainSwap: CrossChainSwap {
 
     var otherNativeFee: String? {
         router.otherNativeFee
+    }
+
+    var from: String? {
+        tx.from
     }
 }

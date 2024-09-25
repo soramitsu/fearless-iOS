@@ -93,6 +93,10 @@ protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, S
     )
 }
 
-protocol PolkaswapAdjustmentModuleInput: AnyObject {}
+protocol PolkaswapAdjustmentModuleInput: AnyObject {
+    func didSelect(sourceChainAsset: ChainAsset?)
+}
 
-protocol PolkaswapAdjustmentModuleOutput: AnyObject {}
+protocol PolkaswapAdjustmentModuleOutput: AnyObject {
+    func didSwitchToOkx(with chainAsset: ChainAsset?)
+}

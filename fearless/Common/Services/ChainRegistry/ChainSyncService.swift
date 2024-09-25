@@ -14,7 +14,7 @@ enum ChainSyncServiceError: Error {
 }
 
 final class ChainSyncService {
-    static let fetchLocalData = false
+    static let fetchLocalData = true
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -102,6 +102,11 @@ final class ChainSyncService {
     }
 
     private func handle(remoteChains: [ChainModel]) {
+        #if DEBUG
+            let urls = remoteChains.compactMap { $0.nodes }.reduce([], +).compactMap { $0.clearUrlString }
+            let dups = Dictionary(grouping: urls, by: { $0 }).filter { $1.count > 1 }.keys
+            logger?.error("FOUND DUPLICATE NODES: \(dups)")
+        #endif
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let processingOperation: BaseOperation<(

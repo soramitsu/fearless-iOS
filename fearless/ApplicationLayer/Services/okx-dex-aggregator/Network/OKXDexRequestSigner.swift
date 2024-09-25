@@ -40,5 +40,9 @@ final class OKXDexRequestSigner: RequestSigner {
         let signature = HMAC<SHA256>.authenticationCode(for: sign, using: key)
         let signatureData = Data(signature)
         request.setValue(signatureData.base64EncodedString(), forHTTPHeaderField: "OK-ACCESS-SIGN")
+
+        print("SIGN: ", signatureData.base64EncodedString())
+        print("TIMESTAMP: ", timestamp)
+        print("ENDPOINT: ", request.url?.absoluteString)
     }
 }

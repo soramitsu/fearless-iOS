@@ -22,6 +22,7 @@ final class PolkaswapAdjustmentPresenter {
     private let router: PolkaswapAdjustmentRouterInput
     private let interactor: PolkaswapAdjustmentInteractorInput
     weak var bannersModuleInput: BannersModuleInput?
+    private weak var moduleOutput: PolkaswapAdjustmentModuleOutput?
 
     private let wallet: MetaAccountModel
     private let viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol
@@ -78,7 +79,8 @@ final class PolkaswapAdjustmentPresenter {
         interactor: PolkaswapAdjustmentInteractorInput,
         router: PolkaswapAdjustmentRouterInput,
         swapVariant: SwapVariant,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        moduleOutput: PolkaswapAdjustmentModuleOutput?
     ) {
         self.wallet = wallet
         self.xorChainAsset = xorChainAsset
@@ -89,6 +91,7 @@ final class PolkaswapAdjustmentPresenter {
         self.interactor = interactor
         self.router = router
         self.swapVariant = swapVariant
+        self.moduleOutput = moduleOutput
         self.localizationManager = localizationManager
 
         switch swapVariant {
@@ -880,7 +883,11 @@ extension PolkaswapAdjustmentPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentModuleInput {}
+extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentModuleInput {
+    func didSelect(sourceChainAsset: ChainAsset?) {
+        assetSelection(didCompleteWith: sourceChainAsset, contextTag: 0)
+    }
+}
 
 // MARK: - SelectAssetModuleOutput
 
@@ -889,6 +896,10 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
         didCompleteWith chainAsset: ChainAsset?,
         contextTag: Int?
     ) {
+        guard (chainAsset?.chain.isSora).or(true) else {
+            moduleOutput?.didSwitchToOkx(with: chainAsset)
+            return
+        }
         view?.didUpdating()
         guard let rawValue = contextTag,
               let input = InputTag(rawValue: rawValue),

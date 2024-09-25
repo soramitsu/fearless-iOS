@@ -13,7 +13,7 @@ protocol CrossChainSwapSetupViewModelFactory {
     ) -> CrossChainSwapViewModel
 }
 
-final class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFactory {
+class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFactory {
     func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel {
         let iconViewModel = chain.icon.map { RemoteImageViewModel(url: $0) }
         return SelectNetworkViewModel(

@@ -73,6 +73,14 @@ extension DateFormatter {
         }
     }
 
+    static var crossChainDate: LocalizableResource<DateFormatter> {
+        LocalizableResource { _ in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "MMM dd, HH:mm"
+            return dateFormatter
+        }
+    }
+
     static var connectionExpiry: LocalizableResource<DateFormatter> {
         LocalizableResource { locale in
             let format = DateFormatter.dateFormat(fromTemplate: "EEE, MMM d, yyyy", options: 0, locale: locale)

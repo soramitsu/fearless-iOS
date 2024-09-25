@@ -29,7 +29,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let controller = CrossChainSwapSetupAssembly.configureModule(wallet: wallet, chainAsset: chainAsset)?.view.controller else {
+        guard let controller = SwapContainerAssembly.configureModule(wallet: wallet, chainAsset: chainAsset)?.view.controller else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: controller)
@@ -217,7 +217,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let module = PolkaswapAdjustmentAssembly.configureModule(chainAsset: chainAsset, wallet: wallet) else {
+        guard let module = SwapContainerAssembly.configureModule(wallet: wallet, chainAsset: chainAsset) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)

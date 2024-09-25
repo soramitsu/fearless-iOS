@@ -3,9 +3,10 @@ import SoraFoundation
 
 protocol CrossChainSwapConfirmViewOutput: AnyObject {
     func didLoad(view: CrossChainSwapConfirmViewInput)
+    func didTapConfirmButton()
 }
 
-final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder {
+final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = CrossChainSwapConfirmViewLayout
 
     // MARK: Private properties
@@ -37,6 +38,10 @@ final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+
+        rootView.confirmButton.addAction { [weak self] in
+            self?.output.didTapConfirmButton()
+        }
     }
 
     // MARK: - Private methods
@@ -44,7 +49,23 @@ final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder {
 
 // MARK: - CrossChainSwapConfirmViewInput
 
-extension CrossChainSwapConfirmViewController: CrossChainSwapConfirmViewInput {}
+extension CrossChainSwapConfirmViewController: CrossChainSwapConfirmViewInput {
+    func didReceive(swapAmountInfoViewModel: SwapAmountInfoViewModel) {
+        rootView.bind(swapAmountInfoViewModel: swapAmountInfoViewModel)
+    }
+
+    func didReceive(viewModel: CrossChainSwapViewModel) {
+        rootView.bind(viewModel: viewModel)
+    }
+
+    func didReceive(doubleImageViewModel: PolkaswapDoubleSymbolViewModel) {
+        rootView.bind(doubleImageViewModel: doubleImageViewModel)
+    }
+
+    func didReceive(feeViewModel: BalanceViewModelProtocol?) {
+        rootView.bind(feeViewModel: feeViewModel)
+    }
+}
 
 // MARK: - Localizable
 

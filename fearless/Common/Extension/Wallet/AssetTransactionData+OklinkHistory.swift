@@ -33,7 +33,7 @@ extension AssetTransactionData {
             status: .commited,
             assetId: item.tokenContractAddress,
             peerId: "",
-            peerFirstName: nil,
+            peerFirstName: item.from,
             peerLastName: nil,
             peerName: peerAddress,
             details: "",

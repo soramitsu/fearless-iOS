@@ -71,7 +71,11 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
             let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
             let transfer = contract.transfer(to: address, value: transfer.amount)
             let maxPriorityFeePerGas = try await queryMaxPriorityFeePerGas()
-            let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: BigUInt.zero), transfer: transfer)
+            let transferGasLimit = try await queryGasLimit(
+                from: senderAddress,
+                amount: EthereumQuantity(quantity: BigUInt.zero),
+                transfer: transfer
+            )
 
             return (maxPriorityFeePerGas.quantity + baseFeePerGas.quantity) * transferGasLimit.quantity
         case .none:

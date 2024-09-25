@@ -11,6 +11,8 @@ protocol CrossChainSwap {
     var route: String? { get }
     var crossChainFee: String? { get }
     var otherNativeFee: String? { get }
+    var contractAddress: String? { get }
+    var from: String? { get }
 
     var totalFees: BigUInt? { get }
 }

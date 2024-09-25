@@ -9,7 +9,8 @@ final class PolkaswapAdjustmentAssembly {
     static func configureModule(
         chainAsset: ChainAsset?,
         swapVariant: SwapVariant = .desiredInput,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        moduleOutput: PolkaswapAdjustmentModuleOutput?
     ) -> PolkaswapAdjustmentModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -97,7 +98,8 @@ final class PolkaswapAdjustmentAssembly {
             interactor: interactor,
             router: router,
             swapVariant: swapVariant,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            moduleOutput: moduleOutput
         )
 
         guard

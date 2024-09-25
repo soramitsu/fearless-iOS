@@ -6,40 +6,27 @@ typealias CrossChainSwapSetupModuleCreationResult = (
 )
 
 protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable {
-    func showSelectNetwork(
-        from view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel,
-        selectedChainId: ChainModel.Id?,
-        chainModels: [ChainModel]?,
-        contextTag: Int?,
-        delegate: SelectNetworkDelegate?
-    )
-
     func showSelectAsset(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
-        output: SelectAssetModuleOutput
+        output: SelectAssetModuleOutput,
+        flow: MultichainChainFetchingFlow,
+        selectedChainAsset: ChainAsset?
     )
 
-    func presentScan(
-        from view: ControllerBackedProtocol?,
-        moduleOutput: ScanQRModuleOutput
-    )
-
-    func presentHistory(
-        from view: ControllerBackedProtocol?,
+    func presentConfirm(
+        swapFromChainAsset: ChainAsset,
+        swapToChainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        moduleOutput: ContactsModuleOutput
-    )
-
-    func showWalletManagment(
-        selectedWalletId: MetaAccountId?,
-        from view: ControllerBackedProtocol?,
-        moduleOutput: WalletsManagmentModuleOutput?
+        swap: CrossChainSwap,
+        from view: ControllerBackedProtocol?
     )
 }
 
-protocol CrossChainSwapSetupModuleInput: AnyObject {}
+protocol CrossChainSwapSetupModuleInput: AnyObject {
+    func didSelect(sourceChainAsset: ChainAsset?)
+}
 
-protocol CrossChainSwapSetupModuleOutput: AnyObject {}
+protocol CrossChainSwapSetupModuleOutput: AnyObject {
+    func didSwitchToPolkaswap(with chainAsset: ChainAsset?)
+}

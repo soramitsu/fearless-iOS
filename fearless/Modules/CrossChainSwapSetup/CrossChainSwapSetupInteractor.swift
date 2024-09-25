@@ -17,16 +17,16 @@ final class CrossChainSwapSetupInteractor {
     private weak var output: CrossChainSwapSetupInteractorOutput?
     private let wallet: MetaAccountModel
     private let okxService: OKXDexAggregatorService
-    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let balanceFetching: EthereumRemoteBalanceFetching
 
     init(
         okxService: OKXDexAggregatorService,
         wallet: MetaAccountModel,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+        balanceFetching: EthereumRemoteBalanceFetching
     ) {
         self.okxService = okxService
         self.wallet = wallet
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.balanceFetching = balanceFetching
     }
 
     private func getCrossChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
@@ -34,25 +34,12 @@ final class CrossChainSwapSetupInteractor {
             throw CrossChainSwapSetupInteractorError.accountNotFound
         }
 
-        let fromTokensParameters = OKXDexAllTokensRequestParameters(chainId: chainAsset.chain.chainId)
-        let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters)
-
-        let toTokensParameters = OKXDexAllTokensRequestParameters(chainId: destinationChainAsset.chain.chainId)
-        let toTokens = try await okxService.fetchAllTokens(parameters: toTokensParameters)
-
-        guard
-            let fromTokenAddress = fromTokens.data.first(where: { $0.tokenSymbol.lowercased() == chainAsset.asset.symbol.lowercased() })?.tokenContractAddress,
-            let toTokenAddress = toTokens.data.first(where: { $0.tokenSymbol.lowercased() == destinationChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
-        else {
-            throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
-        }
-
         let parameters = OKXDexCrossChainBuildTxParameters(
             fromChainId: chainAsset.chain.chainId,
             toChainId: destinationChainAsset.chain.chainId,
             amount: amount,
-            fromTokenAddress: fromTokenAddress,
-            toTokenAddress: toTokenAddress,
+            fromTokenAddress: chainAsset.asset.id,
+            toTokenAddress: destinationChainAsset.asset.id,
             sort: 0,
             slippage: "0.01",
             userWalletAddress: address
@@ -109,22 +96,10 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
     }
 
     func subscribeOnBalance(for chainAssets: [ChainAsset]) {
-        accountInfoSubscriptionAdapter.subscribe(
-            chainsAssets: chainAssets,
-            handler: self,
-            deliveryOn: .main
-        )
-    }
-}
-
-// MARK: - AccountInfoSubscriptionAdapterHandler
-
-extension CrossChainSwapSetupInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainAsset: ChainAsset
-    ) {
-        output?.didReceiveAccountInfo(result: result, for: chainAsset)
+        balanceFetching.fetch(for: chainAssets, wallet: wallet) { [weak self] accountInfoByChainAsset in
+            accountInfoByChainAsset.forEach {
+                self?.output?.didReceiveAccountInfo(result: .success($0.value), for: $0.key)
+            }
+        }
     }
 }

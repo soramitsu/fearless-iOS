@@ -22,6 +22,7 @@ protocol CrossChainSwapSetupInteractorInput: AnyObject {
 final class CrossChainSwapSetupPresenter {
     // MARK: Private properties
 
+    private weak var moduleOutput: CrossChainSwapSetupModuleOutput?
     private weak var view: CrossChainSwapSetupViewInput?
     private let router: CrossChainSwapSetupRouterInput
     private let interactor: CrossChainSwapSetupInteractorInput
@@ -64,8 +65,9 @@ final class CrossChainSwapSetupPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: CrossChainSwapSetupViewModelFactory,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        dataValidatingFactory: SendDataValidatingFactory
+        chainAsset: ChainAsset?,
+        dataValidatingFactory: SendDataValidatingFactory,
+        moduleOutput: CrossChainSwapSetupModuleOutput?
     ) {
         self.interactor = interactor
         self.router = router
@@ -73,6 +75,7 @@ final class CrossChainSwapSetupPresenter {
         self.wallet = wallet
         swapFromChainAsset = chainAsset
         self.dataValidatingFactory = dataValidatingFactory
+        self.moduleOutput = moduleOutput
 
         self.localizationManager = localizationManager
     }
@@ -161,20 +164,6 @@ final class CrossChainSwapSetupPresenter {
 //            return
 //        }
 //        view?.setButtonLoadingState(isLoading: !isReady)
-    }
-
-    private func provideInputViewModel() {
-//        let balanceViewModelFactory = buildBalanceViewModelFactory(
-//            wallet: wallet,
-//            for: selectedAmountChainAsset
-//        )
-//        let inputAmount = calculateAbsoluteValue()
-//        let inputViewModel = balanceViewModelFactory?
-//            .createBalanceInputViewModel(inputAmount)
-//            .value(for: selectedLocale)
-//        self.inputViewModel = inputViewModel
-//
-//        view?.didReceive(amountInputViewModel: inputViewModel)
     }
 
     private func provideViewModel() {
@@ -266,6 +255,30 @@ final class CrossChainSwapSetupPresenter {
         let chainAssets = [swapFromChainAsset, swapToChainAsset, swapFromChainAsset?.chain.utilityChainAssets().first].compactMap { $0 }
         interactor.subscribeOnBalance(for: chainAssets)
     }
+
+    private func didSelectSourceChainAsset(_ chainAsset: ChainAsset?) {
+        swapFromChainAsset = chainAsset
+        swapFromInputResult = nil
+        provideAssetViewModel()
+        view?.didReceiveViewModel(viewModel: nil)
+
+        subscribeOnBalance()
+        fetchQuotes()
+    }
+
+    private func didSelectSoraChainAsset(_ chainAsset: ChainAsset?) {
+        moduleOutput?.didSwitchToPolkaswap(with: chainAsset)
+    }
+
+    private func didSelectDestinationChainAsset(_ chainAsset: ChainAsset?) {
+        swapToChainAsset = chainAsset
+        swapToInputResult = nil
+        provideDestinationAssetViewModel()
+        view?.didReceiveViewModel(viewModel: nil)
+
+        subscribeOnBalance()
+        fetchQuotes()
+    }
 }
 
 // MARK: - CrossChainSwapSetupViewOutput
@@ -313,11 +326,27 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
         fetchQuotes()
     }
 
-    func didTapSelectAsset() {
+    func didTapSelectFromAsset() {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            output: self
+            output: self,
+            flow: .okxSource,
+            selectedChainAsset: swapFromChainAsset
+        )
+    }
+
+    func didTapSelectToAsset() {
+        guard let swapFromChainAsset else {
+            return
+        }
+
+        router.showSelectAsset(
+            from: view,
+            wallet: wallet,
+            output: self,
+            flow: .okxDestination(sourceChainId: swapFromChainAsset.chain.chainId),
+            selectedChainAsset: swapToChainAsset
         )
     }
 
@@ -333,12 +362,13 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
     }
 
     func didTapContinueButton() {
-        guard let swapFromChainAsset else {
+        guard let swapFromChainAsset, let swapToChainAsset, let swap else {
             return
         }
 
         let precision = Int16(swapFromChainAsset.chain.utilityChainAssets().first?.asset.precision ?? swapFromChainAsset.asset.precision)
-        let networkFee = swap?.totalFees.flatMap { Decimal.fromSubstrateAmount($0, precision: precision) }
+        let networkFee = swap.totalFees.flatMap { Decimal.fromSubstrateAmount($0, precision: precision) }
+        let nativeFee = swapFromChainAsset.asset.isUtility ? networkFee : .zero
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: networkFee, locale: selectedLocale, onError: {}),
             dataValidatingFactory.canPayFeeAndAmount(
@@ -349,12 +379,22 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
             ),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: swapFromBalance),
-                feeAndTip: networkFee,
-                sendAmount: swapToInputResult?.absoluteValue(from: swapFromBalance.or(.zero)),
+                feeAndTip: nativeFee,
+                sendAmount: swapFromInputResult?.absoluteValue(from: swapFromBalance.or(.zero)),
                 locale: selectedLocale
             )
         ]).runValidation { [weak self] in
-            print("Validation has passed")
+            guard let self else {
+                return
+            }
+
+            self.router.presentConfirm(
+                swapFromChainAsset: swapFromChainAsset,
+                swapToChainAsset: swapToChainAsset,
+                wallet: self.wallet,
+                swap: swap,
+                from: self.view
+            )
         }
     }
 }
@@ -405,16 +445,24 @@ extension CrossChainSwapSetupPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension CrossChainSwapSetupPresenter: CrossChainSwapSetupModuleInput {}
+extension CrossChainSwapSetupPresenter: CrossChainSwapSetupModuleInput {
+    func didSelect(sourceChainAsset: ChainAsset?) {
+        didSelectSourceChainAsset(sourceChainAsset)
+    }
+}
 
 extension CrossChainSwapSetupPresenter: SelectAssetModuleOutput {
-    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
-        swapToChainAsset = chainAsset
-        swapToInputResult = nil
-        provideDestinationAssetViewModel()
-        view?.didReceiveViewModel(viewModel: nil)
+    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?) {
+        if contextTag == 0 {
+            if chainAsset?.chain.isSora == true {
+                didSelectSoraChainAsset(chainAsset)
+            } else {
+                didSelectSourceChainAsset(chainAsset)
+            }
+        }
 
-        subscribeOnBalance()
-        fetchQuotes()
+        if contextTag == 1 {
+            didSelectDestinationChainAsset(chainAsset)
+        }
     }
 }

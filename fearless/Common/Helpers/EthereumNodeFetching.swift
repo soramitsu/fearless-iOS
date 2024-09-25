@@ -75,6 +75,26 @@ enum EthereumChain: String {
         }
     }
 
+    func blastProjectIdInjectedURL(baseURL: URL) -> URL {
+        switch self {
+        case .ethereumMainnet:
+            let apiKey = BlastProjectIds.ethereumProjectId
+            return baseURL.appendingPathComponent(apiKey)
+        case .sepolia:
+            let apiKey = BlastProjectIds.sepoliaGoerliProjectId
+            return baseURL.appendingPathComponent(apiKey)
+        case .goerli:
+            let apiKey = BlastProjectIds.sepoliaGoerliProjectId
+            return baseURL.appendingPathComponent(apiKey)
+        case .bscMainnet, .bscTestnet:
+            let apiKey = BlastProjectIds.bscProjectId
+            return baseURL.appendingPathComponent(apiKey)
+        case .polygon:
+            let apiKey = BlastProjectIds.polygonProjectId
+            return baseURL.appendingPathComponent(apiKey)
+        }
+    }
+
     private func availableNodesUrls() -> [String] {
         switch self {
         case .ethereumMainnet:
@@ -121,8 +141,12 @@ final class EthereumNodeFetching {
         let hasSelectedWssNode = chain.selectedNode?.url.absoluteString.contains("https") == true
         let node = hasSelectedWssNode ? chain.selectedNode : randomWssNode
 
-        guard let httpsURL = node?.url else {
+        guard var httpsURL = node?.url else {
             throw ConvenienceError(error: "cannot obtain eth https url for chain: \(chain.name)")
+        }
+
+        if httpsURL.absoluteString.contains("blastapi"), let ethereumChain = EthereumChain(rawValue: chain.chainId) {
+            httpsURL = ethereumChain.blastProjectIdInjectedURL(baseURL: httpsURL)
         }
 
         return Web3(rpcURL: httpsURL.absoluteString).eth

@@ -1,9 +1,16 @@
 import UIKit
 import SoraFoundation
 import SSFNetwork
+import SSFModels
 
 final class MultichainAssetSelectionAssembly {
-    static func configureModule(flow: MultichainChainFetchingFlow, wallet: MetaAccountModel, selectAssetModuleOutput: SelectAssetModuleOutput?) -> MultichainAssetSelectionModuleCreationResult? {
+    static func configureModule(
+        flow: MultichainChainFetchingFlow,
+        wallet: MetaAccountModel,
+        selectAssetModuleOutput: SelectAssetModuleOutput?,
+        contextTag: Int? = nil,
+        selectedChainAsset: ChainAsset?
+    ) -> MultichainAssetSelectionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let interactor = MultichainAssetSelectionInteractor(
@@ -20,9 +27,15 @@ final class MultichainAssetSelectionAssembly {
             viewModelFactory: MultichainAssetSelectionViewModelFactoryImpl(),
             logger: Logger.shared,
             selectAssetModuleOutput: selectAssetModuleOutput,
-            assetFetching: assetFetching
+            assetFetching: assetFetching,
+            selectedChainAsset: selectedChainAsset
         )
-        guard let selectAssetModule = createSelectAssetModule(wallet: wallet, moduleOutput: presenter) else {
+        guard let selectAssetModule = createSelectAssetModule(
+            wallet: wallet,
+            moduleOutput: presenter,
+            contextTag: contextTag,
+            selectedChainAsset: selectedChainAsset
+        ) else {
             return nil
         }
 
@@ -37,20 +50,47 @@ final class MultichainAssetSelectionAssembly {
         return (view, presenter)
     }
 
-    private static func buildChainFetching(flow _: MultichainChainFetchingFlow) -> MultichainChainFetching {
+    private static func buildChainFetching(flow: MultichainChainFetchingFlow) -> MultichainChainFetching {
         let chainsRepository = ChainRepositoryFactory().createAsyncRepository()
         let networkWorker = NetworkWorkerImpl()
         let okxService = OKXDexAggregatorServiceImpl(networkWorker: networkWorker, signer: OKXDexRequestSigner())
-        return OKXMultichainChainFetching(chainsRepository: chainsRepository, okxService: okxService)
+
+        switch flow {
+        case let .okxDestination(sourceChainId):
+            return CrossChainSwapMultichainChainFetching(chainsRepository: chainsRepository, okxService: okxService, sourceChainId: sourceChainId)
+        default:
+            return CrossChainSwapMultichainChainFetching(chainsRepository: chainsRepository, okxService: okxService, sourceChainId: nil)
+        }
     }
 
-    private static func buildAssetFetching(flow _: MultichainChainFetchingFlow) -> MultichainAssetFetching {
+    private static func buildAssetFetching(flow: MultichainChainFetchingFlow) -> MultichainAssetFetching {
         let networkWorker = NetworkWorkerImpl()
         let okxService = OKXDexAggregatorServiceImpl(networkWorker: networkWorker, signer: OKXDexRequestSigner())
-        return OKXMultichainAssetFetching(okxService: okxService)
+
+        switch flow {
+        case let .okxDestination(sourceChainId):
+            return OKXMultichainAssetFetching(okxService: okxService, sourceChainId: sourceChainId)
+        case .okxSource:
+            return OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
+        case .preset:
+            return OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
+        }
     }
 
-    private static func createSelectAssetModule(wallet: MetaAccountModel, moduleOutput: SelectAssetModuleOutput) -> SelectAssetModuleCreationResult? {
-        SelectAssetAssembly.configureModule(wallet: wallet, selectedAssetId: nil, chainAssets: [], searchTextsViewModel: .searchAssetPlaceholder, output: moduleOutput, isEmbed: true)
+    private static func createSelectAssetModule(
+        wallet: MetaAccountModel,
+        moduleOutput: SelectAssetModuleOutput,
+        contextTag: Int? = nil,
+        selectedChainAsset: ChainAsset?
+    ) -> SelectAssetModuleCreationResult? {
+        SelectAssetAssembly.configureModule(
+            wallet: wallet,
+            selectedAssetId: selectedChainAsset?.asset.id,
+            chainAssets: [],
+            searchTextsViewModel: .searchAssetPlaceholder,
+            output: moduleOutput,
+            contextTag: contextTag,
+            isEmbed: true
+        )
     }
 }

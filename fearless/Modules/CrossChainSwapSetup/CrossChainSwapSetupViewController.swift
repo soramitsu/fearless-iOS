@@ -4,7 +4,8 @@ import SnapKit
 
 protocol CrossChainSwapSetupViewOutput: AnyObject {
     func didLoad(view: CrossChainSwapSetupViewInput)
-    func didTapSelectAsset()
+    func didTapSelectFromAsset()
+    func didTapSelectToAsset()
     func didTapBackButton()
     func didTapContinueButton()
     func selectFromAmountPercentage(_ percentage: Float)
@@ -72,8 +73,11 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
     // MARK: - Private methods
 
     private func configure() {
+        rootView.amountView.selectHandler = { [weak self] in
+            self?.output.didTapSelectFromAsset()
+        }
         rootView.receiveView.selectHandler = { [weak self] in
-            self?.output.didTapSelectAsset()
+            self?.output.didTapSelectToAsset()
         }
         rootView.navigationBar.backButton.addAction { [weak self] in
             self?.output.didTapBackButton()

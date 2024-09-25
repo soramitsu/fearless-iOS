@@ -46,7 +46,6 @@ final class OklinkHistoryOperationFactory {
         }
 
         let resultFactory = AnyNetworkResultFactory<OklinkHistoryResponse> { data, response, error in
-
             do {
                 if let data = data {
                     let response = try JSONDecoder().decode(

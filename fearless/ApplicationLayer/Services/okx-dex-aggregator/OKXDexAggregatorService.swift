@@ -9,6 +9,8 @@ protocol OKXDexAggregatorService {
     func fetchApproveTransactionInfo(parameters: OKXDexApproveRequestParameters) async throws -> OKXResponse<OKXApproveTransaction>
     func fetchSwapInfo(parameters: OKXDexSwapRequestParameters) async throws -> OKXResponse<OKXSwap>
     func fetchSwapInfo(parameters: OKXDexCrossChainBuildTxParameters) async throws -> OKXResponse<OKXCrossChainSwap>
+    func fetchAvailableDestinationTokens(parameters: OKXDexCrossChainSupportedBridgeTokensPairsParameters) async throws -> OKXResponse<OKXAvailableDestination>
+    func fetchCrossChainTransactionStatus(parameters: OKXDexCrossChainStatusParameters) async throws -> OKXResponse<OKXCrossChainTransactionStatus>
 }
 
 final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
@@ -132,6 +134,42 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXCrossChainSwap> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+
+    func fetchAvailableDestinationTokens(parameters: OKXDexCrossChainSupportedBridgeTokensPairsParameters) async throws -> OKXResponse<OKXAvailableDestination> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/dex/cross-chain/supported/bridge-tokens-pairs",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<OKXAvailableDestination> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+
+    func fetchCrossChainTransactionStatus(parameters: OKXDexCrossChainStatusParameters) async throws -> OKXResponse<OKXCrossChainTransactionStatus> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/dex/cross-chain/status",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<OKXCrossChainTransactionStatus> = try await networkWorker.performRequest(with: request)
 
         try validateResponseCode(response.code, msg: response.msg)
 

@@ -6,7 +6,7 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
     func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
         guard
             let tabBarController = view?.controller,
-            let viewController = PolkaswapAdjustmentAssembly.configureModule(chainAsset: nil, wallet: wallet)?.view.controller
+            let viewController = SwapContainerAssembly.configureModule(wallet: wallet, chainAsset: nil)?.view.controller
         else {
             return
         }

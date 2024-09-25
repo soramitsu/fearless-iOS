@@ -2,7 +2,21 @@ import Foundation
 import Web3
 import Web3ContractABI
 
-class BaseEthereumService {
+enum EthereumServiceError: Error {
+    case invalidTransaction
+}
+
+protocol EthereumService {
+    func queryGasLimit(call: EthereumCall) async throws -> EthereumQuantity
+    func queryGasLimit(from: EthereumAddress?, amount: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity
+    func queryGasPrice() async throws -> EthereumQuantity
+    func queryMaxPriorityFeePerGas() async throws -> EthereumQuantity
+    func queryNonce(ethereumAddress: EthereumAddress) async throws -> EthereumQuantity
+    func checkChainSupportEip1559() async -> Bool
+    func queryGasLimit(invocation: SolidityInvocation) async throws -> EthereumQuantity
+}
+
+class BaseEthereumService: EthereumService {
     let ws: Web3.Eth
 
     init(
@@ -28,6 +42,20 @@ class BaseEthereumService {
     func queryGasLimit(from: EthereumAddress?, amount: EthereumQuantity?, transfer: SolidityInvocation) async throws -> EthereumQuantity {
         try await withCheckedThrowingContinuation { continuation in
             transfer.estimateGas(from: from, value: amount) { quantity, error in
+                if let gas = quantity {
+                    return continuation.resume(with: .success(gas))
+                } else if let error = error {
+                    return continuation.resume(with: .failure(error))
+                } else {
+                    continuation.resume(with: .failure(TransferServiceError.unexpected))
+                }
+            }
+        }
+    }
+
+    func queryGasLimit(invocation: SolidityInvocation) async throws -> EthereumQuantity {
+        try await withCheckedThrowingContinuation { continuation in
+            invocation.estimateGas { quantity, error in
                 if let gas = quantity {
                     return continuation.resume(with: .success(gas))
                 } else if let error = error {
@@ -102,6 +130,56 @@ class BaseEthereumService {
         } catch {
             print("error: ", error)
             return false
+        }
+    }
+
+    func submit(
+        hexData: String,
+        privateKey: Data,
+        sender: String,
+        gasPrice: String,
+        gasLimit: String,
+        value: String
+    ) async throws -> EthereumData {
+        guard
+            let gasPriceValue = BigUInt(string: gasPrice),
+            let gasLimitValue = BigUInt(string: gasLimit),
+            let valueValue = BigUInt(string: value)
+        else {
+            throw EthereumServiceError.invalidTransaction
+        }
+
+        let senderAddress = try EthereumAddress(rawAddress: sender.hexToBytes())
+        let data = EthereumData(hexData.hexToBytes())
+        let nonce = try await queryNonce(ethereumAddress: senderAddress)
+        let transaction = EthereumTransaction(
+            nonce: nonce,
+            gasPrice: EthereumQuantity(quantity: gasPriceValue),
+            gasLimit: EthereumQuantity(quantity: gasLimitValue),
+            value: EthereumQuantity(quantity: valueValue),
+            data: data,
+            accessList: [:],
+            transactionType: .legacy
+        )
+        let ethPrivateKey = try EthereumPrivateKey(privateKey.bytes)
+        let signedTransaction = try transaction.sign(
+            with: ethPrivateKey,
+            chainId: EthereumQuantity(integerLiteral: 1)
+        )
+
+        return try await withCheckedThrowingContinuation { continuation in
+            do {
+                try ws.sendRawTransaction(transaction: signedTransaction) { resp in
+                    if let hash = resp.result {
+                        continuation.resume(with: .success(hash))
+                    } else if let error = resp.error {
+                        print("Transaction error: ", error)
+                        continuation.resume(with: .failure(error))
+                    }
+                }
+            } catch {
+                continuation.resume(with: .failure(error))
+            }
         }
     }
 }

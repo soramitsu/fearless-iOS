@@ -50,33 +50,21 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         return label
     }()
 
-    let amountsLabel: UILabel = {
-        let label = UILabel()
-        label.font = .h3Title
-        label.textColor = R.color.colorWhite()
-        label.numberOfLines = 2
-        return label
-    }()
-
-    let infoBackground = UIFactory.default.createInfoBackground()
+    let swapAmountInfoView = SwapAmountInfoView()
     let infoViewsStackView = UIFactory.default.createVerticalStackView()
 
-    let minMaxReceivedView = UIFactory.default.createConfirmationMultiView()
-    let swapRouteView: TitleMultiValueView = {
-        let view = UIFactory.default.createMultiView()
-        return view
-    }()
-
-    let fromPerToPriceView = UIFactory.default.createConfirmationMultiView()
-    let toPerFromPriceView = UIFactory.default.createConfirmationMultiView()
-    let networkFeeView = UIFactory.default.createConfirmationMultiView()
+    let originNetworkFeeView = createMultiView()
+    let minReceivedView = createMultiView()
+    let routeView = createMultiView()
+    let sendRatioView = createMultiView()
+    let receiveRatioView = createMultiView()
 
     private lazy var multiViews = [
-        minMaxReceivedView,
-        swapRouteView,
-        fromPerToPriceView,
-        toPerFromPriceView,
-        networkFeeView
+        minReceivedView,
+        routeView,
+        sendRatioView,
+        receiveRatioView,
+        originNetworkFeeView
     ]
 
     let confirmButton: TriangularedButton = {
@@ -101,36 +89,40 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         backButton.rounded()
     }
 
-    func bind(viewModel: PolkaswapSwapConfirmationViewModel) {
-        amountsLabel.attributedText = viewModel.amountsText
-        doubleImageView.bind(viewModel: viewModel.doubleImageViewViewModel)
+    func bind(doubleImageViewModel: PolkaswapDoubleSymbolViewModel) {
+        doubleImageView.bind(viewModel: doubleImageViewModel)
+    }
 
-        fromPerToPriceView.titleLabel.text = viewModel.adjustmentDetailsViewModel.fromPerToTitle
-        toPerFromPriceView.titleLabel.text = viewModel.adjustmentDetailsViewModel.toPerFromTitle
+    func bind(swapAmountInfoViewModel: SwapAmountInfoViewModel) {
+        swapAmountInfoView.bind(viewModel: swapAmountInfoViewModel)
+    }
 
-        fromPerToPriceView.valueTop.text = viewModel.adjustmentDetailsViewModel.fromPerToValue
-        toPerFromPriceView.valueTop.text = viewModel.adjustmentDetailsViewModel.toPerFromValue
-        minMaxReceivedView.titleLabel.text = viewModel.minMaxTitle
-        minMaxReceivedView.bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.minMaxReceiveVieModel)
-        swapRouteView.valueTop.text = viewModel.adjustmentDetailsViewModel.route
-        networkFeeView.bindBalance(viewModel: viewModel.networkFee)
+    func bind(viewModel: CrossChainSwapViewModel?) {
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = viewModel == nil }
+
+        minReceivedView.bindBalance(viewModel: viewModel?.minimumReceived)
+        routeView.valueTop.text = viewModel?.route
+        sendRatioView.valueTop.text = viewModel?.sendTokenRatio
+        receiveRatioView.valueTop.text = viewModel?.receiveTokenRatio
+        sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
+        receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
+        originNetworkFeeView.bindBalance(viewModel: viewModel?.fee)
+    }
+
+    func bind(feeViewModel: BalanceViewModelProtocol?) {
+        originNetworkFeeView.bindBalance(viewModel: feeViewModel)
     }
 
     // MARK: - Private methods
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .commonPreview(preferredLanguages: locale.rLanguages)
-        swapRouteView.titleLabel.text = R.string.localizable
-            .polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
-        networkFeeView.titleLabel.text = R.string.localizable
-            .commonNetworkFee(preferredLanguages: locale.rLanguages)
         confirmButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
-        swapStubTitle.text = R.string.localizable
-            .polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages)
-        swapRouteView.titleLabel.text = R.string.localizable
-            .polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
+
+        titleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
+        originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
+        routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -169,19 +161,16 @@ final class CrossChainSwapConfirmViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(doubleImageView)
         contentView.stackView.addArrangedSubview(swapStubTitle)
-        contentView.stackView.addArrangedSubview(amountsLabel)
-        contentView.stackView.addArrangedSubview(infoBackground)
-
-        infoBackground.addSubview(infoViewsStackView)
-        makeCommonConstraints(for: infoBackground)
-        infoViewsStackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
-            make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
-        }
+        contentView.stackView.addArrangedSubview(swapAmountInfoView)
+        contentView.stackView.addArrangedSubview(infoViewsStackView)
 
         multiViews.forEach { view in
             infoViewsStackView.addArrangedSubview(view)
             makeCommonConstraints(for: view)
+        }
+
+        infoViewsStackView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
         }
 
         confirmButton.snp.makeConstraints { make in
@@ -189,5 +178,12 @@ final class CrossChainSwapConfirmViewLayout: UIView {
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+    }
+
+    private static func createMultiView() -> TitleMultiValueView {
+        let view = UIFactory.default.createMultiView()
+        view.titleLabel.font = .h6Title
+        view.valueTop.font = .h5Title
+        return view
     }
 }
