@@ -5,6 +5,7 @@ import Web3ContractABI
 
 enum OKXEthereumSwapServiceError: Error {
     case invalidChainId
+    case unknownAllowanceResponse
 }
 
 protocol OKXEthereumSwapService {
@@ -14,22 +15,18 @@ protocol OKXEthereumSwapService {
     ) async throws -> String
 
     func getAllowance(
-        swap: CrossChainSwap,
         dexTokenApproveAddress: String,
-        chain: ChainModel
-    ) async throws -> String
+        chainAsset: ChainAsset
+    ) async throws -> BigUInt
 
     func approve(
         approveTransaction: OKXApproveTransaction,
-        swap: CrossChainSwap,
         chain: ChainModel,
-        dexTokenApproveAddress: String,
         chainAsset: ChainAsset
     ) async throws -> String
 
     func estimateFee(
-        swap: CrossChainSwap,
-        chain: ChainModel
+        swap: CrossChainSwap
     ) async throws -> BigUInt
 }
 
@@ -46,7 +43,7 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         super.init(ws: eth)
     }
 
-    func approve(approveTransaction: OKXApproveTransaction, swap _: CrossChainSwap, chain: ChainModel, dexTokenApproveAddress _: String, chainAsset: ChainAsset) async throws -> String {
+    func approve(approveTransaction: OKXApproveTransaction, chain: ChainModel, chainAsset: ChainAsset) async throws -> String {
         guard
             let gasPrice = EthereumQuantity(quantity: BigUInt(string: approveTransaction.gasPrice)),
             let gasLimit = EthereumQuantity(quantity: BigUInt(string: "350000"))
@@ -172,7 +169,7 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         }
     }
 
-    func estimateFee(swap: CrossChainSwap, chain _: ChainModel) async throws -> BigUInt {
+    func estimateFee(swap: CrossChainSwap) async throws -> BigUInt {
         guard
             let swapFromAmount = swap.fromAmount,
             let txData = swap.txData,
@@ -192,59 +189,26 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         return gasPrice.quantity * gasLimit.quantity
     }
 
-    func getAllowance(swap: CrossChainSwap, dexTokenApproveAddress: String, chain: ChainModel) async throws -> String {
-        guard let chainId = BigUInt(string: chain.chainId) else {
-            throw EthereumSignedTransaction.Error.chainIdNotSet(msg: "EIP1559 transactions need a chainId")
-        }
-        let chainIdValue = EthereumQuantity(quantity: chainId)
-
+    func getAllowance(dexTokenApproveAddress: String, chainAsset: ChainAsset) async throws -> BigUInt {
         let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
         let spenderAddress = try EthereumAddress(rawAddress: dexTokenApproveAddress.hexToBytes())
-        let contractAddress = try EthereumAddress(rawAddress: swap.contractAddress?.bytes)
+        let contractAddress = try EthereumAddress(rawAddress: chainAsset.asset.id.hexToBytes())
         let contract = ws.Contract(type: GenericERC20Contract.self, address: contractAddress)
         let transferCall = contract.allowance(owner: senderAddress, spender: spenderAddress)
 
-        let nonce = try await queryNonce(ethereumAddress: senderAddress)
-        let gasPrice = try await queryGasPrice()
-        let transferGasLimit = try await queryGasLimit(from: senderAddress, amount: EthereumQuantity(quantity: .zero), transfer: transferCall)
-        let supportsEip1559 = await checkChainSupportEip1559()
-        let transactionType: EthereumTransaction.TransactionType = supportsEip1559 ? .eip1559 : .legacy
-
-        guard let transferData = transferCall.encodeABI() else {
-            throw TransferServiceError.transferFailed(reason: "Cannot create ERC20 transfer transaction")
-        }
-
-        let tx = EthereumTransaction(
-            nonce: nonce,
-            gasPrice: gasPrice,
-            maxFeePerGas: gasPrice,
-            maxPriorityFeePerGas: gasPrice,
-            gasLimit: transferGasLimit,
-            from: senderAddress,
-            to: contractAddress,
-            value: EthereumQuantity(quantity: BigUInt.zero),
-            data: transferData,
-            accessList: [:],
-            transactionType: transactionType
-        )
-
-        let rawTransaction = try tx.sign(with: privateKey, chainId: chainIdValue)
-
-        let result = try await withCheckedThrowingContinuation { continuation in
-            do {
-                try ws.sendRawTransaction(transaction: rawTransaction) { resp in
-                    if let hash = resp.result {
-                        continuation.resume(with: .success(hash))
-                    } else if let error = resp.error {
-                        continuation.resume(with: .failure(error))
+        return try await withCheckedThrowingContinuation { continuation in
+            transferCall.call { result, error in
+                if let result = result, let remaining = result["_remaining"] as? BigUInt {
+                    continuation.resume(with: .success(remaining))
+                } else {
+                    if let error = error {
+                        continuation.resume(throwing: error)
+                    } else {
+                        continuation.resume(throwing: OKXEthereumSwapServiceError.unknownAllowanceResponse)
                     }
                 }
-            } catch {
-                continuation.resume(with: .failure(error))
             }
         }
-
-        return result.hex()
     }
 
     // MARK: - Private

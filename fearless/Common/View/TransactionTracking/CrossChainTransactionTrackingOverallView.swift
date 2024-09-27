@@ -18,6 +18,11 @@ final class CrossChainTransactionTrackingOverallView: UIView {
     }
 
     func bind(viewModels: [Any]) {
+        stackView.arrangedSubviews.forEach {
+            stackView.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        }
+
         viewModels.forEach { viewModel in
             if let stepViewModel = viewModel as? CrossChainTransactionStepViewModel {
                 let view = CrossChainTransactionStepView()

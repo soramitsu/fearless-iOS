@@ -3,7 +3,7 @@ typealias CrossChainTxTrackingModuleCreationResult = (
     input: CrossChainTxTrackingModuleInput
 )
 
-protocol CrossChainTxTrackingRouterInput: AnyObject {}
+protocol CrossChainTxTrackingRouterInput: AnyObject, AnyDismissable {}
 
 protocol CrossChainTxTrackingModuleInput: AnyObject {}
 

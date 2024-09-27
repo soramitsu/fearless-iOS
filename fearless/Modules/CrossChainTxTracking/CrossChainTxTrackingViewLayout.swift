@@ -29,6 +29,7 @@ final class CrossChainTxTrackingViewLayout: UIView {
     let statusTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h2Title
+        label.textAlignment = .center
         return label
     }()
 
@@ -37,6 +38,7 @@ final class CrossChainTxTrackingViewLayout: UIView {
         label.font = .p0Paragraph
         label.numberOfLines = 0
         label.textColor = R.color.colorGray()
+        label.textAlignment = .center
         return label
     }()
 
@@ -66,6 +68,11 @@ final class CrossChainTxTrackingViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        navigationBar.backButton.rounded()
+    }
+
     func bind(viewModel: CrossChainTxTrackingViewModel) {
         statusView.bind(viewModels: viewModel.statusViewModels)
         statusTitleLabel.text = viewModel.statusTitle
@@ -78,6 +85,11 @@ final class CrossChainTxTrackingViewLayout: UIView {
         toChainFeeView.bindBalance(viewModel: viewModel.toChainFee)
         fromChainFeeView.bindBalance(viewModel: viewModel.fromChainFee)
         statusRowLabel.valueTop.text = viewModel.detailStatus
+
+        fromHashView.isHidden = viewModel.fromHashViewTitle.isNullOrEmpty
+        toHashView.isHidden = viewModel.toHashViewTitle.isNullOrEmpty
+        fromChainFeeView.isHidden = viewModel.fromChainFee == nil
+        toChainFeeView.isHidden = viewModel.toChainFee == nil
 
         fromHashView.titleLabel.text = viewModel.fromHashViewTitle
         toHashView.titleLabel.text = viewModel.toHashViewTitle
@@ -137,7 +149,8 @@ final class CrossChainTxTrackingViewLayout: UIView {
         let view = UIFactory.default.createMultiView()
         view.titleLabel.font = .h6Title
         view.valueTop.font = .h5Title
-        view.valueTop.numberOfLines = 2
+        view.valueTop.numberOfLines = 1
+        view.valueTop.lineBreakMode = .byTruncatingMiddle
         return view
     }
 }

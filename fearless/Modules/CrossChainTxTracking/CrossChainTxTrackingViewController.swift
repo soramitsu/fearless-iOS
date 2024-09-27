@@ -3,6 +3,7 @@ import SoraFoundation
 
 protocol CrossChainTxTrackingViewOutput: AnyObject {
     func didLoad(view: CrossChainTxTrackingViewInput)
+    func didTapBackButton()
 }
 
 final class CrossChainTxTrackingViewController: UIViewController, ViewHolder {
@@ -37,6 +38,10 @@ final class CrossChainTxTrackingViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+
+        rootView.navigationBar.backButton.addAction { [weak self] in
+            self?.output.didTapBackButton()
+        }
     }
 
     // MARK: - Private methods

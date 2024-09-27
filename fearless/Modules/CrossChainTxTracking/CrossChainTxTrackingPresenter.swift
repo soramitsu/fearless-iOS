@@ -22,6 +22,7 @@ final class CrossChainTxTrackingPresenter {
     private let viewModelFactory: CrossChainTxTrackingViewModelFactory
     private let wallet: MetaAccountModel
     private let transaction: AssetTransactionData
+    private var timer: Timer?
 
     // MARK: - Constructors
 
@@ -47,6 +48,10 @@ final class CrossChainTxTrackingPresenter {
     private func fetchData() {
         Task {
             let status = try await interactor.queryTransactionStatus()
+
+            if OKXCrossChainTxDetailStatus(rawValue: status.detailStatus) == .success {
+                timer?.invalidate()
+            }
 
             guard let sourceChain = try await interactor.queryChain(chainId: status.fromChainId),
                   let destinationChain = try await interactor.queryChain(chainId: status.toChainId) else {
@@ -75,6 +80,12 @@ final class CrossChainTxTrackingPresenter {
             })
         }
     }
+
+    private func setupTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 10, repeats: true, block: { [weak self] _ in
+            self?.fetchData()
+        })
+    }
 }
 
 // MARK: - CrossChainTxTrackingViewOutput
@@ -84,6 +95,11 @@ extension CrossChainTxTrackingPresenter: CrossChainTxTrackingViewOutput {
         self.view = view
         interactor.setup(with: self)
         fetchData()
+        setupTimer()
+    }
+
+    func didTapBackButton() {
+        router.dismiss(view: view)
     }
 }
 
