@@ -59,9 +59,12 @@ final class SendViewLayout: UIView {
         return button
     }()
 
-    private let bottomContainer: UIView = {
-        let view = UIView()
-        view.backgroundColor = .clear
+    private let bottomContainer: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        view.distribution = .fillProportionally
+        view.spacing = 12
+        view.isUserInteractionEnabled = true
         return view
     }()
 
@@ -196,7 +199,7 @@ private extension SendViewLayout {
         contentView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.equalTo(bottomContainer.snp.top).offset(-UIConstants.bigOffset)
+            make.bottom.equalTo(bottomContainer.snp.top).inset(-UIConstants.bigOffset)
         }
 
         let viewOffset = -2.0 * UIConstants.horizontalInset
@@ -237,24 +240,27 @@ private extension SendViewLayout {
         bottomContainer.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            keyboardAdoptableConstraint =
-                make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
-        }
-
-        bottomContainer.addSubview(actionButton)
-        actionButton.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(UIConstants.actionHeight)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
 
         optionsStackView.addArrangedSubview(scanButton)
         optionsStackView.addArrangedSubview(historyButton)
 
-        bottomContainer.addSubview(optionsStackView)
+        bottomContainer.addArrangedSubview(sendAllContainerView)
+        sendAllContainerView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        bottomContainer.addArrangedSubview(optionsStackView)
         optionsStackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.bigOffset)
             make.height.equalTo(LayoutConstants.stackActionHeight)
+        }
+
+        bottomContainer.addArrangedSubview(actionButton)
+        actionButton.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
         sendAllContainerView.addSubview(sendAllLabel)
@@ -268,13 +274,6 @@ private extension SendViewLayout {
             make.leading.greaterThanOrEqualTo(sendAllLabel.snp.trailing).offset(4)
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
-        }
-
-        bottomContainer.addSubview(sendAllContainerView)
-        sendAllContainerView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(optionsStackView.snp.top).offset(-UIConstants.bigOffset)
-            make.top.equalToSuperview()
         }
     }
 
