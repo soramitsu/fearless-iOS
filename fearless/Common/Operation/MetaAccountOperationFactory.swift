@@ -1,4 +1,5 @@
 import Foundation
+import SSFAccountManagment
 import SSFUtils
 import IrohaCrypto
 import RobinHood
@@ -8,13 +9,32 @@ import SSFCrypto
 import TonSwift
 
 protocol MetaAccountOperationFactoryProtocol {
-    func newMetaAccountOperation(request: MetaAccountImportMnemonicRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
-    func newMetaAccountOperation(request: MetaAccountImportSeedRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
-    func newMetaAccountOperation(request: MetaAccountImportKeystoreRequest, isBackuped: Bool) -> BaseOperation<MetaAccountModel>
+    func newTonMetaAccountOperation(
+        request: MetaAccountImportTonMnemonicRequest,
+        isBackedUp: Bool
+    ) -> BaseOperation<SSFModels.MetaAccountModel>
+    func newMetaAccountOperation(
+        request: MetaAccountImportMnemonicRequest,
+        isBackedUp: Bool
+    ) -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(
+        request: MetaAccountImportSeedRequest,
+        isBackedUp: Bool
+    ) -> BaseOperation<MetaAccountModel>
+    func newMetaAccountOperation(
+        request: MetaAccountImportKeystoreRequest,
+        isBackedUp: Bool
+    ) -> BaseOperation<MetaAccountModel>
 
-    func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel>
-    func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel>
-    func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(
+        request: ChainAccountImportMnemonicRequest
+    ) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(
+        request: ChainAccountImportSeedRequest
+    ) -> BaseOperation<MetaAccountModel>
+    func importChainAccountOperation(
+        request: ChainAccountImportKeystoreRequest
+    ) -> BaseOperation<MetaAccountModel>
 }
 
 final class MetaAccountOperationFactory {
@@ -249,29 +269,14 @@ private extension MetaAccountOperationFactory {
 
     func createMetaAccount(
         name: String,
-        substratePublicKey: Data,
-        substrateCryptoType: CryptoType,
-        ethereumPublicKey: Data?,
-        tonPublicKey: Data?,
-        tonAddress: TonSwift.Address?,
-        tonContractVersion: TonContractVersion?,
-        isBackuped: Bool,
+        ecosystem: WalletEcosystem,
+        isBackedUp: Bool,
         defaultChainId: ChainModel.Id? = nil
     ) throws -> MetaAccountModel {
-        let substrateAccountId = try substratePublicKey.publicKeyToAccountId()
-        let ethereumAddress = try ethereumPublicKey?.ethereumAddressFromPublicKey()
-
         return MetaAccountModel(
             metaId: UUID().uuidString,
             name: name,
-            substrateAccountId: substrateAccountId,
-            substrateCryptoType: substrateCryptoType.rawValue,
-            substratePublicKey: substratePublicKey,
-            ethereumAddress: ethereumAddress,
-            ethereumPublicKey: ethereumPublicKey,
-            tonAddress: tonAddress,
-            tonPublicKey: tonPublicKey,
-            tonContractVersion: tonContractVersion,
+            ecosystem: ecosystem,
             chainAccounts: [],
             assetKeysOrder: nil,
             canExportEthereumMnemonic: true,
@@ -279,7 +284,7 @@ private extension MetaAccountOperationFactory {
             selectedCurrency: Currency.defaultCurrency(),
             networkManagmentFilter: defaultChainId,
             assetsVisibility: [],
-            hasBackup: isBackuped,
+            hasBackup: isBackedUp,
             favouriteChainIds: []
         )
     }
@@ -288,9 +293,34 @@ private extension MetaAccountOperationFactory {
 // MARK: - MetaAccountOperationFactoryProtocol
 
 extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
+    func newTonMetaAccountOperation(
+        request: MetaAccountImportTonMnemonicRequest,
+        isBackedUp: Bool
+    ) -> BaseOperation<SSFModels.MetaAccountModel> {
+        ClosureOperation { [self] in
+            let tonQuery = try getTonQuery(mnemonic: request.mnemonic)
+            let ecosystem = WalletEcosystem.ton(.init(
+                tonAddress: tonQuery.address,
+                tonPublicKey: tonQuery.publicKey,
+                tonContractVersion: tonQuery.contractVersion
+            ))
+            let metaAccount = try createMetaAccount(
+                name: request.username,
+                ecosystem: ecosystem,
+                isBackedUp: isBackedUp
+            )
+
+            let metaId = metaAccount.metaId
+            try saveSecretKey(tonQuery.privateKey, metaId: metaId, ecosystem: .ton)
+            try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
+
+            return metaAccount
+        }
+    }
+
     func newMetaAccountOperation(
         request: MetaAccountImportMnemonicRequest,
-        isBackuped: Bool
+        isBackedUp: Bool
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let substrateQuery = try getQuery(
@@ -307,17 +337,20 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumBased: true
             )
 
-            let tonQuery = try getTonQuery(mnemonic: request.mnemonic)
+            let substrateAccountId = try substrateQuery.publicKey.publicKeyToAccountId()
+            let ethereumAddress = try ethereumQuery.publicKey.ethereumAddressFromPublicKey()
+            let ecosystem = WalletEcosystem.regular(.init(
+                substrateAccountId: substrateAccountId,
+                substrateCryptoType: request.cryptoType.rawValue,
+                substratePublicKey: substrateQuery.publicKey,
+                ethereumAddress: ethereumAddress,
+                ethereumPublicKey: ethereumQuery.publicKey
+            ))
 
             let metaAccount = try createMetaAccount(
                 name: request.username,
-                substratePublicKey: substrateQuery.publicKey,
-                substrateCryptoType: request.cryptoType,
-                ethereumPublicKey: ethereumQuery.publicKey,
-                tonPublicKey: tonQuery.publicKey,
-                tonAddress: tonQuery.address,
-                tonContractVersion: tonQuery.contractVersion,
-                isBackuped: isBackuped,
+                ecosystem: ecosystem,
+                isBackedUp: isBackedUp,
                 defaultChainId: request.defaultChainId
             )
 
@@ -331,8 +364,6 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             try saveDerivationPath(request.ethereumDerivationPath, metaId: metaId, ethereumBased: true)
             try saveSeed(ethereumQuery.privateKey, metaId: metaId, ecosystem: .ethereumBased)
 
-            try saveSecretKey(tonQuery.privateKey, metaId: metaId, ecosystem: .ton)
-
             try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
 
             return metaAccount
@@ -342,7 +373,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     //  We use seed vs seed.miniSeed for mnemonic. Check if it works for SeedRequest.
     func newMetaAccountOperation(
         request: MetaAccountImportSeedRequest,
-        isBackuped: Bool
+        isBackedUp: Bool
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let substrateSeed = try Data(hexStringSSF: request.substrateSeed)
@@ -365,15 +396,19 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 )
             }
 
+            let substrateAccountId = try substrateQuery.publicKey.publicKeyToAccountId()
+            let ethereumAddress = try ethereumQuery?.publicKey.ethereumAddressFromPublicKey()
+            let ecosystem = WalletEcosystem.regular(.init(
+                substrateAccountId: substrateAccountId,
+                substrateCryptoType: request.cryptoType.rawValue,
+                substratePublicKey: substrateQuery.publicKey,
+                ethereumAddress: ethereumAddress,
+                ethereumPublicKey: ethereumQuery?.publicKey
+            ))
             let metaAccount = try createMetaAccount(
                 name: request.username,
-                substratePublicKey: substrateQuery.publicKey,
-                substrateCryptoType: request.cryptoType,
-                ethereumPublicKey: ethereumQuery?.publicKey,
-                tonPublicKey: nil,
-                tonAddress: nil,
-                tonContractVersion: nil,
-                isBackuped: isBackuped
+                ecosystem: ecosystem,
+                isBackedUp: isBackedUp
             )
 
             let metaId = metaAccount.metaId
@@ -394,7 +429,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func newMetaAccountOperation(
         request: MetaAccountImportKeystoreRequest,
-        isBackuped: Bool
+        isBackedUp: Bool
     ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
@@ -455,17 +490,17 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 try saveSecretKey(ethereumKeystore.secretKeyData, metaId: metaId, ecosystem: .ethereumBased)
             }
 
-            return MetaAccountModel(
-                metaId: metaId,
-                name: request.username,
+            let ecosystem = WalletEcosystem.regular(.init(
                 substrateAccountId: accountId,
                 substrateCryptoType: request.cryptoType.rawValue,
                 substratePublicKey: substratePublicKey.rawData(),
                 ethereumAddress: ethereumAddress,
-                ethereumPublicKey: ethereumPublicKey?.rawData(),
-                tonAddress: nil,
-                tonPublicKey: nil,
-                tonContractVersion: nil,
+                ethereumPublicKey: ethereumPublicKey?.rawData()
+            ))
+            return MetaAccountModel(
+                metaId: metaId,
+                name: request.username,
+                ecosystem: ecosystem,
                 chainAccounts: [],
                 assetKeysOrder: nil,
                 canExportEthereumMnemonic: true,
@@ -473,7 +508,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 selectedCurrency: Currency.defaultCurrency(),
                 networkManagmentFilter: nil,
                 assetsVisibility: [],
-                hasBackup: isBackuped,
+                hasBackup: isBackedUp,
                 favouriteChainIds: []
             )
         }
@@ -511,11 +546,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 try saveSeed(query.seed, metaId: metaId, ecosystem: request.ecosystem)
             case .ton:
                 let tonQuery = try getTonQuery(mnemonic: request.mnemonic)
-                return request.meta.replacingTon(
-                    tonPublicKey: tonQuery.publicKey,
-                    tonAddress: tonQuery.address,
-                    tonContractVersion: tonQuery.contractVersion
-                )
+                accountId = tonQuery.publicKey
+                privateKey = tonQuery.privateKey
+                publicKey = tonQuery.publicKey
             }
 
             try saveSecretKey(

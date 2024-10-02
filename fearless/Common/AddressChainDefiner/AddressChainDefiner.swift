@@ -69,7 +69,7 @@ final class AddressChainDefiner {
         guard let address = address, address.isNotEmpty, let accoundId = (try? AddressFactory.accountId(from: address, chain: chain)) else {
             return .invalid(address)
         }
-        if accoundId == wallet.substrateAccountId || accoundId == wallet.ethereumAddress {
+        if accoundId == wallet.ecosystem.substrateAccountId || accoundId == wallet.ecosystem.ethereumAddress {
             return .sameAddress(address)
         }
         return .valid(address)

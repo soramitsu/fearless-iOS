@@ -108,7 +108,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             )
         }
 
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let address = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
 
         return WalletsManagmentCellViewModel(

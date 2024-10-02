@@ -78,7 +78,7 @@ extension WalletOptionPresenter: WalletOptionViewOutput {
     }
 
     func accountScoreDidTap() {
-        let address = wallet.info.ethereumAddress?.toHex(includePrefix: true)
+        let address = wallet.info.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         router.presentAccountScore(address: address, from: view)
     }
 

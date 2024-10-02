@@ -156,7 +156,7 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
             let amount = inputAmount.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision)),
             let address = try? wallet.fetch(for: selectedChainAsset.chain.accountRequest())?.accountId.asTonAddress(),
             let recipientAddress = getRecipientAddress(),
-            let contract = wallet.tonWalletContract()
+            let contract = wallet.ecosystem.tonWalletContract()
         else {
             transfer = nil
             return nil

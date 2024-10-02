@@ -147,7 +147,9 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         case .wallet, .backup:
             view?.set(chainType: .both)
         case let .chain(model):
-            if let cryptoType = CryptoType(rawValue: model.meta.substrateCryptoType) {
+            if
+                let substrateCryptoType = model.meta.ecosystem.substrateCryptoType,
+                let cryptoType = CryptoType(rawValue: substrateCryptoType) {
                 selectedCryptoType = cryptoType
             }
             view?.set(chainType: model.chain.isEthereumBased ? .ethereum : .substrate)

@@ -77,13 +77,14 @@ extension AccountFetching {
         for chainAccount in meta.chainAccounts {
             let chainFormat: ChainFormat = chainAccount.ecosystem.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
             if let chainAddress = try? chainAccount.accountId.toAddress(using: chainFormat),
+               let substrateCryptoType = meta.ecosystem.substrateCryptoType,
                chainAddress == address {
                 let account = ChainAccountResponse(
                     chainId: chain.chainId,
                     accountId: chainAccount.accountId,
                     publicKey: chainAccount.publicKey,
                     name: meta.name,
-                    cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                    cryptoType: CryptoType(rawValue: substrateCryptoType) ?? .sr25519,
                     addressPrefix: chain.addressPrefix,
                     ecosystem: chainAccount.ecosystem,
                     isChainAccount: true,
@@ -157,12 +158,15 @@ extension AccountFetching {
                         }
 
                         for chainAccount in meta.chainAccounts {
+                            guard let substrateCryptoType = meta.ecosystem.substrateCryptoType else {
+                                continue
+                            }
                             responses.append(ChainAccountResponse(
                                 chainId: chain.chainId,
                                 accountId: chainAccount.accountId,
                                 publicKey: chainAccount.publicKey,
                                 name: meta.name,
-                                cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
+                                cryptoType: CryptoType(rawValue: substrateCryptoType) ?? .sr25519,
                                 addressPrefix: chain.addressPrefix,
                                 ecosystem: chainAccount.ecosystem,
                                 isChainAccount: true,

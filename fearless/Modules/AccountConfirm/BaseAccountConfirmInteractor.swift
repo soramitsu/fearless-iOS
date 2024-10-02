@@ -67,7 +67,7 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
 
 private extension BaseAccountConfirmInteractor {
     func createAccount(_ request: MetaAccountImportMnemonicRequest, isBackuped: Bool) {
-        let operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: isBackuped)
+        let operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackedUp: isBackuped)
         createAccountUsingOperation(operation)
     }
 

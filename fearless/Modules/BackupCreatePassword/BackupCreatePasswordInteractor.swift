@@ -129,6 +129,13 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         seeds: [ExportSeedData],
         password: String
     ) {
+        guard
+            let substrateCryptoType = wallet.ecosystem.substrateCryptoType,
+            let substratePublicKey = wallet.ecosystem.substratePublicKey,
+            let substratePublicKey = wallet.ecosystem.substratePublicKey
+        else {
+            return
+        }
         let substrateRestoreSeed = seeds.first(where: { $0.chain.ecosystem == .substrate })
         let ethereumRestoreSeed = seeds.first(where: { $0.chain.isEthereumBased })
 
@@ -138,12 +145,12 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             substrateSeed: substrateSeed,
             ethSeed: ethSeed
         )
-        let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let cryptoType = CryptoType(rawValue: substrateCryptoType)
+        let address42 = try? substratePublicKey.toAddress(using: .substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: address42 ?? substratePublicKey.toHex(),
             cryptoType: cryptoType?.stringValue.uppercased(),
             substrateDerivationPath: substrateRestoreSeed?.derivationPath,
             ethDerivationPath: ethereumRestoreSeed?.derivationPath,
@@ -158,6 +165,13 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         jsons: [RestoreJson],
         password: String
     ) {
+        guard
+            let substrateCryptoType = wallet.ecosystem.substrateCryptoType,
+            let substratePublicKey = wallet.ecosystem.substratePublicKey,
+            let substratePublicKey = wallet.ecosystem.substratePublicKey
+        else {
+            return
+        }
         let substrateRestoreJson = jsons.first(where: { $0.chain.ecosystem == .substrate })
         let ethereumRestoreJson = jsons.first(where: { $0.chain.isEthereumBased })
 
@@ -165,12 +179,12 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             substrateJson: substrateRestoreJson?.data,
             ethJson: ethereumRestoreJson?.data
         )
-        let cryptoType = CryptoType(rawValue: wallet.substrateCryptoType)
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        let cryptoType = CryptoType(rawValue: substrateCryptoType)
+        let address42 = try? substratePublicKey.toAddress(using: .substrate(42))
 
         let account = OpenBackupAccount(
             name: wallet.name,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: address42 ?? substratePublicKey.toHex(),
             cryptoType: cryptoType?.stringValue.uppercased(),
             backupAccountType: [.json],
             json: json
@@ -183,10 +197,13 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
         request: MetaAccountImportMnemonicRequest,
         password: String
     ) {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+        guard let substratePublicKey = wallet.ecosystem.substratePublicKey else {
+            return
+        }
+        let address42 = try? substratePublicKey.toAddress(using: .substrate(42))
         let account = OpenBackupAccount(
             name: request.username,
-            address: address42 ?? wallet.substratePublicKey.toHex(),
+            address: address42 ?? substratePublicKey.toHex(),
             passphrase: request.mnemonic.toString(),
             cryptoType: request.cryptoType.stringValue.uppercased(),
             substrateDerivationPath: request.substrateDerivationPath,

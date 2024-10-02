@@ -78,7 +78,7 @@ final class BackupWalletPresenter {
         case .json:
             router.showKeystoreExport(flow: flow, from: view)
         case .backupGoogle, .removeGoogle:
-            let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+            let address42 = try? wallet.ecosystem.substratePublicKey?.toAddress(using: .substrate(42))
             if backupAccounts.or([]).contains(where: { $0.address == address42 }) {
                 removeBackupFromGoogle()
             } else {
@@ -291,7 +291,7 @@ extension BackupWalletPresenter: BackupWalletInteractorOutput {
                 .commonDone(preferredLanguages: selectedLocale.rLanguages)
             router.presentSuccessNotification(text, from: view)
 
-            let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
+            let address42 = try? wallet.ecosystem.substratePublicKey?.toAddress(using: .substrate(42))
             backupAccounts?.removeAll(where: { $0.address == address42 })
             provideViewModel()
         case let .failure(failure):

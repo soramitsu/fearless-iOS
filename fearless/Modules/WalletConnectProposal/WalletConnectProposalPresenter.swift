@@ -244,7 +244,7 @@ final class WalletConnectProposalPresenter {
             case .walletConnect:
                 self.wallets = wallets
             case .tonConnect:
-                self.wallets = wallets.filter { $0.tonAddress != nil }
+                self.wallets = wallets.filter { $0.ecosystem.tonAddress != nil }
                 if self.wallets.isEmpty {
                     showMissingAccountAlert()
                     return

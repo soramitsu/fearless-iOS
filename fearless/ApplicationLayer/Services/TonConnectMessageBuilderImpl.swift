@@ -28,9 +28,9 @@ final class TonConnectMessageBuilderImpl: TonConnectMessageBuilder {
         wallet: MetaAccountModel
     ) throws -> String {
         guard
-            let address = wallet.tonAddress,
-            let publicKey = wallet.tonPublicKey,
-            let contract = wallet.tonWalletContract()
+            let address = wallet.ecosystem.tonAddress,
+            let publicKey = wallet.ecosystem.tonPublicKey,
+            let contract = wallet.ecosystem.tonWalletContract()
         else {
             throw ConvenienceError(error: "Missing TON")
         }
@@ -114,9 +114,9 @@ final class TonConnectMessageBuilderImpl: TonConnectMessageBuilder {
         tonChainModel: ChainModel
     ) throws -> TonConnect.ConnectEventSuccess {
         guard
-            let address = wallet.tonAddress,
-            let publicKey = wallet.tonPublicKey,
-            let walletStateInit = wallet.tonWalletContract()?.stateInit
+            let address = wallet.ecosystem.tonAddress,
+            let publicKey = wallet.ecosystem.tonPublicKey,
+            let walletStateInit = wallet.ecosystem.tonWalletContract()?.stateInit
         else {
             throw ConvenienceError(error: "Missing TON")
         }

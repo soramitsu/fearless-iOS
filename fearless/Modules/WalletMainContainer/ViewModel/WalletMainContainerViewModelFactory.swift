@@ -59,7 +59,7 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             chainAddress = address
         }
 
-        let ethAddress = selectedMetaAccount.ethereumAddress?.toHex(includePrefix: true)
+        let ethAddress = selectedMetaAccount.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         let accountScoreViewModel = AccountScoreViewModel(
             fetcher: accountScoreFetcher,
             address: ethAddress,

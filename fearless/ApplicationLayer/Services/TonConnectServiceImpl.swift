@@ -137,8 +137,8 @@ actor TonConnectServiceImpl: TonConnectService {
         parameter: SendTransactionParam
     ) async throws -> String {
         guard
-            let sender = wallet.tonAddress,
-            let walletContract = wallet.tonWalletContract()
+            let sender = wallet.ecosystem.tonAddress,
+            let walletContract = wallet.ecosystem.tonWalletContract()
         else {
             throw ConvenienceError(error: "Missing Ton params")
         }
@@ -165,8 +165,8 @@ actor TonConnectServiceImpl: TonConnectService {
         parameter: SendTransactionParam
     ) async throws {
         guard
-            let sender = wallet.tonAddress,
-            let walletContract = wallet.tonWalletContract()
+            let sender = wallet.ecosystem.tonAddress,
+            let walletContract = wallet.ecosystem.tonWalletContract()
         else {
             throw ConvenienceError(error: "Missing Ton params")
         }

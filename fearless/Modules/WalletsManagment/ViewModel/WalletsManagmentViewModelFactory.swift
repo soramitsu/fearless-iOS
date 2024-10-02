@@ -41,7 +41,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 isSelected = selectedWalletId == nil ? false : managedMetaAccount.info.metaId == selectedWalletId
             }
 
-            let address = managedMetaAccount.info.ethereumAddress?.toHex(includePrefix: true)
+            let address = managedMetaAccount.info.ecosystem.ethereumAddress?.toHex(includePrefix: true)
             let accountScoreViewModel = AccountScoreViewModel(
                 fetcher: accountScoreFetcher,
                 address: address,
