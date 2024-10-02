@@ -1,10 +1,12 @@
 import Foundation
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 final class WalletDetailsViewFactory {
     static func createView(
-        flow: WalletDetailsFlow
+        flow: WalletDetailsFlow,
+        chains: [ChainModel]?
     ) -> WalletDetailsViewProtocol {
         let chainsRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
@@ -24,6 +26,7 @@ final class WalletDetailsViewFactory {
 
         let localizationManager = LocalizationManager.shared
         let presenter = WalletDetailsPresenter(
+            chains: chains,
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: WalletDetailsViewModelFactory(),

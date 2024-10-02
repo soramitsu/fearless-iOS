@@ -11,11 +11,11 @@ enum TransferFlowUseCaseError: Error {
 }
 
 enum TransferFlowDirectionImpl {
-    case substrate //
-    case ethereum //
-    case soraMainnetQr //
-    case bokoloCash //
-    case ton //
+    case substrate
+    case ethereum
+    case soraMainnetQr
+    case bokoloCash
+    case ton
 }
 
 enum TransferValidationCase {

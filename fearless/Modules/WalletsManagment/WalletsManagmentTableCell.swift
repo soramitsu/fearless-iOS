@@ -107,6 +107,10 @@ final class WalletsManagmentTableCell: UITableViewCell {
         }
     }
 
+    func hideScore() {
+        accountScoreView.isHidden = true
+    }
+
     private func configure() {
         optionsButton.addTarget(self, action: #selector(optionsDidTap), for: .touchUpInside)
     }

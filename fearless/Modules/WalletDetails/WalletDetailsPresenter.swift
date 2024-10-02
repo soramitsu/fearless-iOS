@@ -15,12 +15,16 @@ final class WalletDetailsPresenter {
     private var searchText: String?
 
     init(
+        chains: [ChainModel]?,
         interactor: WalletDetailsInteractorInputProtocol,
         wireframe: WalletDetailsWireframeProtocol,
         viewModelFactory: WalletDetailsViewModelFactoryProtocol,
         flow: WalletDetailsFlow,
         localizationManager: LocalizationManagerProtocol
     ) {
+        if let chains {
+            self.chains = chains
+        }
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
@@ -169,6 +173,10 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
     }
 
     func didReceive(chains: [ChainModel]) {
+        guard self.chains.isEmpty else {
+            provideViewModel(chains: self.chains)
+            return
+        }
         self.chains = chains
         provideViewModel(chains: chains)
     }

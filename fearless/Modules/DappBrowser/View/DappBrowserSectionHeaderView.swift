@@ -18,6 +18,8 @@ final class DappBrowserSectionHeaderView: UITableViewHeaderFooterView {
         containerView.fillColor = R.color.colorWhite4()!
         containerView.highlightedFillColor = R.color.colorWhite4()!
         containerView.shadowOpacity = 0
+        containerView.cornerCut = .topLeft
+        containerView.cornersRaduis = .topRight
         return containerView
     }()
 
@@ -62,8 +64,6 @@ final class DappBrowserSectionHeaderView: UITableViewHeaderFooterView {
     func configure(model: DappBrowserSectionHeaderViewViewModel) {
         titleLabel.text = model.title
         moreButton.isHidden = model.isAllHidden
-        containerView.cornerCut = .topLeft
-        containerView.cornersRaduis = .topRight
     }
 
     // MARK: - Private methods

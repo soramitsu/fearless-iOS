@@ -20,6 +20,7 @@ final class ServiceAssembly {
     lazy var eventCenter = EventCenter.shared
     lazy var userDefaults = SettingsManager.shared
     lazy var localToggle = LocalToggleService.shared
+    lazy var walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
     private var _accountInfoRemoteServiceDefault: AccountInfoRemoteService?
     func accountInfoRemoteServiceDefault() -> AccountInfoRemoteService {

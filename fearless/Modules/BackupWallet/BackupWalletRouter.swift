@@ -97,7 +97,7 @@ final class BackupWalletRouter: BackupWalletRouterInput {
         from view: ControllerBackedProtocol?
     ) {
         let module = WalletDetailsViewFactory
-            .createView(flow: .normal(wallet: wallet))
+            .createView(flow: .normal(wallet: wallet), chains: nil)
         view?.controller.navigationController?.pushViewController(module.controller, animated: true)
     }
 }

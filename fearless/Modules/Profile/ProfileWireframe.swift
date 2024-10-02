@@ -9,9 +9,11 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
     ) {
-        let walletDetails = WalletDetailsViewFactory.createView(flow: .normal(wallet: metaAccount))
+        guard let walletDetails = ConnectedAccountsAssembly.configureModule() else {
+            return
+        }
         let navigationController = FearlessNavigationController(
-            rootViewController: walletDetails.controller
+            rootViewController: walletDetails.view.controller
         )
         view?.controller.present(navigationController, animated: true)
     }
