@@ -73,6 +73,7 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
+            icon: wallet.icon(),
             fiatBalance: fiatBalance,
             dayChange: dayChange,
             accountScoreViewModel: nil
@@ -88,7 +89,7 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
         let mapped = chains.reduce([Ecosystem: [ChainModel]]()) { partialResult, chain in
             var part = partialResult
             switch chain.ecosystem {
-            case .substrate, .ethereum, .ton:
+            case .substrate, .ethereum:
                 var possibleValues = partialResult[chain.ecosystem] ?? []
                 possibleValues.append(chain)
                 part[chain.ecosystem] = possibleValues
@@ -96,6 +97,8 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
                 var possibleValues = partialResult[.ethereum] ?? []
                 possibleValues.append(chain)
                 part[.ethereum] = possibleValues
+            case .ton:
+                break
             }
             return part
         }

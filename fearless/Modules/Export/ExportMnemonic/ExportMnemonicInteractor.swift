@@ -4,6 +4,7 @@ import RobinHood
 import IrohaCrypto
 import SSFUtils
 import SSFModels
+import TonSwift
 
 enum ExportMnemonicInteractorError: Error {
     case missingAccount
@@ -37,7 +38,18 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                 let entropyTag = KeystoreTagV2.entropyTagForMetaId(wallet.metaId, accountId: accountId)
                 let entropy = try keystore.fetchKey(for: entropyTag)
 
-                let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+                let allWords: [String]
+                switch wallet.ecosystem {
+                case .regular:
+                    let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+                    allWords = mnemonic.allWords()
+                case .ton:
+                    guard let mnemonic = String(data: entropy, encoding: .utf8) else {
+                        return
+                    }
+                    allWords = mnemonic.components(separatedBy: " ")
+                }
+
                 let derivationPathTag = chainAccount.chain.isEthereumBased ?
                     KeystoreTagV2.ethereumDerivationTagForMetaId(wallet.metaId, accountId: accountId) :
                     KeystoreTagV2.substrateDerivationTagForMetaId(wallet.metaId, accountId: accountId)
@@ -45,7 +57,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
 
                 let isEthereum = chainAccount.account.ecosystem.isEthereum || chainAccount.account.ecosystem.isEthereumBased
                 let data = ExportMnemonicData(
-                    mnemonic: mnemonic,
+                    mnemonic: allWords,
                     derivationPath: derivationPath,
                     cryptoType: isEthereum ? nil : chainAccount.account.cryptoType,
                     chain: chainAccount.chain
@@ -72,6 +84,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                     return
                 }
                 self?.fetchExportData(
+                    ecosystem: wallet.ecosystem,
                     metaId: wallet.metaId,
                     accountId: response.isChainAccount ? accountId : nil,
                     cryptoType: response.cryptoType,
@@ -84,6 +97,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
     }
 
     private func fetchExportData(
+        ecosystem: WalletEcosystem,
         metaId: String,
         accountId: AccountId?,
         cryptoType: CryptoType,
@@ -95,14 +109,24 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                 throw ExportMnemonicInteractorError.missingEntropy
             }
 
-            let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+            let allWords: [String]
+            switch ecosystem {
+            case .regular:
+                let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
+                allWords = mnemonic.allWords()
+            case .ton:
+                guard let mnemonic = String(data: entropy, encoding: .utf8) else {
+                    throw ExportMnemonicInteractorError.missingEntropy
+                }
+                allWords = mnemonic.components(separatedBy: " ")
+            }
             let derivationPathTag = chain.isEthereumBased ?
                 KeystoreTagV2.ethereumDerivationTagForMetaId(metaId, accountId: accountId) :
                 KeystoreTagV2.substrateDerivationTagForMetaId(metaId, accountId: accountId)
             let derivationPath: String? = try self?.keystore.fetchDeriviationForAddress(derivationPathTag)
 
             return ExportMnemonicData(
-                mnemonic: mnemonic,
+                mnemonic: allWords,
                 derivationPath: derivationPath,
                 cryptoType: cryptoType,
                 chain: chain

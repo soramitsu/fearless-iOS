@@ -41,9 +41,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
-        let view = OnboardingMainViewController(nib: R.nib.onbordingMain)
-        view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
-        view.localizationManager = localizationManager
+        let view = OnboardingMainViewController()
 
         let appVersionObserver = AppVersionObserver(
             operationManager: OperationManagerFacade.sharedManager,
@@ -80,6 +78,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         presenter.view = view
 
         interactor.presenter = presenter
+        view.localizationManager = localizationManager
 
         return view
     }

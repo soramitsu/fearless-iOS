@@ -48,7 +48,8 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
 
         var flow: AccountConfirmFlow?
         if let mnemonicRequest = createPasswordFlow.mnemonicRequest {
-            flow = .wallet(mnemonicRequest)
+            // TODO: - Ton google backup
+            flow = .wallet(.regular(mnemonicRequest))
         }
 
         super.init(
@@ -94,8 +95,14 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
             settings.setup()
             eventCenter.notify(with: SelectedAccountChanged(account: wallet))
             switch flow {
-            case let .wallet(request):
-                saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
+            case let .wallet(importEcosystem):
+                switch importEcosystem {
+                case let .regular(request):
+                    saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
+                case .ton(_):
+                    // TODO: - Ton google backup
+                    break
+                }
             default:
                 break
             }
@@ -131,7 +138,6 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     ) {
         guard
             let substrateCryptoType = wallet.ecosystem.substrateCryptoType,
-            let substratePublicKey = wallet.ecosystem.substratePublicKey,
             let substratePublicKey = wallet.ecosystem.substratePublicKey
         else {
             return
@@ -167,7 +173,6 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
     ) {
         guard
             let substrateCryptoType = wallet.ecosystem.substrateCryptoType,
-            let substratePublicKey = wallet.ecosystem.substratePublicKey,
             let substratePublicKey = wallet.ecosystem.substratePublicKey
         else {
             return

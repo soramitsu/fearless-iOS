@@ -123,8 +123,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ashleymills/Reachability.swift",
       "state" : {
-        "revision" : "7cbd73f46a7dfaeca079e18df7324c6de6d1834a",
-        "version" : "5.2.3"
+        "revision" : "21d1dc412cfecbe6e34f1f4c4eb88d3f912654a6",
+        "version" : "5.2.4"
       }
     },
     {
@@ -142,7 +142,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "FW-new-ecosystem",
-        "revision" : "bfd8294ccba6f2b79556a9b57d8892c9e5b54966"
+        "revision" : "5294ec2497b843208501b114aa1e9b59953f4aa6"
       }
     },
     {

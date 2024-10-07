@@ -4,7 +4,7 @@ import SSFModels
 
 final class ExportMnemonicWireframe: ExportMnemonicWireframeProtocol {
     func openConfirmationForMnemonic(
-        _ mnemonic: IRMnemonicProtocol,
+        _ mnemonic: [String],
         wallet: MetaAccountModel,
         from view: ExportGenericViewProtocol?
     ) {

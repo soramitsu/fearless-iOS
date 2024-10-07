@@ -58,13 +58,16 @@ protocol AccountCreateWireframeProtocol: SheetAlertPresentable, ErrorPresentable
 
 protocol AccountCreateViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding(
+        ecosystem: AccountCreateEcosystem,
         model: UsernameSetupModel,
         flow: AccountCreateFlow
     ) -> AccountCreateViewProtocol?
     static func createViewForAdding(
+        ecosystem: AccountCreateEcosystem,
         model: UsernameSetupModel
     ) -> AccountCreateViewProtocol?
     static func createViewForSwitch(
+        ecosystem: AccountCreateEcosystem,
         model: UsernameSetupModel
     ) -> AccountCreateViewProtocol?
 }

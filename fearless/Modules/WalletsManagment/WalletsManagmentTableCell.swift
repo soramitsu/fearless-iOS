@@ -87,7 +87,7 @@ final class WalletsManagmentTableCell: UITableViewCell {
     }
 
     func bind(to viewModel: WalletsManagmentCellViewModel) {
-        iconImageView.image = R.image.iconBirdGreen()
+        iconImageView.image = viewModel.icon
         walletNameLabel.text = viewModel.walletName
         dayChangeLabel.attributedText = viewModel.dayChange
         backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: false)

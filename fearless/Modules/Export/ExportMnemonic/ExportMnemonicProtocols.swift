@@ -14,7 +14,7 @@ protocol ExportMnemonicInteractorOutputProtocol: AnyObject {
 protocol ExportMnemonicWireframeProtocol: ExportGenericWireframeProtocol {
     func close(view: ExportGenericViewProtocol?)
     func openConfirmationForMnemonic(
-        _ mnemonic: IRMnemonicProtocol,
+        _ mnemonic: [String],
         wallet: MetaAccountModel,
         from view: ExportGenericViewProtocol?
     )

@@ -5,9 +5,10 @@ extension AddAccount {
         func proceed(
             from view: UsernameSetupViewProtocol?,
             flow _: AccountCreateFlow = .wallet,
-            model: UsernameSetupModel
+            model: UsernameSetupModel,
+            ecosystem: AccountCreateEcosystem
         ) {
-            guard let accountCreation = AccountCreateViewFactory.createViewForAdding(model: model) else {
+            guard let accountCreation = AccountCreateViewFactory.createViewForAdding(ecosystem: ecosystem, model: model) else {
                 return
             }
 

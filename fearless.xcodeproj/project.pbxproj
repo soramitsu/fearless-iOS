@@ -399,6 +399,8 @@
 		07FBC9E228BE24E900ED65B4 /* MissingAccountFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E128BE24E900ED65B4 /* MissingAccountFetcher.swift */; };
 		07FBC9E628BE29C900ED65B4 /* ChainIssuesCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
+		07FEC1342CAE624B003938C6 /* OnboardingMainViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FEC1332CAE624B003938C6 /* OnboardingMainViewLayout.swift */; };
+		07FEC1362CAE6848003938C6 /* SelectEcosystemBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FEC1352CAE6848003938C6 /* SelectEcosystemBannerView.swift */; };
 		084DDCBC4CE8438770EB48DE /* ConfirmTransferRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1C635488F941373CDBE377 /* ConfirmTransferRouter.swift */; };
 		08C2974B3B5AAA757CE57E33 /* FeatureToggleListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769372B10E8D3C2BF7304FC3 /* FeatureToggleListInteractor.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
@@ -3605,6 +3607,8 @@
 		07FBC9E128BE24E900ED65B4 /* MissingAccountFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissingAccountFetcher.swift; sourceTree = "<group>"; };
 		07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainIssuesCenter.swift; sourceTree = "<group>"; };
 		07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
+		07FEC1332CAE624B003938C6 /* OnboardingMainViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMainViewLayout.swift; sourceTree = "<group>"; };
+		07FEC1352CAE6848003938C6 /* SelectEcosystemBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectEcosystemBannerView.swift; sourceTree = "<group>"; };
 		0892AD886F2BE499C075C701 /* MainNftContainerProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainNftContainerProtocols.swift; sourceTree = "<group>"; };
 		08EB1FC5907B5165836318C4 /* AnalyticsValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsTests.swift; sourceTree = "<group>"; };
 		09373C708FE543066B943E45 /* NftDetailsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NftDetailsInteractor.swift; sourceTree = "<group>"; };
@@ -10240,6 +10244,7 @@
 			children = (
 				8490140324A92F6D008F705E /* ViewModel */,
 				8490140224A92F6D008F705E /* OnboardingMainViewController.swift */,
+				07FEC1332CAE624B003938C6 /* OnboardingMainViewLayout.swift */,
 				8490140624A92F6D008F705E /* OnbordingMain.xib */,
 				8490140824A92F6D008F705E /* OnboardingMainPresenter.swift */,
 				8490140924A92F6D008F705E /* OnboardingMainViewFactory.swift */,
@@ -10607,6 +10612,7 @@
 				FA2222932BD2726F0031DE04 /* SkeletonLabel.swift */,
 				FA2222952BD272A30031DE04 /* SkeletonLoadableView.swift */,
 				FA887A482C1C19DB00CA720F /* WarningView.swift */,
+				07FEC1352CAE6848003938C6 /* SelectEcosystemBannerView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -19351,6 +19357,7 @@
 				830A27C5447348F1D202D996 /* CrowdloanContributionSetupInteractor.swift in Sources */,
 				AE4C53E5268C6F8300B03CE8 /* ValidatorListFilterSortCell.swift in Sources */,
 				1062C095BC566A1EA8DE1C06 /* CrowdloanContributionSetupViewController.swift in Sources */,
+				07FEC1362CAE6848003938C6 /* SelectEcosystemBannerView.swift in Sources */,
 				FAF5E9DB27E46DAA005A3448 /* RootViewLayout.swift in Sources */,
 				8CDA490B390BFA261906F8FC /* CrowdloanContributionSetupViewLayout.swift in Sources */,
 				1BEADE77C6236CB3BF719A47 /* CrowdloanContributionSetupViewFactory.swift in Sources */,
@@ -19771,6 +19778,7 @@
 				0EFEBFB39CE4B0A61B6CD914 /* NftSendConfirmInteractor.swift in Sources */,
 				FB6B2B551238260D754E036D /* NftSendConfirmViewController.swift in Sources */,
 				78E3117D66E60D72F2501F09 /* NftSendConfirmViewLayout.swift in Sources */,
+				07FEC1342CAE624B003938C6 /* OnboardingMainViewLayout.swift in Sources */,
 				0701B8EC2C78F71800DCD395 /* TonConnectParameters.swift in Sources */,
 				991BF0BF6DD4D4243073E8C9 /* NftSendConfirmAssembly.swift in Sources */,
 				62843B73F8616209F57A66FC /* AssetNetworksProtocols.swift in Sources */,

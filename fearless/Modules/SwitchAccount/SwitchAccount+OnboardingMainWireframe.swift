@@ -13,8 +13,8 @@ extension SwitchAccount {
             view?.controller.navigationController?.pushViewController(controller, animated: true)
         }
 
-        func showSignup(from view: OnboardingMainViewProtocol?) {
-            guard let usernameSetup = UsernameSetupViewFactory.createViewForSwitch() else {
+        func showSignup(from view: OnboardingMainViewProtocol?, ecosystem: AccountCreateEcosystem) {
+            guard let usernameSetup = UsernameSetupViewFactory.createViewForSwitch(ecosystem: ecosystem) else {
                 return
             }
 
@@ -23,7 +23,7 @@ extension SwitchAccount {
             }
         }
 
-        func showAccountRestore(defaultSource _: AccountImportSource, from view: OnboardingMainViewProtocol?) {
+        func showAccountRestore(defaultSource _: AccountImportSource, flow: AccountImportFlow, from view: OnboardingMainViewProtocol?) {
             guard let restorationController = AccountImportViewFactory.createViewForSwitch()?.controller else {
                 return
             }
@@ -38,7 +38,7 @@ extension SwitchAccount {
                 let navigationController = view?.controller.navigationController,
                 navigationController.topViewController == view?.controller,
                 navigationController.presentedViewController == nil {
-                showAccountRestore(defaultSource: .mnemonic, from: view)
+                showAccountRestore(defaultSource: .mnemonic, flow: .wallet(step: .substrate), from: view)
             }
         }
 

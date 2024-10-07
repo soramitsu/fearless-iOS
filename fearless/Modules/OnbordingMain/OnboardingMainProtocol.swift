@@ -12,12 +12,17 @@ protocol OnboardingMainPresenterProtocol: AnyObject {
     func activateTerms()
     func activatePrivacy()
     func didTapGetPreinstalled()
+    func didSelect(ecosystem: AccountCreateEcosystem)
 }
 
 protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, SheetAlertPresentable, WarningPresentable, PresentDismissable, AppUpdatePresentable {
-    func showSignup(from view: OnboardingMainViewProtocol?)
+    func showSignup(
+        from view: OnboardingMainViewProtocol?,
+        ecosystem: AccountCreateEcosystem
+    )
     func showAccountRestore(
         defaultSource: AccountImportSource,
+        flow: AccountImportFlow,
         from view: OnboardingMainViewProtocol?
     )
     func showKeystoreImport(from view: OnboardingMainViewProtocol?)

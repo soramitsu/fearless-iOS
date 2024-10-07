@@ -119,12 +119,11 @@ extension BannersPresenter: BannersViewOutput {
     }
 
     func didCloseBanner(_ banner: Banners) {
-        guard let wallet = wallet else {
-            return
-        }
-
         switch banner {
         case .backup:
+            guard let wallet = wallet else {
+                return
+            }
             showNotBackedUpAlert(wallet: wallet)
         case .buyXor:
             break

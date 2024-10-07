@@ -172,6 +172,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let createController = AccountCreateViewFactory.createViewForOnboarding(
+            ecosystem: .regular, // TODO: - Select ecosystem
             model: UsernameSetupModel(username: uniqueChainModel.meta.name),
             flow: .chain(model: uniqueChainModel)
         )?.controller else {

@@ -12,7 +12,7 @@ protocol AccountManagementPresentable {
 
 extension AccountManagementPresentable {
     func showCreateNewWallet(from view: ControllerBackedProtocol?) {
-        guard let usernameSetup = UsernameSetupViewFactory.createViewForAdding() else {
+        guard let usernameSetup = OnboardingMainViewFactory.createViewForOnboarding() else {
             return
         }
 

@@ -54,7 +54,8 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
             guard let walletBalance = balances[key] else {
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
-                    walletName: managedMetaAccount.info.name,
+                    walletName: managedMetaAccount.info.name, 
+                    icon: managedMetaAccount.info.icon(),
                     fiatBalance: nil,
                     dayChange: nil,
                     accountScoreViewModel: accountScoreViewModel
@@ -73,7 +74,8 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 let fiatBalance = balanceTokenFormatterValue.stringFromDecimal(.zero)
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
-                    walletName: managedMetaAccount.info.name,
+                    walletName: managedMetaAccount.info.name, 
+                    icon: managedMetaAccount.info.icon(),
                     fiatBalance: fiatBalance,
                     dayChange: nil,
                     accountScoreViewModel: accountScoreViewModel
@@ -89,7 +91,8 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
 
             let viewModel = WalletsManagmentCellViewModel(
                 isSelected: isSelected,
-                walletName: managedMetaAccount.info.name,
+                walletName: managedMetaAccount.info.name, 
+                icon: managedMetaAccount.info.icon(),
                 fiatBalance: totalFiatValue,
                 dayChange: dayChange,
                 accountScoreViewModel: accountScoreViewModel
@@ -144,5 +147,16 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
         }
 
         return priceWithChangeAttributed
+    }
+}
+
+extension MetaAccountModel {
+    func icon() -> UIImage {
+        switch ecosystem {
+        case .regular:
+            return R.image.iconBirdGreen()!
+        case .ton:
+            return R.image.tonIcon()!
+        }
     }
 }

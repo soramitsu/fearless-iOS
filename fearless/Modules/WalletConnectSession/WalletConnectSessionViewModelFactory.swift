@@ -190,7 +190,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         guard let balance = balanceInfo?[wallet.metaId] else {
             return WalletsManagmentCellViewModel(
                 isSelected: false,
-                walletName: wallet.name,
+                walletName: wallet.name, 
+                icon: wallet.icon(),
                 fiatBalance: nil,
                 dayChange: nil,
                 accountScoreViewModel: accountScoreViewModel
@@ -214,6 +215,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         let viewModel = WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
+            icon: wallet.icon(),
             fiatBalance: totalFiatValue,
             dayChange: dayChange,
             accountScoreViewModel: accountScoreViewModel

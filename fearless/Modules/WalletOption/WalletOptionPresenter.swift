@@ -9,6 +9,15 @@ final class WalletOptionPresenter {
     private let interactor: WalletOptionInteractorInput
 
     private let wallet: ManagedMetaAccountModel
+    
+    lazy var hasWalletDetailsButton: Bool = {
+        switch wallet.info.ecosystem {
+        case .regular:
+            return true
+        case .ton:
+            return false
+        }
+    }()
 
     // MARK: - Constructors
 

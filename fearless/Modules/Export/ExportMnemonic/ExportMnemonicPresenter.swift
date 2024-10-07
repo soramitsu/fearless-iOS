@@ -32,7 +32,7 @@ final class ExportMnemonicPresenter {
             text = R.string.localizable
                 .exportMnemonicWithDpTemplate(
                     exportData.chain.name,
-                    exportData.mnemonic.toString(),
+                    exportData.mnemonic.joined(separator: " "),
                     derivationPath,
                     preferredLanguages: locale.rLanguages
                 )
@@ -40,7 +40,7 @@ final class ExportMnemonicPresenter {
             text = R.string.localizable
                 .exportMnemonicWithoutDpTemplate(
                     exportData.chain.name,
-                    exportData.mnemonic.toString(),
+                    exportData.mnemonic.joined(separator: " "),
                     preferredLanguages: locale.rLanguages
                 )
         }
@@ -108,7 +108,7 @@ extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
                 chain: exportData.chain,
                 cryptoType: exportData.cryptoType,
                 derivationPath: exportData.derivationPath,
-                mnemonic: exportData.mnemonic.allWords(),
+                mnemonic: exportData.mnemonic,
                 ecosystem: exportData.chain.ecosystem
             )
         }

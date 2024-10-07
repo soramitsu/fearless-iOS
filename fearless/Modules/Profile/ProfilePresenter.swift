@@ -76,7 +76,12 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         guard let wallet = selectedWallet else {
             return
         }
-        wireframe.showAccountDetails(from: view, metaAccount: wallet)
+        switch wallet.ecosystem {
+        case .regular:
+            wireframe.showAccountDetails(from: view, metaAccount: wallet)
+        case .ton:
+            break
+        }
     }
 
     func activateOption(_ option: ProfileOption) {

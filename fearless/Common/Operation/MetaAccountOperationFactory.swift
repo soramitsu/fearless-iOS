@@ -247,9 +247,9 @@ private extension MetaAccountOperationFactory {
     }
 
     private func getTonQuery(
-        mnemonic: IRMnemonicProtocol
+        mnemonic: String
     ) throws -> TonAccountQuery {
-        let mnemonicArray = mnemonic.allWords()
+        let mnemonicArray = mnemonic.components(separatedBy: " ")
         let seed = Mnemonic.mnemonicToSeed(mnemonicArray: mnemonicArray)
         let keypair = try Mnemonic.mnemonicToPrivateKey(mnemonicArray: mnemonicArray)
 
@@ -271,7 +271,8 @@ private extension MetaAccountOperationFactory {
         name: String,
         ecosystem: WalletEcosystem,
         isBackedUp: Bool,
-        defaultChainId: ChainModel.Id? = nil
+        defaultChainId: ChainModel.Id? = nil,
+        assetsVisibility: [AssetVisibility] = []
     ) throws -> MetaAccountModel {
         return MetaAccountModel(
             metaId: UUID().uuidString,
@@ -283,7 +284,7 @@ private extension MetaAccountOperationFactory {
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
             networkManagmentFilter: defaultChainId,
-            assetsVisibility: [],
+            assetsVisibility: assetsVisibility,
             hasBackup: isBackedUp,
             favouriteChainIds: []
         )
@@ -307,12 +308,20 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
             let metaAccount = try createMetaAccount(
                 name: request.username,
                 ecosystem: ecosystem,
-                isBackedUp: isBackedUp
+                isBackedUp: isBackedUp,
+                defaultChainId: "-239",
+                assetsVisibility: [.init(
+                    assetId: ["-239", "2ba4723a-74b4-4a6f-a888-e51937773807-239"].joined(separator: " : "),
+                    hidden: false
+                )]
             )
 
             let metaId = metaAccount.metaId
             try saveSecretKey(tonQuery.privateKey, metaId: metaId, ecosystem: .ton)
-            try saveEntropy(request.mnemonic.entropy(), metaId: metaId)
+            guard let data = request.mnemonic.data(using: .utf8) else {
+                throw AccountCreateError.invalidMnemonicFormat
+            }
+            try saveEntropy(data, metaId: metaId)
 
             return metaAccount
         }
@@ -545,10 +554,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 publicKey = query.publicKey
                 try saveSeed(query.seed, metaId: metaId, ecosystem: request.ecosystem)
             case .ton:
-                let tonQuery = try getTonQuery(mnemonic: request.mnemonic)
-                accountId = tonQuery.publicKey
-                privateKey = tonQuery.privateKey
-                publicKey = tonQuery.publicKey
+                throw AccountOperationFactoryError.unsupportedImport
             }
 
             try saveSecretKey(

@@ -7,6 +7,7 @@ protocol WalletOptionViewInput: ControllerBackedProtocol {
 }
 
 protocol WalletOptionViewOutput: AnyObject {
+    var hasWalletDetailsButton: Bool { get }
     func didLoad(view: WalletOptionViewInput)
     func walletDetailsDidTap()
     func exportWalletDidTap()

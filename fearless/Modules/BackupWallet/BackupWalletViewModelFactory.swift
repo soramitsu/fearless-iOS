@@ -64,6 +64,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         return ProfileViewModel(
+            wallet: wallet,
             profileUserViewModel: profileUserViewModel,
             profileOptionViewModel: profileOptionViewModel,
             logoutViewModel: logoutViewModel
@@ -180,6 +181,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
+            icon: wallet.icon(),
             fiatBalance: fiatBalance,
             dayChange: dayChange,
             accountScoreViewModel: accountScoreViewModel

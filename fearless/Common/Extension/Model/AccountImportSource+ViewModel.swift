@@ -3,7 +3,7 @@ import Foundation
 extension AccountImportSource {
     func titleForLocale(_ locale: Locale) -> String {
         switch self {
-        case .mnemonic:
+        case .mnemonic, .tonMnemonic:
             return R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
         case .seed:

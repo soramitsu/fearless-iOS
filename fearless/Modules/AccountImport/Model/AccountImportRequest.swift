@@ -53,6 +53,7 @@ enum MetaAccountImportRequestSource {
     case mnemonic(data: MnemonicImportRequestData)
     case seed(data: SeedImportRequestData)
     case keystore(data: KeystoreImportRequestData)
+    case ton(mnemonic: String)
 }
 
 struct MetaAccountImportRequest {

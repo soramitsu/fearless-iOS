@@ -1,4 +1,5 @@
 import UIKit
+import SSFAccountManagment
 import IrohaCrypto
 import SSFUtils
 import RobinHood
@@ -107,6 +108,15 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 cryptoType: request.cryptoType
             )
             operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackedUp: true)
+        case let .ton(mnemonic):
+            let request = MetaAccountImportTonMnemonicRequest(
+                mnemonic: mnemonic,
+                username: request.username
+            )
+            operation = accountOperationFactory.newTonMetaAccountOperation(
+                request: request, 
+                isBackedUp: true
+            )
         }
         importAccountUsingOperation(operation)
     }

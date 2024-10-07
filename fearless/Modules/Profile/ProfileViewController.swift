@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class ProfileViewController: UIViewController, ViewHolder {
     typealias RootViewType = ProfileViewLayout
@@ -97,11 +98,17 @@ final class ProfileViewController: UIViewController, ViewHolder {
 
     private func prepareProfileDetailsCell(
         _ tableView: UITableView,
-        with viewModel: WalletsManagmentCellViewModel
+        with viewModel: WalletsManagmentCellViewModel,
+        walletEcosystem: WalletEcosystem
     ) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCellWithType(WalletsManagmentTableCell.self) {
             cell.bind(to: viewModel)
-            cell.delegate = self
+            switch walletEcosystem {
+            case .regular:
+                cell.delegate = self
+            case .ton:
+                break
+            }
             return cell
         } else {
             assertionFailure("Profile details cell creation failed")
@@ -185,7 +192,7 @@ extension ProfileViewController: UITableViewDataSource {
             case 0:
                 return prepareProfileSectionCell(tableView, indexPath: indexPath)
             case 1:
-                return prepareProfileDetailsCell(tableView, with: viewModel.profileUserViewModel)
+                return prepareProfileDetailsCell(tableView, with: viewModel.profileUserViewModel, walletEcosystem: viewModel.wallet.ecosystem)
             default:
                 let optionViewModel = viewModel.profileOptionViewModel[indexPath.row - 2]
                 return prepareProfileCell(tableView, indexPath: indexPath, with: optionViewModel)

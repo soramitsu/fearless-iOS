@@ -10,7 +10,6 @@ protocol WalletsManagmentViewInput: ControllerBackedProtocol {
 protocol WalletsManagmentViewOutput: AnyObject {
     func didLoad(view: WalletsManagmentViewInput)
     func didTapNewWallet()
-    func didTapImportWallet()
     func didTapOptions(for indexPath: IndexPath)
     func didTapClose()
     func didTap(on indexPath: IndexPath)

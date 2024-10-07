@@ -45,7 +45,15 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             return true
         }
         switch (option, flow) {
-        case (.mnemonic, _):
+        case let (.mnemonic, flow):
+            if case let .multiple(wallet, _) = flow {
+                switch flow.wallet.ecosystem {
+                case .regular:
+                    return true
+                case .ton:
+                    return false
+                }
+            }
             return true
         case let (.seed, flow):
             if case let .single(chain, _, _) = flow, chain.isEthereumBased {

@@ -36,9 +36,6 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
 
             options.append(.keystore)
         case .ton:
-            guard accountId != nil else {
-                break
-            }
             options.append(.mnemonic)
         }
 
@@ -49,12 +46,16 @@ final class AvailableExportOptionsProvider: AvailableExportOptionsProviderProtoc
         for wallet: MetaAccountModel,
         accountId: AccountId?
     ) -> [ExportOption] {
-        let options = Ecosystem.allCases.map {
-            getAvailableExportOptions(for: wallet, accountId: accountId, ecosystem: $0)
+        switch wallet.ecosystem {
+        case .regular:
+            return [Ecosystem.ethereum, .ethereumBased, .substrate].map {
+                getAvailableExportOptions(for: wallet, accountId: accountId, ecosystem: $0)
+            }
+            .reduce([], +)
+            .uniq(predicate: { $0 })
+        case .ton:
+            return getAvailableExportOptions(for: wallet, accountId: accountId, ecosystem: .ton)
         }
-        .reduce([], +)
-        .uniq(predicate: { $0 })
-        return options
     }
 }
 

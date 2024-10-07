@@ -34,6 +34,8 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         setupActions()
         output.didLoad(view: self)
+        rootView.walletDetailsButton.isHidden = !output.hasWalletDetailsButton
+        rootView.accountScoreButton.isHidden = !output.hasWalletDetailsButton
     }
 
     // MARK: - Private methods

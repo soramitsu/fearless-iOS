@@ -252,8 +252,14 @@ extension BackupWalletPresenter: BackupWalletViewOutput {
         guard !googleAuthorized else {
             return
         }
-        view?.didStartLoading()
-        interactor.viewDidAppear()
+        // TODO: Ton google backup
+        switch wallet.ecosystem {
+        case .regular:
+            view?.didStartLoading()
+            interactor.viewDidAppear()
+        case .ton:
+            break
+        }
     }
 
     func backButtonDidTapped() {

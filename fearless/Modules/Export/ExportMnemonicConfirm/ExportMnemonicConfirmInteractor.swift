@@ -5,14 +5,14 @@ import SSFModels
 final class ExportMnemonicConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
 
-    private let mnemonic: IRMnemonicProtocol
+    private let mnemonic: [String]
     private let shuffledWords: [String]
     private let settings: SelectedWalletSettings
     private let wallet: MetaAccountModel
     private let eventCenter: EventCenterProtocol
 
     init(
-        mnemonic: IRMnemonicProtocol,
+        mnemonic: [String],
         settings: SelectedWalletSettings,
         wallet: MetaAccountModel,
         eventCenter: EventCenterProtocol
@@ -21,7 +21,7 @@ final class ExportMnemonicConfirmInteractor {
         self.settings = settings
         self.wallet = wallet
         self.eventCenter = eventCenter
-        shuffledWords = mnemonic.allWords().shuffled()
+        shuffledWords = mnemonic.shuffled()
     }
 }
 
@@ -35,7 +35,7 @@ extension ExportMnemonicConfirmInteractor: AccountConfirmInteractorInputProtocol
     }
 
     func confirm(words: [String]) {
-        guard words == mnemonic.allWords() else {
+        guard words == mnemonic else {
             presenter.didReceive(
                 words: shuffledWords,
                 afterConfirmationFail: true
