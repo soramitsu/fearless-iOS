@@ -1,4 +1,4 @@
-@Library('jenkins-library') _
+@Library('jenkins-library@feature/DOPS-3377/external_tests') _
 
 // Job properties
 def jobParams = [
@@ -20,7 +20,9 @@ def appPipeline = new org.ios.AppPipeline(
   sonarProjectKey: 'fearless:fearless-ios',
   dojoProductType: 'fearless',
   effectJiraTasks: true,
-  uploadToNexusFor: ['master','develop','staging']
+  uploadToNexusFor: ['master','develop','staging'],
+  externalTest: 'fearless/shared-features-spm/fearless-wallet',
+  waitExternalTest: true
 )
 
 appPipeline.runPipeline('fearless')
