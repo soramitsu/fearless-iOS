@@ -7,6 +7,16 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
 
     var presenter: OnboardingMainPresenterProtocol!
 
+    private let ecosystem: AccountCreateEcosystem?
+    init(ecosystem: AccountCreateEcosystem?) {
+        self.ecosystem = ecosystem
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
     override func loadView() {
         view = OnboardingMainViewLayout()
     }
@@ -17,6 +27,11 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
         rootView.preInstalledButton.isHidden = true
         bindActions()
         setupGestureRecognizer()
+
+        if let ecosystem {
+            ecosystemHasBeenSelected()
+            presenter.didSelect(ecosystem: ecosystem)
+        }
     }
 
     private func bindActions() {

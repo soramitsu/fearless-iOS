@@ -10,12 +10,15 @@ enum Banners: Int {
     case buyXor
     case liquidityPools
     case liquidityPoolsTest
+    case addRegularWallet
+    case addTonWallet
 }
 
 protocol BannersViewModelFactoryProtocol {
     func createViewModel(
-        wallet: MetaAccountModel,
-        locale: Locale
+        wallets: [MetaAccountModel],
+        locale: Locale,
+        shouldShowAddWalletBanner: Bool
     ) -> BannersViewModel
 
     func createViewModel(banners: [Banners], locale: Locale) -> BannersViewModel
@@ -86,6 +89,26 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     fullsizeImage: true,
                     bannerType: .liquidityPoolsTest
                 )
+            case .addRegularWallet:
+                return BannerCellViewModel(
+                    title: "EVM/Substrate accounts",
+                    subtitle: "Join the ecosystems with more than 90+ chains and fascinating features",
+                    buttonTitle: "Сreate or import",
+                    image: R.image.regularBanner()!,
+                    dismissable: true,
+                    fullsizeImage: true,
+                    bannerType: $0
+                )
+            case .addTonWallet:
+                return BannerCellViewModel(
+                    title: "Join the fastest growing ecosystem ever",
+                    subtitle: "",
+                    buttonTitle: "Join now",
+                    image: R.image.tonBanner()!,
+                    dismissable: true,
+                    fullsizeImage: true,
+                    bannerType: $0
+                )
             }
         }
 
@@ -93,12 +116,22 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
     }
 
     func createViewModel(
-        wallet: MetaAccountModel,
-        locale: Locale
+        wallets: [MetaAccountModel],
+        locale: Locale,
+        shouldShowAddWalletBanner: Bool
     ) -> BannersViewModel {
         var banners: [Banners] = []
-        if !wallet.hasBackup {
+        if let wallet = SelectedWalletSettings.shared.value, !wallet.hasBackup {
             banners.insert(.backup, at: 0)
+        }
+
+        if shouldShowAddWalletBanner {
+            let divided = wallets.divide(predicate: { $0.ecosystem.isRegular })
+            if divided.slice.isEmpty {
+                banners.append(.addRegularWallet)
+            } else if divided.remainder.isEmpty {
+                banners.append(.addTonWallet)
+            }
         }
 
         return createViewModel(banners: banners, locale: locale)

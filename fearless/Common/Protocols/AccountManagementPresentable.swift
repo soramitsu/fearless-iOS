@@ -1,7 +1,10 @@
 import Foundation
 
 protocol AccountManagementPresentable {
-    func showCreateNewWallet(from view: ControllerBackedProtocol?)
+    func showCreateNewWallet(
+        ecosystem: AccountCreateEcosystem?,
+        from view: ControllerBackedProtocol?
+    )
     func showImportWallet(
         defaultSource: AccountImportSource,
         from view: ControllerBackedProtocol?
@@ -11,8 +14,11 @@ protocol AccountManagementPresentable {
 }
 
 extension AccountManagementPresentable {
-    func showCreateNewWallet(from view: ControllerBackedProtocol?) {
-        guard let usernameSetup = OnboardingMainViewFactory.createViewForOnboarding() else {
+    func showCreateNewWallet(
+        ecosystem: AccountCreateEcosystem? = nil,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let usernameSetup = OnboardingMainViewFactory.createViewForAdding(ecosystem: ecosystem) else {
             return
         }
 

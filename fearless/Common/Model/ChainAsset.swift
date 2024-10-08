@@ -35,9 +35,9 @@ extension ChainAsset {
                     storagePath = StorageCodingPath.tokens
                 }
             }
-        case .ethereum(ethereumType: let ethereumType):
+        case .ethereum:
             storagePath = .account
-        case .ton(tonType: let tonType):
+        case .ton:
             storagePath = .tokens
         }
 

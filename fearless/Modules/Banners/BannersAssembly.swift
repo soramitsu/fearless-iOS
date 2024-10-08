@@ -13,14 +13,15 @@ final class BannersAssembly {
 
         let walletProvider = UserDataStorageFacade.shared
             .createStreamableProvider(
-                filter: NSPredicate.selectedMetaAccount(),
+                filter: nil,
                 sortDescriptors: [],
                 mapper: AnyCoreDataMapper(ManagedMetaAccountMapper())
             )
 
         let interactor = BannersInteractor(
             walletProvider: walletProvider,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            userDefaults: ServiceAssembly.shared.userDefaults
         )
 
         let router = BannersRouter()
