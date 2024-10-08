@@ -29,9 +29,9 @@ final class SelectEcosystemBannerView: UIView {
         button.imageWithTitleView?.titleFont = .h6Title
         return button
     }()
-    
+
     private let ecosystem: AccountCreateEcosystem
-    
+
     init(ecosystem: AccountCreateEcosystem) {
         self.ecosystem = ecosystem
         super.init(frame: .zero)

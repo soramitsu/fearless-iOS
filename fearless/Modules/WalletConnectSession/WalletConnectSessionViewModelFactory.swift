@@ -190,7 +190,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         guard let balance = balanceInfo?[wallet.metaId] else {
             return WalletsManagmentCellViewModel(
                 isSelected: false,
-                walletName: wallet.name, 
+                walletName: wallet.name,
                 icon: wallet.icon(),
                 fiatBalance: nil,
                 dayChange: nil,

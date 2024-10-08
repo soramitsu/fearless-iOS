@@ -33,7 +33,7 @@ final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
     ) -> UsernameSetupViewProtocol? {
         let presenter = UsernameSetupPresenter(
             wireframe: wireframe,
-            flow: flow, 
+            flow: flow,
             ecosystem: ecosystem,
             localizationManager: LocalizationManager.shared
         )

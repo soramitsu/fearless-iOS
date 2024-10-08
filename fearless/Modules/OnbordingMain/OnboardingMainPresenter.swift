@@ -56,7 +56,7 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
     func didSelect(ecosystem: AccountCreateEcosystem) {
         self.ecosystem = ecosystem
     }
-    
+
     func setup() {
         interactor.setup()
 

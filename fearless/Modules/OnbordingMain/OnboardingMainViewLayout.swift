@@ -9,7 +9,7 @@ final class OnboardingMainViewLayout: UIView {
         imageView.image = R.image.backgroundImage()
         return imageView
     }()
-    
+
     let backButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
@@ -17,7 +17,7 @@ final class OnboardingMainViewLayout: UIView {
         button.isHidden = true
         return button
     }()
-    
+
     let logoView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
@@ -25,7 +25,7 @@ final class OnboardingMainViewLayout: UIView {
         imageView.tintColor = R.color.colorWhite()
         return imageView
     }()
-    
+
     let termsLabel: UILabel = {
         let label = UILabel()
         label.numberOfLines = 0
@@ -33,32 +33,32 @@ final class OnboardingMainViewLayout: UIView {
         label.isUserInteractionEnabled = true
         return label
     }()
-    
+
     let buttonContainer = UIFactory.default.createVerticalStackView(spacing: 8)
-    
+
     let signUpButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
         return button
     }()
-    
+
     let restoreButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyAccessoryStyle()
         return button
     }()
-    
+
     let preInstalledButton: TriangularedButton = {
         let button = TriangularedButton()
         return button
     }()
-    
+
     let bannerContainer = UIFactory.default.createVerticalStackView(spacing: 12)
     let selectRegularBannerView = SelectEcosystemBannerView(ecosystem: .regular)
     let selectTonBannerView = SelectEcosystemBannerView(ecosystem: .ton)
 
     lazy var termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
-    
+
     var locale: Locale = .current {
         didSet {
             applyLocale()
@@ -78,7 +78,7 @@ final class OnboardingMainViewLayout: UIView {
     }
 
     // MARK: - Private methods
-    
+
     private func configureTermsLabel() {
         if let attributedText = termsLabel.attributedText {
             termsLabel.attributedText = termDecorator.decorate(attributedString: attributedText)
@@ -95,7 +95,7 @@ final class OnboardingMainViewLayout: UIView {
         let text = NSAttributedString(string: R.string.localizable
             .onboardingTermsAndConditions1(preferredLanguages: locale.rLanguages))
         termsLabel.attributedText = text
-        
+
         selectRegularBannerView.titleLabel.text = "Create or import Substrate or EVM accounts"
         selectRegularBannerView.actionButton.imageWithTitleView?.title = "Join EVM or Substrate"
         selectTonBannerView.titleLabel.text = "Connect to the fastest growing ecosystem ever"
@@ -116,7 +116,7 @@ final class OnboardingMainViewLayout: UIView {
         buttonContainer.addArrangedSubview(preInstalledButton)
         bannerContainer.addArrangedSubview(selectRegularBannerView)
         bannerContainer.addArrangedSubview(selectTonBannerView)
-        
+
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
@@ -143,7 +143,7 @@ final class OnboardingMainViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(16)
         }
-        
+
         [signUpButton, restoreButton, preInstalledButton].forEach { view in
             view.snp.makeConstraints { make in
                 make.height.equalTo(UIConstants.actionHeight)

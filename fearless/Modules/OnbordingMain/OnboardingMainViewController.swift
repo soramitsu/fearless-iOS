@@ -4,9 +4,9 @@ import SoraFoundation
 
 final class OnboardingMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = OnboardingMainViewLayout
-    
+
     var presenter: OnboardingMainPresenterProtocol!
-    
+
     override func loadView() {
         view = OnboardingMainViewLayout()
     }
@@ -30,7 +30,7 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
             self.presenter.didSelect(ecosystem: .ton)
             self.ecosystemHasBeenSelected()
         }
-        
+
         rootView.signUpButton.addAction { [weak self] in
             self?.presenter.activateSignup()
         }
@@ -55,14 +55,14 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
             }
         }
     }
-    
+
     private func setupGestureRecognizer() {
         let gesture = UITapGestureRecognizer()
         rootView.termsLabel.addGestureRecognizer(gesture)
-        
+
         gesture.addTarget(self, action: #selector(actionTerms(gestureRecognizer: )))
     }
-    
+
     private func ecosystemHasBeenSelected() {
         UIView.animate(
             withDuration: 0.25,
@@ -77,7 +77,7 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
             self?.rootView.backButton.isHidden = false
         }
     }
-    
+
     @objc private func actionTerms(gestureRecognizer: UITapGestureRecognizer) {
         if gestureRecognizer.state == .ended {
             let location = gestureRecognizer.location(in: rootView.termsLabel.superview)

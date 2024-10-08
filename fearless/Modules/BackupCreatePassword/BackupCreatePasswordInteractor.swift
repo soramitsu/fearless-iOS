@@ -99,7 +99,7 @@ final class BackupCreatePasswordInteractor: BaseAccountConfirmInteractor {
                 switch importEcosystem {
                 case let .regular(request):
                     saveBackupAccount(wallet: wallet, requestType: .mnemonic(request))
-                case .ton(_):
+                case .ton:
                     // TODO: - Ton google backup
                     break
                 }

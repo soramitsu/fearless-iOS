@@ -8,7 +8,7 @@ final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
         ecosystem: AccountCreateEcosystem
     ) {
         guard let accountCreation = AccountCreateViewFactory.createViewForOnboarding(
-            ecosystem: ecosystem, 
+            ecosystem: ecosystem,
             model: model,
             flow: flow
         ) else {

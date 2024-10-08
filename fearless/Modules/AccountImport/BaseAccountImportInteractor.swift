@@ -114,7 +114,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 username: request.username
             )
             operation = accountOperationFactory.newTonMetaAccountOperation(
-                request: request, 
+                request: request,
                 isBackedUp: true
             )
         }
