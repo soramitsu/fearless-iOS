@@ -20,8 +20,7 @@ final class LiquidityPoolDetailsAssembly {
             assetIdPair: assetIdPair,
             chain: chain,
             wallet: wallet,
-            liquidityPoolService: poolService,
-            priceLocalSubscriber: PriceLocalStorageSubscriberImpl.shared
+            liquidityPoolService: poolService
         )
         let router = LiquidityPoolDetailsRouter()
 

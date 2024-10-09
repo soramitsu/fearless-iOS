@@ -42,15 +42,12 @@ protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
     func save(chainAsset: ChainAsset)
-    func updatePrices()
     func changeActiveState(_ isActive: Bool)
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(selectedWallet: MetaAccountModel)
     func didReceive(selectedAddress: String)
-    func didReceive(price: PriceData?)
-    func didReceive(priceError: Error)
     func didReceive(totalReward: TotalRewardItem)
     func didReceive(totalReward: Error)
     func didReceive(accountInfo: AccountInfo?)
@@ -78,7 +75,6 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
     func didReceive(rewardChainAsset: ChainAsset?)
-    func didReceive(rewardAssetPrice: PriceData?)
 
     func didReceiveMaxNominatorsPerValidator(_ maxNominatorsPerValidator: UInt32?)
 

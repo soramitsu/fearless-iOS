@@ -103,7 +103,6 @@ enum WalletSendConfirmViewFactory {
         call: SendConfirmTransferCall
     ) -> WalletSendConfirmInteractor {
         let operationManager = OperationManagerFacade.sharedManager
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let dependencyContainer = SendDepencyContainer(
             wallet: wallet,
             operationManager: operationManager
@@ -116,7 +115,6 @@ enum WalletSendConfirmViewFactory {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             ),
-            priceLocalSubscriber: priceLocalSubscriber,
             dependencyContainer: dependencyContainer,
             wallet: wallet
         )

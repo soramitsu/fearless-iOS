@@ -15,9 +15,12 @@ final class StakingPoolCreateConfirmPresenter {
     private let viewModelFactory: StakingPoolCreateConfirmViewModelFactoryProtocol
     private let logger: LoggerProtocol
 
-    private var priceData: PriceData?
     private var fee: Decimal?
     private var extrinsicHash: String?
+
+    private var priceData: PriceData? {
+        createData.chainAsset.asset.getPrice(for: createData.root.selectedCurrency)
+    }
 
     // MARK: - Constructors
 
@@ -94,18 +97,6 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmViewOutput 
 // MARK: - StakingPoolCreateConfirmInteractorOutput
 
 extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorOutput {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideFeeViewModel()
-            provideViewModel()
-        case let .failure(error):
-            logger.error(error.localizedDescription)
-        }
-    }
-
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):

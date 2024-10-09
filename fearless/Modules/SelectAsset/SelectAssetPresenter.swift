@@ -19,12 +19,10 @@ final class SelectAssetPresenter {
     private let contextTag: Int?
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
-    private var prices: PriceDataUpdated = ([], false)
     private var viewModels: [SelectAssetCellViewModel] = []
     private var fullViewModels: [SelectAssetCellViewModel] = []
     private var chainAssets: [ChainAsset] = []
     private var accountInfosFetched = false
-    private var pricesFetched = false
     private var selectedChainAsset: ChainAsset?
 
     private lazy var factoryOperationQueue: OperationQueue = {
@@ -59,8 +57,7 @@ final class SelectAssetPresenter {
 
     private func provideViewModel() {
         guard
-            accountInfosFetched,
-            pricesFetched
+            accountInfosFetched
         else {
             return
         }
@@ -78,7 +75,6 @@ final class SelectAssetPresenter {
                 accountInfos: self.lock.concurrentlyRead { [unowned self] in
                     self.accountInfos
                 },
-                prices: self.prices,
                 locale: self.selectedLocale,
                 selectedAssetId: self.selectedAssetId
             )
@@ -148,20 +144,6 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
 // MARK: - SelectAssetInteractorOutput
 
 extension SelectAssetPresenter: SelectAssetInteractorOutput {
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(priceDataResult):
-            let priceDataUpdated = (pricesData: priceDataResult, updated: true)
-            prices = priceDataUpdated
-        case .failure:
-            let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
-            prices = priceDataUpdated
-        }
-
-        pricesFetched = true
-        provideViewModel()
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):

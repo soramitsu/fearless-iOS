@@ -10,7 +10,6 @@ protocol ChainAssetListViewModelFactoryProtocol {
         chainAssets: [ChainAsset],
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
         displayType: AssetListDisplayType,
@@ -32,7 +31,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         chainAssets: [ChainAsset],
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
         displayType: AssetListDisplayType,
@@ -43,7 +41,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         let assetChainAssetsArray = createAssetChainAssets(
             from: enabledChainAssets,
             accountInfos: accountInfos,
-            pricesData: prices.pricesData,
             wallet: wallet
         )
 
@@ -53,14 +50,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         )
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = sortedAssetChainAssets.compactMap { assetChainAssets in
-            let priceId = assetChainAssets.mainChainAsset.asset.priceId ?? assetChainAssets.mainChainAsset.asset.id
-            let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
+            let priceData = assetChainAssets.mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)
 
             return buildChainAccountBalanceCellViewModel(
                 chainAssets: assetChainAssets.chainAssets,
                 chainAsset: assetChainAssets.mainChainAsset,
                 priceData: priceData,
-                priceDataUpdated: prices.updated,
                 accountInfos: accountInfos,
                 locale: locale,
                 wallet: wallet,
@@ -131,7 +126,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         chainAssets: [ChainAsset],
         chainAsset: ChainAsset,
         priceData: PriceData?,
-        priceDataUpdated: Bool,
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         wallet: MetaAccountModel,
@@ -210,19 +204,18 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             imageViewModel: (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) },
             balanceString: .init(
                 value: .text(totalAssetBalance),
-                isUpdated: priceDataUpdated
+                isUpdated: true
             ),
             priceAttributedString: .init(
                 value: .attributed(priceAttributedString),
-                isUpdated: priceDataUpdated
+                isUpdated: true
             ),
             totalAmountString: .init(
                 value: .text(totalFiatBalance),
-                isUpdated: priceDataUpdated
+                isUpdated: true
             ),
             options: options,
             isColdBoot: isColdBoot,
-            priceDataWasUpdated: priceDataUpdated,
             locale: locale,
             hideButtonIsVisible: displayType == AssetListDisplayType.chain
         )

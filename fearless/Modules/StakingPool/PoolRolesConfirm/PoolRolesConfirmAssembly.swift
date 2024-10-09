@@ -37,7 +37,6 @@ final class PoolRolesConfirmAssembly {
         let feeProxy = ExtrinsicFeeProxy()
         let logger = Logger.shared
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let signingWrapper = SigningWrapper(
             keystore: Keychain(),
             metaId: wallet.metaId,
@@ -62,7 +61,6 @@ final class PoolRolesConfirmAssembly {
             poolId: poolId,
             roles: roles,
             signingWrapper: signingWrapper,
-            priceLocalSubscriber: priceLocalSubscriber,
             chainAsset: chainAsset,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: OperationManagerFacade.sharedManager,

@@ -28,6 +28,7 @@ protocol EventVisitorProtocol: AnyObject {
     func processChainsSetupCompleted()
     func processLogout()
     func processAccountScoreSettingsChanged()
+    func processPricesUpdated()
 }
 
 extension EventVisitorProtocol {
@@ -58,4 +59,5 @@ extension EventVisitorProtocol {
     func processChainsSetupCompleted() {}
     func processLogout() {}
     func processAccountScoreSettingsChanged() {}
+    func processPricesUpdated() {}
 }

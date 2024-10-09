@@ -7,7 +7,6 @@ protocol AssetNetworksViewModelFactoryProtocol {
     func buildViewModels(
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         wallet: MetaAccountModel,
         locale: Locale,
         filter: AssetNetworksFilter,
@@ -27,7 +26,6 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
     func buildViewModels(
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated,
         wallet: MetaAccountModel,
         locale: Locale,
         filter: AssetNetworksFilter,
@@ -49,8 +47,8 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
                 let accountInfo1 = accountInfos[ca1.uniqueKey(accountId: accountId1)] ?? nil
                 let accountInfo2 = accountInfos[ca2.uniqueKey(accountId: accountId2)] ?? nil
 
-                let price1 = prices.pricesData.first(where: { $0.priceId == ca1.asset.priceId })
-                let price2 = prices.pricesData.first(where: { $0.priceId == ca2.asset.priceId })
+                let price1 = ca1.asset.getPrice(for: wallet.selectedCurrency)
+                let price2 = ca2.asset.getPrice(for: wallet.selectedCurrency)
 
                 let price1Value = (price1?.price).map { Decimal(string: $0).or(.zero) }.or(.zero)
                 let price2Value = (price2?.price).map { Decimal(string: $0).or(.zero) }.or(.zero)
@@ -78,7 +76,7 @@ final class AssetNetworksViewModelFactory: AssetNetworksViewModelFactoryProtocol
                 return nil
             }
 
-            let price = prices.pricesData.first(where: { $0.priceId == chainAsset.asset.priceId })
+            let price = chainAsset.asset.getPrice(for: wallet.selectedCurrency)
             let priceValue = (price?.price).map { Decimal(string: $0).or(.zero) }.or(.zero)
             let balanceDecimal = Decimal.fromSubstrateAmount(accountInfo?.data.sendAvailable ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0.0
 

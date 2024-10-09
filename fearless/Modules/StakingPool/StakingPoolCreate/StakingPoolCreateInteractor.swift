@@ -17,14 +17,11 @@ final class StakingPoolCreateInteractor {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let operationManager: OperationManagerProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -35,7 +32,6 @@ final class StakingPoolCreateInteractor {
         callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.extrinsicService = extrinsicService
@@ -145,7 +141,6 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
 
         fetchPoolMembers()
         fetchLastPoolId()
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
@@ -198,12 +193,6 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
             reuseIdentifier: reuseIdentifier,
             setupBy: builderClosure
         )
-    }
-}
-
-extension StakingPoolCreateInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        output?.didReceivePriceData(result: result)
     }
 }
 

@@ -48,7 +48,6 @@ final class LiquidityPoolSupplyConfirmPresenter {
     private let wallet: MetaAccountModel
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
-    private var prices: [PriceData]?
     private var networkFeeViewModel: BalanceViewModelProtocol?
     private var networkFee: Decimal?
     private var xorBalance: Decimal?
@@ -140,9 +139,7 @@ final class LiquidityPoolSupplyConfirmPresenter {
         let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
         let feeViewModel = balanceViewModelFactory.balanceFromPrice(
             swapFromFee,
-            priceData: prices?.first(where: { price in
-                price.priceId == xorChainAsset.asset.priceId
-            }),
+            priceData: xorChainAsset.asset.getPrice(for: wallet.selectedCurrency),
             isApproximately: true,
             usageCase: .detailsCrypto
         ).value(for: selectedLocale)
@@ -317,17 +314,6 @@ extension LiquidityPoolSupplyConfirmPresenter: LiquidityPoolSupplyConfirmInterac
 
     func didReceiveFeeError(_ error: Error) {
         logger.customError(error)
-    }
-
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(priceData):
-            prices = priceData
-            provideFeeViewModel()
-        case let .failure(error):
-            prices = []
-            logger.error("\(error)")
-        }
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {

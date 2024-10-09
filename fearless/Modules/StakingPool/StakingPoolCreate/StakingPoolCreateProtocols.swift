@@ -35,7 +35,6 @@ protocol StakingPoolCreateInteractorInput: AnyObject {
 }
 
 protocol StakingPoolCreateInteractorOutput: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveMinBond(_ minCreateBond: BigUInt?)

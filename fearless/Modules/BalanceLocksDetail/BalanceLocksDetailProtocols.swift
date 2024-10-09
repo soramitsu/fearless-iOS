@@ -31,7 +31,6 @@ protocol BalanceLocksDetailInteractorOutput: AnyObject {
     func didReceiveVestingLocks(_ vestingLocks: Decimal?) async
     func didReceiveAssetFrozen(_ frozen: Decimal?) async
     func didReceiveAssetBlocked(_ blocked: Decimal?) async
-    func didReceivePrice(_ price: PriceData?)
 
     func didReceiveStakingLocksError(_ error: Error) async
     func didReceiveNominationPoolLocksError(_ error: Error) async
@@ -40,7 +39,6 @@ protocol BalanceLocksDetailInteractorOutput: AnyObject {
     func didReceiveVestingLocksError(_ error: Error) async
     func didReceiveAssetFrozenError(_ error: Error) async
     func didReceiveAssetBlockedError(_ error: Error) async
-    func didReceivePriceError(_ error: Error)
 }
 
 protocol BalanceLocksDetailRouterInput: AnyObject, AnyDismissable {}

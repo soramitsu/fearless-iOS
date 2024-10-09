@@ -9,7 +9,6 @@ protocol LiquidityPoolDetailsInteractorOutput: AnyObject {
     func didReceiveUserPool(pool: AccountPool?)
     func didReceivePoolReserves(reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?)
     func didReceivePoolAPY(apy: PoolApyInfo?)
-    func didReceivePrices(result: Result<[PriceData], Error>)
 
     func didReceiveLiquidityPairError(error: Error)
     func didReceiveUserPoolError(error: Error)
@@ -26,26 +25,17 @@ final class LiquidityPoolDetailsInteractor {
     private let chain: ChainModel
     private let wallet: MetaAccountModel
     private let liquidityPoolService: PolkaswapLiquidityPoolService
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         assetIdPair: AssetIdPair,
         chain: ChainModel,
         wallet: MetaAccountModel,
-        liquidityPoolService: PolkaswapLiquidityPoolService,
-        priceLocalSubscriber: PriceLocalStorageSubscriber
+        liquidityPoolService: PolkaswapLiquidityPoolService
     ) {
         self.assetIdPair = assetIdPair
         self.chain = chain
         self.wallet = wallet
         self.liquidityPoolService = liquidityPoolService
-        self.priceLocalSubscriber = priceLocalSubscriber
-    }
-
-    private func subscribeForPrices() {
-        let chainAssets = chain.chainAssets
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 }
 
@@ -58,7 +48,6 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
         fetchPoolInfo()
         fetchUserPool()
         fetchReserves()
-        subscribeForPrices()
     }
 
     func fetchPoolInfo() {
@@ -143,11 +132,5 @@ extension LiquidityPoolDetailsInteractor: LiquidityPoolDetailsInteractorInput {
                 }
             }
         }
-    }
-}
-
-extension LiquidityPoolDetailsInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePrices(result: result)
     }
 }

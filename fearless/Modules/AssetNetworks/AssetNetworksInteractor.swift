@@ -6,8 +6,6 @@ final class AssetNetworksInteractor {
     // MARK: - Private properties
 
     private weak var output: AssetNetworksInteractorOutput?
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
@@ -20,14 +18,12 @@ final class AssetNetworksInteractor {
     init(
         chainAsset: ChainAsset,
         chainAssetFetching: ChainAssetFetchingProtocol,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter,
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     ) {
         self.chainAsset = chainAsset
         self.chainAssetFetching = chainAssetFetching
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
@@ -73,7 +69,6 @@ extension AssetNetworksInteractor: AssetNetworksInteractorInput {
             handler: self,
             deliveryOn: .main
         )
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 }
 
@@ -84,12 +79,6 @@ extension AssetNetworksInteractor: AccountInfoSubscriptionAdapterHandler {
         chainAsset: ChainAsset
     ) {
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
-    }
-}
-
-extension AssetNetworksInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
     }
 }
 

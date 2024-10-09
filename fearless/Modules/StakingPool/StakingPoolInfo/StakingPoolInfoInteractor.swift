@@ -7,7 +7,6 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolInfoInteractorOutput?
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let operationManager: OperationManagerProtocol
@@ -15,12 +14,10 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private let validatorOperationFactory: ValidatorOperationFactoryProtocol
     private let poolId: String
     private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private let eraValidatorService: EraValidatorServiceProtocol
 
     init(
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chainAsset: ChainAsset,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -30,7 +27,6 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         eraValidatorService: EraValidatorServiceProtocol
     ) {
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chainAsset = chainAsset
         self.operationManager = operationManager
         self.runtimeService = runtimeService
@@ -185,8 +181,6 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
             self?.output?.didReceive(palletIdResult: result)
         }
 
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-
         fetchPoolInfo(poolId: poolId)
 
         provideEraStakersInfo()
@@ -219,12 +213,6 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
         }
 
         operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
-    }
-}
-
-extension StakingPoolInfoInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        output?.didReceivePriceData(result: result)
     }
 }
 

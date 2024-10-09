@@ -14,7 +14,6 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let totalAmountString: ShimmeredLabelState
     let options: [ChainOptionsViewModel]?
     var isColdBoot: Bool
-    var priceDataWasUpdated: Bool
     let locale: Locale
     let hideButtonIsVisible: Bool
 
@@ -35,7 +34,6 @@ extension ChainAccountBalanceCellViewModel: Equatable {
             lhs.balanceString == rhs.balanceString &&
             lhs.priceAttributedString == rhs.priceAttributedString &&
             lhs.totalAmountString == rhs.totalAmountString &&
-            lhs.options == rhs.options &&
-            lhs.priceDataWasUpdated == rhs.priceDataWasUpdated
+            lhs.options == rhs.options
     }
 }

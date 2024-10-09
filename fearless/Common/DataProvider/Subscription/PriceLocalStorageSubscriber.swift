@@ -194,15 +194,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
                     && wrapper.currencies.contains(where: { $0.id == price.currencyId }) == true
             }
 
-            switch wrapper.handler {
-            case .price:
-                guard let chainAsset = wrapper.chainAssets.first, let priceData = finalValue.first else {
-                    return
-                }
-                listener.handlePrice(result: .success(priceData), chainAsset: chainAsset)
-            case .prices:
-                listener.handlePrices(result: .success(finalValue))
-            }
+            listener.handlePrices(result: .success(finalValue), for: wrapper.chainAssets)
         }
     }
 
@@ -211,11 +203,7 @@ final class PriceLocalStorageSubscriberImpl: PriceLocalStorageSubscriber {
             guard let listener = wrapper.listener.target as? PriceLocalSubscriptionHandler else {
                 return
             }
-            if wrapper.chainAssets.count == 1, let chainAsset = wrapper.chainAssets.first {
-                listener.handlePrice(result: .failure(error), chainAsset: chainAsset)
-            } else {
-                listener.handlePrices(result: .failure(error))
-            }
+            listener.handlePrices(result: .failure(error), for: wrapper.chainAssets)
         }
     }
 

@@ -24,7 +24,6 @@ final class ChainAssetListAssembly {
             operationQueue: OperationQueue()
         )
 
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
         let dependencyContainer = ChainAssetListDependencyContainer()
 
         let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
@@ -64,6 +63,9 @@ final class ChainAssetListAssembly {
             SubstrateDataStorageFacade.shared.createAsyncRepository()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
+        let operationQueue = OperationManagerFacade.sharedDefaultQueue
+        let assetRepository = AssetRepositoryFactory().createRepository()
+        let pricesService = PricesService.shared
         let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
             chainRegistry: chainRegistry
         )
@@ -76,7 +78,6 @@ final class ChainAssetListAssembly {
 
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
-            priceLocalSubscriber: priceLocalSubscriber,
             eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
@@ -87,7 +88,9 @@ final class ChainAssetListAssembly {
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            accountInfoRemoteService: accountInfoRemoteService
+            accountInfoRemoteService: accountInfoRemoteService,
+            pricesService: pricesService,
+            operationQueue: operationQueue
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

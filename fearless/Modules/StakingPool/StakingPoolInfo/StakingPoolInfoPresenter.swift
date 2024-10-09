@@ -15,7 +15,6 @@ final class StakingPoolInfoPresenter {
     private var viewLoaded: Bool = false
     private var status: NominationViewStatus?
 
-    private var priceData: PriceData?
     private var palletId: Data?
     private var validators: YourValidatorsModel?
 
@@ -65,7 +64,6 @@ final class StakingPoolInfoPresenter {
         let viewModel = viewModelFactory.buildViewModel(
             validators: validators,
             stakingPool: stakingPool,
-            priceData: priceData,
             locale: selectedLocale,
             roles: editedRoles,
             wallet: wallet
@@ -221,17 +219,6 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
             fetchValidators()
         case let .failure(error):
             logger?.error("StakingPoolJoinConfigPresenter.didReceive.activeEra.error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideViewModel()
-        case let .failure(error):
-            logger?.error("StakingPoolJoinConfigPresenter.didReceivePriceData.error: \(error)")
         }
     }
 
