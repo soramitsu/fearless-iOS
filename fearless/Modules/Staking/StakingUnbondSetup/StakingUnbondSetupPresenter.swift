@@ -16,7 +16,9 @@ final class StakingUnbondSetupPresenter {
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
 
-    private var priceData: PriceData?
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: StakingUnbondSetupInteractorInputProtocol,
@@ -94,18 +96,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
     }
 }
 
-extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-            provideAssetViewModel()
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
-        }
-    }
-}
+extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtocol {}
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
     func provideInputViewModel() {

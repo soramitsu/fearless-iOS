@@ -29,7 +29,6 @@ protocol PolkaswapAdjustmentViewModelFactoryProtocol {
         swapVariant: SwapVariant,
         availableDexIds: [PolkaswapDex],
         slippadgeTolerance: Float,
-        prices: [PriceData]?,
         locale: Locale
     ) -> PolkaswapAdjustmentDetailsViewModel?
 
@@ -127,7 +126,6 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         swapVariant: SwapVariant,
         availableDexIds: [PolkaswapDex],
         slippadgeTolerance: Float,
-        prices: [PriceData]?,
         locale: Locale
     ) -> PolkaswapAdjustmentDetailsViewModel? {
         guard amounts.toAmount != .zero else {
@@ -139,7 +137,6 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             swapFromChainAsset: swapFromChainAsset,
             swapVariant: swapVariant,
             slippadgeTolerance: slippadgeTolerance,
-            prices: prices,
             locale: locale
         )
         let route = createSwapRoute(
@@ -194,7 +191,6 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         swapFromChainAsset: ChainAsset,
         swapVariant: SwapVariant,
         slippadgeTolerance: Float,
-        prices: [PriceData]?,
         locale: Locale
     ) -> (BalanceViewModelProtocol, Decimal) {
         var minMaxValue: Decimal
@@ -204,15 +200,11 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         switch swapVariant {
         case .desiredInput:
             minMaxValue = value * Decimal(1 - Double(slippadgeTolerance) / 100.0)
-            price = prices?.first(where: { price in
-                price.priceId == swapToChainAsset.asset.priceId
-            })
+            price = swapToChainAsset.asset.getPrice(for: wallet.selectedCurrency)
             chainAsset = swapToChainAsset
         case .desiredOutput:
             minMaxValue = value * Decimal(1 + Double(slippadgeTolerance) / 100.0)
-            price = prices?.first(where: { price in
-                price.priceId == swapFromChainAsset.asset.priceId
-            })
+            price = swapFromChainAsset.asset.getPrice(for: wallet.selectedCurrency)
             chainAsset = swapFromChainAsset
         }
 
@@ -229,15 +221,12 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
 
     private func createLiqitityProviderFeeViewMode(
         lpAmount: Decimal,
-        prices: [PriceData]?,
         locale: Locale
     ) -> BalanceViewModelProtocol {
         let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
         let lpViewModel = balanceViewModelFactory.balanceFromPrice(
             lpAmount,
-            priceData: prices?.first(where: { price in
-                price.priceId == xorChainAsset.asset.priceId
-            }),
+            priceData: xorChainAsset.asset.getPrice(for: wallet.selectedCurrency),
             isApproximately: true,
             usageCase: .detailsCrypto
         ).value(for: locale)

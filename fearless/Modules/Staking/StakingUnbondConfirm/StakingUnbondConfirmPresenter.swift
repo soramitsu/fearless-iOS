@@ -12,9 +12,12 @@ final class StakingUnbondConfirmPresenter {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let viewModelState: StakingUnbondConfirmViewModelState
     let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
     let logger: LoggerProtocol?
 
-    private var priceData: PriceData?
+    private var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: StakingUnbondConfirmInteractorInputProtocol,
@@ -24,6 +27,7 @@ final class StakingUnbondConfirmPresenter {
         viewModelState: StakingUnbondConfirmViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -33,6 +37,7 @@ final class StakingUnbondConfirmPresenter {
         self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
         self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
     }
 }
@@ -76,20 +81,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
     }
 }
 
-extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetViewModel()
-            provideFeeViewModel()
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
-        }
-    }
-}
+extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputProtocol {}
 
 extension StakingUnbondConfirmPresenter: StakingUnbondConfirmModelStateListener {
     func didReceiveError(error: Error) {

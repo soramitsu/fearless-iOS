@@ -53,8 +53,6 @@ final class CrossChainPresenter {
     private var destAccountInfo: AccountInfo?
     private var assetAccountInfo: AssetAccountInfo?
 
-    private var prices: [PriceData] = []
-
     private var destWallet: MetaAccountModel?
     private var recipientAddress: String?
     private var selectedDestChainModel: ChainModel? {
@@ -143,7 +141,7 @@ final class CrossChainPresenter {
         let inputAmount = calculateAbsoluteValue()
         let locked = assetAccountInfo.map { Decimal.fromSubstrateAmount($0.locked, precision: Int16(selectedAmountChainAsset.asset.precision)) }?.or(.zero)
         let balance = originNetworkSelectedAssetBalance - locked.or(.zero)
-        let priceData = prices.first(where: { $0.priceId == selectedAmountChainAsset.asset.priceId })
+        let priceData = selectedAmountChainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let assetBalanceViewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
             balance: balance,
@@ -181,7 +179,7 @@ final class CrossChainPresenter {
             return
         }
 
-        let priceData = prices.first(where: { $0.priceId == utilityOriginChainAsset.asset.priceId })
+        let priceData = utilityOriginChainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = viewModelFactory.balanceFromPrice(
             originNetworkFee,
             priceData: priceData,
@@ -207,7 +205,7 @@ final class CrossChainPresenter {
             return
         }
 
-        let priceData = prices.first(where: { $0.priceId == selectedAmountChainAsset.asset.priceId })
+        let priceData = selectedAmountChainAsset.asset.getPrice(for: wallet.selectedCurrency)
         let viewModel = viewModelFactory.balanceFromPrice(
             destNetworkFee,
             priceData: priceData,
@@ -235,14 +233,6 @@ final class CrossChainPresenter {
             selectedMetaAccount: wallet
         )
         return balanceViewModelFactory
-    }
-
-    private func providePrices() {
-        DispatchQueue.main.async {
-            self.provideAssetViewModel()
-            self.provideOriginNetworkFeeViewModel()
-            self.provideDestNetworkFeeViewModel()
-        }
     }
 
     private func handle(newAddress: String) {
@@ -621,17 +611,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             logger.customError(error)
         }
         provideOriginNetworkFeeViewModel()
-    }
-
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(prices):
-            self.prices = self.prices.filter { !prices.map { $0.priceId }.contains($0.priceId) }
-            self.prices.append(contentsOf: prices)
-            providePrices()
-        case let .failure(error):
-            logger.customError(error)
-        }
     }
 
     func didReceiveAccountInfo(

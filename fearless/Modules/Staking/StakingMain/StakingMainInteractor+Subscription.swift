@@ -43,15 +43,6 @@ extension StakingMainInteractor {
         presenter?.didReceive(stashItem: stashItem)
     }
 
-    func performPriceSubscription() {
-        guard let chainAsset = stakingSettings.value else {
-            presenter?.didReceive(priceError: PersistentValueSettingsError.missingValue)
-            return
-        }
-
-        priceProvider = priceLocalSubscriber.subscribeToPrices(for: [chainAsset, rewardChainAsset].compactMap { $0 }, listener: self)
-    }
-
     func performAccountInfoSubscription() {
         guard
             let selectedAccount = selectedWalletSettings.value,
@@ -286,30 +277,6 @@ extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, Relayc
 
     func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         presenter?.didReceiveMaxNominatorsCount(result: result)
-    }
-}
-
-extension StakingMainInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        if let stakingChainAsset = stakingSettings.value {
-            switch result {
-            case let .success(prices):
-                guard let priceData = prices.first(where: { $0.priceId == stakingChainAsset.asset.priceId }) else { return }
-                presenter?.didReceive(price: priceData)
-            case let .failure(error):
-                presenter?.didReceive(priceError: error)
-            }
-        }
-
-        if let rewardChainAsset = rewardChainAsset {
-            switch result {
-            case let .success(prices):
-                guard let priceData = prices.first(where: { $0.priceId == rewardChainAsset.asset.priceId }) else { return }
-                presenter?.didReceive(rewardAssetPrice: priceData)
-            case let .failure(error):
-                presenter?.didReceive(priceError: error)
-            }
-        }
     }
 }
 

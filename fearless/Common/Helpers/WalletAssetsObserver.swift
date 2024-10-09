@@ -65,6 +65,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
+        eventCenter.add(observer: self)
         chainRegistry.chainsSubscribe(
             self,
             runningInQueue: walletAssetsObserverQueue
@@ -232,5 +233,11 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             "asset.management.should.migrate.wallet",
             wallet.metaId
         ].joined(separator: ":")
+    }
+}
+
+extension WalletAssetsObserverImpl: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        wallet = event.account
     }
 }

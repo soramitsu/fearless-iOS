@@ -49,9 +49,7 @@ protocol ValidatorInfoInteractorInputProtocol: AnyObject {
 
 // MARK: - Presenter
 
-protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol ValidatorInfoInteractorOutputProtocol: AnyObject {}
 
 protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()

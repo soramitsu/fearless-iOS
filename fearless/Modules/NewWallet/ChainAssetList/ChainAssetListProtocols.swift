@@ -36,7 +36,6 @@ protocol ChainAssetListInteractorInput: AnyObject {
 
 protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>)
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])

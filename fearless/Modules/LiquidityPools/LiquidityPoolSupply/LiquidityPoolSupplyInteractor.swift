@@ -8,7 +8,6 @@ import SSFStorageQueryKit
 protocol LiquidityPoolSupplyInteractorOutput: AnyObject {
     func didReceiveFee(_ fee: BigUInt)
     func didReceiveFeeError(_ error: Error)
-    func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceivePoolAPY(apyInfo: PoolApyInfo?)
     func didReceivePoolApyError(error: Error)
@@ -25,34 +24,21 @@ final class LiquidityPoolSupplyInteractor {
     private let lpOperationService: PoolsOperationService
     private let lpDataService: PolkaswapLiquidityPoolService
     private let liquidityPair: LiquidityPair
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
     private let chain: ChainModel
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private var pricesProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         lpOperationService: PoolsOperationService,
         lpDataService: PolkaswapLiquidityPoolService,
         liquidityPair: LiquidityPair,
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         chain: ChainModel,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     ) {
         self.lpOperationService = lpOperationService
         self.lpDataService = lpDataService
         self.liquidityPair = liquidityPair
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.chain = chain
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-    }
-
-    private func subscribeToPrices() {
-        let chainAssets = chain.chainAssets
-        guard chainAssets.isNotEmpty else {
-            output?.didReceivePricesData(result: .success([]))
-            return
-        }
-        pricesProvider = priceLocalSubscriber.subscribeToPrices(for: chainAssets, listener: self)
     }
 
     private func subscribeToAccountInfo() {
@@ -70,7 +56,6 @@ final class LiquidityPoolSupplyInteractor {
 extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
     func setup(with output: LiquidityPoolSupplyInteractorOutput) {
         self.output = output
-        subscribeToPrices()
         subscribeToAccountInfo()
         fetchApy()
         fetchReserves()
@@ -145,14 +130,6 @@ extension LiquidityPoolSupplyInteractor: LiquidityPoolSupplyInteractorInput {
                 }
             }
         }
-    }
-}
-
-// MARK: - PriceLocalStorageSubscriber
-
-extension LiquidityPoolSupplyInteractor: PriceLocalSubscriptionHandler {
-    func handlePrices(result: Result<[PriceData], Error>) {
-        output?.didReceivePricesData(result: result)
     }
 }
 

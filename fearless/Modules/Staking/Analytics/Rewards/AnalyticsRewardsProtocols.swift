@@ -14,9 +14,7 @@ protocol AnalyticsRewardsInteractorInputProtocol: AnyObject {
     func fetchRewards(address: AccountAddress)
 }
 
-protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {}
 
 protocol AnalyticsRewardsWireframeProtocol: AnyObject {
     func showRewardDetails(

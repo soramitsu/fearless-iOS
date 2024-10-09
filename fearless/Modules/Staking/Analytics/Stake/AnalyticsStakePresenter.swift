@@ -14,7 +14,6 @@ final class AnalyticsStakePresenter {
 
     private var rewardsData: [SubqueryStakeChangeData]?
     private var selectedPeriod = AnalyticsPeriod.default
-    private var priceData: PriceData?
     private var stashItem: StashItem?
     private var selectedChartIndex: Int?
 
@@ -40,7 +39,7 @@ final class AnalyticsStakePresenter {
         guard let rewardsData = rewardsData else { return }
         let viewModel = viewModelFactory.createViewModel(
             from: rewardsData,
-            priceData: priceData,
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             period: selectedPeriod,
             selectedChartIndex: selectedChartIndex,
             hasPendingRewards: true
@@ -105,16 +104,6 @@ extension AnalyticsStakePresenter: AnalyticsStakeInteractorOutputProtocol {
             )
             view?.reload(viewState: .error(errorText))
             logger?.error("Did receive stake error: \(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-            updateView()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 

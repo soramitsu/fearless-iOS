@@ -12,9 +12,12 @@ final class StakingRedeemConfirmationPresenter {
     let viewModelState: StakingRedeemConfirmationViewModelState
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
     let logger: LoggerProtocol?
 
-    private var priceData: PriceData?
+    var priceData: PriceData? {
+        chainAsset.asset.getPrice(for: wallet.selectedCurrency)
+    }
 
     init(
         interactor: StakingRedeemConfirmationInteractorInputProtocol,
@@ -24,6 +27,7 @@ final class StakingRedeemConfirmationPresenter {
         viewModelState: StakingRedeemConfirmationViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
@@ -33,6 +37,7 @@ final class StakingRedeemConfirmationPresenter {
         self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
         self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
     }
 }
@@ -77,19 +82,6 @@ extension StakingRedeemConfirmationPresenter: StakingRedeemConfirmationPresenter
 }
 
 extension StakingRedeemConfirmationPresenter: StakingRedeemConfirmationInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideAssetViewModel()
-            provideFeeViewModel()
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
-        }
-    }
-
     func didSubmitRedeeming(result: Result<String, Error>) {
         view?.didStopLoading()
 

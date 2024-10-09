@@ -23,9 +23,7 @@ protocol StakingUnbondConfirmInteractorInputProtocol: AnyObject {
     func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
 
-protocol StakingUnbondConfirmInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol StakingUnbondConfirmInteractorOutputProtocol: AnyObject {}
 
 protocol StakingUnbondConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {

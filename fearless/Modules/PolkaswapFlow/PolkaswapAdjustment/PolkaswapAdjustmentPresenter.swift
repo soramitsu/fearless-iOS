@@ -33,7 +33,6 @@ final class PolkaswapAdjustmentPresenter {
     private var swapVariant: SwapVariant = .desiredInput
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
-    private var prices: [PriceData]?
     private var marketSource: SwapMarketSourceProtocol?
     private var polkaswapDexForRoute: PolkaswapDex?
     private var calcalatedAmounts: SwapQuoteAmounts?
@@ -132,9 +131,7 @@ final class PolkaswapAdjustmentPresenter {
             for: swapFromChainAsset
         )
 
-        let swapFromPrice = prices?.first(where: { priceData in
-            swapFromChainAsset?.asset.priceId == priceData.priceId
-        })
+        let swapFromPrice = swapFromChainAsset?.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
@@ -165,9 +162,7 @@ final class PolkaswapAdjustmentPresenter {
             for: swapToChainAsset
         )
 
-        let swapToPrice = prices?.first(where: { priceData in
-            swapToChainAsset?.asset.priceId == priceData.priceId
-        })
+        let swapToPrice = swapToChainAsset?.asset.getPrice(for: wallet.selectedCurrency)
 
         let viewModel = balanceViewModelFactory?.createAssetBalanceViewModel(
             inputAmount,
@@ -307,7 +302,6 @@ final class PolkaswapAdjustmentPresenter {
             swapVariant: swapVariant,
             availableDexIds: polkaswapRemoteSettings.availableDexIds,
             slippadgeTolerance: slippadgeTolerance,
-            prices: prices,
             locale: selectedLocale
         )
 
@@ -373,9 +367,7 @@ final class PolkaswapAdjustmentPresenter {
             .createBalanceViewModelFactory(for: xorChainAsset)
         let feeViewModel = balanceViewModelFactory.balanceFromPrice(
             swapFromFee,
-            priceData: prices?.first(where: { price in
-                price.priceId == xorChainAsset.asset.priceId
-            }),
+            priceData: xorChainAsset.asset.getPrice(for: wallet.selectedCurrency),
             isApproximately: true,
             usageCase: .detailsCrypto
         ).value(for: selectedLocale)
@@ -748,19 +740,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     func didReceive(error: Error) {
         logger.error("\(error)")
-    }
-
-    func didReceivePricesData(result: Result<[PriceData], Error>) {
-        switch result {
-        case let .success(priceData):
-            prices = priceData
-        case let .failure(error):
-            prices = []
-            logger.error("\(error)")
-        }
-
-        provideFromAssetVewModel()
-        provideToAssetVewModel()
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {

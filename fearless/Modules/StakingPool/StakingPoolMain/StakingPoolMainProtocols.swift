@@ -39,7 +39,6 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(accountInfo: AccountInfo?)
     func didReceive(chainAsset: ChainAsset)
     func didReceive(rewardCalculatorEngine: RewardCalculatorEngineProtocol?)
-    func didReceive(priceData: PriceData?)
     func didReceive(wallet: MetaAccountModel)
     func didReceive(networkInfo: StakingPoolNetworkInfo)
     func didReceive(stakeInfo: StakingPoolMember?)

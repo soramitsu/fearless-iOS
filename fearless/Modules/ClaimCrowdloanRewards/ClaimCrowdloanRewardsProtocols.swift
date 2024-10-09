@@ -32,8 +32,6 @@ protocol ClaimCrowdloanRewardsInteractorOutput: AnyObject {
     func didReceiveFeeError(_ error: Error)
     func didReceiveTxHash(_ txHash: String)
     func didReceiveTxError(_ error: Error)
-    func didReceivePrice(_ price: PriceData?)
-    func didReceivePriceError(_ error: Error)
     func didReceiveAccountInfo(accountInfo: AccountInfo?)
 }
 

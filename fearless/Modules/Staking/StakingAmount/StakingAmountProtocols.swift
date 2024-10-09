@@ -34,7 +34,6 @@ protocol StakingAmountInteractorInputProtocol: AnyObject {
 
 protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(accounts: [ChainAccountResponse])
-    func didReceive(price: PriceData?)
     func didReceive(balance: AccountData?)
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)

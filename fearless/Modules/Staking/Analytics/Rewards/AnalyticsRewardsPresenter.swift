@@ -12,7 +12,6 @@ final class AnalyticsRewardsPresenter {
     private let viewModelFactory: AnalyticsRewardsFlowViewModelFactoryProtocol
     private let viewModelState: AnalyticsRewardsViewModelState
     private var selectedPeriod = AnalyticsPeriod.default
-    private var priceData: PriceData?
     private var selectedChartIndex: Int?
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
@@ -42,7 +41,7 @@ final class AnalyticsRewardsPresenter {
     private func updateView() {
         guard let viewModel = viewModelFactory.createViewModel(
             viewModelState: viewModelState,
-            priceData: priceData,
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             period: selectedPeriod,
             selectedChartIndex: selectedChartIndex,
             locale: selectedLocale
@@ -53,6 +52,8 @@ final class AnalyticsRewardsPresenter {
         view?.reload(viewState: .loaded(viewModel))
     }
 }
+
+extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {}
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func setup() {
@@ -123,18 +124,6 @@ extension AnalyticsRewardsPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
             updateView()
-        }
-    }
-}
-
-extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-            updateView()
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
         }
     }
 }

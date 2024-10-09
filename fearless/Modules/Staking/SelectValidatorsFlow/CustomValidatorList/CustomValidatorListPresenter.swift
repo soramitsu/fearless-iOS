@@ -6,7 +6,6 @@ final class CustomValidatorListPresenter {
     weak var view: CustomValidatorListViewProtocol?
 
     let wireframe: CustomValidatorListWireframeProtocol
-    let interactor: CustomValidatorListInteractorInputProtocol
     let logger: LoggerProtocol?
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
@@ -14,11 +13,9 @@ final class CustomValidatorListPresenter {
     let viewModelState: CustomValidatorListViewModelState
     let viewModelFactory: CustomValidatorListViewModelFactoryProtocol
 
-    private var priceData: PriceData?
     private var searchText: String?
 
     init(
-        interactor: CustomValidatorListInteractorInputProtocol,
         wireframe: CustomValidatorListWireframeProtocol,
         viewModelFactory: CustomValidatorListViewModelFactoryProtocol,
         viewModelState: CustomValidatorListViewModelState,
@@ -27,7 +24,6 @@ final class CustomValidatorListPresenter {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.viewModelState = viewModelState
@@ -48,7 +44,7 @@ final class CustomValidatorListPresenter {
 
         if let viewModel = viewModelFactory.buildViewModel(
             viewModelState: viewModelState,
-            priceData: priceData,
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             locale: selectedLocale,
             searchText: searchText
         ) {
@@ -81,7 +77,6 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         viewModelState.setStateListener(self)
 
         provideViewModels(viewModelState: viewModelState)
-        interactor.setup()
     }
 
     // MARK: - Header actions
@@ -168,21 +163,6 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func searchTextDidChange(_ text: String?) {
         searchText = text
         provideViewModels(viewModelState: viewModelState)
-    }
-}
-
-// MARK: - CustomValidatorListInteractorOutputProtocol
-
-extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProtocol {
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            self.priceData = priceData
-
-            provideViewModels(viewModelState: viewModelState)
-        case let .failure(error):
-            logger?.error("Price data subscription error: \(error)")
-        }
     }
 }
 

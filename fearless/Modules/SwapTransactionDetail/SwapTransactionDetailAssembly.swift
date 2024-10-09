@@ -10,11 +10,9 @@ final class SwapTransactionDetailAssembly {
         transaction: AssetTransactionData
     ) -> SwapTransactionDetailModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-        let priceLocalSubscriber = PriceLocalStorageSubscriberImpl.shared
 
         let interactor = SwapTransactionDetailInteractor(
             chainAsset: chainAsset,
-            priceLocalSubscriber: priceLocalSubscriber,
             logger: Logger.shared
         )
         let router = SwapTransactionDetailRouter()

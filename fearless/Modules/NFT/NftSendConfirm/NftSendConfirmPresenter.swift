@@ -203,18 +203,6 @@ extension NftSendConfirmPresenter: NftSendConfirmInteractorOutput {
             logger?.error("Did receive account info error: \(error)")
         }
     }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
-        switch result {
-        case let .success(priceData):
-            if let priceData = priceData {
-                self.priceData = priceData
-                provideFeeViewModel()
-            }
-        case let .failure(error):
-            logger?.error("Did receive price error: \(error)")
-        }
-    }
 }
 
 // MARK: - Localizable

@@ -14,7 +14,6 @@ final class SwapTransactionDetailPresenter {
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
     private let transaction: AssetTransactionData
-    private var priceData: PriceData?
     private var subscanExplorer: ChainModel.ExternalApiExplorer?
 
     // MARK: - Constructors
@@ -44,7 +43,7 @@ final class SwapTransactionDetailPresenter {
             wallet: wallet,
             chainAsset: chainAsset,
             transaction: transaction,
-            priceData: priceData,
+            priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency),
             locale: selectedLocale
         )
         DispatchQueue.main.async {
@@ -104,12 +103,7 @@ extension SwapTransactionDetailPresenter: SwapTransactionDetailViewOutput {
 
 // MARK: - SwapTransactionDetailInteractorOutput
 
-extension SwapTransactionDetailPresenter: SwapTransactionDetailInteractorOutput {
-    func didReceive(priceData: PriceData?) {
-        self.priceData = priceData
-        provideViewModel()
-    }
-}
+extension SwapTransactionDetailPresenter: SwapTransactionDetailInteractorOutput {}
 
 // MARK: - Localizable
 

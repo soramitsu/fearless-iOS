@@ -18,8 +18,6 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let connection: JSONRPCEngine
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
-    private let priceLocalSubscriber: PriceLocalStorageSubscriber
-    private var priceProvider: AnySingleValueProvider<[PriceData]>?
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -29,7 +27,6 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     private let callFactory: SubstrateCallFactoryProtocol
 
     init(
-        priceLocalSubscriber: PriceLocalStorageSubscriber,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
@@ -42,7 +39,6 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         callFactory: SubstrateCallFactoryProtocol
     ) {
-        self.priceLocalSubscriber = priceLocalSubscriber
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         runtimeService = runtimeCodingService
@@ -76,8 +72,6 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        priceProvider = priceLocalSubscriber.subscribeToPrice(for: chainAsset, listener: self)
-
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         feeProxy.delegate = self
@@ -96,12 +90,6 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: rebondCall.callName) { builder in
             try builder.adding(call: rebondCall)
         }
-    }
-}
-
-extension StakingRebondSetupInteractor: PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, chainAsset _: ChainAsset) {
-        presenter.didReceivePriceData(result: result)
     }
 }
 
