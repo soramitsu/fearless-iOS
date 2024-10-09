@@ -127,6 +127,23 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(navigation, animated: true)
     }
 
+    func showCrowdloan(from view: ControllerBackedProtocol?) {
+        let crowdloanState = CrowdloanSharedState()
+        crowdloanState.settings.setup()
+
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let crowloanView = CrowdloanListViewFactory.createView(
+                  with: crowdloanState,
+                  selectedMetaAccount: selectedMetaAccount
+              )
+        else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
+        view?.controller.present(navigationController, animated: true)
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {

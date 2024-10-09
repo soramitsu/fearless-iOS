@@ -57,6 +57,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
     func showWalletConnect(from view: ControllerBackedProtocol?)
     func openDebugMenu(from view: ControllerBackedProtocol?)
+    func showCrowdloan(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

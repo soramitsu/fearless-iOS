@@ -19,6 +19,7 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 enum ProfileOption: UInt, CaseIterable {
     case walletConnect
     case accountList
+    case crowdloans
     case currency
     case language
     case polkaswapDisclaimer
@@ -70,7 +71,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             language: language,
             currency: currency,
             locale: locale,
-            missingAccountIssue: missingAccountIssue
+            missingAccountIssue: missingAccountIssue,
+            ecosystem: wallet.ecosystem
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         let viewModel = ProfileViewModel(
@@ -126,7 +128,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         language: Language,
         currency: Currency,
         locale: Locale,
-        missingAccountIssue: [ChainIssue]
+        missingAccountIssue: [ChainIssue],
+        ecosystem: WalletEcosystem
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
@@ -151,6 +154,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .accountScore:
                 return createAccountScoreViewModel(locale: locale)
+            case .crowdloans:
+                switch ecosystem {
+                case .regular:
+                    return createCrowdloans(for: locale)
+                default:
+                    return nil
+                }
             }
         }
 
@@ -231,6 +241,19 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .changePincode
+        )
+    }
+
+    private func createCrowdloans(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .tabbarCrowdloanTitle(preferredLanguages: locale.rLanguages)
+        return ProfileOptionViewModel(
+            title: title,
+            icon: R.image.crowdloansProfileIcon()!,
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .crowdloans
         )
     }
 

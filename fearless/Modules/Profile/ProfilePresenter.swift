@@ -103,6 +103,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
+        case .crowdloans:
+            wireframe.showCrowdloan(from: view)
         }
     }
 
