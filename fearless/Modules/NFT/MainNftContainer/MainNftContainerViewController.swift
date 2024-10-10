@@ -83,7 +83,9 @@ final class MainNftContainerViewController: UIViewController, ViewHolder {
     // MARK: - Private methods
 
     @objc private func actionRefresh() {
-        viewModels = nil
+        if viewModels?.isNotEmpty == true {
+            viewModels = nil
+        }
         rootView.tableView.reloadData()
         rootView.collectionView.reloadData()
         output.didPullToRefresh()
