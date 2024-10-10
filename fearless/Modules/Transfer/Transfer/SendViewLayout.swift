@@ -163,7 +163,7 @@ final class SendViewLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        feeView.isHidden = feeViewModel == nil
+        feeView.isHidden = false
         feeView.bind(viewModel: feeViewModel)
     }
 
