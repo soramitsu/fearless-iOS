@@ -50,7 +50,7 @@ extension AddAccount {
             from view: OnboardingMainViewProtocol?
         ) {
             guard let restorationController = AccountImportViewFactory
-                .createViewForAdding(defaultSource: defaultSource)?.controller
+                .createViewForAdding(defaultSource: defaultSource, flow)?.controller
             else {
                 return
             }
