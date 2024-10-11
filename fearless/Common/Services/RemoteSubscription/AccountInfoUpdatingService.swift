@@ -83,12 +83,12 @@ final class AccountInfoUpdatingService {
 
     private func addSubscriptionIfNeeded(for chainAsset: ChainAsset, closure: RemoteSubscriptionClosure? = nil) {
         Task {
-            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                logger?.error("Couldn't create account for chain \(chainAsset.chain.chainId)")
+            guard chainAsset.chain.ecosystem.isSubstrate || chainAsset.chain.ecosystem.isEthereumBased, selectedMetaAccount.ecosystem.isRegular else {
                 return
             }
 
-            guard chainAsset.chain.ecosystem.isSubstrate else {
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                logger?.error("Couldn't create account for chain \(chainAsset.chain.chainId)")
                 return
             }
 

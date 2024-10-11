@@ -153,7 +153,7 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         }
 
         addSubview(actionButton)
-        actionButton.snp.makeConstraints { make in
+        actionButton.snp.remakeConstraints { make in
             make.top.greaterThanOrEqualTo(subtitleLabel.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)

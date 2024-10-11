@@ -147,10 +147,10 @@ private extension ChainAssetListViewController {
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func reloadBanners() {
-        guard viewModel != nil else {
+        guard let viewModel else {
             return
         }
-        rootView.tableView.setAndLayoutTableHeaderView(header: rootView.headerViewContainer)
+        didReceive(viewModel: viewModel)
     }
 
     func didReceive(viewModel: ChainAssetListViewModel) {

@@ -111,10 +111,10 @@ final class ChainAssetListViewLayout: UIView {
         container.scrollBottomOffset = 116
         container.addArrangedSubview(headerViewContainer)
         container.addArrangedSubview(emptyView)
-        container.addArrangedSubview(footerButton)
+        let footerContainer = UIView()
+        container.addArrangedSubview(footerContainer)
 
         headerViewContainer.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview()
             make.width.equalToSuperview()
         }
 
@@ -124,7 +124,9 @@ final class ChainAssetListViewLayout: UIView {
             make.height.greaterThanOrEqualToSuperview()
         }
 
+        footerContainer.addSubview(footerButton)
         footerButton.snp.remakeConstraints { make in
+            make.top.bottom.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(UIConstants.actionHeight)
         }
