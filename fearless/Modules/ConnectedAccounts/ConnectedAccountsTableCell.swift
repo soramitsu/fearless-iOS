@@ -34,6 +34,7 @@ final class ConnectedAccountsTableCell: UITableViewCell {
     private let optionsButton: UIButton = {
         let button = UIButton()
         button.clipsToBounds = true
+        button.isUserInteractionEnabled = false
         return button
     }()
 
