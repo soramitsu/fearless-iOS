@@ -120,7 +120,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             icon: wallet.icon(),
             fiatBalance: fiatBalance,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel
+            accountScoreViewModel: accountScoreViewModel,
+            optionsAvailable: wallet.ecosystem.isRegular
         )
     }
 
@@ -134,6 +135,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .walletConnect:
+                guard ecosystem.isRegular else {
+                    return nil
+                }
+                
                 return createWalletConnectViewModel(locale: locale)
             case .accountList:
                 return createAccountListViewModel(
@@ -145,6 +150,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .language:
                 return createLanguageViewModel(from: language, locale: locale)
             case .polkaswapDisclaimer:
+                guard ecosystem.isRegular else {
+                    return nil
+                }
+                
                 return createPolkaswapDisclaimer(locale: locale)
             case .about:
                 return createAboutViewModel(for: locale)
@@ -153,6 +162,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .accountScore:
+                guard ecosystem.isRegular else {
+                    return nil
+                }
+                
                 return createAccountScoreViewModel(locale: locale)
             case .crowdloans:
                 switch ecosystem {

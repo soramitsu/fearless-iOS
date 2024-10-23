@@ -68,7 +68,8 @@ final class BannersPresenter {
         DispatchQueue.main.async {
             self.view?.didReceive(viewModel: viewModel)
         }
-        moduleOutput?.reloadBannersView()
+        
+        moduleOutput?.reloadBannersView(bannersCount: viewModel.banners.count)
     }
 
     private func showNotBackedUpAlert(wallet: MetaAccountModel) {
@@ -143,6 +144,7 @@ extension BannersPresenter: BannersViewOutput {
         case .addTonWallet:
             interactor.shouldShowAddWalletBanner = false
             provideViewModel()
+
         }
     }
 
@@ -185,6 +187,11 @@ extension BannersPresenter: BannersModuleInput {
 
     func update(banners: [Banners]) {
         let viewModel = viewModelFactory.createViewModel(banners: banners, locale: selectedLocale)
+
         view?.didReceive(viewModel: viewModel)
+    }
+    
+    func reload() {
+        provideViewModel()
     }
 }

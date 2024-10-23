@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2464,6 +2464,8 @@
 		FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
 		FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */; };
 		FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */; };
+		FA6AA3EB2CC0D0860010DBBF /* EmptyStateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6AA3EA2CC0D0860010DBBF /* EmptyStateViewController.swift */; };
+		FA6AA3ED2CC0F6F80010DBBF /* EmptyStateViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6AA3EC2CC0F6F80010DBBF /* EmptyStateViewLayout.swift */; };
 		FA6C175329935DAE00A55254 /* AssetTransactionData+GiantsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175029935DAD00A55254 /* AssetTransactionData+GiantsquidHistory.swift */; };
 		FA6C175429935DAE00A55254 /* AssetTransactionData+SubqueryHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175129935DAD00A55254 /* AssetTransactionData+SubqueryHistory.swift */; };
 		FA6C175529935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175229935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift */; };
@@ -2526,6 +2528,7 @@
 		FA72546F2AC2F12D00EC47A6 /* Web3Wallet in Frameworks */ = {isa = PBXBuildFile; productRef = FA72546E2AC2F12D00EC47A6 /* Web3Wallet */; };
 		FA7336FD2A132F740096A291 /* AlchemyHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */; };
 		FA7337092A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */; };
+		FA740A8D2CC8C03400981508 /* GradientBorderedTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA740A8C2CC8C03400981508 /* GradientBorderedTriangularedView.swift */; };
 		FA74359529C0733E0085A47E /* Array+Difference.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359429C0733E0085A47E /* Array+Difference.swift */; };
 		FA74359729C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359629C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift */; };
 		FA74359929C0735B0085A47E /* ChainSettingsRepositoryFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359829C0735B0085A47E /* ChainSettingsRepositoryFactory.swift */; };
@@ -5780,6 +5783,9 @@
 		FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolViewModelFactory.swift; sourceTree = "<group>"; };
 		FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV2Mapping.xcmappingmodel; sourceTree = "<group>"; };
 		FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainNodeModelMapper.swift; sourceTree = "<group>"; };
+		FA6AA3E82CC0C7A80010DBBF /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
+		FA6AA3EA2CC0D0860010DBBF /* EmptyStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateViewController.swift; sourceTree = "<group>"; };
+		FA6AA3EC2CC0F6F80010DBBF /* EmptyStateViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateViewLayout.swift; sourceTree = "<group>"; };
 		FA6C175029935DAD00A55254 /* AssetTransactionData+GiantsquidHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+GiantsquidHistory.swift"; sourceTree = "<group>"; };
 		FA6C175129935DAD00A55254 /* AssetTransactionData+SubqueryHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+SubqueryHistory.swift"; sourceTree = "<group>"; };
 		FA6C175229935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+SubsquidHistory.swift"; sourceTree = "<group>"; };
@@ -5843,6 +5849,7 @@
 		FA7336C02A0E3B7F0096A291 /* ResponseDecodersFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ResponseDecodersFactory.swift; sourceTree = "<group>"; };
 		FA7336FC2A132F740096A291 /* AlchemyHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlchemyHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA7337082A1339890096A291 /* AssetTransactionData+AlchemyHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+AlchemyHistory.swift"; sourceTree = "<group>"; };
+		FA740A8C2CC8C03400981508 /* GradientBorderedTriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GradientBorderedTriangularedView.swift; sourceTree = "<group>"; };
 		FA74359429C0733E0085A47E /* Array+Difference.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+Difference.swift"; sourceTree = "<group>"; };
 		FA74359629C0734B0085A47E /* CDAccountInfo+CoreDataCodable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CDAccountInfo+CoreDataCodable.swift"; sourceTree = "<group>"; };
 		FA74359829C0735B0085A47E /* ChainSettingsRepositoryFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettingsRepositoryFactory.swift; sourceTree = "<group>"; };
@@ -9902,6 +9909,7 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
+				FA6AA3E72CC0C7A80010DBBF /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -10326,6 +10334,7 @@
 		8490144124A93CDC008F705E /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				FA6AA3E92CC0D0770010DBBF /* EmptyStateViewController */,
 				07089AFA28B7839C001566CA /* SheetAlert */,
 				07DFA473289BD5D90035A8AB /* SelectableList */,
 				FA864443276851BA00956D8E /* Container */,
@@ -10613,6 +10622,7 @@
 				FA2222952BD272A30031DE04 /* SkeletonLoadableView.swift */,
 				FA887A482C1C19DB00CA720F /* WarningView.swift */,
 				07FEC1352CAE6848003938C6 /* SelectEcosystemBannerView.swift */,
+				FA740A8C2CC8C03400981508 /* GradientBorderedTriangularedView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -14547,6 +14557,23 @@
 			path = WalletConnectProposal;
 			sourceTree = "<group>";
 		};
+		FA6AA3E72CC0C7A80010DBBF /* Packages */ = {
+			isa = PBXGroup;
+			children = (
+				FA6AA3E82CC0C7A80010DBBF /* shared-features-spm */,
+			);
+			name = Packages;
+			sourceTree = "<group>";
+		};
+		FA6AA3E92CC0D0770010DBBF /* EmptyStateViewController */ = {
+			isa = PBXGroup;
+			children = (
+				FA6AA3EA2CC0D0860010DBBF /* EmptyStateViewController.swift */,
+				FA6AA3EC2CC0F6F80010DBBF /* EmptyStateViewLayout.swift */,
+			);
+			path = EmptyStateViewController;
+			sourceTree = "<group>";
+		};
 		FA6C175629935DC700A55254 /* BlockExplorer */ = {
 			isa = PBXGroup;
 			children = (
@@ -18100,6 +18127,7 @@
 				8430AACC2602249B005B1066 /* InitialStakingState.swift in Sources */,
 				FAAA294A2B8DCF350089AFE6 /* AsyncStorageRequestFactory+Extension.swift in Sources */,
 				84786DA825F9F58E0089DFF7 /* EraValidatorService+Fetch.swift in Sources */,
+				FA740A8D2CC8C03400981508 /* GradientBorderedTriangularedView.swift in Sources */,
 				FAD428FF2A86567F001D6A16 /* BackupRiskWarningsAssembly.swift in Sources */,
 				8428769324AE046300D91AD8 /* AboutWireframe.swift in Sources */,
 				FA6261F22AC2A535005D3D95 /* MIME+PathExtensions.swift in Sources */,
@@ -19830,6 +19858,7 @@
 				991DA2DE1E8A45B0A8B187CD /* LiquidityPoolSupplyConfirmAssembly.swift in Sources */,
 				51876200A6B1EDC54609DF46 /* LiquidityPoolRemoveLiquidityProtocols.swift in Sources */,
 				B112AC02371DE4C1DAD48BB1 /* LiquidityPoolRemoveLiquidityRouter.swift in Sources */,
+				FA6AA3ED2CC0F6F80010DBBF /* EmptyStateViewLayout.swift in Sources */,
 				5A7D43CA17B84C71E8EEF256 /* LiquidityPoolRemoveLiquidityPresenter.swift in Sources */,
 				FC540426B1BC363842A3677B /* LiquidityPoolRemoveLiquidityInteractor.swift in Sources */,
 				466B1E0EEC6438F8835AAF2E /* LiquidityPoolRemoveLiquidityViewController.swift in Sources */,
@@ -19852,6 +19881,7 @@
 				084DDCBC4CE8438770EB48DE /* ConfirmTransferRouter.swift in Sources */,
 				604162EC2B721993E397E6B0 /* ConfirmTransferPresenter.swift in Sources */,
 				3152634A9E3FBF5E463CF56E /* ConfirmTransferViewController.swift in Sources */,
+				FA6AA3EB2CC0D0860010DBBF /* EmptyStateViewController.swift in Sources */,
 				0A2BBD1BB87EBB75BBD919F7 /* ConfirmTransferViewLayout.swift in Sources */,
 				26F0F2A52C7EFD38CBC2F1C3 /* ConfirmTransferAssembly.swift in Sources */,
 				BCB9B3DF3D8104BC8456811B /* TonWebBridgeProtocols.swift in Sources */,

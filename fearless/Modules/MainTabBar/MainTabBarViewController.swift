@@ -1,25 +1,26 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 final class MainTabBarViewController: UITabBarController {
-    private lazy var failedMemoView: AttentionView = {
-        let view = AttentionView()
-        view.backgroundColor = .black.withAlphaComponent(0.9)
-        view.titleLabel.font = .h6Title
-        return view
-    }()
-
     private var presenter: MainTabBarPresenterProtocol
-
+    private var eventCenter: EventCenterProtocol
     private var viewAppeared: Bool = false
+    private var fullViewControllersList: [UIViewController]
+    private var wallet: MetaAccountModel
 
     init(
         viewControllers: [UIViewController],
         presenter: MainTabBarPresenterProtocol,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        eventCenter: EventCenterProtocol,
+        wallet: MetaAccountModel
     ) {
         self.presenter = presenter
-
+        self.eventCenter = eventCenter
+        self.fullViewControllersList = viewControllers
+        self.wallet = wallet
+        
         super.init(nibName: nil, bundle: nil)
 
         self.viewControllers = viewControllers
@@ -34,6 +35,8 @@ final class MainTabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
+        
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -51,11 +54,9 @@ final class MainTabBarViewController: UITabBarController {
         setValue(tabBar, forKey: "tabBar")
 
         applyLocalization()
-    }
+        
+        update(with: wallet)
 
-    @objc private func didTapFailedMemoView(_: UIGestureRecognizer) {
-        _ = openTab(vcClass: CrowdloanListViewController.self)
-        failedMemoView.removeFromSuperview()
     }
 
     private func openTab<T: UIViewController>(vcClass _: T.Type) -> Bool {
@@ -82,6 +83,20 @@ final class MainTabBarViewController: UITabBarController {
     private func wrappedSelectedViewController() -> UIViewController? {
         selectedViewController?.navigationRootViewController()
     }
+    
+    private func update(with wallet: MetaAccountModel) {
+        if let tabBar = self.tabBar as? TabBar {
+            tabBar.setup(for: wallet.ecosystem)
+        }
+        switch wallet.ecosystem {
+        case .regular:
+            setViewControllers(fullViewControllersList, animated: true)
+        case .ton:
+            let indexes: IndexSet = [0, 1, 4]
+            let tonViewControllers = indexes.map { fullViewControllersList[$0] }
+            setViewControllers(tonViewControllers, animated: true)
+        }
+    }
 }
 
 extension MainTabBarViewController: UITabBarControllerDelegate {
@@ -89,11 +104,6 @@ extension MainTabBarViewController: UITabBarControllerDelegate {
         _: UITabBarController,
         shouldSelect viewController: UIViewController
     ) -> Bool {
-        if let wrappedSelectedViewController = viewController.navigationRootViewController(),
-           wrappedSelectedViewController.isKind(of: CrowdloanListViewController.self) {
-            failedMemoView.removeFromSuperview()
-        }
-
         if viewController == viewControllers?[selectedIndex],
            let scrollableController = viewController as? ScrollsToTop {
             scrollableController.scrollToTop()
@@ -113,43 +123,14 @@ extension MainTabBarViewController: MainTabBarViewProtocol {
 
         setViewControllers(newViewControllers, animated: false)
     }
-
-    func presentFailedMemoView() {
-        guard let wrappedSelectedViewController = wrappedSelectedViewController(),
-              !wrappedSelectedViewController.isKind(of: CrowdloanListViewController.self) else {
-            return
-        }
-
-        view.addSubview(failedMemoView)
-        failedMemoView.snp.makeConstraints { make in
-            make.bottom.equalTo(self.tabBar.snp.top)
-            make.centerX.equalToSuperview()
-            make.width.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        failedMemoView.iconView.snp.remakeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.size.equalTo(UIConstants.normalAddressIconSize.height)
-            make.centerY.equalToSuperview()
-        }
-
-        failedMemoView.titleLabel.snp.remakeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalTo(failedMemoView.iconView.snp.trailing).offset(UIConstants.defaultOffset)
-        }
-
-        applyLocalization()
-
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(didTapFailedMemoView(_:)))
-        tapGesture.isEnabled = true
-        failedMemoView.addGestureRecognizer(tapGesture)
-    }
 }
 
 extension MainTabBarViewController: Localizable {
-    func applyLocalization() {
-        failedMemoView.titleLabel.text = R.string.localizable
-            .tabbarCrowdloanAttention(preferredLanguages: selectedLocale.rLanguages)
+    func applyLocalization() {}
+}
+
+extension MainTabBarViewController: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        update(with: event.account)
     }
 }

@@ -190,7 +190,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         guard
             let module = WalletsManagmentAssembly.configureModule(
                 shouldSaveSelected: true,
-                moduleOutput: moduleOutput
+                moduleOutput: moduleOutput,
+                filter: NSPredicate.regularEcosystem()
             )
         else {
             return

@@ -16,8 +16,8 @@ final class WalletsManagmentTableCell: UITableViewCell {
         static let optionsButtonSize = CGSize(width: 44, height: 44)
     }
 
-    private let backgroundTriangularedView: TriangularedView = {
-        let view = TriangularedView()
+    private let backgroundTriangularedView: GradientBorderedTriangularedView = {
+        let view = GradientBorderedTriangularedView()
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!
         view.strokeColor = .clear
@@ -83,17 +83,18 @@ final class WalletsManagmentTableCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-        backgroundTriangularedView.setGradientBorder(highlighted: false, animated: false)
     }
 
     func bind(to viewModel: WalletsManagmentCellViewModel) {
         iconImageView.image = viewModel.icon
         walletNameLabel.text = viewModel.walletName
         dayChangeLabel.attributedText = viewModel.dayChange
-        backgroundTriangularedView.setGradientBorder(highlighted: viewModel.isSelected, animated: false)
-
+        
+        optionsButton.isHidden = !viewModel.optionsAvailable
         fiatBalanceLabel.text = viewModel.fiatBalance
-
+       
+        backgroundTriangularedView.gradientBorder.isHidden = !viewModel.isSelected
+        
         if viewModel.fiatBalance == nil {
             startLoadingIfNeeded()
         } else {

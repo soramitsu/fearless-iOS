@@ -9,7 +9,8 @@ final class WalletsManagmentAssembly {
         viewType: WalletsManagmentType = .wallets,
         shouldSaveSelected: Bool,
         contextTag: Int = 0,
-        moduleOutput: WalletsManagmentModuleOutput?
+        moduleOutput: WalletsManagmentModuleOutput?,
+        filter: NSPredicate? = nil
     ) -> WalletsManagmentModuleCreationResult? {
         let sharedDefaultQueue = OperationManagerFacade.sharedDefaultQueue
         let localizationManager = LocalizationManager.shared
@@ -18,7 +19,7 @@ final class WalletsManagmentAssembly {
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let managedMetaAccountRepository = accountRepositoryFactory.createManagedMetaAccountRepository(
-            for: nil,
+            for: filter,
             sortDescriptors: []
         )
 

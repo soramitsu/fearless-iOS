@@ -76,7 +76,8 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
             icon: wallet.icon(),
             fiatBalance: fiatBalance,
             dayChange: dayChange,
-            accountScoreViewModel: nil
+            accountScoreViewModel: nil,
+            optionsAvailable: wallet.ecosystem.isRegular
         )
     }
 

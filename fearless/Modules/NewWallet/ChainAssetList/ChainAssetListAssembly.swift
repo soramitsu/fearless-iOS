@@ -93,6 +93,8 @@ final class ChainAssetListAssembly {
             keyboardAdoptable: keyboardAdoptable,
             localizationManager: localizationManager
         )
+        
+        presenter.bannersInput = bannersModule?.input
 
         return (view, presenter)
     }

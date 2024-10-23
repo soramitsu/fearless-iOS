@@ -58,7 +58,8 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                     icon: managedMetaAccount.info.icon(),
                     fiatBalance: nil,
                     dayChange: nil,
-                    accountScoreViewModel: accountScoreViewModel
+                    accountScoreViewModel: accountScoreViewModel,
+                    optionsAvailable: managedMetaAccount.info.ecosystem.isRegular
                 )
             }
 
@@ -78,7 +79,8 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                     icon: managedMetaAccount.info.icon(),
                     fiatBalance: fiatBalance,
                     dayChange: nil,
-                    accountScoreViewModel: accountScoreViewModel
+                    accountScoreViewModel: accountScoreViewModel,
+                    optionsAvailable: managedMetaAccount.info.ecosystem.isRegular
                 )
             }
 
@@ -95,7 +97,8 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 icon: managedMetaAccount.info.icon(),
                 fiatBalance: totalFiatValue,
                 dayChange: dayChange,
-                accountScoreViewModel: accountScoreViewModel
+                accountScoreViewModel: accountScoreViewModel,
+                optionsAvailable: managedMetaAccount.info.ecosystem.isRegular
             )
             return viewModel
         }

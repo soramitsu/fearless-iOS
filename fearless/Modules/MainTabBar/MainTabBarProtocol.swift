@@ -4,7 +4,6 @@ import SSFModels
 
 protocol MainTabBarViewProtocol: ControllerBackedProtocol {
     func didReplaceView(for newView: UIViewController, for index: Int)
-    func presentFailedMemoView()
 }
 
 protocol MainTabBarPresenterProtocol: AnyObject {

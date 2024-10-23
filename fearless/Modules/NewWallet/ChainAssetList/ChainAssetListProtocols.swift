@@ -5,10 +5,11 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
-    func reloadBanners()
+    func reloadBanners(shouldShowBanners: Bool)
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
+    func didAppear(view: ChainAssetListViewInput)
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)

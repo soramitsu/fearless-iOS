@@ -8,4 +8,5 @@ struct WalletsManagmentCellViewModel {
     let fiatBalance: String?
     let dayChange: NSAttributedString?
     let accountScoreViewModel: AccountScoreViewModel?
+    let optionsAvailable: Bool
 }

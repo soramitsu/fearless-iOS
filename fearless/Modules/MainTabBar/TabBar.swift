@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class TabBar: UITabBar {
     public var middleButton: UIButton = {
@@ -13,11 +14,11 @@ final class TabBar: UITabBar {
         return middleButton
     }()
 
-    private lazy var bluredView: UIView = {
+    lazy var bluredView: UIView = {
         let blurEffect = UIBlurEffect(style: .dark)
         let bluredView = UIVisualEffectView(effect: blurEffect)
         bluredView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        bluredView.layer.mask = createMaskLayer()
+        bluredView.layer.mask = createMaskLayer(withMiddleButtonPlace: true)
         bluredView.clipsToBounds = true
         return bluredView
     }()
@@ -35,8 +36,19 @@ final class TabBar: UITabBar {
     override func layoutSubviews() {
         super.layoutSubviews()
         bluredView.frame = bounds
-        bluredView.layer.mask = createMaskLayer()
+//        bluredView.layer.mask = createMaskLayer(withMiddleButtonPlace: <#Bool#>)
         middleButton.rounded()
+    }
+    
+    func setup(for ecosystem: WalletEcosystem) {
+        switch ecosystem {
+        case .regular:
+            bluredView.layer.mask = createMaskLayer(withMiddleButtonPlace: true)
+            middleButton.isHidden = false
+        case .ton:
+            bluredView.layer.mask = createMaskLayer(withMiddleButtonPlace: false)
+            middleButton.isHidden = true
+        }
     }
 
     private func setupLayout() {
@@ -51,7 +63,7 @@ final class TabBar: UITabBar {
         }
     }
 
-    private func createMaskLayer() -> CAShapeLayer {
+    private func createMaskLayer(withMiddleButtonPlace: Bool) -> CAShapeLayer {
         let padding: CGFloat = 6.0
         let centerButtonHeight: CGFloat = 56.0
         let r = CGFloat(28)
@@ -63,23 +75,25 @@ final class TabBar: UITabBar {
         let path = UIBezierPath()
         path.move(to: .zero)
 
-        path.addLine(to: CGPoint(x: halfW - f + padding, y: 0))
-        path.addQuadCurve(
-            to: CGPoint(x: halfW - f, y: r / 2.0),
-            controlPoint: CGPoint(x: halfW - f, y: 0)
-        )
-        path.addArc(
-            withCenter: CGPoint(x: halfW, y: r / 2.0),
-            radius: f,
-            startAngle: .pi,
-            endAngle: 0,
-            clockwise: false
-        )
-        path.addQuadCurve(
-            to: CGPoint(x: halfW + f - padding, y: 0),
-            controlPoint: CGPoint(x: halfW + f, y: 0)
-        )
-
+        if withMiddleButtonPlace {
+            path.addLine(to: CGPoint(x: halfW - f + padding, y: 0))
+            path.addQuadCurve(
+                to: CGPoint(x: halfW - f, y: r / 2.0),
+                controlPoint: CGPoint(x: halfW - f, y: 0)
+            )
+            path.addArc(
+                withCenter: CGPoint(x: halfW, y: r / 2.0),
+                radius: f,
+                startAngle: .pi,
+                endAngle: 0,
+                clockwise: false
+            )
+            path.addQuadCurve(
+                to: CGPoint(x: halfW + f - padding, y: 0),
+                controlPoint: CGPoint(x: halfW + f, y: 0)
+            )
+        }
+        
         path.addLine(to: CGPoint(x: w, y: 0))
         path.addLine(to: CGPoint(x: w, y: h))
         path.addLine(to: CGPoint(x: 0.0, y: h))

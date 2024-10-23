@@ -21,9 +21,10 @@ protocol BannersRouterInput: AnyObject, SheetAlertPresentable, AccountManagement
 protocol BannersModuleInput: AnyObject {
     func reload(with wallet: MetaAccountModel)
     func update(banners: [Banners])
+    func reload()
 }
 
 protocol BannersModuleOutput: AnyObject {
-    func reloadBannersView()
+    func reloadBannersView(bannersCount: Int)
     func didTapCloseBanners()
 }

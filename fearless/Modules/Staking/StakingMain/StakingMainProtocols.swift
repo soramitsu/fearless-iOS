@@ -212,7 +212,7 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {
-    static func createView(moduleOutput: StakingMainModuleOutput?) -> StakingMainViewProtocol?
+    static func createView(moduleOutput: StakingMainModuleOutput?) -> ControllerBackedProtocol?
 }
 
 protocol StakingMainModuleOutput: AnyObject {

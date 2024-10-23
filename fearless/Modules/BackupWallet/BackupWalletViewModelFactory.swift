@@ -184,7 +184,8 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
             icon: wallet.icon(),
             fiatBalance: fiatBalance,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel
+            accountScoreViewModel: accountScoreViewModel,
+            optionsAvailable: wallet.ecosystem.isRegular
         )
     }
 

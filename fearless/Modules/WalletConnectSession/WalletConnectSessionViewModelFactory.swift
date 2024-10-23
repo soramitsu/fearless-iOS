@@ -194,7 +194,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
                 icon: wallet.icon(),
                 fiatBalance: nil,
                 dayChange: nil,
-                accountScoreViewModel: accountScoreViewModel
+                accountScoreViewModel: accountScoreViewModel,
+                optionsAvailable: wallet.ecosystem.isRegular
             )
         }
         let balanceTokenFormatterValue = tokenFormatter(
@@ -218,7 +219,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             icon: wallet.icon(),
             fiatBalance: totalFiatValue,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel
+            accountScoreViewModel: accountScoreViewModel,
+            optionsAvailable: wallet.ecosystem.isRegular
         )
 
         return viewModel

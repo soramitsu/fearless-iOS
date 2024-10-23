@@ -56,14 +56,21 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             networkStatusPresenter: networkStatusPresenter,
             reachability: ReachabilityManager.shared,
             walletConnectCoordinator: WalletConnectCoordinator.shared,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            eventCenter: EventCenter.shared
         )
 
-        let viewControllers = createViewControllers(stakingModuleOutput: presenter, walletConnect: walletConnect, wallet: wallet)
+        let viewControllers = createViewControllers(
+            stakingModuleOutput: presenter,
+            walletConnect: walletConnect,
+            wallet: wallet
+        )
         let view = MainTabBarViewController(
             viewControllers: viewControllers,
             presenter: presenter,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            eventCenter: EventCenter.shared,
+            wallet: wallet
         )
 
         return view
@@ -102,7 +109,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         switch stakingType {
         case .normal:
             let stakingViewController = createStakingController(moduleOutput: moduleOutput)
-            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+            if let stakingViewController = stakingViewController {
+                view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+            }
 
             return stakingViewController
         case .pool:
@@ -140,21 +149,28 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createStakingController(
         moduleOutput: StakingMainModuleOutput?
-    ) -> UIViewController {
-        let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller ?? UIViewController()
+    ) -> UIViewController? {
+        let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller
 
         let icon = R.image.iconTabStaking()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(
+
+        var navigationController: FearlessNavigationController
+        
+        if let viewController = viewController {
+            navigationController = FearlessNavigationController(rootViewController: viewController)
+        } else {
+            navigationController = FearlessNavigationController()
+        }
+        
+        navigationController.tabBarItem = createTabBarItem(
             normalImage: normalIcon,
             selectedImage: selectedIcon
         )
-
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
-
+        
         return navigationController
     }
 

@@ -65,15 +65,12 @@ final class ChainAssetListViewLayout: UIView {
 
     func addBanners(view: UIView) {
         bannersView = view
-        bannersView?.isHidden = true
-        headerViewContainer.addArrangedSubview(view)
-        view.snp.makeConstraints { make in
-            make.width.equalToSuperview().inset(UIConstants.bigOffset)
-        }
     }
 
     func setHeaderView() {
-        tableView.setAndLayoutTableHeaderView(header: headerViewContainer)
+        if let bannersView = bannersView {
+            tableView.setAndLayoutTableHeaderView(header: bannersView)
+        }
     }
 
     func removeHeaderView() {
@@ -135,17 +132,23 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     func runManageAssetAnimate(finish: @escaping (() -> Void)) {
-        isAnimating = true
+        var visibleRect: CGRect = .zero
+        visibleRect.origin = self.tableView.contentOffset
+        visibleRect.size = self.tableView.bounds.size
+        let rect = self.tableView.convert(
+            self.footerButton.bounds,
+            from: self.tableView.tableFooterView
+        )
+        
+        guard !visibleRect.intersects(rect) else {
+            finish()
+            return
+        }
+        
+        self.tableView.scrollRectToVisible(rect, animated: true)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let rect = self.tableView.convert(
-                self.footerButton.bounds,
-                from: self.tableView.tableFooterView
-            )
-            self.tableView.scrollRectToVisible(
-                rect,
-                animated: true
-            )
+            self.isAnimating = true
 
             UIView.animate(
                 withDuration: 0.6,
@@ -154,13 +157,14 @@ final class ChainAssetListViewLayout: UIView {
                     self.footerButton.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
                 },
                 completion: { _ in
-                    UIView.animate(withDuration: 0.6) {
+                    UIView.animate(withDuration: 0.6,
+                                   animations: {
                         self.footerButton.transform = CGAffineTransform.identity
-                        finish()
                         self.isAnimating = false
-                    }
-                }
-            )
+                    }, completion: { _ in
+                        finish()
+                    })
+                })
         }
     }
 

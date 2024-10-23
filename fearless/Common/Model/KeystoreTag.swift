@@ -20,11 +20,11 @@ enum KeystoreTagV2: String, CaseIterable {
     ) -> String {
         switch ecosystem {
         case .substrate:
-            Self.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+            return Self.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
         case .ethereum, .ethereumBased:
-            Self.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
+            return Self.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
         case .ton:
-            Self.tonSecretKeyTagForMetaId(metaId, accountId: accountId)
+            return Self.tonSecretKeyTagForMetaId(metaId, accountId: accountId)
         }
     }
 
@@ -35,11 +35,11 @@ enum KeystoreTagV2: String, CaseIterable {
     ) -> String {
         switch ecosystem {
         case .substrate:
-            Self.substrateSeedTagForMetaId(metaId, accountId: accountId)
+            return Self.substrateSeedTagForMetaId(metaId, accountId: accountId)
         case .ethereum, .ethereumBased:
-            Self.ethereumSeedTagForMetaId(metaId, accountId: accountId)
+            return Self.ethereumSeedTagForMetaId(metaId, accountId: accountId)
         case .ton:
-            ""
+            return ""
         }
     }
 
