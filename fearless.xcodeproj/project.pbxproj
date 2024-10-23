@@ -2464,8 +2464,6 @@
 		FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
 		FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */; };
 		FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */; };
-		FA6AA3EB2CC0D0860010DBBF /* EmptyStateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6AA3EA2CC0D0860010DBBF /* EmptyStateViewController.swift */; };
-		FA6AA3ED2CC0F6F80010DBBF /* EmptyStateViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6AA3EC2CC0F6F80010DBBF /* EmptyStateViewLayout.swift */; };
 		FA6C175329935DAE00A55254 /* AssetTransactionData+GiantsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175029935DAD00A55254 /* AssetTransactionData+GiantsquidHistory.swift */; };
 		FA6C175429935DAE00A55254 /* AssetTransactionData+SubqueryHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175129935DAD00A55254 /* AssetTransactionData+SubqueryHistory.swift */; };
 		FA6C175529935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C175229935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift */; };
@@ -5784,8 +5782,6 @@
 		FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV2Mapping.xcmappingmodel; sourceTree = "<group>"; };
 		FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainNodeModelMapper.swift; sourceTree = "<group>"; };
 		FA6AA3E82CC0C7A80010DBBF /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
-		FA6AA3EA2CC0D0860010DBBF /* EmptyStateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateViewController.swift; sourceTree = "<group>"; };
-		FA6AA3EC2CC0F6F80010DBBF /* EmptyStateViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStateViewLayout.swift; sourceTree = "<group>"; };
 		FA6C175029935DAD00A55254 /* AssetTransactionData+GiantsquidHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+GiantsquidHistory.swift"; sourceTree = "<group>"; };
 		FA6C175129935DAD00A55254 /* AssetTransactionData+SubqueryHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+SubqueryHistory.swift"; sourceTree = "<group>"; };
 		FA6C175229935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+SubsquidHistory.swift"; sourceTree = "<group>"; };
@@ -10334,7 +10330,6 @@
 		8490144124A93CDC008F705E /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
-				FA6AA3E92CC0D0770010DBBF /* EmptyStateViewController */,
 				07089AFA28B7839C001566CA /* SheetAlert */,
 				07DFA473289BD5D90035A8AB /* SelectableList */,
 				FA864443276851BA00956D8E /* Container */,
@@ -14563,15 +14558,6 @@
 				FA6AA3E82CC0C7A80010DBBF /* shared-features-spm */,
 			);
 			name = Packages;
-			sourceTree = "<group>";
-		};
-		FA6AA3E92CC0D0770010DBBF /* EmptyStateViewController */ = {
-			isa = PBXGroup;
-			children = (
-				FA6AA3EA2CC0D0860010DBBF /* EmptyStateViewController.swift */,
-				FA6AA3EC2CC0F6F80010DBBF /* EmptyStateViewLayout.swift */,
-			);
-			path = EmptyStateViewController;
 			sourceTree = "<group>";
 		};
 		FA6C175629935DC700A55254 /* BlockExplorer */ = {
@@ -19858,7 +19844,6 @@
 				991DA2DE1E8A45B0A8B187CD /* LiquidityPoolSupplyConfirmAssembly.swift in Sources */,
 				51876200A6B1EDC54609DF46 /* LiquidityPoolRemoveLiquidityProtocols.swift in Sources */,
 				B112AC02371DE4C1DAD48BB1 /* LiquidityPoolRemoveLiquidityRouter.swift in Sources */,
-				FA6AA3ED2CC0F6F80010DBBF /* EmptyStateViewLayout.swift in Sources */,
 				5A7D43CA17B84C71E8EEF256 /* LiquidityPoolRemoveLiquidityPresenter.swift in Sources */,
 				FC540426B1BC363842A3677B /* LiquidityPoolRemoveLiquidityInteractor.swift in Sources */,
 				466B1E0EEC6438F8835AAF2E /* LiquidityPoolRemoveLiquidityViewController.swift in Sources */,
@@ -19881,7 +19866,6 @@
 				084DDCBC4CE8438770EB48DE /* ConfirmTransferRouter.swift in Sources */,
 				604162EC2B721993E397E6B0 /* ConfirmTransferPresenter.swift in Sources */,
 				3152634A9E3FBF5E463CF56E /* ConfirmTransferViewController.swift in Sources */,
-				FA6AA3EB2CC0D0860010DBBF /* EmptyStateViewController.swift in Sources */,
 				0A2BBD1BB87EBB75BBD919F7 /* ConfirmTransferViewLayout.swift in Sources */,
 				26F0F2A52C7EFD38CBC2F1C3 /* ConfirmTransferAssembly.swift in Sources */,
 				BCB9B3DF3D8104BC8456811B /* TonWebBridgeProtocols.swift in Sources */,
