@@ -83,7 +83,8 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
 
     private func createAccountsViewModel(
         chains: [ChainModel],
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        locale: Locale
     ) -> [ConnectedAccountsViewModel.Accounts] {
         var accountsViewModel: [ConnectedAccountsViewModel.Accounts] = []
 
@@ -109,13 +110,13 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
             var count: Int?
             switch ecosystem {
             case .substrate:
-                title = "Substrate chain accounts"
+                title = R.string.localizable.connectedAccountsSubstrateTitle(preferredLanguages: locale.rLanguages)
                 count = chains.map { wallet.fetch(for: $0.accountRequest())?.accountId }.filter { $0 != nil }.count
             case .ethereum, .ethereumBased:
-                title = "EVM chain accounts"
+                title = R.string.localizable.connectedAccountsEthereumTitle(preferredLanguages: locale.rLanguages)
                 count = chains.map { wallet.fetch(for: $0.accountRequest())?.accountId }.filter { $0 != nil }.count
             case .ton:
-                title = "TON chain accounts"
+                title = R.string.localizable.connectedAccountsTonTitle(preferredLanguages: locale.rLanguages)
                 count = chains.map { wallet.fetch(for: $0.accountRequest())?.accountId }.filter { $0 != nil }.count
             }
             if count == 0 {

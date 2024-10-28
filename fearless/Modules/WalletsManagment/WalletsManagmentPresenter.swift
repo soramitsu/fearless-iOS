@@ -78,7 +78,7 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
         guard let wallet = wallets[safe: indexPath.row] else {
             return
         }
-        router.showOptions(from: view, metaAccount: wallet, delegate: self)
+        router.showOptions(from: view, metaAccount: wallet.info, delegate: self)
     }
 
     func didTapNewWallet() {

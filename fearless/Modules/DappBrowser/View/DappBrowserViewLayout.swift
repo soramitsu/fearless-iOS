@@ -139,8 +139,8 @@ final class DappBrowserViewLayout: UIView {
 
     private func applyLocalization() {
         let localizedItems = [
-            "Discover dApp",
-            "Connected"
+            R.string.localizable.dappDiscoverTitle(preferredLanguages: locale.rLanguages),
+            R.string.localizable.dappConnectedTitle(preferredLanguages: locale.rLanguages)
         ]
         segmentedControl.setSegmentItems(localizedItems)
     }

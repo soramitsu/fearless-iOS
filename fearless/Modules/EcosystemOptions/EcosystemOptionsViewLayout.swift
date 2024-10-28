@@ -54,9 +54,9 @@ final class EcosystemOptionsViewLayout: UIView {
     // MARK: - Private methods
 
     private func applyLocale() {
-        titleLabel.text = "Account options"
-        backupWalletButton.imageWithTitleView?.title = "Backup chain accounts"
-        accountsDetailsButton.imageWithTitleView?.title = "Chain accounts"
+        titleLabel.text = R.string.localizable.ecosystemOptionsTitle(preferredLanguages: locale.rLanguages)
+        backupWalletButton.imageWithTitleView?.title = R.string.localizable.ecosystemOptionsBackupTitle(preferredLanguages: locale.rLanguages)
+        accountsDetailsButton.imageWithTitleView?.title = R.string.localizable.ecosystemOptionsDetailsTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {

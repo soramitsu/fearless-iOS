@@ -188,7 +188,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             } else {
                 rootView.setHeaderView()
             }
-        case .chainHasNetworkIssue, .chainHasAccountIssue, .allIsHidden:
+        case .chainHasNetworkIssue, .chainHasAccountIssue:
             rootView.removeHeaderView()
             rootView.removeFooterView()
             rootView.tableView.reloadData()
@@ -196,6 +196,10 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             let isEmpty = viewModel.displayState.rows.isEmpty
             isEmpty ? rootView.removeFooterView() : rootView.setFooterView()
             isEmpty ? rootView.removeHeaderView() : rootView.setHeaderView()
+            rootView.tableView.reloadData()
+        case .allIsHidden:
+            rootView.setFooterView()
+            rootView.setHeaderView()
             rootView.tableView.reloadData()
         }
     }
@@ -289,7 +293,8 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        guard let viewModel = viewModel else { return false }
-        return viewModel.displayState.rows.isEmpty
+        return false
+//        guard let viewModel = viewModel else { return false }
+//        return viewModel.displayState.rows.isEmpty
     }
 }

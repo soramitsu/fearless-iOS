@@ -266,9 +266,9 @@ extension DappBrowserViewController: EmptyStateDataSource {
         let page = DappBrowserViewControllerPage(rawValue: rootView.segmentedControl.selectedSegmentIndex)
         switch page {
         case .dapps:
-            emptyView.text = "No dApps were found"
+            emptyView.text = R.string.localizable.dappNotFoundTitle(preferredLanguages: selectedLocale.rLanguages)
         case .connected:
-            emptyView.text = "No connected dApps"
+            emptyView.text = R.string.localizable.dappNoConnectedDappsTitle(preferredLanguages: selectedLocale.rLanguages)
         case nil:
             break
         }

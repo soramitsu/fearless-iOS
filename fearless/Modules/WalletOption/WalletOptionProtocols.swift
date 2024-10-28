@@ -33,7 +33,7 @@ protocol WalletOptionRouterInput: SheetAlertPresentable, AnyDismissable, Account
     )
     func showExportWallet(
         from view: ControllerBackedProtocol?,
-        wallet: ManagedMetaAccountModel
+        wallet: MetaAccountModel
     )
     func showChangeWalletName(
         from view: ControllerBackedProtocol?,

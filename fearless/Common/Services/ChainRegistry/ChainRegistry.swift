@@ -276,11 +276,11 @@ final class ChainRegistry {
     private func handle(ton chain: ChainModel) {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
-#if DEBUG
+//#if DEBUG
         let token = TonNodeApiKeyDebug.tonApiKey
-#else
-        let token = TonNodeApiKey.tonApiKey
-#endif
+//#else
+//        let token = TonNodeApiKey.tonApiKey
+//#endif
         let isTesnet = LocalToggleService.shared.tonEnvListToggle.storageValue
         if chain.options.or([]).contains(.testnet), isTesnet, let node = chain.nodes.first {
             let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token)

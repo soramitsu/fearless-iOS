@@ -419,9 +419,9 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
 
         let requiredExpandableViewModel = WalletConnectProposalCellModel.ExpandableViewModel(
-            cellTitle: "Review dApp info",
-            title: "Be sure to check the service address before connecting the wallet",
-            title2: "Service address",
+            cellTitle: R.string.localizable.tonConnectAlertTitle(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.tonConnectAlertSubtitle(preferredLanguages: locale.rLanguages),
+            title2: R.string.localizable.tonConnectAlertDescription(preferredLanguages: locale.rLanguages),
             subtitle2: manifest.url.absoluteString,
             title3: nil,
             subtitle3: nil,

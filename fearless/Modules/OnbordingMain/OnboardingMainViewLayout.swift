@@ -96,10 +96,10 @@ final class OnboardingMainViewLayout: UIView {
             .onboardingTermsAndConditions1(preferredLanguages: locale.rLanguages))
         termsLabel.attributedText = text
 
-        selectRegularBannerView.titleLabel.text = "Create or import Substrate or EVM accounts"
-        selectRegularBannerView.actionButton.imageWithTitleView?.title = "Join EVM or Substrate"
-        selectTonBannerView.titleLabel.text = "Connect to the fastest growing ecosystem ever"
-        selectTonBannerView.actionButton.imageWithTitleView?.title = "Join TON"
+        selectRegularBannerView.titleLabel.text = R.string.localizable.onboardingBannerRegularEcosystemTitle(preferredLanguages: locale.rLanguages)
+        selectRegularBannerView.actionButton.imageWithTitleView?.title = R.string.localizable.onboardingBannerRegularEcosystemButtonTitle(preferredLanguages: locale.rLanguages)
+        selectTonBannerView.titleLabel.text = R.string.localizable.onboardingBannerTonEcosystemTitle(preferredLanguages: locale.rLanguages)
+        selectTonBannerView.actionButton.imageWithTitleView?.title = R.string.localizable.onboardingBannerTonEcosystemButtonTitle(preferredLanguages: locale.rLanguages)
 
         configureTermsLabel()
     }

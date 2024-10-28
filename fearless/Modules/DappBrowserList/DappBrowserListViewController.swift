@@ -151,7 +151,7 @@ extension DappBrowserListViewController: EmptyStateDataSource {
         emptyView.image = R.image.iconWarning()
         emptyView.title = R.string.localizable
             .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.text = "No dApps were found"
+        emptyView.text = R.string.localizable.dappNotFoundTitle(preferredLanguages: selectedLocale.rLanguages)
         emptyView.iconMode = .bigFilledShadow
         return emptyView
     }

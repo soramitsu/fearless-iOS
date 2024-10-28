@@ -108,7 +108,7 @@ final class ChainSyncService {
             remoteChains: [ChainModel],
             localChains: [ChainModel]
         )> = ClosureOperation {
-            let localChains = try localFetchOperation.extractNoCancellableResultData()
+            let localChains = (try? localFetchOperation.extractNoCancellableResultData()) ?? []
 
             return (
                 remoteChains: remoteChains,

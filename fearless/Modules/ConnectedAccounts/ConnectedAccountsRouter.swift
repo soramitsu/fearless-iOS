@@ -2,6 +2,22 @@ import Foundation
 import SSFModels
 
 final class ConnectedAccountsRouter: ConnectedAccountsRouterInput {
+    func showAccountDetails(
+        from view: ControllerBackedProtocol?,
+        metaAccount: MetaAccountModel
+    ) {
+        guard
+            let walletOptionsController = WalletOptionAssembly.configureModule(
+                with: metaAccount,
+                delegate: nil
+            )?.view.controller
+        else {
+            return
+        }
+
+        view?.controller.present(walletOptionsController, animated: true)
+    }
+    
     func showOptions(
         from view: ControllerBackedProtocol?,
         ecosystem: Ecosystem,

@@ -7,6 +7,8 @@ protocol ConnectedAccountsViewOutput: AnyObject {
     func didSelect(viewModel: ConnectedAccountsViewModel.Accounts)
     func dismiss()
     func pop()
+    func activateAccountDetails()
+    func didTapAccountScore(address: String?)
 }
 
 enum ConnectedAccountsViewModel {
@@ -115,6 +117,7 @@ extension ConnectedAccountsViewController: UITableViewDataSource {
             }
             cell.bind(to: viewModel)
             cell.hideScore()
+            cell.delegate = self
             return cell
         case let .accounts(viewModels):
             let cell = tableView.dequeueReusableCellWithType(ConnectedAccountsTableCell.self, forIndexPath: indexPath)
@@ -141,7 +144,7 @@ extension ConnectedAccountsViewController: UITableViewDelegate {
             return nil
         case .accounts:
             let view = ConnectedAccountsTableHeaderView()
-            view.titleLabel.text = "Connected Accounts"
+            view.titleLabel.text = R.string.localizable.connectedAccountsCommon(preferredLanguages: selectedLocale.rLanguages)
             return view
         }
     }
@@ -173,5 +176,15 @@ extension ConnectedAccountsViewController: UITableViewDelegate {
             return
         }
         output.didSelect(viewModel: viewModel)
+    }
+}
+
+extension ConnectedAccountsViewController: WalletsManagmentTableCellDelegate {
+    func didTapOptionsCell(with _: IndexPath?) {
+        output.activateAccountDetails()
+    }
+
+    func didTapAccountScore(address: String?) {
+        output.didTapAccountScore(address: address)
     }
 }

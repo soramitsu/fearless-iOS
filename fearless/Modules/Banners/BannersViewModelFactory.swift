@@ -91,9 +91,9 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                 )
             case .addRegularWallet:
                 return BannerCellViewModel(
-                    title: "EVM/Substrate accounts",
-                    subtitle: "Join the ecosystems with more than 90+ chains and fascinating features",
-                    buttonTitle: "Сreate or import",
+                    title: R.string.localizable.bannerAddwalletRegularTitle(preferredLanguages: locale.rLanguages),
+                    subtitle: R.string.localizable.bannerAddwalletRegularSubtitle(preferredLanguages: locale.rLanguages),
+                    buttonTitle: R.string.localizable.bannerAddwalletRegularButtonTitle(preferredLanguages: locale.rLanguages),
                     image: R.image.regularBanner()!,
                     dismissable: true,
                     fullsizeImage: true,
@@ -101,9 +101,9 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                 )
             case .addTonWallet:
                 return BannerCellViewModel(
-                    title: "Join the fastest growing ecosystem ever",
+                    title: R.string.localizable.bannerAddwalletTonTitle(preferredLanguages: locale.rLanguages),
                     subtitle: "",
-                    buttonTitle: "Join now",
+                    buttonTitle: R.string.localizable.bannerAddwalletTonButtonTitle(preferredLanguages: locale.rLanguages),
                     image: R.image.tonBanner()!,
                     dismissable: true,
                     fullsizeImage: true,

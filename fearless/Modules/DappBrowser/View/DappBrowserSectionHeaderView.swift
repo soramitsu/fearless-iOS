@@ -109,6 +109,6 @@ final class DappBrowserSectionHeaderView: UITableViewHeaderFooterView {
     }
 
     private func setupLocalization() {
-        moreButton.setTitle("See all", for: .normal)
+        moreButton.setTitle(R.string.localizable.commonSeeAll(preferredLanguages: locale.rLanguages), for: .normal)
     }
 }

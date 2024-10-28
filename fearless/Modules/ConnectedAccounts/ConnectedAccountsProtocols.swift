@@ -5,7 +5,12 @@ typealias ConnectedAccountsModuleCreationResult = (
     input: ConnectedAccountsModuleInput
 )
 
-protocol ConnectedAccountsRouterInput: AnyDismissable, AuthorizationPresentable {
+protocol ConnectedAccountsRouterInput: AnyDismissable, AuthorizationPresentable, AccountScorePresentable {
+    func showAccountDetails(
+        from view: ControllerBackedProtocol?,
+        metaAccount: MetaAccountModel
+    )
+    
     func showOptions(
         from view: ControllerBackedProtocol?,
         ecosystem: Ecosystem,

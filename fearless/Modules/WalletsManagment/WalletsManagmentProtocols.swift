@@ -33,7 +33,7 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
 protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable, AccountScorePresentable {
     func showOptions(
         from view: WalletsManagmentViewInput?,
-        metaAccount: ManagedMetaAccountModel,
+        metaAccount: MetaAccountModel,
         delegate: WalletOptionModuleOutput?
     )
     func dissmis(

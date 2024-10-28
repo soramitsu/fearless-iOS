@@ -237,15 +237,15 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
     ) -> String? {
         switch category {
         case .connected:
-            return "Connected"
+            return R.string.localizable.dappConnectedTitle(preferredLanguages: locale.rLanguages)
         case .featured:
-            return "Featured"
+            return R.string.localizable.dappCategoryFeaturedTitle(preferredLanguages: locale.rLanguages)
         case .utilities:
-            return "Utilities"
+            return R.string.localizable.dappCategoryUtilitiesTitle(preferredLanguages: locale.rLanguages)
         case .nft:
-            return "NFT"
+            return R.string.localizable.dappCategoryNftTitle(preferredLanguages: locale.rLanguages)
         case .defi:
-            return "DeFi"
+            return R.string.localizable.dappCategoryDefiTitle(preferredLanguages: locale.rLanguages)
         case .top:
             return nil
         }

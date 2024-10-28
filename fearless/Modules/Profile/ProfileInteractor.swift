@@ -152,9 +152,10 @@ extension ProfileInteractor: ChainsIssuesCenterListener {
     func handleChainsIssues(_ issues: [ChainIssue]) {
         let missingAccountIssues = issues.filter { issue in
             switch issue {
-            case .missingAccount:
-                return true
-            default: return false
+            case let .missingAccount(chains):
+                return chains.filter { !$0.ecosystem.isTon }.count > 0
+            default:
+                return false
             }
         }
         presenter?.didReceiveMissingAccount(issues: missingAccountIssues)

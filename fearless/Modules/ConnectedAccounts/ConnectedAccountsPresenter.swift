@@ -55,6 +55,20 @@ final class ConnectedAccountsPresenter {
 
 // MARK: - ConnectedAccountsViewOutput
 extension ConnectedAccountsPresenter: ConnectedAccountsViewOutput {
+    func activateAccountDetails() {
+        switch wallet.ecosystem {
+        case .regular:
+            router.showAccountDetails(from: view, metaAccount: wallet)
+        case .ton:
+            break
+        }
+    }
+    
+    func didTapAccountScore(address: String?) {
+        router.presentAccountScore(address: address, from: view)
+
+    }
+    
     func didSelect(viewModel: ConnectedAccountsViewModel.Accounts) {
         guard viewModel.count != nil else {
             // TODO: - Show Add account flow

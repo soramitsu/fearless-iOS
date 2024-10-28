@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class WalletOptionPresenter {
     // MARK: Private properties
@@ -8,10 +9,10 @@ final class WalletOptionPresenter {
     private let router: WalletOptionRouterInput
     private let interactor: WalletOptionInteractorInput
 
-    private let wallet: ManagedMetaAccountModel
+    private let wallet: MetaAccountModel
 
     lazy var hasWalletDetailsButton: Bool = {
-        switch wallet.info.ecosystem {
+        switch wallet.ecosystem {
         case .regular:
             return true
         case .ton:
@@ -22,7 +23,7 @@ final class WalletOptionPresenter {
     // MARK: - Constructors
 
     init(
-        wallet: ManagedMetaAccountModel,
+        wallet: MetaAccountModel,
         interactor: WalletOptionInteractorInput,
         router: WalletOptionRouterInput,
         localizationManager: LocalizationManagerProtocol
@@ -71,11 +72,11 @@ final class WalletOptionPresenter {
 
 extension WalletOptionPresenter: WalletOptionViewOutput {
     func changeWalletNameDidTap() {
-        router.showChangeWalletName(from: view, for: wallet.info)
+        router.showChangeWalletName(from: view, for: wallet)
     }
 
     func walletDetailsDidTap() {
-        router.showWalletDetails(from: view, for: wallet.info)
+        router.showWalletDetails(from: view, for: wallet)
     }
 
     func exportWalletDidTap() {
@@ -87,7 +88,7 @@ extension WalletOptionPresenter: WalletOptionViewOutput {
     }
 
     func accountScoreDidTap() {
-        let address = wallet.info.ecosystem.ethereumAddress?.toHex(includePrefix: true)
+        let address = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         router.presentAccountScore(address: address, from: view)
     }
 
