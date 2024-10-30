@@ -282,7 +282,7 @@
     {
       "identity" : "ton-swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/DRadmir/ton-swift",
+      "location" : "https://github.com/DRadmir/ton-swift.git",
       "state" : {
         "branch" : "main",
         "revision" : "73c9894e2be8d6d16b87853342eb2755d2e4be8a"

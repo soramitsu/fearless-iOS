@@ -209,7 +209,7 @@ extension AccountFetching {
                         }
 
                         for chainAccount in meta.chainAccounts {
-                            let chainFormat: ChainFormat /* = chainAccount.ethereumBased ? .ethereum : .substrate(chain.addressPrefix) */
+                            let chainFormat: ChainFormat
                             switch chainAccount.ecosystem {
                             case .substrate:
                                 chainFormat = .substrate(chain.addressPrefix)

@@ -40,7 +40,8 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
 
         let accountsViewModel = createAccountsViewModel(
             chains: chains,
-            wallet: wallet
+            wallet: wallet,
+            locale: locale
         )
 
         let viewModel: [ConnectedAccountsViewModel] = [

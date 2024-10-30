@@ -50,7 +50,7 @@ actor TonJettonInjectorImpl: TonJettonInjector {
                 symbol: balanceInfo.item.jettonInfo.symbol ?? balanceInfo.item.jettonInfo.name,
                 precision: UInt16(balanceInfo.item.jettonInfo.fractionDigits),
                 icon: balanceInfo.item.jettonInfo.imageURL,
-                currencyId: balanceInfo.item.jettonInfo.address.toRaw(), // wallet
+                currencyId: balanceInfo.item.jettonInfo.address.toRaw(),
                 existentialDeposit: nil,
                 color: nil,
                 isUtility: false,
