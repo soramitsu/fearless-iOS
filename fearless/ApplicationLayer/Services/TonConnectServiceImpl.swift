@@ -13,7 +13,7 @@ enum TonConnectServiceError: Swift.Error {
 
 actor TonConnectServiceImpl: TonConnectService {
     private let chainRegistry: ChainRegistryProtocol
-    private let tonService: TonSendService
+    private let tonSendService: TonSendService
     private let networkWorker: SSFNetwork.NetworkWorker
     private let messageBuilder: TonConnectMessageBuilder
     private let appRepository: AsyncAnyRepository<TonConnectApp>
@@ -32,7 +32,7 @@ actor TonConnectServiceImpl: TonConnectService {
         logger: LoggerProtocol
     ) {
         self.chainRegistry = chainRegistry
-        self.tonService = tonService
+        self.tonSendService = tonService
         self.networkWorker = networkWorker
         self.messageBuilder = messageBuilder
         self.appRepository = appRepository
@@ -142,8 +142,8 @@ actor TonConnectServiceImpl: TonConnectService {
         else {
             throw ConvenienceError(error: "Missing Ton params")
         }
-        async let seqno = try tonService.loadSeqno(address: sender.toRaw())
-        async let timeout = tonService.getTimeoutSafely(TTL: 5 * 60)
+        async let seqno = try tonSendService.loadSeqno(address: sender.toRaw())
+        async let timeout = tonSendService.getTimeoutSafely(TTL: 5 * 60)
 
         let bocFactory = try createBocFactory(for: wallet)
         let boc = try await bocFactory.createTonConnectTransferBoc(
@@ -154,7 +154,7 @@ actor TonConnectServiceImpl: TonConnectService {
             timeout: timeout
         )
 
-        try await tonService.sendTransaction(boc: boc)
+        try await tonSendService.sendTransaction(boc: boc)
         return boc
     }
 
@@ -171,8 +171,8 @@ actor TonConnectServiceImpl: TonConnectService {
             throw ConvenienceError(error: "Missing Ton params")
         }
         let sessionCrypto = try TonConnectSessionCrypto(privateKey: app.keyPair.privateKey)
-        async let seqno = try tonService.loadSeqno(address: sender.toRaw())
-        async let timeout = tonService.getTimeoutSafely(TTL: 5 * 60)
+        async let seqno = try tonSendService.loadSeqno(address: sender.toRaw())
+        async let timeout = tonSendService.getTimeoutSafely(TTL: 5 * 60)
 
         let bocFactory = try createBocFactory(for: wallet)
         let boc = try await bocFactory.createTonConnectTransferBoc(
@@ -182,7 +182,7 @@ actor TonConnectServiceImpl: TonConnectService {
             seqno: seqno,
             timeout: timeout
         )
-        try await tonService.sendTransaction(boc: boc)
+        try await tonSendService.sendTransaction(boc: boc)
 
         let body = try messageBuilder.buildSendTransactionResponseSuccess(
             sessionCrypto: sessionCrypto,
@@ -321,9 +321,9 @@ actor TonConnectServiceImpl: TonConnectService {
     }
 
     private func createBocFactory(for wallet: MetaAccountModel) throws -> BocFactory {
-        let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? "-3" : "-239"
+        let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? TonConstants.testnetChainId : TonConstants.tonChainId
         let request = ChainAccountRequest(
-            chainId: network,
+            chainId: "\(network)",
             addressPrefix: 0,
             ecosystem: .ton,
             accountId: nil

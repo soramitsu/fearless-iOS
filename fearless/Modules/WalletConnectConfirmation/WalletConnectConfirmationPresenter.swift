@@ -94,7 +94,7 @@ final class WalletConnectConfirmationPresenter {
             )
         )
         moduleOutput?.tonConnectSend(
-            dessision: .sended(
+            dessision: .sent(
                 invocationId: invocationId,
                 response: response
             )

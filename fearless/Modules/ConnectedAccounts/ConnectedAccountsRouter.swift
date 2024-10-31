@@ -17,7 +17,7 @@ final class ConnectedAccountsRouter: ConnectedAccountsRouterInput {
 
         view?.controller.present(walletOptionsController, animated: true)
     }
-    
+
     func showOptions(
         from view: ControllerBackedProtocol?,
         ecosystem: Ecosystem,
@@ -43,9 +43,6 @@ final class ConnectedAccountsRouter: ConnectedAccountsRouterInput {
         chains: [ChainModel]?
     ) {
         let module = WalletDetailsViewFactory.createView(flow: .normal(wallet: wallet), chains: chains)
-        let navigationController = FearlessNavigationController(
-            rootViewController: module.controller
-        )
 
         view?.controller.navigationController?.pushViewController(module.controller, animated: true)
     }
@@ -66,10 +63,6 @@ final class ConnectedAccountsRouter: ConnectedAccountsRouterInput {
                 ) else {
                 return
             }
-
-            let navigationController = FearlessNavigationController(
-                rootViewController: mnemonicView.controller
-            )
 
             view?.controller.navigationController?.pushViewController(mnemonicView.controller, animated: true)
         }
@@ -92,10 +85,6 @@ final class ConnectedAccountsRouter: ConnectedAccountsRouterInput {
                 return
             }
 
-            let navigationController = FearlessNavigationController(
-                rootViewController: passwordView.controller
-            )
-
             view?.controller.navigationController?.pushViewController(passwordView.controller, animated: true)
         }
     }
@@ -114,10 +103,6 @@ final class ConnectedAccountsRouter: ConnectedAccountsRouterInput {
                 let seedView = ExportSeedViewFactory.createViewForAddress(flow: flow) else {
                 return
             }
-
-            let navigationController = FearlessNavigationController(
-                rootViewController: seedView.controller
-            )
 
             view?.controller.navigationController?.pushViewController(seedView.controller, animated: true)
         }

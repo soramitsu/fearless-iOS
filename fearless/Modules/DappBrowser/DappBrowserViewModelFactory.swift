@@ -145,10 +145,10 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             let apps = connected.map {
                 TonDapp(
                     identifier: $0.identifier,
-                    chains: ["-239", "-3"],
+                    chains: ["\(TonConstants.tonChainId)", "\(TonConstants.testnetChainId)"],
                     name: $0.name,
                     description: nil,
-                    icon: $0.iconUrl ?? URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/TON.svg")!,
+                    icon: $0.iconUrl ?? TonConstants.tonIcon,
                     poster: nil,
                     url: $0.appUrl
                 )

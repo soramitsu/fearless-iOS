@@ -108,7 +108,7 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
 
         mapped.forEach { ecosystem, chains in
             let title: String
-            var count: Int?
+            var count: Int
             switch ecosystem {
             case .substrate:
                 title = R.string.localizable.connectedAccountsSubstrateTitle(preferredLanguages: locale.rLanguages)
@@ -120,9 +120,6 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
                 title = R.string.localizable.connectedAccountsTonTitle(preferredLanguages: locale.rLanguages)
                 count = chains.map { wallet.fetch(for: $0.accountRequest())?.accountId }.filter { $0 != nil }.count
             }
-            if count == 0 {
-                count = nil
-            }
             let accounts = ConnectedAccountsViewModel.Accounts(
                 title: title,
                 count: count,
@@ -132,7 +129,7 @@ final class ConnectedAccountsViewModelFactoryImpl: ConnectedAccountsViewModelFac
             accountsViewModel.append(accounts)
         }
 
-        return accountsViewModel.sorted(by: { $0.count.or(.zero) > $1.count.or(.zero) })
+        return accountsViewModel.sorted(by: { $0.count > $1.count })
     }
 
     private func tokenFormatter(for currency: Currency, locale: Locale) -> TokenFormatter {

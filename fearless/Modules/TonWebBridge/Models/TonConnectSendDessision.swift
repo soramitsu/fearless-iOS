@@ -1,7 +1,7 @@
 import Foundation
 
 enum TonConnectSendDessision {
-    case sended(
+    case sent(
         invocationId: String,
         response: TonConnect.SendTransactionResponse
     )

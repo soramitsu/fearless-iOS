@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -338,6 +338,7 @@
 		07D0BD412C6F0E9C001ECD58 /* BrowserExploreFeaturedCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D0BD402C6F0E9C001ECD58 /* BrowserExploreFeaturedCell.swift */; };
 		07D0BD432C6F179E001ECD58 /* DappBrowserListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D0BD422C6F179E001ECD58 /* DappBrowserListCell.swift */; };
 		07D0BD452C6F191C001ECD58 /* DappBrowserSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D0BD442C6F191C001ECD58 /* DappBrowserSectionHeaderView.swift */; };
+		07DCB8622CD363EF00A01C64 /* TonConstansts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DCB8612CD363EF00A01C64 /* TonConstansts.swift */; };
 		07DE95B528A1119400E9C2CB /* BalanceInfoRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AC28A1119400E9C2CB /* BalanceInfoRouter.swift */; };
 		07DE95B628A1119400E9C2CB /* BalanceInfoAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AD28A1119400E9C2CB /* BalanceInfoAssembly.swift */; };
 		07DE95B728A1119400E9C2CB /* BalanceInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AE28A1119400E9C2CB /* BalanceInfoProtocols.swift */; };
@@ -404,7 +405,6 @@
 		084DDCBC4CE8438770EB48DE /* ConfirmTransferRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = BD1C635488F941373CDBE377 /* ConfirmTransferRouter.swift */; };
 		08C2974B3B5AAA757CE57E33 /* FeatureToggleListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 769372B10E8D3C2BF7304FC3 /* FeatureToggleListInteractor.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
-		0A2BBD1BB87EBB75BBD919F7 /* ConfirmTransferViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 537D889708D5E1615C662992 /* ConfirmTransferViewLayout.swift */; };
 		0A4820F04EC9DA9DD515EC3A /* MainNftContainerRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1CA1EF5BF1151E0DFB298C /* MainNftContainerRouter.swift */; };
 		0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB887490A8B33890B4E0E4 /* ControllerAccountConfirmationPresenter.swift */; };
 		0B2B9C6E2BA2E924D6A54F4B /* CrowdloanListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E78D69E8EBC3EB4D01F8EF /* CrowdloanListInteractor.swift */; };
@@ -3546,6 +3546,7 @@
 		07D0BD422C6F179E001ECD58 /* DappBrowserListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappBrowserListCell.swift; sourceTree = "<group>"; };
 		07D0BD442C6F191C001ECD58 /* DappBrowserSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DappBrowserSectionHeaderView.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
+		07DCB8612CD363EF00A01C64 /* TonConstansts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConstansts.swift; sourceTree = "<group>"; };
 		07DE95AC28A1119400E9C2CB /* BalanceInfoRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceInfoRouter.swift; sourceTree = "<group>"; };
 		07DE95AD28A1119400E9C2CB /* BalanceInfoAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceInfoAssembly.swift; sourceTree = "<group>"; };
 		07DE95AE28A1119400E9C2CB /* BalanceInfoProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceInfoProtocols.swift; sourceTree = "<group>"; };
@@ -3792,7 +3793,6 @@
 		527CD27768E9A75E6CA87FE4 /* AccountConfirmTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmTests.swift; sourceTree = "<group>"; };
 		52A64FCFC95E3841032F910B /* ChainSelectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainSelectionTests.swift; sourceTree = "<group>"; };
 		52F8D055D0481469073AA859 /* StakingPayoutConfirmationProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationProtocols.swift; sourceTree = "<group>"; };
-		537D889708D5E1615C662992 /* ConfirmTransferViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConfirmTransferViewLayout.swift; sourceTree = "<group>"; };
 		5408FF305E4A49A683BC43E0 /* WalletChainAccountDashboardViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletChainAccountDashboardViewLayout.swift; sourceTree = "<group>"; };
 		54648003EC8531169B687994 /* Pods-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
 		54776237A20227DFE025E3AC /* AllDoneViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDoneViewLayout.swift; sourceTree = "<group>"; };
@@ -8249,7 +8249,6 @@
 				BD1C635488F941373CDBE377 /* ConfirmTransferRouter.swift */,
 				5DD32F4D6D8DABF991E09C7C /* ConfirmTransferPresenter.swift */,
 				20FAD50119EE0DBA135AC9A7 /* ConfirmTransferViewController.swift */,
-				537D889708D5E1615C662992 /* ConfirmTransferViewLayout.swift */,
 				9BD8F497D1380B608E046658 /* ConfirmTransferAssembly.swift */,
 			);
 			path = ConfirmTransfer;
@@ -10186,6 +10185,7 @@
 				84786E1925FA6A470089DFF7 /* StashItem.swift */,
 				84B71DE4260B90270003A100 /* SubstrateAlias.swift */,
 				845BB8DA25E462B100E5FCDC /* SubstrateConstansts.swift */,
+				07DCB8612CD363EF00A01C64 /* TonConstansts.swift */,
 				075C646F28098AFB00A55094 /* EthereumConstants.swift */,
 				842876AF24AE059700D91AD8 /* SupportData.swift */,
 				849014A524AA801B008F705E /* TextSharingSource.swift */,
@@ -19142,6 +19142,7 @@
 				FAD428962A834BA8001D6A16 /* UIApplication+TopViewController.swift in Sources */,
 				075E5FD12C7F1A630044C142 /* TonConnectService.swift in Sources */,
 				D6511F7C3E55197F82AB552C /* RecommendedValidatorListViewFactory.swift in Sources */,
+				07DCB8622CD363EF00A01C64 /* TonConstansts.swift in Sources */,
 				C7D77690E10875CF1856EBA1 /* StakingRewardPayoutsProtocols.swift in Sources */,
 				FA936BCE286C41DF0059B97A /* StakingRebondConfirmationRelaychainStrategy.swift in Sources */,
 				FA4B928F284493C60003BCEF /* DelegateCall.swift in Sources */,
@@ -19866,7 +19867,6 @@
 				084DDCBC4CE8438770EB48DE /* ConfirmTransferRouter.swift in Sources */,
 				604162EC2B721993E397E6B0 /* ConfirmTransferPresenter.swift in Sources */,
 				3152634A9E3FBF5E463CF56E /* ConfirmTransferViewController.swift in Sources */,
-				0A2BBD1BB87EBB75BBD919F7 /* ConfirmTransferViewLayout.swift in Sources */,
 				26F0F2A52C7EFD38CBC2F1C3 /* ConfirmTransferAssembly.swift in Sources */,
 				BCB9B3DF3D8104BC8456811B /* TonWebBridgeProtocols.swift in Sources */,
 				57376A74C6310F1FA52FA28C /* TonWebBridgeRouter.swift in Sources */,

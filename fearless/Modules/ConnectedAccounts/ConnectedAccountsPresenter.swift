@@ -63,14 +63,14 @@ extension ConnectedAccountsPresenter: ConnectedAccountsViewOutput {
             break
         }
     }
-    
+
     func didTapAccountScore(address: String?) {
         router.presentAccountScore(address: address, from: view)
 
     }
-    
+
     func didSelect(viewModel: ConnectedAccountsViewModel.Accounts) {
-        guard viewModel.count != nil else {
+        guard viewModel.count > 0 else {
             // TODO: - Show Add account flow
             return
         }

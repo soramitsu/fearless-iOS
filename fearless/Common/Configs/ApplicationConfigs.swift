@@ -165,7 +165,7 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     }
 
     var dappSourceUrl: URL {
-        URL(string: "")!
+        GitHubUrl.url(suffix: "appConfigs/dapps.json", branch: .developFree)
     }
 
     // MARK: - xcm

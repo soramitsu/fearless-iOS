@@ -234,10 +234,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         rates: Components.Schemas.TokenRates?,
         currency: Currency
     ) -> [PriceData] {
-        guard
-            let price = rates?.prices?.additionalProperties.first?.value,
-            let fiatDayChange = rates?.diff_24h?.additionalProperties.first?.value
-        else {
+        guard let price = rates?.prices?.additionalProperties.first?.value else {
             return []
         }
         let priceData = PriceData(

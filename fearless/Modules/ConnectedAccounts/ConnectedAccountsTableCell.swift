@@ -53,8 +53,8 @@ final class ConnectedAccountsTableCell: UITableViewCell {
         position: Position
     ) {
         titleLabel.text = model.title
-        if let count = model.count {
-            countLabel.text = "\(count)"
+        if model.count > 0 {
+            countLabel.text = "\(model.count)"
             optionsButton.setImage(R.image.iconHorMore(), for: .normal)
         } else {
             countLabel.text = nil

@@ -77,18 +77,18 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
                 for: BokoloConstants.bokoloCasheBridgeAddress
             )
 
-//        #if F_DEV
-//            let chainAsset = possibleChains
-//                .first(where: { chain in
-//                    switch chain.knownChainEquivalent {
-//                    case .soraTest: return true
-//                    default: return false
-//                    }
-//                })?
-//                .chainAssets
-//                .first(where: { $0.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId })
-//
-//        #else
+        #if F_DEV
+            let chainAsset = possibleChains
+                .first(where: { chain in
+                    switch chain.knownChainEquivalent {
+                    case .soraTest: return true
+                    default: return false
+                    }
+                })?
+                .chainAssets
+                .first(where: { $0.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId })
+
+        #else
         let chainAsset = possibleChains
             .first(where: { chain in
                 switch chain.knownChainEquivalent {
@@ -98,7 +98,7 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
             })?
             .chainAssets
             .first(where: { $0.asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId })
-//        #endif
+        #endif
 
         guard
             let qrChainAsset = chainAsset,

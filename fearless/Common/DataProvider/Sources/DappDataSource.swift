@@ -16,7 +16,7 @@ enum DappCategoryType: String, Codable, Equatable {
 }
 
 final class DappDataSource: SingleValueProviderSourceProtocol {
-    static let fetchLocalData = true
+    static let fetchLocalData = false
     typealias Model = [DappCategory]
 
     func fetchOperation() -> CompoundOperationWrapper<[DappCategory]?> {

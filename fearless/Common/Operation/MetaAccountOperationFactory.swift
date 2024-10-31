@@ -309,9 +309,9 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 name: request.username,
                 ecosystem: ecosystem,
                 isBackedUp: isBackedUp,
-                defaultChainId: "-239",
+                defaultChainId: "\(TonConstants.tonChainId)",
                 assetsVisibility: [.init(
-                    assetId: ["-239", "2ba4723a-74b4-4a6f-a888-e51937773807-239"].joined(separator: " : "),
+                    assetId: ["\(TonConstants.tonChainId)", TonConstants.tonAssetId].joined(separator: " : "),
                     hidden: false
                 )]
             )

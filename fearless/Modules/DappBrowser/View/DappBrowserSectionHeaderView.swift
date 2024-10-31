@@ -69,9 +69,9 @@ final class DappBrowserSectionHeaderView: UITableViewHeaderFooterView {
     // MARK: - Private methods
 
     private func setup() {
-        moreButton.addAction(UIAction(handler: { [weak self] _ in
+        moreButton.addAction { [weak self] in
             self?.allButtonAction()
-        }), for: .touchUpInside)
+        }
 
         let separator = UIFactory.default.createSeparatorView()
         contentView.addSubview(containerView)

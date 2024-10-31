@@ -17,7 +17,7 @@ enum ConnectedAccountsViewModel {
 
     struct Accounts {
         let title: String
-        let count: Int?
+        let count: Int
         let ecosystem: Ecosystem
         let chains: [ChainModel]
     }

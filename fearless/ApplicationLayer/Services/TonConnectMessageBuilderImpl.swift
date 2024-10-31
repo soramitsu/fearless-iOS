@@ -35,7 +35,7 @@ final class TonConnectMessageBuilderImpl: TonConnectMessageBuilder {
             throw ConvenienceError(error: "Missing TON")
         }
 
-        let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? -3 : -239
+        let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? TonConstants.testnetChainId : TonConstants.tonChainId
         let replyItem = TonConnect.ConnectItemReply.tonAddress(
             .init(
                 address: address,
@@ -124,7 +124,7 @@ final class TonConnectMessageBuilderImpl: TonConnectMessageBuilder {
         let replyItems = try requestPayloadItems.compactMap { item in
             switch item {
             case .tonAddress:
-                let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? -3 : -239
+                let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? TonConstants.testnetChainId : TonConstants.tonChainId
                 return TonConnect.ConnectItemReply.tonAddress(
                     .init(
                         address: address,

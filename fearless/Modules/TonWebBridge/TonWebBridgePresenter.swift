@@ -323,7 +323,7 @@ extension TonWebBridgePresenter: WalletConnectSessionModuleOutput {
         Task {
             do {
                 switch dessision {
-                case let .sended(invocationId, sendTransactionResponse):
+                case let .sent(invocationId, sendTransactionResponse):
                     try await handleSendMessage(
                         result: sendTransactionResponse,
                         invocationId: invocationId
