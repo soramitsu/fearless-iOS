@@ -67,12 +67,11 @@ final class RootInteractor {
 extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
+        if runMigrations {
+            self.runMigrators()
+        }
 
         settings.setup(runningCompletionIn: .global()) { result in
-            if runMigrations {
-                self.runMigrators()
-            }
-
             switch result {
             case let .success(wallet):
                 if let wallet = wallet {
