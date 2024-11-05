@@ -138,12 +138,19 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 guard ecosystem.isRegular else {
                     return nil
                 }
-                
+
                 return createWalletConnectViewModel(locale: locale)
             case .accountList:
+                let missingEthAccount: Bool
+                switch ecosystem {
+                case .regular:
+                    missingEthAccount = missingAccountIssue.isNotEmpty
+                case .ton:
+                    missingEthAccount = false
+                }
                 return createAccountListViewModel(
                     for: locale,
-                    missingEthAccount: missingAccountIssue.isNotEmpty
+                    missingEthAccount: missingEthAccount
                 )
             case .changePincode:
                 return createChangePincode(for: locale)
@@ -153,7 +160,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 guard ecosystem.isRegular else {
                     return nil
                 }
-                
+
                 return createPolkaswapDisclaimer(locale: locale)
             case .about:
                 return createAboutViewModel(for: locale)
@@ -165,7 +172,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 guard ecosystem.isRegular else {
                     return nil
                 }
-                
+
                 return createAccountScoreViewModel(locale: locale)
             case .crowdloans:
                 switch ecosystem {

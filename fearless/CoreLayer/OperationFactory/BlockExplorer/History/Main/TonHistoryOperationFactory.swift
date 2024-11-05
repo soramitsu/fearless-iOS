@@ -136,7 +136,8 @@ final class TonHistoryOperationFactory {
         dependingOn remoteOperation: BaseOperation<TonAccountEvents>,
         address: String,
         asset: AssetModel,
-        chain: ChainModel
+        chain: ChainModel,
+        filters: [WalletTransactionHistoryFilter]
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let events = try remoteOperation.extractNoCancellableResultData().events
@@ -149,7 +150,8 @@ final class TonHistoryOperationFactory {
                             action: $0,
                             address: address,
                             chain: chain,
-                            asset: asset
+                            asset: asset,
+                            filters: filters
                         )
                     }
                 }
@@ -167,7 +169,7 @@ extension TonHistoryOperationFactory: HistoryOperationFactoryProtocol {
         asset: AssetModel,
         chain: ChainModel,
         address: String,
-        filters _: [WalletTransactionHistoryFilter],
+        filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         var before_lt: Int64?
@@ -184,7 +186,8 @@ extension TonHistoryOperationFactory: HistoryOperationFactoryProtocol {
             dependingOn: remoteOperation,
             address: address,
             asset: asset,
-            chain: chain
+            chain: chain,
+            filters: filters
         )
 
         mapOperation.addDependency(remoteOperation)

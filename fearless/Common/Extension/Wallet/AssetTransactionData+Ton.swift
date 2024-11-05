@@ -10,7 +10,8 @@ extension AssetTransactionData {
         action: AccountEventAction,
         address: String,
         chain _: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        filters: [WalletTransactionHistoryFilter]
     ) -> AssetTransactionData? {
         let status: AssetTransactionStatus = event.isInProgress ? .pending : .commited
 
@@ -30,6 +31,7 @@ extension AssetTransactionData {
         case let .tonTransfer(tonTransfer):
             let amountString = String(tonTransfer.amount)
             guard
+                filters.contains(where: { $0.type == .transfer && $0.selected }),
                 let amountValue = BigUInt(string: amountString),
                 let amount = Decimal.fromSubstrateAmount(amountValue, precision: Int16(asset.precision))
             else {
@@ -65,6 +67,9 @@ extension AssetTransactionData {
                 context: iconContext
             )
         case let .contractDeploy(deploy):
+            guard filters.contains(where: { $0.type == .other && $0.selected }) else {
+                return nil
+            }
             return AssetTransactionData(
                 transactionId: event.eventId,
                 status: .commited,
@@ -84,6 +89,7 @@ extension AssetTransactionData {
         case let .jettonTransfer(jettonTransfer):
             let amountString = String(jettonTransfer.amount)
             guard
+                filters.contains(where: { $0.type == .transfer && $0.selected }),
                 let amountValue = BigUInt(string: amountString),
                 let amount = Decimal.fromSubstrateAmount(amountValue, precision: Int16(asset.precision))
             else {
