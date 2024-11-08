@@ -34,8 +34,6 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         setupActions()
         output.didLoad(view: self)
-        rootView.walletDetailsButton.isHidden = !output.hasWalletDetailsButton
-        rootView.accountScoreButton.isHidden = !output.hasWalletDetailsButton
     }
 
     // MARK: - Private methods
@@ -64,6 +62,11 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
 extension WalletOptionViewController: WalletOptionViewInput {
     func setDeleteButtonIsVisible(_ isVisible: Bool) {
         rootView.deleteWalletButton.isHidden = !isVisible
+    }
+
+    func walletDetailsButton(isVisible: Bool) {
+        rootView.walletDetailsButton.isHidden = !isVisible
+        rootView.accountScoreButton.isHidden = !isVisible
     }
 }
 

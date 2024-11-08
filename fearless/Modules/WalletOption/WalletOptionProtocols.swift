@@ -4,10 +4,10 @@ typealias WalletOptionModuleCreationResult = (view: WalletOptionViewInput, input
 
 protocol WalletOptionViewInput: ControllerBackedProtocol {
     func setDeleteButtonIsVisible(_ isVisible: Bool)
+    func walletDetailsButton(isVisible: Bool)
 }
 
 protocol WalletOptionViewOutput: AnyObject {
-    var hasWalletDetailsButton: Bool { get }
     func didLoad(view: WalletOptionViewInput)
     func walletDetailsDidTap()
     func exportWalletDidTap()

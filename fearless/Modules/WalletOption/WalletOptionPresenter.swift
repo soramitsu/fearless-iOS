@@ -11,15 +11,6 @@ final class WalletOptionPresenter {
 
     private let wallet: MetaAccountModel
 
-    lazy var hasWalletDetailsButton: Bool = {
-        switch wallet.ecosystem {
-        case .regular:
-            return true
-        case .ton:
-            return false
-        }
-    }()
-
     // MARK: - Constructors
 
     init(
@@ -95,6 +86,7 @@ extension WalletOptionPresenter: WalletOptionViewOutput {
     func didLoad(view: WalletOptionViewInput) {
         self.view = view
         interactor.setup(with: self)
+        view.walletDetailsButton(isVisible: wallet.ecosystem.isRegular)
     }
 }
 

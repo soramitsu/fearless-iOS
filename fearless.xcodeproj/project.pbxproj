@@ -320,6 +320,7 @@
 		07C438DE2C638D3900475B14 /* TonConnectManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C438DD2C638D3900475B14 /* TonConnectManifest.swift */; };
 		07CA72C32CD8A63F00EF5279 /* CDChainAccountMigrationPolicyV12.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07CA72C22CD8A63F00EF5279 /* CDChainAccountMigrationPolicyV12.swift */; };
 		07CA72C52CD8AD0100EF5279 /* CDMetaAccountMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07CA72C42CD8AD0100EF5279 /* CDMetaAccountMigrationPolicy.swift */; };
+		07CA73FB2CDDE27400EF5279 /* MetaAccountModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07CA73FA2CDDE27400EF5279 /* MetaAccountModel.swift */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
 		07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */; };
 		07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */; };
@@ -3530,6 +3531,7 @@
 		07C438DD2C638D3900475B14 /* TonConnectManifest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonConnectManifest.swift; sourceTree = "<group>"; };
 		07CA72C22CD8A63F00EF5279 /* CDChainAccountMigrationPolicyV12.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CDChainAccountMigrationPolicyV12.swift; sourceTree = "<group>"; };
 		07CA72C42CD8AD0100EF5279 /* CDMetaAccountMigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CDMetaAccountMigrationPolicy.swift; sourceTree = "<group>"; };
+		07CA73FA2CDDE27400EF5279 /* MetaAccountModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MetaAccountModel.swift; sourceTree = "<group>"; };
 		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
 		07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolStrategy.swift; sourceTree = "<group>"; };
 		07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolViewModelState.swift; sourceTree = "<group>"; };
@@ -10145,6 +10147,7 @@
 				FA24FEFD2B95C32200CD9E04 /* Decimal+DoubleValue.swift */,
 				FAC6CDA82BA814F20013A17E /* UIControl+Disable.swift */,
 				0778A1292C5763D6008A1254 /* Task.swift */,
+				07CA73FA2CDDE27400EF5279 /* MetaAccountModel.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -17473,6 +17476,7 @@
 				FAA0133128DA12B6000A5230 /* StakingPoolMainViewController.swift in Sources */,
 				FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */,
 				FA93A30C2834FCAD0021330F /* ValidatorSearchRelaychainStrategy.swift in Sources */,
+				07CA73FB2CDDE27400EF5279 /* MetaAccountModel.swift in Sources */,
 				0701B98E2C78FAF000DCD395 /* LiquidityPoolListCell.swift in Sources */,
 				844CB56E26F9CB1500396E13 /* CrowdloanLocalStorageSubscriber.swift in Sources */,
 				073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */,
