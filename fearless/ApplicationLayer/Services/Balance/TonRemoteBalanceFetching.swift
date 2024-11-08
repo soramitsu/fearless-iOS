@@ -84,7 +84,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         let accountInfo: AccountInfo
         switch chainAsset.chainAssetType.tonAssetType {
         case .normal:
-            accountInfo = try await getAccountInfo(address: address)
+            accountInfo = try await getAccountInfo(address: address, currency: wallet.selectedCurrency)
         case .jetton:
             let jettons = try await getAccountJettonsBalances(
                 address: address,
@@ -155,6 +155,20 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
     // MARK: - Private methods
 
+    private func getTonRates(
+        currency: Currency
+    ) async throws -> [String: Components.Schemas.TokenRates] {
+        let assembly = try chainRegistry.getTonApiAssembly()
+        let tonAPIClient = assembly.tonAPIClient()
+
+        let response = try await tonAPIClient.getRates(
+            query: .init(tokens: "TON", currencies: currency.id.uppercased())
+        )
+
+        let entity = try response.ok.body.json
+        return entity.rates.additionalProperties
+    }
+
     private func createJettonsAccountInfos(
         jettonBalances: [TonJettonBalance],
         jettons: [ChainAsset]
@@ -171,7 +185,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         address: String,
         currency: Currency
     ) async throws -> (normal: AccountInfo, jettons: [TonJettonBalance]) {
-        async let normalBalanceTask = getAccountInfo(address: address)
+        async let normalBalanceTask = getAccountInfo(address: address, currency: currency)
         async let jettonBalancesTask = getAccountJettonsBalances(address: address, currency: currency)
         let normalBalance = try await normalBalanceTask
         let jettonBalances = try await jettonBalancesTask
@@ -179,16 +193,24 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
     }
 
     private func getAccountInfo(
-        address: String
+        address: String,
+        currency: Currency
     ) async throws -> AccountInfo {
         let assembly = try chainRegistry.getTonApiAssembly()
         let tonAPIClient = assembly.tonAPIClient()
 
-        let response = try await tonAPIClient.getAccount(.init(path: .init(account_id: address)))
-        let account = try TonAccount(account: try response.ok.body.json)
+        async let response = try tonAPIClient.getAccount(.init(path: .init(account_id: address)))
+        async let rates = try getTonRates(currency: currency)
+
+        let account = try await TonAccount(account: try response.ok.body.json)
         let stringBalance = String(account.balance)
         guard let balance = BigUInt(string: stringBalance) else {
             throw TonRemoteBalanceFetchingError.balanceError
+        }
+
+        if let tonRates = try? await rates["TON"] {
+            let tonPriceData = mapJettonRates(rates: tonRates, currency: currency)
+            await jettonInjector.inject(tonPriceData: tonPriceData)
         }
 
         let accountInfo = AccountInfo(balance: balance)

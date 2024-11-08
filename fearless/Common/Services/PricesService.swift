@@ -133,6 +133,9 @@ private extension PricesService {
         var updatedChains: [ChainModel] = []
         let uniqChains: [ChainModel] = chainAssets.compactMap { $0.chain }.uniq { $0.chainId }
         uniqChains.forEach { chain in
+            guard !chain.ecosystem.isTon else {
+                return
+            }
             var updatedAssets: [AssetModel] = []
             chain.chainAssets.forEach { chainAsset in
                 let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId }

@@ -248,6 +248,8 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             return R.string.localizable.dappCategoryDefiTitle(preferredLanguages: locale.rLanguages)
         case .top:
             return nil
+        case .explorers:
+            return "Explorers"
         }
     }
 }

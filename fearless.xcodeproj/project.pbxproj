@@ -5787,7 +5787,6 @@
 		FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolViewModelFactory.swift; sourceTree = "<group>"; };
 		FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV2Mapping.xcmappingmodel; sourceTree = "<group>"; };
 		FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainNodeModelMapper.swift; sourceTree = "<group>"; };
-		FA6AA3E82CC0C7A80010DBBF /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = "<group>"; };
 		FA6C175029935DAD00A55254 /* AssetTransactionData+GiantsquidHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+GiantsquidHistory.swift"; sourceTree = "<group>"; };
 		FA6C175129935DAD00A55254 /* AssetTransactionData+SubqueryHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+SubqueryHistory.swift"; sourceTree = "<group>"; };
 		FA6C175229935DAE00A55254 /* AssetTransactionData+SubsquidHistory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+SubsquidHistory.swift"; sourceTree = "<group>"; };
@@ -9910,7 +9909,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FA6AA3E72CC0C7A80010DBBF /* Packages */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
@@ -14557,14 +14555,6 @@
 				FA6262332AC2E35A005D3D95 /* WalletConnectProposalViewLayout.swift */,
 			);
 			path = WalletConnectProposal;
-			sourceTree = "<group>";
-		};
-		FA6AA3E72CC0C7A80010DBBF /* Packages */ = {
-			isa = PBXGroup;
-			children = (
-				FA6AA3E82CC0C7A80010DBBF /* shared-features-spm */,
-			);
-			name = Packages;
 			sourceTree = "<group>";
 		};
 		FA6C175629935DC700A55254 /* BlockExplorer */ = {

@@ -13,6 +13,7 @@ enum DappCategoryType: String, Codable, Equatable {
     case utilities
     case nft
     case defi
+    case explorers
 }
 
 final class DappDataSource: SingleValueProviderSourceProtocol {

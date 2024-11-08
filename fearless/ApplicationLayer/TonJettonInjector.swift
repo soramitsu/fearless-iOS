@@ -4,6 +4,7 @@ import SSFModels
 
 protocol TonJettonInjector {
     func inject(jettonItems: [TonJettonBalance]) async
+    func inject(tonPriceData: [PriceData]) async
 }
 
 actor TonJettonInjectorImpl: TonJettonInjector {
@@ -37,6 +38,27 @@ actor TonJettonInjectorImpl: TonJettonInjector {
             eventCenter.notify(with: priceUpdatedEvent)
 
             logger.info("The Open Network has been updated with new assets: \(assetModels.map { $0.name })")
+        } catch {
+            logger.customError(error)
+        }
+    }
+
+    func inject(tonPriceData: [PriceData]) async {
+        do {
+            let network = LocalToggleService.shared.tonEnvListToggle.storageValue ? TonConstants.testnetChainId : TonConstants.tonChainId
+            guard let tonChain = try await chainModelRepository.fetch(by: "\(network)", options: RepositoryFetchOptions()) else {
+                throw ConvenienceError(error: "Ton chain is not fetched")
+            }
+            guard let tonAsset = tonChain.utilityChainAssets().first else {
+                return
+            }
+            let updatedTonAsset = tonAsset.asset.replacingPrice(tonPriceData)
+            var jettons = Array(tonChain.assets.filter { !$0.isUtility })
+            jettons.append(updatedTonAsset)
+            let updatedChain = tonChain.replacingAssets(jettons)
+            await chainModelRepository.save(models: [updatedChain])
+            let priceUpdatedEvent = PricesUpdated()
+            eventCenter.notify(with: priceUpdatedEvent)
         } catch {
             logger.customError(error)
         }
