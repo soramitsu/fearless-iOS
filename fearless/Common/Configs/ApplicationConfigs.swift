@@ -153,9 +153,9 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
         }
 #else
         if isDev.or(false) {
-            return GitHubUrl.url(suffix: "chains/v11/chains_dev.json", branch: .developFree)
+            return GitHubUrl.url(suffix: "chains/v12/chains_dev.json", branch: .developFree)
         } else {
-            return GitHubUrl.url(suffix: "chains/v11/chains.json")
+            return GitHubUrl.url(suffix: "chains/v12/chains.json")
         }
 #endif
     }
