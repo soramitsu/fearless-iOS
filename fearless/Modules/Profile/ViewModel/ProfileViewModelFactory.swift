@@ -19,7 +19,6 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 enum ProfileOption: UInt, CaseIterable {
     case walletConnect
     case accountList
-    case crowdloans
     case currency
     case language
     case polkaswapDisclaimer
@@ -174,13 +173,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 }
 
                 return createAccountScoreViewModel(locale: locale)
-            case .crowdloans:
-                switch ecosystem {
-                case .regular:
-                    return createCrowdloans(for: locale)
-                default:
-                    return nil
-                }
             }
         }
 
@@ -261,19 +253,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .changePincode
-        )
-    }
-
-    private func createCrowdloans(for locale: Locale) -> ProfileOptionViewModel {
-        let title = R.string.localizable
-            .tabbarCrowdloanTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(
-            title: title,
-            icon: R.image.crowdloansProfileIcon()!,
-            accessoryTitle: nil,
-            accessoryImage: nil,
-            accessoryType: .arrow,
-            option: .crowdloans
         )
     }
 
