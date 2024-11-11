@@ -219,6 +219,10 @@ extension DappBrowserPresenter: WalletsManagmentModuleOutput {
         self.wallet = wallet
         provideWalletViewModel()
     }
+
+    func showAddNewWallet() {
+        router.showCreateNewWallet(ecosystem: nil, from: view)
+    }
 }
 
 // MARK: - NetworkManagmentModuleOutput

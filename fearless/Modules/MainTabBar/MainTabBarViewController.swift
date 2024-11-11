@@ -96,6 +96,7 @@ final class MainTabBarViewController: UITabBarController {
             indexes = [0, 1, 5]
         }
         let tonViewControllers = indexes.map { fullViewControllersList[$0] }
+        selectedIndex = 0
         setViewControllers(tonViewControllers, animated: true)
     }
 }
