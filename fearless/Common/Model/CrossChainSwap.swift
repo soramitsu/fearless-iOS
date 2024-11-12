@@ -15,6 +15,7 @@ protocol CrossChainSwap {
     var from: String? { get }
 
     var totalFees: BigUInt? { get }
+    var quotes: [OKXDexQuote]? { get }
 }
 
 extension CrossChainSwap {

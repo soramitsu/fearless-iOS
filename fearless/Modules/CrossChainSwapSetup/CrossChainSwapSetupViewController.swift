@@ -11,6 +11,8 @@ protocol CrossChainSwapSetupViewOutput: AnyObject {
     func selectFromAmountPercentage(_ percentage: Float)
     func updateFromAmount(_ newValue: Decimal)
     func didTapSwitchInputsButton()
+    func didTapLiquiditySources()
+    func didTapSelectRoute()
 }
 
 final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -85,7 +87,12 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
         rootView.actionButton.addAction { [weak self] in
             self?.output.didTapContinueButton()
         }
-
+        rootView.liquidityView.selectHandler = { [weak self] in
+            self?.output.didTapLiquiditySources()
+        }
+        rootView.routeView.selectHandler = { [weak self] in
+            self?.output.didTapSelectRoute()
+        }
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory
             .default

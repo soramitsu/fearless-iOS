@@ -23,6 +23,7 @@ final class CrossChainTxTrackingPresenter {
     private let wallet: MetaAccountModel
     private let transaction: AssetTransactionData
     private var timer: Timer?
+    private let chainAsset: ChainAsset
 
     // MARK: - Constructors
 
@@ -32,52 +33,105 @@ final class CrossChainTxTrackingPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: CrossChainTxTrackingViewModelFactory,
         wallet: MetaAccountModel,
-        transaction: AssetTransactionData
+        transaction: AssetTransactionData,
+        chainAsset: ChainAsset
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
         self.transaction = transaction
+        self.chainAsset = chainAsset
 
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
 
+    private func provideViewModel(_ viewModel: CrossChainTxTrackingViewModel) async {
+        await MainActor.run(body: {
+            view?.didReceive(viewModel: viewModel)
+        })
+    }
+
+    private func handleFailedTransaction(_ status: OKXCrossChainTransactionStatus) async {
+        let viewModel = viewModelFactory.buildFailureViewModel(
+            transaction: transaction,
+            status: status,
+            sourceChainAsset: chainAsset,
+            locale: selectedLocale,
+            wallet: wallet
+        )
+
+        await provideViewModel(viewModel)
+    }
+
+    private func handleCrossChainTransaction(_ status: OKXCrossChainTransactionStatus) async throws {
+        guard
+            let sourceChain = try await interactor.queryChain(chainId: status.fromChainId),
+            let destinationChain = try await interactor.queryChain(chainId: status.toChainId)
+        else {
+            return
+        }
+
+        let sourceChainAssets = try await interactor.fetchChainAssets(chain: sourceChain)
+        let destinationChainAssets = try await interactor.fetchChainAssets(chain: destinationChain)
+
+        guard
+            let sourceChainAsset = sourceChainAssets.first(where: { $0.asset.id.lowercased() == status.fromTokenAddress.lowercased() }),
+            let destinationChainAsset = destinationChainAssets.first(where: { $0.asset.id.lowercased() == status.toTokenAddress.lowercased() })
+        else {
+            return
+        }
+
+        let viewModel = viewModelFactory.buildCrossChainViewModel(
+            transaction: transaction,
+            status: status,
+            sourceChainAsset: sourceChainAsset,
+            destinationChainAsset: destinationChainAsset,
+            locale: selectedLocale,
+            wallet: wallet
+        )
+
+        await provideViewModel(viewModel)
+    }
+
+    private func handleSwapTransaction(_ status: OKXCrossChainTransactionStatus) async throws {
+        let viewModel = viewModelFactory.buildSwapViewModel(
+            transaction: transaction,
+            status: status,
+            sourceChainAsset: chainAsset,
+            locale: selectedLocale,
+            wallet: wallet
+        )
+
+        await provideViewModel(viewModel)
+    }
+
     private func fetchData() {
         Task {
-            let status = try await interactor.queryTransactionStatus()
+            do {
+                let status = try await interactor.queryTransactionStatus()
 
-            if OKXCrossChainTxDetailStatus(rawValue: status.detailStatus) == .success {
-                timer?.invalidate()
+                if status.transactionFinished {
+                    timer?.invalidate()
+                }
+
+                guard !status.transactionFailed else {
+                    await handleFailedTransaction(status)
+                    return
+                }
+
+                let isCrossChain = status.toChainId.isNotEmpty
+
+                if isCrossChain {
+                    try await handleCrossChainTransaction(status)
+                } else {
+                    try await handleSwapTransaction(status)
+                }
+            } catch {
+                print("fetch tx status error: ", error)
             }
-
-            guard let sourceChain = try await interactor.queryChain(chainId: status.fromChainId),
-                  let destinationChain = try await interactor.queryChain(chainId: status.toChainId) else {
-                return
-            }
-
-            let sourceChainAssets = try await interactor.fetchChainAssets(chain: sourceChain)
-            let destinationChainAssets = try await interactor.fetchChainAssets(chain: destinationChain)
-
-            guard let sourceChainAsset = sourceChainAssets.first(where: { $0.asset.id.lowercased() == status.fromTokenAddress.lowercased() }),
-                  let destinationChainAsset = destinationChainAssets.first(where: { $0.asset.id.lowercased() == status.toTokenAddress.lowercased() }) else {
-                return
-            }
-
-            let viewModel = viewModelFactory.buildViewModel(
-                transaction: transaction,
-                status: status,
-                sourceChainAsset: sourceChainAsset,
-                destinationChainAsset: destinationChainAsset,
-                locale: selectedLocale,
-                wallet: wallet
-            )
-
-            await MainActor.run(body: {
-                view?.didReceive(viewModel: viewModel)
-            })
         }
     }
 

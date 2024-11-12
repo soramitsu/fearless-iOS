@@ -116,6 +116,17 @@ final class EmptyView: UIView {
         return label
     }()
 
+    let retryButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.titleLabel?.font = .h5Title
+        button.setImage(R.image.iconRetry()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = R.color.colorPink()
+        button.setTitleColor(R.color.colorPink(), for: .normal)
+        button.titleEdgeInsets = .init(top: 0, left: 4, bottom: 0, right: 0)
+        button.isHidden = true
+        return button
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -137,6 +148,7 @@ final class EmptyView: UIView {
         contentContainer.addSubview(imageBackgroundView)
         contentContainer.addSubview(titleLabel)
         contentContainer.addSubview(descriptionLabel)
+        contentContainer.addSubview(retryButton)
         imageBackgroundView.addSubview(imageView)
 
         handleLayoutConfigurationChanges()
@@ -190,6 +202,12 @@ final class EmptyView: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
             make.top.equalTo(titleLabel.snp.bottom).offset(UIConstants.bigOffset)
+        }
+
+        retryButton.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
+            make.top.equalTo(descriptionLabel.snp.bottom).offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }

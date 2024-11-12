@@ -21,6 +21,26 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
         swap: CrossChainSwap,
         from view: ControllerBackedProtocol?
     )
+
+    func presentLiquiditySourcesSelection(
+        sourceChainAsset: ChainAsset,
+        destinationChainAsset: ChainAsset,
+        amount: String,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: DexListModuleOutput?,
+        selectedDexIds: [String]?
+    )
+
+    func presentBridgeSelection(
+        sourceChainAsset: ChainAsset,
+        destinationChainAsset: ChainAsset,
+        amount: String,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: BridgeListModuleOutput?,
+        selectedSort: UInt8
+    )
 }
 
 protocol CrossChainSwapSetupModuleInput: AnyObject {

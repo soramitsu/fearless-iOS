@@ -29,7 +29,8 @@ final class CrossChainTxTrackingAssembly {
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
             wallet: wallet,
-            transaction: transaction
+            transaction: transaction,
+            chainAsset: chainAsset
         )
 
         let view = CrossChainTxTrackingViewController(

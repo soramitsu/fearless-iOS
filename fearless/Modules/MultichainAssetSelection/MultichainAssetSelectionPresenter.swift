@@ -4,7 +4,7 @@ import SSFModels
 
 @MainActor
 protocol MultichainAssetSelectionViewInput: ControllerBackedProtocol {
-    func didReceive(viewModels: [ChainSelectionCollectionCellModel])
+    func didReceive(viewModels: [ChainSelectionCollectionCellModel]?)
 }
 
 protocol MultichainAssetSelectionInteractorInput: AnyObject {
@@ -62,7 +62,7 @@ final class MultichainAssetSelectionPresenter {
     private func fetchChains() {
         Task {
             do {
-                let chains = try await interactor.fetchChains()
+                let chains = try await interactor.fetchChains().sorted(by: { $0.rank.or(UInt16.max) < $1.rank.or(UInt16.max) })
                 self.chains = chains
 
                 if selectedChainId == nil {
@@ -82,6 +82,8 @@ final class MultichainAssetSelectionPresenter {
                 let viewModels = viewModelFactory.buildViewModels(chains: chains, selectedChainId: selectedChainId)
                 await view?.didReceive(viewModels: viewModels)
             } catch {
+                selectAssetModuleInput?.stopLoading()
+                await view?.didReceive(viewModels: nil)
                 logger.customError(error)
             }
         }
@@ -104,16 +106,25 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
         provideViewModel()
 
         Task {
-            let availableChainAssets = try await assetFetching.fetchAssets(for: chain)
+            do {
+                let availableChainAssets = try await assetFetching.fetchAssets(for: chain)
 
-            await MainActor.run {
-                selectAssetModuleInput?.update(with: availableChainAssets)
+                await MainActor.run {
+                    print("assets list update with chain: ", (availableChainAssets.first?.chain.name).or(""))
+                    selectAssetModuleInput?.update(with: availableChainAssets)
+                }
+            } catch {
+                selectAssetModuleInput?.update(with: [])
             }
         }
     }
 
     func didTapCloseButton() {
         router.dismiss(view: view)
+    }
+
+    func didTapRetryButton() {
+        fetchChains()
     }
 }
 

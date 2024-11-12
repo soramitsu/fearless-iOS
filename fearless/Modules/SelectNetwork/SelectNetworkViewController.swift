@@ -26,6 +26,11 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func applyLocalization() {
+        super.applyLocalization()
+        rootView.locale = selectedLocale
+    }
+
     // MARK: - Life cycle
 
     override func viewDidLoad() {
@@ -65,11 +70,3 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
 // MARK: - SelectNetworkViewInput
 
 extension SelectNetworkViewController: SelectNetworkViewInput {}
-
-// MARK: - Localizable
-
-extension SelectNetworkViewController: Localizable {
-    func applyLocalization() {
-        rootView.locale = selectedLocale
-    }
-}

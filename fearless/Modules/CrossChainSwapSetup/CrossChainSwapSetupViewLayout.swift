@@ -18,6 +18,7 @@ final class CrossChainSwapSetupViewLayout: UIView {
 
     let navigationBar: BaseNavigationBar = {
         let view = BaseNavigationBar()
+        view.set(.present)
         view.backgroundColor = R.color.colorBlack02()
         return view
     }()
@@ -49,6 +50,7 @@ final class CrossChainSwapSetupViewLayout: UIView {
     let routeView = createMultiView()
     let sendRatioView = createMultiView()
     let receiveRatioView = createMultiView()
+    let liquidityView = createMultiView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -77,8 +79,10 @@ final class CrossChainSwapSetupViewLayout: UIView {
     // MARK: - Public methods
 
     func bind(viewModel: CrossChainSwapViewModel?) {
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = viewModel == nil }
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView].forEach { $0.isHidden = viewModel == nil }
 
+        liquidityView.isHidden = viewModel?.liquiditySources == nil
+        liquidityView.valueTop.text = viewModel?.liquiditySources
         minReceivedView.bindBalance(viewModel: viewModel?.minimumReceived)
         routeView.valueTop.text = viewModel?.route
         sendRatioView.valueTop.text = viewModel?.sendTokenRatio
@@ -142,16 +146,17 @@ final class CrossChainSwapSetupViewLayout: UIView {
         contentView.stackView.addArrangedSubview(routeView)
         contentView.stackView.addArrangedSubview(sendRatioView)
         contentView.stackView.addArrangedSubview(receiveRatioView)
+        contentView.stackView.addArrangedSubview(liquidityView)
         contentView.stackView.addArrangedSubview(originNetworkFeeView)
 
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach {
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView].forEach {
             $0.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(viewOffset)
                 make.height.equalTo(LayoutConstants.networkFeeViewHeight)
             }
         }
 
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = true }
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView].forEach { $0.isHidden = true }
     }
 
     private func applyLocalization() {
@@ -164,6 +169,7 @@ final class CrossChainSwapSetupViewLayout: UIView {
         originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
+        liquidityView.titleLabel.text = "Liquidity sources"
     }
 
     private static func createMultiView() -> TitleMultiValueView {

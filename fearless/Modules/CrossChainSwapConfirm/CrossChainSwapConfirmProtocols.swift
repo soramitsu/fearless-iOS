@@ -3,7 +3,7 @@ typealias CrossChainSwapConfirmModuleCreationResult = (
     input: CrossChainSwapConfirmModuleInput
 )
 
-protocol CrossChainSwapConfirmRouterInput: AnyObject, PresentDismissable, SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, AllDonePresentable {}
+protocol CrossChainSwapConfirmRouterInput: AnyObject, PushDismissable, SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, AllDonePresentable {}
 
 protocol CrossChainSwapConfirmModuleInput: AnyObject {}
 

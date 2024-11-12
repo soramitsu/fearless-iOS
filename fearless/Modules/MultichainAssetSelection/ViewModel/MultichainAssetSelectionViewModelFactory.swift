@@ -7,9 +7,11 @@ protocol MultichainAssetSelectionViewModelFactory {
 
 final class MultichainAssetSelectionViewModelFactoryImpl: MultichainAssetSelectionViewModelFactory {
     func buildViewModels(chains: [SSFModels.ChainModel], selectedChainId: ChainModel.Id?) -> [ChainSelectionCollectionCellModel] {
-        chains.map {
-            let imageViewModel = RemoteImageViewModel(url: $0.icon)
-            return ChainSelectionCollectionCellModel(chain: $0, imageViewModel: imageViewModel, selected: selectedChainId == $0.chainId)
-        }
+        chains
+            .sorted(by: { $0.rank.or(UInt16.max) < $1.rank.or(UInt16.max) })
+            .map {
+                let imageViewModel = RemoteImageViewModel(url: $0.icon)
+                return ChainSelectionCollectionCellModel(chain: $0, imageViewModel: imageViewModel, selected: selectedChainId == $0.chainId)
+            }
     }
 }

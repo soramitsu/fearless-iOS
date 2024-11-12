@@ -38,12 +38,11 @@ final class ChainSelectionViewController: SelectionListViewController<SelectionI
 
         presenter.setup()
     }
-}
 
-extension ChainSelectionViewController: ChainSelectionViewProtocol {}
-
-extension ChainSelectionViewController: Localizable {
-    func applyLocalization() {
+    override func applyLocalization() {
+        super.applyLocalization()
         title = localizedTitle.value(for: selectedLocale)
     }
 }
+
+extension ChainSelectionViewController: ChainSelectionViewProtocol {}

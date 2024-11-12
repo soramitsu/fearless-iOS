@@ -29,7 +29,7 @@ final class CrossChainSwapSetupInteractor {
         self.balanceFetching = balanceFetching
     }
 
-    private func getCrossChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
+    private func getCrossChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap]? {
         guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             throw CrossChainSwapSetupInteractorError.accountNotFound
         }
@@ -49,7 +49,7 @@ final class CrossChainSwapSetupInteractor {
         return quotes.data
     }
 
-    private func getSameChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
+    private func getSameChainQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String, selectedDexIds: [String]?) async throws -> [CrossChainSwap]? {
         guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             throw CrossChainSwapSetupInteractorError.accountNotFound
         }
@@ -58,10 +58,11 @@ final class CrossChainSwapSetupInteractor {
 
         let toTokensParameters = OKXDexAllTokensRequestParameters(chainId: destinationChainAsset.chain.chainId)
         let toTokens = try await okxService.fetchAllTokens(parameters: toTokensParameters)
+        let dexIds = (selectedDexIds?.joined(by: ", ")).map { String($0) }
 
         guard
-            let fromTokenAddress = fromTokens.data.first(where: { $0.tokenSymbol.lowercased() == chainAsset.asset.symbol.lowercased() })?.tokenContractAddress,
-            let toTokenAddress = toTokens.data.first(where: { $0.tokenSymbol.lowercased() == destinationChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
+            let fromTokenAddress = fromTokens.data?.first(where: { $0.tokenSymbol.lowercased() == chainAsset.asset.symbol.lowercased() })?.tokenContractAddress,
+            let toTokenAddress = toTokens.data?.first(where: { $0.tokenSymbol.lowercased() == destinationChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
         else {
             throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
         }
@@ -72,9 +73,13 @@ final class CrossChainSwapSetupInteractor {
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
             slippage: "0.01",
-            userWalletAddress: address
+            userWalletAddress: address,
+            dexIds: dexIds
         )
 
+        let quotesParameters = OKXDexQuotesRequestParameters(chainId: chainAsset.chain.chainId, amount: amount, fromTokenAddress: fromTokenAddress, toTokenAddress: toTokenAddress)
+
+        let lsParameters = OKXDexLiquiditySourceRequestParameters(chainId: chainAsset.chain.chainId)
         let quotes = try await okxService.fetchSwapInfo(parameters: parameters)
         return quotes.data
     }
@@ -87,12 +92,31 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
         self.output = output
     }
 
-    func getQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [CrossChainSwap] {
+    func getQuotes(
+        chainAsset: ChainAsset,
+        destinationChainAsset: ChainAsset,
+        amount: String,
+        selectedDexIds: [String]?
+    ) async throws -> [CrossChainSwap]? {
         if chainAsset.chain.chainId == destinationChainAsset.chain.chainId {
-            return try await getSameChainQuotes(chainAsset: chainAsset, destinationChainAsset: destinationChainAsset, amount: amount)
+            return try await getSameChainQuotes(
+                chainAsset: chainAsset,
+                destinationChainAsset: destinationChainAsset,
+                amount: amount,
+                selectedDexIds: selectedDexIds
+            )
         } else {
-            return try await getCrossChainQuotes(chainAsset: chainAsset, destinationChainAsset: destinationChainAsset, amount: amount)
+            return try await getCrossChainQuotes(
+                chainAsset: chainAsset,
+                destinationChainAsset: destinationChainAsset,
+                amount: amount
+            )
         }
+    }
+
+    func fetchDexs(chainAsset: ChainAsset) async throws -> OKXResponse<OKXLiquiditySource> {
+        let parameters = OKXDexLiquiditySourceRequestParameters(chainId: chainAsset.chain.chainId)
+        return try await okxService.fetchLiquiditySources(parameters: parameters)
     }
 
     func subscribeOnBalance(for chainAssets: [ChainAsset]) {
@@ -101,5 +125,24 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
                 self?.output?.didReceiveAccountInfo(result: .success($0.value), for: $0.key)
             }
         }
+    }
+
+    func fetchQuotes(chainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: String) async throws -> [OKXDexQuote]? {
+        let fromTokensParameters = OKXDexAllTokensRequestParameters(chainId: chainAsset.chain.chainId)
+        let toTokensParameters = OKXDexAllTokensRequestParameters(chainId: destinationChainAsset.chain.chainId)
+
+        async let toTokens = try await okxService.fetchAllTokens(parameters: toTokensParameters)
+        async let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters)
+
+        guard
+            let fromTokenAddress = try await fromTokens.data?.first(where: { $0.tokenSymbol.lowercased() == chainAsset.asset.symbol.lowercased() })?.tokenContractAddress,
+            let toTokenAddress = try await toTokens.data?.first(where: { $0.tokenSymbol.lowercased() == destinationChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
+        else {
+            throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
+        }
+
+        let quotesParameters = OKXDexQuotesRequestParameters(chainId: chainAsset.chain.chainId, amount: amount, fromTokenAddress: fromTokenAddress, toTokenAddress: toTokenAddress)
+        let quotes = try await okxService.fetchQuotes(parameters: quotesParameters)
+        return quotes.data?.first?.quoteCompareList
     }
 }

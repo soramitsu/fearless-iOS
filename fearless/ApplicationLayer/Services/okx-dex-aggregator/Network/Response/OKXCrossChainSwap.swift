@@ -52,4 +52,8 @@ extension OKXCrossChainSwap: CrossChainSwap {
     var from: String? {
         tx.from
     }
+
+    var quotes: [OKXDexQuote]? {
+        nil
+    }
 }

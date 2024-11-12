@@ -3,7 +3,7 @@ import SSFModels
 import BigInt
 
 protocol CrossChainTxTrackingViewModelFactory {
-    func buildViewModel(
+    func buildCrossChainViewModel(
         transaction: AssetTransactionData,
         status: OKXCrossChainTransactionStatus,
         sourceChainAsset: ChainAsset,
@@ -11,10 +11,119 @@ protocol CrossChainTxTrackingViewModelFactory {
         locale: Locale,
         wallet: MetaAccountModel
     ) -> CrossChainTxTrackingViewModel
+
+    func buildFailureViewModel(
+        transaction: AssetTransactionData,
+        status: OKXCrossChainTransactionStatus,
+        sourceChainAsset: ChainAsset,
+        locale: Locale,
+        wallet: MetaAccountModel
+    ) -> CrossChainTxTrackingViewModel
+
+    func buildSwapViewModel(
+        transaction: AssetTransactionData,
+        status: OKXCrossChainTransactionStatus,
+        sourceChainAsset: ChainAsset,
+        locale: Locale,
+        wallet: MetaAccountModel
+    ) -> CrossChainTxTrackingViewModel
 }
 
 final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewModelFactory {
-    func buildViewModel(
+    func buildSwapViewModel(
+        transaction: AssetTransactionData,
+        status: OKXCrossChainTransactionStatus,
+        sourceChainAsset: SSFModels.ChainAsset,
+        locale: Locale,
+        wallet: MetaAccountModel
+    ) -> CrossChainTxTrackingViewModel {
+        let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
+        let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
+        let statusViewModels = buildSwapStatusViewModels(
+            chainAsset: sourceChainAsset,
+            status: status
+        )
+
+        let sourceUtilityChainAsset = sourceChainAsset.chain.utilityChainAssets().first
+        let sourceUtilityBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceUtilityChainAsset)
+        let sourceFee = Decimal(string: status.sourceChainGasfee)
+        let sourceFeeViewModel = sourceFee.flatMap { sourceUtilityBalanceViewModelFactory?.balanceFromPrice($0, priceData: sourceUtilityChainAsset?.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
+
+        let amountDecimal = transaction.amount
+        let amountViewModel = sourceBalanceViewModelFactory?.balanceFromPrice(
+            amountDecimal.decimalValue,
+            priceData: sourceChainAsset.asset.getPrice(for: wallet.selectedCurrency),
+            usageCase: .detailsCrypto
+        )
+        let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
+
+        let statusTitle = statusTitle(detailStatus: status.swapDetailStatus, locale: locale)
+        let statusDescription = statusDescription(
+            detailStatus: status.swapDetailStatus,
+            locale: locale,
+            sourceChainAsset: sourceChainAsset,
+            destinationChainAsset: sourceChainAsset
+        )
+        return CrossChainTxTrackingViewModel(
+            statusViewModels: statusViewModels,
+            statusTitle: statusTitle,
+            statusDescription: statusDescription,
+            walletName: address,
+            date: date,
+            amount: amountViewModel?.value(for: locale),
+            fromChainTxHash: status.fromTxHash,
+            toChainTxHash: status.toTxHash,
+            fromChainFee: sourceFeeViewModel?.value(for: locale),
+            toChainFee: nil,
+            detailStatus: statusTitle,
+            fromHashViewTitle: R.string.localizable.commonNetworkHash(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages),
+            toHashViewTitle: nil,
+            fromFeeViewTitle: R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages),
+            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        )
+    }
+
+    func buildFailureViewModel(
+        transaction: AssetTransactionData,
+        status: OKXCrossChainTransactionStatus,
+        sourceChainAsset: ChainAsset,
+        locale: Locale,
+        wallet: MetaAccountModel
+    ) -> CrossChainTxTrackingViewModel {
+        let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
+        let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
+        let sourceStepStatus = buildSourceStepStatus(status: .fromFailure)
+        let sourceUtilityChainAsset = sourceChainAsset.chain.utilityChainAssets().first
+        let sourceUtilityBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceUtilityChainAsset)
+        let sourceFee = Decimal(string: status.sourceChainGasfee)
+        let sourceFeeViewModel = sourceFee.flatMap { sourceUtilityBalanceViewModelFactory?.balanceFromPrice($0, priceData: sourceUtilityChainAsset?.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
+        let amountDecimal = transaction.amount
+        let amountViewModel = sourceBalanceViewModelFactory?.balanceFromPrice(
+            amountDecimal.decimalValue,
+            priceData: sourceChainAsset.asset.getPrice(for: wallet.selectedCurrency),
+            usageCase: .detailsCrypto
+        )
+        let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
+        return CrossChainTxTrackingViewModel(
+            statusViewModels: [sourceStepStatus],
+            statusTitle: R.string.localizable.crossChainTxStatusSourceFailTitle(preferredLanguages: locale.rLanguages),
+            statusDescription: R.string.localizable.crossChainTxStatusSourceFailDescription(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages),
+            walletName: address,
+            date: date,
+            amount: amountViewModel?.value(for: locale),
+            fromChainTxHash: status.fromTxHash,
+            toChainTxHash: status.toTxHash,
+            fromChainFee: sourceFeeViewModel?.value(for: locale),
+            toChainFee: nil,
+            detailStatus: status.detailStatus,
+            fromHashViewTitle: R.string.localizable.commonNetworkHash(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages),
+            toHashViewTitle: nil,
+            fromFeeViewTitle: R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages),
+            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        )
+    }
+
+    func buildCrossChainViewModel(
         transaction: AssetTransactionData,
         status: OKXCrossChainTransactionStatus,
         sourceChainAsset: ChainAsset,
@@ -44,9 +153,10 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         let destinationUtilityBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationUtilityChainAsset)
         let destinationFee = Decimal(string: status.sourceChainGasfee)
         let destinationFeeViewModel = destinationFee.flatMap { destinationUtilityBalanceViewModelFactory?.balanceFromPrice($0, priceData: destinationUtilityChainAsset?.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
-        let statusTitle = statusTitle(status: status, locale: locale)
+        let detailStatus = OKXCrossChainTxDetailStatus(rawValue: status.detailStatus) ?? .fromFailure
+        let statusTitle = statusTitle(detailStatus: detailStatus, locale: locale)
         let statusDescription = statusDescription(
-            status: status,
+            detailStatus: detailStatus,
             locale: locale,
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset
@@ -56,12 +166,12 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             destinationChainAsset: destinationChainAsset,
             status: status
         )
-
+        let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
         return CrossChainTxTrackingViewModel(
             statusViewModels: statusViewModels,
             statusTitle: statusTitle,
             statusDescription: statusDescription,
-            walletName: transaction.peerFirstName,
+            walletName: address,
             date: date,
             amount: amountViewModel?.value(for: locale),
             fromChainTxHash: status.fromTxHash,
@@ -76,10 +186,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         )
     }
 
-    private func statusTitle(status: OKXCrossChainTransactionStatus, locale: Locale) -> String? {
-        guard let detailStatus = OKXCrossChainTxDetailStatus(rawValue: status.detailStatus) else {
-            return nil
-        }
+    private func statusTitle(detailStatus: OKXCrossChainTxDetailStatus, locale: Locale) -> String? {
         switch detailStatus {
         case .waiting, .fromSuccess, .bridgePending:
             return R.string.localizable.crossChainTxStatusPendingTitle(preferredLanguages: locale.rLanguages)
@@ -93,15 +200,11 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
     }
 
     private func statusDescription(
-        status: OKXCrossChainTransactionStatus,
+        detailStatus: OKXCrossChainTxDetailStatus,
         locale: Locale,
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset
     ) -> String? {
-        guard let detailStatus = OKXCrossChainTxDetailStatus(rawValue: status.detailStatus) else {
-            return nil
-        }
-
         switch detailStatus {
         case .waiting, .fromSuccess, .bridgePending:
             return R.string.localizable.crossChainTxStatusPendingDescription(sourceChainAsset.asset.symbol.uppercased(), sourceChainAsset.chain.name, destinationChainAsset.chain.name, preferredLanguages: locale.rLanguages)
@@ -112,6 +215,17 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         case .refund:
             return R.string.localizable.crossChainTxStatusDestinationFailDescription(destinationChainAsset.chain.name, preferredLanguages: locale.rLanguages)
         }
+    }
+
+    private func buildSwapStatusViewModels(chainAsset: ChainAsset, status: OKXCrossChainTransactionStatus) -> [Any] {
+        let sourceStepStatus = buildSourceStepStatus(status: status.swapDetailStatus)
+        let sourceChainStepViewModel = CrossChainTransactionStepViewModel(status: sourceStepStatus, chain: chainAsset.chain, parentChain: nil)
+
+        let destinationStepStatus = buildDestinationStepStatus(status: status.swapDetailStatus)
+        let destinationChainStepViewModel = CrossChainTransactionStepViewModel(status: destinationStepStatus, chain: chainAsset.chain, parentChain: nil)
+        let destinationViewModel = CrossChainTransactionStatusViewModel(status: destinationStepStatus)
+
+        return [sourceChainStepViewModel, destinationViewModel, destinationChainStepViewModel]
     }
 
     private func buildStatusViewModels(sourceChainAsset: ChainAsset, destinationChainAsset: ChainAsset, status: OKXCrossChainTransactionStatus) -> [Any] {

@@ -62,9 +62,3 @@ final class SelectMarketViewController: SelectableListViewController<ExpandableS
 // MARK: - SelectMarketViewInput
 
 extension SelectMarketViewController: SelectMarketViewInput {}
-
-// MARK: - Localizable
-
-extension SelectMarketViewController: Localizable {
-    func applyLocalization() {}
-}

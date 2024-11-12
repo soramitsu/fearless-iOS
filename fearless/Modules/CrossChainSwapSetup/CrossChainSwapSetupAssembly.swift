@@ -38,7 +38,8 @@ final class CrossChainSwapSetupAssembly {
             wallet: wallet,
             chainAsset: chainAsset,
             dataValidatingFactory: dataValidatingFactory,
-            moduleOutput: moduleOutput
+            moduleOutput: moduleOutput,
+            logger: Logger.shared
         )
 
         let view = CrossChainSwapSetupViewController(

@@ -38,10 +38,10 @@ extension CrossChainTxTrackingInteractor: CrossChainTxTrackingInteractorInput {
     }
 
     func queryTransactionStatus() async throws -> OKXCrossChainTransactionStatus {
-        let parameters = OKXDexCrossChainStatusParameters(hash: txHash)
+        let parameters = OKXDexCrossChainStatusParameters(hash: txHash, chainId: chainAsset.chain.chainId)
         let response = try await okxService.fetchCrossChainTransactionStatus(parameters: parameters)
 
-        guard let status = response.data.first else {
+        guard let status = response.data?.first else {
             throw CrossChainTxTrackingInteractorError.invalidResponse
         }
 
@@ -55,6 +55,10 @@ extension CrossChainTxTrackingInteractor: CrossChainTxTrackingInteractorInput {
     func fetchChainAssets(chain: ChainModel) async throws -> [ChainAsset] {
         let parameters = OKXDexAllTokensRequestParameters(chainId: chain.chainId)
         let tokens = try await okxService.fetchAllTokens(parameters: parameters).data
+
+        guard let tokens else {
+            return []
+        }
 
         let allChainAssets: [ChainAsset] = tokens.compactMap {
             guard let decimals = $0.decimals, let precision = UInt16(decimals) else {

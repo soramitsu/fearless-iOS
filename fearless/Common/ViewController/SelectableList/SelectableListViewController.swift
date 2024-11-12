@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SnapKit
+import SoraUI
 
 class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtocol>:
     UIViewController,
@@ -8,10 +9,45 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     UITableViewDelegate,
     ViewHolder,
     KeyboardViewAdoptable,
-    LoadableViewProtocol {
+    LoadableViewProtocol,
+    EmptyStateDelegate,
+    EmptyStateDataSource,
+    EmptyStateViewOwnerProtocol,
+    Localizable {
     typealias RootViewType = SelectableListViewLayout
 
+    func applyLocalization() {
+        reloadEmptyState(animated: true)
+    }
+
+    var shouldDisplayEmptyState: Bool { errorMessage != nil }
+
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarning()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = errorMessage
+        emptyView.iconMode = .bigFilledShadow
+        emptyView.retryButton.setTitle(R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages), for: .normal)
+        emptyView.retryButton.isHidden = false
+        emptyView.retryButton.addAction { [weak self] in
+            self?.listPresenter.didTapRetry()
+        }
+        return emptyView
+    }
+
+    var emptyStateDelegate: SoraUI.EmptyStateDelegate {
+        self
+    }
+
+    var emptyStateDataSource: SoraUI.EmptyStateDataSource {
+        self
+    }
+
     var keyboardHandler: FearlessKeyboardHandler?
+
+    private var errorMessage: String?
 
     // MARK: Private properties
 
@@ -117,6 +153,11 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 // MARK: - SelectionListViewProtocol
 
 extension SelectableListViewController: SelectionListViewProtocol {
+    func didReceive(errorMessage: String?) {
+        self.errorMessage = errorMessage
+        reloadEmptyState(animated: true)
+    }
+
     func bind(viewModel: TextSearchViewModel?) {
         rootView.bind(viewModel: viewModel)
     }
@@ -125,6 +166,7 @@ extension SelectableListViewController: SelectionListViewProtocol {
         rootView.tableView.reloadData()
         rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
         didStopLoading()
+        reloadEmptyState(animated: true)
     }
 
     func reloadCell(at indexPath: IndexPath) {

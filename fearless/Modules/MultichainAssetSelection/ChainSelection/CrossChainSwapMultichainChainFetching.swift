@@ -19,7 +19,11 @@ class CrossChainSwapMultichainChainFetching: MultichainChainFetching {
 
     func fetchChains() async throws -> [ChainModel] {
         let appendSoraChain = sourceChainId == nil
-        let okxChainIds = try await okxService.fetchAvailableChains().data.map { "\($0.chainId)" }
+        let okxChainIds = try await okxService.fetchAvailableChains().data?.map { "\($0.chainId)" }
+
+        guard let okxChainIds else {
+            return []
+        }
 
         let allChains: [ChainModel] = try await chainsRepository.fetchAll().filter { okxChainIds.contains($0.chainId) || ($0.isSora && appendSoraChain) }
 
@@ -28,8 +32,13 @@ class CrossChainSwapMultichainChainFetching: MultichainChainFetching {
         }
 
         let availableDestinationParameters = OKXDexCrossChainSupportedBridgeTokensPairsParameters(fromChainId: sourceChainId)
-        let availableDestinations = try await okxService.fetchAvailableDestinationTokens(parameters: availableDestinationParameters)
-        let availableChainIds = availableDestinations.data.map { $0.toChainId }
+        let availableDestinations = try await okxService.fetchAvailableDestinationTokens(parameters: availableDestinationParameters).data
+
+        guard let availableDestinations else {
+            return allChains
+        }
+
+        let availableChainIds = availableDestinations.map { $0.toChainId }
         return allChains.filter { availableChainIds.contains($0.chainId) } + allChains.filter { $0.chainId == sourceChainId }
     }
 }

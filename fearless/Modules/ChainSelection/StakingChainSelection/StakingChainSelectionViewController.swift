@@ -38,12 +38,11 @@ final class StakingChainSelectionViewController: SelectionListViewController<Ass
 
         presenter.setup()
     }
-}
 
-extension StakingChainSelectionViewController: ChainSelectionViewProtocol {}
-
-extension StakingChainSelectionViewController: Localizable {
-    func applyLocalization() {
+    override func applyLocalization() {
+        super.applyLocalization()
         title = localizedTitle.value(for: selectedLocale)
     }
 }
+
+extension StakingChainSelectionViewController: ChainSelectionViewProtocol {}

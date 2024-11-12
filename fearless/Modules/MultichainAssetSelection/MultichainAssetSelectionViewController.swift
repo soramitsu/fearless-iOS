@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 import SoraFoundation
 import SSFModels
 
@@ -6,6 +7,7 @@ protocol MultichainAssetSelectionViewOutput: AnyObject {
     func didLoad(view: MultichainAssetSelectionViewInput)
     func didSelect(chain: ChainModel)
     func didTapCloseButton()
+    func didTapRetryButton()
 }
 
 final class MultichainAssetSelectionViewController: UIViewController, ViewHolder {
@@ -84,9 +86,10 @@ final class MultichainAssetSelectionViewController: UIViewController, ViewHolder
 // MARK: - MultichainAssetSelectionViewInput
 
 extension MultichainAssetSelectionViewController: MultichainAssetSelectionViewInput {
-    func didReceive(viewModels: [ChainSelectionCollectionCellModel]) {
+    func didReceive(viewModels: [ChainSelectionCollectionCellModel]?) {
         self.viewModels = viewModels
         rootView.chainsCollectionView.reloadData()
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -124,5 +127,39 @@ extension MultichainAssetSelectionViewController: UICollectionViewDataSource, UI
         }
 
         output.didSelect(chain: chain)
+    }
+}
+
+extension MultichainAssetSelectionViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension MultichainAssetSelectionViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarning()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = R.string.localizable.emptyStateMessage(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.iconMode = .bigFilledShadow
+        emptyView.retryButton.setTitle(R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages), for: .normal)
+        emptyView.retryButton.isHidden = false
+        emptyView.retryButton.addAction { [weak self] in
+            self?.output.didTapRetryButton()
+        }
+        return emptyView
+    }
+
+    var contentViewForEmptyState: UIView {
+        rootView
+    }
+}
+
+// MARK: - EmptyStateDelegate
+
+extension MultichainAssetSelectionViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        viewModels == nil
     }
 }

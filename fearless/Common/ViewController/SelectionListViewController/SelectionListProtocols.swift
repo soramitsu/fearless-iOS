@@ -4,6 +4,7 @@ protocol SelectionListViewProtocol: ControllerBackedProtocol {
     func didReload()
     func bind(viewModel: TextSearchViewModel?)
     func reloadCell(at indexPath: IndexPath)
+    func didReceive(errorMessage: String?)
 }
 
 extension SelectionListViewProtocol {
@@ -17,8 +18,10 @@ protocol SelectionListPresenterProtocol: AnyObject, SelectionItemViewDelegate {
     func selectItem(at index: Int)
 
     func searchItem(with text: String?)
+    func didTapRetry()
 }
 
 extension SelectionListPresenterProtocol {
     func searchItem(with _: String?) {}
+    func didTapRetry() {}
 }

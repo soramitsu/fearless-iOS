@@ -73,7 +73,9 @@ final class CrossChainSwapConfirmPresenter {
             sourceChainAsset: swapFromChainAsset,
             targetChainAsset: swapToChainAsset,
             wallet: wallet,
-            locale: selectedLocale
+            locale: selectedLocale,
+            selectedDexIds: nil,
+            quotes: nil
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -171,6 +173,10 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
                 }
             }
         }
+    }
+
+    func didTapBackButton() {
+        router.dismiss(view: view)
     }
 }
 

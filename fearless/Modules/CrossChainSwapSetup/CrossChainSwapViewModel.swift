@@ -8,4 +8,5 @@ struct CrossChainSwapViewModel {
     let fee: BalanceViewModelProtocol?
     let sendTokenRatioTitle: String?
     let receiveTokenRatioTitle: String?
+    let liquiditySources: String?
 }

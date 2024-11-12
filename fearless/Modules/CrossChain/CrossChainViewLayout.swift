@@ -18,6 +18,7 @@ final class CrossChainViewLayout: UIView {
 
     let navigationBar: BaseNavigationBar = {
         let view = BaseNavigationBar()
+        view.set(.present)
         view.backgroundColor = R.color.colorBlack02()
         return view
     }()

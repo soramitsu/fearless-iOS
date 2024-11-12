@@ -40,6 +40,8 @@ class TitleMultiValueView: UIView {
         return view
     }()
 
+    var selectHandler: (() -> Void)?
+
     private var skeletonView: SkrullableView?
 
     var equalsLabelsWidth: Bool = false {
@@ -60,6 +62,7 @@ class TitleMultiValueView: UIView {
         super.init(frame: frame)
 
         setupLayout()
+        setupGesture()
     }
 
     @available(*, unavailable)
@@ -116,6 +119,15 @@ class TitleMultiValueView: UIView {
 
         valueLabelsStack.addArrangedSubview(valueTop)
         valueLabelsStack.addArrangedSubview(valueBottom)
+    }
+
+    @objc func handleTapGesture() {
+        selectHandler?()
+    }
+
+    func setupGesture() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        valueLabelsStack.addGestureRecognizer(tapGesture)
     }
 
     func startLoadingIfNeeded() {

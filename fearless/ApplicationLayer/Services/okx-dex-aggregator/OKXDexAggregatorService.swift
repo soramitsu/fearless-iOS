@@ -11,6 +11,7 @@ protocol OKXDexAggregatorService {
     func fetchSwapInfo(parameters: OKXDexCrossChainBuildTxParameters) async throws -> OKXResponse<OKXCrossChainSwap>
     func fetchAvailableDestinationTokens(parameters: OKXDexCrossChainSupportedBridgeTokensPairsParameters) async throws -> OKXResponse<OKXAvailableDestination>
     func fetchCrossChainTransactionStatus(parameters: OKXDexCrossChainStatusParameters) async throws -> OKXResponse<OKXCrossChainTransactionStatus>
+    func fetchCrossChainQuote(parameters: OKXDexCrossChainQuoteParameters) async throws -> OKXResponse<OKXCrossChainQuote>
 }
 
 final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
@@ -59,6 +60,10 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
             headers: nil,
             body: nil
         )
+
+        if let cached: OKXResponse<OKXLiquiditySource> = try await networkWorker.fetchCached(with: request) {
+            return cached
+        }
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXLiquiditySource> = try await networkWorker.performRequest(with: request)
@@ -170,6 +175,24 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXCrossChainTransactionStatus> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+
+    func fetchCrossChainQuote(parameters: OKXDexCrossChainQuoteParameters) async throws -> OKXResponse<OKXCrossChainQuote> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/dex/cross-chain/quote",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<OKXCrossChainQuote> = try await networkWorker.performRequest(with: request)
 
         try validateResponseCode(response.code, msg: response.msg)
 

@@ -5,11 +5,17 @@ class NetworkRequestUrlParameters {
         let mirror = Mirror(reflecting: self)
 
         return mirror.children.compactMap {
-            guard let name = $0.label, let value = $0.value as? String else {
+            guard let name = $0.label else {
                 return nil
             }
 
-            return URLQueryItem(name: name, value: value)
+            let string = String(describing: $0.value)
+
+            guard string != "nil" else {
+                return nil
+            }
+
+            return URLQueryItem(name: name, value: string)
         }
     }
 }

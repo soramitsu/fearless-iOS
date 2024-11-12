@@ -25,6 +25,7 @@ protocol SelectAssetRouterInput: SheetAlertPresentable, ErrorPresentable, Presen
 protocol SelectAssetModuleInput: AnyObject {
     func update(with chainAssets: [ChainAsset])
     func runLoading()
+    func stopLoading()
 }
 
 protocol SelectAssetModuleOutput: AnyObject {

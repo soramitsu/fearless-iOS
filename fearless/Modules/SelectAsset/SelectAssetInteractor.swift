@@ -72,6 +72,7 @@ extension SelectAssetInteractor: SelectAssetInteractorInput {
         output?.didReceiveChainAssets(result: .success(chainAssets))
         if chainAssets.isEmpty {
             output?.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
+            return
         }
         subscribeToAccountInfo(for: chainAssets)
     }

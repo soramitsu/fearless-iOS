@@ -53,4 +53,8 @@ extension OKXSwap: CrossChainSwap {
     var from: String? {
         tx.from
     }
+
+    var quotes: [OKXDexQuote]? {
+        routerResult.quoteCompareList
+    }
 }

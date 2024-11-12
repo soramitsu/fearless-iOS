@@ -18,6 +18,11 @@ class OKXMultichainAssetFetching: MultichainAssetFetching {
         let params = OKXDexAllTokensRequestParameters(chainId: chain.chainId)
 
         let okxTokens = try await okxService.fetchAllTokens(parameters: params).data
+
+        guard let okxTokens else {
+            return []
+        }
+
         let allChainAssets: [ChainAsset] = okxTokens.compactMap {
             guard let decimals = $0.decimals, let precision = UInt16(decimals) else {
                 return nil

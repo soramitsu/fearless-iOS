@@ -4,6 +4,7 @@ import SoraFoundation
 protocol CrossChainSwapConfirmViewOutput: AnyObject {
     func didLoad(view: CrossChainSwapConfirmViewInput)
     func didTapConfirmButton()
+    func didTapBackButton()
 }
 
 final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -41,6 +42,10 @@ final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder, H
 
         rootView.confirmButton.addAction { [weak self] in
             self?.output.didTapConfirmButton()
+        }
+
+        rootView.backButton.addAction { [weak self] in
+            self?.output.didTapBackButton()
         }
     }
 

@@ -62,12 +62,12 @@ final class CrossChainSwapConfirmInteractor {
         let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters)
 
         guard
-            let fromTokenAddress = fromTokens.data.first(where: { $0.tokenSymbol.lowercased() == swapFromChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
+            let fromTokenAddress = fromTokens.data?.first(where: { $0.tokenSymbol.lowercased() == swapFromChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
         else {
             throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
         }
         let parameters = OKXDexApproveRequestParameters(chainId: swapFromChainAsset.chain.chainId, tokenContractAddress: fromTokenAddress, approveAmount: amount)
-        let approveTransaction = try await okxService.fetchApproveTransactionInfo(parameters: parameters).data.first
+        let approveTransaction = try await okxService.fetchApproveTransactionInfo(parameters: parameters).data?.first
 
         guard let approveTransaction else {
             throw CrossChainSwapConfirmInteractorError.invalidApproveTransactionResponse
@@ -81,7 +81,7 @@ final class CrossChainSwapConfirmInteractor {
             return
         }
 
-        guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains().data.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
+        guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains().data?.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
             throw CrossChainSwapConfirmInteractorError.invalidApproveTransactionResponse
         }
         let allowance = try await swapService.getAllowance(dexTokenApproveAddress: dexTokenApproveAddress, chainAsset: swapFromChainAsset)

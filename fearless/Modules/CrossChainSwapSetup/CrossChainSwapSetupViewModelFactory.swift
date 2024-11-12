@@ -9,7 +9,9 @@ protocol CrossChainSwapSetupViewModelFactory {
         sourceChainAsset: ChainAsset,
         targetChainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        locale: Locale
+        locale: Locale,
+        selectedDexIds: [String]?,
+        quotes: [OKXDexQuote]?
     ) -> CrossChainSwapViewModel
 }
 
@@ -27,7 +29,9 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         sourceChainAsset: ChainAsset,
         targetChainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        locale: Locale
+        locale: Locale,
+        selectedDexIds: [String]?,
+        quotes: [OKXDexQuote]?
     ) -> CrossChainSwapViewModel {
         let utilityFeeChainAsset = sourceChainAsset.chain.utilityChainAssets().first ?? sourceChainAsset
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
@@ -81,6 +85,10 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         let totalFeeViewModel = totalFeeDecimal.flatMap { feeBalanceViewModelFactory?.balanceFromPrice($0, priceData: utilityFeeChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
         let sendTokenRatioTitle = "\(sourceChainAsset.asset.symbol.uppercased())/\(targetChainAsset.asset.symbol.uppercased())"
         let receiveTokenRatioTitle = "\(targetChainAsset.asset.symbol.uppercased())/\(sourceChainAsset.asset.symbol.uppercased())"
+        let liquiditySources: String? = (quotes?.count).map { count in
+            let selectedCount = selectedDexIds?.count ?? count
+            return "\(selectedCount)/\(count)"
+        }
         return CrossChainSwapViewModel(
             minimumReceived: minimumReceiveAmountViewModel?.value(for: locale),
             route: swap.route?.capitalized,
@@ -88,7 +96,8 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
             receiveTokenRatio: receiveTokenRatioString,
             fee: totalFeeViewModel?.value(for: locale),
             sendTokenRatioTitle: sendTokenRatioTitle,
-            receiveTokenRatioTitle: receiveTokenRatioTitle
+            receiveTokenRatioTitle: receiveTokenRatioTitle,
+            liquiditySources: liquiditySources
         )
     }
 

@@ -8,7 +8,7 @@ final class FearlessLoadingViewFactory: LoadingViewFactoryProtocol {
             frame: UIScreen.main.bounds,
             indicatorImage: icon ?? UIImage()
         )
-        loadingView.backgroundColor = UIColor.black.withAlphaComponent(0.19)
+        loadingView.backgroundColor = R.color.colorBlack19()
         loadingView.contentBackgroundColor = UIColor.black.withAlphaComponent(0.04)
         loadingView.contentSize = CGSize(width: 120.0, height: 120.0)
         loadingView.animationDuration = 1.0

@@ -1,16 +1,54 @@
 import UIKit
 import Rswift
+import SoraUI
+import SoraFoundation
 
 class SelectionListViewController<C: UITableViewCell & SelectionItemViewProtocol>:
     UIViewController,
     UITableViewDataSource,
-    UITableViewDelegate {
+    UITableViewDelegate,
+    EmptyStateDelegate,
+    EmptyStateDataSource,
+    EmptyStateViewOwnerProtocol,
+    Localizable
+{
+    func applyLocalization() {
+        reloadEmptyState(animated: true)
+    }
+
+    var shouldDisplayEmptyState: Bool { errorMessage != nil }
+
+    var viewForEmptyState: UIView? {
+        let emptyView = EmptyView()
+        emptyView.image = R.image.iconWarning()
+        emptyView.title = R.string.localizable
+            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
+        emptyView.text = errorMessage
+        emptyView.iconMode = .bigFilledShadow
+        emptyView.retryButton.setTitle(R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages), for: .normal)
+        emptyView.retryButton.isHidden = false
+        emptyView.retryButton.addAction { [weak self] in
+            self?.listPresenter.didTapRetry()
+        }
+        return emptyView
+    }
+
+    var emptyStateDelegate: SoraUI.EmptyStateDelegate {
+        self
+    }
+
+    var emptyStateDataSource: SoraUI.EmptyStateDataSource {
+        self
+    }
+
     var listPresenter: SelectionListPresenterProtocol!
 
     var selectableCellIdentifier: ReuseIdentifier<C>! { nil }
     var selectableCellNib: UINib? { nil }
 
     @IBOutlet private(set) var tableView: UITableView!
+
+    private var errorMessage: String?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,8 +101,14 @@ class SelectionListViewController<C: UITableViewCell & SelectionItemViewProtocol
 }
 
 extension SelectionListViewController: SelectionListViewProtocol {
+    func didReceive(errorMessage: String?) {
+        self.errorMessage = errorMessage
+        reloadEmptyState(animated: true)
+    }
+
     func didReload() {
         tableView.reloadData()
+        reloadEmptyState(animated: true)
     }
 
     func bind(viewModel _: TextSearchViewModel?) {}

@@ -190,6 +190,11 @@ extension SelectAssetPresenter: SelectAssetModuleInput {
     }
 
     func runLoading() {
+        viewModels = []
         view?.didStartLoading()
+    }
+
+    func stopLoading() {
+        view?.didStopLoading()
     }
 }
