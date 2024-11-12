@@ -277,10 +277,19 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         wallet: MetaAccountModel,
         chainAsset: ChainAsset
     ) -> Bool {
-        let isEnabled = wallet.assetsVisibility.contains(where: {
-            $0.assetId == chainAsset.identifier && !$0.hidden
-        })
-        return isEnabled
+        switch wallet.ecosystem {
+        case .regular:
+            let isEnabled = wallet.assetsVisibility.contains(where: {
+                $0.assetId == chainAsset.identifier && !$0.hidden
+            })
+            return isEnabled
+        case .ton:
+            if let visibility = wallet.assetsVisibility.first(where: { $0.assetId == chainAsset.identifier}) {
+                return !visibility.hidden
+            } else {
+                return true
+            }
+        }
     }
 
     private func createFilterButtonTitle(

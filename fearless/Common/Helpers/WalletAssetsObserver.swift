@@ -108,6 +108,9 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             returning: [ChainModel: [ChainAssetId: AccountInfo?]].self
         ) { group in
             chains.forEach { chain in
+                guard !chain.ecosystem.isTon else {
+                    return
+                }
                 group.addTask {
                     do {
                         let accountInfos = try await self.accountInfoRemote.fetchAccountInfos(for: chain, wallet: self.wallet)
