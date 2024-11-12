@@ -11,20 +11,7 @@ protocol OnboardingServiceProtocol {
     func fetchConfigs() async throws -> OnboardingConfigPlatform
 }
 
-actor OnboardingService {
-    private let networkOperationFactory: NetworkOperationFactoryProtocol
-    private let operationQueue: OperationQueue
-
-    init(
-        networkOperationFactory: NetworkOperationFactoryProtocol,
-        operationQueue: OperationQueue
-    ) {
-        self.networkOperationFactory = networkOperationFactory
-        self.operationQueue = operationQueue
-    }
-}
-
-extension OnboardingService: OnboardingServiceProtocol {
+actor OnboardingService: OnboardingServiceProtocol {
     func fetchConfigs() async throws -> OnboardingConfigPlatform {
         guard let onboardingConfigUrl = ApplicationConfig.shared.onboardingConfig else {
             throw OnboardingServiceError.urlBroken

@@ -5,6 +5,7 @@ enum AccountCreateChainType {
     case substrate
     case ethereum
     case both
+    case ton
 }
 
 extension AccountCreateChainType {
@@ -12,14 +13,14 @@ extension AccountCreateChainType {
         switch self {
         case .substrate, .both:
             return true
-        case .ethereum:
+        case .ethereum, .ton:
             return false
         }
     }
 
     var includeEthereum: Bool {
         switch self {
-        case .ethereum, .both:
+        case .ethereum, .both, .ton:
             return true
         case .substrate:
             return false
@@ -28,6 +29,7 @@ extension AccountCreateChainType {
 }
 
 enum AccountCreationStep {
+    case ton
     case substrate
     case ethereum(data: SubstrateStepData)
 

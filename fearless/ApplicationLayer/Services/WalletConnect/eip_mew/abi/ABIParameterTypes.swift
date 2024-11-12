@@ -48,7 +48,7 @@ public extension ABI.Element {
                     return false
                 }
                 return true
-            case .bytes(length: _):
+            case .bytes:
                 return true
             default:
                 return true
@@ -57,7 +57,7 @@ public extension ABI.Element {
 
         var isArray: Bool {
             switch self {
-            case .array(type: _, length: _):
+            case .array:
                 return true
             default:
                 return false
@@ -108,9 +108,9 @@ public extension ABI.Element {
 
         var emptyValue: Any {
             switch self {
-            case .uint(bits: _):
+            case .uint:
                 return BigUInt(0)
-            case .int(bits: _):
+            case .int:
                 return BigUInt(0)
             case .address:
                 return Address(address: "0x0000000000000000000000000000000000000000")!
@@ -127,7 +127,7 @@ public extension ABI.Element {
                 return Data()
             case .string:
                 return ""
-            case .tuple(types: _):
+            case .tuple:
                 return [Any]()
             }
         }

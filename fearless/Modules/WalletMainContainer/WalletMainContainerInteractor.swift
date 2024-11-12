@@ -17,6 +17,7 @@ final class WalletMainContainerInteractor {
     private let applicationHandler: ApplicationHandler
     private let walletConnectService: WalletConnectService
     private let featureToggleService: FeatureToggleProviderProtocol
+    private let tonConnectService: TonConnectService
 
     // MARK: - Constructor
 
@@ -29,7 +30,8 @@ final class WalletMainContainerInteractor {
         deprecatedAccountsCheckService: DeprecatedControllerStashAccountCheckServiceProtocol,
         applicationHandler: ApplicationHandler,
         walletConnectService: WalletConnectService,
-        featureToggleService: FeatureToggleProviderProtocol
+        featureToggleService: FeatureToggleProviderProtocol,
+        tonConnectService: TonConnectService
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -40,6 +42,7 @@ final class WalletMainContainerInteractor {
         self.applicationHandler = applicationHandler
         self.walletConnectService = walletConnectService
         self.featureToggleService = featureToggleService
+        self.tonConnectService = tonConnectService
         applicationHandler.delegate = self
     }
 
@@ -115,6 +118,10 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func walletConnect(uri: String) async throws {
         try await walletConnectService.connect(uri: uri)
+    }
+
+    func tonConnect(uri: String) async throws {
+        try await tonConnectService.establishConnection(with: uri)
     }
 }
 

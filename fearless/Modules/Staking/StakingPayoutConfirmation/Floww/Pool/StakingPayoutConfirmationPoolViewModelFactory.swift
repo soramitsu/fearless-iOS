@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import SoraFoundation
 import SSFModels
+import SSFCrypto
 
 final class StakingPayoutConfirmationPoolViewModelFactory {
     private let chainAsset: ChainAsset

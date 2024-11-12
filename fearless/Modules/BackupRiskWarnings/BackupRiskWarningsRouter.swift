@@ -4,9 +4,8 @@ final class BackupRiskWarningsRouter: BackupRiskWarningsRouterInput {
     func showCreateAccount(
         usernameModel: UsernameSetupModel,
         from view: ControllerBackedProtocol?
-    ) {
-        guard let controller = AccountCreateViewFactory
-            .createViewForOnboarding(model: usernameModel, flow: .backup)?.controller else {
+    ) { // TODO: - Select ecosystem
+        guard let controller = AccountCreateViewFactory.createViewForOnboarding(ecosystem: .regular, model: usernameModel, flow: .backup)?.controller else {
             return
         }
 

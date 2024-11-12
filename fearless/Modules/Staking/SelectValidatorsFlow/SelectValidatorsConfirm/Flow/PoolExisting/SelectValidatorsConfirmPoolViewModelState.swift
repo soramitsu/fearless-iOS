@@ -94,7 +94,7 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
                 return builder
             }
 
-            let nominateCall = try strongSelf.callFactory.poolNominate(poolId: poolId, targets: targets)
+            let nominateCall = try strongSelf.callFactory.poolNominate(poolId: poolId, targets: targets, chainFormat: strongSelf.chainAsset.chain.chainFormat)
 
             return try builder
                 .adding(call: nominateCall)

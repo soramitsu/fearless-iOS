@@ -64,9 +64,19 @@ final class WalletMainContainerPresenter {
             do {
                 try await interactor.walletConnect(uri: uri)
             } catch {
-                _ = await MainActor.run(body: {
+                Task { @MainActor in
                     router.present(error: error, from: view, locale: selectedLocale)
-                })
+                }
+            }
+        }
+    }
+
+    private func tonConnect(with uri: String) {
+        Task {
+            do {
+                try await interactor.tonConnect(uri: uri)
+            } catch {
+                Logger.shared.customError(error)
             }
         }
     }
@@ -116,7 +126,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapAccountScore() {
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let address = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         router.presentAccountScore(address: address, from: view)
     }
 }
@@ -270,6 +280,8 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
             )
         case let .walletConnect(uri):
             walletConnect(with: uri)
+        case let .tonConnect(uri):
+            tonConnect(with: uri)
         case .preinstalledWallet:
             break
         }

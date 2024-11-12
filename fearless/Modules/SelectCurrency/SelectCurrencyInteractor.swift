@@ -7,27 +7,21 @@ final class SelectCurrencyInteractor {
     // MARK: - Private properties
 
     private let selectedMetaAccount: MetaAccountModel
-    private let repository: AnyDataProviderRepository<MetaAccountModel>
     private let jsonDataProviderFactory: JsonDataProviderFactoryProtocol
     private let eventCenter: EventCenterProtocol
 
     private var fiatInfoProvider: AnySingleValueProvider<[Currency]>?
-    private let operationQueue: OperationQueue
 
     private weak var output: SelectCurrencyInteractorOutput?
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        repository: AnyDataProviderRepository<MetaAccountModel>,
         jsonDataProviderFactory: JsonDataProviderFactoryProtocol,
-        eventCenter: EventCenterProtocol,
-        operationQueue: OperationQueue
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.repository = repository
         self.jsonDataProviderFactory = jsonDataProviderFactory
         self.eventCenter = eventCenter
-        self.operationQueue = operationQueue
     }
 
     private func subscribeToFiats() {
@@ -62,25 +56,14 @@ final class SelectCurrencyInteractor {
 
     private func save(_ currency: Currency) {
         let updatedAccount = selectedMetaAccount.replacingCurrency(currency)
-
-        let operation = repository.saveOperation {
-            [updatedAccount]
-        } _: {
-            []
-        }
-
-        operation.completionBlock = { [eventCenter] in
-            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                switch result {
-                case let .success(account):
-                    eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                case .failure:
-                    break
-                }
+        SelectedWalletSettings.shared.performSave(value: updatedAccount) { [weak self] result in
+            switch result {
+            case let .success(account):
+                self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+            case .failure:
+                break
             }
         }
-
-        operationQueue.addOperation(operation)
     }
 }
 

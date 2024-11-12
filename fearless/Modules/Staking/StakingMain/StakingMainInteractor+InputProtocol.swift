@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import RobinHood
 import SSFModels
+import SSFCrypto
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func changeActiveState(_ isActive: Bool) {

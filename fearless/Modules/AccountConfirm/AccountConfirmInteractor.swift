@@ -2,6 +2,7 @@ import UIKit
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SSFModels
 
 class AccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SelectedWalletSettings

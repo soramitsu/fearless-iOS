@@ -63,6 +63,8 @@ final class ChainAssetListViewController:
         if keyboardHandler == nil, keyboardAdoptable {
             setupKeyboardHandler()
         }
+        
+        output.didAppear(view: self)
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -146,11 +148,17 @@ private extension ChainAssetListViewController {
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
-    func reloadBanners() {
-        guard viewModel != nil else {
+    func reloadBanners(shouldShowBanners: Bool) {
+        guard shouldShowBanners else {
+            rootView.removeHeaderView()
             return
         }
-        rootView.tableView.setAndLayoutTableHeaderView(header: rootView.headerViewContainer)
+        
+        guard let viewModel else {
+            return
+        }
+        
+        didReceive(viewModel: viewModel)
     }
 
     func didReceive(viewModel: ChainAssetListViewModel) {
@@ -162,21 +170,25 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
 
         switch viewModel.displayState {
         case let .defaultList(_, withAnimate):
-            rootView.setHeaderView()
             rootView.setFooterView()
+            rootView.tableView.reloadData()
+
             guard rootView.isAnimating == false else {
+                rootView.setHeaderView()
+                reloadEmptyState(animated: false)
                 return
             }
 
-            rootView.tableView.reloadData()
 
             if withAnimate {
                 rootView.runManageAssetAnimate(finish: { [weak self] in
                     self?.output.didFinishManageAssetAnimate()
-                    self?.rootView.tableView.reloadData()
+                    self?.rootView.setHeaderView()
                 })
+            } else {
+                rootView.setHeaderView()
             }
-        case .chainHasNetworkIssue, .chainHasAccountIssue, .allIsHidden:
+        case .chainHasNetworkIssue, .chainHasAccountIssue:
             rootView.removeHeaderView()
             rootView.removeFooterView()
             rootView.tableView.reloadData()
@@ -185,8 +197,11 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             isEmpty ? rootView.removeFooterView() : rootView.setFooterView()
             isEmpty ? rootView.removeHeaderView() : rootView.setHeaderView()
             rootView.tableView.reloadData()
+        case .allIsHidden:
+            rootView.setFooterView()
+            rootView.setHeaderView()
+            rootView.tableView.reloadData()
         }
-        reloadEmptyState(animated: false)
     }
 }
 
@@ -278,7 +293,8 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        guard let viewModel = viewModel else { return false }
-        return viewModel.displayState.rows.isEmpty
+        return false
+//        guard let viewModel = viewModel else { return false }
+//        return viewModel.displayState.rows.isEmpty
     }
 }

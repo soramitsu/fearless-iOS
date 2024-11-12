@@ -4,6 +4,7 @@ import SSFUtils
 import SoraKeystore
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol StakingRebondConfirmationRelaychainStrategyOutput: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)

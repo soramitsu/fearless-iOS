@@ -5,6 +5,7 @@ import SSFPolkaswap
 import SSFModels
 import BigInt
 import SSFStorageQueryKit
+import SSFCrypto
 
 protocol UserLiquidityPoolsListViewModelFactory {
     func buildViewModel(

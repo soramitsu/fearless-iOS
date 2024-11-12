@@ -7,21 +7,22 @@ import SSFNetwork
 final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
     static func createViewForOnboarding() -> OnboardingMainViewProtocol? {
         let wireframe = OnboardingMainWireframe()
-        return createView(for: wireframe)
+        return createView(for: wireframe, ecosystem: nil)
     }
 
-    static func createViewForAdding() -> OnboardingMainViewProtocol? {
+    static func createViewForAdding(ecosystem: AccountCreateEcosystem?) -> OnboardingMainViewProtocol? {
         let wireframe = AddAccount.OnboardingMainWireframe()
-        return createView(for: wireframe)
+        return createView(for: wireframe, ecosystem: ecosystem)
     }
 
     static func createViewForAccountSwitch() -> OnboardingMainViewProtocol? {
         let wireframe = SwitchAccount.OnboardingMainWireframe()
-        return createView(for: wireframe)
+        return createView(for: wireframe, ecosystem: nil)
     }
 
     private static func createView(
-        for wireframe: OnboardingMainWireframeProtocol
+        for wireframe: OnboardingMainWireframeProtocol,
+        ecosystem: AccountCreateEcosystem?
     ) -> OnboardingMainViewProtocol? {
         guard let kestoreImportService: KeystoreImportServiceProtocol =
             URLHandlingService.shared.findService()
@@ -41,9 +42,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
-        let view = OnboardingMainViewController(nib: R.nib.onbordingMain)
-        view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
-        view.localizationManager = localizationManager
+        let view = OnboardingMainViewController(ecosystem: ecosystem)
 
         let appVersionObserver = AppVersionObserver(
             operationManager: OperationManagerFacade.sharedManager,
@@ -80,6 +79,7 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         presenter.view = view
 
         interactor.presenter = presenter
+        view.localizationManager = localizationManager
 
         return view
     }

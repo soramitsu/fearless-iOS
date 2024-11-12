@@ -12,6 +12,7 @@ protocol BannersViewInput: ControllerBackedProtocol {
 }
 
 protocol BannersInteractorInput: AnyObject {
+    var shouldShowAddWalletBanner: Bool { get set }
     func setup(with output: BannersInteractorOutput)
     func markWalletAsBackedUp(_ wallet: MetaAccountModel)
     func subscribeToWallet()
@@ -31,7 +32,7 @@ final class BannersPresenter {
         BannersViewModelFactory()
     }()
 
-    private var wallet: MetaAccountModel?
+    private var wallets: [MetaAccountModel] = []
 
     // MARK: - Constructors
 
@@ -49,7 +50,9 @@ final class BannersPresenter {
         self.interactor = interactor
         self.router = router
         self.type = type
-        self.wallet = wallet
+        if let wallet {
+            self.wallets.append(wallet)
+        }
 
         self.localizationManager = localizationManager
     }
@@ -57,14 +60,16 @@ final class BannersPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        guard let wallet = wallet else {
-            return
-        }
-        let viewModel = viewModelFactory.createViewModel(wallet: wallet, locale: selectedLocale)
+        let viewModel = viewModelFactory.createViewModel(
+            wallets: wallets,
+            locale: selectedLocale,
+            shouldShowAddWalletBanner: interactor.shouldShowAddWalletBanner
+        )
         DispatchQueue.main.async {
             self.view?.didReceive(viewModel: viewModel)
         }
-        moduleOutput?.reloadBannersView()
+        
+        moduleOutput?.reloadBannersView(bannersCount: viewModel.banners.count)
     }
 
     private func showNotBackedUpAlert(wallet: MetaAccountModel) {
@@ -102,7 +107,7 @@ final class BannersPresenter {
 
 extension BannersPresenter: BannersViewOutput {
     func didTapOnBanner(_ banner: Banners) {
-        guard let wallet = wallet else {
+        guard let wallet = SelectedWalletSettings.shared.value else {
             return
         }
 
@@ -115,21 +120,31 @@ extension BannersPresenter: BannersViewOutput {
             router.presentLiquidityPools(on: view, wallet: wallet, chainId: Chain.soraMain.genesisHash)
         case .liquidityPoolsTest:
             router.presentLiquidityPools(on: view, wallet: wallet, chainId: Chain.soraTest.genesisHash)
+        case .addRegularWallet:
+            router.showCreateNewWallet(ecosystem: .regular, from: view)
+        case .addTonWallet:
+            router.showCreateNewWallet(ecosystem: .ton, from: view)
         }
     }
 
     func didCloseBanner(_ banner: Banners) {
-        guard let wallet = wallet else {
-            return
-        }
-
         switch banner {
         case .backup:
+            guard let wallet = SelectedWalletSettings.shared.value else {
+                return
+            }
             showNotBackedUpAlert(wallet: wallet)
         case .buyXor:
             break
         case .liquidityPools, .liquidityPoolsTest:
             moduleOutput?.didTapCloseBanners()
+        case .addRegularWallet:
+            interactor.shouldShowAddWalletBanner = false
+            provideViewModel()
+        case .addTonWallet:
+            interactor.shouldShowAddWalletBanner = false
+            provideViewModel()
+
         }
     }
 
@@ -151,7 +166,8 @@ extension BannersPresenter: BannersInteractorOutput {
     }
 
     func didReceive(wallet: MetaAccountModel) {
-        self.wallet = wallet
+        self.wallets = self.wallets.filter { $0.metaId != wallet.metaId }
+        self.wallets.append(wallet)
         provideViewModel()
     }
 }
@@ -164,12 +180,18 @@ extension BannersPresenter: Localizable {
 
 extension BannersPresenter: BannersModuleInput {
     func reload(with wallet: MetaAccountModel) {
-        self.wallet = wallet
+        self.wallets = self.wallets.filter { $0.metaId != wallet.metaId }
+        self.wallets.append(wallet)
         provideViewModel()
     }
 
     func update(banners: [Banners]) {
         let viewModel = viewModelFactory.createViewModel(banners: banners, locale: selectedLocale)
+
         view?.didReceive(viewModel: viewModel)
+    }
+    
+    func reload() {
+        provideViewModel()
     }
 }

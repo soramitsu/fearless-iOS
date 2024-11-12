@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias BackupWalletModuleCreationResult = (
     view: BackupWalletViewInput,
     input: BackupWalletModuleInput

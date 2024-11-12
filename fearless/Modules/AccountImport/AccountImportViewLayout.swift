@@ -137,6 +137,7 @@ final class AccountImportViewLayout: UIView {
         view.autocapitalizationType = .none
         view.autocorrectionType = .no
         view.isScrollEnabled = false
+        view.backgroundColor = .clear
         return view
     }()
 

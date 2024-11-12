@@ -19,7 +19,7 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoFetchingProvider: AccountInfoFetching
     private let dependencyContainer: ChainAssetListDependencyContainer
-    private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
+    private let remoteBalanceService: AccountInfoRemoteService
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
@@ -28,9 +28,8 @@ final class ChainAssetListInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AsyncAnyRepository<ChainSettings>
     private let chainRegistry: ChainRegistryProtocol
-    private let accountInfoRemoteService: AccountInfoRemoteService
+    private let logger: LoggerProtocol
     private let pricesService: PricesServiceProtocol
-    private let operationQueue: OperationQueue
 
     private let mutex = NSLock()
     private var remoteFetchTimer: Timer?
@@ -47,30 +46,28 @@ final class ChainAssetListInteractor {
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoFetchingProvider: AccountInfoFetching,
         dependencyContainer: ChainAssetListDependencyContainer,
-        ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
+        remoteBalanceService: AccountInfoRemoteService,
         chainAssetFetching: ChainAssetFetchingProtocol,
         userDefaultsStorage: SettingsManagerProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
         chainSettingsRepository: AsyncAnyRepository<ChainSettings>,
         chainRegistry: ChainRegistryProtocol,
-        accountInfoRemoteService: AccountInfoRemoteService,
-        pricesService: PricesServiceProtocol,
-        operationQueue: OperationQueue
+        logger: LoggerProtocol,
+        pricesService: PricesServiceProtocol
     ) {
         self.wallet = wallet
         self.eventCenter = eventCenter
         self.accountRepository = accountRepository
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.dependencyContainer = dependencyContainer
-        self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
+        self.remoteBalanceService = remoteBalanceService
         self.chainAssetFetching = chainAssetFetching
         self.userDefaultsStorage = userDefaultsStorage
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
         self.chainRegistry = chainRegistry
-        self.accountInfoRemoteService = accountInfoRemoteService
+        self.logger = logger
         self.pricesService = pricesService
-        self.operationQueue = operationQueue
     }
 
     // MARK: - Private methods
@@ -105,8 +102,7 @@ final class ChainAssetListInteractor {
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,
             handler: self,
-            deliveryOn: accountInfosDeliveryQueue,
-            notifyJustWhenUpdated: false
+            deliveryOn: accountInfosDeliveryQueue
         )
     }
 
@@ -126,6 +122,15 @@ final class ChainAssetListInteractor {
         ) { [weak self] result in
             guard let result = result else { return }
             self?.output?.didReceiveChainAssets(result: result)
+        }
+    }
+
+    private func updateTonPricesIfNeeded() {
+        Task {
+            guard let tonAssets = chainAssets?.filter({ $0.chain.ecosystem == .ton }) else {
+                return
+            }
+            _ = try await remoteBalanceService.fetchAccountInfos(for: tonAssets, wallet: wallet)
         }
     }
 }
@@ -183,7 +188,13 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
 
                 self?.accountInfoFetchingProvider.fetch(for: chainAssets, wallet: strongSelf.wallet) { accountInfosByChainAssets in
-                    self?.ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: strongSelf.wallet) { _ in }
+                    Task {
+                        do {
+                            _ = try await strongSelf.remoteBalanceService.fetchAccountInfos(for: chainAssets, wallet: strongSelf.wallet)
+                        } catch {
+                            strongSelf.logger.customError(error)
+                        }
+                    }
                     self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
                     self?.subscribeToAccountInfo(for: chainAssets)
                 }
@@ -221,9 +232,14 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             timer.invalidate()
             self?.remoteFetchTimer = nil
         })
-
-        ethRemoteBalanceFetching.fetch(for: chainAssets, wallet: wallet) { _ in }
         pricesService.updatePrices()
+        Task {
+            do {
+                _ = try await remoteBalanceService.fetchAccountInfos(for: chainAssets, wallet: wallet)
+            } catch {
+                logger.customError(error)
+            }
+        }
     }
 
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void)) {
@@ -279,14 +295,15 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             guard let chainAssets = chainAssets else {
                 return
             }
+            updateTonPricesIfNeeded()
         }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
-            output?.updateViewModel(isInitSearchState: false)
+            updateChainAssets(using: filters, sorts: sorts, useCashe: false)
         }
 
         if wallet.unusedChainIds != event.account.unusedChainIds {
-            output?.updateViewModel(isInitSearchState: false)
+            output?.updateViewModel()
         }
 
         wallet = event.account

@@ -4,6 +4,7 @@ import SSFPools
 import SSFModels
 import SoraFoundation
 import SSFStorageQueryKit
+import SSFCrypto
 
 protocol UserLiquidityPoolsListInteractorInput {
     func setup(with output: UserLiquidityPoolsListInteractorOutput)

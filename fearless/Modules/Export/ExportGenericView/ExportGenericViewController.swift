@@ -45,7 +45,15 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             return true
         }
         switch (option, flow) {
-        case (.mnemonic, _):
+        case let (.mnemonic, flow):
+            if case let .multiple(wallet, _) = flow {
+                switch flow.wallet.ecosystem {
+                case .regular:
+                    return true
+                case .ton:
+                    return false
+                }
+            }
             return true
         case let (.seed, flow):
             if case let .single(chain, _, _) = flow, chain.isEthereumBased {
@@ -164,7 +172,7 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             view.removeFromSuperview()
         }
 
-        sourceTypeView.subtitle = viewModel.option.titleForLocale(locale, ethereumBased: nil)
+        sourceTypeView.subtitle = viewModel.option.titleForLocale(locale, ecosystem: nil)
         var views: [UIView] = []
         viewModel.viewModels.forEach { exportViewModel in
             if let view = setupExportDataView(exportViewModel) {
@@ -172,10 +180,13 @@ final class ExportGenericViewController: UIViewController, ImportantViewProtocol
             }
 
             if viewModel.option == .keystore {
-                if exportViewModel.ethereumBased {
-                    setupExportEthereumButton()
-                } else {
+                switch exportViewModel.ecosystem {
+                case .substrate:
                     setupExportSubstrateButton()
+                case .ethereumBased, .ethereum:
+                    setupExportEthereumButton()
+                case .ton:
+                    break
                 }
             } else if mainOptionTitle != nil {
                 setupMainActionButton()
@@ -490,23 +501,23 @@ extension ExportGenericViewController {
 
             var subviews: [UIView] = []
 
-            if let cryptoType = exportViewModel.cryptoType {
-                let cryptoTypeView = setupCryptoTypeView(
-                    cryptoType: cryptoType,
-                    advancedContainerView: containerView,
-                    locale: locale,
-                    isEthereum: exportViewModel.ethereumBased
-                )
+            if let cryptoType = exportViewModel.cryptoType,
+               let cryptoTypeView = setupCryptoTypeView(
+                cryptoType: cryptoType,
+                advancedContainerView: containerView,
+                locale: locale,
+                ecosystem: exportViewModel.ecosystem
+               ) {
                 subviews.append(cryptoTypeView)
             }
 
-            if let derivationPath = exportViewModel.derivationPath {
-                let derivationPathView = setupDerivationView(
-                    derivationPath,
-                    advancedContainerView: containerView,
-                    locale: locale,
-                    isEthereum: exportViewModel.ethereumBased
-                )
+            if let derivationPath = exportViewModel.derivationPath,
+               let derivationPathView = setupDerivationView(
+                derivationPath,
+                advancedContainerView: containerView,
+                locale: locale,
+                ecosystem: exportViewModel.ecosystem
+               ) {
                 subviews.append(derivationPathView)
             }
 
@@ -527,15 +538,20 @@ extension ExportGenericViewController {
         cryptoType: CryptoType,
         advancedContainerView: UIStackView,
         locale: Locale,
-        isEthereum: Bool
-    ) -> UIView {
+        ecosystem: Ecosystem
+    ) -> UIView? {
         let cryptoView = uiFactory.createDetailsView(with: .largeIconTitleSubtitle, filled: true)
         cryptoView.translatesAutoresizingMaskIntoConstraints = false
         advancedContainerView.addArrangedSubview(cryptoView)
 
-        cryptoView.title = isEthereum
-            ? R.string.localizable.ethereumCryptoType(preferredLanguages: locale.rLanguages)
-            : R.string.localizable.substrateCryptoType(preferredLanguages: locale.rLanguages)
+        switch ecosystem {
+        case .substrate:
+            cryptoView.title = R.string.localizable.substrateCryptoType(preferredLanguages: locale.rLanguages)
+        case .ethereumBased, .ethereum:
+            cryptoView.title = R.string.localizable.ethereumCryptoType(preferredLanguages: locale.rLanguages)
+        case .ton:
+            return nil
+        }
 
         cryptoView.subtitle = cryptoType.titleForLocale(locale) + " | " + cryptoType.subtitleForLocale(locale)
 
@@ -546,15 +562,20 @@ extension ExportGenericViewController {
         _ path: String,
         advancedContainerView: UIStackView,
         locale: Locale,
-        isEthereum: Bool
-    ) -> UIView {
+        ecosystem: Ecosystem
+    ) -> UIView? {
         let derivationPathView = uiFactory.createDetailsView(with: .largeIconTitleSubtitle, filled: true)
         derivationPathView.translatesAutoresizingMaskIntoConstraints = false
         advancedContainerView.addArrangedSubview(derivationPathView)
 
-        derivationPathView.title = isEthereum
-            ? R.string.localizable.ethereumSecretDerivationPath(preferredLanguages: locale.rLanguages)
-            : R.string.localizable.substrateSecretDerivationPath(preferredLanguages: locale.rLanguages)
+        switch ecosystem {
+        case .substrate:
+            derivationPathView.title = R.string.localizable.substrateSecretDerivationPath(preferredLanguages: locale.rLanguages)
+        case .ethereumBased, .ethereum:
+            derivationPathView.title = R.string.localizable.ethereumSecretDerivationPath(preferredLanguages: locale.rLanguages)
+        case .ton:
+            return nil
+        }
         derivationPathView.subtitle = path
 
         return derivationPathView

@@ -30,7 +30,7 @@ final class LiquidityPoolRemoveLiquidityAssembly {
 
         guard let lpOperationService = try? PolkaswapLiquidityPoolServiceAssembly.buildOperationService(
             for: chain,
-            wallet: wallet.utilsModel,
+            wallet: wallet,
             chainRegistry: chainRegistry,
             signingWrapperData: signingWrapperData
         ) else {
@@ -82,9 +82,7 @@ final class LiquidityPoolRemoveLiquidityAssembly {
         accountResponse: ChainAccountResponse
     ) throws -> Data {
         let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        let tag: String = chain.isEthereumBased
-            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(metaId, accountId: accountId)
-            : KeystoreTagV2.substrateSecretKeyTagForMetaId(metaId, accountId: accountId)
+        let tag: String = KeystoreTagV2.secretKeyTag(for: chain.ecosystem, metaId: metaId, accountId: accountId)
 
         let keystore = Keychain()
         let secretKey = try keystore.fetchKey(for: tag)

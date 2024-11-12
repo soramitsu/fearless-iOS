@@ -5,6 +5,10 @@ import SSFModels
 final class AllDonePresenter {
     // MARK: Private properties
 
+    private lazy var wallet: MetaAccountModel? = {
+        SelectedWalletSettings.shared.value
+    }()
+
     private weak var view: AllDoneViewInput?
     private let router: AllDoneRouterInput
     private let interactor: AllDoneInteractorInput
@@ -61,6 +65,12 @@ final class AllDonePresenter {
     }
 
     private func prepareExplorer() {
+        if chainAsset?.chain.ecosystem == .ton {
+            let explorer = chainAsset?.chain.externalApi?.explorers?.first(where: { $0.types.contains(.tonAccount) })
+            view?.didReceive(explorer: explorer)
+            self.explorer = explorer
+            return
+        }
         guard hashString != nil else {
             view?.didReceive(explorer: nil)
             return
@@ -82,23 +92,46 @@ extension AllDonePresenter: AllDoneViewOutput {
     }
 
     func explorerButtonDidTapped() {
-        guard let explorer = self.explorer,
-              let hashString = hashString,
-              let explorerUrl = explorer.explorerUrl(for: hashString, type: explorer.transactionType)
-        else {
+        guard let url = prepareUrl() else {
             return
         }
-        router.presentSubscan(from: view, url: explorerUrl)
+        router.presentSubscan(from: view, url: url)
     }
 
     func shareButtonDidTapped() {
-        guard let explorer = self.explorer,
-              let hashString = hashString,
-              let explorerUrl = explorer.explorerUrl(for: hashString, type: explorer.transactionType)
-        else {
+        guard let url = prepareUrl() else {
             return
         }
-        router.share(sources: [explorerUrl], from: view, with: nil)
+        router.share(sources: [url], from: view, with: nil)
+    }
+
+    private func prepareUrl() -> URL? {
+        guard let chainAsset else {
+            return nil
+        }
+        let url: URL
+        switch chainAsset.chain.ecosystem {
+        case .ethereumBased, .ethereum, .substrate:
+            guard
+                let explorer = self.explorer,
+                let hashString = hashString,
+                let explorerUrl = explorer.explorerUrl(for: hashString, type: explorer.transactionType)
+            else {
+                return nil
+            }
+            url = explorerUrl
+        case .ton:
+            guard
+                let wallet,
+                let explorer,
+                let address = try? wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId.asTonAddress().toRaw(),
+                let explorerUrl = explorer.explorerUrl(for: address, type: .tonAccount)
+            else {
+                return nil
+            }
+            url = explorerUrl
+        }
+        return url
     }
 
     func dismiss() {

@@ -104,7 +104,7 @@ extension ExportSeedPresenter: ExportSeedInteractorOutputProtocol {
                 cryptoType: seedData.chain.isEthereumBased ? nil : seedData.cryptoType,
                 derivationPath: seedData.derivationPath,
                 data: seedData.seed.toHex(includePrefix: true),
-                ethereumBased: seedData.chain.isEthereumBased
+                ecosystem: seedData.chain.ecosystem
             )
         }
 

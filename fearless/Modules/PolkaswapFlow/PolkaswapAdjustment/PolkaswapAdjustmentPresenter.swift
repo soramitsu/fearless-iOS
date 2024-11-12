@@ -958,7 +958,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
 // MARK: - BannersModuleOutput
 
 extension PolkaswapAdjustmentPresenter: BannersModuleOutput {
-    func reloadBannersView() {}
+    func reloadBannersView(bannersCount: Int) {}
 
     func didTapCloseBanners() {
         DispatchQueue.main.async { [weak self] in

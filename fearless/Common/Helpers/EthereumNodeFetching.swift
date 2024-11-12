@@ -2,6 +2,7 @@ import Foundation
 import SSFModels
 import Web3
 import FearlessKeys
+import SSFUtils
 
 enum EthereumChain: String {
     case ethereumMainnet = "1"

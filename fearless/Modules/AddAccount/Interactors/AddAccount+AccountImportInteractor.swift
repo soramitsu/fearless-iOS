@@ -3,6 +3,7 @@ import IrohaCrypto
 import SSFUtils
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 extension AddAccount {
     final class AccountImportInteractor: BaseAccountImportInteractor {

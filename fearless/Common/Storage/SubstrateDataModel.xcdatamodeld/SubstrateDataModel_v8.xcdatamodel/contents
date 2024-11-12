@@ -3,7 +3,6 @@
     <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="class">
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="currencyId" optional="YES" attributeType="String"/>
-        <attribute name="ethereumType" optional="YES" attributeType="String"/>
         <attribute name="existentialDeposit" optional="YES" attributeType="String"/>
         <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="id" attributeType="String"/>
@@ -26,6 +25,7 @@
         <attribute name="crowdloansApiType" optional="YES" attributeType="String"/>
         <attribute name="crowdloansApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="disabled" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="ecosystem" optional="YES" attributeType="String"/>
         <attribute name="hasCrowdloans" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="historyApiType" optional="YES" attributeType="String"/>
         <attribute name="historyApiUrl" optional="YES" attributeType="URI"/>
@@ -47,7 +47,7 @@
         <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
-        <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>
+        <relationship name="assets" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>
         <relationship name="customNodes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainNode"/>
         <relationship name="explorers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDExternalApi" inverseName="chain" inverseEntity="CDExternalApi"/>
         <relationship name="nodes" optional="YES" toMany="YES" minCount="1" deletionRule="Cascade" destinationEntity="CDChainNode" inverseName="chain" inverseEntity="CDChainNode"/>
@@ -123,7 +123,7 @@
         <attribute name="fiatDayByChange" optional="YES" attributeType="String"/>
         <attribute name="price" attributeType="String"/>
         <attribute name="priceId" attributeType="String"/>
-        <relationship name="asset" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDAsset" inverseName="priceData" inverseEntity="CDAsset"/>
+        <relationship name="asset" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDAsset" inverseName="priceData" inverseEntity="CDAsset"/>
     </entity>
     <entity name="CDPriceProvider" representedClassName="CDPriceProvider" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="String"/>
@@ -147,6 +147,26 @@
     <entity name="CDStashItem" representedClassName="CDStashItem" syncable="YES" codeGenerationType="class">
         <attribute name="controller" optional="YES" attributeType="String"/>
         <attribute name="stash" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDTonConnectedApp" representedClassName="CDTonConnectedApp" syncable="YES" codeGenerationType="class">
+        <attribute name="appUrl" attributeType="URI"/>
+        <attribute name="clientId" attributeType="String"/>
+        <attribute name="iconUrl" optional="YES" attributeType="URI"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="privateKey" attributeType="Binary"/>
+        <attribute name="publicKey" attributeType="Binary"/>
+        <attribute name="walletId" attributeType="String"/>
+    </entity>
+    <entity name="CDTonDapp" representedClassName="CDTonDapp" syncable="YES" codeGenerationType="class">
+        <attribute name="appDescription" optional="YES" attributeType="String"/>
+        <attribute name="chains" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="icon" optional="YES" attributeType="URI"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="isConnected" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" attributeType="String"/>
+        <attribute name="poster" optional="YES" attributeType="URI"/>
+        <attribute name="url" optional="YES" attributeType="URI"/>
     </entity>
     <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
         <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>

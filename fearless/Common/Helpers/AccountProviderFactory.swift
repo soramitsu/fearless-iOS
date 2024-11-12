@@ -2,6 +2,7 @@ import Foundation
 import IrohaCrypto
 import RobinHood
 import SSFAccountManagmentStorage
+import SSFModels
 
 protocol AccountProviderFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }

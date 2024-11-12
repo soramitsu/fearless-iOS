@@ -4,6 +4,7 @@ import IrohaCrypto
 import BigInt
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 enum SubstrateCallFactoryError: Error {
     case metadataUnavailable
@@ -116,10 +117,11 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
 
     func poolNominate(
         poolId: UInt32,
-        targets: [SelectedValidatorInfo]
+        targets: [SelectedValidatorInfo],
+        chainFormat: ChainFormat
     ) throws -> any RuntimeCallable {
         let addresses: [AccountId] = try targets.map { info in
-            try info.address.toAccountId()
+            try info.address.toAccountId(using: chainFormat)
         }
 
         let args = PoolNominateCall(pool_id: "\(poolId)", validators: addresses)
@@ -146,7 +148,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         amount: BigUInt,
         chainAsset: ChainAsset
     ) -> any RuntimeCallable {
-        switch chainAsset.chainAssetType {
+        switch chainAsset.chainAssetType.substrateAssetType {
         case .normal, .none:
             if chainAsset.chain.isSora {
                 return ormlAssetTransfer(

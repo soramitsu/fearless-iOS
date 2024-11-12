@@ -138,7 +138,7 @@ final class AccountCreateViewLayout: UIView {
         return label
     }()
 
-    private let expandableControlContainerView: BorderedContainerView = {
+    let expandableControlContainerView: BorderedContainerView = {
         let view = UIFactory().createBorderedContainerView()
         view.backgroundColor = R.color.colorBlack19()
         view.borderType = .bottom
@@ -147,7 +147,7 @@ final class AccountCreateViewLayout: UIView {
         return view
     }()
 
-    private let expandableControl: ExpandableActionControl = {
+    let expandableControl: ExpandableActionControl = {
         let view = UIFactory().createExpandableActionControl()
         view.backgroundColor = R.color.colorBlack19()
         view.translatesAutoresizingMaskIntoConstraints = false

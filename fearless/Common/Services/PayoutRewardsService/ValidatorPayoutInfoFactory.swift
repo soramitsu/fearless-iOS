@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import SSFModels
+import SSFCrypto
 
 final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
     private let chainAsset: ChainAsset

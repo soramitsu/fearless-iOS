@@ -1,6 +1,8 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFAccountManagment
+import SSFCrypto
 
 protocol ValidatorInfoRelaychainStrategyOutput: AnyObject {
     func didReceiveValidatorInfo(_ validatorInfo: ValidatorInfoProtocol)

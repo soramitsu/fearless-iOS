@@ -1,4 +1,3 @@
-
 import RobinHood
 import IrohaCrypto
 import SSFUtils
@@ -40,6 +39,8 @@ final class HistoryOperationFactoriesAssembly {
             return ZChainHistoryOperationFactory()
         case .klaytn:
             return KaiaHistoryOperationFactory()
+        case .ton:
+            return TonHistoryOperationFactory()
         case .none:
             return nil
         }

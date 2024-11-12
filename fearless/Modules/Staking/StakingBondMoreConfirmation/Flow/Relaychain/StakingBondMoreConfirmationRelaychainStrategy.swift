@@ -4,6 +4,7 @@ import SSFUtils
 import SoraKeystore
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol StakingBondMoreConfirmationRelaychainStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)

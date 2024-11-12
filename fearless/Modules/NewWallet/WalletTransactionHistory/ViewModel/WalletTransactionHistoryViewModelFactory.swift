@@ -1,4 +1,3 @@
-
 import RobinHood
 import SSFUtils
 import UIKit
@@ -198,6 +197,10 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
                 size: CGSize(width: 50, height: 50),
                 contentScale: UIScreen.main.scale
             )
+        var imageViewModel: RemoteImageViewModel?
+        if let icon = data.context?["icon"] {
+            imageViewModel = RemoteImageViewModel(string: icon)
+        }
         let viewModel = WalletTransactionHistoryCellViewModel(
             transaction: data,
             address: address,
@@ -208,7 +211,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             statusIcon: statusIcon,
             status: data.status,
             incoming: incoming,
-            imageViewModel: nil
+            imageViewModel: imageViewModel
         )
         return viewModel
     }

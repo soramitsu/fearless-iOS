@@ -48,10 +48,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             substrateDbMigrator
         ]
 
-        let service = OnboardingService(
-            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
-        )
+        let service = OnboardingService()
 
         let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared)
 

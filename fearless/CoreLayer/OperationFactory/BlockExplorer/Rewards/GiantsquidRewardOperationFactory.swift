@@ -3,6 +3,7 @@ import RobinHood
 import SSFUtils
 import SoraFoundation
 import SSFModels
+import SSFCrypto
 
 enum GiantsquidRewardOperationFactoryError: Error {
     case urlMissing

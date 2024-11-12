@@ -10,12 +10,14 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
     private var substrateDerivationPathModel: InputViewModelProtocol?
     private var ethereumDerivationPathModel: InputViewModelProtocol?
     private var isFirstLayoutCompleted: Bool = false
+    private let ecosystem: AccountCreateEcosystem
 
     private lazy var locale: Locale = {
         localizationManager?.selectedLocale ?? Locale.current
     }()
 
-    init(presenter: AccountCreatePresenterProtocol) {
+    init(ecosystem: AccountCreateEcosystem, presenter: AccountCreatePresenterProtocol) {
+        self.ecosystem = ecosystem
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
@@ -37,6 +39,15 @@ final class AccountCreateViewController: UIViewController, ViewHolder {
         setupActions()
 
         presenter.setup()
+        switch ecosystem {
+        case .regular:
+            break
+        case .ton:
+            // TODO: - Ton google backup
+            rootView.backupButton.isHidden = true
+            rootView.expandableControl.isHidden = true
+            rootView.expandableControlContainerView.isHidden = true
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {

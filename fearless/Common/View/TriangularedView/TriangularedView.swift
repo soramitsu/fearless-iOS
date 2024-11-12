@@ -5,8 +5,10 @@ public struct TriangularedCorners: OptionSet {
     public typealias RawValue = UInt8
 
     static let none: TriangularedCorners = []
-    static let topLeft = TriangularedCorners(rawValue: 1)
-    static let bottomRight = TriangularedCorners(rawValue: 2)
+    static let topLeft = TriangularedCorners(rawValue: 1 << 0)
+    static let bottomRight = TriangularedCorners(rawValue: 1 << 1)
+    static let topRight = TriangularedCorners(rawValue: 1 << 2)
+    static let bottomLeft = TriangularedCorners(rawValue: 1 << 3)
 
     public var rawValue: TriangularedCorners.RawValue
 
@@ -35,6 +37,18 @@ open class TriangularedView: ShadowShapeView {
         }
     }
 
+    open var cornersRaduis: TriangularedCorners = [.topRight, .bottomLeft] {
+        didSet {
+            applyPath()
+        }
+    }
+
+    open lazy var cornerRadius: CGFloat = sideLength {
+        didSet {
+            applyPath()
+        }
+    }
+
     var gradientBorderColors: [UIColor] = []
     var gradientBorderStartPoint = CGPoint(x: 0.0, y: 0.5)
     var gradientBorderEndPoint = CGPoint(x: 1.0, y: 0.5)
@@ -48,41 +62,72 @@ open class TriangularedView: ShadowShapeView {
 
         if cornerCut.contains(.topLeft) {
             bezierPath.move(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY))
-        } else {
-            bezierPath.move(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + sideLength))
+        } else if cornersRaduis.contains(.topLeft) {
+            bezierPath.move(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + cornerRadius))
             bezierPath.addQuadCurve(
-                to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY),
+                to: CGPoint(x: layerBounds.minX + cornerRadius, y: layerBounds.minY),
+                controlPoint: CGPoint(x: layerBounds.minX, y: layerBounds.minY)
+            )
+        } else {
+            bezierPath.move(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.minX, y: layerBounds.minY),
                 controlPoint: CGPoint(x: layerBounds.minX, y: layerBounds.minY)
             )
         }
 
-        bezierPath.addLine(to: CGPoint(x: layerBounds.maxX - sideLength, y: layerBounds.minY))
-        bezierPath.addQuadCurve(
-            to: CGPoint(x: layerBounds.maxX, y: layerBounds.minY + sideLength),
-            controlPoint: CGPoint(x: layerBounds.maxX, y: layerBounds.minY)
-        )
+        if cornersRaduis.contains(.topRight) {
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX - cornerRadius, y: layerBounds.minY))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.maxX, y: layerBounds.minY + cornerRadius),
+                controlPoint: CGPoint(x: layerBounds.maxX, y: layerBounds.minY)
+            )
+        } else {
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.minY))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.maxX, y: layerBounds.minY),
+                controlPoint: CGPoint(x: layerBounds.maxX, y: layerBounds.minY)
+            )
+        }
 
         if cornerCut.contains(.bottomRight) {
             bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY - sideLength))
             bezierPath.addLine(to: CGPoint(x: layerBounds.maxX - sideLength, y: layerBounds.maxY))
-        } else {
-            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY - sideLength))
+        } else if cornersRaduis.contains(.bottomRight) {
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY - cornerRadius))
             bezierPath.addQuadCurve(
-                to: CGPoint(x: layerBounds.maxX - sideLength, y: layerBounds.maxY),
+                to: CGPoint(x: layerBounds.maxX - cornerRadius, y: layerBounds.maxY),
+                controlPoint: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY)
+            )
+        } else {
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY),
                 controlPoint: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY)
             )
         }
 
-        bezierPath.addLine(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.maxY))
-        bezierPath.addQuadCurve(
-            to: CGPoint(x: layerBounds.minX, y: layerBounds.maxY - sideLength),
-            controlPoint: CGPoint(x: layerBounds.minX, y: layerBounds.maxY)
-        )
+        if cornersRaduis.contains(.bottomLeft) {
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX + cornerRadius, y: layerBounds.maxY))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.minX, y: layerBounds.maxY - sideLength),
+                controlPoint: CGPoint(x: layerBounds.minX, y: layerBounds.maxY)
+            )
+        } else {
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.maxY))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.minX, y: layerBounds.maxY),
+                controlPoint: CGPoint(x: layerBounds.minX, y: layerBounds.maxY)
+            )
+        }
+
         if cornerCut.contains(.topLeft) {
             bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + sideLength))
             bezierPath.addLine(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY))
+        } else if cornersRaduis.contains(.topLeft) {
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + cornerRadius))
         } else {
-            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + sideLength))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY))
         }
 
         return bezierPath

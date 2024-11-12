@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 protocol WalletNameViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func setInputViewModel(_ viewModel: InputViewModelProtocol)

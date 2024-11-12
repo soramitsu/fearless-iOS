@@ -63,6 +63,10 @@ final class ProfilePresenter {
 }
 
 extension ProfilePresenter: ProfilePresenterProtocol {
+    func openDebugMenu() {
+        wireframe.openDebugMenu(from: view)
+    }
+
     func didLoad(view: ProfileViewProtocol) {
         self.view = view
         interactor.setup(with: self)
@@ -72,7 +76,12 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         guard let wallet = selectedWallet else {
             return
         }
-        wireframe.showAccountDetails(from: view, metaAccount: wallet)
+        switch wallet.ecosystem {
+        case .regular:
+            wireframe.showAccountDetails(from: view, metaAccount: wallet)
+        case .ton:
+            break
+        }
     }
 
     func activateOption(_ option: ProfileOption) {
@@ -94,6 +103,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .walletConnect:
             wireframe.showWalletConnect(from: view)
+        case .crowdloans:
+            wireframe.showCrowdloan(from: view)
         }
     }
 

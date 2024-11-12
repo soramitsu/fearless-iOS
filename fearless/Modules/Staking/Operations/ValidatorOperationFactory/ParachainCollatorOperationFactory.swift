@@ -1,9 +1,11 @@
 import Foundation
+import IrohaCrypto
 import SSFUtils
 import RobinHood
 import BigInt
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 final class ParachainCollatorOperationFactory {
     private let asset: AssetModel
@@ -816,5 +818,15 @@ extension ParachainCollatorOperationFactory {
         let dependencies = [runtimeOperation] + blockWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+}
+
+private extension AccountAddress {
+    func toAccountId() throws -> AccountId {
+        if hasPrefix("0x") {
+            return try AccountId(hexStringSSF: self)
+        } else {
+            return try SS58AddressFactory().accountId(from: self)
+        }
     }
 }

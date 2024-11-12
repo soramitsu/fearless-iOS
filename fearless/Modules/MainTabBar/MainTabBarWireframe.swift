@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import WalletConnectSign
+import SSFModels
 
 final class MainTabBarWireframe: MainTabBarWireframeProtocol {
     func presentPolkaswap(on view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
@@ -14,16 +15,6 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         let navigationController = FearlessNavigationController(rootViewController: viewController)
         let presentingController = tabBarController.topModalViewController
         presentingController.present(navigationController, animated: true, completion: nil)
-    }
-
-    func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController? {
-        if let view = view {
-            return MainTabBarViewFactory.reloadCrowdloanView(
-                on: view
-            )
-        }
-
-        return nil
     }
 
     func presentAccountImport(on view: MainTabBarViewProtocol?) {

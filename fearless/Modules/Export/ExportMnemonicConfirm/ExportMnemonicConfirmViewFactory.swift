@@ -1,10 +1,11 @@
 import Foundation
 import IrohaCrypto
 import SoraFoundation
+import SSFModels
 
 final class ExportMnemonicConfirmViewFactory: ExportMnemonicConfirmViewFactoryProtocol {
     static func createViewForMnemonic(
-        _ mnemonic: IRMnemonicProtocol,
+        _ mnemonic: [String],
         wallet: MetaAccountModel
     ) -> AccountConfirmViewProtocol? {
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)

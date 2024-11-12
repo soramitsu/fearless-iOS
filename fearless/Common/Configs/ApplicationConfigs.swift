@@ -33,6 +33,7 @@ protocol ApplicationConfigProtocol {
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
     var polkaswapSettingsURL: URL? { get }
+    var dappSourceUrl: URL { get }
 }
 
 final class ApplicationConfig {
@@ -143,15 +144,20 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     // MARK: - GitHub
 
     var chainsSourceUrl: URL {
-        #if F_DEV
-            GitHubUrl.url(suffix: "chains/v11/chains_dev.json", branch: .developFree)
-        #else
-            GitHubUrl.url(suffix: "chains/v11/chains.json")
-        #endif
+        let isDev = LocalToggleService.shared.chainsListToggle?.storageValue
+#if F_DEV
+        return GitHubUrl.url(suffix: "chains/v12/chains_dev.json", branch: .developFree)
+#else
+        return GitHubUrl.url(suffix: "chains/v12/chains.json")
+#endif
     }
 
     var chainTypesSourceUrl: URL {
         GitHubUrl.url(suffix: "chains/all_chains_types.json")
+    }
+
+    var dappSourceUrl: URL {
+        GitHubUrl.url(suffix: "appConfigs/dapps.json", branch: .developFree)
     }
 
     // MARK: - xcm

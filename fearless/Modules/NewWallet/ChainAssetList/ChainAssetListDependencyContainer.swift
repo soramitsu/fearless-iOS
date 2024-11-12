@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 struct ChainAssetListDependencies {
     let chainAssetFetching: ChainAssetFetchingProtocol

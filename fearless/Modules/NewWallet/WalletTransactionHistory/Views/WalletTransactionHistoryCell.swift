@@ -64,10 +64,6 @@ class WalletTransactionHistoryCell: UITableViewCell {
         setupLayout()
     }
 
-    override func prepareForReuse() {
-        super.prepareForReuse()
-    }
-
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -128,15 +124,15 @@ class WalletTransactionHistoryCell: UITableViewCell {
         transactionStatusIconImageView.image = viewModel.statusIcon
         transactionStatusIconImageView.isHidden = viewModel.statusIcon == nil
 
-        if let icon = viewModel.icon {
-            accountIconImageView.image = icon
-        } else if let imageViewModel = viewModel.imageViewModel {
+        if let imageViewModel = viewModel.imageViewModel {
             imageViewModel.loadImage(
                 on: accountIconImageView,
                 targetSize: LayoutConstants.accountImageViewSize,
                 animated: true,
                 cornerRadius: 0
             )
+        } else if let icon = viewModel.icon {
+            accountIconImageView.image = icon
         }
 
         switch viewModel.status {

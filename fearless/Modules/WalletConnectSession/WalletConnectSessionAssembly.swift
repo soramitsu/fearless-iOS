@@ -8,8 +8,7 @@ import SoraKeystore
 
 enum WalletConnectSessionAssembly {
     static func configureModule(
-        request: Request,
-        session: Session?,
+        variant: ConnectRequestVariant,
         onGoToConfirmation: ((WalletConnectConfirmationInputData) -> Void)?
     ) -> WalletConnectSessionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -30,15 +29,15 @@ enum WalletConnectSessionAssembly {
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             walletRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            tonConnectService: ServiceAssembly.shared.tonConnectService()
         )
         let router = WalletConnectSessionRouter(onGoToConfirmation: onGoToConfirmation)
 
         let walletConnectModelFactory = WalletConnectModelFactoryImpl()
         let walletConnectPayloaFactory = WalletConnectPayloadFactoryImpl()
         let viewModelFactory = WalletConnectSessionViewModelFactoryImpl(
-            request: request,
-            session: session,
+            variant: variant,
             walletConnectModelFactory: walletConnectModelFactory,
             walletConnectPayloaFactory: walletConnectPayloaFactory,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
@@ -46,8 +45,7 @@ enum WalletConnectSessionAssembly {
             settings: SettingsManager.shared
         )
         let presenter = WalletConnectSessionPresenter(
-            request: request,
-            session: session,
+            variant: variant,
             viewModelFactory: viewModelFactory,
             walletConnectModelFactory: walletConnectModelFactory,
             logger: logger,

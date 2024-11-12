@@ -1,6 +1,8 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFAccountManagment
+import SSFCrypto
 
 protocol ValidatorInfoPoolStrategyOutput: AnyObject {
     func didReceiveValidatorInfo(_ validatorInfo: ValidatorInfoProtocol)

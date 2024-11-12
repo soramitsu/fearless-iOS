@@ -3,6 +3,7 @@ import SSFPools
 import SSFPolkaswap
 import SSFModels
 import BigInt
+import SSFAccountManagment
 
 protocol LiquidityPoolRemoveLiquidityInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)

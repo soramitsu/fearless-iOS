@@ -1,4 +1,3 @@
-
 import SSFModels
 class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
     func present(

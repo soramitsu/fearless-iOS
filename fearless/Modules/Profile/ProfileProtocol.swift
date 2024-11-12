@@ -12,6 +12,7 @@ protocol ProfilePresenterProtocol: AnyObject {
     func logout()
     func switcherValueChanged(isOn: Bool, index: Int)
     func didTapAccountScore(address: String?)
+    func openDebugMenu()
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {
@@ -55,6 +56,8 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func close(view: ControllerBackedProtocol?)
     func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
     func showWalletConnect(from view: ControllerBackedProtocol?)
+    func openDebugMenu(from view: ControllerBackedProtocol?)
+    func showCrowdloan(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

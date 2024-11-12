@@ -48,7 +48,7 @@ class PinSetupInteractor {
     private func handleTouchId() {
         state = .waitingBiometrics
 
-        presenter?.didStartWaitingBiometryDecision(type: .touchId) { [weak self] (result: Bool) -> Void in
+        presenter?.didStartWaitingBiometryDecision(type: .touchId) { [weak self] (result: Bool) in
             self?.processResponseForBiometrics(result: result)
         }
     }
@@ -80,7 +80,7 @@ class PinSetupInteractor {
             currentPincode,
             for: KeystoreTag.pincode.rawValue,
             completionQueue: DispatchQueue.main
-        ) { [weak self] _ -> Void in
+        ) { [weak self] _ in
             self?.completeSetup()
         }
     }

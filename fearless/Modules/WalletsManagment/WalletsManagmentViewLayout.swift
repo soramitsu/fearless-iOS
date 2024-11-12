@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SSFModels
 
 enum WalletsManagmentType {
     case wallets
@@ -42,13 +43,6 @@ final class WalletsManagmentViewLayout: UIView {
         return button
     }()
 
-    let importWalletButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.triangularedView?.fillColor = R.color.colorBlack1()!
-        button.imageWithTitleView?.titleFont = .h4Title
-        return button
-    }()
-
     var locale: Locale = .current {
         didSet {
             applyLocale()
@@ -75,9 +69,6 @@ final class WalletsManagmentViewLayout: UIView {
         case .selectYourWallet:
             titleLabel.text = R.string.localizable.walletManagmentSelectWalletTitle(preferredLanguages: locale.rLanguages)
         }
-        importWalletButton.imageWithTitleView?.title = R.string.localizable.importWallet(
-            preferredLanguages: locale.rLanguages
-        )
         addNewWalletButton.imageWithTitleView?.title = R.string.localizable.walletsManagmentAddNewWallet(
             preferredLanguages: locale.rLanguages
         )
@@ -118,12 +109,7 @@ final class WalletsManagmentViewLayout: UIView {
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        importWalletButton.snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-
         buttonsVStackView.addArrangedSubview(addNewWalletButton)
-        buttonsVStackView.addArrangedSubview(importWalletButton)
 
         addSubview(tableView)
         tableView.snp.makeConstraints { make in

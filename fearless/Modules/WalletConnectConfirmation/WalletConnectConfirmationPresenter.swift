@@ -7,13 +7,17 @@ protocol WalletConnectConfirmationViewInput: ControllerBackedProtocol, LoadableV
 
 protocol WalletConnectConfirmationInteractorInput: AnyObject {
     func setup(with output: WalletConnectConfirmationInteractorOutput)
-    func reject() async throws
     func approve() async throws -> String?
+    func cancelTonConnect(
+        appRequest: TonConnect.AppRequest,
+        app: TonConnectApp
+    ) async throws
 }
 
 final class WalletConnectConfirmationPresenter {
     // MARK: Private properties
 
+    private weak var moduleOutput: WalletConnectSessionModuleOutput?
     private weak var view: WalletConnectConfirmationViewInput?
     private let router: WalletConnectConfirmationRouterInput
     private let interactor: WalletConnectConfirmationInteractorInput
@@ -30,6 +34,7 @@ final class WalletConnectConfirmationPresenter {
         router: WalletConnectConfirmationRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        moduleOutput = inputData.moduleOutput
         self.inputData = inputData
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
@@ -66,6 +71,84 @@ final class WalletConnectConfirmationPresenter {
             locale: selectedLocale
         )
     }
+
+    private func approveWalletConnect() async throws {
+        let hash = try await interactor.approve()
+        Task { @MainActor in
+            showAllDone(hash: hash)
+            view?.didStopLoading()
+        }
+    }
+
+    private func approveTonJsBridge(
+        requestId: String,
+        invocationId: String
+    ) async throws {
+        guard let boc = try await interactor.approve() else {
+            throw ConvenienceError(error: "Send boc ton connect error")
+        }
+        let response: TonConnect.SendTransactionResponse = .success(
+            TonConnect.SendTransactionResponseSuccess(
+                result: boc,
+                id: requestId
+            )
+        )
+        moduleOutput?.tonConnectSend(
+            dessision: .sent(
+                invocationId: invocationId,
+                response: response
+            )
+        )
+        Task { @MainActor in
+            router.dismiss(view: view)
+            view?.controller.onInteractionDismiss()
+        }
+    }
+
+    private func approveTonConnect() async throws {
+        _ = try await interactor.approve()
+        Task { @MainActor in
+            router.dismiss(view: view)
+            view?.controller.onInteractionDismiss()
+        }
+    }
+
+    private func handleWalletConnect(error: Error) {
+        Task { @MainActor in
+            view?.didStopLoading()
+            show(error: error)
+        }
+    }
+
+    private func handleTonJsBridge(
+        error: Error,
+        invocationId: String
+    ) {
+        moduleOutput?.tonConnectSend(
+            dessision: .error(
+                invocationId: invocationId,
+                error: .unknownError
+            )
+        )
+        Task { @MainActor in
+            view?.didStopLoading()
+            show(error: error)
+        }
+    }
+
+    private func cancelTonConnect(
+        appRequest: TonConnect.AppRequest,
+        app: TonConnectApp
+    ) async {
+        do {
+            try await interactor.cancelTonConnect(
+                appRequest: appRequest,
+                app: app
+            )
+        } catch {
+            show(error: error)
+        }
+    }
 }
 
 // MARK: - WalletConnectConfirmationViewOutput
@@ -83,15 +166,26 @@ extension WalletConnectConfirmationPresenter: WalletConnectConfirmationViewOutpu
         view?.didStartLoading()
         Task {
             do {
-                let hash = try await interactor.approve()
-                await MainActor.run {
-                    showAllDone(hash: hash)
-                    view?.didStopLoading()
+                switch inputData.variant {
+                case .walletConnect:
+                    try await approveWalletConnect()
+                case let .tonJsBridge(invocationId, _, request, _):
+                    try await approveTonJsBridge(requestId: request.id, invocationId: invocationId)
+                case let .tonConnect(request: request, app: app):
+                    try await approveTonConnect()
                 }
             } catch {
-                await MainActor.run {
-                    view?.didStopLoading()
-                    show(error: error)
+                switch inputData.variant {
+                case .walletConnect:
+                    handleWalletConnect(error: error)
+                case let .tonJsBridge(invocationId, _, _, _):
+                    handleTonJsBridge(
+                        error: error,
+                        invocationId: invocationId
+                    )
+                case let .tonConnect(request: request, app: app):
+                    handleWalletConnect(error: error)
+                    await cancelTonConnect(appRequest: request, app: app)
                 }
             }
         }

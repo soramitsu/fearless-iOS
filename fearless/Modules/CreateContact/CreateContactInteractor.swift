@@ -1,5 +1,6 @@
 import UIKit
 import SSFModels
+import SSFCrypto
 
 final class CreateContactInteractor {
     // MARK: - Private properties

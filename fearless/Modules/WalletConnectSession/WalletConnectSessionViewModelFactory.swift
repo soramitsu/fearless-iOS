@@ -15,8 +15,7 @@ protocol WalletConnectSessionViewModelFactory {
 }
 
 final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewModelFactory {
-    private let request: Request
-    private let session: Session?
+    private let variant: ConnectRequestVariant
     private let walletConnectModelFactory: WalletConnectModelFactory
     private let walletConnectPayloaFactory: WalletConnectPayloadFactory
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
@@ -24,16 +23,14 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
     private let settings: SettingsManagerProtocol
 
     init(
-        request: Request,
-        session: Session?,
+        variant: ConnectRequestVariant,
         walletConnectModelFactory: WalletConnectModelFactory,
         walletConnectPayloaFactory: WalletConnectPayloadFactory,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
         accountScoreFetcher: AccountStatisticsFetching,
         settings: SettingsManagerProtocol
     ) {
-        self.request = request
-        self.session = session
+        self.variant = variant
         self.walletConnectModelFactory = walletConnectModelFactory
         self.walletConnectPayloaFactory = walletConnectPayloaFactory
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
@@ -47,13 +44,55 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
     ) async throws -> WalletConnectSessionViewModel {
+        switch variant {
+        case let .walletConnect(request, session):
+            return try await buildWalletConnectViewModel(
+                request: request,
+                session: session,
+                wallets: wallets,
+                chains: chains,
+                balanceInfo: balanceInfo,
+                locale: locale
+            )
+        case let .tonJsBridge(_, wallet, dapp, request, _):
+            return try buildTonViewModel(
+                wallet: wallet,
+                app: dapp.url.host,
+                request: request,
+                balanceInfo: balanceInfo,
+                locale: locale
+            )
+        case let .tonConnect(request: request, walletId: walletId, app: app):
+            guard let wallet = wallets.first(where: { $0.metaId == walletId }) else {
+                throw ConvenienceError(error: "Wallet not found")
+            }
+            return try buildTonViewModel(
+                wallet: wallet,
+                app: app.appUrl.host,
+                request: request,
+                balanceInfo: balanceInfo,
+                locale: locale
+            )
+        }
+    }
+
+    // MARK: - Private methods
+
+    private func buildWalletConnectViewModel(
+        request: Request,
+        session: Session?,
+        wallets: [MetaAccountModel],
+        chains: [ChainModel],
+        balanceInfo: WalletBalanceInfos?,
+        locale: Locale
+    ) async throws -> WalletConnectSessionViewModel {
         var dApp: String?
         if let session = session {
             dApp = URL(string: session.peer.url)?.host
         }
 
-        let payload = try await prepareSignPayload(chains: chains)
-        let wallet = try findWallet(for: payload.address, wallets: wallets, chains: chains)
+        let payload = try await prepareSignPayload(chains: chains, request: request)
+        let wallet = try findWallet(for: payload.address, wallets: wallets, chains: chains, request: request)
         let walletViewModel = createWalletViewModel(
             wallet: wallet,
             balanceInfo: balanceInfo,
@@ -69,10 +108,38 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         )
     }
 
-    // MARK: - Private methods
+    private func buildTonViewModel(
+        wallet: MetaAccountModel,
+        app: String?,
+        request: TonConnect.AppRequest,
+        balanceInfo: WalletBalanceInfos?,
+        locale: Locale
+    ) throws -> WalletConnectSessionViewModel {
+        let walletViewModel = createWalletViewModel(
+            wallet: wallet,
+            balanceInfo: balanceInfo,
+            locale: locale
+        )
+
+        let payload = WalletConnectPayload(
+            address: nil,
+            payload: AnyCodable(any: ""),
+            stringRepresentation: request.method.rawValue,
+            txDetails: try request.toScaleCompatibleJSON()
+        )
+
+        return WalletConnectSessionViewModel(
+            dApp: app,
+            warning: createWarning(locale: locale),
+            walletViewModel: walletViewModel,
+            payload: payload,
+            wallet: wallet
+        )
+    }
 
     private func prepareSignPayload(
-        chains: [ChainModel]
+        chains: [ChainModel],
+        request: Request
     ) async throws -> WalletConnectPayload {
         let method = try walletConnectModelFactory.parseMethod(from: request)
         let chain = try walletConnectModelFactory.resolveChain(for: request.chainId, chains: chains)
@@ -88,7 +155,8 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
     private func findWallet(
         for address: String?,
         wallets: [MetaAccountModel],
-        chains: [ChainModel]
+        chains: [ChainModel],
+        request: Request
     ) throws -> MetaAccountModel {
         let blockchain = request.chainId
         let chain = try walletConnectModelFactory.resolveChain(for: blockchain, chains: chains)
@@ -109,7 +177,7 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         balanceInfo: WalletBalanceInfos?,
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let address = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         let accountScoreViewModel = AccountScoreViewModel(
             fetcher: accountScoreFetcher,
             address: address,
@@ -123,9 +191,11 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
             return WalletsManagmentCellViewModel(
                 isSelected: false,
                 walletName: wallet.name,
+                icon: wallet.icon(),
                 fiatBalance: nil,
                 dayChange: nil,
-                accountScoreViewModel: accountScoreViewModel
+                accountScoreViewModel: accountScoreViewModel,
+                optionsAvailable: wallet.ecosystem.isRegular
             )
         }
         let balanceTokenFormatterValue = tokenFormatter(
@@ -146,9 +216,11 @@ final class WalletConnectSessionViewModelFactoryImpl: WalletConnectSessionViewMo
         let viewModel = WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
+            icon: wallet.icon(),
             fiatBalance: totalFiatValue,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel
+            accountScoreViewModel: accountScoreViewModel,
+            optionsAvailable: wallet.ecosystem.isRegular
         )
 
         return viewModel

@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SSFNetwork
 import SoraKeystore
+import SSFModels
 
 final class MainNftContainerAssembly {
     static func configureModule(wallet: MetaAccountModel) -> MainNftContainerModuleCreationResult? {

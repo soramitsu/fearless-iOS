@@ -2,6 +2,7 @@ import UIKit
 import SoraKeystore
 import IrohaCrypto
 import RobinHood
+import SSFModels
 
 class BaseAccountConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
@@ -19,7 +20,7 @@ class BaseAccountConfirmInteractor {
         operationManager: OperationManagerProtocol
     ) {
         self.flow = flow
-        shuffledWords = flow?.mnemonic.allWords().shuffled() ?? []
+        shuffledWords = flow?.mnemonicAllWordls.shuffled() ?? []
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
@@ -36,7 +37,7 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
     }
 
     func confirm(words: [String]) {
-        guard let confirmFlow = flow, words == confirmFlow.mnemonic.allWords() else {
+        guard let confirmFlow = flow, words == confirmFlow.mnemonicAllWordls else {
             presenter.didReceive(
                 words: shuffledWords,
                 afterConfirmationFail: true
@@ -44,8 +45,8 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
             return
         }
         switch confirmFlow {
-        case let .wallet(request):
-            createAccount(request, isBackuped: true)
+        case let .wallet(ecosystem):
+            createAccount(ecosystem: ecosystem, isBackuped: true)
         case let .chain(request):
             importUniqueChain(request)
         }
@@ -57,7 +58,7 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
         }
         switch confirmFlow {
         case let .wallet(request):
-            createAccount(request, isBackuped: false)
+            createAccount(ecosystem: request, isBackuped: false)
         case let .chain(request):
             importUniqueChain(request)
         }
@@ -65,9 +66,15 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
 }
 
 private extension BaseAccountConfirmInteractor {
-    func createAccount(_ request: MetaAccountImportMnemonicRequest, isBackuped: Bool) {
-        let operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: isBackuped)
-        createAccountUsingOperation(operation)
+    func createAccount(ecosystem: (AccountConfirmFlowWalletEcosystemRequest), isBackuped: Bool) {
+        switch ecosystem {
+        case .regular(let metaAccountImportMnemonicRequest):
+            let operation = accountOperationFactory.newMetaAccountOperation(request: metaAccountImportMnemonicRequest, isBackedUp: isBackuped)
+            createAccountUsingOperation(operation)
+        case .ton(let metaAccountImportTonMnemonicRequest):
+            let operation = accountOperationFactory.newTonMetaAccountOperation(request: metaAccountImportTonMnemonicRequest, isBackedUp: isBackuped)
+            createAccountUsingOperation(operation)
+        }
     }
 
     func importUniqueChain(_ request: ChainAccountImportMnemonicRequest) {

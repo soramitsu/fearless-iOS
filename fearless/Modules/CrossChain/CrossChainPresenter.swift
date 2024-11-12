@@ -6,6 +6,7 @@ import SSFExtrinsicKit
 import SSFUtils
 import SSFModels
 import SSFQRService
+import SSFCrypto
 
 protocol CrossChainViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)

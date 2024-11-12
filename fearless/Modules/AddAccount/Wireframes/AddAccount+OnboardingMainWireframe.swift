@@ -34,8 +34,8 @@ extension AddAccount {
             view?.controller.navigationController?.pushViewController(controller, animated: true)
         }
 
-        func showSignup(from view: OnboardingMainViewProtocol?) {
-            guard let usernameSetup = UsernameSetupViewFactory.createViewForAdding() else {
+        func showSignup(from view: OnboardingMainViewProtocol?, ecosystem: AccountCreateEcosystem) {
+            guard let usernameSetup = UsernameSetupViewFactory.createViewForAdding(ecosystem: ecosystem) else {
                 return
             }
 
@@ -46,10 +46,11 @@ extension AddAccount {
 
         func showAccountRestore(
             defaultSource: AccountImportSource,
+            flow: AccountImportFlow,
             from view: OnboardingMainViewProtocol?
         ) {
             guard let restorationController = AccountImportViewFactory
-                .createViewForAdding(defaultSource: defaultSource)?.controller
+                .createViewForAdding(defaultSource: defaultSource, flow)?.controller
             else {
                 return
             }
@@ -64,7 +65,7 @@ extension AddAccount {
                 let navigationController = view?.controller.navigationController,
                 navigationController.topViewController == view?.controller,
                 navigationController.presentedViewController == nil {
-                showAccountRestore(defaultSource: .mnemonic, from: view)
+                showAccountRestore(defaultSource: .mnemonic, flow: .wallet(step: .substrate), from: view)
             }
         }
 

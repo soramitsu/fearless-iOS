@@ -37,6 +37,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         self.eventCenter = eventCenter
         self.logger = logger
         self.userDefaultsStorage = userDefaultsStorage
+        eventCenter.add(observer: self)
     }
 
     // MARK: - WalletAssetsObserver
@@ -235,6 +236,8 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         ].joined(separator: ":")
     }
 }
+
+// MARK: - EventVisitorProtocol
 
 extension WalletAssetsObserverImpl: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {

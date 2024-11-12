@@ -25,7 +25,7 @@ enum AccountImportFlow {
             return model.chain.isEthereumBased
         case let .wallet(step):
             switch step {
-            case .substrate:
+            case .substrate, .ton:
                 return false
             case .ethereum:
                 return true
@@ -159,6 +159,8 @@ private extension AccountImportPresenter {
             case let .ethereum(data):
                 selectedCryptoType = data.cryptoType
                 view?.setSource(type: selectedSourceType, chainType: .ethereum, selectable: false)
+            case .ton:
+                view?.setSource(type: .tonMnemonic, chainType: .ton, selectable: false)
             }
         }
 
@@ -170,7 +172,7 @@ private extension AccountImportPresenter {
             username = model.meta.name
         case let .wallet(step):
             switch step {
-            case .substrate:
+            case .substrate, .ton:
                 username = preferredData?.username ?? ""
             case let .ethereum(data):
                 username = data.username
@@ -191,7 +193,7 @@ private extension AccountImportPresenter {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         switch selectedSourceType {
-        case .mnemonic:
+        case .mnemonic, .tonMnemonic:
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
             let normalizer = MnemonicTextNormalizer()
@@ -260,7 +262,7 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
-        case .mnemonic, .seed:
+        case .mnemonic, .seed, .tonMnemonic:
             passwordViewModel = nil
         case .keystore:
             let viewModel = InputViewModel(inputHandler: InputHandler(required: true))
@@ -278,7 +280,7 @@ private extension AccountImportPresenter {
             return
         }
         switch selectedSourceType {
-        case .mnemonic:
+        case .mnemonic, .tonMnemonic:
             applyCryptoTypeViewModel(cryptoType)
 
             switch flow {
@@ -539,6 +541,15 @@ private extension AccountImportPresenter {
                 defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
+        case (.tonMnemonic, .ton):
+            let mnemonicString = data.source
+            let request = MetaAccountImportRequest(
+                source: .ton(mnemonic: mnemonicString),
+                username: data.username,
+                cryptoType: .ed25519,
+                defaultChainId: nil
+            )
+            interactor.importMetaAccount(request: request)
         case (.seed, .substrate):
             askIfNeedAddEthereum { [weak self] in
                 self?.showSecondStep(data: data)
@@ -607,6 +618,7 @@ private extension AccountImportPresenter {
                 defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
+        default: break
         }
     }
 
@@ -647,6 +659,8 @@ private extension AccountImportPresenter {
                 password: data.password
             )
             source = UniqueChainImportRequestSource.keystore(data: sourceData)
+        case .tonMnemonic:
+            return
         }
         let request = UniqueChainImportRequest(
             source: source,
@@ -664,7 +678,7 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
-        case .mnemonic:
+        case .mnemonic, .tonMnemonic:
             return validateMnemonic(value: value)
         case .seed:
             return validateSeed(value: value)

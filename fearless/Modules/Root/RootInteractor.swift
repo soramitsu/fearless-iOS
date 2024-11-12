@@ -44,8 +44,13 @@ final class RootInteractor {
             callbackUrl: callbackUrl,
             eventCenter: eventCenter
         )
+        let tonConnectUrlHandler = TonConnectUrlHandling()
 
-        URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
+        URLHandlingService.shared.setup(children: [
+            purchaseHandler,
+            keystoreImportService,
+            tonConnectUrlHandler
+        ])
     }
 
     private func runMigrators() {
@@ -62,12 +67,11 @@ final class RootInteractor {
 extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
+        if runMigrations {
+            self.runMigrators()
+        }
 
         settings.setup(runningCompletionIn: .global()) { result in
-            if runMigrations {
-                self.runMigrators()
-            }
-
             switch result {
             case let .success(wallet):
                 if let wallet = wallet {

@@ -36,7 +36,7 @@ final class ReceiveAndRequestAssetPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
 
     private var address: String? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress(bounceable: false)
     }
 
     // MARK: - Constructors
@@ -135,8 +135,11 @@ final class ReceiveAndRequestAssetPresenter {
 
         qrOperation = Task {
             do {
-                guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()), let address = account.toAddress() else {
-                    throw ChainAccountFetchingError.accountNotExists
+                guard
+                    let account = wallet.fetch(for: chainAsset.chain.accountRequest()),
+                    let address = account.toAddress(bounceable: false)
+                else {
+                    throw ConvenienceError(error: "Account not exist")
                 }
                 var qrType: QRType = .address(address)
                 if chainAsset.chain.isSora {

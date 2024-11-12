@@ -283,7 +283,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
         var items: [ChainAction] = []
         items.append(.export)
-        if !chainAsset.chain.isEthereum { items.append(.switchNode) }
+        if chainAsset.chain.ecosystem.isSubstrate || chainAsset.chain.ecosystem.isEthereumBased { items.append(.switchNode) }
         items.append(.replace)
         if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 

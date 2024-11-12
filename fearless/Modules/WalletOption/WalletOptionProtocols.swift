@@ -1,7 +1,10 @@
+import SSFModels
+
 typealias WalletOptionModuleCreationResult = (view: WalletOptionViewInput, input: WalletOptionModuleInput)
 
 protocol WalletOptionViewInput: ControllerBackedProtocol {
     func setDeleteButtonIsVisible(_ isVisible: Bool)
+    func walletDetailsButton(isVisible: Bool)
 }
 
 protocol WalletOptionViewOutput: AnyObject {
@@ -30,7 +33,7 @@ protocol WalletOptionRouterInput: SheetAlertPresentable, AnyDismissable, Account
     )
     func showExportWallet(
         from view: ControllerBackedProtocol?,
-        wallet: ManagedMetaAccountModel
+        wallet: MetaAccountModel
     )
     func showChangeWalletName(
         from view: ControllerBackedProtocol?,

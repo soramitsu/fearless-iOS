@@ -5,6 +5,7 @@ import IrohaCrypto
 import SSFUtils
 import SoraFoundation
 import SSFModels
+import SSFCrypto
 
 extension AssetTransactionData {
     static func createTransaction(
@@ -208,8 +209,7 @@ extension AssetTransactionData {
             let signedData = extrinsic.signedData,
             let fee = signedData.fee,
             let partialFee = fee.partialFee,
-            let partialFeeDecimal = Decimal.fromSubstrateAmount(partialFee, precision: Int16(asset.precision))
-        {
+            let partialFeeDecimal = Decimal.fromSubstrateAmount(partialFee, precision: Int16(asset.precision)) {
             let fee = AssetTransactionFee(
                 identifier: asset.id,
                 assetId: asset.id,

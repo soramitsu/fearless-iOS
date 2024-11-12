@@ -1,5 +1,3 @@
-
-
 enum WalletTransactionHistoryDataState {
     case waitingCached
     case loading(page: Pagination, previousPage: Pagination?)

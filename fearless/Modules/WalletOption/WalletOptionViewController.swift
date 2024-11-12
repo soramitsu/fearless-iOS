@@ -63,6 +63,11 @@ extension WalletOptionViewController: WalletOptionViewInput {
     func setDeleteButtonIsVisible(_ isVisible: Bool) {
         rootView.deleteWalletButton.isHidden = !isVisible
     }
+
+    func walletDetailsButton(isVisible: Bool) {
+        rootView.walletDetailsButton.isHidden = !isVisible
+        rootView.accountScoreButton.isHidden = !isVisible
+    }
 }
 
 // MARK: - Localizable

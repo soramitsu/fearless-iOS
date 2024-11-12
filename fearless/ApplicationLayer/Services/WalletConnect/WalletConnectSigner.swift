@@ -80,8 +80,8 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
         let publicKeyData = try extractPublicKey(for: chain)
         let secretKeyData = try extractPrivateKey(for: chain)
 
-        return TransactionSignerAssembly.signer(
-            for: chain.chainBaseType,
+        return try TransactionSignerAssembly.signer(
+            for: chain.ecosystem,
             publicKeyData: publicKeyData,
             secretKeyData: secretKeyData,
             cryptoType: cryptoType
@@ -93,9 +93,7 @@ final class WalletConnectSignerImpl: WalletConnectSigner {
             throw AutoNamespacesError.requiredAccountsNotSatisfied
         }
         let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        let tag: String = chain.isEthereumBased
-            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-            : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+        let tag: String = KeystoreTagV2.secretKeyTag(for: chain.ecosystem, metaId: wallet.metaId, accountId: accountId)
 
         let secretKey = try keystore.fetchKey(for: tag)
 

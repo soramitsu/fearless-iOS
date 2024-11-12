@@ -11,18 +11,24 @@ enum ExportFlow {
         }
 
         var accountsToExport: [ChainAccountInfo] = []
-
         accounts.forEach { chainAccountInfo in
-            if !chainAccountInfo.account.isChainAccount {
-                if chainAccountInfo.account.isEthereumBased, accountsToExport.first(where: { $0.account.isEthereumBased && !$0.account.isChainAccount }) == nil {
-                    accountsToExport.append(chainAccountInfo)
-                }
-
-                if !chainAccountInfo.account.isEthereumBased, accountsToExport.first(where: { !$0.account.isEthereumBased && !$0.account.isChainAccount }) == nil {
-                    accountsToExport.append(chainAccountInfo)
-                }
-            } else {
+            if chainAccountInfo.account.isChainAccount {
                 accountsToExport.append(chainAccountInfo)
+            } else {
+                switch chainAccountInfo.account.ecosystem {
+                case .substrate:
+                    if accountsToExport.first(where: { $0.account.ecosystem.isSubstrate }) == nil {
+                        accountsToExport.append(chainAccountInfo)
+                    }
+                case .ethereumBased, .ethereum:
+                    if accountsToExport.first(where: { $0.account.ecosystem.isEthereum || $0.account.ecosystem.isEthereumBased }) == nil {
+                        accountsToExport.append(chainAccountInfo)
+                    }
+                case .ton:
+                    if accountsToExport.first(where: { $0.account.ecosystem.isTon }) == nil {
+                        accountsToExport.append(chainAccountInfo)
+                    }
+                }
             }
         }
 

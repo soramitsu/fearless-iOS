@@ -1,4 +1,3 @@
-
 import SSFModels
 
 protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggable, LoadableViewProtocol {
