@@ -74,7 +74,8 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             selectedFilter: selectedFilterName,
             selectedFilterImage: selectedFilterImage,
             address: chainAddress,
-            accountScoreViewModel: accountScoreViewModel
+            accountScoreViewModel: accountScoreViewModel,
+            walletIcon: selectedMetaAccount.icon()
         )
     }
 }
