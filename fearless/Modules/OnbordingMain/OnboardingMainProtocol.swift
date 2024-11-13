@@ -13,6 +13,7 @@ protocol OnboardingMainPresenterProtocol: AnyObject {
     func activatePrivacy()
     func didTapGetPreinstalled()
     func didSelect(ecosystem: AccountCreateEcosystem)
+    func dismiss()
 }
 
 protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, SheetAlertPresentable, WarningPresentable, PresentDismissable, AppUpdatePresentable {

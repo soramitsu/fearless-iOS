@@ -53,6 +53,10 @@ final class OnboardingMainPresenter {
 }
 
 extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
+    func dismiss() {
+        wireframe.dismiss(view: view)
+    }
+
     func didSelect(ecosystem: AccountCreateEcosystem) {
         self.ecosystem = ecosystem
     }

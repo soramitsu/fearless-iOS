@@ -8,8 +8,10 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
     var presenter: OnboardingMainPresenterProtocol!
 
     private let ecosystem: AccountCreateEcosystem?
+    private var shouldDismiss: Bool
     init(ecosystem: AccountCreateEcosystem?) {
         self.ecosystem = ecosystem
+        self.shouldDismiss = ecosystem != nil
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -56,6 +58,9 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
             self?.presenter.didTapGetPreinstalled()
         }
         rootView.backButton.addAction { [weak self] in
+            if self?.shouldDismiss == true {
+                self?.presenter.dismiss()
+            }
             UIView.animate(
                 withDuration: 0.25,
                 delay: 0,
