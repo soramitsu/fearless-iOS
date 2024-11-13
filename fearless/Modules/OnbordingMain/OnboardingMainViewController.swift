@@ -42,7 +42,17 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
             self.presenter.didSelect(ecosystem: .regular)
             self.ecosystemHasBeenSelected()
         }
+        rootView.selectRegularBannerView.addTapGestureRecognizer { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .regular)
+            self.ecosystemHasBeenSelected()
+        }
         rootView.selectTonBannerView.actionButton.addAction { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .ton)
+            self.ecosystemHasBeenSelected()
+        }
+        rootView.selectTonBannerView.addTapGestureRecognizer { [weak self] in
             guard let self else { return }
             self.presenter.didSelect(ecosystem: .ton)
             self.ecosystemHasBeenSelected()
