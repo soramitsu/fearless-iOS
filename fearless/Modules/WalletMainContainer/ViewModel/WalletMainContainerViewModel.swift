@@ -8,4 +8,5 @@ struct WalletMainContainerViewModel {
     let address: String?
     let accountScoreViewModel: AccountScoreViewModel?
     let walletIcon: UIImage
+    let isSelectableNetwork: Bool
 }

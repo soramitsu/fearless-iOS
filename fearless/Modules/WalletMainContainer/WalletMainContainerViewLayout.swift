@@ -115,6 +115,7 @@ final class WalletMainContainerViewLayout: UIView {
 
         accountScoreView.bind(viewModel: viewModel.accountScoreViewModel)
         switchWalletButton.setImage(viewModel.walletIcon, for: .normal)
+        selectNetworkButton.applySelectableStyle(viewModel.isSelectableNetwork)
     }
 
     func addBalance(_ view: UIView) {

@@ -51,6 +51,7 @@ final class SelectedNetworkButton: UIControl {
     }
 
     func applySelectableStyle(_ selectable: Bool) {
+        isUserInteractionEnabled = selectable
         dropTraingleImageView.isHidden = !selectable
     }
 
