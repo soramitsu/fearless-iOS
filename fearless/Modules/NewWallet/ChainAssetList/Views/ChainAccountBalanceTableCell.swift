@@ -117,7 +117,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
         viewModel.imageViewModel?.loadBalanceListIcon(
             on: assetIconImageView,
-            animated: false
+            animated: true,
+            cornerRadius: LayoutConstants.iconSize / 2
         )
 
         if let options = viewModel.options {

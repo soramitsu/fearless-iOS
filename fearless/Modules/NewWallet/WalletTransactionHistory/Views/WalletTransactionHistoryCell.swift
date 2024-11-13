@@ -12,6 +12,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
     let accountIconImageView: UIImageView = {
         let iconView = UIImageView()
         iconView.backgroundColor = .clear
+        iconView.layer.masksToBounds = true
         return iconView
     }()
 
@@ -67,6 +68,11 @@ class WalletTransactionHistoryCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        accountIconImageView.layer.cornerRadius = LayoutConstants.accountImageViewSize.height / 2
     }
 
     private func configure() {
@@ -129,7 +135,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
                 on: accountIconImageView,
                 targetSize: LayoutConstants.accountImageViewSize,
                 animated: true,
-                cornerRadius: 0
+                cornerRadius: LayoutConstants.accountImageViewSize.height / 2
             )
         } else if let icon = viewModel.icon {
             accountIconImageView.image = icon

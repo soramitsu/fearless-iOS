@@ -2,7 +2,11 @@ import UIKit
 import SoraUI
 
 final class AssetManagementTableCell: UITableViewCell {
-    let iconImageView = UIImageView()
+    let iconImageView: UIImageView = {
+        let iconImageView = UIImageView()
+        iconImageView.layer.masksToBounds = true
+        return iconImageView
+    }()
 
     let symbolLabel: UILabel = {
         let label = UILabel()
@@ -65,6 +69,11 @@ final class AssetManagementTableCell: UITableViewCell {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        iconImageView.rounded()
     }
 
     func bind(viewModel: AssetManagementTableCellViewModel) {
