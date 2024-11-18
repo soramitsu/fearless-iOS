@@ -283,8 +283,10 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
         var items: [ChainAction] = []
         items.append(.export)
-        if chainAsset.chain.ecosystem.isSubstrate || chainAsset.chain.ecosystem.isEthereumBased { items.append(.switchNode) }
-        items.append(.replace)
+        if chainAsset.chain.ecosystem.isSubstrate || chainAsset.chain.ecosystem.isEthereumBased {
+            items.append(.switchNode)
+            items.append(.replace)
+        }
         if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in

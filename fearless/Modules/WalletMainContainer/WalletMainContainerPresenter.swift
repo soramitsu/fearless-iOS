@@ -54,8 +54,10 @@ final class WalletMainContainerPresenter {
             selectedMetaAccount: wallet,
             locale: selectedLocale
         )
-        DispatchQueue.main.async {
+        DispatchQueue.main.async { [weak self] in
+            guard let self else { return }
             self.view?.didReceiveViewModel(viewModel)
+            self.view?.didReceiveNftAvailability(isNftAvailable: self.wallet.ecosystem.isRegular)
         }
     }
 
