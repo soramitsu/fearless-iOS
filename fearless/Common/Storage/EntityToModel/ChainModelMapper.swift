@@ -152,7 +152,7 @@ final class ChainModelMapper {
                 entity.currencyId = priceData.currencyId
                 entity.priceId = priceData.priceId
                 entity.price = priceData.price
-                entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
+                entity.fiatDayByChange = NSDecimalNumber(decimal: priceData.fiatDayChange ?? .zero).stringValue
                 entity.coingeckoPriceId = priceData.coingeckoPriceId
                 return entity
             }

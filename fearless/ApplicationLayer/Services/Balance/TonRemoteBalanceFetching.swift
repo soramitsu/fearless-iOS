@@ -259,14 +259,21 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let price = rates?.prices?.additionalProperties.first?.value else {
             return []
         }
+        let fiatDayChangeString = rates?.diff_24h?.additionalProperties.first?.value.replacingOccurrences(of: "%", with: "")
+        let fiatDayChangeStringU002D = fiatDayChangeString?.replacingOccurrences(of: "\u{2212}", with: "-") ?? "0"
+        let fiatDayChangeDecimal = Decimal(string: fiatDayChangeStringU002D) ?? .zero
         let priceData = PriceData(
             currencyId: currency.id,
             priceId: "",
             price: String(price),
-            fiatDayChange: .zero,
+            fiatDayChange: calculatePercentageValue(base: Decimal(price), percent: fiatDayChangeDecimal),
             coingeckoPriceId: nil
         )
         return [priceData]
+    }
+
+    private func calculatePercentageValue(base: Decimal, percent: Decimal) -> Decimal {
+        return base * percent / 100
     }
 
     nonisolated private func cache(
