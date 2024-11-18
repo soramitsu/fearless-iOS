@@ -43,20 +43,19 @@ final class MainTabBarViewController: UITabBarController {
         super.viewDidAppear(animated)
 
         if !viewAppeared {
+            update(with: wallet)
             viewAppeared = true
             presenter.didLoad(view: self)
         }
 
         let tabBar = TabBar(frame: tabBar.frame)
+        tabBar.setup(for: wallet.ecosystem)
         tabBar.middleButton.addAction { [weak self] in
             self?.presenter.presentPolkaswap()
         }
         setValue(tabBar, forKey: "tabBar")
 
         applyLocalization()
-
-        update(with: wallet)
-
     }
 
     private func openTab<T: UIViewController>(vcClass _: T.Type) -> Bool {
@@ -133,6 +132,7 @@ extension MainTabBarViewController: Localizable {
 
 extension MainTabBarViewController: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        self.wallet = event.account
         update(with: event.account)
     }
 }
