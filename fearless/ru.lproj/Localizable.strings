@@ -520,7 +520,7 @@
 "lp.apy.title" = "Стратегический бонус APY";
 "lp.available.pools.title" = "Доступные пулы";
 "lp.banner.action.details.title" = "Показать подробности";
-"lp.banner.text" = "Инвестируйте свои средства в пулы\nликвидности и получайте награды.";
+"lp.banner.text" = "Присоединяйтесь к пулам ликвидности и получите вознаграждения";
 "lp.confirm.liquidity.screen.title" = "Подтвердите ликвидность";
 "lp.confirm.liquidity.warning.text" = "Оценка результата. Если цена изменится более чем на 0.5%, ваша транзакция будет отменена";
 "lp.liquidity.add.complete.text" = "Ваш вклад в пул ликвидности успешно завершен";
