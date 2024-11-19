@@ -25,6 +25,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     private var assetIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
+        imageView.layer.masksToBounds = true
         return imageView
     }()
 
@@ -104,6 +105,11 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             chainOptionsView.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        assetIconImageView.rounded()
     }
 
     // MARK: - Public methods
