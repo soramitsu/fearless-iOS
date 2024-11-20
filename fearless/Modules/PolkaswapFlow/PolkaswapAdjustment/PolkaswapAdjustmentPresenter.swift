@@ -710,7 +710,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: xorBalance),
                 feeAndTip: networkFee,
-                sendAmount: .zero,
+                sendAmount: nil,
                 locale: selectedLocale
             ),
             dataValidatingFactory.canPayFeeAndAmount(
