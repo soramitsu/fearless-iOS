@@ -66,6 +66,9 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
+        guard wallet.ecosystem.isRegular else {
+            return
+        }
         eventCenter.add(observer: self)
         chainRegistry.chainsSubscribe(
             self,
