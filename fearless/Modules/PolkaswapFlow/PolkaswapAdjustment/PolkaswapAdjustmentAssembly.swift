@@ -77,7 +77,8 @@ final class PolkaswapAdjustmentAssembly {
             operationFactory: operationFactory,
             operationManager: operationManager,
             userDefaultsStorage: SettingsManager.shared,
-            callFactory: callFactory
+            callFactory: callFactory,
+            chainModelRepo: ServiceAssembly.shared.asyncChainModelRepository()
         )
         let router = PolkaswapAdjustmentRouter()
 

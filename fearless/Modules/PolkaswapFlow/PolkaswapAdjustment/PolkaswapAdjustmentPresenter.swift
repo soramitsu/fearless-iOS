@@ -29,7 +29,7 @@ final class PolkaswapAdjustmentPresenter {
     private let logger: LoggerProtocol
 
     private var polkaswapRemoteSettings: PolkaswapRemoteSettings?
-    private let xorChainAsset: ChainAsset
+    private var xorChainAsset: ChainAsset
     private var swapVariant: SwapVariant = .desiredInput
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
@@ -738,6 +738,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 // MARK: - PolkaswapAdjustmentInteractorOutput
 
 extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
+    func didReceive(xorChainAsset: SSFModels.ChainAsset) {
+        self.xorChainAsset = xorChainAsset
+        provideFromAssetVewModel()
+        provideToAssetVewModel()
+    }
+
     func didReceive(error: Error) {
         logger.error("\(error)")
     }

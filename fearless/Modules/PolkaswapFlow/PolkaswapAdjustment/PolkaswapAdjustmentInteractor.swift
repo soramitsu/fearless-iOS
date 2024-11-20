@@ -14,10 +14,11 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private let subscriptionService: PolkaswapRemoteSubscriptionServiceProtocol
     private let settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>
     private let operationManager: OperationManagerProtocol
-    private let xorChainAsset: ChainAsset
+    private var xorChainAsset: ChainAsset
     private let extrinsicService: ExtrinsicServiceProtocol
     private let userDefaultsStorage: SettingsManagerProtocol
     private let callFactory: SubstrateCallFactoryProtocol
+    private let chainModelRepo: AsyncAnyRepository<ChainModel>
 
     private var dexIds: [UInt32] = []
     private var swapValues: [SwapValues] = []
@@ -35,7 +36,8 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         operationFactory: PolkaswapOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         userDefaultsStorage: SettingsManagerProtocol,
-        callFactory: SubstrateCallFactoryProtocol
+        callFactory: SubstrateCallFactoryProtocol,
+        chainModelRepo: AsyncAnyRepository<ChainModel>
     ) {
         self.xorChainAsset = xorChainAsset
         self.subscriptionService = subscriptionService
@@ -47,6 +49,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         self.operationManager = operationManager
         self.userDefaultsStorage = userDefaultsStorage
         self.callFactory = callFactory
+        self.chainModelRepo = chainModelRepo
     }
 
     // MARK: - Private methods
@@ -140,6 +143,14 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         feeProxy.delegate = self
         fetchPolkaswapSettings()
         fetchDisclaimerVisible()
+        Task { [weak self] in
+            guard let self else { return }
+            let xorChainModel = try await chainModelRepo.fetch(by: xorChainAsset.chain.chainId)
+            if let utilityChainAsset = xorChainModel?.utilityChainAssets().first {
+                self.xorChainAsset = utilityChainAsset
+                self.output?.didReceive(xorChainAsset: utilityChainAsset)
+            }
+        }
     }
 
     func didReceive(_ fromChainAsset: ChainAsset?, _ toChainAsset: ChainAsset?) {
