@@ -121,6 +121,10 @@ final class ChainAssetListInteractor {
             sortDescriptors: sorts
         ) { [weak self] result in
             guard let result = result else { return }
+            if let chainAsset = try? result.get() {
+                self?.chainAssets = chainAsset
+                self?.subscribeToAccountInfo(for: chainAsset)
+            }
             self?.output?.didReceiveChainAssets(result: result)
         }
     }

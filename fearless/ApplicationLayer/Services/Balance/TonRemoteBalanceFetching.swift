@@ -44,7 +44,6 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let normal = chainAssets.slice.first else {
             throw TonRemoteBalanceFetchingError.utilityNotFound
         }
-        let jettons = chainAssets.remainder
 
         let chainAccountInfos = try await getChainAccountInfos(
             address: address,
@@ -55,7 +54,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let jettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
-            jettons: jettons
+            chain: chain
         )
         let jettonsAccountInfoMap = Dictionary(
             uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.chainAssetId, $0.1) }
@@ -135,7 +134,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let jettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
-            jettons: jettons
+            chain: normal.chain
         )
         let jettonsAccountInfoMap = Dictionary(
             uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.uniqueKey(accountId: accountId), $0.1) }
@@ -171,14 +170,35 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
     private func createJettonsAccountInfos(
         jettonBalances: [TonJettonBalance],
-        jettons: [ChainAsset]
+        chain: ChainModel
     ) -> [(ChainAsset, AccountInfo)] {
-        let jettonsAccountInfo: [(ChainAsset, AccountInfo)] = jettonBalances.compactMap { jetton in
-            let chainAsset = jettons.first(where: { $0.asset.id == jetton.item.walletAddress.toRaw() })
-            guard let chainAsset else { return nil }
+        let jettonsAccountInfo: [(ChainAsset, AccountInfo)] = jettonBalances.map { jetton in
+            let asset = createAssetModel(from: jetton)
+            let chainAsset = ChainAsset(chain: chain, asset: asset)
             return (chainAsset, AccountInfo(balance: jetton.quantity))
         }
         return jettonsAccountInfo
+    }
+
+    private func createAssetModel(from balanceInfo: TonJettonBalance) -> AssetModel {
+        AssetModel(
+            id: balanceInfo.item.walletAddress.toRaw(),
+            name: balanceInfo.item.jettonInfo.name,
+            symbol: balanceInfo.item.jettonInfo.symbol ?? balanceInfo.item.jettonInfo.name,
+            precision: UInt16(balanceInfo.item.jettonInfo.fractionDigits),
+            icon: balanceInfo.item.jettonInfo.imageURL,
+            currencyId: balanceInfo.item.jettonInfo.address.toRaw(),
+            existentialDeposit: nil,
+            color: nil,
+            isUtility: false,
+            isNative: false,
+            staking: nil,
+            purchaseProviders: nil,
+            assetType: .ton(tonType: .jetton),
+            priceProvider: nil,
+            coingeckoPriceId: nil,
+            priceData: balanceInfo.priceData
+        )
     }
 
     private func getChainAccountInfos(
