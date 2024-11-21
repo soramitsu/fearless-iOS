@@ -63,7 +63,6 @@ final class WalletOptionViewLayout: UIView {
     private lazy var buttons: [TriangularedButton] = {
         [
             backupWalletButton,
-            walletDetailsButton,
             changeWalletNameButton,
             accountScoreButton,
             deleteWalletButton
