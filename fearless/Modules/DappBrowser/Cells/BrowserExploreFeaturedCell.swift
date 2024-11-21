@@ -3,7 +3,7 @@ import UIKit
 final class DappBrowserFeaturedCell: UICollectionViewCell {
     let posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleAspectFit
         imageView.clipsToBounds = true
         return imageView
     }()
