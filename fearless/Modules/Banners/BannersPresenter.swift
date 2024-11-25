@@ -1,4 +1,5 @@
 import Foundation
+import SCard
 import SSFModels
 import SoraFoundation
 
@@ -16,6 +17,7 @@ protocol BannersInteractorInput: AnyObject {
     func setup(with output: BannersInteractorOutput)
     func markWalletAsBackedUp(_ wallet: MetaAccountModel)
     func subscribeToWallet()
+    func initSoraCard() async throws -> SCard
 }
 
 final class BannersPresenter {
@@ -60,16 +62,23 @@ final class BannersPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        let viewModel = viewModelFactory.createViewModel(
-            wallets: wallets,
-            locale: selectedLocale,
-            shouldShowAddWalletBanner: interactor.shouldShowAddWalletBanner
-        )
-        DispatchQueue.main.async {
-            self.view?.didReceive(viewModel: viewModel)
+        Task { [weak self] in
+            guard let self else { return }
+            let soraCardService = try? await interactor.initSoraCard()
+            let bannersViewModel = self.viewModelFactory.createViewModel(
+                wallets: self.wallets,
+                soraCardService: soraCardService,
+                delegate: self,
+                locale: self.selectedLocale,
+                shouldShowAddWalletBanner: self.interactor.shouldShowAddWalletBanner
+            )
+            
+            await MainActor.run {
+//                SCard.shared?.isSCBannerHidden = false
+                self.view?.didReceive(viewModel: bannersViewModel)
+                self.moduleOutput?.reloadBannersView(bannersCount: bannersViewModel.banners.count)
+            }
         }
-        
-        moduleOutput?.reloadBannersView(bannersCount: viewModel.banners.count)
     }
 
     private func showNotBackedUpAlert(wallet: MetaAccountModel) {
@@ -103,10 +112,10 @@ final class BannersPresenter {
     }
 }
 
-// MARK: - BannersViewOutput
+// MARK: - BannerCellDelegate
 
-extension BannersPresenter: BannersViewOutput {
-    func didTapOnBanner(_ banner: Banners) {
+extension BannersPresenter: BannerCellDelegate {
+    func didTap(banner: Banners) {
         guard let wallet = SelectedWalletSettings.shared.value else {
             return
         }
@@ -124,10 +133,12 @@ extension BannersPresenter: BannersViewOutput {
             router.showCreateNewWallet(ecosystem: .regular, from: view)
         case .addTonWallet:
             router.showCreateNewWallet(ecosystem: .ton, from: view)
+        case .soraCard:
+            router.showSoraCard(on: view)
         }
     }
 
-    func didCloseBanner(_ banner: Banners) {
+    func didClose(banner: Banners) {
         switch banner {
         case .backup:
             guard let wallet = SelectedWalletSettings.shared.value else {
@@ -144,10 +155,16 @@ extension BannersPresenter: BannersViewOutput {
         case .addTonWallet:
             interactor.shouldShowAddWalletBanner = false
             provideViewModel()
-
+        case .soraCard:
+            SCard.shared?.isSCBannerHidden = true
+            provideViewModel()
         }
     }
+}
 
+// MARK: - BannersViewOutput
+
+extension BannersPresenter: BannersViewOutput {
     func didLoad(view: BannersViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -186,7 +203,11 @@ extension BannersPresenter: BannersModuleInput {
     }
 
     func update(banners: [Banners]) {
-        let viewModel = viewModelFactory.createViewModel(banners: banners, locale: selectedLocale)
+        let viewModel = viewModelFactory.createViewModel(
+            banners: banners,
+            delegate: self,
+            soraCardService: SCard.shared,
+            locale: selectedLocale)
 
         view?.didReceive(viewModel: viewModel)
     }

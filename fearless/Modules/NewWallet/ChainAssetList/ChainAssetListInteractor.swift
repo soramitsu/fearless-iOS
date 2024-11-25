@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SCard
 import SoraKeystore
 import SSFModels
 import Web3

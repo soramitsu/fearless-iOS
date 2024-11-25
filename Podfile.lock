@@ -11,12 +11,28 @@ PODS:
   - Cuckoo/Swift (2.0.9)
   - FearlessKeys (0.1.4)
   - FireMock (3.1)
+  - IdensicMobileSDK (1.33.1)
+  - JOSESwift (2.4.0)
   - Kingfisher (7.10.2)
   - MediaView (0.2.0)
+  - PayWingsKycSDK (1.0.1)
+  - PayWingsOAuthSDK (2.0.2):
+    - JOSESwift (= 2.4.0)
+    - RecaptchaEnterprise (= 18.3.0)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.2.3)
+  - RecaptchaEnterprise (18.3.0):
+    - RecaptchaInterop (~> 100.0.0)
+  - RecaptchaInterop (100.0.0)
+  - SCard (1.5.1):
+    - IdensicMobileSDK
+    - PayWingsKycSDK (= 1.0.1)
+    - PayWingsOAuthSDK (= 2.0.2)
+    - R.swift (~> 6.1.0)
+    - SnapKit
+    - SoraUIKit (~> 1.1.2)
   - SnapKit (5.0.1)
   - SoraFoundation (1.0.0):
     - SoraFoundation/DateProcessing (= 1.0.0)
@@ -69,6 +85,7 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
+  - SoraUIKit (1.1.11)
   - Sourcery (1.9.2):
     - Sourcery/CLI-Only (= 1.9.2)
   - Sourcery/CLI-Only (1.9.2)
@@ -84,14 +101,17 @@ DEPENDENCIES:
   - Cuckoo
   - FearlessKeys (= 0.1.4)
   - FireMock
+  - "IdensicMobileSDK (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz\"}`)"
   - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - R.swift (= 6.1.0)
   - ReachabilitySwift
+  - SCard (from `./sora-card-ios/`)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
+  - SoraUIKit (from `https://github.com/soramitsu/ios-ui`, tag `1.1.11`)
   - Sourcery (~> 1.4)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
@@ -104,10 +124,15 @@ SPEC REPOS:
     - CocoaLumberjack
     - Cuckoo
     - FireMock
+    - JOSESwift
     - Kingfisher
+    - PayWingsKycSDK
+    - PayWingsOAuthSDK
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
+    - RecaptchaEnterprise
+    - RecaptchaInterop
     - SnapKit
     - SoraFoundation
     - SoraUI
@@ -121,20 +146,32 @@ SPEC REPOS:
     - FearlessKeys
 
 EXTERNAL SOURCES:
+  IdensicMobileSDK:
+    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz
   MediaView:
     :branch: dev
     :git: https://github.com/bnsports/MediaView.git
+  SCard:
+    :path: "./sora-card-ios/"
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SoraUIKit:
+    :git: https://github.com/soramitsu/ios-ui
+    :tag: 1.1.11
 
 CHECKOUT OPTIONS:
+  IdensicMobileSDK:
+    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz
   MediaView:
     :commit: c7b4538a06d4177df1f27419575812e3673a8fee
     :git: https://github.com/bnsports/MediaView.git
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SoraUIKit:
+    :git: https://github.com/soramitsu/ios-ui
+    :tag: 1.1.11
 
 SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
@@ -142,15 +179,23 @@ SPEC CHECKSUMS:
   Cuckoo: e2cc9a06a47d3faee7430a261c9c654b79b35f6e
   FearlessKeys: 5ec2782533624d237c899677a8c10859fbbc6668
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
+  IdensicMobileSDK: 17ea7880e6b29440944bc7c02d1a6937fec60337
+  JOSESwift: 7ff178bb9173ff42c6e990929a9f2fa702a34f69
   Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
+  PayWingsKycSDK: c709ff0ebff5c5a7d771c211655c2857f209edb0
+  PayWingsOAuthSDK: 40168c32d47402bf33ef1c167ce2261dac6da102
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
+  RecaptchaEnterprise: 9b60bc1e1633d120e24a098d80546776fab1282e
+  RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  SCard: b5bad38b2b5d06116338f2586feebf37405cb9b6
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
+  SoraUIKit: f32d51c0876d016f5f318b534eb8f7eb2eeaa00a
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -158,6 +203,6 @@ SPEC CHECKSUMS:
   SwiftLint: bd7cfb914762ab5f0cbb632964849571db075706
   SwiftyBeaver: ade157e4f857812e7d7f15f2e3396bb8733f8a1c
 
-PODFILE CHECKSUM: 6eca9a23a0e78699b9b76e0f4a5d70c067f5290f
+PODFILE CHECKSUM: 676fe2530c3a21ffd37c0169245b52dcce06717f
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.14.2

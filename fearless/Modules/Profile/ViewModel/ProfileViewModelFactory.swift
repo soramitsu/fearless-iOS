@@ -18,6 +18,7 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 
 enum ProfileOption: UInt, CaseIterable {
     case walletConnect
+    case soraCard
     case accountList
     case crowdloans
     case currency
@@ -181,6 +182,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 default:
                     return nil
                 }
+            case .soraCard:
+                return createSoraCardViewModel(for: locale)
             }
         }
 
@@ -345,6 +348,19 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .switcher(settings.accountScoreEnabled ?? false),
             option: .accountScore
+        )
+        return viewModel
+    }
+    
+    private func createSoraCardViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable.profileSoracardTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSoraCard()!,
+            accessoryTitle: nil,
+            accessoryImage: nil,
+            accessoryType: .arrow,
+            option: .soraCard
         )
         return viewModel
     }

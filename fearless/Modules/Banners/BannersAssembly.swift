@@ -17,9 +17,20 @@ final class BannersAssembly {
                 sortDescriptors: [],
                 mapper: AnyCoreDataMapper(ManagedMetaAccountMapper())
             )
+        
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            for: NSPredicate.enabledCHain(),
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
 
         let interactor = BannersInteractor(
             walletProvider: walletProvider,
+            chainAssetFetching: chainAssetFetching,
             eventCenter: EventCenter.shared,
             userDefaults: ServiceAssembly.shared.userDefaults
         )

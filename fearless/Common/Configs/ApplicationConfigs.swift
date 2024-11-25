@@ -146,9 +146,10 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     var chainsSourceUrl: URL {
         let isDev = LocalToggleService.shared.chainsListToggle?.storageValue
 #if F_DEV
-        return GitHubUrl.url(suffix: "chains/v12/chains_dev.json", branch: .developFree)
+        return GitHubUrl.url(suffix: "chains/v12/chains_dev.json", branch: .test)
 #else
         return GitHubUrl.url(suffix: "chains/v12/chains.json")
+        
 #endif
     }
 
@@ -226,6 +227,7 @@ private enum GitHubUrl {
     }
 
     enum DefaultBranch: String {
+        case test = "refs/heads/master"
         case master
         case develop
         case v4

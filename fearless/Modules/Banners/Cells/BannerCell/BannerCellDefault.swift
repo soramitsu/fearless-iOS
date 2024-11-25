@@ -1,24 +1,13 @@
-import Foundation
 import UIKit
 
-struct BannerCellViewModel {
-    let title: String
-    let subtitle: String
-    let buttonTitle: String
-    let image: UIImage
-    let dismissable: Bool
-    let fullsizeImage: Bool
-    let bannerType: Banners
+protocol BannerCellDelegate: AnyObject {
+    func didTap(banner: Banners)
+    func didClose(banner: Banners)
 }
 
-protocol BannerCellectionCellDelegate: AnyObject {
-    func didActionButtonTapped(banner: Banners)
-    func didCloseButtonTapped(banner: Banners)
-}
-
-final class BannerCollectionViewCell: UICollectionViewCell {
-    weak var delegate: BannerCellectionCellDelegate?
-    private var viewModel: BannerCellViewModel?
+final class BannerCellDefault: UICollectionViewCell {
+    private weak var delegate: BannerCellDelegate?
+    private var viewModel: BannerCellViewModelDefault?
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -82,8 +71,9 @@ final class BannerCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(viewModel: BannerCellViewModel) {
+    func bind(viewModel: BannerCellViewModelDefault) {
         self.viewModel = viewModel
+        self.delegate = viewModel.delegate
 
         titleLabel.text = viewModel.title
         subtitleLabel.text = viewModel.subtitle
@@ -100,7 +90,7 @@ final class BannerCollectionViewCell: UICollectionViewCell {
                 return
             }
 
-            self?.delegate?.didActionButtonTapped(banner: banner)
+            self?.delegate?.didTap(banner: banner)
         }
 
         closeButton.addAction { [weak self] in
@@ -109,7 +99,7 @@ final class BannerCollectionViewCell: UICollectionViewCell {
                 return
             }
 
-            self?.delegate?.didCloseButtonTapped(banner: banner)
+            self?.delegate?.didClose(banner: banner)
         }
     }
 
@@ -160,5 +150,12 @@ final class BannerCollectionViewCell: UICollectionViewCell {
             make.height.equalTo(32)
             make.width.greaterThanOrEqualTo(102)
         }
+    }
+}
+
+extension BannerCellDefault: CollectionViewCell {
+    func bind(viewModel: CollectionViewModel) {
+        guard let viewModel = viewModel as? BannerCellViewModelDefault else { return }
+        bind(viewModel: viewModel)
     }
 }

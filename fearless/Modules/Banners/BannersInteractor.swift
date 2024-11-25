@@ -1,4 +1,5 @@
 import UIKit
+import SCard
 import SoraKeystore
 import RobinHood
 import SSFModels
@@ -14,15 +15,18 @@ final class BannersInteractor {
     private weak var output: BannersInteractorOutput?
 
     private let walletProvider: StreamableProvider<ManagedMetaAccountModel>
+    private let chainAssetFetching: ChainAssetFetchingProtocol
     private let eventCenter: EventCenterProtocol
     private let userDefaults: SettingsManagerProtocol
 
     init(
         walletProvider: StreamableProvider<ManagedMetaAccountModel>,
+        chainAssetFetching: ChainAssetFetchingProtocol,
         eventCenter: EventCenterProtocol,
         userDefaults: SettingsManagerProtocol
     ) {
         self.walletProvider = walletProvider
+        self.chainAssetFetching = chainAssetFetching
         self.eventCenter = eventCenter
         self.userDefaults = userDefaults
     }
@@ -94,5 +98,30 @@ extension BannersInteractor: BannersInteractorInput {
             failing: failureClosure,
             options: options
         )
+    }
+
+    func initSoraCard() async throws -> SCard {
+        if let soraCardService = SCard.shared {
+            return soraCardService
+        }
+        
+        guard let wallet = SelectedWalletSettings.shared.value else { throw ConvenienceError(error: "wallet not found") }
+
+        guard let soraChainAsset = try await chainAssetFetching.fetchAwait(
+            shouldUseCache: true,
+            filters: [.chainId(Chain.soraMain.genesisHash)],
+            sortDescriptors: []
+        ).first else {
+            throw ConvenienceError(error: "XOR chainAsset not found")
+        }
+
+        return await MainActor.run {
+            let service = SCardService(
+                wallet: wallet,
+                soraChainAsset: soraChainAsset
+            )
+            let soraCardService = service.initSoraCard()
+            return soraCardService
+        }
     }
 }

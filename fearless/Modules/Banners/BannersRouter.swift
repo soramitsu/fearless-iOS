@@ -1,4 +1,5 @@
 import Foundation
+import SCard
 import SSFModels
 
 final class BannersRouter: BannersRouterInput {
@@ -29,5 +30,12 @@ final class BannersRouter: BannersRouterInput {
 
         let presentingController = tabBarController.topModalViewController
         presentingController.present(navigationController, animated: true, completion: nil)
+    }
+    
+    func showSoraCard(
+        on view: ControllerBackedProtocol?
+    ) {
+        guard let viewController = view?.controller else { return }
+        SCard.shared?.start(in: viewController)
     }
 }

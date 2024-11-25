@@ -3,8 +3,6 @@ import SoraFoundation
 
 protocol BannersViewOutput: AnyObject {
     func didLoad(view: BannersViewInput)
-    func didTapOnBanner(_ banner: Banners)
-    func didCloseBanner(_ banner: Banners)
 }
 
 final class BannersViewController: UIViewController, ViewHolder {
@@ -14,7 +12,7 @@ final class BannersViewController: UIViewController, ViewHolder {
 
     private let output: BannersViewOutput
 
-    private var dataSource: CollectionViewDataSource<BannerCollectionViewCell, BannerCellViewModel>?
+    private var dataSource: CollectionTempDataSource?
 
     // MARK: - Constructor
 
@@ -51,10 +49,7 @@ final class BannersViewController: UIViewController, ViewHolder {
 
 extension BannersViewController: BannersViewInput {
     func didReceive(viewModel: BannersViewModel) {
-        dataSource = CollectionViewDataSource(data: viewModel.banners, cellClass: BannerCollectionViewCell.self) { [weak self] model, cell in
-            cell.bind(viewModel: model)
-            cell.delegate = self
-        }
+        dataSource = CollectionTempDataSource(data: viewModel.banners)
         rootView.collectionView.dataSource = dataSource
 
         rootView.setPageControl(pageCount: viewModel.banners.count)
@@ -66,18 +61,6 @@ extension BannersViewController: BannersViewInput {
 extension BannersViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
-    }
-}
-
-// MARK: - BannerCellectionCellDelegate
-
-extension BannersViewController: BannerCellectionCellDelegate {
-    func didActionButtonTapped(banner: Banners) {
-        output.didTapOnBanner(banner)
-    }
-
-    func didCloseButtonTapped(banner: Banners) {
-        output.didCloseBanner(banner)
     }
 }
 

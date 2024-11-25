@@ -1,4 +1,3 @@
-import Foundation
 import UIKit
 
 final class CollectionViewDataSource<Cell: UICollectionViewCell, Model>: NSObject, UICollectionViewDataSource {
@@ -31,8 +30,8 @@ final class CollectionViewDataSource<Cell: UICollectionViewCell, Model>: NSObjec
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCellWithType(cellClass, forIndexPath: indexPath)
         let model = data[indexPath.item]
+        let cell = collectionView.dequeueReusableCellWithType(cellClass, forIndexPath: indexPath)
         cellConfigurator(model, cell)
         return cell
     }

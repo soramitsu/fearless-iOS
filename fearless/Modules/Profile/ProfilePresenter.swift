@@ -105,6 +105,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showWalletConnect(from: view)
         case .crowdloans:
             wireframe.showCrowdloan(from: view)
+        case .soraCard:
+            wireframe.showSoraCard(from: view)
         }
     }
 

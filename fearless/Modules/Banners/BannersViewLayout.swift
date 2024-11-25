@@ -13,7 +13,8 @@ final class BannersViewLayout: UIView {
         view.showsHorizontalScrollIndicator = false
         view.backgroundColor = .clear
         view.decelerationRate = .fast
-        view.registerClassForCell(BannerCollectionViewCell.self)
+        view.registerClassForCell(BannerCellDefault.self)
+        view.registerClassForCell(SCardBannerCell.self)
         return view
     }()
 

@@ -16,6 +16,10 @@ protocol BannersRouterInput: AnyObject, SheetAlertPresentable, AccountManagement
         wallet: MetaAccountModel,
         chainId: ChainModel.Id
     )
+    
+    func showSoraCard(
+        on view: ControllerBackedProtocol?
+    )
 }
 
 protocol BannersModuleInput: AnyObject {

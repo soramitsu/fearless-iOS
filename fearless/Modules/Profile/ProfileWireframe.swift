@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SCard
 import SSFModels
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
@@ -142,6 +143,11 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
         let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
         view?.controller.present(navigationController, animated: true)
+    }
+    
+    func showSoraCard(from view: ControllerBackedProtocol?) {
+        guard let vc = view?.controller else { return }
+        SCard.shared?.start(in: vc)
     }
 
     // MARK: Private

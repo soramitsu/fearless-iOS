@@ -52,7 +52,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         }
 
         let coingeckoOperation = createCoingeckoOperation()
-        let chainlinkOperations = createChainlinkOperations()
+//        let chainlinkOperations = createChainlinkOperations()
         let soraSubqueryOperation = createSoraSubqueryOperation()
 
         let targetOperation: BaseOperation<[PriceData]?> = ClosureOperation { [weak self] in
@@ -62,12 +62,12 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
 
             var prices: [PriceData] = []
             let coingeckoPrices = try coingeckoOperation.extractNoCancellableResultData()
-            let chainlinkPrices = chainlinkOperations.compactMap {
-                try? $0.extractNoCancellableResultData()
-            }
+//            let chainlinkPrices = chainlinkOperations.compactMap {
+//                try? $0.extractNoCancellableResultData()
+//            }
             let soraSubqueryPrices = (try? soraSubqueryOperation.extractNoCancellableResultData()) ?? []
 
-            prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
+//            prices = self.merge(coingeckoPrices: coingeckoPrices, chainlinkPrices: chainlinkPrices)
             prices = self.merge(coingeckoPrices: prices, soraSubqueryPrices: soraSubqueryPrices)
 
             return prices
@@ -75,13 +75,13 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
 
         targetOperation.addDependency(coingeckoOperation)
         targetOperation.addDependency(soraSubqueryOperation)
-        chainlinkOperations.forEach {
-            targetOperation.addDependency($0)
-        }
+//        chainlinkOperations.forEach {
+//            targetOperation.addDependency($0)
+//        }
 
         return CompoundOperationWrapper(
             targetOperation: targetOperation,
-            dependencies: [coingeckoOperation, soraSubqueryOperation] + chainlinkOperations
+            dependencies: [coingeckoOperation, soraSubqueryOperation] //+ chainlinkOperations
         )
     }
 

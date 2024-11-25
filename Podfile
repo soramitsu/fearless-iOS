@@ -21,6 +21,9 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'MediaView', :git => 'https://github.com/bnsports/MediaView.git', :branch => 'dev'
   pod 'FearlessKeys', '0.1.4'
+  pod 'IdensicMobileSDK', :http => 'https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz'
+  pod 'SoraUIKit', :git => 'https://github.com/soramitsu/ios-ui', :tag => ‘1.1.11’
+  pod 'SCard', :path => './sora-card-ios/'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -57,6 +60,11 @@ post_install do |installer|
                     else
                     config.build_settings['OTHER_SWIFT_FLAGS'] = '-D COCOAPODS'
                 end
+            end
+        end
+	if target.name != 'SwiftAlgorithms'
+            target.build_configurations.each do |config|
+              config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
             end
         end
     end

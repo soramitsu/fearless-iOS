@@ -58,6 +58,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func showWalletConnect(from view: ControllerBackedProtocol?)
     func openDebugMenu(from view: ControllerBackedProtocol?)
     func showCrowdloan(from view: ControllerBackedProtocol?)
+    func showSoraCard(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {
