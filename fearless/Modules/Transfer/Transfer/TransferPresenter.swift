@@ -698,7 +698,7 @@ extension TransferPresenter: TransferViewOutput {
 
         Task { await provideIsReady() }
 
-        guard let transfer = currentFlowUseCase?.transfer else {
+        guard let transfer = currentFlowUseCase?.getTransfer() else {
             return
         }
         currentFlowUseCase?.refreshFee(for: transfer)
@@ -725,7 +725,7 @@ extension TransferPresenter: TransferViewOutput {
             await provideIsReady()
         }
 
-        guard let transfer = currentFlowUseCase?.transfer else {
+        guard let transfer = currentFlowUseCase?.getTransfer() else {
             return
         }
         currentFlowUseCase?.refreshFee(for: transfer)

@@ -11,7 +11,6 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
 
     let interactor: TransferInteractorInput
     let implType: TransferFlowDirectionImpl = .ton
-    var transfer: TransferType?
 
     var selectedChainAsset: ChainAsset?
     var utilityChainAsset: ChainAsset?
@@ -103,7 +102,7 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
                     fee: fee,
                     locale: locale
                 ) { [weak self] in
-                    guard let transfer = self?.transfer else {
+                    guard let transfer = self?.getTransfer() else {
                         return
                     }
                     self?.refreshFee(for: transfer)
@@ -119,36 +118,7 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         }
     }
 
-    // MARK: - Private methods
-
-    private func calcFee() {
-        guard
-            let transfer = buildTonTransfer(),
-            let selectedChainAsset,
-            let utilityChainAsset
-        else {
-            return
-        }
-        provideFeeViewModel?()
-        Task { [weak self] in
-            guard let self else { return }
-            let stream = await self.interactor.estimateFee(
-                transfer: transfer,
-                chainAsset: selectedChainAsset
-            )
-            let precision = Int16(utilityChainAsset.asset.precision)
-            do {
-                for try await fee in stream {
-                    self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
-                    self.provideFeeViewModel?()
-                }
-            } catch {
-                logger.customError(error)
-            }
-        }
-    }
-
-    private func buildTonTransfer() -> TransferType? {
+    func getTransfer() -> TransferType? {
         guard
             let availableInputBalance,
             let selectedChainAsset,
@@ -158,7 +128,6 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
             let recipientAddress = getRecipientAddress(),
             let contract = wallet.ecosystem.tonWalletContract()
         else {
-            transfer = nil
             return nil
         }
 
@@ -187,8 +156,36 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
             comment: comment
         )
         let transfer = TransferType.ton(tonTransfer)
-        self.transfer = transfer
         return transfer
+    }
+
+    // MARK: - Private methods
+
+    private func calcFee() {
+        guard
+            let transfer = getTransfer(),
+            let selectedChainAsset,
+            let utilityChainAsset
+        else {
+            return
+        }
+        provideFeeViewModel?()
+        Task { [weak self] in
+            guard let self else { return }
+            let stream = await self.interactor.estimateFee(
+                transfer: transfer,
+                chainAsset: selectedChainAsset
+            )
+            let precision = Int16(utilityChainAsset.asset.precision)
+            do {
+                for try await fee in stream {
+                    self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
+                    self.provideFeeViewModel?()
+                }
+            } catch {
+                logger.customError(error)
+            }
+        }
     }
 
     private func getRecipientAddress() -> RecipientAddress? {

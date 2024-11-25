@@ -81,7 +81,7 @@ final class ConfirmTransferPresenter {
         Task {
             do {
                 guard
-                    let transfer = useCase.transfer,
+                    let transfer = useCase.getTransfer(),
                     let chainAsset = useCase.selectedChainAsset
                 else {
                     throw ConvenienceError(error: "Missing required params")

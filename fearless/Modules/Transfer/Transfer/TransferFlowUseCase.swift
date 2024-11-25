@@ -26,7 +26,6 @@ enum TransferValidationCase {
 protocol TransferFlowUseCase: AnyObject {
     var interactor: TransferInteractorInput { get }
     var implType: TransferFlowDirectionImpl { get }
-    var transfer: TransferType? { get set }
 
     var selectedChainAsset: ChainAsset? { get set }
     var utilityChainAsset: ChainAsset? { get set }
@@ -64,6 +63,7 @@ protocol TransferFlowUseCase: AnyObject {
         validationCase: TransferValidationCase,
         locale: Locale
     ) throws -> [DataValidating]
+    func getTransfer() -> TransferType?
 }
 
 extension TransferFlowUseCase {
@@ -76,7 +76,6 @@ extension TransferFlowUseCase {
     }
 
     func reset() async {
-        transfer = nil
         selectedChainAsset = nil
         utilityChainAsset = nil
         inputResult = nil
@@ -173,7 +172,6 @@ extension TransferFlowUseCase {
             let inputAmount = inputResult?.absoluteValue(from: availableInputBalance),
             let amount = inputAmount.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
         else {
-            transfer = nil
             return nil
         }
         let tip = tip?.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
@@ -183,7 +181,6 @@ extension TransferFlowUseCase {
             tip: tip
         )
         let transfer = TransferType.substrate(subtrateTransfer)
-        self.transfer = transfer
         return transfer
     }
 

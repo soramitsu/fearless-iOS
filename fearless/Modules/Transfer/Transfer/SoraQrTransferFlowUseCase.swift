@@ -11,7 +11,6 @@ final class SoraQrTransferFlowUseCase: TransferFlowUseCase {
 
     let interactor: TransferInteractorInput
     let implType: TransferFlowDirectionImpl = .soraMainnetQr
-    var transfer: TransferType?
 
     var selectedChainAsset: ChainAsset?
     var utilityChainAsset: ChainAsset?
@@ -119,7 +118,7 @@ final class SoraQrTransferFlowUseCase: TransferFlowUseCase {
                     fee: fee,
                     locale: locale
                 ) { [weak self] in
-                    guard let transfer = self?.transfer else {
+                    guard let transfer = self?.getTransfer() else {
                         return
                     }
                     self?.refreshFee(for: transfer)
@@ -133,6 +132,10 @@ final class SoraQrTransferFlowUseCase: TransferFlowUseCase {
             ]
             return validators
         }
+    }
+
+    func getTransfer() -> TransferType? {
+        buildSubstrateTransfer()
     }
 
     // MARK: - Private methods

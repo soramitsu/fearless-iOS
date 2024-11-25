@@ -11,7 +11,6 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
 
     let interactor: TransferInteractorInput
     let implType: TransferFlowDirectionImpl = .substrate
-    var transfer: TransferType?
 
     var selectedChainAsset: ChainAsset?
     var utilityChainAsset: ChainAsset?
@@ -113,7 +112,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
                 self?.inputResult = .rate(1.0)
                 self?.provideAssetViewModel?()
                 self?.provideInputViewModel?()
-                self?.refreshFee(for: self?.transfer)
+                self?.refreshFee(for: self?.getTransfer())
             },
             cancelAction: { [weak self] in
                 self?.sendAllEnabled = false
@@ -136,7 +135,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
                     fee: fee,
                     locale: locale,
                     onError: { [weak self] in
-                        self?.refreshFee(for: self?.transfer)
+                        self?.refreshFee(for: self?.getTransfer())
                     }
                 ),
                 dataValidatingFactory.canPayFeeAndAmount(
@@ -147,6 +146,10 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
                 )
             ]
         }
+    }
+
+    func getTransfer() -> TransferType? {
+        buildSubstrateTransfer()
     }
 
     // MARK: - Private methods
