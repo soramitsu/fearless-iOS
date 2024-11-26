@@ -80,7 +80,8 @@ final class DappBrowserPresenter {
             let viewModel = viewModelFactory.buildNetworkFilterViewModel(
                 chains: try await interactor.chains,
                 filter: interactor.filter,
-                locale: selectedLocale
+                locale: selectedLocale,
+                wallet: wallet
             )
             Task { @MainActor in
                 view?.didReceive(viewModel: viewModel)

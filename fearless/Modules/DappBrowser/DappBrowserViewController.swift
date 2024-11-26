@@ -121,6 +121,7 @@ extension DappBrowserViewController: DappBrowserViewInput {
     }
 
     func didReceive(viewModel: DappBrowsetNetworkFilterViewModel?) {
+        rootView.selectNetworkButton.applySelectableStyle(false)
         rootView.selectNetworkButton.isHidden = viewModel == nil
         guard let viewModel else {
             return
