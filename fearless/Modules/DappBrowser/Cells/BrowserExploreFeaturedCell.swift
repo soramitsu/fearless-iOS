@@ -53,9 +53,10 @@ final class DappBrowserFeaturedCell: UICollectionViewCell {
     func configure(model: DappBrowserFeaturedViewModel) {
         model.poster.loadImage(
             on: posterImageView,
-            placholder: R.image.featuredBanner(),
             targetSize: bounds.size,
-            animated: true
+            animated: true,
+            cornerRadius: 0,
+            completionHandler: nil
         )
         model.icon.loadImage(
             on: iconViewImage,
