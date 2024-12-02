@@ -251,6 +251,8 @@
 		074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */; };
 		074EB7B1290BA142000A2A6A /* ConnectionOnlineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
+		075D9E482CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075D9E472CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift */; };
+		075D9E4A2CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 075D9E492CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel */; };
 		075E5FCF2C7F1A180044C142 /* TonConnectServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */; };
 		075E5FD12C7F1A630044C142 /* TonConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075E5FD02C7F1A630044C142 /* TonConnectService.swift */; };
 		075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */; };
@@ -3457,6 +3459,8 @@
 		074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOfflineEvent.swift; sourceTree = "<group>"; };
 		074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOnlineEvent.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
+		075D9E472CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainSubstrateV8MigrationPolicy.swift; sourceTree = "<group>"; };
+		075D9E492CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV7toV8.xcmappingmodel; sourceTree = "<group>"; };
 		075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectServiceDelegate.swift; sourceTree = "<group>"; };
 		075E5FD02C7F1A630044C142 /* TonConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectService.swift; sourceTree = "<group>"; };
 		075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputViewV2.swift; sourceTree = "<group>"; };
@@ -11121,6 +11125,7 @@
 				FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */,
 				FA28A9B129D2E451005AA42E /* MultiassetV9.xcmappingmodel */,
 				07EC555A2CD8A3600074132E /* MultiAssetV12.xcmappingmodel */,
+				075D9E492CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel */,
 			);
 			path = MigrationMappings;
 			sourceTree = "<group>";
@@ -15821,6 +15826,7 @@
 				FACD428A2A5BE811009975AA /* ChainSubstrateV2MigrationPolicy.swift */,
 				FACD428B2A5BE811009975AA /* SubstrateStorageMigrator.swift */,
 				FACD428C2A5BE811009975AA /* ChainModelV4MigrationPolicy.swift */,
+				075D9E472CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift */,
 			);
 			path = SubstrateStorage;
 			sourceTree = "<group>";
@@ -18487,6 +18493,7 @@
 				FAD4292E2A865680001D6A16 /* BackupWalletImportedProtocols.swift in Sources */,
 				84BAB6102642C286007782D0 /* SelectedRebondVariant.swift in Sources */,
 				84F5107C263C0C11005D15AE /* AnyProviderCleaning.swift in Sources */,
+				075D9E4A2CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel in Sources */,
 				FAA0134628DA12CD000A5230 /* StakingUnbondSetupPoolViewModelState.swift in Sources */,
 				84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */,
 				8467FD4124ED3C72005D486C /* AlignableContentControl.swift in Sources */,
@@ -18525,6 +18532,7 @@
 				9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */,
 				AEA2C1B82681E9BD0069492E /* ValidatorSearchWireframe.swift in Sources */,
 				84C4C2D7255D2B780045B582 /* PinChangeWireframe.swift in Sources */,
+				075D9E482CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift in Sources */,
 				84FB29992639AC2300BE0FCD /* YourValidatorList+SelectionConfirm.swift in Sources */,
 				8493D0DF26FE7D7400A28008 /* ChainRepositoryFactory.swift in Sources */,
 				FAD4291E2A86567F001D6A16 /* WalletNameInteractor.swift in Sources */,
