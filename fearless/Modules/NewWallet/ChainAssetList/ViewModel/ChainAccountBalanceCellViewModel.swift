@@ -7,8 +7,10 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     let chainIconViewViewModel: ChainCollectionViewModel
     let chainAsset: ChainAsset
     let assetName: String?
+    let middleText: String?
     let assetInfo: AssetBalanceDisplayInfo?
     let imageViewModel: RemoteImageViewModel?
+    let imageName: String?
     let balanceString: ShimmeredLabelState
     let priceAttributedString: ShimmeredLabelState
     let totalAmountString: ShimmeredLabelState

@@ -6,33 +6,33 @@ PODS:
   - CocoaLumberjack (3.8.5):
     - CocoaLumberjack/Core (= 3.8.5)
   - CocoaLumberjack/Core (3.8.5)
-  - Cuckoo (2.0.9):
-    - Cuckoo/Swift (= 2.0.9)
-  - Cuckoo/Swift (2.0.9)
+  - Cuckoo (2.0.10):
+    - Cuckoo/Swift (= 2.0.10)
+  - Cuckoo/Swift (2.0.10)
   - FearlessKeys (0.1.4)
   - FireMock (3.1)
   - IdensicMobileSDK (1.33.1)
   - JOSESwift (2.4.0)
   - Kingfisher (7.10.2)
   - MediaView (0.2.0)
-  - PayWingsKycSDK (1.0.1)
+  - PayWingsKycSDK (1.0.2)
   - PayWingsOAuthSDK (2.0.2):
     - JOSESwift (= 2.4.0)
     - RecaptchaEnterprise (= 18.3.0)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
-  - ReachabilitySwift (5.2.3)
+  - ReachabilitySwift (5.2.4)
   - RecaptchaEnterprise (18.3.0):
     - RecaptchaInterop (~> 100.0.0)
   - RecaptchaInterop (100.0.0)
-  - SCard (1.5.1):
+  - SCard (1.7.0):
     - IdensicMobileSDK
-    - PayWingsKycSDK (= 1.0.1)
+    - PayWingsKycSDK (= 1.0.2)
     - PayWingsOAuthSDK (= 2.0.2)
     - R.swift (~> 6.1.0)
     - SnapKit
-    - SoraUIKit (~> 1.1.2)
+    - SoraUIKit
   - SnapKit (5.0.1)
   - SoraFoundation (1.0.0):
     - SoraFoundation/DateProcessing (= 1.0.0)
@@ -93,7 +93,7 @@ PODS:
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.56.2)
+  - SwiftLint (0.57.1)
   - SwiftyBeaver (2.1.1)
 
 DEPENDENCIES:
@@ -106,7 +106,7 @@ DEPENDENCIES:
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - R.swift (= 6.1.0)
   - ReachabilitySwift
-  - SCard (from `./sora-card-ios/`)
+  - SCard (from `https://github.com/sora-xor/sora-card-ios`, tag `1.7.0`)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
@@ -152,7 +152,8 @@ EXTERNAL SOURCES:
     :branch: dev
     :git: https://github.com/bnsports/MediaView.git
   SCard:
-    :path: "./sora-card-ios/"
+    :git: https://github.com/sora-xor/sora-card-ios
+    :tag: 1.7.0
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
@@ -166,6 +167,9 @@ CHECKOUT OPTIONS:
   MediaView:
     :commit: c7b4538a06d4177df1f27419575812e3673a8fee
     :git: https://github.com/bnsports/MediaView.git
+  SCard:
+    :git: https://github.com/sora-xor/sora-card-ios
+    :tag: 1.7.0
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
@@ -176,21 +180,21 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: 6a459bc897d6d80bd1b8c78482ec7ad05dffc3f0
-  Cuckoo: e2cc9a06a47d3faee7430a261c9c654b79b35f6e
+  Cuckoo: e4347571fdd890922dd8b74be0bcab15833df754
   FearlessKeys: 5ec2782533624d237c899677a8c10859fbbc6668
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IdensicMobileSDK: 17ea7880e6b29440944bc7c02d1a6937fec60337
   JOSESwift: 7ff178bb9173ff42c6e990929a9f2fa702a34f69
   Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
-  PayWingsKycSDK: c709ff0ebff5c5a7d771c211655c2857f209edb0
+  PayWingsKycSDK: bd0a9c4294f536b1338f47004ddcdcca108e95c0
   PayWingsOAuthSDK: 40168c32d47402bf33ef1c167ce2261dac6da102
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
-  ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
+  ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   RecaptchaEnterprise: 9b60bc1e1633d120e24a098d80546776fab1282e
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
-  SCard: b5bad38b2b5d06116338f2586feebf37405cb9b6
+  SCard: a2630239ab52def1d2b3ebd9e6eacb276035ebef
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
@@ -200,9 +204,9 @@ SPEC CHECKSUMS:
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: bd7cfb914762ab5f0cbb632964849571db075706
+  SwiftLint: 92196976e597b9afec5dbe374810103e6c1d9d7c
   SwiftyBeaver: ade157e4f857812e7d7f15f2e3396bb8733f8a1c
 
-PODFILE CHECKSUM: 676fe2530c3a21ffd37c0169245b52dcce06717f
+PODFILE CHECKSUM: 5eeb2db0f9c4def55a2d90c9b442e9be7ac2fdb2
 
-COCOAPODS: 1.14.2
+COCOAPODS: 1.12.1

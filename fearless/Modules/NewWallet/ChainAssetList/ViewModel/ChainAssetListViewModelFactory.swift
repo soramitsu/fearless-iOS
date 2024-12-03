@@ -48,10 +48,33 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             wallet: wallet,
             assetChainAssetsArray: assetChainAssetsArray
         )
-
-        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = sortedAssetChainAssets.compactMap { assetChainAssets in
+        
+        var chainAssetCellModels: [ChainAccountBalanceCellViewModel] = [
+            ChainAccountBalanceCellViewModel(
+                assetContainsChainAssets: [],
+                chainIconViewViewModel: .init(
+                    maxImagesCount: 1,
+                    chainImages: []
+                ),
+                chainAsset: chainAssets.first!,
+                assetName: "Fiat",
+                middleText: "SORA Card",
+                assetInfo: nil,
+                imageViewModel: nil,
+                imageName: "soraCardAssetList",
+                balanceString: .normal("€3,644.50"),
+                priceAttributedString: .normal("LT61 3250 0467 7252 5583"),
+                totalAmountString: .normal(""),
+                options: [],
+                isColdBoot: false,
+                locale: locale,
+                hideButtonIsVisible: false
+            )
+        ]
+        
+        chainAssetCellModels.append(contentsOf: sortedAssetChainAssets.compactMap { assetChainAssets in
             let priceData = assetChainAssets.mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)
-
+            
             return buildChainAccountBalanceCellViewModel(
                 chainAssets: assetChainAssets.chainAssets,
                 chainAsset: assetChainAssets.mainChainAsset,
@@ -62,7 +85,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 chainsWithIssue: chainsWithIssue,
                 displayType: displayType
             )
-        }
+        })
 
         let isColdBoot = wallet.assetsVisibility.isEmpty
         let shouldRunManageAssetAnimate = shouldRunManageAssetAnimate && !isColdBoot
@@ -200,8 +223,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             chainIconViewViewModel: chainIconsViewModel,
             chainAsset: chainAsset,
             assetName: chainAsset.asset.name,
+            middleText: chainAsset.asset.symbolUppercased,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) },
+            imageName: nil,
             balanceString: .init(
                 value: .text(totalAssetBalance),
                 isUpdated: true

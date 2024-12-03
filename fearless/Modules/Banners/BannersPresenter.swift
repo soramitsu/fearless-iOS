@@ -35,6 +35,7 @@ final class BannersPresenter {
     }()
 
     private var wallets: [MetaAccountModel] = []
+    private var soraCardStatus: KYCUserStatus?
 
     // MARK: - Constructors
 
@@ -62,22 +63,17 @@ final class BannersPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        Task { [weak self] in
-            guard let self else { return }
-            let soraCardService = try? await interactor.initSoraCard()
-            let bannersViewModel = self.viewModelFactory.createViewModel(
-                wallets: self.wallets,
-                soraCardService: soraCardService,
-                delegate: self,
-                locale: self.selectedLocale,
-                shouldShowAddWalletBanner: self.interactor.shouldShowAddWalletBanner
-            )
-            
-            await MainActor.run {
-//                SCard.shared?.isSCBannerHidden = false
-                self.view?.didReceive(viewModel: bannersViewModel)
-                self.moduleOutput?.reloadBannersView(bannersCount: bannersViewModel.banners.count)
-            }
+        let bannersViewModel = viewModelFactory.createViewModel(
+            wallets: wallets,
+            soraCardStatus: soraCardStatus,
+            delegate: self,
+            locale: selectedLocale,
+            shouldShowAddWalletBanner: interactor.shouldShowAddWalletBanner
+        )
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(viewModel: bannersViewModel)
+            self?.moduleOutput?.reloadBannersView(bannersCount: bannersViewModel.banners.count)
         }
     }
 
@@ -168,6 +164,15 @@ extension BannersPresenter: BannersViewOutput {
     func didLoad(view: BannersViewInput) {
         self.view = view
         interactor.setup(with: self)
+        
+        Task {
+            let soraCardService = try! await interactor.initSoraCard()
+            
+            for await userStatus in soraCardService.userStatusStream {
+                soraCardStatus = userStatus
+                provideViewModel()
+            }
+        }
 
         if type == .independent {
             interactor.subscribeToWallet()
@@ -206,7 +211,6 @@ extension BannersPresenter: BannersModuleInput {
         let viewModel = viewModelFactory.createViewModel(
             banners: banners,
             delegate: self,
-            soraCardService: SCard.shared,
             locale: selectedLocale)
 
         view?.didReceive(viewModel: viewModel)

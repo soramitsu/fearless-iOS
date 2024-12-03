@@ -22,6 +22,12 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         return containerView
     }()
 
+    private var placeholderIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
+    
     private var assetIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -115,10 +121,17 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         priceView.valueLabel.apply(state: viewModel.totalAmountString)
         priceView.keyLabel.apply(state: viewModel.priceAttributedString)
 
-        viewModel.imageViewModel?.loadBalanceListIcon(
-            on: assetIconImageView,
-            animated: false
-        )
+        if let imageName = viewModel.imageName {
+            placeholderIconImageView.image = UIImage(named: imageName)
+            assetIconImageView.image = nil
+        } else {
+            placeholderIconImageView.image = nil
+            viewModel.imageViewModel?.loadBalanceListIcon(
+                on: assetIconImageView,
+                animated: false
+            )
+        }
+        
 
         if let options = viewModel.options {
             options.forEach { option in
@@ -172,6 +185,11 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         assetIconImageView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
             make.size.equalTo(LayoutConstants.iconSize)
+            make.centerY.equalToSuperview()
+        }
+        
+        backgroundTriangularedView.addSubview(placeholderIconImageView)
+        placeholderIconImageView.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
         }
 
@@ -239,7 +257,7 @@ extension ChainAccountBalanceTableCell: DeactivatableView {
 extension ChainAccountBalanceTableCell {
     private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
         let chainName = viewModel.assetName?.uppercased()
-        let chainSymbol = viewModel.chainAsset.asset.symbolUppercased
+        let chainSymbol = viewModel.middleText
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))
         assetIconImageView.startShimmeringAnimation()

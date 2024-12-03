@@ -2,7 +2,7 @@ import SnapKit
 import SCard
 
 final class SCardBannerCell: UICollectionViewCell {
-    private let cardView = SCCardView(frame: .zero)
+    private let cardView = UIView()
     private var viewModel: SCCardItem?
 
     override init(frame: CGRect) {
@@ -20,14 +20,14 @@ final class SCardBannerCell: UICollectionViewCell {
     
     private func bind(viewModel: SCCardItem) {
         self.viewModel = viewModel
-        self.cardView.onClose = viewModel.onClose
-        self.cardView.onCard = viewModel.onCard
-        
-        viewModel.onUpdate = { [weak self] status, availableBalance in
-            self?.cardView.update(status: status, availableBalance: availableBalance, needUpdate: viewModel.needUpdate)
-        }
-        
-        self.cardView.update(status: viewModel.userStatus, availableBalance: viewModel.availableBalance, needUpdate: viewModel.needUpdate)
+//        self.cardView.onClose = viewModel.onClose
+//        self.cardView.onCard = viewModel.onCard
+//        
+//        viewModel.onUpdate = { [weak self] status, availableBalance in
+//            self?.cardView.update(status: status, availableBalance: availableBalance, needUpdate: viewModel.needUpdate)
+//        }
+//        
+//        self.cardView.update(status: viewModel.userStatus, availableBalance: viewModel.availableBalance, needUpdate: viewModel.needUpdate)
     }
 }
 

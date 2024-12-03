@@ -19,7 +19,7 @@ enum Banners: Int {
 protocol BannersViewModelFactoryProtocol {
     func createViewModel(
         wallets: [MetaAccountModel],
-        soraCardService: SCard?,
+        soraCardStatus: KYCUserStatus?,
         delegate: BannerCellDelegate?,
         locale: Locale,
         shouldShowAddWalletBanner: Bool
@@ -28,7 +28,6 @@ protocol BannersViewModelFactoryProtocol {
     func createViewModel(
         banners: [Banners],
         delegate: BannerCellDelegate?,
-        soraCardService: SCard?,
         locale: Locale
     ) -> BannersViewModel
 }
@@ -37,7 +36,6 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
     func createViewModel(
         banners: [Banners],
         delegate: BannerCellDelegate?,
-        soraCardService: SCard?,
         locale: Locale
     ) -> BannersViewModel {
         let bannersViewModel: [CollectionViewModel] = banners.compactMap { bannerType in
@@ -130,19 +128,16 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
                     delegate: delegate
                 )
             case .soraCard:
-                if let soraCardService {
-                    return SCCardItem(
-                        service: soraCardService,
-                        onClose: {
-                            delegate?.didClose(banner: bannerType)
-                        },
-                        onCard: {
-                            delegate?.didTap(banner: bannerType)
-                        }
-                    )
-                } else {
-                    return nil
-                }
+                return BannerCellViewModelDefault(
+                    title: "Get SORA Card",
+                    subtitle: "Get a Euro IBAN bank\naccount and a debit card",
+                    buttonTitle: "View details",
+                    image: UIImage(named: "soraCardBanner")!,
+                    dismissable: true,
+                    fullsizeImage: false,
+                    bannerType: bannerType,
+                    delegate: delegate
+                )
             }
         }
 
@@ -151,7 +146,7 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
 
     func createViewModel(
         wallets: [MetaAccountModel],
-        soraCardService: SCard?,
+        soraCardStatus: KYCUserStatus?,
         delegate: BannerCellDelegate?,
         locale: Locale,
         shouldShowAddWalletBanner: Bool
@@ -170,14 +165,13 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
 //            }
 //        }
         
-        if let soraCardService, !soraCardService.isSCBannerHidden {
+        if soraCardStatus == .notStarted {
             banners.append(.soraCard)
         }
 
         return createViewModel(
             banners: banners,
             delegate: delegate,
-            soraCardService: soraCardService,
             locale: locale
         )
     }

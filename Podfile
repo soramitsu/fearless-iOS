@@ -23,7 +23,7 @@ abstract_target 'fearlessAll' do
   pod 'FearlessKeys', '0.1.4'
   pod 'IdensicMobileSDK', :http => 'https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz'
   pod 'SoraUIKit', :git => 'https://github.com/soramitsu/ios-ui', :tag => ‘1.1.11’
-  pod 'SCard', :path => './sora-card-ios/'
+  pod 'SCard', :git => 'https://github.com/sora-xor/sora-card-ios', :tag => ‘1.7.0’
 
   target 'fearlessTests' do
     inherit! :search_paths
