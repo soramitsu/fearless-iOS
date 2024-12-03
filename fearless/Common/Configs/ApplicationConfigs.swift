@@ -146,7 +146,7 @@ extension ApplicationConfig: ApplicationConfigProtocol, XcmConfigProtocol {
     var chainsSourceUrl: URL {
         let isDev = LocalToggleService.shared.chainsListToggle?.storageValue
 #if F_DEV
-        return GitHubUrl.url(suffix: "chains/v12/chains_dev.json", branch: .test)
+        return GitHubUrl.url(suffix: "chains/v12/chains.json", branch: .test)
 #else
         return GitHubUrl.url(suffix: "chains/v12/chains.json")
         

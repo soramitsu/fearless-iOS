@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import BigInt
 import SSFModels
+import SCard
 
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
@@ -13,7 +14,9 @@ protocol ChainAssetListViewModelFactoryProtocol {
         chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
         displayType: AssetListDisplayType,
-        chainSettings: [ChainSettings]
+        chainSettings: [ChainSettings],
+        soraCardStatus: KYCUserStatus?,
+        bankInfo: BankInfo?
     ) -> ChainAssetListViewModel
 }
 
@@ -34,7 +37,9 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         chainsWithIssue: [ChainIssue],
         shouldRunManageAssetAnimate: Bool,
         displayType: AssetListDisplayType,
-        chainSettings: [ChainSettings]
+        chainSettings: [ChainSettings],
+        soraCardStatus: KYCUserStatus?,
+        bankInfo: BankInfo?
     ) -> ChainAssetListViewModel {
         let enabledChainAssets = enabledOrDefault(chainAssets: chainAssets, for: wallet)
 
@@ -49,28 +54,30 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             assetChainAssetsArray: assetChainAssetsArray
         )
         
-        var chainAssetCellModels: [ChainAccountBalanceCellViewModel] = [
-            ChainAccountBalanceCellViewModel(
+        var chainAssetCellModels: [ChainAccountBalanceCellViewModel] = []
+        if let fakeAsset = chainAssets.first, soraCardStatus != .notStarted {
+            let priceAttributedString = soraCardStatus == .successful ? bankInfo?.iban : soraCardStatus?.text
+            chainAssetCellModels.append(ChainAccountBalanceCellViewModel(
                 assetContainsChainAssets: [],
                 chainIconViewViewModel: .init(
                     maxImagesCount: 1,
                     chainImages: []
                 ),
-                chainAsset: chainAssets.first!,
+                chainAsset: fakeAsset,
                 assetName: "Fiat",
                 middleText: "SORA Card",
                 assetInfo: nil,
                 imageViewModel: nil,
                 imageName: "soraCardAssetList",
-                balanceString: .normal("€3,644.50"),
-                priceAttributedString: .normal("LT61 3250 0467 7252 5583"),
+                balanceString: .normal("€\(bankInfo?.balance)"),
+                priceAttributedString: .normal(priceAttributedString),
                 totalAmountString: .normal(""),
                 options: [],
                 isColdBoot: false,
                 locale: locale,
                 hideButtonIsVisible: false
-            )
-        ]
+            ))
+        }
         
         chainAssetCellModels.append(contentsOf: sortedAssetChainAssets.compactMap { assetChainAssets in
             let priceData = assetChainAssets.mainChainAsset.asset.getPrice(for: wallet.selectedCurrency)

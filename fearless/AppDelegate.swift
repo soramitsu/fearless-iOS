@@ -1,4 +1,5 @@
 import UIKit
+import SoraUIKit
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -13,6 +14,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     ) -> Bool {
         guard !isUnitTesting else { return true }
 
+        UINavigationBar.appearance().tintColor = SoramitsuUI.shared.theme.palette.color(.accentPrimary)
+        
         let rootWindow = FearlessWindow()
         window = rootWindow
 

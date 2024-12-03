@@ -166,7 +166,7 @@ extension BannersPresenter: BannersViewOutput {
         interactor.setup(with: self)
         
         Task {
-            let soraCardService = try! await interactor.initSoraCard()
+            guard let soraCardService = try? await interactor.initSoraCard() else { return }
             
             for await userStatus in soraCardService.userStatusStream {
                 soraCardStatus = userStatus

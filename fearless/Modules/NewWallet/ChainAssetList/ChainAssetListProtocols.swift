@@ -34,6 +34,7 @@ protocol ChainAssetListInteractorInput: AnyObject {
     func getAvailableChainAssets(chainAsset: ChainAsset, completion: @escaping (([ChainAsset]) -> Void))
     func hideChainAsset(_ chainAsset: ChainAsset)
     func retryConnection(for chainId: ChainModel.Id)
+    func initSoraCard() async throws -> SCard
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {

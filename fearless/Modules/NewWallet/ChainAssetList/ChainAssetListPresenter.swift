@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFModels
+import SCard
 
 final class ChainAssetListPresenter {
     // MARK: Private properties
@@ -21,7 +22,9 @@ final class ChainAssetListPresenter {
     private var chainSettings: [ChainSettings] = []
 
     private var networkFilter: NetworkManagmentFilter?
-
+    private var soraCardStatus: KYCUserStatus?
+    private var bankInfo: BankInfo?
+    
     // MARK: - Constructors
 
     init(
@@ -60,7 +63,9 @@ final class ChainAssetListPresenter {
                 chainsWithIssue: chainsWithIssue,
                 shouldRunManageAssetAnimate: shouldRunManageAssetAnimate,
                 displayType: self.displayType,
-                chainSettings: chainSettings
+                chainSettings: chainSettings,
+                soraCardStatus: soraCardStatus,
+                bankInfo: bankInfo
             )
 
             DispatchQueue.main.async {
@@ -113,6 +118,22 @@ final class ChainAssetListPresenter {
             actions: actions
         )
     }
+    
+    private func subscribeSoraCard() {
+        Task { [weak self] in
+            guard let soraCardService = try? await self?.interactor.initSoraCard() else { return }
+            
+            for await userStatus in soraCardService.userStatusStream {
+                self?.soraCardStatus = userStatus
+                
+                if userStatus != .successful {
+                    self?.bankInfo = await soraCardService.getBankInfo()
+                }
+
+                self?.provideViewModel()
+            }
+        }
+    }
 }
 
 // MARK: - ChainAssetListViewOutput
@@ -120,6 +141,7 @@ final class ChainAssetListPresenter {
 extension ChainAssetListPresenter: ChainAssetListViewOutput {
     func didLoad(view: ChainAssetListViewInput) {
         self.view = view
+        subscribeSoraCard()
         interactor.setup(with: self)
     }
     
