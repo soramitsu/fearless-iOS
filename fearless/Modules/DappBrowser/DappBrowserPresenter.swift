@@ -136,10 +136,10 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
     }
 
     func didTapOnWalletSelectButton() {
-        router.showWalletManagment(
-            from: view,
-            moduleOutput: self
-        )
+//        router.showWalletManagment(
+//            from: view,
+//            moduleOutput: self
+//        )
     }
 
     func didTapOnNetworkSelectButton() {
