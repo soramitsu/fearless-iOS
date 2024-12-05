@@ -29,7 +29,7 @@ final class ChainModelMapper {
         )
     }
 
-    private func createAsset(from entity: CDAsset) -> AssetModel? {
+    private func createAsset(from entity: CDAsset, ecosystem: Ecosystem) -> AssetModel? {
         var symbol: String?
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
@@ -69,7 +69,25 @@ final class ChainModelMapper {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
-        guard let assetType = ChainAssetType(storageValue: entity.type) else {
+        guard let assetType: ChainAssetType = entity.type.map({ type in
+            switch ecosystem {
+            case .substrate:
+                let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
+
+                return .substrate(substrateType: substrateType)
+            case .ethereumBased:
+                let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
+
+                return .substrate(substrateType: substrateType)
+            case .ethereum:
+                let ethereumType = EthereumAssetType(rawValue: type) ?? .normal
+
+                return .ethereum(ethereumType: ethereumType)
+            case .ton:
+                let tonType = TonAssetType(rawValue: type) ?? .normal
+                return .ton(tonType: tonType)
+            }
+        }) else {
             return nil
         }
 
@@ -159,8 +177,8 @@ final class ChainModelMapper {
 
             if
                 let oldAssets = entity.assets as? Set<CDAsset>,
-                let updatedAsset = oldAssets.first(where: { cdAsset in
-                    cdAsset.id == assetModel.id
+                let updatedAsset = oldAssets.first(where: { asset in
+                    asset.id == assetModel.id
                 }) {
                 if let oldPrices = updatedAsset.priceData as? Set<CDPriceData> {
                     oldPrices.forEach { cdPriceData in
@@ -176,8 +194,8 @@ final class ChainModelMapper {
         }
 
         if let oldAssets = entity.assets as? Set<CDAsset> {
-            oldAssets.forEach { cdAsset in
-                context.delete(cdAsset)
+            oldAssets.forEach { asset in
+                context.delete(asset)
             }
         }
 
@@ -566,7 +584,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
                 return nil
             }
 
-            return createAsset(from: asset)
+            return createAsset(from: asset, ecosystem: ecosystem)
         }
         let assets = Set(assetsArray)
 

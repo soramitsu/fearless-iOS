@@ -216,7 +216,7 @@ extension DappBrowserViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch viewModel[indexPath.section] {
         case .featured:
-            return 170
+            return 140
         case .section:
             return 64
         }

@@ -252,7 +252,6 @@
 		074EB7B1290BA142000A2A6A /* ConnectionOnlineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
 		075D9E482CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075D9E472CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift */; };
-		075D9E4A2CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 075D9E492CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel */; };
 		075E5FCF2C7F1A180044C142 /* TonConnectServiceDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */; };
 		075E5FD12C7F1A630044C142 /* TonConnectService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075E5FD02C7F1A630044C142 /* TonConnectService.swift */; };
 		075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */; };
@@ -2197,6 +2196,7 @@
 		FA2E9BBD27A293DA0023FAD2 /* FilterSet.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BBC27A293DA0023FAD2 /* FilterSet.swift */; };
 		FA2E9BBF27A297CE0023FAD2 /* FilterSectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BBE27A297CE0023FAD2 /* FilterSectionViewModel.swift */; };
 		FA2E9BC127A2A1000023FAD2 /* FilterSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BC027A2A1000023FAD2 /* FilterSectionHeaderView.swift */; };
+		FA2F50042D01A81A00ED1441 /* SubstrateV7toV8.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA2F50032D01A81A00ED1441 /* SubstrateV7toV8.xcmappingmodel */; };
 		FA2FC7C928B3805400CC0A42 /* JoinPoolCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2FC7C628B3805400CC0A42 /* JoinPoolCall.swift */; };
 		FA2FC7CA28B3805400CC0A42 /* SetMetadataCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2FC7C728B3805400CC0A42 /* SetMetadataCall.swift */; };
 		FA2FC7CB28B3805400CC0A42 /* CreatePoolCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2FC7C828B3805400CC0A42 /* CreatePoolCall.swift */; };
@@ -3460,7 +3460,6 @@
 		074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOnlineEvent.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		075D9E472CF9B7E500ACA291 /* ChainSubstrateV8MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainSubstrateV8MigrationPolicy.swift; sourceTree = "<group>"; };
-		075D9E492CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV7toV8.xcmappingmodel; sourceTree = "<group>"; };
 		075E5FCE2C7F1A180044C142 /* TonConnectServiceDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectServiceDelegate.swift; sourceTree = "<group>"; };
 		075E5FD02C7F1A630044C142 /* TonConnectService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectService.swift; sourceTree = "<group>"; };
 		075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputViewV2.swift; sourceTree = "<group>"; };
@@ -5519,6 +5518,7 @@
 		FA2E9BBC27A293DA0023FAD2 /* FilterSet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSet.swift; sourceTree = "<group>"; };
 		FA2E9BBE27A297CE0023FAD2 /* FilterSectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSectionViewModel.swift; sourceTree = "<group>"; };
 		FA2E9BC027A2A1000023FAD2 /* FilterSectionHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterSectionHeaderView.swift; sourceTree = "<group>"; };
+		FA2F50032D01A81A00ED1441 /* SubstrateV7toV8.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV7toV8.xcmappingmodel; sourceTree = "<group>"; };
 		FA2FC7C628B3805400CC0A42 /* JoinPoolCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = JoinPoolCall.swift; sourceTree = "<group>"; };
 		FA2FC7C728B3805400CC0A42 /* SetMetadataCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetMetadataCall.swift; sourceTree = "<group>"; };
 		FA2FC7C828B3805400CC0A42 /* CreatePoolCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreatePoolCall.swift; sourceTree = "<group>"; };
@@ -11119,13 +11119,13 @@
 		84CEAAEB26D6D91A0021B881 /* MigrationMappings */ = {
 			isa = PBXGroup;
 			children = (
+				FA2F50032D01A81A00ED1441 /* SubstrateV7toV8.xcmappingmodel */,
 				FABA161C2B0C94C9001AF2F0 /* UserDataModelV10toV11.xcmappingmodel */,
 				846CA7712707A3060011124C /* SingleToMultiasset.xcmappingmodel */,
 				FA9278A727C382C600FF7B5B /* MultiassetV2.xcmappingmodel */,
 				FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */,
 				FA28A9B129D2E451005AA42E /* MultiassetV9.xcmappingmodel */,
 				07EC555A2CD8A3600074132E /* MultiAssetV12.xcmappingmodel */,
-				075D9E492CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel */,
 			);
 			path = MigrationMappings;
 			sourceTree = "<group>";
@@ -18493,7 +18493,7 @@
 				FAD4292E2A865680001D6A16 /* BackupWalletImportedProtocols.swift in Sources */,
 				84BAB6102642C286007782D0 /* SelectedRebondVariant.swift in Sources */,
 				84F5107C263C0C11005D15AE /* AnyProviderCleaning.swift in Sources */,
-				075D9E4A2CF9C25800ACA291 /* SubstrateV7toV8.xcmappingmodel in Sources */,
+				FA2F50042D01A81A00ED1441 /* SubstrateV7toV8.xcmappingmodel in Sources */,
 				FAA0134628DA12CD000A5230 /* StakingUnbondSetupPoolViewModelState.swift in Sources */,
 				84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */,
 				8467FD4124ED3C72005D486C /* AlignableContentControl.swift in Sources */,
@@ -20400,9 +20400,12 @@
 				);
 				MARKETING_VERSION = 4.0.1;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -20428,9 +20431,12 @@
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				MARKETING_VERSION = 4.0.1;
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -20568,9 +20574,12 @@
 				);
 				MARKETING_VERSION = 4.0.1;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
-				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlesswallet;
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};

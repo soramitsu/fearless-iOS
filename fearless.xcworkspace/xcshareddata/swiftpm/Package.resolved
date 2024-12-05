@@ -1,5 +1,4 @@
 {
-  "originHash" : "db3e9f7067135f4497b6059ac444951778a2f8ca758335577305759626739473",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -137,15 +136,6 @@
       }
     },
     {
-      "identity" : "shared-features-spm",
-      "kind" : "remoteSourceControl",
-      "location" : "https://github.com/soramitsu/shared-features-spm.git",
-      "state" : {
-        "branch" : "FW-new-ecosystem",
-        "revision" : "9c8b40782d0b1f3e306ac24fed5048326df61cfe"
-      }
-    },
-    {
       "identity" : "swift-atomics",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-atomics.git",
@@ -245,6 +235,15 @@
       }
     },
     {
+      "identity" : "swiftformat",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nicklockwood/SwiftFormat",
+      "state" : {
+        "revision" : "2d5a2b6bde636c1feae2c852ab9a50f221e98c66",
+        "version" : "0.55.3"
+      }
+    },
+    {
       "identity" : "swiftimagereadwrite",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/SwiftImageReadWrite",
@@ -335,5 +334,5 @@
       }
     }
   ],
-  "version" : 3
+  "version" : 2
 }
