@@ -72,20 +72,33 @@ final class ChainModelMapper {
         guard let assetType: ChainAssetType = entity.type.map({ type in
             switch ecosystem {
             case .substrate:
-                let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
-
-                return .substrate(substrateType: substrateType)
+                if let type = ChainAssetType(storageValue: type) {
+                    return type
+                } else {
+                    let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
+                    return .substrate(substrateType: substrateType)
+                }
             case .ethereumBased:
-                let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
-
-                return .substrate(substrateType: substrateType)
+                if let type = ChainAssetType(storageValue: type) {
+                    return type
+                } else {
+                    let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
+                    return .substrate(substrateType: substrateType)
+                }
             case .ethereum:
-                let ethereumType = EthereumAssetType(rawValue: type) ?? .normal
-
-                return .ethereum(ethereumType: ethereumType)
+                if let type = ChainAssetType(storageValue: type) {
+                    return type
+                } else {
+                    let ethereumType = EthereumAssetType(rawValue: type) ?? .normal
+                    return .ethereum(ethereumType: ethereumType)
+                }
             case .ton:
-                let tonType = TonAssetType(rawValue: type) ?? .normal
-                return .ton(tonType: tonType)
+                if let type = ChainAssetType(storageValue: type) {
+                    return type
+                } else {
+                    let tonType = TonAssetType(rawValue: type) ?? .normal
+                    return .ton(tonType: tonType)
+                }
             }
         }) else {
             return nil
