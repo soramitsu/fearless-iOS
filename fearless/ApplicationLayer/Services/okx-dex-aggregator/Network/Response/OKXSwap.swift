@@ -39,15 +39,15 @@ extension OKXSwap: CrossChainSwap {
     }
 
     var gasLimit: String? {
-        tx.gas
+        nil
     }
 
     var gasPrice: String? {
-        tx.gasPrice
+        nil
     }
 
     var maxPriorityFeePerGas: String? {
-        tx.maxPriorityFeePerGas
+        nil
     }
 
     var from: String? {

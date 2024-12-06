@@ -153,6 +153,10 @@ extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
     func didReceiveViewModel(viewModel: CrossChainSwapViewModel?) {
         rootView.bind(viewModel: viewModel)
     }
+
+    func didReceiveError(viewModel: ErrorViewModel?) {
+        rootView.bind(errorViewModel: viewModel)
+    }
 }
 
 // MARK: - Localizable

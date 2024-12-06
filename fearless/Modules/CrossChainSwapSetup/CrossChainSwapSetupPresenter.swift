@@ -11,6 +11,7 @@ protocol CrossChainSwapSetupViewInput: ControllerBackedProtocol {
     func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?)
     func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?)
     func didReceiveViewModel(viewModel: CrossChainSwapViewModel?)
+    func didReceiveError(viewModel: ErrorViewModel?)
 }
 
 protocol CrossChainSwapSetupInteractorInput: AnyObject {
@@ -362,6 +363,17 @@ final class CrossChainSwapSetupPresenter {
 //        dexTask?.cancel()
 //        quotesTask?.cancel()
 //        swapTask?.cancel()
+    }
+
+    private func showError() {
+        let errorViewModel = ErrorViewModel(
+            title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
+            message: R.string.localizable.swapLiquidityError(preferredLanguages: selectedLocale.rLanguages),
+            actionTitle: R.string.localizable.selectLiquidityTitle(preferredLanguages: selectedLocale.rLanguages)
+        ) {
+            self.didTapLiquiditySources()
+        }
+        view?.didReceiveError(viewModel: errorViewModel)
     }
 }
 
