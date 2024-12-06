@@ -7,7 +7,9 @@ import SoraFoundation
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
-    private let chainRegistry: ChainRegistryProtocol
+    private lazy var chainRegistry: ChainRegistryProtocol = {
+        ChainRegistryFacade.sharedRegistry
+    }()
     private let settings: SelectedWalletSettings
     private let applicationConfig: ApplicationConfigProtocol
     private let eventCenter: EventCenterProtocol
@@ -17,7 +19,6 @@ final class RootInteractor {
     private let onboardingConfigResolver: OnboardingConfigVersionResolver
 
     init(
-        chainRegistry: ChainRegistryProtocol,
         settings: SelectedWalletSettings,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
@@ -26,7 +27,6 @@ final class RootInteractor {
         onboardingService: OnboardingServiceProtocol,
         onboardingConfigResolver: OnboardingConfigVersionResolver
     ) {
-        self.chainRegistry = chainRegistry
         self.settings = settings
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter

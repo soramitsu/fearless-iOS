@@ -40,8 +40,6 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             startViewHelper: startViewHelper
         )
 
-        let assetManagementMigrator = AssetManagementMigratorAssembly.createDefaultMigrator()
-
         let migrators: [Migrating] = [
             languageMigrator,
             dbMigrator,
@@ -53,7 +51,6 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared)
 
         let interactor = RootInteractor(
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
             settings: SelectedWalletSettings.shared,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,

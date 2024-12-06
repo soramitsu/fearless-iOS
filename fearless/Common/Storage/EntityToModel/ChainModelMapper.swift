@@ -70,35 +70,19 @@ final class ChainModelMapper {
         }
 
         guard let assetType: ChainAssetType = entity.type.map({ type in
+            if let type = ChainAssetType(storageValue: type) {
+                return type
+            }
             switch ecosystem {
-            case .substrate:
-                if let type = ChainAssetType(storageValue: type) {
-                    return type
-                } else {
-                    let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
-                    return .substrate(substrateType: substrateType)
-                }
-            case .ethereumBased:
-                if let type = ChainAssetType(storageValue: type) {
-                    return type
-                } else {
-                    let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
-                    return .substrate(substrateType: substrateType)
-                }
+            case .substrate, .ethereumBased:
+                let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
+                return .substrate(substrateType: substrateType)
             case .ethereum:
-                if let type = ChainAssetType(storageValue: type) {
-                    return type
-                } else {
-                    let ethereumType = EthereumAssetType(rawValue: type) ?? .normal
-                    return .ethereum(ethereumType: ethereumType)
-                }
+                let ethereumType = EthereumAssetType(rawValue: type) ?? .normal
+                return .ethereum(ethereumType: ethereumType)
             case .ton:
-                if let type = ChainAssetType(storageValue: type) {
-                    return type
-                } else {
-                    let tonType = TonAssetType(rawValue: type) ?? .normal
-                    return .ton(tonType: tonType)
-                }
+                let tonType = TonAssetType(rawValue: type) ?? .normal
+                return .ton(tonType: tonType)
             }
         }) else {
             return nil

@@ -683,7 +683,7 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEPFQALAAwAGQA1ADYANwBnAGgAaQBq
     <object type="XDDEVRELATIONSHIPMAPPING" id="z231">
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <attribute name="name" type="string">assets</attribute>
-        <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z258"></relationship>
+        <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z232">
         <attribute name="name" type="string">precision</attribute>
@@ -799,8 +799,8 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEPFQALAAwAGQA1ADYANwBnAGgAaQBq
         <attribute name="destinationname" type="string">CDChain</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z217"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z229 z107 z188 z226 z227 z184 z263 z186 z104 z225 z108 z228 z224 z189 z149 z148 z187 z106 z185 z105 z147 z103 z146 z144 z102 z230 z145"></relationship>
-        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z110 z109 z150 z191 z231 z190"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z226 z225 z187 z103 z107 z105 z189 z229 z227 z184 z145 z144 z104 z228 z263 z146 z149 z102 z106 z186 z108 z230 z148 z188 z224 z185 z147"></relationship>
+        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z110 z190 z191 z150 z109"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z259">
         <attribute name="sourcename" type="string">CDContactItem</attribute>
