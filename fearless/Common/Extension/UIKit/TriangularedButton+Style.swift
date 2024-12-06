@@ -83,4 +83,17 @@ extension TriangularedButton {
 
         changesContentOpacityWhenHighlighted = true
     }
+
+    func applyErrorStyle() {
+        triangularedView?.shadowOpacity = 0
+        triangularedView?.fillColor = R.color.colorOrange()!
+        triangularedView?.highlightedFillColor = R.color.colorOrange()!
+        triangularedView?.strokeColor = .clear
+        triangularedView?.highlightedStrokeColor = .clear
+
+        imageWithTitleView?.titleColor = R.color.colorWhite()!
+        imageWithTitleView?.titleFont = .h4Title
+
+        changesContentOpacityWhenHighlighted = true
+    }
 }
