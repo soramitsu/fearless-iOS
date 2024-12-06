@@ -9,7 +9,7 @@ class ChainSubstrateV8MigrationPolicy: NSEntityMigrationPolicy {
         manager: NSMigrationManager
     ) throws {
         try super.createDestinationInstances(forSource: sInstance, in: mapping, manager: manager)
-        
+
         guard let updatedChainModel = manager.destinationInstances(
             forEntityMappingName: mapping.name,
             sourceInstances: [sInstance]
@@ -25,11 +25,11 @@ class ChainSubstrateV8MigrationPolicy: NSEntityMigrationPolicy {
         } else {
             updatedChainModel.setValue("substrate", forKey: "ecosystem")
         }
-        
+
         guard let chainAssetsModels = sInstance.value(forKey: "assets") as? Set<NSManagedObject> else {
             throw ConvenienceError(error: "No assets value")
         }
-        
+
         let assetModels: [NSManagedObject] = chainAssetsModels.compactMap {
             guard
                 let id = $0.value(forKey: "id") as? String,
@@ -48,12 +48,19 @@ class ChainSubstrateV8MigrationPolicy: NSEntityMigrationPolicy {
             let staking: String? = $0.value(forKey: "staking") as? String
             let purchaseProviders: [String]? = $0.value(forKey: "purchaseProviders") as? [String]
             let priceId: String? = $0.value(forKey: "priceId") as? String
+            let priceProvider = $0.value(forKey: "priceProvider") as? NSManagedObject
 
             let updatedAssetModel = NSEntityDescription.insertNewObject(
                 forEntityName: "CDAsset",
                 into: manager.destinationContext
             )
-            
+
+            if let priceProviderId = priceProvider?.objectID {
+                let priceProviderInDestinationContext = manager.destinationContext.object(with: priceProviderId)
+                updatedAssetModel.setValue(priceProviderInDestinationContext, forKey: "priceProvider")
+            }
+
+            updatedAssetModel.setValue(name, forKey: "name")
             updatedAssetModel.setValue(id, forKey: "id")
             updatedAssetModel.setValue(symbol, forKey: "symbol")
             updatedAssetModel.setValue(precision, forKey: "precision")
@@ -65,6 +72,7 @@ class ChainSubstrateV8MigrationPolicy: NSEntityMigrationPolicy {
             updatedAssetModel.setValue(isUtility, forKey: "isUtility")
             updatedAssetModel.setValue(purchaseProviders, forKey: "purchaseProviders")
             updatedAssetModel.setValue(staking, forKey: "staking")
+            updatedAssetModel.setValue(priceId, forKey: "priceId")
 
             if let ethereumType = $0.value(forKey: "ethereumType") as? String {
                 updatedAssetModel.setValue("ethereum-" + ethereumType, forKey: "type")
