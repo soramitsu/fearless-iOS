@@ -28,20 +28,26 @@ class OKXMultichainAssetFetching: MultichainAssetFetching {
                 return nil
             }
 
+            let isUtility = $0.tokenContractAddress == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+            let contractAddress = $0.tokenContractAddress
+            let nativeAsset = isUtility ? chain.utilityChainAssets().first : chain.chainAssets.first(where: { $0.asset.id.lowercased() == contractAddress.lowercased() })
+            let id = nativeAsset?.asset.id ?? $0.tokenContractAddress
+
             let iconURL = $0.tokenLogoUrl.flatMap { URL(string: $0) }
-            let isUtility = $0.tokenSymbol.uppercased() == chain.utilityAssets().first?.symbol.uppercased()
             let ethereumType: EthereumAssetType = isUtility ? .normal : .erc20
 
             let asset = AssetModel(
-                id: $0.tokenContractAddress,
+                id: id,
                 name: $0.tokenName.or($0.tokenSymbol),
                 symbol: $0.tokenSymbol,
                 precision: precision,
                 icon: iconURL,
+                currencyId: $0.tokenContractAddress,
                 isUtility: isUtility,
                 isNative: false,
                 ethereumType: ethereumType
             )
+
             return ChainAsset(chain: chain, asset: asset)
         }
 

@@ -107,7 +107,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             return !caPriceIds.intersection(sqPriceIds).contains(coingeckoPriceId)
         }
 
-        return filtered + replacedFiatDayChange
+        return coingeckoPrices + replacedFiatDayChange
     }
 
     private func merge(coingeckoPrices: [PriceData], soraSubqueryPrices: [PriceData]) -> [PriceData] {
@@ -126,7 +126,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             return !caPriceIds.intersection(sqPriceIds).contains(priceId)
         }
 
-        return filtered + soraSubqueryPrices
+        return coingeckoPrices + soraSubqueryPrices
     }
 
     private func makePrices(from coingeckoPrices: [PriceData], for type: PriceProviderType) -> [PriceData] {

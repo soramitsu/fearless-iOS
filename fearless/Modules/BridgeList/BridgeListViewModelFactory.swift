@@ -6,8 +6,10 @@ protocol BridgeListViewModelFactory {
     func buildCrossChainViewModel(
         crossChainQuotes: [OKXCrossChainQuote]?,
         locale: Locale,
+        sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
-        selectedSort: UInt8
+        selectedSort: UInt8,
+        sourceChainAssets: [ChainAsset]?
     ) -> BridgeListViewModel
 }
 
@@ -21,23 +23,29 @@ final class BridgeListViewModelFactoryImpl: BridgeListViewModelFactory {
     func buildCrossChainViewModel(
         crossChainQuotes: [OKXCrossChainQuote]?,
         locale: Locale,
+        sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
-        selectedSort: UInt8
+        selectedSort: UInt8,
+        sourceChainAssets: [ChainAsset]?
     ) -> BridgeListViewModel {
         let cellModels = buildViewModels(
             crossChainQuotes: crossChainQuotes,
+            sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
             locale: locale,
-            selectedSort: selectedSort
+            selectedSort: selectedSort,
+            sourceChainAssets: sourceChainAssets
         )
         return BridgeListViewModel(title: "Trade Routes", cellModels: cellModels)
     }
 
     private func buildViewModels(
         crossChainQuotes: [OKXCrossChainQuote]?,
+        sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         locale: Locale,
-        selectedSort: UInt8
+        selectedSort: UInt8,
+        sourceChainAssets: [ChainAsset]?
     ) -> [BridgeListTableCellModel]? {
         guard let crossChainQuotes else {
             return nil
@@ -62,7 +70,44 @@ final class BridgeListViewModelFactoryImpl: BridgeListViewModelFactory {
             let txTime = (quote.routerList.first?.estimateTime)
                 .flatMap { TimeInterval($0) }
                 .flatMap { formatter.string(from: TimeInterval($0)) }
-            let txCommission = (quote.routerList.first?.router.otherNativeFee).flatMap { "\(wallet.selectedCurrency.symbol) \($0)" }
+
+            let fee = quote.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainAsset.asset.precision)) }
+            let sourceChainFeeNativeToken = sourceChainAsset.chain.chainAssets.first(where: { $0.asset.id == sourceChainAsset.asset.id })
+
+            let sourceChainFiatFee: Decimal? = fee.flatMap { fee in
+                guard
+                    let sourceChainFeeNativeToken,
+                    let price = sourceChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
+                    let priceDecimal = Decimal(string: price.price)
+                else {
+                    return nil
+                }
+                return fee * priceDecimal
+            }
+            let crossChainFeeToken = sourceChainAssets?.first(where: { $0.asset.currencyId == quote.routerList.first?.router.crossChainFeeTokenAddress })
+            let crossChainFeeNativeToken = sourceChainAsset.chain.chainAssets.first(where: { $0.asset.id == crossChainFeeToken?.asset.id })
+            let crossChainFee: Decimal? = quote.crossChainFee.flatMap { BigUInt(string: $0) }.flatMap {
+                guard let crossChainFeeNativeToken else {
+                    return nil
+                }
+
+                return Decimal.fromSubstrateAmount($0, precision: Int16(crossChainFeeNativeToken.asset.precision))
+            }
+
+            let crossChainFiatFee: Decimal? = crossChainFee.flatMap { fee in
+                guard let crossChainFeeNativeToken,
+                      let price = crossChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
+                      let priceDecimal = Decimal(string: price.price)
+                else {
+                    return nil
+                }
+
+                return fee * priceDecimal
+            }
+
+            let totalFiatFee = [crossChainFiatFee, sourceChainFiatFee].compactMap { $0 }.reduce(0, +).string(maximumFractionDigits: 2)
+
+            let txCommission = "\(wallet.selectedCurrency.symbol) \(totalFiatFee)"
 
             return BridgeListTableCellModel(
                 routeTitle: quote.routerList.first?.router.bridgeName.capitalized,

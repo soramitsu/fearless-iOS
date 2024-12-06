@@ -212,7 +212,8 @@ extension EthereumRemoteBalanceFetching: AccountInfoFetchingProtocol {
         for chainAssets: [ChainAsset],
         wallet: MetaAccountModel
     ) async throws -> [ChainAssetKey: AccountInfo?] {
-        let accountInfos = try await fetch(for: chainAssets, wallet: wallet)
+        let uniqueChainAssets = chainAssets.uniq(predicate: \.asset.id)
+        let accountInfos = try await fetch(for: uniqueChainAssets, wallet: wallet)
         let mapped: [(ChainAssetKey, AccountInfo?)] = accountInfos.compactMap { chainAsset, accountInfo in
             let request = chainAsset.chain.accountRequest()
             guard let accountId = wallet.fetch(for: request)?.accountId else {

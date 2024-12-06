@@ -11,7 +11,7 @@ protocol CrossChainSwapSetupViewModelFactory {
         wallet: MetaAccountModel,
         locale: Locale,
         selectedDexIds: [String]?,
-        quotes: [OKXDexQuote]?
+        totalFiatFee: Decimal?
     ) -> CrossChainSwapViewModel
 }
 
@@ -31,7 +31,7 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         wallet: MetaAccountModel,
         locale: Locale,
         selectedDexIds: [String]?,
-        quotes: [OKXDexQuote]?
+        totalFiatFee: Decimal?
     ) -> CrossChainSwapViewModel {
         let utilityFeeChainAsset = sourceChainAsset.chain.utilityChainAssets().first ?? sourceChainAsset
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
@@ -65,36 +65,22 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         let sendTokenRatioString = sendTokenRatio.flatMap { $0.string(maximumFractionDigits: 5) }
         let receiveTokenRatioString = receiveTokenRatio.flatMap { $0.string(maximumFractionDigits: 5) }
 
-        let gasPrice = swap.gasPrice.flatMap { BigUInt(string: $0) }
-        let gasLimit = swap.gasLimit.flatMap { BigUInt(string: $0) }
+        let totalFiatFeeString = totalFiatFee.flatMap { $0.string(maximumFractionDigits: 8) }
 
-        let fee: BigUInt? = gasPrice.flatMap {
-            guard let gasLimit else {
-                return nil
-            }
-
-            return $0 * gasLimit
-        }
-
-        let crossChainFee = swap.crossChainFee.flatMap { BigUInt(string: $0) }
-        let otherNativeFee = swap.otherNativeFee.flatMap { BigUInt(string: $0) }
-
-        let totalFee = fee.or(.zero) + crossChainFee.or(.zero) + otherNativeFee.or(.zero)
-        let totalFeeDecimal = Decimal.fromSubstrateAmount(totalFee, precision: Int16(utilityFeeChainAsset.asset.precision))
-
-        let totalFeeViewModel = totalFeeDecimal.flatMap { feeBalanceViewModelFactory?.balanceFromPrice($0, priceData: utilityFeeChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
         let sendTokenRatioTitle = "\(sourceChainAsset.asset.symbol.uppercased())/\(targetChainAsset.asset.symbol.uppercased())"
         let receiveTokenRatioTitle = "\(targetChainAsset.asset.symbol.uppercased())/\(sourceChainAsset.asset.symbol.uppercased())"
-        let liquiditySources: String? = (quotes?.count).map { count in
+        let liquiditySources: String? = (swap.quotes?.count).map { count in
             let selectedCount = selectedDexIds?.count ?? count
             return "\(selectedCount)/\(count)"
         }
+        let txCommission = totalFiatFeeString.flatMap { "\(wallet.selectedCurrency.symbol) \($0)" }
+
         return CrossChainSwapViewModel(
             minimumReceived: minimumReceiveAmountViewModel?.value(for: locale),
             route: swap.route?.capitalized,
             sendTokenRatio: sendTokenRatioString,
             receiveTokenRatio: receiveTokenRatioString,
-            fee: totalFeeViewModel?.value(for: locale),
+            fee: txCommission,
             sendTokenRatioTitle: sendTokenRatioTitle,
             receiveTokenRatioTitle: receiveTokenRatioTitle,
             liquiditySources: liquiditySources

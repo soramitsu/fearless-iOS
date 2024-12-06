@@ -43,4 +43,12 @@ extension ChainAsset {
     var isBokolo: Bool {
         asset.currencyId == BokoloConstants.bokoloCashAssetCurrencyId
     }
+
+    func uniqueKey(for wallet: MetaAccountModel) -> ChainAssetKey? {
+        let request = chain.accountRequest()
+        guard let accountId = wallet.fetch(for: request)?.accountId else {
+            return nil
+        }
+        return uniqueKey(accountId: accountId)
+    }
 }

@@ -29,14 +29,20 @@ final class SelectAssetAssembly {
             operationQueue: operationQueue
         )
 
-        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            selectedMetaAccount: wallet
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationQueue()
         )
 
         let interactor = SelectAssetInteractor(
             chainAssetFetching: chainAssetFetching,
-            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+            accountInfoFetchingProvider: accountInfoFetching,
             chainAssets: chainAssets,
             wallet: wallet
         )

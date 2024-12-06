@@ -9,6 +9,7 @@ protocol BridgeListViewInput: ControllerBackedProtocol {
 protocol BridgeListInteractorInput: AnyObject {
     func setup(with output: BridgeListInteractorOutput)
     func getCrossChainQuotes(sort: UInt8) async throws -> [OKXCrossChainQuote]?
+    func fetchAssets(for chain: ChainModel) async throws -> [ChainAsset]
 }
 
 final class BridgeListPresenter {
@@ -26,6 +27,7 @@ final class BridgeListPresenter {
     private var selectedSort: UInt8 = 0
 
     private var quotes: [OKXCrossChainQuote]?
+    private var sourceChainAssets: [ChainAsset]?
 
     // MARK: - Constructors
 
@@ -49,6 +51,21 @@ final class BridgeListPresenter {
     }
 
     // MARK: - Private methods
+
+    private func fetchTokens() {
+        Task {
+            do {
+                let assets = try await interactor.fetchAssets(for: sourceChainAsset.chain)
+                self.sourceChainAssets = assets
+
+                await MainActor.run {
+                    provideViewModel()
+                }
+            } catch {
+                print("Fetch quotes error: ", error)
+            }
+        }
+    }
 
     private func fetchQuotes() {
         Task {
@@ -74,8 +91,10 @@ final class BridgeListPresenter {
         let viewModel = viewModelFactory.buildCrossChainViewModel(
             crossChainQuotes: quotes,
             locale: selectedLocale,
+            sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
-            selectedSort: selectedSort
+            selectedSort: selectedSort,
+            sourceChainAssets: sourceChainAssets
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -89,6 +108,7 @@ extension BridgeListPresenter: BridgeListViewOutput {
         self.view = view
         interactor.setup(with: self)
         fetchQuotes()
+        fetchTokens()
     }
 
     func didTapBackButton() {

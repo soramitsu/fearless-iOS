@@ -13,11 +13,11 @@ protocol SelectAssetViewOutput: SelectionListPresenterProtocol {
 protocol SelectAssetInteractorInput: AnyObject {
     func setup(with output: SelectAssetInteractorOutput)
     func update(with chainAssets: [ChainAsset])
+    func fetchAccountInfos(with chainAssets: [ChainAsset]) async -> [ChainAsset: AccountInfo?]
 }
 
 protocol SelectAssetInteractorOutput: AnyObject {
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
 protocol SelectAssetRouterInput: SheetAlertPresentable, ErrorPresentable, PresentDismissable {}

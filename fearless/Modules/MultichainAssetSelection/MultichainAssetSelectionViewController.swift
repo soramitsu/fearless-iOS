@@ -160,6 +160,6 @@ extension MultichainAssetSelectionViewController: EmptyStateDataSource {
 
 extension MultichainAssetSelectionViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        viewModels == nil
+        false
     }
 }

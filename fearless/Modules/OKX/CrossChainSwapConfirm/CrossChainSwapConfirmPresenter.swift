@@ -34,6 +34,7 @@ final class CrossChainSwapConfirmPresenter {
     private var swapFromBalance: Decimal?
     private var swapToBalance: Decimal?
     private var utilityBalance: Decimal?
+    private var totalFiatFee: Decimal?
 
     // MARK: - Constructors
 
@@ -75,7 +76,7 @@ final class CrossChainSwapConfirmPresenter {
             wallet: wallet,
             locale: selectedLocale,
             selectedDexIds: nil,
-            quotes: nil
+            totalFiatFee: totalFiatFee
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -119,6 +120,50 @@ final class CrossChainSwapConfirmPresenter {
             }
         }
     }
+
+    private func calculateTotalFiatFee() {
+        let fee = swap.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(swapFromChainAsset.asset.precision)) }
+        let sourceChainFeeNativeToken = swapFromChainAsset.chain.chainAssets.first(where: { $0.asset.id == swapFromChainAsset.asset.id })
+
+        let sourceChainFiatFee: Decimal? = fee.flatMap { fee in
+            guard
+                let sourceChainFeeNativeToken,
+                let price = sourceChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
+                let priceDecimal = Decimal(string: price.price)
+            else {
+                return nil
+            }
+            return fee * priceDecimal
+        }
+
+        let sourceChainAssets = swapFromChainAsset.chain.chainAssets
+        let crossChainFeeToken = sourceChainAssets.first(where: { $0.asset.currencyId == swap.contractAddress })
+        let crossChainFeeNativeToken = swapFromChainAsset.chain.chainAssets.first(where: { $0.asset.id == crossChainFeeToken?.asset.id })
+        let crossChainFee: Decimal? = swap.crossChainFee.flatMap { BigUInt(string: $0) }.flatMap {
+            guard let crossChainFeeNativeToken else {
+                return nil
+            }
+
+            return Decimal.fromSubstrateAmount($0, precision: Int16(crossChainFeeNativeToken.asset.precision))
+        }
+
+        let crossChainFiatFee: Decimal? = crossChainFee.flatMap { fee in
+            guard let crossChainFeeNativeToken,
+                  let price = crossChainFeeNativeToken.asset.getPrice(for: wallet.selectedCurrency),
+                  let priceDecimal = Decimal(string: price.price)
+            else {
+                return nil
+            }
+
+            return fee * priceDecimal
+        }
+
+        let fiatFee = swap.fiatFee.flatMap { Decimal(string: $0) }
+
+        let totalFiatFee = [crossChainFiatFee, sourceChainFiatFee, fiatFee].compactMap { $0 }.reduce(0, +)
+
+        self.totalFiatFee = totalFiatFee
+    }
 }
 
 // MARK: - CrossChainSwapConfirmViewOutput
@@ -133,6 +178,7 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         provideImageViewModel()
         subscribeOnBalance()
         refreshFee()
+        calculateTotalFiatFee()
     }
 
     func didTapConfirmButton() {
@@ -142,14 +188,13 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         view?.didStartLoading()
 
         let precision = Int16(swapFromChainAsset.chain.utilityChainAssets().first?.asset.precision ?? swapFromChainAsset.asset.precision)
-        let networkFee = swap.totalFees.flatMap { Decimal.fromSubstrateAmount($0, precision: precision) }
-        let nativeFee = swapFromChainAsset.asset.isUtility ? networkFee : .zero
+        let nativeFee = swapFromChainAsset.asset.isUtility ? totalFiatFee : .zero
 
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: networkFee, locale: selectedLocale, onError: {}),
+            dataValidatingFactory.has(fee: totalFiatFee, locale: selectedLocale, onError: {}),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: utilityBalance),
-                feeAndTip: networkFee,
+                feeAndTip: totalFiatFee,
                 sendAmount: .zero,
                 locale: selectedLocale
             ),

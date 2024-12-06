@@ -8,8 +8,8 @@ final class SelectAssetInteractor {
     private weak var output: SelectAssetInteractorOutput?
 
     private let chainAssetFetching: ChainAssetFetchingProtocol
-    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let wallet: MetaAccountModel
+    private let accountInfoFetchingProvider: AccountInfoFetching
 
     private var chainAssets: [ChainAsset]?
 
@@ -19,19 +19,18 @@ final class SelectAssetInteractor {
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
+        accountInfoFetchingProvider: AccountInfoFetching,
         chainAssets: [ChainAsset]?,
         wallet: MetaAccountModel
     ) {
         self.chainAssetFetching = chainAssetFetching
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
+        self.accountInfoFetchingProvider = accountInfoFetchingProvider
         self.chainAssets = chainAssets
         self.wallet = wallet
     }
 
     private func fetchChainAssets() {
         if let chainAssets = self.chainAssets {
-            subscribeToAccountInfo(for: chainAssets)
             output?.didReceiveChainAssets(result: .success(chainAssets))
             return
         }
@@ -51,7 +50,6 @@ final class SelectAssetInteractor {
                 if chainAssets.isEmpty {
                     self?.output?.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
                 }
-                self?.subscribeToAccountInfo(for: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
@@ -70,26 +68,14 @@ extension SelectAssetInteractor: SelectAssetInteractorInput {
     func update(with chainAssets: [ChainAsset]) {
         self.chainAssets = chainAssets
         output?.didReceiveChainAssets(result: .success(chainAssets))
+
         if chainAssets.isEmpty {
             output?.didReceiveChainAssets(result: .failure(BaseOperationError.parentOperationCancelled))
             return
         }
-        subscribeToAccountInfo(for: chainAssets)
     }
-}
 
-extension SelectAssetInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
-        output?.didReceiveAccountInfo(result: result, for: chainAsset)
-    }
-}
-
-private extension SelectAssetInteractor {
-    func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
-        accountInfoSubscriptionAdapter.subscribe(
-            chainsAssets: chainAssets,
-            handler: self,
-            deliveryOn: accountInfosDeliveryQueue
-        )
+    func fetchAccountInfos(with chainAssets: [ChainAsset]) async -> [ChainAsset: AccountInfo?] {
+        await accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet)
     }
 }

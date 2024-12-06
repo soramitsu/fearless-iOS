@@ -82,7 +82,10 @@ final class MultichainAssetSelectionPresenter {
                 let viewModels = viewModelFactory.buildViewModels(chains: chains, selectedChainId: selectedChainId)
                 await view?.didReceive(viewModels: viewModels)
             } catch {
-                selectAssetModuleInput?.stopLoading()
+                await MainActor.run {
+                    selectAssetModuleInput?.stopLoading()
+                }
+
                 await view?.didReceive(viewModels: nil)
                 logger.customError(error)
             }
@@ -107,7 +110,7 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
 
         Task {
             do {
-                let availableChainAssets = try await assetFetching.fetchAssets(for: chain)
+                let availableChainAssets = try await interactor.fetchAssets(for: chain)
 
                 await MainActor.run {
                     print("assets list update with chain: ", (availableChainAssets.first?.chain.name).or(""))

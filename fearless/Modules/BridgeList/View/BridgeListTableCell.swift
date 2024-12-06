@@ -93,10 +93,6 @@ final class BridgeListTableCell: UITableViewCell {
     }
 
     func bind(viewModel: BridgeListTableCellModel?) {
-        if let imageViewModel = viewModel?.dexIcon {
-            imageViewModel.loadImage(on: dexLogoImageView, targetSize: CGSize(width: Constants.dexLogoImageSize, height: Constants.dexLogoImageSize), animated: true)
-        }
-
         routeTitleLabel.text = viewModel?.routeTitle
         routeDescriptionLabel.attributedText = viewModel?.routeDescription
         amountLabel.text = viewModel?.amount
@@ -104,7 +100,6 @@ final class BridgeListTableCell: UITableViewCell {
         txTimeView.detailsLabel.text = viewModel?.txTime
         txComissionView.detailsLabel.text = viewModel?.txCommission
 
-        dexLogoImageView.isHidden = viewModel?.dexIcon == nil
         txComissionView.isHidden = viewModel?.txCommission == nil
         txTimeView.isHidden = viewModel?.txTime == nil
         routeLabel.isHidden = viewModel?.route == nil

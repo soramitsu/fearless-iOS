@@ -8,4 +8,5 @@ struct OKXDexCrossChainRouter: Decodable {
     let fromDexRouterList: [OKXDexRouter]
     let toDexRouterList: [OKXDexRouter]
     let router: OKXCrossChainRouter
+    let fromChainNetworkFee: String
 }

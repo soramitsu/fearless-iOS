@@ -1,7 +1,9 @@
 import UIKit
+import Web3
 import SoraFoundation
 import SSFModels
 import SSFNetwork
+import SoraKeystore
 
 final class BridgeListAssembly {
     static func configureModule(
@@ -20,12 +22,29 @@ final class BridgeListAssembly {
             networkWorker: networkWorker,
             signer: requestSigner
         )
+        let assetFetching = buildAssetFetching(flow: .okxSource)
+        guard
+            let eth = try? EthereumNodeFetching().getHttps(for: sourceChainAsset.chain),
+            let accountResponse = wallet.fetch(for: sourceChainAsset.chain.accountRequest()),
+            let senderAddress = accountResponse.toAddress(),
+            let privateKey = try? fetchSecretKey(for: sourceChainAsset.chain, accountResponse: accountResponse, wallet: wallet),
+            let ethereumPrivateKey = try? EthereumPrivateKey(privateKey: privateKey.bytes)
+        else {
+            return nil
+        }
+        let swapService = OKXEthereumSwapServiceImpl(
+            privateKey: ethereumPrivateKey,
+            senderAddress: senderAddress,
+            eth: eth
+        )
         let interactor = BridgeListInteractor(
             okxService: okxService,
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
             amount: amount,
-            wallet: wallet
+            wallet: wallet,
+            assetFetching: assetFetching,
+            okxSwapService: swapService
         )
         let router = BridgeListRouter()
 
@@ -47,5 +66,34 @@ final class BridgeListAssembly {
         presenter.moduleOutput = moduleOutput
 
         return (view, presenter)
+    }
+
+    private static func buildAssetFetching(flow: MultichainChainFetchingFlow) -> MultichainAssetFetching {
+        let networkWorker = NetworkWorkerImpl()
+        let okxService = OKXDexAggregatorServiceImpl(networkWorker: networkWorker, signer: OKXDexRequestSigner())
+
+        switch flow {
+        case let .okxDestination(sourceChainId):
+            return OKXMultichainAssetFetching(okxService: okxService, sourceChainId: sourceChainId)
+        case .okxSource:
+            return OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
+        case .preset:
+            return OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
+        }
+    }
+
+    private static func fetchSecretKey(
+        for chain: ChainModel,
+        accountResponse: ChainAccountResponse,
+        wallet: MetaAccountModel
+    ) throws -> Data {
+        let accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
+        let tag: String = chain.isEthereumBased
+            ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+            : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
+
+        let keystore = Keychain()
+        let secretKey = try keystore.fetchKey(for: tag)
+        return secretKey
     }
 }

@@ -17,13 +17,13 @@ extension OKXSwap: CrossChainSwap {
     }
 
     var crossChainFee: String? {
+        nil
+    }
+
+    var fiatFee: String? {
         routerResult.quoteCompareList.sorted { quote1, quote2 in
             quote1.amountOut > quote2.amountOut
         }.first?.tradeFee
-    }
-
-    var otherNativeFee: String? {
-        nil
     }
 
     var fromAmount: String? {
@@ -39,15 +39,15 @@ extension OKXSwap: CrossChainSwap {
     }
 
     var gasLimit: String? {
-        tx.gas
+        nil
     }
 
     var gasPrice: String? {
-        tx.gasPrice
+        nil
     }
 
     var maxPriorityFeePerGas: String? {
-        tx.maxPriorityFeePerGas
+        nil
     }
 
     var from: String? {
@@ -56,5 +56,9 @@ extension OKXSwap: CrossChainSwap {
 
     var quotes: [OKXDexQuote]? {
         routerResult.quoteCompareList
+    }
+
+    var fee: String? {
+        nil
     }
 }

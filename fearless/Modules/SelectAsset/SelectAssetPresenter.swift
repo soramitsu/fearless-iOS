@@ -5,8 +5,6 @@ import SSFModels
 final class SelectAssetPresenter {
     // MARK: Private properties
 
-    private let lock = ReaderWriterLock()
-
     private weak var view: SelectAssetViewInput?
     private let router: SelectAssetRouterInput
     private let interactor: SelectAssetInteractorInput
@@ -22,12 +20,10 @@ final class SelectAssetPresenter {
     private var viewModels: [SelectAssetCellViewModel] = []
     private var fullViewModels: [SelectAssetCellViewModel] = []
     private var chainAssets: [ChainAsset] = []
-    private var accountInfosFetched = false
     private var selectedChainAsset: ChainAsset?
 
-    private lazy var factoryOperationQueue: OperationQueue = {
-        OperationQueue()
-    }()
+    private var accountInfosTask: Task<Void, Never>?
+    private let processingQueue = DispatchQueue(label: "qr.capture.service.queue")
 
     // MARK: - Constructors
 
@@ -55,37 +51,46 @@ final class SelectAssetPresenter {
 
     // MARK: - Private methods
 
-    private func provideViewModel() {
-        guard
-            accountInfosFetched
-        else {
-            return
-        }
-        factoryOperationQueue.operations.forEach { $0.cancel() }
-        factoryOperationQueue.cancelAllOperations()
+    private func handle(chainAssets: [ChainAsset]) {
+        accountInfosTask = Task {
+            let accountInfos = await interactor.fetchAccountInfos(with: chainAssets)
 
-        let operationBlock = BlockOperation()
-        operationBlock.addExecutionBlock { [unowned operationBlock] in
-            guard !operationBlock.isCancelled else {
+            let mapped: [(ChainAssetKey, AccountInfo?)] = accountInfos.compactMap { chainAsset, accountInfo in
+                let request = chainAsset.chain.accountRequest()
+                guard let accountId = wallet.fetch(for: request)?.accountId else {
+                    return nil
+                }
+                let key = chainAsset.uniqueKey(accountId: accountId)
+                return (key, accountInfo)
+            }
+
+            guard !Task.isCancelled else {
                 return
             }
-            self.viewModels = self.viewModelFactory.buildViewModel(
-                wallet: self.wallet,
-                chainAssets: self.chainAssets,
-                accountInfos: self.lock.concurrentlyRead { [unowned self] in
-                    self.accountInfos
-                },
-                locale: self.selectedLocale,
-                selectedAssetId: self.selectedAssetId
-            )
-            self.fullViewModels = self.viewModels
 
-            DispatchQueue.main.async {
-                self.view?.didReload()
+            self.accountInfos = Dictionary(uniqueKeysWithValues: mapped)
+            self.chainAssets = chainAssets
+
+            guard !Task.isCancelled else {
+                return
             }
+            await MainActor.run(body: {
+                provideViewModel()
+            })
         }
+    }
 
-        factoryOperationQueue.addOperation(operationBlock)
+    private func provideViewModel() {
+        viewModels = viewModelFactory.buildViewModel(
+            wallet: wallet,
+            chainAssets: chainAssets,
+            accountInfos: accountInfos,
+            locale: selectedLocale,
+            selectedAssetId: selectedAssetId
+        )
+
+        fullViewModels = viewModels
+        view?.didReload()
     }
 }
 
@@ -143,33 +148,11 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
 // MARK: - SelectAssetInteractorOutput
 
 extension SelectAssetPresenter: SelectAssetInteractorOutput {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
-        switch result {
-        case let .success(accountInfo):
-
-            lock.exclusivelyWrite { [unowned self] in
-                guard let accountId = self.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                    return
-                }
-                let key = chainAsset.uniqueKey(accountId: accountId)
-                self.accountInfos[key] = accountInfo
-                accountInfosFetched = true
-                provideViewModel()
-            }
-        case let .failure(error):
-            DispatchQueue.main.async {
-                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
-            }
-        }
-    }
-
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
         case let .success(chainAssets):
-            var items: [ChainAsset] = []
-            chainAssets.forEach { items.append($0) }
-            self.chainAssets = items
-            provideViewModel()
+//            self.chainAssets = chainAssets
+            handle(chainAssets: chainAssets)
         case let .failure(error):
             router.present(error: error, from: view, locale: selectedLocale)
         }
@@ -186,11 +169,17 @@ extension SelectAssetPresenter: Localizable {
 
 extension SelectAssetPresenter: SelectAssetModuleInput {
     func update(with chainAssets: [ChainAsset]) {
+        accountInfosTask?.cancel()
+
         interactor.update(with: chainAssets)
     }
 
     func runLoading() {
+        chainAssets = []
         viewModels = []
+        accountInfos = [:]
+
+        view?.didReload()
         view?.didStartLoading()
     }
 

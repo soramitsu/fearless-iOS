@@ -21,11 +21,23 @@ final class CrossChainSwapSetupAssembly {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             repositoryWrapper: ethereumBalanceRepositoryWrapper
         )
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationQueue()
+        )
+        let dependencyContainer = CrossChainDependencyContainer(okxService: okxService, wallet: wallet)
 
         let interactor = CrossChainSwapSetupInteractor(
             okxService: okxService,
             wallet: wallet,
-            balanceFetching: ethereumBalanceFetching
+            balanceFetching: ethereumBalanceFetching,
+            accountInfoFetchingProvider: accountInfoFetching,
+            dependencyContainer: dependencyContainer
         )
         let router = CrossChainSwapSetupRouter()
 

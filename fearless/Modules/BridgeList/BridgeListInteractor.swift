@@ -12,19 +12,25 @@ final class BridgeListInteractor {
     private let destinationChainAsset: ChainAsset
     private let amount: String
     private let wallet: MetaAccountModel
+    private let assetFetching: MultichainAssetFetching
+    private let okxSwapService: OKXEthereumSwapService
 
     init(
         okxService: OKXDexAggregatorService,
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        assetFetching: MultichainAssetFetching,
+        okxSwapService: OKXEthereumSwapService
     ) {
         self.okxService = okxService
         self.sourceChainAsset = sourceChainAsset
         self.destinationChainAsset = destinationChainAsset
         self.wallet = wallet
         self.amount = amount
+        self.assetFetching = assetFetching
+        self.okxSwapService = okxSwapService
     }
 }
 
@@ -61,5 +67,24 @@ extension BridgeListInteractor: BridgeListInteractorInput {
 
         let quotes = try await okxService.fetchCrossChainQuote(parameters: quoteParameters)
         return quotes.data
+    }
+
+    func fetchAssets(for chain: ChainModel) async throws -> [ChainAsset] {
+        try await assetFetching.fetchAssets(for: chain)
+    }
+
+    func fetchFee(swap: OKXCrossChainSwap?) {
+        guard let swap else {
+            return
+        }
+
+//        Task {
+//            do {
+//                let fee = try await okxSwapService.estimateFee(swap: swap)
+//                print("fee: ", fee)
+//            } catch {
+//                print("fee: error ", error)
+//            }
+//        }
     }
 }

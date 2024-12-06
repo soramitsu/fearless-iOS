@@ -6,4 +6,5 @@ struct OKXCrossChainRouter: Decodable {
     let crossChainFee: String
     let otherNativeFee: String
     let crossChainFeeTokenAddress: String
+    let estimateGasFee: String?
 }

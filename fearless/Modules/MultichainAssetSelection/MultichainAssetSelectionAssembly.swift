@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import SSFNetwork
 import SSFModels
+import RobinHood
 
 final class MultichainAssetSelectionAssembly {
     static func configureModule(

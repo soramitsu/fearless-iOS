@@ -9,9 +9,9 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
     let balanceString: String?
     let fiatBalanceString: String?
     let isSelected: Bool
-
     let balanceDecimal: Decimal?
     let fiatBalanceDecimal: Decimal?
+    let isUtility: Bool
 
     init(
         name: String,
@@ -21,7 +21,8 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
         fiatBalanceString: String?,
         isSelected: Bool,
         balanceDecimal: Decimal?,
-        fiatBalanceDecimal: Decimal?
+        fiatBalanceDecimal: Decimal?,
+        isUtility: Bool
     ) {
         self.name = name
         self.symbol = symbol
@@ -31,6 +32,7 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
         self.isSelected = isSelected
         self.balanceDecimal = balanceDecimal
         self.fiatBalanceDecimal = fiatBalanceDecimal
+        self.isUtility = isUtility
     }
 }
 
@@ -58,6 +60,9 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
         locale: Locale,
         selectedAssetId: String?
     ) -> [SelectAssetCellViewModel] {
+        print("sa-debug Building view model for chain: ", chainAssets.first?.chain.name)
+        print("sa-debug Account infos: ", accountInfos.filter { $0.value != nil }.map { $0.value?.data.sendAvailable })
+
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
@@ -92,11 +97,13 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
             (
                 viewModel1.fiatBalanceDecimal.or(.zero),
                 viewModel1.balanceDecimal.or(.zero),
-                viewModel2.symbol
+                viewModel2.symbol,
+                viewModel1.isUtility.intValue
             ) > (
                 viewModel2.fiatBalanceDecimal.or(.zero),
                 viewModel2.balanceDecimal.or(.zero),
-                viewModel1.symbol
+                viewModel1.symbol,
+                viewModel2.isUtility.intValue
             )
         }
 
@@ -138,7 +145,8 @@ private extension SelectAssetViewModelFactory {
             fiatBalanceString: totalFiatBalance?.0,
             isSelected: chainAsset.asset.id == selectedAssetId,
             balanceDecimal: totalAssetBalance.1,
-            fiatBalanceDecimal: totalFiatBalance?.1
+            fiatBalanceDecimal: totalFiatBalance?.1,
+            isUtility: chainAsset.isUtility
         )
     }
 

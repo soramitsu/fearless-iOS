@@ -13,6 +13,7 @@ protocol CrossChainSwapSetupViewOutput: AnyObject {
     func didTapSwitchInputsButton()
     func didTapLiquiditySources()
     func didTapSelectRoute()
+    func handleDismissingSwipe()
 }
 
 final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -62,8 +63,35 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+
         if keyboardHandler == nil {
             setupKeyboardHandler()
+        }
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        transitionCoordinator?.animate(alongsideTransition: { context in
+            if context.isInteractive {
+                print("123123 Interactive swipe transition. Start.")
+            } else {
+                print("123123 Back button transition. Start.")
+            }
+        }, completion: { [weak self] context in
+            if context.isCancelled {
+                print("123123 Interactive swipe transition. Finish. Cancelled. We are still on child screen.")
+            } else if context.initiallyInteractive {
+                self?.output.handleDismissingSwipe()
+                print("123123 Interactive swipe transition. Finish. Sucess. We are on parent screen.")
+            } else {
+                print("123123 Back button transition. Finish. Sucess. We are on parent screen.")
+            }
+        })
+
+        transitionCoordinator?.notifyWhenInteractionChanges { _ in
+            print("123123 Interactive swipe transition. Finger lifted up or moved back to edge.")
         }
     }
 
@@ -256,5 +284,19 @@ extension CrossChainSwapSetupViewController: UITextFieldDelegate {
         }
 
         return false
+    }
+}
+
+extension CrossChainSwapSetupViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        guard gestureRecognizer.isEqual(navigationController?.interactivePopGestureRecognizer) else { return true }
+
+        output.handleDismissingSwipe()
+        return true
+    }
+
+    func gestureRecognizer(_: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
+        print("Gesture event: ", event)
+        return true
     }
 }
