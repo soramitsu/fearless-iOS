@@ -5,7 +5,7 @@
     <databaseInfo>
         <version>134481920</version>
         <UUID>2BD542A3-0359-40E5-840A-4C2BA58F46E0</UUID>
-        <nextObjectID>263</nextObjectID>
+        <nextObjectID>264</nextObjectID>
         <metadata>
             <plist version="1.0">
                 <dict>
@@ -410,14 +410,15 @@
         <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z160"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z180">
+        <attribute name="migrationpolicyclassname" type="string">fearless.AssetSubstrateV8MigrationPolicy</attribute>
         <attribute name="sourcename" type="string">CDAsset</attribute>
         <attribute name="mappingtypename" type="string">Undefined</attribute>
         <attribute name="mappingnumber" type="int16">16</attribute>
         <attribute name="destinationname" type="string">CDAsset</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z217"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z172 z213 z250 z245 z218 z247 z130 z255 z137 z134 z216 z244 z133 z214"></relationship>
-        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z124 z168 z206"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z137 z130 z245 z244 z255 z133 z250 z216 z247 z172 z213 z214 z218 z134"></relationship>
+        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z206 z124 z168"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z181">
         <attribute name="sourcename" type="string">CDStashItem</attribute>
@@ -799,8 +800,8 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEPFQALAAwAGQA1ADYANwBnAGgAaQBq
         <attribute name="destinationname" type="string">CDChain</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z217"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z226 z225 z187 z103 z107 z105 z189 z229 z227 z184 z145 z144 z104 z228 z263 z146 z149 z102 z106 z186 z108 z230 z148 z188 z224 z185 z147"></relationship>
-        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z110 z190 z191 z150 z109"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z146 z103 z149 z263 z145 z108 z189 z107 z227 z187 z226 z105 z224 z186 z229 z104 z144 z148 z188 z147 z225 z102 z184 z185 z228 z106 z230"></relationship>
+        <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING" idrefs="z264 z191 z110 z190 z150 z109"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z259">
         <attribute name="sourcename" type="string">CDContactItem</attribute>
@@ -844,6 +845,11 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxEPFQALAAwAGQA1ADYANwBnAGgAaQBq
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z263">
         <attribute name="name" type="string">addressPrefix</attribute>
+        <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z258"></relationship>
+    </object>
+    <object type="XDDEVRELATIONSHIPMAPPING" id="z264">
+        <attribute name="autogenerateexpression" type="bool">1</attribute>
+        <attribute name="name" type="string">assets</attribute>
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z258"></relationship>
     </object>
 </database>

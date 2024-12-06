@@ -199,6 +199,7 @@
 		0713097D28C63893002B17D0 /* ScamSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097C28C63893002B17D0 /* ScamSyncService.swift */; };
 		0713097F28C6F60D002B17D0 /* ScamSyncServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */; };
 		0713098128C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */; };
+		07145F9C2D03272F00D48302 /* AssetSubstrateV8MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07145F9B2D03272F00D48302 /* AssetSubstrateV8MigrationPolicy.swift */; };
 		0715FCD42C65E96000AA674E /* TonWebBridgeHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCD32C65E96000AA674E /* TonWebBridgeHeaderView.swift */; };
 		0715FCD92C6608B700AA674E /* TonConnectMessageBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCD82C6608B700AA674E /* TonConnectMessageBuilder.swift */; };
 		0715FCDD2C660AF700AA674E /* DappBridgeMessageType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0715FCDC2C660AF700AA674E /* DappBridgeMessageType.swift */; };
@@ -3406,6 +3407,7 @@
 		0713097C28C63893002B17D0 /* ScamSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamSyncService.swift; sourceTree = "<group>"; };
 		0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamSyncServiceFactory.swift; sourceTree = "<group>"; };
 		0713098028C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDScamInfo+CoreDataCodable.swift"; sourceTree = "<group>"; };
+		07145F9B2D03272F00D48302 /* AssetSubstrateV8MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetSubstrateV8MigrationPolicy.swift; sourceTree = "<group>"; };
 		0715FCD32C65E96000AA674E /* TonWebBridgeHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TonWebBridgeHeaderView.swift; sourceTree = "<group>"; };
 		0715FCD82C6608B700AA674E /* TonConnectMessageBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectMessageBuilder.swift; sourceTree = "<group>"; };
 		0715FCDC2C660AF700AA674E /* DappBridgeMessageType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DappBridgeMessageType.swift; sourceTree = "<group>"; };
@@ -15814,6 +15816,7 @@
 				FACD42942A5BE811009975AA /* SelectedLanguageMigrator.swift */,
 				FACD42952A5BE811009975AA /* KeystoreMigrator.swift */,
 				FACD42962A5BE811009975AA /* Migrating.swift */,
+				07145F9B2D03272F00D48302 /* AssetSubstrateV8MigrationPolicy.swift */,
 			);
 			path = Migration;
 			sourceTree = "<group>";
@@ -18520,6 +18523,7 @@
 				84963D6E26F91826003FE8E4 /* RemoteSubscriptionRequests.swift in Sources */,
 				FA402F2F27C7C646008CF986 /* ExportAction.swift in Sources */,
 				FAB0EDDE27AA6DDC003D93C2 /* NodeSelectionViewModel.swift in Sources */,
+				07145F9C2D03272F00D48302 /* AssetSubstrateV8MigrationPolicy.swift in Sources */,
 				FA62624F2AC2E35A005D3D95 /* WalletConnectActiveSessionsAssembly.swift in Sources */,
 				849DEC5925ED756F00C64C19 /* SubstrateCallFactoryDefault.swift in Sources */,
 				FA93A2F02833B11A0021330F /* RecommendedValidatorListParachainViewModelFactory.swift in Sources */,

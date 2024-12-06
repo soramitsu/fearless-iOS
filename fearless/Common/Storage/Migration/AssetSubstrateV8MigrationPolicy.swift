@@ -2,7 +2,7 @@ import Foundation
 import SSFModels
 import CoreData
 
-class ChainSubstrateV8MigrationPolicy: NSEntityMigrationPolicy {
+class AssetSubstrateV8MigrationPolicy: NSEntityMigrationPolicy {
     override func createDestinationInstances(
         forSource sInstance: NSManagedObject,
         in mapping: NSEntityMapping,
@@ -10,25 +10,22 @@ class ChainSubstrateV8MigrationPolicy: NSEntityMigrationPolicy {
     ) throws {
         try super.createDestinationInstances(forSource: sInstance, in: mapping, manager: manager)
 
-        guard let updatedChainModel = manager.destinationInstances(
+        guard let updatedAssetModel = manager.destinationInstances(
             forEntityMappingName: mapping.name,
             sourceInstances: [sInstance]
         ).first else {
             throw ConvenienceError(error: "Can't create destination instance")
         }
 
-        let options = sInstance.value(forKey: "options") as? [String]
-        if options?.contains("ethereum") == true {
-            updatedChainModel.setValue("ethereum", forKey: "ecosystem")
-        } else if options?.contains("ethereumBased") == true {
-            updatedChainModel.setValue("ethereumBased", forKey: "ecosystem")
-        } else {
-            updatedChainModel.setValue("substrate", forKey: "ecosystem")
+        if let ethereumType = sInstance.value(forKey: "ethereumType") as? String {
+            updatedAssetModel.setValue("ethereum-" + ethereumType, forKey: "type")
+        } else if let type = sInstance.value(forKey: "type") as? String {
+            updatedAssetModel.setValue("substrate-" + type, forKey: "type")
         }
 
         manager.associate(
             sourceInstance: sInstance,
-            withDestinationInstance: updatedChainModel,
+            withDestinationInstance: updatedAssetModel,
             for: mapping
         )
     }
