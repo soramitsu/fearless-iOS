@@ -1220,3 +1220,5 @@ ait olduğundan emin olun.";
 "your.validators.stop.nominating.title" = "Aday göstermeyi bırak";
 "your.validators.validator.total.stake" = "Toplam yatırılan miktar:%@";
 "сurrencies.stub.text" = "Para birimleri";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
+"select.liquidity.title" = "Select liquidity";

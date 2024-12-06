@@ -1208,3 +1208,5 @@ akan muncul di sini";
 "your.validators.stop.nominating.title" = "berhenti mencalonkan diri";
 "your.validators.validator.total.stake" = "Total ditaruhkan: %@";
 "сurrencies.stub.text" = "Mata uang";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
+"select.liquidity.title" = "Select liquidity";

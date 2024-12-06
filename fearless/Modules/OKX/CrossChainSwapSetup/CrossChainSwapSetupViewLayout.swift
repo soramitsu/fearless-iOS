@@ -51,6 +51,11 @@ final class CrossChainSwapSetupViewLayout: UIView {
     let sendRatioView = createMultiView()
     let receiveRatioView = createMultiView()
     let liquidityView = createMultiView()
+    let errorView: ErrorView = {
+        let view = ErrorView()
+        view.isHidden = true
+        return view
+    }()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -105,11 +110,19 @@ final class CrossChainSwapSetupViewLayout: UIView {
         receiveView.bind(viewModel: receiveAssetViewModel)
     }
 
+    func bind(errorViewModel: ErrorViewModel?) {
+        if let errorVM = errorViewModel {
+            errorView.bindError(viewModel: errorVM)
+            errorView.isHidden = false
+        }
+    }
+
     // MARK: - Private methods
 
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(contentView)
+        addSubview(errorView)
         addSubview(actionButton)
 
         actionButton.snp.makeConstraints { make in
@@ -139,6 +152,11 @@ final class CrossChainSwapSetupViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(receiveView)
         receiveView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+        }
+
+        contentView.stackView.addArrangedSubview(errorView)
+        errorView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
         }
 

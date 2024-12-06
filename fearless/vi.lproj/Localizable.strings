@@ -1222,3 +1222,5 @@ thuộc đúng mạng";
 "your.validators.stop.nominating.title" = "Dừng đề cử";
 "your.validators.validator.total.stake" = "Tổng đã stake: %@";
 "сurrencies.stub.text" = "Tiền tệ";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
+"select.liquidity.title" = "Select liquidity";

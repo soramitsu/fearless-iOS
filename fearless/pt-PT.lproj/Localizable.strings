@@ -1286,3 +1286,5 @@ To find out more, contact %@";
 "profile.account.score.title" = "Nomis multichain score";
 "scam.info.nomis.name" = "Nomis multi-chain score";
 "scam.info.nomis.subtype.text" = "Proceed with caution";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
+"select.liquidity.title" = "Select liquidity";

@@ -1224,3 +1224,5 @@ belongs to the right network";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.validator.total.stake" = "Total staked: %@";
 "сurrencies.stub.text" = "Currencies";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
+"select.liquidity.title" = "Select liquidity";
