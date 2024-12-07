@@ -98,7 +98,8 @@ final class WalletMainContainerInteractor {
             let config = try? fetchOperation.extractNoCancellableResultData()
 
             DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceiveNftAvailability(isNftAvailable: config?.nftEnabled == true)
+                let available = config?.nftEnabled == true && self?.wallet.ecosystem.isRegular == true
+                self?.output?.didReceiveNftAvailability(isNftAvailable: available)
             }
         }
 
