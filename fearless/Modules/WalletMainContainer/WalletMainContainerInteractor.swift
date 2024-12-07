@@ -18,6 +18,7 @@ final class WalletMainContainerInteractor {
     private let walletConnectService: WalletConnectService
     private let featureToggleService: FeatureToggleProviderProtocol
     private let tonConnectService: TonConnectService
+    private var config: FeatureToggleConfig?
 
     // MARK: - Constructor
 
@@ -94,10 +95,11 @@ final class WalletMainContainerInteractor {
     private func checkNftAvailability() {
         let fetchOperation = featureToggleService.fetchConfigOperation()
 
-        fetchOperation.completionBlock = {
+        fetchOperation.completionBlock = { [weak self] in
             let config = try? fetchOperation.extractNoCancellableResultData()
+            self?.config = config
 
-            DispatchQueue.main.async { [weak self] in
+            DispatchQueue.main.async {
                 let available = config?.nftEnabled == true && self?.wallet.ecosystem.isRegular == true
                 self?.output?.didReceiveNftAvailability(isNftAvailable: available)
             }
@@ -154,6 +156,8 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         output?.didReceiveAccount(wallet)
 
         fetchNetworkManagmentFilter()
+        let available = config?.nftEnabled == true && wallet.ecosystem.isRegular == true
+        output?.didReceiveNftAvailability(isNftAvailable: available)
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {

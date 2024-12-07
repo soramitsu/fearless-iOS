@@ -47,6 +47,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             )
         case .connected:
             return buildConnectedPageViewModel(
+                wallet: wallet,
                 connected: connected,
                 locale: locale
             )
@@ -146,13 +147,17 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
     }
 
     private func buildConnectedPageViewModel(
+        wallet: MetaAccountModel,
         connected: [TonConnectApp],
         locale: Locale
     ) -> [DappBrowserViewModel] {
         var viewModel: [DappBrowserViewModel] = []
+        let walletApps = connected.filter { $0.walletId == wallet.metaId }
 
-        if connected.isNotEmpty {
-            let apps = connected.map {
+        if walletApps.isNotEmpty {
+            let apps = connected
+                .filter { $0.walletId == wallet.metaId }
+                .map {
                 TonDapp(
                     identifier: $0.identifier,
                     chains: ["\(TonConstants.tonChainId)", "\(TonConstants.testnetChainId)"],
