@@ -27,6 +27,7 @@ final class SelectableListViewLayout: UIView {
 
     lazy var searchTextField: SearchTextField = {
         let searchTextField = SearchTextField()
+        searchTextField.textField.autocorrectionType = .no
         searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
         searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
         searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray

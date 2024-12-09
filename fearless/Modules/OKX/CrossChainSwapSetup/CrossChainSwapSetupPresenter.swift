@@ -392,8 +392,15 @@ final class CrossChainSwapSetupPresenter {
             return
         }
 
-        let fee = swap.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainAsset.asset.precision)) }
         let sourceChainFeeNativeToken = sourceChainAsset.chain.utilityChainAssets().first
+        let fee: Decimal? = swap.fee
+            .flatMap { BigUInt(string: $0) }
+            .flatMap {
+                guard let sourceChainFeeNativeToken else {
+                    return nil
+                }
+                return Decimal.fromSubstrateAmount($0, precision: Int16(sourceChainFeeNativeToken.asset.precision))
+            }
 
         let sourceChainFiatFee: Decimal? = fee.flatMap { fee in
             guard

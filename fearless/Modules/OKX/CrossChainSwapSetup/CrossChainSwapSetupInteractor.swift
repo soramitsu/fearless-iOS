@@ -52,7 +52,7 @@ final class CrossChainSwapSetupInteractor {
             amount: amount,
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
-            sort: 0,
+            sort: 1,
             slippage: "0.01"
         )
 
