@@ -26,6 +26,8 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
         swapFromChainAsset: ChainAsset,
         swapToChainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        amount: String,
+        selectedDexIds: [String],
         swap: CrossChainSwap,
         from view: ControllerBackedProtocol?
     ) {
@@ -33,6 +35,8 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
             swapFromChainAsset: swapFromChainAsset,
             swapToChainAsset: swapToChainAsset,
             wallet: wallet,
+            amount: amount,
+            selectedDexIds: selectedDexIds,
             swap: swap
         ) else {
             return

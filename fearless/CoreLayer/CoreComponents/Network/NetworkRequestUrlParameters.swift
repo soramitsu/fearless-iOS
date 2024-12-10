@@ -9,9 +9,9 @@ class NetworkRequestUrlParameters {
                 return nil
             }
 
-            let string = String(describing: $0.value)
+            var string = String(describing: $0.value)
 
-            guard string != "nil" else {
+            guard string != "nil", string.isNotEmpty else {
                 return nil
             }
 

@@ -44,10 +44,10 @@ class OKXDexCrossChainBuildTxParameters: NetworkRequestUrlParameters, Decodable 
     let memo: String?
 
     /// Specify bridge that should be included in routes (e.g.,[211,235])
-    let allowBridge: [UInt32]?
+    let allowBridge: String?
 
     /// Specify bridge that should be excluded in routes (e.g.,[211,235])
-    let denyBridge: [UInt32]?
+    let denyBridge: String?
 
     init(
         fromChainId: String,
@@ -79,7 +79,7 @@ class OKXDexCrossChainBuildTxParameters: NetworkRequestUrlParameters, Decodable 
         self.feePercent = feePercent
         self.priceImpactProtectionPercentage = priceImpactProtectionPercentage
         self.memo = memo
-        self.allowBridge = allowBridge
-        self.denyBridge = denyBridge
+        self.allowBridge = allowBridge?.compactMap { String($0) }.joined(separator: ",")
+        self.denyBridge = denyBridge?.compactMap { String($0) }.joined(separator: ",")
     }
 }

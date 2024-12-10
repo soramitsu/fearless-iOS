@@ -10,6 +10,8 @@ final class CrossChainSwapConfirmAssembly {
         swapFromChainAsset: ChainAsset,
         swapToChainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        amount: String,
+        selectedDexIds: [String],
         swap: CrossChainSwap
     ) -> CrossChainSwapConfirmModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -35,13 +37,18 @@ final class CrossChainSwapConfirmAssembly {
             senderAddress: senderAddress,
             eth: eth
         )
+        let dependencyContainer = CrossChainDependencyContainer(okxService: okxService, wallet: wallet)
+
         let interactor = CrossChainSwapConfirmInteractor(
-            swap: swap,
             swapService: swapService,
             wallet: wallet,
             swapFromChainAsset: swapFromChainAsset,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            okxService: okxService
+            okxService: okxService,
+            amount: amount,
+            selectedDexIds: selectedDexIds,
+            swap: swap,
+            dependencyContainer: dependencyContainer
         )
         let router = CrossChainSwapConfirmRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
@@ -55,7 +62,10 @@ final class CrossChainSwapConfirmAssembly {
             swap: swap,
             viewModelFactory: viewModelFactory,
             wallet: wallet,
-            dataValidatingFactory: dataValidatingFactory
+            dataValidatingFactory: dataValidatingFactory,
+            amount: amount,
+            selectedDexIds: selectedDexIds,
+            logger: Logger.shared
         )
 
         let view = CrossChainSwapConfirmViewController(

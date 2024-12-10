@@ -2482,6 +2482,7 @@
 		FA7741E22B6A350200358315 /* StakingRewardsRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7741DA2B6A350200358315 /* StakingRewardsRequest.swift */; };
 		FA7741E32B6A350200358315 /* SoraStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7741DB2B6A350200358315 /* SoraStakingRewardsFetcher.swift */; };
 		FA7741E42B6A350200358315 /* GiantsquidStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7741DC2B6A350200358315 /* GiantsquidStakingRewardsFetcher.swift */; };
+		FA79F95F2D06EB97001E5E1B /* CrossChainBaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA79F95E2D06EB54001E5E1B /* CrossChainBaseInteractor.swift */; };
 		FA7A4C7E2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */; };
 		FA7A4C7F2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */; };
 		FA7A4C802A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */; };
@@ -3064,7 +3065,7 @@
 		FAD9AAC72B8E002F00AA603B /* PrefixStorageResponseValueExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD9AAC62B8E002F00AA603B /* PrefixStorageResponseValueExtractor.swift */; };
 		FADA1E7A2CFD6D2800DCA3AA /* CrossChainDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADA1E792CFD6D2300DCA3AA /* CrossChainDependencyContainer.swift */; };
 		FADA1E7C2CFD6D6100DCA3AA /* OKXCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADA1E7B2CFD6D5A00DCA3AA /* OKXCase.swift */; };
-		FADA1E7E2CFDA15400DCA3AA /* OKXSwapSetupInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADA1E7D2CFDA14500DCA3AA /* OKXSwapSetupInfo.swift */; };
+		FADA1E7E2CFDA15400DCA3AA /* OKXQuoteInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADA1E7D2CFDA14500DCA3AA /* OKXQuoteInfo.swift */; };
 		FADB9DB529D551A100303F7D /* SoraRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */; };
 		FADBA5F12B5FD0C200CFCF30 /* ClaimCrowdloanRewardViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADBA5F02B5FD0C200CFCF30 /* ClaimCrowdloanRewardViewModelFactory.swift */; };
 		FADBA5F32B5FE36200CFCF30 /* ChainAccountViewMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADBA5F22B5FE36200CFCF30 /* ChainAccountViewMode.swift */; };
@@ -5646,6 +5647,7 @@
 		FA7741DA2B6A350200358315 /* StakingRewardsRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRewardsRequest.swift; sourceTree = "<group>"; };
 		FA7741DB2B6A350200358315 /* SoraStakingRewardsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraStakingRewardsFetcher.swift; sourceTree = "<group>"; };
 		FA7741DC2B6A350200358315 /* GiantsquidStakingRewardsFetcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GiantsquidStakingRewardsFetcher.swift; sourceTree = "<group>"; };
+		FA79F95E2D06EB54001E5E1B /* CrossChainBaseInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainBaseInteractor.swift; sourceTree = "<group>"; };
 		FA7A4C7B2A1F937A0051FB4D /* SoraRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7C2A1F937A0051FB4D /* ParachainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C7D2A1F937A0051FB4D /* RelaychainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaychainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
@@ -6196,7 +6198,7 @@
 		FAD9AAC62B8E002F00AA603B /* PrefixStorageResponseValueExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrefixStorageResponseValueExtractor.swift; sourceTree = "<group>"; };
 		FADA1E792CFD6D2300DCA3AA /* CrossChainDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainDependencyContainer.swift; sourceTree = "<group>"; };
 		FADA1E7B2CFD6D5A00DCA3AA /* OKXCase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OKXCase.swift; sourceTree = "<group>"; };
-		FADA1E7D2CFDA14500DCA3AA /* OKXSwapSetupInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OKXSwapSetupInfo.swift; sourceTree = "<group>"; };
+		FADA1E7D2CFDA14500DCA3AA /* OKXQuoteInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OKXQuoteInfo.swift; sourceTree = "<group>"; };
 		FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FADBA5F02B5FD0C200CFCF30 /* ClaimCrowdloanRewardViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClaimCrowdloanRewardViewModelFactory.swift; sourceTree = "<group>"; };
 		FADBA5F22B5FE36200CFCF30 /* ChainAccountViewMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAccountViewMode.swift; sourceTree = "<group>"; };
@@ -13480,11 +13482,10 @@
 		FA3549F62CF8725E00EBB4EC /* OKX */ = {
 			isa = PBXGroup;
 			children = (
-				FADA1E7D2CFDA14500DCA3AA /* OKXSwapSetupInfo.swift */,
+				FA79F95C2D06EB0A001E5E1B /* Base */,
+				FADA1E7D2CFDA14500DCA3AA /* OKXQuoteInfo.swift */,
 				FADA1E7B2CFD6D5A00DCA3AA /* OKXCase.swift */,
-				FADA1E792CFD6D2300DCA3AA /* CrossChainDependencyContainer.swift */,
-				FAB18F3B2CF872FE0019F8EF /* OKXCrossChainDataFetching.swift */,
-				FAB18F392CF872E40019F8EF /* OKXSwapsDataFetching.swift */,
+				FA79F95D2D06EB14001E5E1B /* Service */,
 				FAB18F372CF8728C0019F8EF /* OKXDataFetching.swift */,
 				DE9B6015EFB58D9DE5D44983 /* CrossChainSwapSetup */,
 				8D55CE2C3B6E9B8DEC0B74D4 /* CrossChainSwapConfirm */,
@@ -14114,6 +14115,24 @@
 				FA7741DA2B6A350200358315 /* StakingRewardsRequest.swift */,
 			);
 			path = Requests;
+			sourceTree = "<group>";
+		};
+		FA79F95C2D06EB0A001E5E1B /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				FA79F95E2D06EB54001E5E1B /* CrossChainBaseInteractor.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		FA79F95D2D06EB14001E5E1B /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				FADA1E792CFD6D2300DCA3AA /* CrossChainDependencyContainer.swift */,
+				FAB18F3B2CF872FE0019F8EF /* OKXCrossChainDataFetching.swift */,
+				FAB18F392CF872E40019F8EF /* OKXSwapsDataFetching.swift */,
+			);
+			path = Service;
 			sourceTree = "<group>";
 		};
 		FA86441B2767193800956D8E /* Views */ = {
@@ -17623,7 +17642,7 @@
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
 				84443BA226C123F100C33B5D /* Data+Random.swift in Sources */,
 				07DE95CA28A169A600E9C2CB /* AssetListSearchAssembly.swift in Sources */,
-				FADA1E7E2CFDA15400DCA3AA /* OKXSwapSetupInfo.swift in Sources */,
+				FADA1E7E2CFDA15400DCA3AA /* OKXQuoteInfo.swift in Sources */,
 				FA273E5E2C4F680500F9CB13 /* AccountStatisticsViewModel.swift in Sources */,
 				FAF92CC02C8B135800E14566 /* CrossChainSwapConfirmViewModel.swift in Sources */,
 				070CDD872ACBE59700F3F20A /* QRView.swift in Sources */,
@@ -19400,6 +19419,7 @@
 				74A39BC366D85CC5FCA78579 /* LiquidityPoolSupplyConfirmViewLayout.swift in Sources */,
 				FA880E172C74A5A400F81F1F /* MultichainAssetSelectionViewLayout.swift in Sources */,
 				991DA2DE1E8A45B0A8B187CD /* LiquidityPoolSupplyConfirmAssembly.swift in Sources */,
+				FA79F95F2D06EB97001E5E1B /* CrossChainBaseInteractor.swift in Sources */,
 				51876200A6B1EDC54609DF46 /* LiquidityPoolRemoveLiquidityProtocols.swift in Sources */,
 				B112AC02371DE4C1DAD48BB1 /* LiquidityPoolRemoveLiquidityRouter.swift in Sources */,
 				5A7D43CA17B84C71E8EEF256 /* LiquidityPoolRemoveLiquidityPresenter.swift in Sources */,

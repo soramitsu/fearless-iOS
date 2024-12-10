@@ -18,6 +18,8 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
         swapFromChainAsset: ChainAsset,
         swapToChainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        amount: String,
+        selectedDexIds: [String],
         swap: CrossChainSwap,
         from view: ControllerBackedProtocol?
     )

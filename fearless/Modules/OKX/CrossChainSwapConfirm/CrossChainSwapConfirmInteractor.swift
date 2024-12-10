@@ -12,31 +12,40 @@ protocol CrossChainSwapConfirmInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
-final class CrossChainSwapConfirmInteractor {
+final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
     // MARK: - Private properties
 
     private weak var output: CrossChainSwapConfirmInteractorOutput?
-    private let swap: CrossChainSwap
     private let swapService: OKXEthereumSwapService
     private let wallet: MetaAccountModel
     private let swapFromChainAsset: ChainAsset
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let okxService: OKXDexAggregatorService
+    private let amount: String
+    private let selectedDexIds: [String]
+    private let swap: CrossChainSwap
 
     init(
-        swap: CrossChainSwap,
         swapService: OKXEthereumSwapService,
         wallet: MetaAccountModel,
         swapFromChainAsset: ChainAsset,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        okxService: OKXDexAggregatorService
+        okxService: OKXDexAggregatorService,
+        amount: String,
+        selectedDexIds: [String],
+        swap: CrossChainSwap,
+        dependencyContainer: CrossChainDependencyContainer
     ) {
-        self.swap = swap
         self.swapService = swapService
         self.wallet = wallet
         self.swapFromChainAsset = swapFromChainAsset
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.okxService = okxService
+        self.amount = amount
+        self.selectedDexIds = selectedDexIds
+        self.swap = swap
+
+        super.init(dependencyContainer: dependencyContainer)
     }
 
     private func fetchSecretKey(
