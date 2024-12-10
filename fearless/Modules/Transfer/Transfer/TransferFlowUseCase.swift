@@ -197,6 +197,5 @@ extension TransferFlowUseCase {
         } else {
             availableInputBalance = availableBalance
         }
-        provideInputViewModel?()
     }
 }
