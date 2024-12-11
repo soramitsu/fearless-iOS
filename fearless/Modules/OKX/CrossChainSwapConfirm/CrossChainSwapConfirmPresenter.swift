@@ -12,7 +12,7 @@ protocol CrossChainSwapConfirmViewInput: ControllerBackedProtocol, LoadableViewP
 
 protocol CrossChainSwapConfirmInteractorInput: AnyObject, CrossChainBaseInteractor {
     func setup(with output: CrossChainSwapConfirmInteractorOutput)
-    func confirmSwap() async throws
+    func confirmSwap() async throws -> String
     func subscribeOnBalance(for chainAssets: [ChainAsset])
     func estimateFee() async throws -> BigUInt
 }
@@ -271,8 +271,9 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
 
             Task {
                 do {
-                    try await self.interactor.confirmSwap()
-                    print("Swap success")
+                    let txHash = try await self.interactor.confirmSwap()
+                    let transaction = AssetTransactionData(transactionId: txHash, status: .pending, assetId: "", peerId: "", peerFirstName: nil, peerLastName: nil, peerName: nil, details: "", amount: AmountDecimal(value: sendAmountDecimal.or(.zero)), fees: [], timestamp: Int64(Date().timeIntervalSince1970), type: "", reason: nil, context: nil)
+                    self.router.presentStatusTrackingScreen(transaction: transaction, chainAsset: self.swapFromChainAsset, wallet: self.wallet, from: self.view)
                 } catch {
                     self.router.present(error: error, from: self.view, locale: self.selectedLocale)
                 }

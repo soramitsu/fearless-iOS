@@ -85,9 +85,13 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         return approveTransaction
     }
 
-    private func sendApproveTransaction(approveTransaction: OKXApproveTransaction) async throws {
+    private func isNeedAllowance() async throws -> Bool {
+        guard !swapFromChainAsset.asset.isUtility else {
+            return false
+        }
+
         guard let fromAmount = swap.fromAmount, let amount = BigUInt(string: fromAmount) else {
-            return
+            return false
         }
 
         guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains().data?.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
@@ -95,10 +99,10 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         }
         let allowance = try await swapService.getAllowance(dexTokenApproveAddress: dexTokenApproveAddress, chainAsset: swapFromChainAsset)
 
-        guard allowance < amount else {
-            return
-        }
+        return allowance < amount
+    }
 
+    private func sendApproveTransaction(approveTransaction: OKXApproveTransaction) async throws {
         _ = try await swapService.approve(
             approveTransaction: approveTransaction,
             chain: swapFromChainAsset.chain,
@@ -114,20 +118,14 @@ extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput 
         self.output = output
     }
 
-    func confirmSwap() async throws {
-        let approveTransaction = try await fetchApproveTransaction()
-        do {
+    func confirmSwap() async throws -> String {
+        if try await isNeedAllowance() {
+            let approveTransaction = try await fetchApproveTransaction()
             try await sendApproveTransaction(approveTransaction: approveTransaction)
-        } catch {
-            print("Approve transaction error: ", error)
         }
 
-        do {
-            let response = try await swapService.swap(swap: swap, chain: swapFromChainAsset.chain)
-            print("Response: ", response)
-        } catch {
-            print("Swap error: ", error)
-        }
+        let response = try await swapService.swap(swap: swap, chain: swapFromChainAsset.chain)
+        return response
     }
 
     func estimateFee() async throws -> BigUInt {
