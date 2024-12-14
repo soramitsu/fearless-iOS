@@ -14,6 +14,8 @@ protocol CrossChainSwapSetupViewOutput: AnyObject {
     func didTapLiquiditySources()
     func didTapSelectRoute()
     func handleDismissingSwipe()
+    func handleViewWillDisappear()
+    func handleViewWillAppear()
 }
 
 final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -68,15 +70,18 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
         if keyboardHandler == nil {
             setupKeyboardHandler()
         }
+
+        output.handleViewWillAppear()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
 
-        transitionCoordinator?.animate(alongsideTransition: { context in
+        transitionCoordinator?.animate(alongsideTransition: { [weak self] context in
             if context.isInteractive {
                 print("123123 Interactive swipe transition. Start.")
             } else {
+                self?.output.handleDismissingSwipe()
                 print("123123 Back button transition. Start.")
             }
         }, completion: { [weak self] context in
@@ -84,10 +89,7 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
                 print("123123 Interactive swipe transition. Finish. Cancelled. We are still on child screen.")
             } else if context.initiallyInteractive {
                 self?.output.handleDismissingSwipe()
-                print("123123 Interactive swipe transition. Finish. Sucess. We are on parent screen.")
-            } else {
-                print("123123 Back button transition. Finish. Sucess. We are on parent screen.")
-            }
+            } else {}
         })
 
         transitionCoordinator?.notifyWhenInteractionChanges { _ in

@@ -67,7 +67,7 @@ extension CrossChainSwapConfirmViewController: CrossChainSwapConfirmViewInput {
         rootView.bind(doubleImageViewModel: doubleImageViewModel)
     }
 
-    func didReceive(feeViewModel: BalanceViewModelProtocol?) {
+    func didReceive(feeViewModel: TitleMultiValueViewModel?) {
         rootView.bind(feeViewModel: feeViewModel)
     }
 }

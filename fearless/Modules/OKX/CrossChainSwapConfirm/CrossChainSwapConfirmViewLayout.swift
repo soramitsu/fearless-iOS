@@ -106,11 +106,10 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         receiveRatioView.valueTop.text = viewModel?.receiveTokenRatio
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
         receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
-        originNetworkFeeView.valueTop.text = viewModel?.fee
     }
 
-    func bind(feeViewModel: BalanceViewModelProtocol?) {
-        originNetworkFeeView.bindBalance(viewModel: feeViewModel)
+    func bind(feeViewModel: TitleMultiValueViewModel?) {
+        originNetworkFeeView.bind(viewModel: feeViewModel)
     }
 
     // MARK: - Private methods

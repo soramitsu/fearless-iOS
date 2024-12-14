@@ -7,12 +7,12 @@ protocol CrossChainSwapConfirmViewInput: ControllerBackedProtocol, LoadableViewP
     func didReceive(swapAmountInfoViewModel: SwapAmountInfoViewModel)
     func didReceive(viewModel: CrossChainSwapViewModel)
     func didReceive(doubleImageViewModel: PolkaswapDoubleSymbolViewModel)
-    func didReceive(feeViewModel: BalanceViewModelProtocol?)
+    func didReceive(feeViewModel: TitleMultiValueViewModel?)
 }
 
-protocol CrossChainSwapConfirmInteractorInput: AnyObject {
+protocol CrossChainSwapConfirmInteractorInput: AnyObject, CrossChainBaseInteractor {
     func setup(with output: CrossChainSwapConfirmInteractorOutput)
-    func confirmSwap() async throws
+    func confirmSwap() async throws -> String
     func subscribeOnBalance(for chainAssets: [ChainAsset])
     func estimateFee() async throws -> BigUInt
 }
@@ -25,16 +25,21 @@ final class CrossChainSwapConfirmPresenter {
     private let interactor: CrossChainSwapConfirmInteractorInput
     private let viewModelFactory: CrossChainSwapConfirmViewModelFactory
     private let dataValidatingFactory: SendDataValidatingFactory
+    private let logger: LoggerProtocol?
 
     private let swapFromChainAsset: ChainAsset
     private let swapToChainAsset: ChainAsset
-    private let swap: CrossChainSwap
+    private var swap: CrossChainSwap
     private let wallet: MetaAccountModel
 
     private var swapFromBalance: Decimal?
     private var swapToBalance: Decimal?
     private var utilityBalance: Decimal?
     private var totalFiatFee: Decimal?
+    private var timer: Timer?
+    private let amount: String
+    private let selectedDexIds: [String]
+    private var fromNetworkFee: Decimal?
 
     // MARK: - Constructors
 
@@ -47,7 +52,10 @@ final class CrossChainSwapConfirmPresenter {
         swap: CrossChainSwap,
         viewModelFactory: CrossChainSwapConfirmViewModelFactory,
         wallet: MetaAccountModel,
-        dataValidatingFactory: SendDataValidatingFactory
+        dataValidatingFactory: SendDataValidatingFactory,
+        amount: String,
+        selectedDexIds: [String],
+        logger: LoggerProtocol?
     ) {
         self.interactor = interactor
         self.router = router
@@ -57,16 +65,61 @@ final class CrossChainSwapConfirmPresenter {
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.amount = amount
+        self.selectedDexIds = selectedDexIds
+        self.logger = logger
 
         self.localizationManager = localizationManager
     }
 
-    // MARK: - Private methods
+    // MARK: - Data Fetching
+
+    private func refreshFee() {
+        guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first else {
+            return
+        }
+
+        Task {
+            let fee = try await interactor.estimateFee()
+            self.fromNetworkFee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
+        }
+    }
+
+    private func fetchInfo() {
+        guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first else {
+            return
+        }
+
+        Task {
+            do {
+                let swapSetupInfo = try await interactor.fetchSwapSetupInfo(
+                    chainAsset: swapFromChainAsset,
+                    destinationChainAsset: swapToChainAsset,
+                    amount: amount,
+                    selectedDexIds: selectedDexIds
+                )
+
+                if let swap = swapSetupInfo?.swap {
+                    self.swap = swap
+                }
+
+                calculateTotalFiatFee()
+                provideViewModel()
+            } catch {
+                logger?.customError(error)
+
+                calculateTotalFiatFee()
+                provideViewModel()
+            }
+        }
+    }
 
     private func subscribeOnBalance() {
         let chainAssets: [ChainAsset] = [swapFromChainAsset, swapToChainAsset, swapFromChainAsset.chain.utilityChainAssets().first].compactMap { $0 }
         interactor.subscribeOnBalance(for: chainAssets)
     }
+
+    // MARK: View Models
 
     private func provideViewModel() {
         let viewModel = viewModelFactory.buildSwapViewModel(
@@ -79,7 +132,9 @@ final class CrossChainSwapConfirmPresenter {
             totalFiatFee: totalFiatFee
         )
 
-        view?.didReceive(viewModel: viewModel)
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(viewModel: viewModel)
+        }
     }
 
     private func provideAmountInfoViewModel() {
@@ -102,24 +157,7 @@ final class CrossChainSwapConfirmPresenter {
         view?.didReceive(doubleImageViewModel: viewModel)
     }
 
-    private func refreshFee() {
-        guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first else {
-            return
-        }
-
-        Task {
-            let fee = try await interactor.estimateFee()
-            let feeViewModel = viewModelFactory.buildFeeViewModel(utilityChainAsset: utilityChainAsset, fee: fee, locale: selectedLocale)
-
-            guard let feeViewModel else {
-                return
-            }
-
-            await MainActor.run {
-                view?.didReceive(feeViewModel: feeViewModel)
-            }
-        }
-    }
+    // MARK: Private methods
 
     private func calculateTotalFiatFee() {
         let fee = swap.fee.flatMap { BigUInt(string: $0) }.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(swapFromChainAsset.asset.precision)) }
@@ -163,12 +201,32 @@ final class CrossChainSwapConfirmPresenter {
         let totalFiatFee = [crossChainFiatFee, sourceChainFiatFee, fiatFee].compactMap { $0 }.reduce(0, +)
 
         self.totalFiatFee = totalFiatFee
+        let totalFiatString = "\(wallet.selectedCurrency.symbol) \(totalFiatFee.string(maximumFractionDigits: 8))"
+        let feeViewModel = TitleMultiValueViewModel(title: totalFiatString, subtitle: nil)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(feeViewModel: feeViewModel)
+        }
+    }
+
+    @objc private func handleTimerTick() {
+        fetchInfo()
+    }
+
+    private func setupTimer() {
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(handleTimerTick), userInfo: nil, repeats: true)
     }
 }
 
 // MARK: - CrossChainSwapConfirmViewOutput
 
 extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
+    func handleDismissingSwipe() {
+        timer?.invalidate()
+        timer = nil
+    }
+
     func didLoad(view: CrossChainSwapConfirmViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -179,6 +237,8 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         subscribeOnBalance()
         refreshFee()
         calculateTotalFiatFee()
+        setupTimer()
+        fetchInfo()
     }
 
     func didTapConfirmButton() {
@@ -187,20 +247,20 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
 
         view?.didStartLoading()
 
-        let precision = Int16(swapFromChainAsset.chain.utilityChainAssets().first?.asset.precision ?? swapFromChainAsset.asset.precision)
-        let nativeFee = swapFromChainAsset.asset.isUtility ? totalFiatFee : .zero
+        let fee = fromNetworkFee
+        let nativeFee = swapFromChainAsset.asset.isUtility ? fee : .zero
 
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: totalFiatFee, locale: selectedLocale, onError: {}),
+            dataValidatingFactory.has(fee: fromNetworkFee, locale: selectedLocale, onError: {}),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: utilityBalance),
-                feeAndTip: totalFiatFee,
+                feeAndTip: nativeFee,
                 sendAmount: .zero,
                 locale: selectedLocale
             ),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: swapFromBalance),
-                feeAndTip: nativeFee,
+                feeAndTip: fee,
                 sendAmount: sendAmountDecimal,
                 locale: selectedLocale
             )
@@ -211,8 +271,9 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
 
             Task {
                 do {
-                    try await self.interactor.confirmSwap()
-                    print("Swap success")
+                    let txHash = try await self.interactor.confirmSwap()
+                    let transaction = AssetTransactionData(transactionId: txHash, status: .pending, assetId: "", peerId: "", peerFirstName: nil, peerLastName: nil, peerName: nil, details: "", amount: AmountDecimal(value: sendAmountDecimal.or(.zero)), fees: [], timestamp: Int64(Date().timeIntervalSince1970), type: "", reason: nil, context: nil)
+                    self.router.presentStatusTrackingScreen(transaction: transaction, chainAsset: self.swapFromChainAsset, wallet: self.wallet, from: self.view)
                 } catch {
                     self.router.present(error: error, from: self.view, locale: self.selectedLocale)
                 }
@@ -221,6 +282,7 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
     }
 
     func didTapBackButton() {
+        timer?.invalidate()
         router.dismiss(view: view)
     }
 }

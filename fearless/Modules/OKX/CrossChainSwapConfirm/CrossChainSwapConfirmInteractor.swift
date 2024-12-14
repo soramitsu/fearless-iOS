@@ -12,31 +12,40 @@ protocol CrossChainSwapConfirmInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
-final class CrossChainSwapConfirmInteractor {
+final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
     // MARK: - Private properties
 
     private weak var output: CrossChainSwapConfirmInteractorOutput?
-    private let swap: CrossChainSwap
     private let swapService: OKXEthereumSwapService
     private let wallet: MetaAccountModel
     private let swapFromChainAsset: ChainAsset
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let okxService: OKXDexAggregatorService
+    private let amount: String
+    private let selectedDexIds: [String]
+    private let swap: CrossChainSwap
 
     init(
-        swap: CrossChainSwap,
         swapService: OKXEthereumSwapService,
         wallet: MetaAccountModel,
         swapFromChainAsset: ChainAsset,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        okxService: OKXDexAggregatorService
+        okxService: OKXDexAggregatorService,
+        amount: String,
+        selectedDexIds: [String],
+        swap: CrossChainSwap,
+        dependencyContainer: CrossChainDependencyContainer
     ) {
-        self.swap = swap
         self.swapService = swapService
         self.wallet = wallet
         self.swapFromChainAsset = swapFromChainAsset
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.okxService = okxService
+        self.amount = amount
+        self.selectedDexIds = selectedDexIds
+        self.swap = swap
+
+        super.init(dependencyContainer: dependencyContainer)
     }
 
     private func fetchSecretKey(
@@ -76,9 +85,13 @@ final class CrossChainSwapConfirmInteractor {
         return approveTransaction
     }
 
-    private func sendApproveTransaction(approveTransaction: OKXApproveTransaction) async throws {
+    private func isNeedAllowance() async throws -> Bool {
+        guard !swapFromChainAsset.asset.isUtility else {
+            return false
+        }
+
         guard let fromAmount = swap.fromAmount, let amount = BigUInt(string: fromAmount) else {
-            return
+            return false
         }
 
         guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains().data?.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
@@ -86,10 +99,10 @@ final class CrossChainSwapConfirmInteractor {
         }
         let allowance = try await swapService.getAllowance(dexTokenApproveAddress: dexTokenApproveAddress, chainAsset: swapFromChainAsset)
 
-        guard allowance < amount else {
-            return
-        }
+        return allowance < amount
+    }
 
+    private func sendApproveTransaction(approveTransaction: OKXApproveTransaction) async throws {
         _ = try await swapService.approve(
             approveTransaction: approveTransaction,
             chain: swapFromChainAsset.chain,
@@ -105,20 +118,14 @@ extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput 
         self.output = output
     }
 
-    func confirmSwap() async throws {
-        let approveTransaction = try await fetchApproveTransaction()
-        do {
+    func confirmSwap() async throws -> String {
+        if try await isNeedAllowance() {
+            let approveTransaction = try await fetchApproveTransaction()
             try await sendApproveTransaction(approveTransaction: approveTransaction)
-        } catch {
-            print("Approve transaction error: ", error)
         }
 
-        do {
-            let response = try await swapService.swap(swap: swap, chain: swapFromChainAsset.chain)
-            print("Response: ", response)
-        } catch {
-            print("Swap error: ", error)
-        }
+        let response = try await swapService.swap(swap: swap, chain: swapFromChainAsset.chain)
+        return response
     }
 
     func estimateFee() async throws -> BigUInt {

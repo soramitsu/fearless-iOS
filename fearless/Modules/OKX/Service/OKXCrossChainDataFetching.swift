@@ -18,12 +18,12 @@ final class OKXSwapsDataFetching {
 }
 
 extension OKXSwapsDataFetching: OKXDataFetching {
-    func fetchSwapSetupInfo(
+    func fetchQuoteInfo(
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
         selectedDexIds: [String]?
-    ) async throws -> OKXSwapSetupInfo? {
+    ) async throws -> OKXQuoteInfo? {
         guard let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress() else {
             throw CrossChainSwapSetupInteractorError.accountNotFound
         }
@@ -52,6 +52,6 @@ extension OKXSwapsDataFetching: OKXDataFetching {
         let gasPrice = try await ethereumService.queryGasPrice()
         let fee = gas.flatMap { BigUInt(string: $0).or(.zero) * gasPrice.quantity }
 
-        return OKXSwapSetupInfo(fee: fee, swap: swap)
+        return OKXQuoteInfo(fee: fee, swap: swap)
     }
 }

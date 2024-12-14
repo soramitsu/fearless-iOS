@@ -117,7 +117,9 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
                     selectAssetModuleInput?.update(with: availableChainAssets)
                 }
             } catch {
-                selectAssetModuleInput?.update(with: [])
+                await MainActor.run {
+                    selectAssetModuleInput?.update(with: [])
+                }
             }
         }
     }

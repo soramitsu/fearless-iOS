@@ -59,7 +59,14 @@ extension OKXCrossChainQuote: CrossChainSwap {
     }
 
     var fee: String? {
-        print("fromChainNetworkFee: ", routerList.map { $0.fromChainNetworkFee })
-        return routerList.first?.fromChainNetworkFee
+        routerList.first?.fromChainNetworkFee
+    }
+
+    var selectedDexId: String? {
+        guard let bridgeId = routerList.first?.router.bridgeId else {
+            return nil
+        }
+
+        return "\(bridgeId)"
     }
 }

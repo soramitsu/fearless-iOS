@@ -1,6 +1,6 @@
 import BigInt
 
-struct OKXSwapSetupInfo {
+struct OKXQuoteInfo {
     let fee: BigUInt?
     let swap: CrossChainSwap?
 }

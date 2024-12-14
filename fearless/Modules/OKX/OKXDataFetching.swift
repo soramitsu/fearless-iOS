@@ -2,10 +2,10 @@ import SSFModels
 import BigInt
 
 protocol OKXDataFetching {
-    func fetchSwapSetupInfo(
+    func fetchQuoteInfo(
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
         selectedDexIds: [String]?
-    ) async throws -> OKXSwapSetupInfo?
+    ) async throws -> OKXQuoteInfo?
 }

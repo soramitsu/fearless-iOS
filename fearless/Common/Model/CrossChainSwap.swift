@@ -14,6 +14,7 @@ protocol CrossChainSwap {
     var contractAddress: String? { get }
     var from: String? { get }
     var fee: String? { get }
+    var selectedDexId: String? { get }
 
     var quotes: [OKXDexQuote]? { get }
 }

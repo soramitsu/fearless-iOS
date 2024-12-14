@@ -61,4 +61,8 @@ extension OKXSwap: CrossChainSwap {
     var fee: String? {
         nil
     }
+
+    var selectedDexId: String? {
+        nil
+    }
 }

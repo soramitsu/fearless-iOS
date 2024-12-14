@@ -15,12 +15,12 @@ final class OKXCrossChainDataFetching {
 }
 
 extension OKXCrossChainDataFetching: OKXDataFetching {
-    func fetchSwapSetupInfo(
+    func fetchQuoteInfo(
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
-        selectedDexIds _: [String]?
-    ) async throws -> OKXSwapSetupInfo? {
+        selectedDexIds: [String]?
+    ) async throws -> OKXQuoteInfo? {
         let fromTokenAddress = sourceChainAsset.asset.currencyId ?? sourceChainAsset.asset.id
         let toTokenAddress = destinationChainAsset.asset.currencyId ?? destinationChainAsset.asset.id
         let quoteParameters = OKXDexCrossChainQuoteParameters(
@@ -30,7 +30,8 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
             sort: 1,
-            slippage: "0.01"
+            slippage: "0.01",
+            allowBridge: selectedDexIds?.compactMap { UInt32($0) }
         )
 
         let swap = try await okxService.fetchCrossChainQuote(parameters: quoteParameters).data?.first
@@ -38,6 +39,6 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
 
         let fee = feeString.flatMap { BigUInt(string: $0) }
 
-        return OKXSwapSetupInfo(fee: fee, swap: swap)
+        return OKXQuoteInfo(fee: fee, swap: swap)
     }
 }
