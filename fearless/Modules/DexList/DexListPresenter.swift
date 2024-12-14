@@ -66,19 +66,19 @@ final class DexListPresenter {
                         view?.didReceive(viewModel: viewModel)
                     }
                 } else {
-                    async let quotes = try await interactor.getSameChainQuotes()
-                    async let liquiditySources = try await interactor.getLiquiditySources()
+                    let quotes = try await interactor.getSameChainQuotes()
+                    let liquiditySources = try await interactor.getLiquiditySources()
 
                     if selectedDexIds == nil {
                         if
-                            let quotesNames = try await quotes?.compactMap({ $0.dexName.lowercased() }),
-                            let filteredSources = try await liquiditySources?.filter({ quotesNames.contains($0.name.lowercased()) == true }).compactMap({ $0.id })
+                            let quotesNames = quotes?.compactMap({ $0.dexName.lowercased() }),
+                            let filteredSources = liquiditySources?.filter({ quotesNames.contains($0.name.lowercased()) == true }).compactMap({ $0.id })
                         {
                             self.selectedDexIds = filteredSources
                         }
                     }
 
-                    let viewModel = try await viewModelFactory.buildSwapViewModel(
+                    let viewModel = viewModelFactory.buildSwapViewModel(
                         quotes: quotes,
                         liquiditySources: liquiditySources,
                         locale: selectedLocale,
@@ -86,8 +86,8 @@ final class DexListPresenter {
                         selectedDexIds: selectedDexIds
                     )
 
-                    self.liquiditySources = try await liquiditySources
-                    self.swapQuotes = try await quotes
+                    self.liquiditySources = liquiditySources
+                    self.swapQuotes = quotes
 
                     await MainActor.run {
                         view?.didReceive(viewModel: viewModel)

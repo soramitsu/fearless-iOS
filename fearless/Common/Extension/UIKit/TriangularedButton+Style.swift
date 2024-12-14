@@ -92,7 +92,7 @@ extension TriangularedButton {
         triangularedView?.highlightedStrokeColor = .clear
 
         imageWithTitleView?.titleColor = R.color.colorWhite()!
-        imageWithTitleView?.titleFont = .h4Title
+        imageWithTitleView?.titleFont = .p3Paragraph
 
         changesContentOpacityWhenHighlighted = true
     }

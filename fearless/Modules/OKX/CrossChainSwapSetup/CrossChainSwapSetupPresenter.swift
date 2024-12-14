@@ -166,7 +166,16 @@ final class CrossChainSwapSetupPresenter {
                 DispatchQueue.main.async { [weak self] in
                     if let error = error as? OKXDexError, let view = self?.view {
                         let message = error.decode(with: swapFromChainAsset)
-                        self?.router.presentError(for: "", message: message ?? "", view: view, locale: self?.selectedLocale)
+//                        self?.router.presentError(for: "", message: message ?? "", view: view, locale: self?.selectedLocale)
+                        switch error {
+                        case .insufficientLiquidity:
+                            self?.showLiquidityError()
+                        default:
+                            self?.showDefaultError(
+                                title: R.string.localizable.commonImportant(preferredLanguages: self?.selectedLocale.rLanguages),
+                                message: message ?? ""
+                            )
+                        }
                     } else {
                         self?.router.present(error: error, from: self?.view, locale: self?.selectedLocale)
                     }
@@ -436,7 +445,7 @@ final class CrossChainSwapSetupPresenter {
     }
 
     @objc private func handleTimerTick() {
-        fetchInfo()
+//        fetchInfo()
     }
 
     private func setupTimer() {
@@ -444,7 +453,17 @@ final class CrossChainSwapSetupPresenter {
         timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(handleTimerTick), userInfo: nil, repeats: true)
     }
 
-    private func showError() {
+    private func showDefaultError(title: String, message: String) {
+        let errorViewModel = ErrorViewModel(
+            title: title,
+            message: message,
+            actionTitle: nil,
+            actionHandler: nil
+        )
+        view?.didReceiveError(viewModel: errorViewModel)
+    }
+
+    private func showLiquidityError() {
         let errorViewModel = ErrorViewModel(
             title: R.string.localizable.commonImportant(preferredLanguages: selectedLocale.rLanguages),
             message: R.string.localizable.swapLiquidityError(preferredLanguages: selectedLocale.rLanguages),
