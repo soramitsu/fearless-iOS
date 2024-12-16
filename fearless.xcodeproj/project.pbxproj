@@ -247,6 +247,8 @@
 		073DE30C2C5B99D6003B4990 /* TonHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073DE30B2C5B99D6003B4990 /* TonHistoryOperationFactory.swift */; };
 		073DE30F2C5BA35B003B4990 /* TonModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073DE30E2C5BA35B003B4990 /* TonModels.swift */; };
 		073DE3112C5BB783003B4990 /* AssetTransactionData+Ton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 073DE3102C5BB783003B4990 /* AssetTransactionData+Ton.swift */; };
+		074988DB2D0AB7EA0058807D /* SoraSubqueryHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074988DA2D0AB7EA0058807D /* SoraSubqueryHistoryOperationFactory.swift */; };
+		074988DD2D0C0B8B0058807D /* SoraSubqueryStakingRewardsFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074988DC2D0C0B8B0058807D /* SoraSubqueryStakingRewardsFetcher.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
 		074EB7AD290B9F64000A2A6A /* AddressCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */; };
 		074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */; };
@@ -3456,6 +3458,8 @@
 		073DE30B2C5B99D6003B4990 /* TonHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		073DE30E2C5BA35B003B4990 /* TonModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonModels.swift; sourceTree = "<group>"; };
 		073DE3102C5BB783003B4990 /* AssetTransactionData+Ton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AssetTransactionData+Ton.swift"; sourceTree = "<group>"; };
+		074988DA2D0AB7EA0058807D /* SoraSubqueryHistoryOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubqueryHistoryOperationFactory.swift; sourceTree = "<group>"; };
+		074988DC2D0C0B8B0058807D /* SoraSubqueryStakingRewardsFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubqueryStakingRewardsFetcher.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
 		074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCopiedEvent.swift; sourceTree = "<group>"; };
 		074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOfflineEvent.swift; sourceTree = "<group>"; };
@@ -14421,6 +14425,7 @@
 				0701B8A62C78F5DB00DCD395 /* ZChainHistoryOperationFactory.swift */,
 				07BF3D932B3D873F0046ABF4 /* OklinkHistoryOperationFactory.swift */,
 				FA5137B429AC76EB00560EBA /* SubqueryHistoryOperationFactory.swift */,
+				074988DA2D0AB7EA0058807D /* SoraSubqueryHistoryOperationFactory.swift */,
 				FA5137B529AC76EB00560EBA /* GiantsquidHistoryOperationFactory.swift */,
 				FA5137B629AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift */,
 				FA5137B729AC76EB00560EBA /* HistoryOperationFactory.swift */,
@@ -14746,6 +14751,7 @@
 				FA7741D42B6A350200358315 /* SubsquidStakingRewardsFetcher.swift */,
 				FA7741D52B6A350200358315 /* StakingRewardFetcher.swift */,
 				FA7741D62B6A350200358315 /* SubqueryStakingRewardsFetcher.swift */,
+				074988DC2D0C0B8B0058807D /* SoraSubqueryStakingRewardsFetcher.swift */,
 				FA7741D72B6A350200358315 /* StakingRewardsFetcherAssembly.swift */,
 				FA7741D82B6A350200358315 /* ReefStakingRewardsFetcher.swift */,
 				FA7741D92B6A350200358315 /* Requests */,
@@ -17741,6 +17747,7 @@
 				FA2FC84128B3879900CC0A42 /* InsettedLabel.swift in Sources */,
 				FAADC1AD29261F7000DA9903 /* PoolRolesConfirmRouter.swift in Sources */,
 				F4871DF326D63E8700D27F23 /* AnalyticsRewardDetailsViewModelFactory.swift in Sources */,
+				074988DD2D0C0B8B0058807D /* SoraSubqueryStakingRewardsFetcher.swift in Sources */,
 				07ECB8032C6B4EA3000E0A14 /* TonConnectSessionCrypto.swift in Sources */,
 				FA9A8F1F2A72573C008FA99F /* AlchemyHistory.swift in Sources */,
 				84873B0426029B75000A83EE /* StakingEstimationViewModel.swift in Sources */,
@@ -18765,6 +18772,7 @@
 				FA1D01FF2BBE713D005B7071 /* LiquidityPoolsListAssembly.swift in Sources */,
 				84DED3EF26661CC600A153BB /* CrowdloanFlow.swift in Sources */,
 				FA1D01FB2BBE713D005B7071 /* LiquidityPoolsListViewLayout.swift in Sources */,
+				074988DB2D0AB7EA0058807D /* SoraSubqueryHistoryOperationFactory.swift in Sources */,
 				F4F65C3D26D8B9DD002EE838 /* FWYAxisChartFormatter.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
 				07BFF8AA2AD666CE005A5C58 /* AutoNamespacesError+Extension.swift in Sources */,
