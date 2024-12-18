@@ -1,5 +1,4 @@
 import Foundation
-import Foundation
 import RobinHood
 
 import IrohaCrypto
@@ -69,47 +68,21 @@ class SoraSubqueryHistoryOperationFactory {
         return operation
     }
 
-    private func prepareExtrinsicInclusionFilter() -> String {
-        """
-        {
-          or: [
-            {
-                  extrinsic: {isNull: true}
-            },
-            {
-              not: {
-                and: [
-                    {
-                      extrinsic: { contains: {module: "balances"} } ,
-                        or: [
-                         { extrinsic: {contains: {call: "transfer"} } },
-                         { extrinsic: {contains: {call: "transferKeepAlive"} } },
-                         { extrinsic: {contains: {call: "forceTransfer"} } },
-                      ]
-                    }
-                ]
-               }
-            }
-          ]
-        }
-        """
-    }
-
     private func prepareFilter(
         filters: [WalletTransactionHistoryFilter]
     ) -> String {
         var filterStrings: [String] = []
 
-        if !filters.contains(where: { $0.type == .swap && $0.selected }) {
-            filterStrings.append("\"swap\"")
+        if filters.contains(where: { $0.type == .swap && $0.selected }) {
+            filterStrings.append("{ method:{equalTo:\"swap\"}}")
         }
 
-        if !filters.contains(where: { $0.type == .reward && $0.selected }) {
-            filterStrings.append("\"rewarded\"")
+        if filters.contains(where: { $0.type == .reward && $0.selected }) {
+            filterStrings.append("{ method:{ equalTo:\"Rewarded\"}}")
         }
 
-        if !filters.contains(where: { $0.type == .transfer && $0.selected }) {
-            filterStrings.append("\"transfer\"")
+        if filters.contains(where: { $0.type == .transfer && $0.selected }) {
+            filterStrings.append("{ method:{ equalTo:\"Transfer\"}}")
         }
 
         guard filterStrings.isNotEmpty else {
@@ -117,7 +90,7 @@ class SoraSubqueryHistoryOperationFactory {
         }
 
         let resultFilters = filterStrings.joined(separator: ",")
-        return ", method_not_in: [\(resultFilters)]"
+        return resultFilters
     }
 
     private func prepareQueryForAddress(
@@ -135,7 +108,7 @@ class SoraSubqueryHistoryOperationFactory {
                     after: \(after)
                     first: \(count)
                     orderBy: TIMESTAMP_DESC
-                    filter: {address: {equalTo: "\(address)"}, and: [\(filter)]}
+                    filter: {or: [\(filter)] address: {equalTo: "\(address)"}}
                   ) {
                     pageInfo {
                       startCursor
@@ -206,15 +179,14 @@ class SoraSubqueryHistoryOperationFactory {
     ) -> BaseOperation<TransactionHistoryMergeResult> {
         ClosureOperation {
             let chainAsset = ChainAsset(chain: chain, asset: asset)
-//            let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElementsConnection.edges.map { $0.node } ?? []
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements.nodes ?? []
             let filteredTransactions = remoteTransactions
                 .filter { transaction in
-                    if asset.symbol.lowercased() == "val", transaction.method == "rewarded" {
+                    if asset.symbol.lowercased() == "val", transaction.method?.lowercased() == "rewarded" {
                         return true
                     }
 
-                    if asset.isUtility, transaction.module == "staking", transaction.method != "rewarded" {
+                    if asset.isUtility, transaction.module?.lowercased() == "staking", transaction.method?.lowercased() != "rewarded" {
                         return true
                     }
 
