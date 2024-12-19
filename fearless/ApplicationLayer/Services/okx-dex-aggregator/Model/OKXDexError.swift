@@ -5,6 +5,7 @@ import BigInt
 enum OKXDexError: Error {
     case minimumAmount(text: String?)
     case maximumAmount(text: String?)
+    case insufficientLiquidity
     case unknown(text: String?)
 
     func decode(with chainAsset: ChainAsset) -> String? {
@@ -23,6 +24,8 @@ enum OKXDexError: Error {
             return amountDecimal.flatMap { "Maximum amount is \($0) \(chainAsset.asset.symbolUppercased)" }
         case let .unknown(text):
             return text
+        case .insufficientLiquidity:
+            return nil
         }
     }
 }

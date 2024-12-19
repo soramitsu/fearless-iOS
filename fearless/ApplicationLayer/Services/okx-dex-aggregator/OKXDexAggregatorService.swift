@@ -229,6 +229,8 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
                 throw OKXDexError.minimumAmount(text: msg)
             case OKXDexErrorCode.okxMaximumAmountErrorCode.rawValue:
                 throw OKXDexError.maximumAmount(text: msg)
+            case OKXDexErrorCode.okxInsufficientLiquidity.rawValue:
+                throw OKXDexError.insufficientLiquidity
             default:
                 throw OKXDexError.unknown(text: msg)
             }

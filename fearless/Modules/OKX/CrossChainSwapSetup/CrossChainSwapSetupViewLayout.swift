@@ -95,6 +95,7 @@ final class CrossChainSwapSetupViewLayout: UIView {
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
         receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
         originNetworkFeeView.valueTop.text = viewModel?.fee
+        errorView.isHidden = true
     }
 
     func bind(originFeeViewModel: BalanceViewModelProtocol?) {

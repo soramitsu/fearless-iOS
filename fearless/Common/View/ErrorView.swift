@@ -29,25 +29,26 @@ final class ErrorView: UIView {
         return hStack
     }()
 
-    let vStack = UIFactory.default.createVerticalStackView(spacing: 4)
+    let vStack = UIFactory.default.createVerticalStackView(spacing: 12)
 
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
         titleLabel.textColor = R.color.colorOrange()
-        titleLabel.font = .h6Title
+        titleLabel.font = .h5Title
         return titleLabel
     }()
 
     let textLabel: UILabel = {
         let textLabel = UILabel()
-        textLabel.textColor = R.color.colorWhite50()
-        textLabel.font = .p3Paragraph
+        textLabel.textColor = R.color.colorWhite()
+        textLabel.font = .p1Paragraph
         textLabel.numberOfLines = 0
         return textLabel
     }()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
+        button.triangularedView?.sideLength = 6
         button.applyErrorStyle()
         return button
     }()
@@ -96,11 +97,11 @@ final class ErrorView: UIView {
         }
 
         iconView.snp.makeConstraints { make in
-            make.size.equalTo(16)
+            make.size.equalTo(24)
         }
 
         actionButton.snp.makeConstraints { make in
-            make.width.equalTo(vStack).dividedBy(2)
+            make.width.equalTo(textLabel).dividedBy(2)
             make.height.equalTo(24)
         }
     }
