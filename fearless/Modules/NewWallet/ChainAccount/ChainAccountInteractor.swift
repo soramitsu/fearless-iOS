@@ -229,14 +229,14 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         return (try? substrateCallFactory.vestingClaim()) != nil
     }
 
-    func getOkxSwapAvailable() async throws -> Bool {
-        let availableChainIds = try await chainFetching.fetchChains().map { $0.chainId }
+    func getOkxSwapAvailable(preferredDataSourceType: PreferredDataSourceType) async throws -> Bool {
+        let availableChainIds = try await chainFetching.fetchChains(preferredDataSourceType: preferredDataSourceType).map { $0.chainId }
         guard availableChainIds.contains(chainAsset.chain.chainId) else {
             return false
         }
         let availableChainAssetIds = try await assetFetching.fetchAssets(
             for: chainAsset.chain,
-            preferredDataSourceType: .combine
+            preferredDataSourceType: preferredDataSourceType
         ).map { $0.chainAssetId }
         let available = availableChainAssetIds.contains(chainAsset.chainAssetId)
         return available

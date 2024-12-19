@@ -24,7 +24,7 @@ extension MultichainAssetSelectionInteractor: MultichainAssetSelectionInteractor
     }
 
     func fetchChains() async throws -> [ChainModel] {
-        try await chainFetching.fetchChains()
+        try await chainFetching.fetchChains(preferredDataSourceType: .remote)
     }
 
     func fetchAssets(for chain: ChainModel, preferredDataSourceType: PreferredDataSourceType) async throws -> [ChainAsset] {

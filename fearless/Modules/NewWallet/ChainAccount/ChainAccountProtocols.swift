@@ -29,7 +29,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     func update(chain: ChainModel)
     func updateData()
     func checkIsClaimAvailable() -> Bool
-    func getOkxSwapAvailable() async throws -> Bool
+    func getOkxSwapAvailable(preferredDataSourceType: PreferredDataSourceType) async throws -> Bool
 
     var chainAsset: ChainAsset { get }
     var availableChainAssets: [ChainAsset] { get }

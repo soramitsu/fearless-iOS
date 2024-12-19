@@ -17,9 +17,9 @@ class CrossChainSwapMultichainChainFetching: MultichainChainFetching {
         self.sourceChainId = sourceChainId
     }
 
-    func fetchChains() async throws -> [ChainModel] {
+    func fetchChains(preferredDataSourceType: PreferredDataSourceType) async throws -> [ChainModel] {
         let appendSoraChain = sourceChainId == nil
-        let okxChainIds = try await okxService.fetchAvailableChains().data?.map { "\($0.chainId)" }
+        let okxChainIds = try await okxService.fetchAvailableChains(preferredDataSourceType: preferredDataSourceType).data?.map { "\($0.chainId)" }
 
         guard let okxChainIds else {
             return []

@@ -178,9 +178,9 @@ final class ChainAccountPresenter {
         )
     }
 
-    private func fetchOkxFlowAvailable() {
+    private func fetchOkxFlowAvailable(preferredDataSourceType: PreferredDataSourceType) {
         Task {
-            let available = try await interactor.getOkxSwapAvailable()
+            let available = try await interactor.getOkxSwapAvailable(preferredDataSourceType: preferredDataSourceType)
             okxSwapAvailable = available
 
             await MainActor.run {
@@ -195,6 +195,7 @@ extension ChainAccountPresenter: ChainAccountModuleInput {}
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didPullToRefresh() {
         interactor.updateData()
+        fetchOkxFlowAvailable(preferredDataSourceType: .remote)
     }
 
     func addressDidCopied() {
@@ -207,7 +208,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func setup() {
         interactor.setup()
         provideViewModel()
-        fetchOkxFlowAvailable()
+        fetchOkxFlowAvailable(preferredDataSourceType: .combine)
     }
 
     func didTapBackButton() {
