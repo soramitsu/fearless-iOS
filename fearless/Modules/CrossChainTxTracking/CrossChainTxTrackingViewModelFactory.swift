@@ -31,12 +31,11 @@ protocol CrossChainTxTrackingViewModelFactory {
 }
 
 final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewModelFactory {
-
     func buildSwapViewModel(
         transaction: AssetTransactionData,
         status: OKXCrossChainTransactionStatus,
         sourceChainAsset: ChainAsset,
-        destinationChainAsset: ChainAsset?,
+        destinationChainAsset _: ChainAsset?,
         locale: Locale,
         wallet: MetaAccountModel
     ) -> CrossChainTxTrackingViewModel {

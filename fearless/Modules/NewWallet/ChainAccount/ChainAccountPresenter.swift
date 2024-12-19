@@ -177,6 +177,17 @@ final class ChainAccountPresenter {
             }
         )
     }
+
+    private func fetchOkxFlowAvailable() {
+        Task {
+            let available = try await interactor.getOkxSwapAvailable()
+            okxSwapAvailable = available
+
+            await MainActor.run {
+                provideViewModel()
+            }
+        }
+    }
 }
 
 extension ChainAccountPresenter: ChainAccountModuleInput {}
@@ -196,6 +207,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func setup() {
         interactor.setup()
         provideViewModel()
+        fetchOkxFlowAvailable()
     }
 
     func didTapBackButton() {
@@ -388,11 +400,6 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
-        provideViewModel()
-    }
-
-    func didCheckOkxSwap(available: Bool) {
-        okxSwapAvailable = available
         provideViewModel()
     }
 }

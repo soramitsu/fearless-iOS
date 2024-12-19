@@ -29,6 +29,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     func update(chain: ChainModel)
     func updateData()
     func checkIsClaimAvailable() -> Bool
+    func getOkxSwapAvailable() async throws -> Bool
 
     var chainAsset: ChainAsset { get }
     var availableChainAssets: [ChainAsset] { get }
@@ -46,7 +47,6 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceive(availableChainAssets: [ChainAsset])
     func didReceiveAssetFrozen(_ frozen: Decimal?)
     func didReceiveAssetFrozenError(_ error: Error)
-    func didCheckOkxSwap(available: Bool)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
