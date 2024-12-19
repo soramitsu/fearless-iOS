@@ -34,6 +34,7 @@ final class ChainAccountPresenter {
     private var balance: NoneStateOptional<WalletBalanceInfo?> = .none
     private var minimumBalance: NoneStateOptional<BigUInt?> = .none
     private var accountInfo: NoneStateOptional<AccountInfo?> = .none
+    private var okxSwapAvailable: Bool = false
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
@@ -64,7 +65,8 @@ final class ChainAccountPresenter {
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
             chainAsset: chainAsset,
             wallet: wallet,
-            mode: mode
+            mode: mode,
+            okxSwapAvailable: okxSwapAvailable
         )
 
         DispatchQueue.main.async {
@@ -386,6 +388,11 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
 
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
+        provideViewModel()
+    }
+
+    func didCheckOkxSwap(available: Bool) {
+        okxSwapAvailable = available
         provideViewModel()
     }
 }

@@ -26,6 +26,8 @@ final class ChainAccountInteractor {
     private var currentDependencies: BalanceInfoDependencies?
     private let ethRemoteBalanceFetching: EthereumRemoteBalanceFetching
     private let chainRegistry: ChainRegistryProtocol
+    private let chainFetching: MultichainChainFetching
+    private let assetFetching: MultichainAssetFetching
 
     private var remoteFetchTimer: Timer?
 
@@ -40,7 +42,9 @@ final class ChainAccountInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         ethRemoteBalanceFetching: EthereumRemoteBalanceFetching,
-        chainRegistry: ChainRegistryProtocol
+        chainRegistry: ChainRegistryProtocol,
+        chainFetching: MultichainChainFetching,
+        assetFetching: MultichainAssetFetching
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
@@ -53,6 +57,8 @@ final class ChainAccountInteractor {
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.ethRemoteBalanceFetching = ethRemoteBalanceFetching
         self.chainRegistry = chainRegistry
+        self.chainFetching = chainFetching
+        self.assetFetching = assetFetching
     }
 
     private func getAvailableChainAssets() {
@@ -158,6 +164,13 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         getAvailableChainAssets()
         fetchChainAssetBasedData()
         updateData()
+        Task {
+            do {
+                try await checkOkxSwapAvailable()
+            } catch {
+                print(error)
+            }
+        }
     }
 
     func getAvailableExportOptions(for address: String) {
@@ -221,6 +234,19 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         }
         let substrateCallFactory = SubstrateCallFactoryDefault(runtimeService: runtimeService)
         return (try? substrateCallFactory.vestingClaim()) != nil
+    }
+
+    func checkOkxSwapAvailable() async throws {
+        let availableChains = try await chainFetching.fetchChains()
+        guard availableChains.contains(chainAsset.chain) else {
+            presenter?.didCheckOkxSwap(available: false)
+            return
+        }
+        let availableAssets = try await assetFetching.fetchAssets(
+            for: chainAsset.chain,
+            preferredDataSourceType: .cache
+        )
+        presenter?.didCheckOkxSwap(available: availableAssets.contains(chainAsset))
     }
 }
 

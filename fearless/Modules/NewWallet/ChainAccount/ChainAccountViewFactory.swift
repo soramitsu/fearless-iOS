@@ -4,6 +4,7 @@ import SSFUtils
 import RobinHood
 import SoraKeystore
 import SSFModels
+import SSFNetwork
 
 struct ChainAccountModule {
     let view: ChainAccountViewProtocol?
@@ -56,6 +57,15 @@ enum ChainAccountViewFactory {
             chainRegistry: chainRegistry,
             repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
         )
+        let chainsRepository = ChainRepositoryFactory().createAsyncRepository()
+        let networkWorker = NetworkWorkerImpl()
+        let okxService = OKXDexAggregatorServiceImpl(networkWorker: networkWorker, signer: OKXDexRequestSigner())
+        let chainFetching = CrossChainSwapMultichainChainFetching(
+            chainsRepository: chainsRepository,
+            okxService: okxService,
+            sourceChainId: nil
+        )
+        let assetFetching = OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
         let interactor = ChainAccountInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
@@ -67,7 +77,9 @@ enum ChainAccountViewFactory {
             storageRequestFactory: storageRequestFactory,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            chainRegistry: chainRegistry
+            chainRegistry: chainRegistry,
+            chainFetching: chainFetching,
+            assetFetching: assetFetching
         )
 
         let wireframe = ChainAccountWireframe()

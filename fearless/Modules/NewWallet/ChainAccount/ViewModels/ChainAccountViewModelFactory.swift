@@ -5,7 +5,8 @@ protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        mode: ChainAccountViewMode
+        mode: ChainAccountViewMode,
+        okxSwapAvailable: Bool
     ) -> ChainAccountViewModel
 }
 
@@ -19,7 +20,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        mode: ChainAccountViewMode
+        mode: ChainAccountViewMode,
+        okxSwapAvailable: Bool
     ) -> ChainAccountViewModel {
         var address: String?
         if
@@ -30,7 +32,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         let allAssets = Array(chainAsset.chain.assets)
         let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
         let buyButtonVisible = !(chainAssetModel?.purchaseProviders?.first == nil)
-        let polkaswapButtonVisible = chainAsset.chain.options?.contains(.polkaswap) == true
+        let polkaswapButtonVisible = (chainAsset.chain.options?.contains(.polkaswap) == true) || okxSwapAvailable
 
         var xcmButtomVisible: Bool = false
         if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.symbol.lowercased() }) {
