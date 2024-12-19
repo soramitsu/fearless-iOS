@@ -222,6 +222,24 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         return response
     }
 
+    func fetchTransactionByHash(parameters: OKXWalletTransactionByHashParameters) async throws -> OKXResponse<OKXTransactionHistoryElement> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/wallet/post-transaction/transaction-detail-by-txhash",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<OKXTransactionHistoryElement> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+
     private func validateResponseCode(_ code: String, msg: String?) throws {
         guard code == "0" else {
             switch code {

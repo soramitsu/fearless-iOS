@@ -119,13 +119,46 @@ final class CrossChainTxTrackingPresenter {
         await provideViewModel(viewModel)
     }
 
+    private func handleTxDetails(_ details: OKXTransactionHistoryElement, status: OKXCrossChainTransactionStatus) async throws {
+        guard
+            let sourceChain = try await interactor.queryChain(chainId: status.fromChainId),
+            let destinationChain = try await interactor.queryChain(chainId: status.toChainId)
+        else {
+            return
+        }
+
+        let sourceChainAssets = try await interactor.fetchChainAssets(chain: sourceChain)
+        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
+        let destinationChainAssets = try await interactor.fetchChainAssets(chain: destinationChain)
+
+        guard
+            let sourceChainAsset = sourceChainAssets.first(where: { $0.asset.id.lowercased() == status.fromTokenAddress.lowercased() }),
+            let destinationChainAsset = destinationChainAssets.first(where: { $0.asset.id.lowercased() == status.toTokenAddress.lowercased() })
+        else {
+            return
+        }
+
+        let viewModel = viewModelFactory.buildHistoryViewModel(
+            transaction: transaction,
+            details: details,
+            sourceChainAsset: sourceChainAsset,
+            destinationChainAsset: destinationChainAsset,
+            locale: selectedLocale,
+            wallet: wallet
+        )
+
+        await provideViewModel(viewModel)
+    }
+
     private func fetchData() {
         Task {
             do {
                 let status = try await interactor.queryTransactionStatus()
 
                 if status.transactionFinished {
+//                    fetchTxDetails(status: status)
                     timer?.invalidate()
+//                    return
                 }
 
                 guard !status.transactionFailed else {
@@ -144,6 +177,14 @@ final class CrossChainTxTrackingPresenter {
             } catch {
                 print("fetch tx status error: ", error)
             }
+        }
+    }
+
+    private func fetchTxDetails(status _: OKXCrossChainTransactionStatus) {
+        Task {
+            do {
+                let details = try await interactor.queryTransactionDetails()
+            } catch {}
         }
     }
 

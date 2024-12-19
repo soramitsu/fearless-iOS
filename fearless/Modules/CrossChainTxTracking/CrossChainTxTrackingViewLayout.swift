@@ -93,6 +93,7 @@ final class CrossChainTxTrackingViewLayout: UIView {
         fromChainFeeView.isHidden = viewModel.fromChainFee == nil
         toChainFeeView.isHidden = viewModel.toChainFee == nil
         toAmountView.isHidden = viewModel.receivedAmount == nil
+        fromAmountView.isHidden = viewModel.amount == nil
 
         fromHashView.titleLabel.text = viewModel.fromHashViewTitle
         toHashView.titleLabel.text = viewModel.toHashViewTitle

@@ -31,6 +31,7 @@ protocol CrossChainTxTrackingViewModelFactory {
 }
 
 final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewModelFactory {
+
     func buildSwapViewModel(
         transaction: AssetTransactionData,
         status: OKXCrossChainTransactionStatus,
@@ -40,23 +41,11 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         wallet: MetaAccountModel
     ) -> CrossChainTxTrackingViewModel {
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
-        let destinationBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationChainAsset)
         let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
         let statusViewModels = buildSwapStatusViewModels(
             chainAsset: sourceChainAsset,
             status: status
         )
-
-        let toAmountViewModel = destinationChainAsset.flatMap {
-            let toAmountValue = BigUInt(string: status.toAmount)
-            let toAmountDecimal = Decimal.fromSubstrateAmount(toAmountValue.or(.zero), precision: Int16($0.asset.precision))
-
-            return destinationBalanceViewModelFactory?.balanceFromPrice(
-                toAmountDecimal.or(.zero),
-                priceData: $0.asset.getPrice(for: wallet.selectedCurrency),
-                usageCase: .detailsCrypto
-            )
-        }
 
         let sourceUtilityChainAsset = sourceChainAsset.chain.utilityChainAssets().first
         let sourceUtilityBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceUtilityChainAsset)
@@ -78,13 +67,18 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: sourceChainAsset
         )
+
+        let transactionType = TransactionType(rawValue: transaction.type)
+
+        let toAmountViewModel = transactionType == .incoming ? amountViewModel : nil
+        let fromAmountViewModel = (transactionType == .outgoing || transactionType == .bridge) ? amountViewModel : nil
         return CrossChainTxTrackingViewModel(
             statusViewModels: statusViewModels,
             statusTitle: statusTitle,
             statusDescription: statusDescription,
             walletName: address,
             date: date,
-            amount: amountViewModel?.value(for: locale),
+            amount: fromAmountViewModel?.value(for: locale),
             receivedAmount: toAmountViewModel?.value(for: locale),
             fromChainTxHash: status.fromTxHash,
             toChainTxHash: status.toTxHash,
@@ -187,10 +181,11 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset
         )
+
         let statusViewModels = buildStatusViewModels(
             sourceChainAsset: sourceChainAsset,
             destinationChainAsset: destinationChainAsset,
-            status: status
+            status: detailStatus
         )
         let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
         return CrossChainTxTrackingViewModel(
@@ -255,15 +250,11 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         return [sourceChainStepViewModel, destinationViewModel, destinationChainStepViewModel]
     }
 
-    private func buildStatusViewModels(sourceChainAsset: ChainAsset, destinationChainAsset: ChainAsset, status: OKXCrossChainTransactionStatus) -> [Any] {
-        guard let detailStatus = OKXCrossChainTxDetailStatus(rawValue: status.detailStatus) else {
-            return []
-        }
-
-        let sourceStepStatus = buildSourceStepStatus(status: detailStatus)
+    private func buildStatusViewModels(sourceChainAsset: ChainAsset, destinationChainAsset: ChainAsset, status: OKXCrossChainTxDetailStatus) -> [Any] {
+        let sourceStepStatus = buildSourceStepStatus(status: status)
         let sourceChainStepViewModel = CrossChainTransactionStepViewModel(status: sourceStepStatus, chain: sourceChainAsset.chain, parentChain: nil)
 
-        let destinationStepStatus = buildDestinationStepStatus(status: detailStatus)
+        let destinationStepStatus = buildDestinationStepStatus(status: status)
         let destinationChainStepViewModel = CrossChainTransactionStepViewModel(status: destinationStepStatus, chain: destinationChainAsset.chain, parentChain: nil)
         let destinationViewModel = CrossChainTransactionStatusViewModel(status: destinationStepStatus)
 
