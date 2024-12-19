@@ -45,6 +45,7 @@
         <attribute name="rank" optional="YES" attributeType="String"/>
         <attribute name="stakingApiType" optional="YES" attributeType="String"/>
         <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
+        <attribute name="tonBridgeUrl" optional="YES" attributeType="URI"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>

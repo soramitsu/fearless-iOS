@@ -276,17 +276,18 @@ final class ChainRegistry {
     private func handle(ton chain: ChainModel) {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
-//#if DEBUG
-        let token = TonNodeApiKeyDebug.tonApiKey
-//#else
-//        let token = TonNodeApiKey.tonApiKey
-//#endif
+
+        let token = TonNodeApiKey.tonApiKey
+        guard let tonBridgeURL = chain.tonBridgeUrl else {
+            logger?.error("Missing tonBridgeURL")
+            return
+        }
         let isTesnet = LocalToggleService.shared.tonEnvListToggle.storageValue
         if chain.options.or([]).contains(.testnet), isTesnet, let node = chain.nodes.first {
-            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token)
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
             tonApiAssembly = apiAssembly
         } else if !chain.options.or([]).contains(.testnet), !isTesnet, let node = chain.nodes.first {
-            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token)
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
             tonApiAssembly = apiAssembly
         }
     }

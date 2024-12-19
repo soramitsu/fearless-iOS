@@ -142,7 +142,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "FW-new-ecosystem",
-        "revision" : "2e2071fafc95a6c3c6f313129b37da8c104cdfd5"
+        "revision" : "46eeda75fd638a132965b3115abf5a9aea899cd0"
       }
     },
     {

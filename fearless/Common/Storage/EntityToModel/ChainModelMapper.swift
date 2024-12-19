@@ -573,7 +573,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             selectedNode: selectedNode,
             customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion,
-            identityChain: entity.identityChain
+            identityChain: entity.identityChain, 
+            tonBridgeUrl: entity.tonBridgeUrl
         )
 
         let assetsArray: [AssetModel] = entity.assets.or([]).compactMap { anyAsset in
@@ -616,6 +617,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
         entity.identityChain = model.identityChain
+        entity.tonBridgeUrl = model.tonBridgeUrl
+        
         updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)
