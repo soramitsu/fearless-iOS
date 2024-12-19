@@ -7,6 +7,7 @@ struct CrossChainTxTrackingViewModel {
     let walletName: String?
     let date: String?
     let amount: BalanceViewModelProtocol?
+    let receivedAmount: BalanceViewModelProtocol?
     let fromChainTxHash: String?
     let toChainTxHash: String?
     let fromChainFee: BalanceViewModelProtocol?

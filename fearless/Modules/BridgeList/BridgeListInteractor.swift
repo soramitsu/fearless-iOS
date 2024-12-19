@@ -43,10 +43,10 @@ extension BridgeListInteractor: BridgeListInteractorInput {
 
     func getCrossChainQuotes(sort: UInt8) async throws -> [OKXCrossChainQuote]? {
         let fromTokensParameters = OKXDexAllTokensRequestParameters(chainId: sourceChainAsset.chain.chainId)
-        let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters)
+        let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters, preferredDataSourceType: .combine)
 
         let toTokensParameters = OKXDexAllTokensRequestParameters(chainId: destinationChainAsset.chain.chainId)
-        let toTokens = try await okxService.fetchAllTokens(parameters: toTokensParameters)
+        let toTokens = try await okxService.fetchAllTokens(parameters: toTokensParameters, preferredDataSourceType: .combine)
 
         guard
             let fromTokenAddress = fromTokens.data?.first(where: { $0.tokenSymbol.lowercased() == sourceChainAsset.asset.symbol.lowercased() })?.tokenContractAddress,
@@ -70,7 +70,7 @@ extension BridgeListInteractor: BridgeListInteractorInput {
     }
 
     func fetchAssets(for chain: ChainModel) async throws -> [ChainAsset] {
-        try await assetFetching.fetchAssets(for: chain)
+        try await assetFetching.fetchAssets(for: chain, preferredDataSourceType: .combine)
     }
 
     func fetchFee(swap: OKXCrossChainSwap?) {

@@ -5,6 +5,24 @@ struct OKXSwap: Decodable {
     let tx: OKXSwapTransaction
 }
 
+extension OKXSwap: CrossChainTx {
+    var sender: String? {
+        tx.from
+    }
+
+    var amount: String? {
+        routerResult.fromTokenAmount
+    }
+
+    var transactionHex: String {
+        tx.data
+    }
+
+    var address: String {
+        tx.to
+    }
+}
+
 extension OKXSwap: CrossChainSwap {
     var contractAddress: String? {
         tx.to
@@ -39,15 +57,15 @@ extension OKXSwap: CrossChainSwap {
     }
 
     var gasLimit: String? {
-        nil
+        tx.gas
     }
 
     var gasPrice: String? {
-        nil
+        tx.gasPrice
     }
 
     var maxPriorityFeePerGas: String? {
-        nil
+        tx.maxPriorityFeePerGas
     }
 
     var from: String? {

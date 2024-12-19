@@ -11,8 +11,10 @@ extension AssetTransactionData {
         asset: AssetModel
     ) -> AssetTransactionData {
         let peerAddress = item.from == address ? item.to : item.from
-        let type = item.from == address ? TransactionType.outgoing :
-            TransactionType.incoming
+        var type = item.from == address ? TransactionType.outgoing : TransactionType.incoming
+        if item.isToContract {
+            type = .bridge
+        }
 
         let timestamp: Int64 = {
             let timestamp = Int64(item.transactionTime) ?? 0

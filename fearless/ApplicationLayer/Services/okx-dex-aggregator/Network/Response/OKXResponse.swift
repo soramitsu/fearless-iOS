@@ -32,7 +32,7 @@ struct OKXResponse<T: Decodable>: Decodable {
         }
 
         self.code = code
-        data = try container.decode([T].self, forKey: .data)
+        data = try? container.decode([T].self, forKey: .data)
         msg = try? container.decodeIfPresent(String.self, forKey: .msg)
     }
 }

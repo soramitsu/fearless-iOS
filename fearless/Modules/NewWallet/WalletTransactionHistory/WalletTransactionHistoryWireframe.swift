@@ -10,18 +10,9 @@ final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframe
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        guard let module = CrossChainTxTrackingAssembly.configureModule(
-            transaction: transaction,
-            chainAsset: ChainAsset(chain: chain, asset: asset),
-            wallet: selectedAccount
-        ) else {
-            return
-        }
-        view?.controller.present(module.view.controller, animated: true)
-
 //        let transactionType = TransactionType(rawValue: transaction.type)
 //
-//        let controller: UIViewController
+        let controller: UIViewController
 //        switch transactionType {
 //        case .swap:
 //            guard let module = SwapTransactionDetailAssembly.configureModule(
@@ -32,6 +23,15 @@ final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframe
 //                return
 //            }
 //            controller = module.view.controller
+//        case .bridge:
+        guard let module = CrossChainTxTrackingAssembly.configureModule(
+            transaction: transaction,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            wallet: selectedAccount
+        ) else {
+            return
+        }
+        controller = module.view.controller
 //        default:
 //            guard let module = WalletTransactionDetailsViewFactory.createView(
 //                transaction: transaction,
@@ -43,7 +43,7 @@ final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframe
 //            }
 //            controller = module.controller
 //        }
-//
-//        view?.controller.present(controller, animated: true)
+
+        view?.controller.present(controller, animated: true)
     }
 }

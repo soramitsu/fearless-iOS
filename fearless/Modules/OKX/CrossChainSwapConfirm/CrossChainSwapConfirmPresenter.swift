@@ -8,13 +8,17 @@ protocol CrossChainSwapConfirmViewInput: ControllerBackedProtocol, LoadableViewP
     func didReceive(viewModel: CrossChainSwapViewModel)
     func didReceive(doubleImageViewModel: PolkaswapDoubleSymbolViewModel)
     func didReceive(feeViewModel: TitleMultiValueViewModel?)
+    func setButtonLoadingState(isLoading: Bool)
+    func setApproveButtonVisible(_ visible: Bool)
 }
 
 protocol CrossChainSwapConfirmInteractorInput: AnyObject, CrossChainBaseInteractor {
     func setup(with output: CrossChainSwapConfirmInteractorOutput)
-    func confirmSwap() async throws -> String
     func subscribeOnBalance(for chainAssets: [ChainAsset])
-    func estimateFee() async throws -> BigUInt
+    func estimateFee(tx: CrossChainTx) async throws -> BigUInt
+    func confirmSwap(tx: CrossChainTx) async throws -> String
+    func isNeedAllowance() async throws -> Bool
+    func approveSpending() async throws -> String
 }
 
 final class CrossChainSwapConfirmPresenter {
@@ -38,8 +42,9 @@ final class CrossChainSwapConfirmPresenter {
     private var totalFiatFee: Decimal?
     private var timer: Timer?
     private let amount: String
-    private let selectedDexIds: [String]
+    private let selectedDexIds: [String]?
     private var fromNetworkFee: Decimal?
+    private var crossChainTx: CrossChainTx?
 
     // MARK: - Constructors
 
@@ -54,7 +59,7 @@ final class CrossChainSwapConfirmPresenter {
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
         amount: String,
-        selectedDexIds: [String],
+        selectedDexIds: [String]?,
         logger: LoggerProtocol?
     ) {
         self.interactor = interactor
@@ -74,22 +79,62 @@ final class CrossChainSwapConfirmPresenter {
 
     // MARK: - Data Fetching
 
+    private func checkAllowance() {
+        Task {
+            let isNeedAllowance = try await interactor.isNeedAllowance()
+
+            if !isNeedAllowance {
+                fetchCrossChainTx()
+            }
+            await MainActor.run {
+                self.view?.setButtonLoadingState(isLoading: false)
+                view?.setApproveButtonVisible(isNeedAllowance)
+            }
+        }
+    }
+
+    private func fetchCrossChainTx() {
+        Task {
+            do {
+                let crossChainTx = try await interactor.fetchTransactionData(
+                    chainAsset: swapFromChainAsset,
+                    destinationChainAsset: swapToChainAsset,
+                    amount: amount,
+                    selectedDexIds: selectedDexIds
+                )
+
+                self.crossChainTx = crossChainTx
+                refreshFee()
+            } catch {
+                logger?.customError(error)
+            }
+        }
+    }
+
     private func refreshFee() {
-        guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first else {
+        guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, let crossChainTx else {
             return
         }
 
         Task {
-            let fee = try await interactor.estimateFee()
-            self.fromNetworkFee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
+            do {
+                await MainActor.run {
+                    view?.setButtonLoadingState(isLoading: true)
+                }
+
+                let fee = try await interactor.estimateFee(tx: crossChainTx)
+                self.fromNetworkFee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
+
+                await MainActor.run {
+                    view?.setButtonLoadingState(isLoading: false)
+                }
+            } catch {
+                logger?.customError(error)
+            }
         }
     }
 
     private func fetchInfo() {
-        guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first else {
-            return
-        }
-
         Task {
             do {
                 let swapSetupInfo = try await interactor.fetchSwapSetupInfo(
@@ -235,32 +280,30 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         provideAmountInfoViewModel()
         provideImageViewModel()
         subscribeOnBalance()
-        refreshFee()
         calculateTotalFiatFee()
         setupTimer()
         fetchInfo()
+        checkAllowance()
+
+        self.view?.setButtonLoadingState(isLoading: true)
     }
 
     func didTapConfirmButton() {
+        guard let crossChainTx, let view else {
+            fetchCrossChainTx()
+            router.present(error: ConvenienceError(error: "Cannot build a transaction. Please try again later."), from: view, locale: selectedLocale)
+            return
+        }
+
         let sendAmount = swap.fromAmount.flatMap { BigUInt(string: $0) }
         let sendAmountDecimal = sendAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(swapToChainAsset.asset.precision)) }
-
-        view?.didStartLoading()
-
-        let fee = fromNetworkFee
-        let nativeFee = swapFromChainAsset.asset.isUtility ? fee : .zero
+        let balance: BalanceType = swapFromChainAsset.asset.isUtility ? .utility(balance: swapFromBalance) : .orml(balance: swapFromBalance, utilityBalance: utilityBalance)
 
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fromNetworkFee, locale: selectedLocale, onError: {}),
             dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: .utility(balance: utilityBalance),
-                feeAndTip: nativeFee,
-                sendAmount: .zero,
-                locale: selectedLocale
-            ),
-            dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: .utility(balance: swapFromBalance),
-                feeAndTip: fee,
+                balanceType: balance,
+                feeAndTip: fromNetworkFee,
                 sendAmount: sendAmountDecimal,
                 locale: selectedLocale
             )
@@ -269,13 +312,21 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
                 return
             }
 
+            self.view?.setButtonLoadingState(isLoading: true)
+
             Task {
                 do {
-                    let txHash = try await self.interactor.confirmSwap()
+                    let txHash = try await self.interactor.confirmSwap(tx: crossChainTx)
                     let transaction = AssetTransactionData(transactionId: txHash, status: .pending, assetId: "", peerId: "", peerFirstName: nil, peerLastName: nil, peerName: nil, details: "", amount: AmountDecimal(value: sendAmountDecimal.or(.zero)), fees: [], timestamp: Int64(Date().timeIntervalSince1970), type: "", reason: nil, context: nil)
-                    self.router.presentStatusTrackingScreen(transaction: transaction, chainAsset: self.swapFromChainAsset, wallet: self.wallet, from: self.view)
+
+                    await MainActor.run {
+                        self.router.presentStatusTrackingScreen(transaction: transaction, chainAsset: self.swapFromChainAsset, wallet: self.wallet, from: self.view)
+                    }
                 } catch {
-                    self.router.present(error: error, from: self.view, locale: self.selectedLocale)
+                    await MainActor.run {
+                        self.view?.setButtonLoadingState(isLoading: false)
+                        self.router.presentError(for: error.localizedDescription, message: "", view: view, locale: self.selectedLocale)
+                    }
                 }
             }
         }
@@ -283,7 +334,34 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
 
     func didTapBackButton() {
         timer?.invalidate()
+        timer = nil
+
         router.dismiss(view: view)
+    }
+
+    func didTapApproveButton() {
+        view?.setButtonLoadingState(isLoading: true)
+
+        Task {
+            do {
+                _ = try await interactor.approveSpending()
+
+                await MainActor.run {
+                    self.view?.setButtonLoadingState(isLoading: false)
+                    view?.setApproveButtonVisible(false)
+                    fetchCrossChainTx()
+                }
+
+            } catch {
+                await MainActor.run {
+                    view?.setButtonLoadingState(isLoading: false)
+
+                    if let view = view {
+                        self.router.presentError(for: error.localizedDescription, message: "", view: view, locale: self.selectedLocale)
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -301,7 +379,7 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmInteractorOutput 
                     )
                 } ?? .zero
             }
-            if swapFromChainAsset == chainAsset {
+            if swapFromChainAsset.chainAssetId == chainAsset.chainAssetId {
                 swapFromBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,

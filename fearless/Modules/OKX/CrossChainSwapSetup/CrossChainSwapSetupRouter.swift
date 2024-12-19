@@ -7,14 +7,16 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
         wallet: MetaAccountModel,
         output: SelectAssetModuleOutput,
         flow: MultichainChainFetchingFlow,
-        selectedChainAsset: ChainAsset?
+        selectedChainAsset: ChainAsset?,
+        filter: ((ChainAsset) throws -> Bool)?
     ) {
         guard let module = MultichainAssetSelectionAssembly.configureModule(
             flow: flow,
             wallet: wallet,
             selectAssetModuleOutput: output,
             contextTag: flow.contextTag,
-            selectedChainAsset: selectedChainAsset
+            selectedChainAsset: selectedChainAsset,
+            filter: filter
         ) else {
             return
         }
@@ -27,7 +29,7 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
         swapToChainAsset: ChainAsset,
         wallet: MetaAccountModel,
         amount: String,
-        selectedDexIds: [String],
+        selectedDexIds: [String]?,
         swap: CrossChainSwap,
         from view: ControllerBackedProtocol?
     ) {

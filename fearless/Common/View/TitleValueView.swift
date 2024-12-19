@@ -104,5 +104,7 @@ class TitleValueView: UIView {
             make.centerY.equalToSuperview()
             make.trailing.equalTo(valueStackView.snp.trailing)
         }
+
+        titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
     }
 }

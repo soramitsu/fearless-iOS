@@ -115,7 +115,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
         }
 
         switch transactionType {
-        case .incoming, .outgoing:
+        case .incoming, .outgoing, .bridge:
             return try createTransferItemFromData(
                 data,
                 locale: locale,
@@ -138,7 +138,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
                 data,
                 locale: locale
             )
-        case .unused, .bridge:
+        case .unused:
             return nil
         }
     }

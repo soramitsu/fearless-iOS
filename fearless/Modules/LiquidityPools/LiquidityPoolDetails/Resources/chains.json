@@ -1,4 +1,3 @@
-[
     [
         {
           "disabled": false,
@@ -7723,10 +7722,6 @@
           ],
           "nodes": [
               {
-                "url": "https://optimism-mainnet.blastapi.io/",
-                "name": "Blast https node"
-              },
-              {
                 "url": "https://optimism.publicnode.com/",
                 "name": "Public http node"
               },
@@ -9218,4 +9213,3 @@
         ]
       }
     ]
-]

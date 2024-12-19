@@ -44,9 +44,10 @@ final class CrossChainTxTrackingViewLayout: UIView {
 
     let walletNameView = createMultiView()
     let dateView = createMultiView()
-    let amountView = createMultiView()
-    let fromHashView = createMultiView()
-    let toHashView = createMultiView()
+    let fromAmountView = createMultiView()
+    let toAmountView = createMultiView()
+    let fromHashView = createTitleCopyableValueView()
+    let toHashView = createTitleCopyableValueView()
     let fromChainFeeView = createMultiView()
     let toChainFeeView = createMultiView()
     let statusRowLabel = createMultiView()
@@ -79,17 +80,19 @@ final class CrossChainTxTrackingViewLayout: UIView {
         statusDescriptionLabel.text = viewModel.statusDescription
         walletNameView.valueTop.text = viewModel.walletName
         dateView.valueTop.text = viewModel.date
-        amountView.bindBalance(viewModel: viewModel.amount)
-        fromHashView.valueTop.text = viewModel.fromChainTxHash
-        toHashView.valueTop.text = viewModel.toChainTxHash
+        fromAmountView.bindBalance(viewModel: viewModel.amount)
+        toAmountView.bindBalance(viewModel: viewModel.receivedAmount)
+        fromHashView.valueLabel.text = viewModel.fromChainTxHash
+        toHashView.valueLabel.text = viewModel.toChainTxHash
         toChainFeeView.bindBalance(viewModel: viewModel.toChainFee)
         fromChainFeeView.bindBalance(viewModel: viewModel.fromChainFee)
         statusRowLabel.valueTop.text = viewModel.detailStatus
 
-        fromHashView.isHidden = viewModel.fromHashViewTitle.isNullOrEmpty
-        toHashView.isHidden = viewModel.toHashViewTitle.isNullOrEmpty
+        fromHashView.isHidden = viewModel.fromChainTxHash.isNullOrEmpty
+        toHashView.isHidden = viewModel.toChainTxHash.isNullOrEmpty
         fromChainFeeView.isHidden = viewModel.fromChainFee == nil
         toChainFeeView.isHidden = viewModel.toChainFee == nil
+        toAmountView.isHidden = viewModel.receivedAmount == nil
 
         fromHashView.titleLabel.text = viewModel.fromHashViewTitle
         toHashView.titleLabel.text = viewModel.toHashViewTitle
@@ -108,7 +111,8 @@ final class CrossChainTxTrackingViewLayout: UIView {
         contentView.addArrangedSubview(statusDescriptionLabel)
         contentView.addArrangedSubview(walletNameView)
         contentView.addArrangedSubview(dateView)
-        contentView.addArrangedSubview(amountView)
+        contentView.addArrangedSubview(fromAmountView)
+        contentView.addArrangedSubview(toAmountView)
         contentView.addArrangedSubview(fromHashView)
         contentView.addArrangedSubview(toHashView)
         contentView.addArrangedSubview(fromChainFeeView)
@@ -129,9 +133,10 @@ final class CrossChainTxTrackingViewLayout: UIView {
             make.centerX.equalToSuperview()
         }
 
-        [walletNameView, dateView, amountView, fromHashView, toHashView, fromChainFeeView, toChainFeeView, statusRowLabel].forEach {
+        [walletNameView, dateView, fromAmountView, toAmountView, fromHashView, toHashView, fromChainFeeView, toChainFeeView, statusRowLabel].forEach {
             $0.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview().inset(16)
+                make.height.equalTo(60)
             }
         }
     }
@@ -141,16 +146,30 @@ final class CrossChainTxTrackingViewLayout: UIView {
 
         walletNameView.titleLabel.text = R.string.localizable.commonWallet(preferredLanguages: locale.rLanguages)
         dateView.titleLabel.text = R.string.localizable.transactionDetailDate(preferredLanguages: locale.rLanguages)
-        amountView.titleLabel.text = R.string.localizable.walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        fromAmountView.titleLabel.text = R.string.localizable.commonActionSend(preferredLanguages: locale.rLanguages)
+        toAmountView.titleLabel.text = R.string.localizable.stakingRewardDetailsStatusReceived(preferredLanguages: locale.rLanguages)
         statusRowLabel.titleLabel.text = R.string.localizable.transactionDetailStatus(preferredLanguages: locale.rLanguages)
     }
 
     private static func createMultiView() -> TitleMultiValueView {
         let view = UIFactory.default.createMultiView()
+        view.equalsLabelsWidth = true
         view.titleLabel.font = .h6Title
         view.valueTop.font = .h5Title
         view.valueTop.numberOfLines = 1
         view.valueTop.lineBreakMode = .byTruncatingMiddle
+        return view
+    }
+
+    private static func createTitleCopyableValueView() -> TitleCopyableValueView {
+        let view = TitleCopyableValueView()
+        view.equalsLabelsWidth = true
+        view.titleLabel.font = .h6Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueLabel.font = .h5Title
+        view.valueLabel.textColor = R.color.colorWhite()
+        view.valueLabel.lineBreakMode = .byTruncatingMiddle
+        view.borderView.borderType = .none
         return view
     }
 }

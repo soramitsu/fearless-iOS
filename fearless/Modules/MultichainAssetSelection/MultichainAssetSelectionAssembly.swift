@@ -10,7 +10,8 @@ final class MultichainAssetSelectionAssembly {
         wallet: MetaAccountModel,
         selectAssetModuleOutput: SelectAssetModuleOutput?,
         contextTag: Int? = nil,
-        selectedChainAsset: ChainAsset?
+        selectedChainAsset: ChainAsset?,
+        filter: ((ChainAsset) throws -> Bool)?
     ) -> MultichainAssetSelectionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -29,7 +30,8 @@ final class MultichainAssetSelectionAssembly {
             logger: Logger.shared,
             selectAssetModuleOutput: selectAssetModuleOutput,
             assetFetching: assetFetching,
-            selectedChainAsset: selectedChainAsset
+            selectedChainAsset: selectedChainAsset,
+            filter: filter
         )
         guard let selectAssetModule = createSelectAssetModule(
             wallet: wallet,

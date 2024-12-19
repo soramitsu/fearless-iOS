@@ -1,9 +1,13 @@
 import Foundation
 import SSFNetwork
 
+enum OKXDexAggregatorServiceError: Error {
+    case noCachedData
+}
+
 protocol OKXDexAggregatorService {
     func fetchAvailableChains() async throws -> OKXResponse<OKXSupportedChain>
-    func fetchAllTokens(parameters: OKXDexAllTokensRequestParameters) async throws -> OKXResponse<OKXToken>
+    func fetchAllTokens(parameters: OKXDexAllTokensRequestParameters, preferredDataSourceType: PreferredDataSourceType) async throws -> OKXResponse<OKXToken>
     func fetchLiquiditySources(parameters: OKXDexLiquiditySourceRequestParameters) async throws -> OKXResponse<OKXLiquiditySource>
     func fetchQuotes(parameters: OKXDexQuotesRequestParameters) async throws -> OKXResponse<OKXQuote>
     func fetchApproveTransactionInfo(parameters: OKXDexApproveRequestParameters) async throws -> OKXResponse<OKXApproveTransaction>
@@ -12,6 +16,7 @@ protocol OKXDexAggregatorService {
     func fetchAvailableDestinationTokens(parameters: OKXDexCrossChainSupportedBridgeTokensPairsParameters) async throws -> OKXResponse<OKXAvailableDestination>
     func fetchCrossChainTransactionStatus(parameters: OKXDexCrossChainStatusParameters) async throws -> OKXResponse<OKXCrossChainTransactionStatus>
     func fetchCrossChainQuote(parameters: OKXDexCrossChainQuoteParameters) async throws -> OKXResponse<OKXCrossChainQuote>
+    func fetchTransactionByHash(parameters: OKXWalletTransactionByHashParameters) async throws -> OKXResponse<OKXTransactionHistoryElement>
 }
 
 final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
@@ -33,7 +38,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         return response
     }
 
-    func fetchAllTokens(parameters: OKXDexAllTokensRequestParameters) async throws -> OKXResponse<OKXToken> {
+    func fetchAllTokens(parameters: OKXDexAllTokensRequestParameters, preferredDataSourceType: PreferredDataSourceType) async throws -> OKXResponse<OKXToken> {
         let request = RequestConfig(
             baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
             method: .get,
@@ -44,7 +49,25 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         )
 
         request.signingType = .custom(signer: signer)
-        let response: OKXResponse<OKXToken> = try await networkWorker.performRequest(with: request)
+
+        var response: OKXResponse<OKXToken>
+
+        switch preferredDataSourceType {
+        case .cache:
+            guard let cached: OKXResponse<OKXToken> = try await networkWorker.fetchCached(with: request) else {
+                throw OKXDexAggregatorServiceError.noCachedData
+            }
+
+            response = cached
+        case .remote:
+            response = try await networkWorker.performRequest(with: request)
+        case .combine:
+            if let cached: OKXResponse<OKXToken> = try await networkWorker.fetchCached(with: request) {
+                response = cached
+            } else {
+                response = try await networkWorker.performRequest(with: request)
+            }
+        }
 
         try validateResponseCode(response.code, msg: response.msg)
 

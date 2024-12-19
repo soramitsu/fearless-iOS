@@ -1,57 +1,72 @@
 import SSFModels
 import Web3
 
-final class OKXSwapsDataFetching {
+final class OKXCrossChainDataFetching {
     private let okxService: OKXDexAggregatorService
     private let wallet: MetaAccountModel
-    private let ethereumService: EthereumService
 
     init(
         okxService: OKXDexAggregatorService,
-        wallet: MetaAccountModel,
-        ethereumService: EthereumService
+        wallet: MetaAccountModel
     ) {
         self.okxService = okxService
         self.wallet = wallet
-        self.ethereumService = ethereumService
     }
 }
 
-extension OKXSwapsDataFetching: OKXDataFetching {
+extension OKXCrossChainDataFetching: OKXDataFetching {
     func fetchQuoteInfo(
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
         selectedDexIds: [String]?
     ) async throws -> OKXQuoteInfo? {
-        guard let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress() else {
-            throw CrossChainSwapSetupInteractorError.accountNotFound
-        }
-
-        let dexIds = (selectedDexIds?.joined(by: ", ")).map { String($0) }
-
-        guard
-            let fromTokenAddress = sourceChainAsset.asset.currencyId,
-            let toTokenAddress = destinationChainAsset.asset.currencyId
-        else {
-            throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
-        }
-
-        let parameters = OKXDexSwapRequestParameters(
-            chainId: sourceChainAsset.chain.chainId,
+        let fromTokenAddress = sourceChainAsset.asset.currencyId ?? sourceChainAsset.asset.id
+        let toTokenAddress = destinationChainAsset.asset.currencyId ?? destinationChainAsset.asset.id
+        let quoteParameters = OKXDexCrossChainQuoteParameters(
+            fromChainId: sourceChainAsset.chain.chainId,
+            toChainId: destinationChainAsset.chain.chainId,
             amount: amount,
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
+            sort: 1,
             slippage: "0.01",
-            userWalletAddress: address,
-            dexIds: dexIds
+            allowBridge: selectedDexIds?.compactMap { UInt32($0) }
         )
 
-        let swap = try await okxService.fetchSwapInfo(parameters: parameters).data?.first
-        let gas = swap?.routerResult.estimateGasFee
-        let gasPrice = try await ethereumService.queryGasPrice()
-        let fee = gas.flatMap { BigUInt(string: $0).or(.zero) * gasPrice.quantity }
+        let swap = try await okxService.fetchCrossChainQuote(parameters: quoteParameters).data?.first
+        let feeString = swap?.routerList.first?.fromChainNetworkFee
+
+        let fee = feeString.flatMap { BigUInt(string: $0) }
 
         return OKXQuoteInfo(fee: fee, swap: swap)
+    }
+
+    func fetchTransactionData(
+        sourceChainAsset: ChainAsset,
+        destinationChainAsset: ChainAsset,
+        amount: String,
+        selectedDexIds: [String]?
+    ) async throws -> CrossChainTx? {
+        guard let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress() else {
+            throw ChainAccountFetchingError.accountNotExists
+        }
+
+        let fromTokenAddress = sourceChainAsset.asset.currencyId ?? sourceChainAsset.asset.id
+        let toTokenAddress = destinationChainAsset.asset.currencyId ?? destinationChainAsset.asset.id
+        let quoteParameters = OKXDexCrossChainBuildTxParameters(
+            fromChainId: sourceChainAsset.chain.chainId,
+            toChainId: destinationChainAsset.chain.chainId,
+            amount: amount,
+            fromTokenAddress: fromTokenAddress,
+            toTokenAddress: toTokenAddress,
+            sort: 1,
+            slippage: "0.025",
+            userWalletAddress: address,
+            allowBridge: selectedDexIds?.compactMap { UInt32($0) }
+        )
+
+        let swap = try await okxService.fetchSwapInfo(parameters: quoteParameters).data?.first
+        return swap
     }
 }

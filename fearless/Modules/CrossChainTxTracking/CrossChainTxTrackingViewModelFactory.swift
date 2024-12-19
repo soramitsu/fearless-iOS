@@ -24,6 +24,7 @@ protocol CrossChainTxTrackingViewModelFactory {
         transaction: AssetTransactionData,
         status: OKXCrossChainTransactionStatus,
         sourceChainAsset: ChainAsset,
+        destinationChainAsset: ChainAsset?,
         locale: Locale,
         wallet: MetaAccountModel
     ) -> CrossChainTxTrackingViewModel
@@ -33,16 +34,29 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
     func buildSwapViewModel(
         transaction: AssetTransactionData,
         status: OKXCrossChainTransactionStatus,
-        sourceChainAsset: SSFModels.ChainAsset,
+        sourceChainAsset: ChainAsset,
+        destinationChainAsset: ChainAsset?,
         locale: Locale,
         wallet: MetaAccountModel
     ) -> CrossChainTxTrackingViewModel {
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
+        let destinationBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationChainAsset)
         let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
         let statusViewModels = buildSwapStatusViewModels(
             chainAsset: sourceChainAsset,
             status: status
         )
+
+        let toAmountViewModel = destinationChainAsset.flatMap {
+            let toAmountValue = BigUInt(string: status.toAmount)
+            let toAmountDecimal = Decimal.fromSubstrateAmount(toAmountValue.or(.zero), precision: Int16($0.asset.precision))
+
+            return destinationBalanceViewModelFactory?.balanceFromPrice(
+                toAmountDecimal.or(.zero),
+                priceData: $0.asset.getPrice(for: wallet.selectedCurrency),
+                usageCase: .detailsCrypto
+            )
+        }
 
         let sourceUtilityChainAsset = sourceChainAsset.chain.utilityChainAssets().first
         let sourceUtilityBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceUtilityChainAsset)
@@ -71,6 +85,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             walletName: address,
             date: date,
             amount: amountViewModel?.value(for: locale),
+            receivedAmount: toAmountViewModel?.value(for: locale),
             fromChainTxHash: status.fromTxHash,
             toChainTxHash: status.toTxHash,
             fromChainFee: sourceFeeViewModel?.value(for: locale),
@@ -111,6 +126,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             walletName: address,
             date: date,
             amount: amountViewModel?.value(for: locale),
+            receivedAmount: nil,
             fromChainTxHash: status.fromTxHash,
             toChainTxHash: status.toTxHash,
             fromChainFee: sourceFeeViewModel?.value(for: locale),
@@ -134,6 +150,16 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         let date = DateFormatter.crossChainDate.value(for: locale).string(from: Date(timeIntervalSince1970: TimeInterval(transaction.timestamp)))
 
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
+        let destinationBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationChainAsset)
+
+        let toAmountValue = BigUInt(string: status.toAmount)
+        let toAmountDecimal = Decimal.fromSubstrateAmount(toAmountValue.or(.zero), precision: Int16(destinationChainAsset.asset.precision))
+
+        let toAmountViewModel = destinationBalanceViewModelFactory?.balanceFromPrice(
+            toAmountDecimal.or(.zero),
+            priceData: destinationChainAsset.asset.getPrice(for: wallet.selectedCurrency),
+            usageCase: .detailsCrypto
+        )
 
         let amountValue = BigUInt(string: status.fromAmount)
         let amountDecimal = Decimal.fromSubstrateAmount(amountValue.or(.zero), precision: Int16(sourceChainAsset.asset.precision))
@@ -174,6 +200,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             walletName: address,
             date: date,
             amount: amountViewModel?.value(for: locale),
+            receivedAmount: toAmountViewModel?.value(for: locale),
             fromChainTxHash: status.fromTxHash,
             toChainTxHash: status.toTxHash,
             fromChainFee: sourceFeeViewModel?.value(for: locale),
@@ -188,11 +215,11 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
 
     private func statusTitle(detailStatus: OKXCrossChainTxDetailStatus, locale: Locale) -> String? {
         switch detailStatus {
-        case .waiting, .fromSuccess, .bridgePending:
+        case .waiting, .fromSuccess, .bridgePending, .notFound, .bridgeSuccess:
             return R.string.localizable.crossChainTxStatusPendingTitle(preferredLanguages: locale.rLanguages)
         case .fromFailure:
             return R.string.localizable.crossChainTxStatusSourceFailTitle(preferredLanguages: locale.rLanguages)
-        case .bridgeSuccess, .success:
+        case .success:
             return R.string.localizable.crossChainTxStatusDoneTitle(preferredLanguages: locale.rLanguages)
         case .refund:
             return R.string.localizable.commonRefund(preferredLanguages: locale.rLanguages)
@@ -206,11 +233,11 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         destinationChainAsset: ChainAsset
     ) -> String? {
         switch detailStatus {
-        case .waiting, .fromSuccess, .bridgePending:
+        case .waiting, .fromSuccess, .bridgePending, .notFound, .bridgeSuccess:
             return R.string.localizable.crossChainTxStatusPendingDescription(sourceChainAsset.asset.symbol.uppercased(), sourceChainAsset.chain.name, destinationChainAsset.chain.name, preferredLanguages: locale.rLanguages)
         case .fromFailure:
             return R.string.localizable.crossChainTxStatusSourceFailDescription(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages)
-        case .bridgeSuccess, .success:
+        case .success:
             return R.string.localizable.crossChainTxStatusDoneDescription(preferredLanguages: locale.rLanguages)
         case .refund:
             return R.string.localizable.crossChainTxStatusDestinationFailDescription(destinationChainAsset.chain.name, preferredLanguages: locale.rLanguages)
@@ -245,7 +272,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
 
     private func buildSourceStepStatus(status: OKXCrossChainTxDetailStatus) -> CrossChainStepStatus {
         switch status {
-        case .waiting:
+        case .waiting, .notFound:
             return .pending
         case .fromSuccess:
             return .success
@@ -254,7 +281,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         case .bridgePending:
             return .success
         case .bridgeSuccess:
-            return .success
+            return .pending
         case .success:
             return .success
         case .refund:
@@ -273,11 +300,13 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         case .bridgePending:
             return .pending
         case .bridgeSuccess:
-            return .success
+            return .pending
         case .success:
             return .success
         case .refund:
             return .refund
+        case .notFound:
+            return .pending
         }
     }
 

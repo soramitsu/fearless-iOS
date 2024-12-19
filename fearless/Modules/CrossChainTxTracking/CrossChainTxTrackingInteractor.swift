@@ -54,7 +54,7 @@ extension CrossChainTxTrackingInteractor: CrossChainTxTrackingInteractorInput {
 
     func fetchChainAssets(chain: ChainModel) async throws -> [ChainAsset] {
         let parameters = OKXDexAllTokensRequestParameters(chainId: chain.chainId)
-        let tokens = try await okxService.fetchAllTokens(parameters: parameters).data
+        let tokens = try await okxService.fetchAllTokens(parameters: parameters, preferredDataSourceType: .combine).data
 
         guard let tokens else {
             return []

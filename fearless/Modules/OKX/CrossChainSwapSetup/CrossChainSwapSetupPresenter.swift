@@ -128,7 +128,7 @@ final class CrossChainSwapSetupPresenter {
     }
 
     private func fetchInfo() {
-        guard let swapFromChainAsset, let swapToChainAsset, let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first else {
+        guard let swapFromChainAsset, let swapToChainAsset, let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, amountUnwrapped.isNotEmpty else {
             return
         }
         Task {
@@ -526,7 +526,8 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
             wallet: wallet,
             output: self,
             flow: .okxSource,
-            selectedChainAsset: swapFromChainAsset
+            selectedChainAsset: swapFromChainAsset,
+            filter: { $0.chainAssetId != self.swapToChainAsset?.chainAssetId }
         )
     }
 
@@ -540,7 +541,8 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
             wallet: wallet,
             output: self,
             flow: .okxDestination(sourceChainId: swapFromChainAsset.chain.chainId),
-            selectedChainAsset: swapToChainAsset
+            selectedChainAsset: swapToChainAsset,
+            filter: { $0.chainAssetId != swapFromChainAsset.chainAssetId }
         )
     }
 
@@ -557,23 +559,18 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
     }
 
     func didTapContinueButton() {
-        guard let swapFromChainAsset, let swapToChainAsset, let swap, let automaticallySelectedDexId else {
+        guard let swapFromChainAsset, let swapToChainAsset, let swap else {
             return
         }
 
-        let fee = fromNetworkFee
-        let nativeFee = swapFromChainAsset.asset.isUtility ? fee : .zero
+        let automaticallySelectedDexIds = automaticallySelectedDexId.flatMap { [$0] }
+
+        let balance: BalanceType = swapFromChainAsset.asset.isUtility ? .utility(balance: swapFromBalance) : .orml(balance: swapFromBalance, utilityBalance: utilityBalance)
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fromNetworkFee, locale: selectedLocale, onError: {}),
             dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: .utility(balance: utilityBalance),
-                feeAndTip: nativeFee,
-                sendAmount: .zero,
-                locale: selectedLocale
-            ),
-            dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: .utility(balance: swapFromBalance),
-                feeAndTip: fee,
+                balanceType: balance,
+                feeAndTip: fromNetworkFee,
                 sendAmount: swapFromInputResult?.absoluteValue(from: swapFromBalance.or(.zero)),
                 locale: selectedLocale
             )
@@ -587,7 +584,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
                 swapToChainAsset: swapToChainAsset,
                 wallet: self.wallet,
                 amount: amountUnwrapped,
-                selectedDexIds: selectedDexIds ?? [automaticallySelectedDexId],
+                selectedDexIds: selectedDexIds ?? automaticallySelectedDexIds,
                 swap: swap,
                 from: self.view
             )

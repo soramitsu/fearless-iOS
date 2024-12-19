@@ -52,6 +52,8 @@ struct OKXCrossChainTransactionStatus: Decodable {
             return .refund
         case .none:
             return .fromFailure
+        case .notFound:
+            return .notFound
         }
     }
 }

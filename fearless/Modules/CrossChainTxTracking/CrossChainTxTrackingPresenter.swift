@@ -67,6 +67,8 @@ final class CrossChainTxTrackingPresenter {
     }
 
     private func handleCrossChainTransaction(_ status: OKXCrossChainTransactionStatus) async throws {
+        print("debug-txs: tx: ", status)
+
         guard
             let sourceChain = try await interactor.queryChain(chainId: status.fromChainId),
             let destinationChain = try await interactor.queryChain(chainId: status.toChainId)
@@ -75,6 +77,7 @@ final class CrossChainTxTrackingPresenter {
         }
 
         let sourceChainAssets = try await interactor.fetchChainAssets(chain: sourceChain)
+        try await Task.sleep(nanoseconds: UInt64(1 * Double(NSEC_PER_SEC)))
         let destinationChainAssets = try await interactor.fetchChainAssets(chain: destinationChain)
 
         guard
@@ -97,10 +100,18 @@ final class CrossChainTxTrackingPresenter {
     }
 
     private func handleSwapTransaction(_ status: OKXCrossChainTransactionStatus) async throws {
+        print("debug-txs: tx: ", status)
+        guard let sourceChain = try await interactor.queryChain(chainId: status.fromChainId) else {
+            return
+        }
+        let okxChainAssets = try await interactor.fetchChainAssets(chain: sourceChain)
+        let destinationChainAsset = okxChainAssets.first(where: { $0.asset.id.lowercased() == status.toTokenAddress.lowercased() })
+
         let viewModel = viewModelFactory.buildSwapViewModel(
             transaction: transaction,
             status: status,
             sourceChainAsset: chainAsset,
+            destinationChainAsset: destinationChainAsset,
             locale: selectedLocale,
             wallet: wallet
         )
@@ -124,6 +135,7 @@ final class CrossChainTxTrackingPresenter {
 
                 let isCrossChain = status.toChainId.isNotEmpty
 
+                print("debug-txs: isCrossChain: ", isCrossChain)
                 if isCrossChain {
                     try await handleCrossChainTransaction(status)
                 } else {
@@ -154,6 +166,13 @@ extension CrossChainTxTrackingPresenter: CrossChainTxTrackingViewOutput {
 
     func didTapBackButton() {
         router.dismiss(view: view)
+    }
+
+    func didTapCopy() {
+        router.presentStatus(
+            with: CommonCopiedEvent(locale: selectedLocale),
+            animated: true
+        )
     }
 }
 

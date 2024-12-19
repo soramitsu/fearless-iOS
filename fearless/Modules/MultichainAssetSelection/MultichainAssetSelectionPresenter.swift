@@ -10,7 +10,7 @@ protocol MultichainAssetSelectionViewInput: ControllerBackedProtocol {
 protocol MultichainAssetSelectionInteractorInput: AnyObject {
     func setup(with output: MultichainAssetSelectionInteractorOutput)
     func fetchChains() async throws -> [ChainModel]
-    func fetchAssets(for chain: ChainModel) async throws -> [ChainAsset]
+    func fetchAssets(for chain: ChainModel, preferredDataSourceType: PreferredDataSourceType) async throws -> [ChainAsset]
 }
 
 final class MultichainAssetSelectionPresenter {
@@ -26,6 +26,7 @@ final class MultichainAssetSelectionPresenter {
     private var selectedChainId: ChainModel.Id?
     private var chains: [ChainModel]?
     private let assetFetching: MultichainAssetFetching
+    private var filter: ((ChainAsset) throws -> Bool)?
 
     // MARK: - Constructors
 
@@ -37,7 +38,8 @@ final class MultichainAssetSelectionPresenter {
         logger: LoggerProtocol,
         selectAssetModuleOutput: SelectAssetModuleOutput?,
         assetFetching: MultichainAssetFetching,
-        selectedChainAsset: ChainAsset?
+        selectedChainAsset: ChainAsset?,
+        filter: ((ChainAsset) throws -> Bool)?
     ) {
         self.interactor = interactor
         self.router = router
@@ -45,6 +47,8 @@ final class MultichainAssetSelectionPresenter {
         self.logger = logger
         self.selectAssetModuleOutput = selectAssetModuleOutput
         self.assetFetching = assetFetching
+        self.filter = filter
+
         selectedChainId = selectedChainAsset?.chain.chainId
 
         self.localizationManager = localizationManager
@@ -104,22 +108,39 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
     }
 
     func didSelect(chain: ChainModel) {
-        selectAssetModuleInput?.runLoading()
         selectedChainId = chain.chainId
         provideViewModel()
 
         Task {
             do {
-                let availableChainAssets = try await interactor.fetchAssets(for: chain)
+                if let cachedChainAssets = try? await interactor.fetchAssets(for: chain, preferredDataSourceType: .cache) {
+                    var filtered = cachedChainAssets
 
-                await MainActor.run {
-                    print("assets list update with chain: ", (availableChainAssets.first?.chain.name).or(""))
-                    selectAssetModuleInput?.update(with: availableChainAssets)
+                    if let filter {
+                        filtered = try cachedChainAssets.filter(filter)
+                    }
+
+                    await MainActor.run { [filtered] in
+                        selectAssetModuleInput?.update(with: filtered)
+                    }
+                } else {
+                    await MainActor.run {
+                        selectAssetModuleInput?.runLoading()
+                    }
+                }
+
+                let availableChainAssets = try await interactor.fetchAssets(for: chain, preferredDataSourceType: .remote)
+                var filtered = availableChainAssets
+
+                if let filter {
+                    filtered = try availableChainAssets.filter(filter)
+                }
+
+                await MainActor.run { [filtered] in
+                    selectAssetModuleInput?.update(with: filtered)
                 }
             } catch {
-                await MainActor.run {
-                    selectAssetModuleInput?.update(with: [])
-                }
+                logger.customError(error)
             }
         }
     }

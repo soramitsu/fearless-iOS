@@ -73,6 +73,13 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         return button
     }()
 
+    let approveButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyEnabledStyle()
+        button.isHidden = true
+        return button
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorBlack19()
@@ -117,6 +124,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
     private func applyLocalization() {
         confirmButton.imageWithTitleView?.title = R.string.localizable
             .commonConfirm(preferredLanguages: locale.rLanguages)
+        approveButton.imageWithTitleView?.title = R.string.localizable.commonApprove(preferredLanguages: locale.rLanguages)
 
         titleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
         originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
@@ -151,6 +159,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
 
         addSubview(contentView)
         addSubview(confirmButton)
+        addSubview(approveButton)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
@@ -173,6 +182,12 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         }
 
         confirmButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        approveButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)

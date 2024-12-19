@@ -11,7 +11,8 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
         wallet: MetaAccountModel,
         output: SelectAssetModuleOutput,
         flow: MultichainChainFetchingFlow,
-        selectedChainAsset: ChainAsset?
+        selectedChainAsset: ChainAsset?,
+        filter: ((ChainAsset) throws -> Bool)?
     )
 
     func presentConfirm(
@@ -19,7 +20,7 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
         swapToChainAsset: ChainAsset,
         wallet: MetaAccountModel,
         amount: String,
-        selectedDexIds: [String],
+        selectedDexIds: [String]?,
         swap: CrossChainSwap,
         from view: ControllerBackedProtocol?
     )

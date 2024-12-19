@@ -4,6 +4,7 @@ import SoraFoundation
 protocol CrossChainTxTrackingViewOutput: AnyObject {
     func didLoad(view: CrossChainTxTrackingViewInput)
     func didTapBackButton()
+    func didTapCopy()
 }
 
 final class CrossChainTxTrackingViewController: UIViewController, ViewHolder {
@@ -41,6 +42,14 @@ final class CrossChainTxTrackingViewController: UIViewController, ViewHolder {
 
         rootView.navigationBar.backButton.addAction { [weak self] in
             self?.output.didTapBackButton()
+        }
+
+        rootView.fromHashView.onCopy = { [weak self] in
+            self?.output.didTapCopy()
+        }
+
+        rootView.toHashView.onCopy = { [weak self] in
+            self?.output.didTapCopy()
         }
     }
 

@@ -8,4 +8,5 @@ enum OKXCrossChainTxDetailStatus: String {
     case bridgeSuccess = "BRIDGE_SUCCESS" // (Bridge success)
     case success = "SUCCESS" // (Order success)
     case refund = "REFUND" // (Order failure, refund)
+    case notFound = "NOT_FOUND"
 }

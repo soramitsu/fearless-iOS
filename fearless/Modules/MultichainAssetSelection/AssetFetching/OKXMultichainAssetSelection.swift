@@ -10,14 +10,14 @@ class OKXMultichainAssetFetching: MultichainAssetFetching {
         self.sourceChainId = sourceChainId
     }
 
-    func fetchAssets(for chain: ChainModel) async throws -> [ChainAsset] {
+    func fetchAssets(for chain: ChainModel, preferredDataSourceType: PreferredDataSourceType) async throws -> [ChainAsset] {
         guard chain.isSora == false else {
             return chain.chainAssets
         }
 
         let params = OKXDexAllTokensRequestParameters(chainId: chain.chainId)
 
-        let okxTokens = try await okxService.fetchAllTokens(parameters: params).data
+        let okxTokens = try await okxService.fetchAllTokens(parameters: params, preferredDataSourceType: preferredDataSourceType).data
 
         guard let okxTokens else {
             return []

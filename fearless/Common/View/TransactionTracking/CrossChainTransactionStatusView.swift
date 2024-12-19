@@ -53,11 +53,13 @@ final class CrossChainTransactionStatusView: UIView {
                 make.centerY.equalToSuperview()
                 switch i {
                 case 1:
+                    make.leading.greaterThanOrEqualToSuperview()
                     make.centerX.equalToSuperview().offset(-16)
                 case 2:
                     make.centerX.equalToSuperview()
                 case 3:
                     make.centerX.equalToSuperview().offset(16)
+                    make.trailing.lessThanOrEqualToSuperview()
                 default:
                     break
                 }

@@ -11,7 +11,7 @@ final class CrossChainSwapConfirmAssembly {
         swapToChainAsset: ChainAsset,
         wallet: MetaAccountModel,
         amount: String,
-        selectedDexIds: [String],
+        selectedDexIds: [String]?,
         swap: CrossChainSwap
     ) -> CrossChainSwapConfirmModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -46,7 +46,6 @@ final class CrossChainSwapConfirmAssembly {
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             okxService: okxService,
             amount: amount,
-            selectedDexIds: selectedDexIds,
             swap: swap,
             dependencyContainer: dependencyContainer
         )

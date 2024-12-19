@@ -22,7 +22,6 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let okxService: OKXDexAggregatorService
     private let amount: String
-    private let selectedDexIds: [String]
     private let swap: CrossChainSwap
 
     init(
@@ -32,7 +31,6 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         okxService: OKXDexAggregatorService,
         amount: String,
-        selectedDexIds: [String],
         swap: CrossChainSwap,
         dependencyContainer: CrossChainDependencyContainer
     ) {
@@ -42,7 +40,6 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.okxService = okxService
         self.amount = amount
-        self.selectedDexIds = selectedDexIds
         self.swap = swap
 
         super.init(dependencyContainer: dependencyContainer)
@@ -68,7 +65,7 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         }
 
         let fromTokensParameters = OKXDexAllTokensRequestParameters(chainId: swapFromChainAsset.chain.chainId)
-        let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters)
+        let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters, preferredDataSourceType: .combine)
 
         guard
             let fromTokenAddress = fromTokens.data?.first(where: { $0.tokenSymbol.lowercased() == swapFromChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
@@ -85,7 +82,40 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         return approveTransaction
     }
 
-    private func isNeedAllowance() async throws -> Bool {
+    private func sendApproveTransaction(approveTransaction: OKXApproveTransaction) async throws -> String {
+        try await swapService.approve(
+            approveTransaction: approveTransaction,
+            chain: swapFromChainAsset.chain,
+            chainAsset: swapFromChainAsset
+        )
+    }
+}
+
+// MARK: - CrossChainSwapConfirmInteractorInput
+
+extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput {
+    func setup(with output: CrossChainSwapConfirmInteractorOutput) {
+        self.output = output
+    }
+
+    func confirmSwap(tx: CrossChainTx) async throws -> String {
+        let response = try await swapService.swap(swap: tx, chainAsset: swapFromChainAsset)
+        return response
+    }
+
+    func estimateFee(tx: CrossChainTx) async throws -> BigUInt {
+        try await swapService.estimateFee(swap: tx, chainAsset: swapFromChainAsset)
+    }
+
+    func subscribeOnBalance(for chainAssets: [ChainAsset]) {
+        accountInfoSubscriptionAdapter.subscribe(
+            chainsAssets: chainAssets,
+            handler: self,
+            deliveryOn: .main
+        )
+    }
+
+    func isNeedAllowance() async throws -> Bool {
         guard !swapFromChainAsset.asset.isUtility else {
             return false
         }
@@ -102,42 +132,9 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         return allowance < amount
     }
 
-    private func sendApproveTransaction(approveTransaction: OKXApproveTransaction) async throws {
-        _ = try await swapService.approve(
-            approveTransaction: approveTransaction,
-            chain: swapFromChainAsset.chain,
-            chainAsset: swapFromChainAsset
-        )
-    }
-}
-
-// MARK: - CrossChainSwapConfirmInteractorInput
-
-extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput {
-    func setup(with output: CrossChainSwapConfirmInteractorOutput) {
-        self.output = output
-    }
-
-    func confirmSwap() async throws -> String {
-        if try await isNeedAllowance() {
-            let approveTransaction = try await fetchApproveTransaction()
-            try await sendApproveTransaction(approveTransaction: approveTransaction)
-        }
-
-        let response = try await swapService.swap(swap: swap, chain: swapFromChainAsset.chain)
-        return response
-    }
-
-    func estimateFee() async throws -> BigUInt {
-        try await swapService.estimateFee(swap: swap)
-    }
-
-    func subscribeOnBalance(for chainAssets: [ChainAsset]) {
-        accountInfoSubscriptionAdapter.subscribe(
-            chainsAssets: chainAssets,
-            handler: self,
-            deliveryOn: .main
-        )
+    func approveSpending() async throws -> String {
+        let approveTransaction = try await fetchApproveTransaction()
+        return try await sendApproveTransaction(approveTransaction: approveTransaction)
     }
 }
 

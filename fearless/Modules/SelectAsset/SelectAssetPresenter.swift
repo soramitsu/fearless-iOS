@@ -151,7 +151,6 @@ extension SelectAssetPresenter: SelectAssetInteractorOutput {
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
         case let .success(chainAssets):
-//            self.chainAssets = chainAssets
             handle(chainAssets: chainAssets)
         case let .failure(error):
             router.present(error: error, from: view, locale: selectedLocale)
@@ -176,7 +175,6 @@ extension SelectAssetPresenter: SelectAssetModuleInput {
 
     func runLoading() {
         chainAssets = []
-        viewModels = []
         accountInfos = [:]
 
         view?.didReload()

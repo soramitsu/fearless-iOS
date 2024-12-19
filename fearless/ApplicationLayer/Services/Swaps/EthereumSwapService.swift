@@ -10,8 +10,8 @@ enum OKXEthereumSwapServiceError: Error {
 
 protocol OKXEthereumSwapService {
     func swap(
-        swap: CrossChainSwap,
-        chain: ChainModel
+        swap: CrossChainTx,
+        chainAsset: ChainAsset
     ) async throws -> String
 
     func getAllowance(
@@ -26,7 +26,8 @@ protocol OKXEthereumSwapService {
     ) async throws -> String
 
     func estimateFee(
-        swap: CrossChainSwap
+        swap: CrossChainTx,
+        chainAsset: ChainAsset
     ) async throws -> BigUInt
 }
 
@@ -57,11 +58,12 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         else {
             throw OKXEthereumSwapServiceError.invalidChainId
         }
-        let contractAddress = try EthereumAddress(rawAddress: chainAsset.asset.id.hexToBytes())
+
+        let contractAddress = EthereumAddress(hexString: chainAsset.asset.id)
         let data = try EthereumData.string(approveTransaction.data)
         let chainId = EthereumQuantity(integerLiteral: intChainId)
-        let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
-        let nonce = try await queryNonce(ethereumAddress: senderAddress)
+        let ethSenderAddress = try EthereumAddress(hex: senderAddress, eip55: false)
+        let nonce = try await queryNonce(ethereumAddress: ethSenderAddress)
 
         let tx = EthereumTransaction(
             nonce: nonce,
@@ -95,28 +97,29 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
     }
 
     func swap(
-        swap: CrossChainSwap,
-        chain: ChainModel
+        swap: CrossChainTx,
+        chainAsset: ChainAsset
     ) async throws -> String {
         guard
             let swapGasLimit = swap.gasLimit,
-            let txData = swap.txData,
             let swapGasPrice = swap.gasPrice,
             let maxPriorityFeePerGas = swap.maxPriorityFeePerGas,
-            let senderAddress = try EthereumAddress(rawAddress: swap.from?.hexToBytes())
+            let senderAddress = try EthereumAddress(rawAddress: swap.sender?.hexToBytes()),
+            let swapFromAmount = swap.amount
         else {
             throw EthereumServiceError.invalidTransaction
         }
 
         guard
-            let intChainId = UInt64(chain.chainId)
+            let intChainId = UInt64(chainAsset.chain.chainId)
         else {
             throw OKXEthereumSwapServiceError.invalidChainId
         }
 
         let chainId = EthereumQuantity(integerLiteral: intChainId)
+        let value = BigUInt(string: swapFromAmount)
 
-        let data = EthereumData(txData.hexToBytes())
+        let data = try EthereumData(ethereumValue: EthereumValue(stringLiteral: swap.transactionHex))
 
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
 
@@ -128,8 +131,8 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         let ethereumGasPrice = EthereumQuantity(quantity: gasPriceValue)
         let ethereumMaxPriorityFeePerGas = EthereumQuantity(quantity: maxPriorityFeePerGasValue)
 
-        let ethereumValue = EthereumQuantity(quantity: .zero)
-        let contractAddress = try EthereumAddress(rawAddress: swap.contractAddress?.hexToBytes())
+        let ethereumValue = chainAsset.isUtility ? EthereumQuantity(quantity: value) : EthereumQuantity(quantity: .zero)
+        let contractAddress = EthereumAddress(hexString: swap.address)
 
         let supportsEip1559 = await checkChainSupportEip1559()
         let transactionType: EthereumTransaction.TransactionType = supportsEip1559 ? .eip1559 : .legacy
@@ -169,20 +172,19 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
         }
     }
 
-    func estimateFee(swap: CrossChainSwap) async throws -> BigUInt {
+    func estimateFee(swap: CrossChainTx, chainAsset: ChainAsset) async throws -> BigUInt {
         guard
-            let swapFromAmount = swap.fromAmount,
-            let txData = swap.txData,
-            let contractAddress = try EthereumAddress(rawAddress: swap.contractAddress?.hexToBytes())
+            let swapFromAmount = swap.amount,
+            let contractAddress = EthereumAddress(hexString: swap.address)
         else {
             throw EthereumServiceError.invalidTransaction
         }
 
-        let data = EthereumData(txData.hexToBytes())
+        let data = try EthereumData(ethereumValue: EthereumValue(stringLiteral: swap.transactionHex))
         let value = BigUInt(string: swapFromAmount)
         let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
         let gasPrice = try await queryGasPrice()
-        let ethereumValue = EthereumQuantity(quantity: value)
+        let ethereumValue: EthereumQuantity? = chainAsset.isUtility ? EthereumQuantity(quantity: value) : nil
 
         let call = EthereumCall(from: senderAddress, to: contractAddress, value: ethereumValue, data: data)
         let gasLimit = try await queryGasLimit(call: call)

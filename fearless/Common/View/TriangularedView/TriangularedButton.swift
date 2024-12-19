@@ -86,11 +86,11 @@ class TriangularedButton: BackgroundedContentControl {
         isUserInteractionEnabled = !loading
 
         if loading {
-            activityIndicator.startAnimating()
             applyDisabledStyle()
+            activityIndicator.startAnimating()
         } else {
             activityIndicator.stopAnimating()
-            set(enabled: isEnabled, changeStyle: false)
+            set(enabled: isEnabled, changeStyle: true)
         }
     }
 }
