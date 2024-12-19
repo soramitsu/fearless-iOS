@@ -144,22 +144,6 @@ extension WalletDetailsPresenter: WalletDetailsInteractorOutputProtocol {
                 self.wireframe.present(from: view, url: url)
             case let .tonviewer(url):
                 self.wireframe.present(from: view, url: url)
-            case .replace:
-                let model = UniqueChainModel(meta: self.flow.wallet, chain: chainAccount.chain)
-                let options: [ReplaceChainOption] = ReplaceChainOption.allCases
-                self.wireframe.showUniqueChainSourceSelection(
-                    from: view,
-                    items: options,
-                    callback: { [weak self] selectedIndex in
-                        let option = options[selectedIndex]
-                        switch option {
-                        case .create:
-                            self?.wireframe.showCreate(uniqueChainModel: model, from: view)
-                        case .import:
-                            self?.wireframe.showImport(uniqueChainModel: model, from: view)
-                        }
-                    }
-                )
             case let .oklink(url: url):
                 self.wireframe.present(from: view, url: url)
             }
@@ -210,7 +194,7 @@ private extension WalletDetailsPresenter {
     }
 
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
-        var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
+        var actions: [ChainAction] = [.copyAddress, .switchNode, .export]
         if let explorers = chain.externalApi?.explorers {
             let explorerActions: [ChainAction] = explorers.compactMap {
                 switch $0.type {

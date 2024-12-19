@@ -8703,7 +8703,8 @@
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/shared-features-utils/master/icons/tokens/coloured/TON.svg",
     "addressPrefix": 0,
-    "options": ["remoteAssets"]
+    "options": ["remoteAssets"],
+    "tonBridgeUrl": "https://fearless-ton-bridge.tachi.soramitsu.co.jp"
   },
   {
     "disabled": false,
@@ -8751,6 +8752,7 @@
     "options": [
         "remoteAssets",
         "testnet"
-    ]
+    ],
+    "tonBridgeUrl": "https://fearless-ton-bridge.tachi.soramitsu.co.jp"
   }
 ]

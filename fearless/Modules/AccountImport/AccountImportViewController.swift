@@ -105,7 +105,7 @@ private extension AccountImportViewController {
         switch presenter.flow {
         case .wallet:
             title = R.string.localizable.importWallet(preferredLanguages: locale.rLanguages)
-        case .chain:
+        case .chain, .ethereum:
             title = R.string.localizable.onboardingRestoreAccount(preferredLanguages: locale.rLanguages)
         }
 

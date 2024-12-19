@@ -13,7 +13,8 @@ final class ConnectedAccountsAssembly {
         let interactor = ConnectedAccountsInteractor(
             wallet: wallet,
             chainRepository: ServiceAssembly.shared.asyncChainModelRepository(),
-            walletBalanceSubscriptionAdapter: ServiceAssembly.shared.walletBalanceSubscriptionAdapter
+            walletBalanceSubscriptionAdapter: ServiceAssembly.shared.walletBalanceSubscriptionAdapter, 
+            eventCenter: ServiceAssembly.shared.eventCenter
         )
         let router = ConnectedAccountsRouter()
 

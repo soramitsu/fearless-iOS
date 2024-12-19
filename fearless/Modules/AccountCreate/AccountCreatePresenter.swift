@@ -157,6 +157,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 selectedCryptoType = cryptoType
             }
             view?.set(chainType: model.chain.isEthereumBased ? .ethereum : .substrate)
+        case .ethereum:
+            view?.set(chainType: .ethereum)
         }
         applySubstrateCryptoTypeViewModel()
         applySubstrateDerivationPathViewModel()
@@ -285,13 +287,12 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 return
             }
             let request = ChainAccountImportMnemonicRequest(
+                wallet: model.meta,
                 mnemonic: mnemonic,
                 username: usernameSetup.username,
                 derivationPath: model.chain.isEthereumBased ? ethereumDerivationPath : substrateDerivationPath,
                 cryptoType: model.chain.isEthereumBased ? .ecdsa : selectedCryptoType,
-                ecosystem: model.chain.ecosystem,
-                meta: model.meta,
-                chainId: model.chain.chainId
+                chains: [model.chain]
             )
             wireframe.confirm(from: view, flow: .chain(request))
         case .backup:
@@ -311,6 +312,20 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 request: request,
                 from: view
             )
+        case .ethereum(wallet: let wallet, chains: let chains):
+            guard let mnemonic = interactor.createMnemonicFromString(mnemonic.joined(separator: " ")) else {
+                didReceiveMnemonicGeneration(error: AccountCreateError.invalidMnemonicFormat)
+                return
+            }
+            let request = ChainAccountImportMnemonicRequest(
+                wallet: wallet,
+                mnemonic: mnemonic,
+                username: usernameSetup.username,
+                derivationPath: ethereumDerivationPath,
+                cryptoType: .ecdsa,
+                chains: chains
+            )
+            wireframe.confirm(from: view, flow: .chain(request))
         }
     }
 

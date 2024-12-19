@@ -523,175 +523,194 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
         }
     }
 
-    func importChainAccountOperation(request: ChainAccountImportMnemonicRequest) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(
+        request: ChainAccountImportMnemonicRequest
+    ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let metaId = request.meta.metaId
+            var updatedWallet = request.wallet
+            
+            try request.chains.forEach { chain in
+                let metaId = request.wallet.metaId
+                let accountId: AccountId
+                let privateKey: Data
+                let publicKey: Data
+                switch chain.ecosystem {
+                case .substrate:
+                    let query = try getQuery(
+                        seedSource: .mnemonic(request.mnemonic),
+                        derivationPath: request.derivationPath,
+                        cryptoType: request.cryptoType,
+                        ethereumBased: false
+                    )
+                    accountId = try query.publicKey.publicKeyToAccountId()
+                    privateKey = query.privateKey
+                    publicKey = query.publicKey
+                    try saveSeed(query.seed, metaId: metaId, ecosystem: chain.ecosystem)
+                case .ethereum, .ethereumBased:
+                    let query = try getQuery(
+                        seedSource: .mnemonic(request.mnemonic),
+                        derivationPath: request.derivationPath,
+                        cryptoType: request.cryptoType,
+                        ethereumBased: true
+                    )
+                    accountId = try query.publicKey.ethereumAddressFromPublicKey()
+                    privateKey = query.privateKey
+                    publicKey = query.publicKey
+                    try saveSeed(query.seed, metaId: metaId, ecosystem: chain.ecosystem)
+                case .ton:
+                    throw AccountOperationFactoryError.unsupportedImport
+                }
 
-            let accountId: AccountId
-            let privateKey: Data
-            let publicKey: Data
-            switch request.ecosystem {
-            case .substrate:
-                let query = try getQuery(
-                    seedSource: .mnemonic(request.mnemonic),
-                    derivationPath: request.derivationPath,
-                    cryptoType: request.cryptoType,
-                    ethereumBased: false
+                try saveSecretKey(
+                    privateKey,
+                    metaId: metaId,
+                    ecosystem: chain.ecosystem,
+                    accountId: accountId
                 )
-                accountId = try query.publicKey.publicKeyToAccountId()
-                privateKey = query.privateKey
-                publicKey = query.publicKey
-                try saveSeed(query.seed, metaId: metaId, ecosystem: request.ecosystem)
-            case .ethereum, .ethereumBased:
-                let query = try getQuery(
-                    seedSource: .mnemonic(request.mnemonic),
-                    derivationPath: request.derivationPath,
-                    cryptoType: request.cryptoType,
-                    ethereumBased: true
+
+                try saveDerivationPath(
+                    request.derivationPath,
+                    metaId: metaId,
+                    accountId: accountId,
+                    ethereumBased: chain.ecosystem.isEthereum || chain.ecosystem.isEthereumBased
                 )
-                accountId = try query.publicKey.ethereumAddressFromPublicKey()
-                privateKey = query.privateKey
-                publicKey = query.publicKey
-                try saveSeed(query.seed, metaId: metaId, ecosystem: request.ecosystem)
-            case .ton:
-                throw AccountOperationFactoryError.unsupportedImport
+
+                try saveEntropy(request.mnemonic.entropy(), metaId: metaId, accountId: accountId)
+
+                let chainAccount = ChainAccountModel(
+                    chainId: chain.chainId,
+                    accountId: accountId,
+                    publicKey: publicKey,
+                    cryptoType: request.cryptoType.rawValue,
+                    ecosystem: chain.ecosystem
+                )
+
+                updatedWallet = updatedWallet.insertingChainAccount(chainAccount)
             }
-
-            try saveSecretKey(
-                privateKey,
-                metaId: metaId,
-                ecosystem: request.ecosystem,
-                accountId: accountId
-            )
-
-            try saveDerivationPath(
-                request.derivationPath,
-                metaId: metaId,
-                accountId: accountId,
-                ethereumBased: request.ecosystem.isEthereum || request.ecosystem.isEthereumBased
-            )
-
-            try saveEntropy(request.mnemonic.entropy(), metaId: metaId, accountId: accountId)
-
-            let chainAccount = ChainAccountModel(
-                chainId: request.chainId,
-                accountId: accountId,
-                publicKey: publicKey,
-                cryptoType: request.cryptoType.rawValue,
-                ecosystem: request.ecosystem
-            )
-
-            return request.meta.insertingChainAccount(chainAccount)
+            return updatedWallet
         }
     }
 
-    func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(
+        request: ChainAccountImportSeedRequest
+    ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let seed = try Data(hexStringSSF: request.seed)
-            let query = try getQuery(
-                seedSource: .seed(seed),
-                derivationPath: request.derivationPath,
-                cryptoType: request.cryptoType,
-                ethereumBased: request.ecosystem.isEthereum || request.ecosystem.isEthereumBased
-            )
+            var updatedWallet = request.wallet
+            
+            try request.chains.forEach { chain in
+                let seed = try Data(hexStringSSF: request.seed)
+                let query = try getQuery(
+                    seedSource: .seed(seed),
+                    derivationPath: request.derivationPath,
+                    cryptoType: request.cryptoType,
+                    ethereumBased: chain.ecosystem.isEthereum || chain.ecosystem.isEthereumBased
+                )
 
-            let accountId: AccountId
-            switch request.ecosystem {
-            case .substrate:
-                accountId = try query.publicKey.publicKeyToAccountId()
-            case .ethereum, .ethereumBased:
-                accountId = try query.publicKey.ethereumAddressFromPublicKey()
-            case .ton:
-                throw AccountOperationFactoryError.unsupportedImport
+                let accountId: AccountId
+                switch chain.ecosystem {
+                case .substrate:
+                    accountId = try query.publicKey.publicKeyToAccountId()
+                case .ethereum, .ethereumBased:
+                    accountId = try query.publicKey.ethereumAddressFromPublicKey()
+                case .ton:
+                    throw AccountOperationFactoryError.unsupportedImport
+                }
+                let metaId = request.wallet.metaId
+
+                try saveSecretKey(
+                    query.privateKey,
+                    metaId: metaId,
+                    ecosystem: chain.ecosystem,
+                    accountId: accountId
+                )
+
+                try saveDerivationPath(
+                    request.derivationPath,
+                    metaId: metaId,
+                    accountId: accountId,
+                    ethereumBased: chain.ecosystem.isEthereum || chain.ecosystem.isEthereumBased
+                )
+
+                try saveSeed(seed, metaId: metaId, ecosystem: chain.ecosystem)
+
+                let chainAccount = ChainAccountModel(
+                    chainId: chain.chainId,
+                    accountId: accountId,
+                    publicKey: query.publicKey,
+                    cryptoType: request.cryptoType.rawValue,
+                    ecosystem: chain.ecosystem
+                )
+
+                updatedWallet = updatedWallet.insertingChainAccount(chainAccount)
             }
-            let metaId = request.meta.metaId
-
-            try saveSecretKey(
-                query.privateKey,
-                metaId: metaId,
-                ecosystem: request.ecosystem,
-                accountId: accountId
-            )
-
-            try saveDerivationPath(
-                request.derivationPath,
-                metaId: metaId,
-                accountId: accountId,
-                ethereumBased: request.ecosystem.isEthereum || request.ecosystem.isEthereumBased
-            )
-
-            try saveSeed(seed, metaId: metaId, ecosystem: request.ecosystem)
-
-            let chainAccount = ChainAccountModel(
-                chainId: request.chainId,
-                accountId: accountId,
-                publicKey: query.publicKey,
-                cryptoType: request.cryptoType.rawValue,
-                ecosystem: request.ecosystem
-            )
-
-            return request.meta.insertingChainAccount(chainAccount)
+            return updatedWallet
         }
     }
 
-    func importChainAccountOperation(request: ChainAccountImportKeystoreRequest) -> BaseOperation<MetaAccountModel> {
+    func importChainAccountOperation(
+        request: ChainAccountImportKeystoreRequest
+    ) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
             let keystoreExtractor = KeystoreExtractor()
-
-            guard let data = request.keystore.data(using: .utf8) else {
-                throw AccountOperationFactoryError.invalidKeystore
-            }
-
-            let keystoreDefinition = try JSONDecoder().decode(
-                KeystoreDefinition.self,
-                from: data
-            )
-
-            guard let keystore = try? keystoreExtractor
-                .extractFromDefinition(keystoreDefinition, password: request.password) else {
-                throw AccountOperationFactoryError.decryption
-            }
-
-            let publicKey: IRPublicKeyProtocol
-            let accountId: Data
-            switch request.ecosystem {
-            case .substrate:
-                switch request.cryptoType {
-                case .sr25519:
-                    publicKey = try SNPublicKey(rawData: keystore.publicKeyData)
-                case .ed25519:
-                    publicKey = try EDPublicKey(rawData: keystore.publicKeyData)
-                case .ecdsa:
-                    publicKey = try SECPublicKey(rawData: keystore.publicKeyData)
+            var updatedWallet = request.wallet
+            
+            try request.chains.forEach { chain in
+                guard let data = request.keystore.data(using: .utf8) else {
+                    throw AccountOperationFactoryError.invalidKeystore
                 }
-                accountId = try publicKey.rawData().publicKeyToAccountId()
-            case .ethereum, .ethereumBased:
-                if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
-                    publicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
-                } else {
+
+                let keystoreDefinition = try JSONDecoder().decode(
+                    KeystoreDefinition.self,
+                    from: data
+                )
+
+                guard let keystore = try? keystoreExtractor
+                    .extractFromDefinition(keystoreDefinition, password: request.password) else {
                     throw AccountOperationFactoryError.decryption
                 }
-                accountId = try publicKey.rawData().ethereumAddressFromPublicKey()
-            case .ton:
-                throw AccountOperationFactoryError.unsupportedImport
+
+                let publicKey: IRPublicKeyProtocol
+                let accountId: Data
+                switch chain.ecosystem {
+                case .substrate:
+                    switch request.cryptoType {
+                    case .sr25519:
+                        publicKey = try SNPublicKey(rawData: keystore.publicKeyData)
+                    case .ed25519:
+                        publicKey = try EDPublicKey(rawData: keystore.publicKeyData)
+                    case .ecdsa:
+                        publicKey = try SECPublicKey(rawData: keystore.publicKeyData)
+                    }
+                    accountId = try publicKey.rawData().publicKeyToAccountId()
+                case .ethereum, .ethereumBased:
+                    if let privateKey = try? SECPrivateKey(rawData: keystore.secretKeyData) {
+                        publicKey = try SECKeyFactory().derive(fromPrivateKey: privateKey).publicKey()
+                    } else {
+                        throw AccountOperationFactoryError.decryption
+                    }
+                    accountId = try publicKey.rawData().ethereumAddressFromPublicKey()
+                case .ton:
+                    throw AccountOperationFactoryError.unsupportedImport
+                }
+
+                try saveSecretKey(
+                    keystore.secretKeyData,
+                    metaId: request.wallet.metaId,
+                    ecosystem: chain.ecosystem,
+                    accountId: accountId
+                )
+
+                let chainAccount = ChainAccountModel(
+                    chainId: chain.chainId,
+                    accountId: accountId,
+                    publicKey: publicKey.rawData(),
+                    cryptoType: request.cryptoType.rawValue,
+                    ecosystem: chain.ecosystem
+                )
+                updatedWallet = updatedWallet.insertingChainAccount(chainAccount)
             }
 
-            try saveSecretKey(
-                keystore.secretKeyData,
-                metaId: request.meta.metaId,
-                ecosystem: request.ecosystem,
-                accountId: accountId
-            )
-
-            let chainAccount = ChainAccountModel(
-                chainId: request.chainId,
-                accountId: accountId,
-                publicKey: publicKey.rawData(),
-                cryptoType: request.cryptoType.rawValue,
-                ecosystem: request.ecosystem
-            )
-
-            return request.meta.insertingChainAccount(chainAccount)
+            return updatedWallet
         }
     }
 }

@@ -18,6 +18,7 @@ struct UniqueChainModel {
 enum AccountImportFlow {
     case chain(model: UniqueChainModel)
     case wallet(step: AccountCreationStep)
+    case ethereum(wallet: MetaAccountModel, chains: [ChainModel])
 
     var isEthereumFlow: Bool {
         switch self {
@@ -30,6 +31,8 @@ enum AccountImportFlow {
             case .ethereum:
                 return true
             }
+        case .ethereum:
+            return true
         }
     }
 
@@ -66,7 +69,7 @@ struct UniqueChainImportRequestData {
     let selectedCryptoType: CryptoType
     let password: String
     let meta: MetaAccountModel
-    let chain: ChainModel
+    let chains: [ChainModel]
 }
 
 struct PreferredData {
@@ -162,6 +165,9 @@ private extension AccountImportPresenter {
             case .ton:
                 view?.setSource(type: .tonMnemonic, chainType: .ton, selectable: false)
             }
+        case .ethereum(wallet: let wallet, chains: let chains):
+            selectedCryptoType = .ecdsa
+            view?.setSource(type: selectedSourceType, chainType: .ethereum, selectable: false)
         }
 
         applySourceTextViewModel(value)
@@ -177,6 +183,8 @@ private extension AccountImportPresenter {
             case let .ethereum(data):
                 username = data.username
             }
+        case let .ethereum(wallet, _):
+            username = wallet.name
         }
         applyUsernameViewModel(username)
         applyPasswordViewModel()
@@ -249,7 +257,7 @@ private extension AccountImportPresenter {
         switch flow {
         case .wallet:
             visible = true
-        case .chain:
+        case .chain, .ethereum:
             visible = false
         }
 
@@ -296,6 +304,9 @@ private extension AccountImportPresenter {
                     applySubstrateDerivationPathViewModel()
                     view?.show(chainType: .substrate)
                 }
+            case .ethereum:
+                applyEthereumDerivationPathViewModel()
+                view?.show(chainType: .ethereum)
             }
         case .seed:
             applyCryptoTypeViewModel(cryptoType)
@@ -512,11 +523,27 @@ private extension AccountImportPresenter {
                 selectedCryptoType: data.selectedCryptoType,
                 password: data.password,
                 meta: model.meta,
-                chain: model.chain
+                chains: [model.chain]
             )
-            importUniqueChain(data: data)
+            importUniqueChains(data: data, isEthereum: model.chain.isEthereumBased)
         case let .wallet(step):
             importMetaAccount(data: data, step: step)
+        case let .ethereum(wallet, chains):
+            guard let chain = chains.first else {
+                return
+            }
+            let derivationPath = data.ethereumDerivationPath
+            let data = UniqueChainImportRequestData(
+                selectedSourceType: data.selectedSourceType,
+                source: data.source,
+                username: data.username,
+                derivationPath: derivationPath,
+                selectedCryptoType: data.selectedCryptoType,
+                password: data.password,
+                meta: wallet,
+                chains: chains
+            )
+            importUniqueChains(data: data, isEthereum: true)
         }
     }
 
@@ -634,7 +661,10 @@ private extension AccountImportPresenter {
         wireframe.showEthereumStep(from: view, with: data)
     }
 
-    func importUniqueChain(data: UniqueChainImportRequestData) {
+    func importUniqueChains(
+        data: UniqueChainImportRequestData,
+        isEthereum: Bool
+    ) {
         var source: UniqueChainImportRequestSource
         switch data.selectedSourceType {
         case .mnemonic:
@@ -663,13 +693,16 @@ private extension AccountImportPresenter {
             return
         }
         let request = UniqueChainImportRequest(
-            source: source,
             username: data.username,
-            cryptoType: data.chain.isEthereumBased ? .ecdsa : data.selectedCryptoType,
-            meta: data.meta,
-            chain: data.chain
+            cryptoType: isEthereum ? .ecdsa : data.selectedCryptoType,
+            chains: data.chains
         )
-        interactor.importUniqueChain(request: request)
+
+        interactor.importUniqueChain(
+            source: source,
+            wallet: data.meta,
+            request: request
+        )
     }
 
     func validateSource(with value: String) -> Error? {

@@ -397,7 +397,7 @@ private extension AccountCreateViewLayout {
             backupButton.snp.makeConstraints { make in
                 make.height.equalTo(UIConstants.actionHeight)
             }
-        case .chain:
+        case .chain, .ethereum:
             backupButton.isHidden = true
         case .backup:
             expandableControl.isHidden = true
@@ -409,7 +409,7 @@ private extension AccountCreateViewLayout {
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
         switch flow {
-        case .wallet, .chain:
+        case .wallet, .chain, .ethereum:
             detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
             nextButton.imageWithTitleView?.title = R.string.localizable
                 .accountConfirmationTitle(preferredLanguages: locale.rLanguages)

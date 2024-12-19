@@ -285,7 +285,6 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         items.append(.export)
         if chainAsset.chain.ecosystem.isSubstrate || chainAsset.chain.ecosystem.isEthereumBased {
             items.append(.switchNode)
-            items.append(.replace)
         }
         if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 
@@ -310,8 +309,6 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                     from: self.view,
                     chain: self.chainAsset.chain
                 )
-            case .replace:
-                self.startReplaceAccountFlow()
             case .claimCrowdloanRewards:
                 self.wireframe.showClaimCrowdloanRewardsFlow(from: self.view, chainAsset: self.chainAsset, wallet: self.wallet)
             default:

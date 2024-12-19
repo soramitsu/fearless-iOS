@@ -2,6 +2,57 @@ import Foundation
 import SSFModels
 
 final class ConnectedAccountsRouter: ConnectedAccountsRouterInput {
+    func showUniqueChainSourceSelection(
+        from view: (any ControllerBackedProtocol)?,
+        items: [ReplaceChainOption],
+        callback: @escaping ModalPickerSelectionCallback
+    ) {
+        let actionsView = ModalPickerFactory.createPickerForList(
+            items,
+            callback: callback,
+            context: nil
+        )
+
+        guard let actionsView = actionsView else {
+            return
+        }
+
+        view?.controller.navigationController?.present(actionsView, animated: true)
+    }
+    
+    func showCreate(
+        wallet: SSFModels.MetaAccountModel,
+        chains: [SSFModels.ChainModel],
+        from view: (any ControllerBackedProtocol)?
+    ) {
+        guard let createController = AccountCreateViewFactory.createViewForOnboarding(
+            ecosystem: .regular,
+            model: UsernameSetupModel(username: wallet.name),
+            flow: .ethereum(wallet: wallet, chains: chains)
+        )?.controller else {
+            return
+        }
+        createController.hidesBottomBarWhenPushed = true
+        view?.controller.navigationController?.pushViewController(createController, animated: true)
+    }
+    
+    func showImport(
+        wallet: SSFModels.MetaAccountModel,
+        chains: [SSFModels.ChainModel],
+        defaultSource: AccountImportSource,
+        from view: (any ControllerBackedProtocol)?
+    ) {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(
+            defaultSource: defaultSource,
+            flow: .ethereum(wallet: wallet, chains: chains)
+        )?.controller else {
+            return
+        }
+        importController.hidesBottomBarWhenPushed = true
+        let navigationController = FearlessNavigationController(rootViewController: importController)
+        view?.controller.navigationController?.present(navigationController, animated: true)
+    }
+    
     func showAccountDetails(
         from view: ControllerBackedProtocol?,
         metaAccount: MetaAccountModel
