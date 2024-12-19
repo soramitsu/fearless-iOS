@@ -46,6 +46,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceive(availableChainAssets: [ChainAsset])
     func didReceiveAssetFrozen(_ frozen: Decimal?)
     func didReceiveAssetFrozenError(_ error: Error)
+    func didCheckOkxSwap(available: Bool)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
