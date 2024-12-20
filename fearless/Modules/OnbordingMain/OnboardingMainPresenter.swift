@@ -89,7 +89,12 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
 
     func activateSignup() {
         guard let ecosystem else { return }
-        wireframe.showSignup(from: view, ecosystem: ecosystem)
+        switch ecosystem {
+        case .regular:
+            wireframe.showSignup(from: view, ecosystem: ecosystem)
+        case .ton:
+            interactor.createTonAccount()
+        }
     }
 
     func activateAccountRestore() {
@@ -170,6 +175,12 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
 }
 
 extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
+    func didCompleteConfirmation() {
+        wireframe.didCompleteCreate(from: view)
+    }
+    
+    func didReceive(error: any Error) {}
+    
     func didSuggestKeystoreImport() {
         wireframe.showKeystoreImport(from: view)
     }

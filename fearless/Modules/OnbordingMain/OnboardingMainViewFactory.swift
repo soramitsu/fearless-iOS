@@ -64,7 +64,10 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
             keystoreImportService: kestoreImportService,
             cloudStorage: cloudStorage,
             featureToggleService: featureToggleProvider,
-            operationQueue: OperationQueue()
+            operationQueue: OperationQueue(),
+            accountOperationFactory: MetaAccountOperationFactory(keystore: Keychain()),
+            settings: SelectedWalletSettings.shared,
+            eventCenter: ServiceAssembly.shared.eventCenter
         )
 
         let presenter = OnboardingMainPresenter(
