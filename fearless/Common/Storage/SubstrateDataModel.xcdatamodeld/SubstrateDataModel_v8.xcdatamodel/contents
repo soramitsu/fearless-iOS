@@ -65,7 +65,7 @@
         <attribute name="apiQueryName" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String" defaultValueString=""/>
         <attribute name="url" attributeType="URI"/>
-        <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="nodes" inverseEntity="CDChain"/>
+        <relationship name="chain" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="CDChain" inverseName="nodes" inverseEntity="CDChain"/>
         <uniquenessConstraints>
             <uniquenessConstraint>
                 <constraint value="url"/>
