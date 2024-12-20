@@ -19,18 +19,21 @@ final class CrossChainSwapSetupInteractor: CrossChainBaseInteractor {
     private let okxService: OKXDexAggregatorService
     private let balanceFetching: EthereumRemoteBalanceFetching
     private let accountInfoFetchingProvider: AccountInfoFetching
+    private let assetFetching: MultichainAssetFetching
 
     init(
         okxService: OKXDexAggregatorService,
         wallet: MetaAccountModel,
         balanceFetching: EthereumRemoteBalanceFetching,
         accountInfoFetchingProvider: AccountInfoFetching,
-        dependencyContainer: CrossChainDependencyContainer
+        dependencyContainer: CrossChainDependencyContainer,
+        assetFetching: MultichainAssetFetching
     ) {
         self.okxService = okxService
         self.wallet = wallet
         self.balanceFetching = balanceFetching
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
+        self.assetFetching = assetFetching
 
         super.init(dependencyContainer: dependencyContainer)
     }
@@ -62,5 +65,15 @@ extension CrossChainSwapSetupInteractor: CrossChainSwapSetupInteractorInput {
 
         let merged = try await local.merging(remote) { local, remote in remote ?? local }
         return merged
+    }
+
+    func fetchOkxChainAsset(nativeChainAsset: ChainAsset) async throws -> ChainAsset? {
+        let chainAssets = try await assetFetching.fetchAssets(for: nativeChainAsset.chain, preferredDataSourceType: .combine)
+
+        if nativeChainAsset.isUtility {
+            return chainAssets.first { $0.isUtility }
+        }
+
+        return chainAssets.first { $0.asset.symbol.lowercased() == nativeChainAsset.asset.symbol.lowercased() }
     }
 }

@@ -18,6 +18,7 @@ protocol CrossChainSwapSetupInteractorInput: AnyObject, CrossChainBaseInteractor
     func setup(with output: CrossChainSwapSetupInteractorOutput)
     func fetchBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?]
     func fetchDexs(chainAsset: ChainAsset) async throws -> OKXResponse<OKXLiquiditySource>
+    func fetchOkxChainAsset(nativeChainAsset: ChainAsset) async throws -> ChainAsset?
 }
 
 final class CrossChainSwapSetupPresenter {
@@ -29,6 +30,7 @@ final class CrossChainSwapSetupPresenter {
     private let interactor: CrossChainSwapSetupInteractorInput
     private let viewModelFactory: CrossChainSwapSetupViewModelFactory
     private let wallet: MetaAccountModel
+    private var initialChainAsset: ChainAsset?
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
     private var swapVariant: SwapVariant = .desiredInput
@@ -111,7 +113,7 @@ final class CrossChainSwapSetupPresenter {
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
-        swapFromChainAsset = chainAsset
+        initialChainAsset = chainAsset
         self.dataValidatingFactory = dataValidatingFactory
         self.moduleOutput = moduleOutput
         self.logger = logger
@@ -338,9 +340,11 @@ final class CrossChainSwapSetupPresenter {
 
     private func didSelectSourceChainAsset(_ chainAsset: ChainAsset?) {
         swapFromChainAsset = chainAsset
-//        swapFromInputResult = nil
         provideAssetViewModel()
-        view?.didReceiveViewModel(viewModel: nil)
+
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceiveViewModel(viewModel: nil)
+        }
 
         subscribeOnBalance()
         fetchInfo()
@@ -449,7 +453,7 @@ final class CrossChainSwapSetupPresenter {
     }
 
     @objc private func handleTimerTick() {
-//        fetchInfo()
+        fetchInfo()
     }
 
     private func setupTimer() {
@@ -476,6 +480,17 @@ final class CrossChainSwapSetupPresenter {
             self.didTapLiquiditySources()
         }
         view?.didReceiveError(viewModel: errorViewModel)
+    }
+
+    private func fetchInitialChainAsset() {
+        guard let initialChainAsset else {
+            return
+        }
+
+        Task {
+            let chainAsset = try await interactor.fetchOkxChainAsset(nativeChainAsset: initialChainAsset)
+            didSelectSourceChainAsset(chainAsset)
+        }
     }
 }
 
@@ -570,6 +585,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
         interactor.setup(with: self)
         provideAssetViewModel()
         subscribeOnBalance()
+        fetchInitialChainAsset()
     }
 
     func didTapBackButton() {

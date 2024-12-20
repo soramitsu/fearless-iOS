@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 import SSFModels
 import BigInt
 
@@ -146,13 +147,19 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         let destinationBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: destinationChainAsset)
 
         let toAmountValue = BigUInt(string: status.toAmount)
-        let toAmountDecimal = Decimal.fromSubstrateAmount(toAmountValue.or(.zero), precision: Int16(destinationChainAsset.asset.precision))
+        let toAmountViewModel: LocalizableResource<BalanceViewModelProtocol>? = toAmountValue.flatMap {
+            let toAmountDecimal = Decimal.fromSubstrateAmount($0, precision: Int16(destinationChainAsset.asset.precision))
 
-        let toAmountViewModel = destinationBalanceViewModelFactory?.balanceFromPrice(
-            toAmountDecimal.or(.zero),
-            priceData: destinationChainAsset.asset.getPrice(for: wallet.selectedCurrency),
-            usageCase: .detailsCrypto
-        )
+            guard let toAmountDecimal, toAmountDecimal > 0 else {
+                return nil
+            }
+
+            return destinationBalanceViewModelFactory?.balanceFromPrice(
+                toAmountDecimal,
+                priceData: destinationChainAsset.asset.getPrice(for: wallet.selectedCurrency),
+                usageCase: .detailsCrypto
+            )
+        }
 
         let amountValue = BigUInt(string: status.fromAmount)
         let amountDecimal = Decimal.fromSubstrateAmount(amountValue.or(.zero), precision: Int16(sourceChainAsset.asset.precision))
@@ -227,7 +234,9 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         destinationChainAsset: ChainAsset
     ) -> String? {
         switch detailStatus {
-        case .waiting, .fromSuccess, .bridgePending, .notFound, .bridgeSuccess:
+        case .notFound:
+            return nil
+        case .waiting, .fromSuccess, .bridgePending, .bridgeSuccess:
             return R.string.localizable.crossChainTxStatusPendingDescription(sourceChainAsset.asset.symbol.uppercased(), sourceChainAsset.chain.name, destinationChainAsset.chain.name, preferredLanguages: locale.rLanguages)
         case .fromFailure:
             return R.string.localizable.crossChainTxStatusSourceFailDescription(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages)
@@ -246,7 +255,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
         let destinationChainStepViewModel = CrossChainTransactionStepViewModel(status: destinationStepStatus, chain: chainAsset.chain, parentChain: nil)
         let destinationViewModel = CrossChainTransactionStatusViewModel(status: destinationStepStatus)
 
-        return [sourceChainStepViewModel, destinationViewModel, destinationChainStepViewModel]
+        return [sourceChainStepViewModel]
     }
 
     private func buildStatusViewModels(sourceChainAsset: ChainAsset, destinationChainAsset: ChainAsset, status: OKXCrossChainTxDetailStatus) -> [Any] {
