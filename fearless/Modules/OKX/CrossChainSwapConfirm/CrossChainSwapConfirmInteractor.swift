@@ -124,7 +124,7 @@ extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput 
             return false
         }
 
-        guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains().data?.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
+        guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains(preferredDataSourceType: .combine).data?.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
             throw CrossChainSwapConfirmInteractorError.invalidApproveTransactionResponse
         }
         let allowance = try await swapService.getAllowance(dexTokenApproveAddress: dexTokenApproveAddress, chainAsset: swapFromChainAsset)

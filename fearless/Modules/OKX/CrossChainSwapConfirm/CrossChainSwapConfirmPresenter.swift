@@ -320,6 +320,7 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
                     let transaction = AssetTransactionData(transactionId: txHash, status: .pending, assetId: "", peerId: "", peerFirstName: nil, peerLastName: nil, peerName: nil, details: "", amount: AmountDecimal(value: sendAmountDecimal.or(.zero)), fees: [], timestamp: Int64(Date().timeIntervalSince1970), type: "", reason: nil, context: nil)
 
                     await MainActor.run {
+                        self.handleDismissingSwipe()
                         self.router.presentStatusTrackingScreen(transaction: transaction, chainAsset: self.swapFromChainAsset, wallet: self.wallet, from: self.view)
                     }
                 } catch {

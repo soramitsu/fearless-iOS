@@ -164,13 +164,6 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         getAvailableChainAssets()
         fetchChainAssetBasedData()
         updateData()
-        Task {
-            do {
-                try await checkOkxSwapAvailable()
-            } catch {
-                print(error)
-            }
-        }
     }
 
     func getAvailableExportOptions(for address: String) {
@@ -236,17 +229,17 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         return (try? substrateCallFactory.vestingClaim()) != nil
     }
 
-    func checkOkxSwapAvailable() async throws {
-        let availableChains = try await chainFetching.fetchChains()
-        guard availableChains.contains(chainAsset.chain) else {
-            presenter?.didCheckOkxSwap(available: false)
-            return
+    func getOkxSwapAvailable(preferredDataSourceType: PreferredDataSourceType) async throws -> Bool {
+        let availableChainIds = try await chainFetching.fetchChains(preferredDataSourceType: preferredDataSourceType).map { $0.chainId }
+        guard availableChainIds.contains(chainAsset.chain.chainId) else {
+            return false
         }
-        let availableAssets = try await assetFetching.fetchAssets(
+        let availableChainAssetIds = try await assetFetching.fetchAssets(
             for: chainAsset.chain,
-            preferredDataSourceType: .cache
-        )
-        presenter?.didCheckOkxSwap(available: availableAssets.contains(chainAsset))
+            preferredDataSourceType: preferredDataSourceType
+        ).map { $0.chainAssetId }
+        let available = availableChainAssetIds.contains(chainAsset.chainAssetId)
+        return available
     }
 }
 

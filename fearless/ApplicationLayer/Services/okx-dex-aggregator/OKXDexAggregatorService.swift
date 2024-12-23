@@ -31,7 +31,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
     func fetchAvailableChains(preferredDataSourceType: PreferredDataSourceType) async throws -> OKXResponse<OKXSupportedChain> {
         let request = RequestConfig(baseURL: ApplicationConfig.shared.okxDexAggregatorURL, method: .get, endpoint: "/api/v5/dex/aggregator/supported/chain", headers: nil, body: nil)
         request.signingType = .custom(signer: signer)
-        var response: OKXResponse<OKXSupportedChain> = try await networkWorker.performRequest(with: request)
+        var response: OKXResponse<OKXSupportedChain>
 
         switch preferredDataSourceType {
         case .cache:
@@ -233,6 +233,24 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXCrossChainQuote> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+
+    func fetchTransactionByHash(parameters: OKXWalletTransactionByHashParameters) async throws -> OKXResponse<OKXTransactionHistoryElement> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/wallet/post-transaction/transaction-detail-by-txhash",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<OKXTransactionHistoryElement> = try await networkWorker.performRequest(with: request)
 
         try validateResponseCode(response.code, msg: response.msg)
 

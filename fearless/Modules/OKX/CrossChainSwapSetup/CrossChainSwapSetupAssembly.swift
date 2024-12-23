@@ -31,13 +31,14 @@ final class CrossChainSwapSetupAssembly {
             operationQueue: OperationQueue()
         )
         let dependencyContainer = CrossChainDependencyContainer(okxService: okxService, wallet: wallet)
-
+        let assetFetching = OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
         let interactor = CrossChainSwapSetupInteractor(
             okxService: okxService,
             wallet: wallet,
             balanceFetching: ethereumBalanceFetching,
             accountInfoFetchingProvider: accountInfoFetching,
-            dependencyContainer: dependencyContainer
+            dependencyContainer: dependencyContainer,
+            assetFetching: assetFetching
         )
         let router = CrossChainSwapSetupRouter()
 

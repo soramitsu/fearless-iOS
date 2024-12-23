@@ -19,5 +19,5 @@ enum MultichainChainFetchingFlow {
 }
 
 protocol MultichainChainFetching {
-    func fetchChains() async throws -> [ChainModel]
+    func fetchChains(preferredDataSourceType: PreferredDataSourceType) async throws -> [ChainModel]
 }

@@ -2501,7 +2501,7 @@
 		FA880E0C2C74A5A400F81F1F /* MultichainAssetSelectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880DFB2C74A5A400F81F1F /* MultichainAssetSelectionInteractor.swift */; };
 		FA880E0D2C74A5A400F81F1F /* MultichainAssetSelectionAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880DFC2C74A5A400F81F1F /* MultichainAssetSelectionAssembly.swift */; };
 		FA880E0E2C74A5A400F81F1F /* MultichainAssetFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880DFE2C74A5A400F81F1F /* MultichainAssetFetching.swift */; };
-		FA880E0F2C74A5A400F81F1F /* OKXMultichainAssetSelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880DFF2C74A5A400F81F1F /* OKXMultichainAssetSelection.swift */; };
+		FA880E0F2C74A5A400F81F1F /* OKXMultichainAssetFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880DFF2C74A5A400F81F1F /* OKXMultichainAssetFetching.swift */; };
 		FA880E102C74A5A400F81F1F /* CrossChainSwapMultichainChainFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880E012C74A5A400F81F1F /* CrossChainSwapMultichainChainFetching.swift */; };
 		FA880E112C74A5A400F81F1F /* MultichainChainFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880E022C74A5A400F81F1F /* MultichainChainFetching.swift */; };
 		FA880E122C74A5A400F81F1F /* MultichainAssetSelectionRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA880E032C74A5A400F81F1F /* MultichainAssetSelectionRouter.swift */; };
@@ -5761,7 +5761,7 @@
 		FA880DFB2C74A5A400F81F1F /* MultichainAssetSelectionInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultichainAssetSelectionInteractor.swift; sourceTree = "<group>"; };
 		FA880DFC2C74A5A400F81F1F /* MultichainAssetSelectionAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultichainAssetSelectionAssembly.swift; sourceTree = "<group>"; };
 		FA880DFE2C74A5A400F81F1F /* MultichainAssetFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultichainAssetFetching.swift; sourceTree = "<group>"; };
-		FA880DFF2C74A5A400F81F1F /* OKXMultichainAssetSelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXMultichainAssetSelection.swift; sourceTree = "<group>"; };
+		FA880DFF2C74A5A400F81F1F /* OKXMultichainAssetFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OKXMultichainAssetFetching.swift; sourceTree = "<group>"; };
 		FA880E012C74A5A400F81F1F /* CrossChainSwapMultichainChainFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainSwapMultichainChainFetching.swift; sourceTree = "<group>"; };
 		FA880E022C74A5A400F81F1F /* MultichainChainFetching.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultichainChainFetching.swift; sourceTree = "<group>"; };
 		FA880E032C74A5A400F81F1F /* MultichainAssetSelectionRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultichainAssetSelectionRouter.swift; sourceTree = "<group>"; };
@@ -14419,7 +14419,7 @@
 			isa = PBXGroup;
 			children = (
 				FA880DFE2C74A5A400F81F1F /* MultichainAssetFetching.swift */,
-				FA880DFF2C74A5A400F81F1F /* OKXMultichainAssetSelection.swift */,
+				FA880DFF2C74A5A400F81F1F /* OKXMultichainAssetFetching.swift */,
 			);
 			path = AssetFetching;
 			sourceTree = "<group>";
@@ -18386,7 +18386,7 @@
 				AEA2C1BC2681E9CD0069492E /* ValidatorSearchPresenter.swift in Sources */,
 				845B821D26EF80DB00D25C72 /* ChainAccountModel.swift in Sources */,
 				F4617415260E23E900E8FA3D /* StakingRewardStatusViewModel.swift in Sources */,
-				FA880E0F2C74A5A400F81F1F /* OKXMultichainAssetSelection.swift in Sources */,
+				FA880E0F2C74A5A400F81F1F /* OKXMultichainAssetFetching.swift in Sources */,
 				FA36AB832C8EB7FE00892DF4 /* SwapAmountInfoViewModel.swift in Sources */,
 				FA389B34283E22FC00FF16E9 /* ParachainStakingDelegation.swift in Sources */,
 				FA7254402AC2E48500EC47A6 /* Dictionary+Collection.swift in Sources */,

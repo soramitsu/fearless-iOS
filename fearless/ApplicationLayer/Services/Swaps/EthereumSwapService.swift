@@ -123,7 +123,7 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
 
         let nonce = try await queryNonce(ethereumAddress: senderAddress)
 
-        let gasLimitValue = BigUInt(string: "1000000")
+        let gasLimitValue = BigUInt(string: "1200000")
         let gasPriceValue = BigUInt(string: swapGasPrice)
         let maxPriorityFeePerGasValue = BigUInt(string: maxPriorityFeePerGas)
 
