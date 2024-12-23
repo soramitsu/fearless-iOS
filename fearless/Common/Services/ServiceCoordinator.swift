@@ -145,7 +145,7 @@ extension ServiceCoordinator {
             logger: logger,
             userDefaultsStorage: SettingsManager.shared
         )
-        
+
         let networkWorker = NetworkWorkerImpl()
         let requestSigner = OKXDexRequestSigner()
         let okxService = OKXDexAggregatorServiceImpl(

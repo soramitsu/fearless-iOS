@@ -164,7 +164,7 @@ extension SelectableListViewController: SelectionListViewProtocol {
 
     func didReload() {
         rootView.tableView.reloadData()
-        rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
+        rootView.setEmptyView(vasible: errorMessage != nil)
         didStopLoading()
         reloadEmptyState(animated: true)
     }

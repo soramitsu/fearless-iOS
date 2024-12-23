@@ -157,12 +157,15 @@ final class CrossChainSwapSetupPresenter {
 
                 self.fromNetworkFee = nil
                 self.swap = nil
+                self.swapToInputResult = .absolute(0)
 
                 calculateTotalFiatFee()
                 provideViewModel()
-                provideDestinationInput()
-
+                provideDestinationAssetViewModel()
+                checkLoadingState()
                 DispatchQueue.main.async { [weak self] in
+                    self?.view?.setButtonLoadingState(isLoading: false)
+
                     if let error = error as? OKXDexError, let view = self?.view {
                         let message = error.decode(with: swapFromChainAsset)
 //                        self?.router.presentError(for: "", message: message ?? "", view: view, locale: self?.selectedLocale)
@@ -212,6 +215,12 @@ final class CrossChainSwapSetupPresenter {
 
         swapToInputResult = .absolute(receiveAmountDecimal.or(.zero))
         provideDestinationAssetViewModel()
+    }
+
+    private func provideEmptyDestinationInput() {
+        DispatchQueue.main.async { [weak self] in
+            self?.view?.didReceive(destinationAssetBalanceViewModel: nil)
+        }
     }
 
     func toggleSwapDirection() {

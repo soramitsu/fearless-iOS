@@ -90,7 +90,7 @@ final class MultichainAssetSelectionAssembly {
             wallet: wallet,
             selectedAssetId: selectedChainAsset?.asset.id,
             chainAssets: [],
-            searchTextsViewModel: .searchAssetPlaceholder,
+            searchTextsViewModel: nil,
             output: moduleOutput,
             contextTag: contextTag,
             isEmbed: true

@@ -49,7 +49,7 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
                 response = try await networkWorker.performRequest(with: request)
             }
         }
-        
+
         try validateResponseCode(response.code, msg: response.msg)
 
         return response

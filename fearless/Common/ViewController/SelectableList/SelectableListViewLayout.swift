@@ -62,6 +62,7 @@ final class SelectableListViewLayout: UIView {
     }
 
     func bind(viewModel: TextSearchViewModel?) {
+        emptyView.isHidden = viewModel == nil
         searchTextField.isHidden = viewModel == nil
         searchTextField.textField.placeholder = viewModel?.placeholder.value(for: locale)
         let viewModel = EmptyViewModel(

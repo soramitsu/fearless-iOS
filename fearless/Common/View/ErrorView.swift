@@ -68,6 +68,7 @@ final class ErrorView: UIView {
         textLabel.text = viewModel.message
         actionButton.imageWithTitleView?.title = viewModel.actionTitle
         actionHandler = viewModel.actionHandler
+        actionButton.isHidden = viewModel.actionHandler == nil
     }
 
     @available(*, unavailable)

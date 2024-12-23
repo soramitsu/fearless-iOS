@@ -158,9 +158,7 @@ extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
     }
 
     func didReceive(destinationAssetBalanceViewModel: AssetBalanceViewModelProtocol?) {
-        if let destinationAssetBalanceViewModel = destinationAssetBalanceViewModel {
-            rootView.bind(receiveAssetViewModel: destinationAssetBalanceViewModel)
-        }
+        rootView.bind(receiveAssetViewModel: destinationAssetBalanceViewModel)
         updatePreviewButton()
     }
 
@@ -186,6 +184,7 @@ extension CrossChainSwapSetupViewController: CrossChainSwapSetupViewInput {
 
     func didReceiveError(viewModel: ErrorViewModel?) {
         rootView.bind(errorViewModel: viewModel)
+        rootView.actionButton.set(enabled: false, changeStyle: true)
     }
 }
 

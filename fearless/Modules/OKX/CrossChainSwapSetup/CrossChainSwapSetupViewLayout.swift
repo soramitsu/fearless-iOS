@@ -107,7 +107,7 @@ final class CrossChainSwapSetupViewLayout: UIView {
         amountView.bind(viewModel: assetViewModel)
     }
 
-    func bind(receiveAssetViewModel: AssetBalanceViewModelProtocol) {
+    func bind(receiveAssetViewModel: AssetBalanceViewModelProtocol?) {
         receiveView.bind(viewModel: receiveAssetViewModel)
     }
 
