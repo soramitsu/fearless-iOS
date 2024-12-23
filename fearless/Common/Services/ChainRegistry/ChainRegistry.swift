@@ -277,7 +277,11 @@ final class ChainRegistry {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
 
-        let token = TonNodeApiKey.tonApiKey
+        #if DEBUG
+            let token = TonNodeApiKeyDebug.tonApiKey
+        #else
+            let token = TonNodeApiKey.tonApiKey
+        #endif
         guard let tonBridgeURL = chain.tonBridgeUrl else {
             logger?.error("Missing tonBridgeURL")
             return
