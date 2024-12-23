@@ -6,7 +6,7 @@ enum OKXDexAggregatorServiceError: Error {
 }
 
 protocol OKXDexAggregatorService {
-    func fetchAvailableChains() async throws -> OKXResponse<OKXSupportedChain>
+    func fetchAvailableChains(preferredDataSourceType: PreferredDataSourceType) async throws -> OKXResponse<OKXSupportedChain>
     func fetchAllTokens(parameters: OKXDexAllTokensRequestParameters, preferredDataSourceType: PreferredDataSourceType) async throws -> OKXResponse<OKXToken>
     func fetchLiquiditySources(parameters: OKXDexLiquiditySourceRequestParameters) async throws -> OKXResponse<OKXLiquiditySource>
     func fetchQuotes(parameters: OKXDexQuotesRequestParameters) async throws -> OKXResponse<OKXQuote>
@@ -28,11 +28,28 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
         self.signer = signer
     }
 
-    func fetchAvailableChains() async throws -> OKXResponse<OKXSupportedChain> {
+    func fetchAvailableChains(preferredDataSourceType: PreferredDataSourceType) async throws -> OKXResponse<OKXSupportedChain> {
         let request = RequestConfig(baseURL: ApplicationConfig.shared.okxDexAggregatorURL, method: .get, endpoint: "/api/v5/dex/aggregator/supported/chain", headers: nil, body: nil)
         request.signingType = .custom(signer: signer)
-        let response: OKXResponse<OKXSupportedChain> = try await networkWorker.performRequest(with: request)
+        var response: OKXResponse<OKXSupportedChain> = try await networkWorker.performRequest(with: request)
 
+        switch preferredDataSourceType {
+        case .cache:
+            guard let cached: OKXResponse<OKXSupportedChain> = try await networkWorker.fetchCached(with: request) else {
+                throw OKXDexAggregatorServiceError.noCachedData
+            }
+
+            response = cached
+        case .remote:
+            response = try await networkWorker.performRequest(with: request)
+        case .combine:
+            if let cached: OKXResponse<OKXSupportedChain> = try await networkWorker.fetchCached(with: request) {
+                response = cached
+            } else {
+                response = try await networkWorker.performRequest(with: request)
+            }
+        }
+        
         try validateResponseCode(response.code, msg: response.msg)
 
         return response

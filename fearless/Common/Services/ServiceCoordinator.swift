@@ -20,6 +20,7 @@ final class ServiceCoordinator {
     private let walletConnect: WalletConnectService
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
+    private let okxSyncService: OKXSyncService
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -29,7 +30,8 @@ final class ServiceCoordinator {
         polkaswapSettingsService: PolkaswapSettingsSyncServiceProtocol,
         walletConnect: WalletConnectService,
         walletAssetsObserver: WalletAssetsObserver,
-        pricesService: PricesServiceProtocol
+        pricesService: PricesServiceProtocol,
+        okxSyncService: OKXSyncService
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -39,6 +41,7 @@ final class ServiceCoordinator {
         self.walletConnect = walletConnect
         self.walletAssetsObserver = walletAssetsObserver
         self.pricesService = pricesService
+        self.okxSyncService = okxSyncService
     }
 }
 
@@ -142,6 +145,13 @@ extension ServiceCoordinator {
             logger: logger,
             userDefaultsStorage: SettingsManager.shared
         )
+        
+        let networkWorker = NetworkWorkerImpl()
+        let requestSigner = OKXDexRequestSigner()
+        let okxService = OKXDexAggregatorServiceImpl(
+            networkWorker: networkWorker,
+            signer: requestSigner
+        )
 
         return ServiceCoordinator(
             walletSettings: walletSettings,
@@ -151,7 +161,8 @@ extension ServiceCoordinator {
             polkaswapSettingsService: polkaswapSettingsService,
             walletConnect: walletConnect,
             walletAssetsObserver: walletAssetsObserver,
-            pricesService: PricesService.shared
+            pricesService: PricesService.shared,
+            okxSyncService: OKXSyncServiceImpl(okxService: okxService)
         )
     }
 
