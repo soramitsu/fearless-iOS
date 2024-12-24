@@ -142,7 +142,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "FW-new-ecosystem",
-        "revision" : "903bb64d35db4ff02ec735f1118c29399c36cbbb"
+        "revision" : "05bde96eecdf4e8f6f5fa60b2b16c003673d3679"
       }
     },
     {
@@ -276,7 +276,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/DRadmir/ton-api-swift.git",
       "state" : {
-        "revision" : "8ddff19a40d3d00503cab7fb9d9eb77459169488"
+        "revision" : "8ddff19a40d3d00503cab7fb9d9eb77459169488",
+        "version" : "0.5.0"
       }
     },
     {

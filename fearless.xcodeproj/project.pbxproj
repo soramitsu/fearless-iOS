@@ -20688,8 +20688,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/DRadmir/ton-api-swift.git";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = exactVersion;
+				version = 0.5.0;
 			};
 		};
 		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
