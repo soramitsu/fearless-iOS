@@ -35,7 +35,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let accountId = wallet.fetch(for: chain.accountRequest())?.accountId else {
             throw TonRemoteBalanceFetchingError.missingAccount
         }
-        let address = try accountId.asTonAddress().toString()
+        let address = try accountId.asTonAddress().toRaw()
 
         let chainAssets = chain.chainAssets.divide { chainAsset in
             chainAsset.chainAssetType.tonAssetType == .normal
@@ -78,7 +78,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             throw TonRemoteBalanceFetchingError.missingAccount
         }
-        let address = try accountId.asTonAddress().toString()
+        let address = try accountId.asTonAddress().toRaw()
 
         let accountInfo: AccountInfo
         switch chainAsset.chainAssetType.tonAssetType {
@@ -118,13 +118,12 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let normal = chainAssets.slice.first else {
             throw TonRemoteBalanceFetchingError.utilityNotFound
         }
-        let jettons = chainAssets.remainder
 
         guard let accountId = wallet.fetch(for: normal.chain.accountRequest())?.accountId else {
             throw TonRemoteBalanceFetchingError.missingAccount
         }
 
-        let address = try accountId.asTonAddress().toString()
+        let address = try accountId.asTonAddress().toRaw()
         let chainAccountInfos = try await getChainAccountInfos(
             address: address,
             currency: wallet.selectedCurrency
