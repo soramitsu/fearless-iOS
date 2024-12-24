@@ -65,6 +65,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         walletConnect.setup()
         walletAssetsObserver.setup()
         pricesService.setup()
+        okxSyncService.syncUp()
     }
 
     func throttle() {
