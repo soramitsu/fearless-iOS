@@ -3,6 +3,7 @@ import RobinHood
 import SSFUtils
 import Foundation
 import SSFRuntimeCodingService
+import SSFCrypto
 
 enum DeprecatedAccountIssue {
     case controller(issue: ControllerAccountIssue)

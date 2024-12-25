@@ -58,6 +58,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
         super.viewDidLoad()
         output.didLoad(view: self)
         configure()
+        configureInputAccessoryView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -101,19 +102,49 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
             self?.output.didTapPasteButton()
         }
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = UIFactory
-            .default
-            .createAmountAccessoryView(for: self, locale: locale)
-        rootView.amountView.textField.inputAccessoryView = accessoryView
         rootView.amountView.textField.delegate = self
         rootView.searchView.textField.delegate = self
         updatePreviewButton()
     }
 
     private func updatePreviewButton() {
-        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty && rootView.searchView.isValid
+        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty && (rootView.searchView.isValid != nil)
         rootView.actionButton.set(enabled: isEnabled, changeStyle: true)
+    }
+
+    private func configureInputAccessoryView() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let frame = CGRect(
+            x: 0.0,
+            y: 0.0,
+            width: UIScreen.main.bounds.width,
+            height: UIConstants.accessoryBarHeight
+        )
+
+        let toolBar = AmountInputAccessoryView(frame: frame)
+        toolBar.actionDelegate = self
+        let actions: [ViewSelectorAction] = [
+            ViewSelectorAction(title: "75%", selector: #selector(toolBar.actionSelect75)),
+            ViewSelectorAction(title: "50%", selector: #selector(toolBar.actionSelect50)),
+            ViewSelectorAction(title: "25%", selector: #selector(toolBar.actionSelect25))
+        ]
+
+        let doneTitle = R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
+        let doneAction = ViewSelectorAction(
+            title: doneTitle,
+            selector: #selector(toolBar.actionSelectDone)
+        )
+
+        let accessoryView = UIFactory
+            .default
+            .createActionsAccessoryView(
+                for: actions,
+                doneAction: doneAction,
+                target: self,
+                spacing: UIConstants.accessoryItemsSpacing,
+                toolBar: toolBar
+            )
+        rootView.amountView.textField.inputAccessoryView = accessoryView
     }
 }
 

@@ -54,8 +54,5 @@ fearless/env-vars.sh
 *.generated.swift
 Tests/Mocks/CommonMocks.swift
 Tests/Mocks/ModuleMocks.swift
-#
-# Generamba
-Templates/
 # Misc
 **/.DS_Store

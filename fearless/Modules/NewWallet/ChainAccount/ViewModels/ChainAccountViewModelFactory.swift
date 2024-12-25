@@ -1,5 +1,6 @@
 import Foundation
 import SSFModels
+import SSFCrypto
 
 protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
@@ -26,7 +27,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         var address: String?
         if
             let chainAccountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),
-            let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chain: chainAsset.chain) {
+            let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chainFormat: chainAsset.chain.chainFormat(bounceable: false)) {
             address = address1
         }
         let allAssets = Array(chainAsset.chain.assets)

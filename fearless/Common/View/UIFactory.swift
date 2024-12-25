@@ -71,8 +71,9 @@ protocol UIFactoryProtocol {
     func createActionsAccessoryView(
         for actions: [ViewSelectorAction],
         doneAction: ViewSelectorAction,
-        target: Any?,
-        spacing: CGFloat
+        target: AmountInputAccessoryViewDelegate?,
+        spacing: CGFloat,
+        toolBar: UIToolbar
     ) -> UIToolbar
     func createCommonInputView() -> CommonInputView
     func createAmountInputView(filled: Bool) -> AmountInputView
@@ -279,10 +280,11 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createActionsAccessoryView(
-        for _: [ViewSelectorAction],
-        doneAction _: ViewSelectorAction,
-        target _: Any?,
-        spacing _: CGFloat
+        for actions: [ViewSelectorAction],
+        doneAction: ViewSelectorAction,
+        target: AmountInputAccessoryViewDelegate?,
+        spacing: CGFloat,
+        toolBar: UIToolbar
     ) -> UIToolbar {
         let frame = CGRect(
             x: 0.0,
@@ -291,9 +293,15 @@ final class UIFactory: UIFactoryProtocol {
             height: UIConstants.accessoryBarHeight
         )
 
-        let toolBar = UIToolbar(frame: frame)
-
-        return toolBar
+        let toolBar = AmountInputAccessoryView(frame: frame)
+        toolBar.actionDelegate = target
+        return createActionsAccessoryView(
+            for: toolBar,
+            actions: actions,
+            doneAction: doneAction,
+            target: toolBar,
+            spacing: spacing
+        )
     }
 
     func createAmountAccessoryView(

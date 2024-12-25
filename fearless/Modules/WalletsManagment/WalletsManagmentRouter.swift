@@ -1,9 +1,10 @@
 import Foundation
+import SSFModels
 
 final class WalletsManagmentRouter: WalletsManagmentRouterInput {
     func showOptions(
         from view: WalletsManagmentViewInput?,
-        metaAccount: ManagedMetaAccountModel,
+        metaAccount: MetaAccountModel,
         delegate: WalletOptionModuleOutput?
     ) {
         guard

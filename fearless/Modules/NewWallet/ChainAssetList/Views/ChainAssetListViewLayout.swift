@@ -65,15 +65,12 @@ final class ChainAssetListViewLayout: UIView {
 
     func addBanners(view: UIView) {
         bannersView = view
-        bannersView?.isHidden = true
-        headerViewContainer.addArrangedSubview(view)
-        view.snp.makeConstraints { make in
-            make.width.equalToSuperview().inset(UIConstants.bigOffset)
-        }
     }
 
     func setHeaderView() {
-        tableView.setAndLayoutTableHeaderView(header: headerViewContainer)
+        if let bannersView = bannersView {
+            tableView.setAndLayoutTableHeaderView(header: bannersView)
+        }
     }
 
     func removeHeaderView() {
@@ -111,10 +108,10 @@ final class ChainAssetListViewLayout: UIView {
         container.scrollBottomOffset = 116
         container.addArrangedSubview(headerViewContainer)
         container.addArrangedSubview(emptyView)
-        container.addArrangedSubview(footerButton)
+        let footerContainer = UIView()
+        container.addArrangedSubview(footerContainer)
 
         headerViewContainer.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview()
             make.width.equalToSuperview()
         }
 
@@ -124,7 +121,9 @@ final class ChainAssetListViewLayout: UIView {
             make.height.greaterThanOrEqualToSuperview()
         }
 
+        footerContainer.addSubview(footerButton)
         footerButton.snp.remakeConstraints { make in
+            make.top.bottom.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(16)
             make.height.equalTo(UIConstants.actionHeight)
         }
@@ -133,17 +132,23 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     func runManageAssetAnimate(finish: @escaping (() -> Void)) {
-        isAnimating = true
+        var visibleRect: CGRect = .zero
+        visibleRect.origin = tableView.contentOffset
+        visibleRect.size = tableView.bounds.size
+        let rect = tableView.convert(
+            footerButton.bounds,
+            from: tableView.tableFooterView
+        )
+
+        guard !visibleRect.intersects(rect) else {
+            finish()
+            return
+        }
+
+        tableView.scrollRectToVisible(rect, animated: true)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            let rect = self.tableView.convert(
-                self.footerButton.bounds,
-                from: self.tableView.tableFooterView
-            )
-            self.tableView.scrollRectToVisible(
-                rect,
-                animated: true
-            )
+            self.isAnimating = true
 
             UIView.animate(
                 withDuration: 0.6,
@@ -152,11 +157,16 @@ final class ChainAssetListViewLayout: UIView {
                     self.footerButton.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
                 },
                 completion: { _ in
-                    UIView.animate(withDuration: 0.6) {
-                        self.footerButton.transform = CGAffineTransform.identity
-                        finish()
-                        self.isAnimating = false
-                    }
+                    UIView.animate(
+                        withDuration: 0.6,
+                        animations: {
+                            self.footerButton.transform = CGAffineTransform.identity
+                            self.isAnimating = false
+                        },
+                        completion: { _ in
+                            finish()
+                        }
+                    )
                 }
             )
         }

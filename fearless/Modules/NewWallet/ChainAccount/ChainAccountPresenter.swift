@@ -298,8 +298,9 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
         var items: [ChainAction] = []
         items.append(.export)
-        if !chainAsset.chain.isEthereum { items.append(.switchNode) }
-        items.append(.replace)
+        if chainAsset.chain.ecosystem.isSubstrate || chainAsset.chain.ecosystem.isEthereumBased {
+            items.append(.switchNode)
+        }
         if interactor.checkIsClaimAvailable() { items.append(.claimCrowdloanRewards) }
 
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
@@ -323,8 +324,6 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                     from: self.view,
                     chain: self.chainAsset.chain
                 )
-            case .replace:
-                self.startReplaceAccountFlow()
             case .claimCrowdloanRewards:
                 self.wireframe.showClaimCrowdloanRewardsFlow(from: self.view, chainAsset: self.chainAsset, wallet: self.wallet)
             default:

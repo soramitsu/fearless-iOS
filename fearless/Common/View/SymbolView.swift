@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 struct SymbolViewModel {
-    let symbolViewModel: RemoteImageViewModel?
+    let iconViewModel: RemoteImageViewModel?
     let shadowColor: CGColor?
 }
 
@@ -33,7 +33,7 @@ final class SymbolView: UIView {
     }
 
     func bind(viewModel: SymbolViewModel) {
-        viewModel.symbolViewModel?.loadImage(
+        viewModel.iconViewModel?.loadImage(
             on: imageView,
             targetSize: Constants.imageViewSize,
             animated: true

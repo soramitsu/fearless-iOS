@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class NftDetailsRouter: NftDetailsRouterInput, SharingPresentable {
     func openSend(nft: NFT, wallet: MetaAccountModel, from view: ControllerBackedProtocol?) {

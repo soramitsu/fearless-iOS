@@ -56,6 +56,16 @@ enum WalletConnectProposalCellModel {
         self = .optionalExpandable(viewModel)
     }
 
+    func deselectWallet() -> Self {
+        switch self {
+        case let .wallet(walletViewModel):
+            var viewModel = walletViewModel
+            viewModel.isSelected = false
+            return .wallet(viewModel)
+        default: return self
+        }
+    }
+
     struct DetailsViewModel {
         let title: String
         let subtitle: String
@@ -64,26 +74,46 @@ enum WalletConnectProposalCellModel {
 
     struct ExpandableViewModel {
         let cellTitle: String
-        let chain: String
-        let methods: String
-        let events: String
+
+        let title: String
+
+        let title2: String?
+        let subtitle2: String?
+
+        let title3: String?
+        let subtitle3: String?
+
         let isExpanded: Bool
 
         func toggle() -> Self {
             ExpandableViewModel(
                 cellTitle: cellTitle,
-                chain: chain,
-                methods: methods,
-                events: events,
+                title: title,
+                title2: title2,
+                subtitle2: subtitle2,
+                title3: title3,
+                subtitle3: subtitle3,
                 isExpanded: !isExpanded
             )
+        }
+
+        func isVisibleSection2() -> Bool {
+            [title2?.isNotEmpty, subtitle2?.isNotEmpty]
+                .compactMap { $0 }
+                .allSatisfy { $0 }
+        }
+
+        func isVisibleSection3() -> Bool {
+            [title3?.isNotEmpty, subtitle3?.isNotEmpty]
+                .compactMap { $0 }
+                .allSatisfy { $0 }
         }
     }
 
     struct WalletViewModel {
         let metaId: String
         let walletName: String
-        let isSelected: Bool
+        var isSelected: Bool
 
         func toggle() -> Self {
             WalletViewModel(

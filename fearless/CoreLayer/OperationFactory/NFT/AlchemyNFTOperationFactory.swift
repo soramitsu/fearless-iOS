@@ -288,7 +288,7 @@ final class AlchemyNFTOperationFactory {
         urlComponents?.queryItems = [
             URLQueryItem(name: "contractAddress", value: address),
             URLQueryItem(name: "withMetadata", value: "true"),
-            URLQueryItem(name: "limit", value: "100"),
+            URLQueryItem(name: "limit", value: "100")
         ]
 
         if let nextId = nextId {
@@ -343,7 +343,7 @@ final class AlchemyNFTOperationFactory {
         var urlComponents = URLComponents(string: endpointUrl.absoluteString)
         urlComponents?.queryItems = [
             URLQueryItem(name: "contractAddress", value: address),
-            URLQueryItem(name: "tokenId", value: tokenId),
+            URLQueryItem(name: "tokenId", value: tokenId)
         ]
 
         guard let urlWithParameters = urlComponents?.url else {

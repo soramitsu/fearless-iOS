@@ -12,12 +12,18 @@ protocol OnboardingMainPresenterProtocol: AnyObject {
     func activateTerms()
     func activatePrivacy()
     func didTapGetPreinstalled()
+    func didSelect(ecosystem: AccountCreateEcosystem)
+    func dismiss()
 }
 
 protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, SheetAlertPresentable, WarningPresentable, PresentDismissable, AppUpdatePresentable {
-    func showSignup(from view: OnboardingMainViewProtocol?)
+    func showSignup(
+        from view: OnboardingMainViewProtocol?,
+        ecosystem: AccountCreateEcosystem
+    )
     func showAccountRestore(
         defaultSource: AccountImportSource,
+        flow: AccountImportFlow,
         from view: OnboardingMainViewProtocol?
     )
     func showKeystoreImport(from view: OnboardingMainViewProtocol?)
@@ -27,21 +33,25 @@ protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, Shee
     )
     func showCreateFlow(from view: ControllerBackedProtocol?)
     func showPreinstalledFlow(from view: ControllerBackedProtocol?)
+    func didCompleteCreate(from view: ControllerBackedProtocol?)
 }
 
 protocol OnboardingMainInteractorInputProtocol: AnyObject {
     func setup()
     func activateGoogleBackup()
+    func createTonAccount()
 }
 
 protocol OnboardingMainInteractorOutputProtocol: AnyObject {
     func didSuggestKeystoreImport()
     func didReceiveBackupAccounts(result: Result<[OpenBackupAccount], Error>)
     func didReceiveFeatureToggleConfig(result: Result<FeatureToggleConfig, Error>?)
+    func didCompleteConfirmation()
+    func didReceive(error: Error)
 }
 
 protocol OnboardingMainViewFactoryProtocol {
     static func createViewForOnboarding() -> OnboardingMainViewProtocol?
-    static func createViewForAdding() -> OnboardingMainViewProtocol?
+    static func createViewForAdding(ecosystem: AccountCreateEcosystem?) -> OnboardingMainViewProtocol?
     static func createViewForAccountSwitch() -> OnboardingMainViewProtocol?
 }

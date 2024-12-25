@@ -14,10 +14,11 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private let subscriptionService: PolkaswapRemoteSubscriptionServiceProtocol
     private let settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>
     private let operationManager: OperationManagerProtocol
-    private let xorChainAsset: ChainAsset
-    private let extrinsicService: ExtrinsicServiceProtocol
+    private var xorChainAsset: ChainAsset?
     private let userDefaultsStorage: SettingsManagerProtocol
     private let callFactory: SubstrateCallFactoryProtocol
+    private let chainModelRepo: AsyncAnyRepository<ChainModel>
+    private let wallet: MetaAccountModel
 
     private var dexIds: [UInt32] = []
     private var swapValues: [SwapValues] = []
@@ -26,27 +27,27 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private var dexInfos: [PolkaswapDexInfo] = []
 
     init(
-        xorChainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         subscriptionService: PolkaswapRemoteSubscriptionServiceProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
-        extrinsicService: ExtrinsicServiceProtocol,
         operationFactory: PolkaswapOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         userDefaultsStorage: SettingsManagerProtocol,
-        callFactory: SubstrateCallFactoryProtocol
+        callFactory: SubstrateCallFactoryProtocol,
+        chainModelRepo: AsyncAnyRepository<ChainModel>
     ) {
-        self.xorChainAsset = xorChainAsset
+        self.wallet = wallet
         self.subscriptionService = subscriptionService
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.feeProxy = feeProxy
         self.settingsRepository = settingsRepository
-        self.extrinsicService = extrinsicService
         self.operationFactory = operationFactory
         self.operationManager = operationManager
         self.userDefaultsStorage = userDefaultsStorage
         self.callFactory = callFactory
+        self.chainModelRepo = chainModelRepo
     }
 
     // MARK: - Private methods
@@ -130,6 +131,26 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: [operation], in: .transient)
     }
+
+    private func createExtrinsicService() async throws -> ExtrinsicServiceProtocol? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard
+            let chain = try await chainModelRepo.fetch(by: Chain.soraMain.genesisHash),
+            let accountResponse = wallet.fetch(for: chain.accountRequest()),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
+            let connection = chainRegistry.getConnection(for: chain.chainId)
+        else {
+            return nil
+        }
+        return ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+    }
 }
 
 // MARK: - PolkaswapAdjustmentInteractorInput
@@ -140,6 +161,14 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         feeProxy.delegate = self
         fetchPolkaswapSettings()
         fetchDisclaimerVisible()
+        Task { [weak self] in
+            guard let self else { return }
+            let xorChainModel = try await chainModelRepo.fetch(by: Chain.soraMain.genesisHash)
+            if let utilityChainAsset = xorChainModel?.utilityChainAssets().first {
+                self.xorChainAsset = utilityChainAsset
+                self.output?.didReceive(xorChainAsset: utilityChainAsset)
+            }
+        }
     }
 
     func didReceive(_ fromChainAsset: ChainAsset?, _ toChainAsset: ChainAsset?) {
@@ -243,11 +272,16 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
             liquiditySourceType.rawValue
         ].joined()
 
-        feeProxy.estimateFee(
-            using: extrinsicService,
-            reuseIdentifier: reuseIdentifier,
-            setupBy: builderClosure
-        )
+        Task {
+            guard let extrinsicService = try await createExtrinsicService() else {
+                return
+            }
+            feeProxy.estimateFee(
+                using: extrinsicService,
+                reuseIdentifier: reuseIdentifier,
+                setupBy: builderClosure
+            )
+        }
     }
 
     func fetchDisclaimerVisible() {

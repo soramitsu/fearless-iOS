@@ -43,9 +43,11 @@ final class ScanQRAssembly {
     static var defaultMatchers: [QRMatcher] {
         [
             QRInfoMatcher(decoder: QRDecoderDefault()),
-            QRUriMatcherImpl(scheme: "wc")
+            QRUriMatcherImpl(scheme: "wc"),
+            TonConnectMatcherImpl()
         ]
     }
 
     static let wcSchemeMatcher = QRUriMatcherImpl(scheme: "wc")
+    static let tonConnectMatcher = TonConnectMatcherImpl()
 }

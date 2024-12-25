@@ -16,7 +16,7 @@ final class SigningWrapper: SigningWrapperProtocol {
         self.keystore = keystore
         self.metaId = metaId
         accountId = accountResponse.isChainAccount ? accountResponse.accountId : nil
-        isEthereumBased = accountResponse.isEthereumBased
+        isEthereumBased = accountResponse.ecosystem.isEthereumBased || accountResponse.ecosystem.isEthereum
         cryptoType = accountResponse.cryptoType
         publicKeyData = accountResponse.publicKey
     }

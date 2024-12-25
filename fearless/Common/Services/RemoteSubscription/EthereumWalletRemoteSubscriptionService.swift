@@ -3,20 +3,21 @@ import SSFModels
 import Web3
 import Web3ContractABI
 import RobinHood
+import SSFCrypto
 
 final class EthereumWalletRemoteSubscriptionService {
     private let chainRegistry: ChainRegistryProtocol
     private let logger: LoggerProtocol
     private let repository: AnyDataProviderRepository<AccountInfoStorageWrapper>
     private let operationManager: OperationManagerProtocol
-    private let repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+    private let repositoryWrapper: BalanceRepositoryCacheWrapper
 
     init(
         chainRegistry: ChainRegistryProtocol,
         logger: LoggerProtocol,
         repository: AnyDataProviderRepository<AccountInfoStorageWrapper>,
         operationManager: OperationManagerProtocol,
-        repositoryWrapper: EthereumBalanceRepositoryCacheWrapper
+        repositoryWrapper: BalanceRepositoryCacheWrapper
     ) {
         self.chainRegistry = chainRegistry
         self.logger = logger
@@ -26,7 +27,7 @@ final class EthereumWalletRemoteSubscriptionService {
     }
 
     private func handleNewBlock(ws: Web3.Eth, chainAsset: ChainAsset, accountId: AccountId) throws {
-        switch chainAsset.asset.ethereumType {
+        switch chainAsset.asset.assetType.ethereumAssetType {
         case .normal:
             try fetchEthBalance(for: chainAsset, ws: ws, accountId: accountId)
         case .erc20, .bep20:
@@ -42,7 +43,7 @@ final class EthereumWalletRemoteSubscriptionService {
 
         ws.getBalance(address: ethereumAddress, block: .latest) { [weak self] resp in
             if let balance = resp.result {
-                let accountInfo = AccountInfo(ethBalance: balance.quantity)
+                let accountInfo = AccountInfo(balance: balance.quantity)
                 try? self?.handle(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
             }
         }
@@ -55,7 +56,7 @@ final class EthereumWalletRemoteSubscriptionService {
         let ethAddress = try EthereumAddress(rawAddress: address.hexToBytes())
         contract.balanceOf(address: ethAddress).call(completion: { [weak self] response, _ in
             if let response = response, let balance = response["_balance"] as? BigUInt {
-                let accountInfo = AccountInfo(ethBalance: balance)
+                let accountInfo = AccountInfo(balance: balance)
                 try? self?.handle(accountInfo: accountInfo, chainAsset: chainAsset, accountId: accountId)
             }
         })

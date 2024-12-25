@@ -3,6 +3,7 @@ import SSFModels
 import SSFUtils
 import RobinHood
 import BigInt
+import SSFCrypto
 
 enum BalanceLocksFetchingError: Error {
     case unknownChainAssetType
@@ -47,7 +48,7 @@ final class BalanceLocksFetchingDefault {
 
         let controllerAddress: String? = try? await storageRequestPerformer.performSingle(controllerRequest)
         if let controllerAddress {
-            return try controllerAddress.toAccountId()
+            return try controllerAddress.toAccountId(using: chainAsset.chain.chainFormat)
         }
 
         let controllerAccountId: Data? = try await storageRequestPerformer.performSingle(controllerRequest)

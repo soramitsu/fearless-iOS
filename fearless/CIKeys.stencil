@@ -65,3 +65,7 @@ enum ThirdPartyServicesApiKeys {
 enum DwellirNodeApiKey {
     static var dwellirApiKey: String = "{{ argument.dwellirApiKey }}"
 }
+
+enum TonNodeApiKey {
+    static var tonApiKey: String = "{{ argument.tonApiKey }}"
+}

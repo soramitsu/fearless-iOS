@@ -80,7 +80,6 @@ struct CrowdloanListViewFactory {
         )
 
         return CrowdloanListInteractor(
-            selectedMetaAccount: selectedMetaAccount,
             settings: state.settings,
             chainRegistry: chainRegistry,
             crowdloanOperationFactory: crowdloanOperationFactory,

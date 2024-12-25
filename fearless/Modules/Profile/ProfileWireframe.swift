@@ -1,16 +1,19 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
     func showAccountDetails(
         from view: ProfileViewProtocol?,
-        metaAccount: MetaAccountModel
+        metaAccount _: MetaAccountModel
     ) {
-        let walletDetails = WalletDetailsViewFactory.createView(flow: .normal(wallet: metaAccount))
+        guard let walletDetails = ConnectedAccountsAssembly.configureModule() else {
+            return
+        }
         let navigationController = FearlessNavigationController(
-            rootViewController: walletDetails.controller
+            rootViewController: walletDetails.view.controller
         )
         view?.controller.present(navigationController, animated: true)
     }
@@ -112,6 +115,15 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
         let navigation = FearlessNavigationController(rootViewController: controller)
 
+        view?.controller.present(navigation, animated: true)
+    }
+
+    func openDebugMenu(from view: (any ControllerBackedProtocol)?) {
+        let module = FeatureToggleListAssembly.configureModule()
+        guard let controller = module?.view.controller else {
+            return
+        }
+        let navigation = FearlessNavigationController(rootViewController: controller)
         view?.controller.present(navigation, animated: true)
     }
 

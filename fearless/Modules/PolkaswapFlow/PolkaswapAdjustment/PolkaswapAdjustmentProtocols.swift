@@ -64,6 +64,7 @@ protocol PolkaswapAdjustmentInteractorOutput: AnyObject {
     func didReceiveSettings(settings: PolkaswapRemoteSettings?)
     func updateQuotes()
     func didReceiveDisclaimer(isRead: Bool)
+    func didReceive(xorChainAsset: ChainAsset)
 }
 
 protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, SheetAlertPresentable, BaseErrorPresentable {

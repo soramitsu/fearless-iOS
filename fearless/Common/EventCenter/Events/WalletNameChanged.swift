@@ -1,3 +1,5 @@
+import SSFModels
+
 struct WalletNameChanged: EventProtocol {
     let wallet: MetaAccountModel
 

@@ -3,6 +3,7 @@ import SSFUtils
 import BigInt
 import IrohaCrypto
 import SSFRuntimeCodingService
+import SSFCrypto
 
 extension PayoutRewardsService {
     func createChainHistoryRangeOperationWrapper(

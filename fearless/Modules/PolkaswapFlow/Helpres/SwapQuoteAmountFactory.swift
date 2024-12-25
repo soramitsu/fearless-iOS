@@ -57,15 +57,13 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
     }
 
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
-    private let xorChainAsset: ChainAsset
     private var wallet: MetaAccountModel
+
     init(
         wallet: MetaAccountModel,
-        xorChainAsset: ChainAsset,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     ) {
         self.wallet = wallet
-        self.xorChainAsset = xorChainAsset
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
     }
 
@@ -218,21 +216,6 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         ).value(for: locale)
 
         return (receiveValue, minMaxValue)
-    }
-
-    private func createLiqitityProviderFeeViewMode(
-        lpAmount: Decimal,
-        locale: Locale
-    ) -> BalanceViewModelProtocol {
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
-        let lpViewModel = balanceViewModelFactory.balanceFromPrice(
-            lpAmount,
-            priceData: xorChainAsset.asset.getPrice(for: wallet.selectedCurrency),
-            isApproximately: true,
-            usageCase: .detailsCrypto
-        ).value(for: locale)
-
-        return lpViewModel
     }
 
     private func createSwapRoute(

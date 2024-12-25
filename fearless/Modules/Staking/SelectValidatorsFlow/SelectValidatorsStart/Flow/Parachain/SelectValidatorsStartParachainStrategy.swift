@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 protocol SelectValidatorsStartParachainStrategyOutput: AnyObject {
     func didReceiveMaxDelegations(result: Result<Int, Error>)

@@ -34,7 +34,7 @@ class OKXMultichainAssetFetching: MultichainAssetFetching {
             let id = nativeAsset?.asset.id ?? $0.tokenContractAddress
 
             let iconURL = $0.tokenLogoUrl.flatMap { URL(string: $0) }
-            let ethereumType: EthereumAssetType = isUtility ? .normal : .erc20
+            let ethereumType: ChainAssetType = isUtility ? .ethereum(ethereumType: .normal) : .ethereum(ethereumType: .erc20)
 
             let asset = AssetModel(
                 id: id,
@@ -45,7 +45,7 @@ class OKXMultichainAssetFetching: MultichainAssetFetching {
                 currencyId: $0.tokenContractAddress,
                 isUtility: isUtility,
                 isNative: false,
-                ethereumType: ethereumType
+                assetType: ethereumType
             )
 
             return ChainAsset(chain: chain, asset: asset)

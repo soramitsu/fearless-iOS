@@ -55,22 +55,24 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
     func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountInfo]) {
         var seeds: [ExportSeedData] = []
 
-        for chainAccount in accounts {
+        let substrateAndEthereumAccounts = accounts.filter {
+            switch $0.account.ecosystem {
+            case .substrate, .ethereumBased, .ethereum:
+                return true
+            case .ton:
+                return false
+            }
+        }
+        for chainAccount in substrateAndEthereumAccounts {
             let chain = chainAccount.chain
             let account = chainAccount.account
             let accountId = account.isChainAccount ? account.accountId : nil
 
             do {
-                let seedTag = chain.isEthereumBased
-                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-                    : KeystoreTagV2.substrateSeedTagForMetaId(wallet.metaId, accountId: accountId)
-
+                let seedTag = KeystoreTagV2.seedKeyTag(for: chain.ecosystem, metaId: wallet.metaId, accountId: accountId)
                 var optionalSeed: Data? = try keystore.fetchKey(for: seedTag)
 
-                let keyTag = chain.isEthereumBased
-                    ? KeystoreTagV2.ethereumSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-                    : KeystoreTagV2.substrateSecretKeyTagForMetaId(wallet.metaId, accountId: accountId)
-
+                let keyTag = KeystoreTagV2.secretKeyTag(for: chain.ecosystem, metaId: wallet.metaId, accountId: accountId)
                 if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
                     optionalSeed = try keystore.fetchKey(for: keyTag)
                 }

@@ -18,6 +18,7 @@ struct UniqueChainModel {
 enum AccountImportFlow {
     case chain(model: UniqueChainModel)
     case wallet(step: AccountCreationStep)
+    case ethereum(wallet: MetaAccountModel, chains: [ChainModel])
 
     var isEthereumFlow: Bool {
         switch self {
@@ -25,11 +26,13 @@ enum AccountImportFlow {
             return model.chain.isEthereumBased
         case let .wallet(step):
             switch step {
-            case .substrate:
+            case .substrate, .ton:
                 return false
             case .ethereum:
                 return true
             }
+        case .ethereum:
+            return true
         }
     }
 
@@ -66,7 +69,7 @@ struct UniqueChainImportRequestData {
     let selectedCryptoType: CryptoType
     let password: String
     let meta: MetaAccountModel
-    let chain: ChainModel
+    let chains: [ChainModel]
 }
 
 struct PreferredData {
@@ -159,7 +162,12 @@ private extension AccountImportPresenter {
             case let .ethereum(data):
                 selectedCryptoType = data.cryptoType
                 view?.setSource(type: selectedSourceType, chainType: .ethereum, selectable: false)
+            case .ton:
+                view?.setSource(type: .tonMnemonic, chainType: .ton, selectable: false)
             }
+        case let .ethereum(wallet: wallet, chains: chains):
+            selectedCryptoType = .ecdsa
+            view?.setSource(type: selectedSourceType, chainType: .ethereum, selectable: false)
         }
 
         applySourceTextViewModel(value)
@@ -170,11 +178,13 @@ private extension AccountImportPresenter {
             username = model.meta.name
         case let .wallet(step):
             switch step {
-            case .substrate:
+            case .substrate, .ton:
                 username = preferredData?.username ?? ""
             case let .ethereum(data):
                 username = data.username
             }
+        case let .ethereum(wallet, _):
+            username = wallet.name
         }
         applyUsernameViewModel(username)
         applyPasswordViewModel()
@@ -191,7 +201,7 @@ private extension AccountImportPresenter {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         switch selectedSourceType {
-        case .mnemonic:
+        case .mnemonic, .tonMnemonic:
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
             let normalizer = MnemonicTextNormalizer()
@@ -247,7 +257,7 @@ private extension AccountImportPresenter {
         switch flow {
         case .wallet:
             visible = true
-        case .chain:
+        case .chain, .ethereum:
             visible = false
         }
 
@@ -260,7 +270,7 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
-        case .mnemonic, .seed:
+        case .mnemonic, .seed, .tonMnemonic:
             passwordViewModel = nil
         case .keystore:
             let viewModel = InputViewModel(inputHandler: InputHandler(required: true))
@@ -278,7 +288,7 @@ private extension AccountImportPresenter {
             return
         }
         switch selectedSourceType {
-        case .mnemonic:
+        case .mnemonic, .tonMnemonic:
             applyCryptoTypeViewModel(cryptoType)
 
             switch flow {
@@ -294,6 +304,9 @@ private extension AccountImportPresenter {
                     applySubstrateDerivationPathViewModel()
                     view?.show(chainType: .substrate)
                 }
+            case .ethereum:
+                applyEthereumDerivationPathViewModel()
+                view?.show(chainType: .ethereum)
             }
         case .seed:
             applyCryptoTypeViewModel(cryptoType)
@@ -510,11 +523,27 @@ private extension AccountImportPresenter {
                 selectedCryptoType: data.selectedCryptoType,
                 password: data.password,
                 meta: model.meta,
-                chain: model.chain
+                chains: [model.chain]
             )
-            importUniqueChain(data: data)
+            importUniqueChains(data: data, isEthereum: model.chain.isEthereumBased)
         case let .wallet(step):
             importMetaAccount(data: data, step: step)
+        case let .ethereum(wallet, chains):
+            guard let chain = chains.first else {
+                return
+            }
+            let derivationPath = data.ethereumDerivationPath
+            let data = UniqueChainImportRequestData(
+                selectedSourceType: data.selectedSourceType,
+                source: data.source,
+                username: data.username,
+                derivationPath: derivationPath,
+                selectedCryptoType: data.selectedCryptoType,
+                password: data.password,
+                meta: wallet,
+                chains: chains
+            )
+            importUniqueChains(data: data, isEthereum: true)
         }
     }
 
@@ -536,6 +565,15 @@ private extension AccountImportPresenter {
                 source: source,
                 username: data.username,
                 cryptoType: data.selectedCryptoType,
+                defaultChainId: nil
+            )
+            interactor.importMetaAccount(request: request)
+        case (.tonMnemonic, .ton):
+            let mnemonicString = data.source
+            let request = MetaAccountImportRequest(
+                source: .ton(mnemonic: mnemonicString),
+                username: data.username,
+                cryptoType: .ed25519,
                 defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
@@ -607,6 +645,7 @@ private extension AccountImportPresenter {
                 defaultChainId: nil
             )
             interactor.importMetaAccount(request: request)
+        default: break
         }
     }
 
@@ -622,7 +661,10 @@ private extension AccountImportPresenter {
         wireframe.showEthereumStep(from: view, with: data)
     }
 
-    func importUniqueChain(data: UniqueChainImportRequestData) {
+    func importUniqueChains(
+        data: UniqueChainImportRequestData,
+        isEthereum: Bool
+    ) {
         var source: UniqueChainImportRequestSource
         switch data.selectedSourceType {
         case .mnemonic:
@@ -647,15 +689,20 @@ private extension AccountImportPresenter {
                 password: data.password
             )
             source = UniqueChainImportRequestSource.keystore(data: sourceData)
+        case .tonMnemonic:
+            return
         }
         let request = UniqueChainImportRequest(
-            source: source,
             username: data.username,
-            cryptoType: data.chain.isEthereumBased ? .ecdsa : data.selectedCryptoType,
-            meta: data.meta,
-            chain: data.chain
+            cryptoType: isEthereum ? .ecdsa : data.selectedCryptoType,
+            chains: data.chains
         )
-        interactor.importUniqueChain(request: request)
+
+        interactor.importUniqueChain(
+            source: source,
+            wallet: data.meta,
+            request: request
+        )
     }
 
     func validateSource(with value: String) -> Error? {
@@ -664,7 +711,7 @@ private extension AccountImportPresenter {
         }
 
         switch selectedSourceType {
-        case .mnemonic:
+        case .mnemonic, .tonMnemonic:
             return validateMnemonic(value: value)
         case .seed:
             return validateSeed(value: value)

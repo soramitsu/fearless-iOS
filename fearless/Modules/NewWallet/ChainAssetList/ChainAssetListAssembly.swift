@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import SoraKeystore
 import SSFStorageQueryKit
+import SSFModels
 
 final class ChainAssetListAssembly {
     static func configureModule(
@@ -26,15 +27,6 @@ final class ChainAssetListAssembly {
 
         let dependencyContainer = ChainAssetListDependencyContainer()
 
-        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
-            logger: Logger.shared,
-            repository: accountInfoRepository,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryCacheWrapper
-        )
         let chainRepository = ChainRepositoryFactory().createRepository(
             for: NSPredicate.enabledCHain(),
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
@@ -59,22 +51,11 @@ final class ChainAssetListAssembly {
             missingAccountHelper: missingAccountHelper,
             accountInfoFetcher: accountInfoFetcher
         )
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
+
+        let remoteBalanceService = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createAsyncRepository()
-        let operationQueue = OperationManagerFacade.sharedDefaultQueue
-        let assetRepository = AssetRepositoryFactory().createRepository()
         let pricesService = PricesService.shared
-        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
-            chainRegistry: chainRegistry
-        )
-
-        let accountInfoRemoteService = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
-            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            storagePerformer: storagePerformer
-        )
 
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
@@ -82,15 +63,14 @@ final class ChainAssetListAssembly {
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoFetchingProvider: accountInfoFetching,
             dependencyContainer: dependencyContainer,
-            ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
+            remoteBalanceService: remoteBalanceService,
             chainAssetFetching: chainAssetFetching,
             userDefaultsStorage: SettingsManager.shared,
             chainsIssuesCenter: chainsIssuesCenter,
             chainSettingsRepository: AsyncAnyRepository(chainSettingsRepostiry),
             chainRegistry: ChainRegistryFacade.sharedRegistry,
-            accountInfoRemoteService: accountInfoRemoteService,
-            pricesService: pricesService,
-            operationQueue: operationQueue
+            logger: ServiceAssembly.shared.logger,
+            pricesService: pricesService
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
@@ -113,6 +93,8 @@ final class ChainAssetListAssembly {
             keyboardAdoptable: keyboardAdoptable,
             localizationManager: localizationManager
         )
+
+        presenter.bannersInput = bannersModule?.input
 
         return (view, presenter)
     }

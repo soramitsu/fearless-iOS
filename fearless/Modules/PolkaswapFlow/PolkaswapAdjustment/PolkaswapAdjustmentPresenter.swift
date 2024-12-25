@@ -30,7 +30,7 @@ final class PolkaswapAdjustmentPresenter {
     private let logger: LoggerProtocol
 
     private var polkaswapRemoteSettings: PolkaswapRemoteSettings?
-    private let xorChainAsset: ChainAsset
+    private var xorChainAsset: ChainAsset?
     private var swapVariant: SwapVariant = .desiredInput
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
@@ -71,7 +71,6 @@ final class PolkaswapAdjustmentPresenter {
 
     init(
         wallet: MetaAccountModel,
-        xorChainAsset: ChainAsset,
         swapChainAsset: ChainAsset?,
         viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -83,7 +82,6 @@ final class PolkaswapAdjustmentPresenter {
         moduleOutput: PolkaswapAdjustmentModuleOutput?
     ) {
         self.wallet = wallet
-        self.xorChainAsset = xorChainAsset
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
@@ -364,7 +362,7 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func provideFeeViewModel() {
-        guard let swapFromFee = networkFee else {
+        guard let swapFromFee = networkFee, let xorChainAsset else {
             return
         }
         let balanceViewModelFactory = viewModelFactory
@@ -407,7 +405,8 @@ final class PolkaswapAdjustmentPresenter {
               let networkFeeViewModel = networkFeeViewModel,
               let detailsViewModel = detailsViewModel,
               let fromAmount = swapFromInputResult?.absoluteValue(from: swapFromBalance ?? .zero),
-              let toAmount = swapToInputResult?.absoluteValue(from: swapToBalance ?? .zero)
+              let toAmount = swapToInputResult?.absoluteValue(from: swapToBalance ?? .zero),
+              let xorChainAsset
         else {
             return nil
         }
@@ -447,7 +446,7 @@ final class PolkaswapAdjustmentPresenter {
                 contextTag = InputTag.swapFrom.rawValue
                 filterChainAsset = swapToChainAsset
             }
-            let showChainAssets = strongSelf.xorChainAsset.chain.chainAssets
+            let showChainAssets = strongSelf.xorChainAsset?.chain.chainAssets
                 .filter { $0.chainAssetId != filterChainAsset?.chainAssetId }
             strongSelf.router.showSelectAsset(
                 from: strongSelf.view,
@@ -552,7 +551,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapSelectFromAsset() {
-        let showChainAssets = xorChainAsset.chain.chainAssets
+        let showChainAssets = xorChainAsset?.chain.chainAssets
             .filter { $0.chainAssetId != swapToChainAsset?.chainAssetId }
         router.showSelectAsset(
             from: view,
@@ -565,7 +564,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapSelectToAsset() {
-        let showChainAssets = xorChainAsset.chain.chainAssets
+        let showChainAssets = xorChainAsset?.chain.chainAssets
             .filter { $0.chainAssetId != swapFromChainAsset?.chainAssetId }
         router.showSelectAsset(
             from: view,
@@ -686,7 +685,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         }
 
         // if don't have XOR balance for fee payment, fee will be payment from receive amount
-        if xorBalance.or(.zero) < networkFee, swapToChainAsset?.identifier == xorChainAsset.identifier {
+        if xorBalance.or(.zero) < networkFee, swapToChainAsset?.identifier == xorChainAsset?.identifier {
             if params.toAmount <= networkFee {
                 presentAddMoreAmountAlert()
                 return
@@ -703,7 +702,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         }
 
         var feeAndTip: Decimal = .zero
-        if swapFromChainAsset?.identifier == xorChainAsset.identifier {
+        if swapFromChainAsset?.identifier == xorChainAsset?.identifier {
             feeAndTip = networkFee
         }
 
@@ -714,7 +713,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: xorBalance),
                 feeAndTip: networkFee,
-                sendAmount: .zero,
+                sendAmount: nil,
                 locale: selectedLocale
             ),
             dataValidatingFactory.canPayFeeAndAmount(
@@ -742,6 +741,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 // MARK: - PolkaswapAdjustmentInteractorOutput
 
 extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
+    func didReceive(xorChainAsset: SSFModels.ChainAsset) {
+        self.xorChainAsset = xorChainAsset
+        provideFromAssetVewModel()
+        provideToAssetVewModel()
+    }
+
     func didReceive(error: Error) {
         logger.error("\(error)")
     }
@@ -786,6 +791,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         switch result {
         case let .success(info):
             guard let feeValue = BigUInt(info.fee),
+                  let xorChainAsset,
                   let fee = Decimal.fromSubstrateAmount(
                       feeValue,
                       precision: Int16(xorChainAsset.asset.precision)
@@ -970,7 +976,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
 // MARK: - BannersModuleOutput
 
 extension PolkaswapAdjustmentPresenter: BannersModuleOutput {
-    func reloadBannersView() {}
+    func reloadBannersView(bannersCount _: Int) {}
 
     func didTapCloseBanners() {
         DispatchQueue.main.async { [weak self] in

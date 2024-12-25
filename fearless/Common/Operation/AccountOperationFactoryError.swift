@@ -6,4 +6,5 @@ enum AccountOperationFactoryError: Error {
     case unsupportedNetwork
     case decryption
     case missingUsername
+    case unsupportedImport
 }

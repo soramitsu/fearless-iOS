@@ -4,9 +4,11 @@ final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
     func proceed(
         from view: UsernameSetupViewProtocol?,
         flow: AccountCreateFlow,
-        model: UsernameSetupModel
+        model: UsernameSetupModel,
+        ecosystem: AccountCreateEcosystem
     ) {
         guard let accountCreation = AccountCreateViewFactory.createViewForOnboarding(
+            ecosystem: ecosystem,
             model: model,
             flow: flow
         ) else {

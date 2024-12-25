@@ -1,8 +1,9 @@
 import Foundation
+import SSFModels
 
 final class WalletOptionRouter: WalletOptionRouterInput {
-    func showExportWallet(from view: ControllerBackedProtocol?, wallet: ManagedMetaAccountModel) {
-        guard let module = BackupWalletAssembly.configureModule(wallet: wallet.info) else {
+    func showExportWallet(from view: ControllerBackedProtocol?, wallet: MetaAccountModel) {
+        guard let module = BackupWalletAssembly.configureModule(wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(
@@ -12,10 +13,12 @@ final class WalletOptionRouter: WalletOptionRouterInput {
         view?.controller.present(navigationController, animated: true)
     }
 
-    func showWalletDetails(from view: ControllerBackedProtocol?, for wallet: MetaAccountModel) {
-        let module = WalletDetailsViewFactory.createView(flow: .normal(wallet: wallet))
+    func showWalletDetails(from view: ControllerBackedProtocol?, for _: MetaAccountModel) {
+        guard let module = ConnectedAccountsAssembly.configureModule() else {
+            return
+        }
         let navigationController = FearlessNavigationController(
-            rootViewController: module.controller
+            rootViewController: module.view.controller
         )
 
         view?.controller.present(navigationController, animated: true)

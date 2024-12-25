@@ -1,6 +1,7 @@
 import UIKit
 import SoraKeystore
 import IrohaCrypto
+import SSFModels
 import RobinHood
 
 // TODO: Check how to convert this to chain account import

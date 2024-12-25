@@ -3,6 +3,7 @@ import SSFUtils
 import SSFModels
 import RobinHood
 import SSFSigner
+import SSFAccountManagment
 
 final class ClaimCrowdloanRewardsInteractor {
     // MARK: - Private properties

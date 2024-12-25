@@ -41,7 +41,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 isSelected = selectedWalletId == nil ? false : managedMetaAccount.info.metaId == selectedWalletId
             }
 
-            let address = managedMetaAccount.info.ethereumAddress?.toHex(includePrefix: true)
+            let address = managedMetaAccount.info.ecosystem.ethereumAddress?.toHex(includePrefix: true)
             let accountScoreViewModel = AccountScoreViewModel(
                 fetcher: accountScoreFetcher,
                 address: address,
@@ -55,9 +55,11 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
                     walletName: managedMetaAccount.info.name,
+                    icon: managedMetaAccount.info.icon(),
                     fiatBalance: nil,
                     dayChange: nil,
-                    accountScoreViewModel: accountScoreViewModel
+                    accountScoreViewModel: accountScoreViewModel,
+                    optionsAvailable: managedMetaAccount.info.ecosystem.isRegular
                 )
             }
 
@@ -74,9 +76,11 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 return WalletsManagmentCellViewModel(
                     isSelected: isSelected,
                     walletName: managedMetaAccount.info.name,
+                    icon: managedMetaAccount.info.icon(),
                     fiatBalance: fiatBalance,
                     dayChange: nil,
-                    accountScoreViewModel: accountScoreViewModel
+                    accountScoreViewModel: accountScoreViewModel,
+                    optionsAvailable: managedMetaAccount.info.ecosystem.isRegular
                 )
             }
 
@@ -90,9 +94,11 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
             let viewModel = WalletsManagmentCellViewModel(
                 isSelected: isSelected,
                 walletName: managedMetaAccount.info.name,
+                icon: managedMetaAccount.info.icon(),
                 fiatBalance: totalFiatValue,
                 dayChange: dayChange,
-                accountScoreViewModel: accountScoreViewModel
+                accountScoreViewModel: accountScoreViewModel,
+                optionsAvailable: managedMetaAccount.info.ecosystem.isRegular
             )
             return viewModel
         }

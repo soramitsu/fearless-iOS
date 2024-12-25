@@ -186,6 +186,7 @@ final class AllDoneViewLayout: UIView {
     }
 
     private func setupLayout() {
+        mainCloseButton.isHidden = true
         backgroundColor = R.color.colorAlmostBlack()!
         layer.cornerRadius = Constants.cornerRadius
         clipsToBounds = true

@@ -1,6 +1,7 @@
 import RobinHood
 import SSFModels
 import Foundation
+import SSFAccountManagment
 
 final class WalletDetailsInteractor {
     weak var presenter: WalletDetailsInteractorOutputProtocol!
@@ -101,7 +102,7 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
                     .getAvailableExportOptions(
                         for: self.flow.wallet,
                         accountId: accountId,
-                        isEthereum: response.isEthereumBased
+                        ecosystem: response.ecosystem
                     )
                 self.presenter?.didReceiveExportOptions(options: options, for: chainAccount)
             default:

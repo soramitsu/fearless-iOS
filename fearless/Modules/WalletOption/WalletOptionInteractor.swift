@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 final class WalletOptionInteractor {
     // MARK: - Private properties
@@ -7,13 +8,13 @@ final class WalletOptionInteractor {
     private weak var output: WalletOptionInteractorOutput?
     private weak var moduleOutput: WalletOptionModuleOutput?
 
-    private let wallet: ManagedMetaAccountModel
+    private let wallet: MetaAccountModel
     private let metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
     private let walletConnectDisconnectService: WalletConnectDisconnectService
 
     init(
-        wallet: ManagedMetaAccountModel,
+        wallet: MetaAccountModel,
         metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
         moduleOutput: WalletOptionModuleOutput?,
@@ -34,7 +35,7 @@ final class WalletOptionInteractor {
             return
         }
 
-        if selectedWallet.identifier == wallet.identifier {
+        if selectedWallet.identifier == wallet.metaId {
             output?.setDeleteButtonIsVisible(false)
         }
     }
@@ -54,7 +55,7 @@ extension WalletOptionInteractor: WalletOptionInteractorInput {
 
         operation.completionBlock = { [weak self, wallet] in
             Task { [weak self] in
-                try await self?.walletConnectDisconnectService.disconnect(wallet: wallet.info)
+                try await self?.walletConnectDisconnectService.disconnect(wallet: wallet)
             }
             self?.moduleOutput?.walletWasRemoved()
             self?.output?.walletRemoved()

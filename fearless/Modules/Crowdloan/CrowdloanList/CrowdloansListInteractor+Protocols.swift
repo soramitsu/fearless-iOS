@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFModels
+import SSFAccountManagment
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {
@@ -13,7 +14,9 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
             return
         }
 
-        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
+        guard
+            let selectedMetaAccount,
+            let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
             presenter.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists)
             )

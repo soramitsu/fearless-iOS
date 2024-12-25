@@ -268,7 +268,7 @@ final class WalletTransactionHistoryInteractor {
         do {
             try dependencyContainer.createDependencies(for: chainAsset, selectedAccount: selectedAccount)
 
-            let changesBlock = { [weak self] (changes: [DataProviderChange<AssetTransactionPageData>]) -> Void in
+            let changesBlock = { [weak self] (changes: [DataProviderChange<AssetTransactionPageData>]) in
                 if let change = changes.first {
                     switch change {
                     case let .insert(item), let .update(item):

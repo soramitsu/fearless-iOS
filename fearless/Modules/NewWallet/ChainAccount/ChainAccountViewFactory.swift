@@ -48,7 +48,7 @@ enum ChainAccountViewFactory {
 
         let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter.shared
 
-        let ethereumBalanceRepositoryCacheWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryCacheWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: accountInfoRepository,
             operationManager: OperationManagerFacade.sharedManager
@@ -66,6 +66,7 @@ enum ChainAccountViewFactory {
             sourceChainId: nil
         )
         let assetFetching = OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
+        let accountInfoRemoteService = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let interactor = ChainAccountInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
@@ -79,7 +80,8 @@ enum ChainAccountViewFactory {
             ethRemoteBalanceFetching: ethereumRemoteBalanceFetching,
             chainRegistry: chainRegistry,
             chainFetching: chainFetching,
-            assetFetching: assetFetching
+            assetFetching: assetFetching,
+            accountInfoRemoteService: accountInfoRemoteService
         )
 
         let wireframe = ChainAccountWireframe()

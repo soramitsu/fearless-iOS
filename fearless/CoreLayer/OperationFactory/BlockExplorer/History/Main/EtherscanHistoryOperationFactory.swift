@@ -12,12 +12,12 @@ final class EtherscanHistoryOperationFactory {
         url: URL,
         chainAsset: ChainAsset
     ) -> BaseOperation<EtherscanHistoryResponse> {
-        let action: String = chainAsset.asset.ethereumType == .normal ? "txlist" : "tokentx"
+        let action: String = chainAsset.asset.assetType.ethereumAssetType == .normal ? "txlist" : "tokentx"
         var urlComponents = URLComponents(string: url.absoluteString)
         var queryItems = [
             URLQueryItem(name: "module", value: "account"),
             URLQueryItem(name: "action", value: action),
-            URLQueryItem(name: "address", value: address),
+            URLQueryItem(name: "address", value: address)
         ]
 
         if let apiKey = BlockExplorerApiKey(chainId: chainAsset.chain.chainId) {
@@ -75,7 +75,7 @@ final class EtherscanHistoryOperationFactory {
             let remoteTransactions = try remoteOperation.extractNoCancellableResultData().result
 
             let transactions = remoteTransactions?
-                .filter { asset.ethereumType == .normal ? true : $0.contractAddress?.lowercased() == asset.id.lowercased() }
+                .filter { asset.assetType.ethereumAssetType == .normal ? true : $0.contractAddress?.lowercased() == asset.id.lowercased() }
                 .sorted(by: { $0.timestampInSeconds > $1.timestampInSeconds })
                 .compactMap {
                     AssetTransactionData.createTransaction(from: $0, address: address, chain: chain, asset: asset)

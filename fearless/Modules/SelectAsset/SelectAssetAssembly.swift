@@ -60,7 +60,8 @@ final class SelectAssetAssembly {
             router: router,
             output: output,
             localizationManager: localizationManager,
-            contextTag: contextTag
+            contextTag: contextTag,
+            logger: Logger.shared
         )
 
         let view = SelectAssetViewController(

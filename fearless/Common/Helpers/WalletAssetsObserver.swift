@@ -37,6 +37,7 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         self.eventCenter = eventCenter
         self.logger = logger
         self.userDefaultsStorage = userDefaultsStorage
+        eventCenter.add(observer: self)
     }
 
     // MARK: - WalletAssetsObserver
@@ -65,6 +66,9 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
+        guard wallet.ecosystem.isRegular else {
+            return
+        }
         eventCenter.add(observer: self)
         chainRegistry.chainsSubscribe(
             self,
@@ -107,6 +111,9 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             returning: [ChainModel: [ChainAssetId: AccountInfo?]].self
         ) { group in
             chains.forEach { chain in
+                guard !chain.ecosystem.isTon else {
+                    return
+                }
                 group.addTask {
                     do {
                         let accountInfos = try await self.accountInfoRemote.fetchAccountInfos(for: chain, wallet: self.wallet)
@@ -235,6 +242,8 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
         ].joined(separator: ":")
     }
 }
+
+// MARK: - EventVisitorProtocol
 
 extension WalletAssetsObserverImpl: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {

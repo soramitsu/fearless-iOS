@@ -1,3 +1,5 @@
+import SSFModels
+
 final class CrossChainDependencyContainer {
     private let okxService: OKXDexAggregatorService
     private let wallet: MetaAccountModel

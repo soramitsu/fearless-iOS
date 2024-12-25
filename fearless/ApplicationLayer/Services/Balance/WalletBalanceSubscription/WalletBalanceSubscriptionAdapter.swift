@@ -111,25 +111,33 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         wallet: MetaAccountModel,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        updateWalletsIfNeeded(with: wallet)
-        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: chainAssets)
+
+            let weakListener = WeakWrapper(target: listener)
+            listenersLock.exclusivelyWrite { [weak self] in
+                self?.listeners.append(weakListener)
+            }
+            updateWalletsIfNeeded(with: wallet)
+            if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
     func subscribeWalletsBalances(
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        if let balances = buildBalance(for: wallets, chainAssets: chainAssets) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            try await updateLocalBalances(wallets: wallets, chainAssets: chainAssets)
+
+            let weakListener = WeakWrapper(target: listener)
+            listenersLock.exclusivelyWrite { [weak self] in
+                self?.listeners.append(weakListener)
+            }
+            if let balances = buildBalance(for: wallets, chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
@@ -138,12 +146,16 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         chainAsset: ChainAsset,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: [chainAsset])
+
+            let weakListener = WeakWrapper(target: listener)
+            listenersLock.exclusivelyWrite { [weak self] in
+                self?.listeners.append(weakListener)
+            }
+            if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
@@ -152,13 +164,17 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         wallet: MetaAccountModel,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: chainAssets)
 
-        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
-            notify(listener: listener, result: .success(balances))
+            let weakListener = WeakWrapper(target: listener)
+            listenersLock.exclusivelyWrite { [weak self] in
+                self?.listeners.append(weakListener)
+            }
+
+            if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
@@ -166,20 +182,24 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         wallet: MetaAccountModel,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        updateWalletsIfNeeded(with: wallet)
-        let selectedChainAssets = filterChainAssets(
-            with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
-            chainAssets: chainAssets,
-            wallet: wallet,
-            search: nil
-        )
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: chainAssets)
 
-        if let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
-            notify(listener: listener, result: .success(balances))
+            let weakListener = WeakWrapper(target: listener)
+            listenersLock.exclusivelyWrite { [weak self] in
+                self?.listeners.append(weakListener)
+            }
+            updateWalletsIfNeeded(with: wallet)
+            let selectedChainAssets = filterChainAssets(
+                with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
+                chainAssets: chainAssets,
+                wallet: wallet,
+                search: nil
+            )
+
+            if let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
@@ -199,6 +219,13 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     // MARK: - Private methods
+
+    private func updateLocalBalances(wallets: [MetaAccountModel], chainAssets: [ChainAsset]) async throws {
+        let accountInfos = try await fetchAccountInfos(wallets: wallets, chainAssets: chainAssets)
+        self.accountInfos = self.accountInfos.merging(accountInfos, uniquingKeysWith: { _, new in
+            new
+        })
+    }
 
     private func buildBalance(for wallets: [MetaAccountModel], chainAssets: [ChainAsset]) -> WalletBalanceInfos? {
         let walletBalances = walletBalanceBuilder.buildBalance(
@@ -245,20 +272,15 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         wallets: [MetaAccountModel],
         chainAssets: [ChainAsset]
     ) async throws -> [ChainAssetKey: AccountInfo?] {
-        let accountInfos = try await withThrowingTaskGroup(of: [ChainAssetKey: AccountInfo?].self) { group in
-            wallets.forEach { wallet in
-                group.addTask {
-                    try await self.accountInfoFetchingProvider.fetchByUniqKey(for: chainAssets, wallet: wallet)
-                }
+        let accountInfos = try await wallets.concurrentMap { wallet in
+            do {
+                return try await self.accountInfoFetchingProvider.fetchByUniqKey(for: chainAssets, wallet: wallet)
+            } catch {
+                return [:]
             }
-
-            var result = [ChainAssetKey: AccountInfo?]()
-            for try await accountInfos in group {
-                result.merge(accountInfos) { _, new in new }
-            }
-            return result
         }
-        return accountInfos
+        let result = Dictionary(accountInfos.flatMap { $0 }, uniquingKeysWith: { _, last in last })
+        return result
     }
 
     private func subscribeToAccountInfo(

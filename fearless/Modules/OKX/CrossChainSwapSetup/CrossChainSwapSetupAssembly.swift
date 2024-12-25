@@ -9,7 +9,7 @@ final class CrossChainSwapSetupAssembly {
         let repository = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared
         ).createAccountInfoStorageItemRepository()
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
+        let ethereumBalanceRepositoryWrapper = BalanceRepositoryCacheWrapper(
             logger: Logger.shared,
             repository: repository,
             operationManager: OperationManagerFacade.sharedManager

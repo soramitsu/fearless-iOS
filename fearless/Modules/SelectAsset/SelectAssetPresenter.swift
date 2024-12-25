@@ -8,6 +8,7 @@ final class SelectAssetPresenter {
     private weak var view: SelectAssetViewInput?
     private let router: SelectAssetRouterInput
     private let interactor: SelectAssetInteractorInput
+    private let logger: LoggerProtocol?
 
     private let selectedAssetId: String?
     private let viewModelFactory: SelectAssetViewModelFactoryProtocol
@@ -36,7 +37,8 @@ final class SelectAssetPresenter {
         router: SelectAssetRouterInput,
         output: SelectAssetModuleOutput,
         localizationManager: LocalizationManagerProtocol,
-        contextTag: Int?
+        contextTag: Int?,
+        logger: LoggerProtocol?
     ) {
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
@@ -46,6 +48,8 @@ final class SelectAssetPresenter {
         self.router = router
         self.output = output
         self.contextTag = contextTag
+        self.logger = logger
+        
         self.localizationManager = localizationManager
     }
 
@@ -53,30 +57,20 @@ final class SelectAssetPresenter {
 
     private func handle(chainAssets: [ChainAsset]) {
         accountInfosTask = Task {
-            let accountInfos = await interactor.fetchAccountInfos(with: chainAssets)
-
-            let mapped: [(ChainAssetKey, AccountInfo?)] = accountInfos.compactMap { chainAsset, accountInfo in
-                let request = chainAsset.chain.accountRequest()
-                guard let accountId = wallet.fetch(for: request)?.accountId else {
-                    return nil
+            do {
+                let accountInfos = try await self.interactor.fetchAccountInfos(with: chainAssets)
+                self.accountInfos = accountInfos
+                self.chainAssets = chainAssets
+                
+                guard !Task.isCancelled else {
+                    return
                 }
-                let key = chainAsset.uniqueKey(accountId: accountId)
-                return (key, accountInfo)
+                await MainActor.run(body: {
+                    provideViewModel()
+                })
+            } catch {
+                logger?.customError(error)
             }
-
-            guard !Task.isCancelled else {
-                return
-            }
-
-            self.accountInfos = Dictionary(uniqueKeysWithValues: mapped)
-            self.chainAssets = chainAssets
-
-            guard !Task.isCancelled else {
-                return
-            }
-            await MainActor.run(body: {
-                provideViewModel()
-            })
         }
     }
 

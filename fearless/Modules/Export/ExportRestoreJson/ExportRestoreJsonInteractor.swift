@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import IrohaCrypto
+import SSFModels
 
 final class ExportRestoreJsonInteractor {
     private let settings: SelectedWalletSettings

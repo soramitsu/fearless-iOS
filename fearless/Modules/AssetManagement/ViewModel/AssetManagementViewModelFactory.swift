@@ -222,7 +222,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 amount: amount,
                 price: price
             )
-            let hidden = checkAssetIsHidden(
+            let isEnabled = checkAssetIsEnabled(
                 wallet: wallet,
                 chainAsset: chainAsset
             )
@@ -234,7 +234,7 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
                 chainName: chainAsset.chain.name,
                 balance: balance,
                 decimalPrice: decimalPrice,
-                hidden: hidden,
+                hidden: !isEnabled,
                 hasGroup: hasGroup,
                 isLoadingBalance: isLoadingBalance
             )
@@ -273,14 +273,23 @@ final class AssetManagementViewModelFactoryDefault: AssetManagementViewModelFact
         }
     }
 
-    private func checkAssetIsHidden(
+    private func checkAssetIsEnabled(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset
     ) -> Bool {
-        let isHidden = wallet.assetsVisibility.contains(where: {
-            $0.assetId == chainAsset.identifier && $0.hidden
-        })
-        return isHidden
+        switch wallet.ecosystem {
+        case .regular:
+            let isEnabled = wallet.assetsVisibility.contains(where: {
+                $0.assetId == chainAsset.identifier && !$0.hidden
+            })
+            return isEnabled
+        case .ton:
+            if let visibility = wallet.assetsVisibility.first(where: { $0.assetId == chainAsset.identifier }) {
+                return !visibility.hidden
+            } else {
+                return true
+            }
+        }
     }
 
     private func createFilterButtonTitle(

@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import SSFModels
+import SSFCrypto
 
 protocol SwapTransactionViewModelFactoryProtocol {
     func createViewModel(

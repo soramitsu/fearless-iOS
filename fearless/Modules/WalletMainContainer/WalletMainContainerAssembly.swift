@@ -4,6 +4,7 @@ import RobinHood
 import SSFUtils
 import SSFNetwork
 import SoraKeystore
+import SSFModels
 
 final class WalletMainContainerAssembly {
     static func configureModule(
@@ -18,6 +19,10 @@ final class WalletMainContainerAssembly {
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: []
+        )
+
+        let userRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
         )
 
         let storageOperationFactory = StorageRequestFactory(
@@ -54,7 +59,8 @@ final class WalletMainContainerAssembly {
             deprecatedAccountsCheckService: deprecatedAccountsCheckService,
             applicationHandler: ApplicationHandler(),
             walletConnectService: walletConnect,
-            featureToggleService: featureToggleProvider
+            featureToggleService: featureToggleProvider,
+            tonConnectService: ServiceAssembly.shared.tonConnectService()
         )
 
         let router = WalletMainContainerRouter()

@@ -25,7 +25,7 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
                 return
             }
             rootAnimator.animateTransition(to: pincodeViewController)
-        case .chain:
+        case .chain, .ethereum:
             dismiss(view: view)
         }
     }

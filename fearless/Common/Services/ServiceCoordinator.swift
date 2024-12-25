@@ -6,6 +6,7 @@ import SSFUtils
 import SSFChainRegistry
 import SSFNetwork
 import SSFStorageQueryKit
+import SSFModels
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -21,6 +22,8 @@ final class ServiceCoordinator {
     private let walletAssetsObserver: WalletAssetsObserver
     private let pricesService: PricesServiceProtocol
     private let okxSyncService: OKXSyncService
+    private let tonConnectService: TonConnectService
+    private let toggleService: LocalToggleService
 
     init(
         walletSettings: SelectedWalletSettings,
@@ -31,7 +34,9 @@ final class ServiceCoordinator {
         walletConnect: WalletConnectService,
         walletAssetsObserver: WalletAssetsObserver,
         pricesService: PricesServiceProtocol,
-        okxSyncService: OKXSyncService
+        okxSyncService: OKXSyncService,
+        tonConnectService: TonConnectService,
+        toggleService: LocalToggleService
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
@@ -42,6 +47,8 @@ final class ServiceCoordinator {
         self.walletAssetsObserver = walletAssetsObserver
         self.pricesService = pricesService
         self.okxSyncService = okxSyncService
+        self.tonConnectService = tonConnectService
+        self.toggleService = toggleService
     }
 }
 
@@ -65,6 +72,8 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         walletConnect.setup()
         walletAssetsObserver.setup()
         pricesService.setup()
+        tonConnectService.setup()
+        toggleService.setup()
     }
 
     func throttle() {
@@ -72,6 +81,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         accountInfoService.throttle()
         walletConnect.throttle()
         walletAssetsObserver.throttle()
+        tonConnectService.throttle()
     }
 }
 
@@ -96,47 +106,15 @@ extension ServiceCoordinator {
             logger: logger
         )
 
-        let ethereumBalanceRepositoryWrapper = EthereumBalanceRepositoryCacheWrapper(
-            logger: logger,
-            repository: repository,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let ethereumWalletRemoteSubscription = EthereumWalletRemoteSubscriptionService(
-            chainRegistry: chainRegistry,
-            logger: logger,
-            repository: repository,
-            operationManager: OperationManagerFacade.sharedManager,
-            repositoryWrapper: ethereumBalanceRepositoryWrapper
-        )
-
         let accountInfoService = AccountInfoUpdatingService(
             selectedAccount: selectedMetaAccount,
             chainRegistry: chainRegistry,
             remoteSubscriptionService: walletRemoteSubscription,
-            ethereumRemoteSubscriptionService: ethereumWalletRemoteSubscription,
             logger: logger,
             eventCenter: EventCenter.shared
         )
 
-        let runtimeMetadataRepository: AsyncCoreDataRepositoryDefault<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createAsyncRepository()
-
-        let ethereumRemoteBalanceFetching = EthereumRemoteBalanceFetching(
-            chainRegistry: chainRegistry,
-            repositoryWrapper: ethereumBalanceRepositoryWrapper
-        )
-
-        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
-            chainRegistry: chainRegistry
-        )
-
-        let accountInfoRemote = AccountInfoRemoteServiceDefault(
-            runtimeItemRepository: AsyncAnyRepository(runtimeMetadataRepository),
-            ethereumRemoteBalanceFetching: ethereumRemoteBalanceFetching,
-            storagePerformer: storagePerformer
-        )
-
+        let accountInfoRemote = ServiceAssembly.shared.accountInfoRemoteServiceDefault()
         let walletAssetsObserver = WalletAssetsObserverImpl(
             wallet: selectedMetaAccount,
             chainRegistry: chainRegistry,
@@ -162,32 +140,9 @@ extension ServiceCoordinator {
             walletConnect: walletConnect,
             walletAssetsObserver: walletAssetsObserver,
             pricesService: PricesService.shared,
-            okxSyncService: OKXSyncServiceImpl(okxService: okxService)
+            okxSyncService: OKXSyncServiceImpl(okxService: okxService),
+            tonConnectService: ServiceAssembly.shared.tonConnectService(),
+            toggleService: ServiceAssembly.shared.localToggle
         )
-    }
-
-    private static func createPackageChainRegistry() -> SSFChainRegistry.ChainRegistryProtocol {
-        let chainSyncService = SSFChainRegistry.ChainSyncService(
-            chainsUrl: ApplicationConfig.shared.chainsSourceUrl,
-            operationQueue: OperationQueue(),
-            dataFetchFactory: SSFNetwork.NetworkOperationFactory()
-        )
-
-        let chainsTypesSyncService = SSFChainRegistry.ChainsTypesSyncService(
-            url: ApplicationConfig.shared.chainTypesSourceUrl,
-            dataOperationFactory: SSFNetwork.NetworkOperationFactory(),
-            operationQueue: OperationQueue()
-        )
-
-        let runtimeSyncService = SSFChainRegistry.RuntimeSyncService(dataOperationFactory: NetworkOperationFactory())
-
-        let chainRegistry = SSFChainRegistry.ChainRegistry(
-            runtimeProviderPool: SSFChainRegistry.RuntimeProviderPool(),
-            connectionPool: SSFChainRegistry.ConnectionPool(),
-            chainSyncService: chainSyncService,
-            chainsTypesSyncService: chainsTypesSyncService,
-            runtimeSyncService: runtimeSyncService
-        )
-        return chainRegistry
     }
 }

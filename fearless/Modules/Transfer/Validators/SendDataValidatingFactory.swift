@@ -1,0 +1,214 @@
+import Foundation
+import SSFXCM
+import SoraFoundation
+import BigInt
+import SSFModels
+
+enum BalanceType {
+    case utility(balance: Decimal?)
+    case orml(balance: Decimal?, utilityBalance: Decimal?)
+}
+
+class SendDataValidatingFactory: NSObject {
+    private lazy var xcmAmountInspector: XcmMinAmountInspector = {
+        XcmMinAmountInspectorImpl()
+    }()
+
+    weak var view: (Localizable & ControllerBackedProtocol)?
+    var basePresentable: BaseErrorPresentable
+
+    init(
+        presentable: BaseErrorPresentable
+    ) {
+        basePresentable = presentable
+    }
+
+    func canPayFeeAndAmount(
+        balanceType: BalanceType,
+        feeAndTip: Decimal?,
+        sendAmount: Decimal?,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentAmountTooHigh(from: view, locale: locale)
+
+        }, preservesCondition: {
+            switch balanceType {
+            case let .utility(balance):
+                if let balance = balance,
+                   let feeAndTip = feeAndTip {
+                    return sendAmount.or(.zero) + feeAndTip <= balance && sendAmount.or(1) > 0
+                } else {
+                    return false
+                }
+            case let .orml(balance, utilityBalance):
+                if let balance = balance,
+                   let feeAndTip = feeAndTip,
+                   let utilityBalance = utilityBalance {
+                    return sendAmount.or(.zero) <= balance && feeAndTip <= utilityBalance
+                } else {
+                    return false
+                }
+            }
+        })
+    }
+
+    func has(fee: Decimal?, locale: Locale, onError: (() -> Void)?) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            defer {
+                onError?()
+            }
+
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentFeeNotReceived(from: view, locale: locale)
+        }, preservesCondition: { fee != nil })
+    }
+
+    func exsitentialDepositIsNotViolated(
+        spending: Decimal,
+        balance: Decimal,
+        minimumBalance: Decimal,
+        chainAsset: ChainAsset,
+        locale: Locale,
+        canProceedIfViolated: Bool = true,
+        sendAllEnabled: Bool = false,
+        proceedAction: @escaping () -> Void,
+        setMaxAction: @escaping () -> Void,
+        cancelAction: @escaping () -> Void
+    ) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] _ in
+            guard let view = self?.view else {
+                return
+            }
+
+            let symbol = chainAsset.chain.utilityAssets().first?.symbolUppercased ?? chainAsset.asset.symbolUppercased
+            let existentianDepositValue = "\(minimumBalance) \(symbol)"
+
+            if !canProceedIfViolated {
+                self?.basePresentable.presentExistentialDepositError(
+                    existentianDepositValue: existentianDepositValue,
+                    from: view,
+                    locale: locale
+                )
+            }
+            self?.basePresentable.presentExistentialDepositWarning(
+                existentianDepositValue: existentianDepositValue,
+                from: view,
+                proceedHandler: proceedAction,
+                setMaxHandler: setMaxAction,
+                cancelHandler: cancelAction,
+                locale: locale
+            )
+        }, preservesCondition: {
+            if sendAllEnabled, canProceedIfViolated {
+                return true
+            }
+            return balance - spending >= minimumBalance
+        })
+    }
+
+    func destinationExistentialDepositIsNotViolated(
+        willReceived: Decimal,
+        minimumBalance: Decimal,
+        locale: Locale
+    ) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] _ in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.basePresentable.presentDestinationExistentialDepositError(from: view, locale: locale)
+
+        }, preservesCondition: {
+            willReceived >= minimumBalance
+        })
+    }
+
+    func soraBridgeViolated(
+        originCHain: ChainModel,
+        destChain: ChainModel?,
+        amount: Decimal,
+        locale: Locale,
+        asset: AssetModel
+    ) -> DataValidating {
+        ErrorThrowingViolation(onError: { [weak self] errorText in
+            guard let self, let view = self.view else {
+                return
+            }
+
+            self.basePresentable.presentSoraBridgeLowAmountError(
+                from: view,
+                locale: locale,
+                assetAmount: errorText
+            )
+        }, preservesCondition: { [weak self] in
+            guard
+                let self,
+                let destChain,
+                let substrateAmount = amount.toSubstrateAmount(precision: Int16(asset.precision))
+            else {
+                return nil
+            }
+            do {
+                try self.xcmAmountInspector.inspectMin(
+                    amount: substrateAmount,
+                    fromChainModel: originCHain,
+                    destChainModel: destChain,
+                    assetSymbol: asset.symbol
+                )
+                return nil
+            } catch {
+                guard let xcmError = error as? XcmError, case let .minAmountError(minAmount) = xcmError else {
+                    return nil
+                }
+                return minAmount
+            }
+        })
+    }
+
+    func soraBridgeAmountLessFeeViolated(
+        originCHainId: ChainModel.Id,
+        destChainId: ChainModel.Id?,
+        amount: Decimal,
+        fee: Decimal?,
+        locale: Locale
+    ) -> DataValidating {
+        WarningConditionViolation { [weak self] delegate in
+            guard let view = self?.view else {
+                return
+            }
+            let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
+            let originKnownChain = Chain(chainId: originCHainId)?.rawValue ?? ""
+            let message = R.string.localizable.soraBridgeAmountLessFee(originKnownChain, preferredLanguages: locale.rLanguages)
+            self?.basePresentable.presentWarning(
+                for: title,
+                message: message,
+                action: { delegate.didCompleteWarningHandling() },
+                view: view,
+                locale: locale
+            )
+        } preservesCondition: {
+            guard let destChainId = destChainId, let fee = fee else {
+                return false
+            }
+            let originKnownChain = Chain(chainId: originCHainId)
+            let destKnownChain = Chain(chainId: destChainId)
+
+            switch (originKnownChain, destKnownChain) {
+            case (.soraMain, .kusama):
+                return amount > fee
+            case (.soraMain, .polkadot):
+                return amount > fee
+            default:
+                return true
+            }
+        }
+    }
+}

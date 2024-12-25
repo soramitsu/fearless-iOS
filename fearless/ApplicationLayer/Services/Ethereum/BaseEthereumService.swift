@@ -128,7 +128,6 @@ class BaseEthereumService: EthereumService {
             _ = try await queryMaxPriorityFeePerGas()
             return true
         } catch {
-            print("error: ", error)
             return false
         }
     }

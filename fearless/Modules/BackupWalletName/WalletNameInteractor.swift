@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 protocol WalletNameInteractorOutput: AnyObject {
     func didReceiveSaveOperation(result: Result<MetaAccountModel, Error>)

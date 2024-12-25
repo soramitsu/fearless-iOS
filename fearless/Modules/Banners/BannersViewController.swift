@@ -91,4 +91,11 @@ extension BannersViewController: UICollectionViewDelegate {
 
         rootView.pageControl.currentPage = Int(offSet + horizontalCenter) / Int(width)
     }
+
+    func collectionView(_: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let viewModel = dataSource?.data[safe: indexPath.row] else {
+            return
+        }
+        output.didTapOnBanner(viewModel.bannerType)
+    }
 }

@@ -1,5 +1,6 @@
 import UIKit
 import SSFModels
+import SSFAccountManagment
 
 final class BalanceLocksDetailInteractor {
     // MARK: - Private properties

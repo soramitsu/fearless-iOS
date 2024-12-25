@@ -11,14 +11,7 @@ final class SelectCurrencyRouter: SelectCurrencyRouterInput {
         if viewIsModal {
             view?.controller.dismiss(animated: true)
         } else {
-            guard let navigationController = view?.controller.navigationController else {
-                return
-            }
-
-            MainTransitionHelper.transitToMainTabBarController(
-                closing: navigationController,
-                animated: true
-            )
+            view?.controller.navigationController?.popViewController(animated: true)
         }
     }
 

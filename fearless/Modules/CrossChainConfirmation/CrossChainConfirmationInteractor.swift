@@ -3,6 +3,7 @@ import SSFXCM
 import RobinHood
 import BigInt
 import SSFModels
+import SSFCrypto
 
 protocol CrossChainConfirmationInteractorOutput: AnyObject {
     func didTransfer(result: Result<String, Error>)

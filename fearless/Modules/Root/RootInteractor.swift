@@ -7,7 +7,10 @@ import SoraFoundation
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
-    private let chainRegistry: ChainRegistryProtocol
+    private lazy var chainRegistry: ChainRegistryProtocol = {
+        ChainRegistryFacade.sharedRegistry
+    }()
+
     private let settings: SelectedWalletSettings
     private let applicationConfig: ApplicationConfigProtocol
     private let eventCenter: EventCenterProtocol
@@ -17,7 +20,6 @@ final class RootInteractor {
     private let onboardingConfigResolver: OnboardingConfigVersionResolver
 
     init(
-        chainRegistry: ChainRegistryProtocol,
         settings: SelectedWalletSettings,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
@@ -26,7 +28,6 @@ final class RootInteractor {
         onboardingService: OnboardingServiceProtocol,
         onboardingConfigResolver: OnboardingConfigVersionResolver
     ) {
-        self.chainRegistry = chainRegistry
         self.settings = settings
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
@@ -44,8 +45,13 @@ final class RootInteractor {
             callbackUrl: callbackUrl,
             eventCenter: eventCenter
         )
+        let tonConnectUrlHandler = TonConnectUrlHandling()
 
-        URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
+        URLHandlingService.shared.setup(children: [
+            purchaseHandler,
+            keystoreImportService,
+            tonConnectUrlHandler
+        ])
     }
 
     private func runMigrators() {
@@ -62,12 +68,11 @@ final class RootInteractor {
 extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
         setupURLHandlingService()
+        if runMigrations {
+            runMigrators()
+        }
 
         settings.setup(runningCompletionIn: .global()) { result in
-            if runMigrations {
-                self.runMigrators()
-            }
-
             switch result {
             case let .success(wallet):
                 if let wallet = wallet {

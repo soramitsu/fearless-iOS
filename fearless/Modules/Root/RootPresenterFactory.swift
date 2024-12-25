@@ -40,23 +40,17 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             startViewHelper: startViewHelper
         )
 
-        let assetManagementMigrator = AssetManagementMigratorAssembly.createDefaultMigrator()
-
         let migrators: [Migrating] = [
             languageMigrator,
             dbMigrator,
             substrateDbMigrator
         ]
 
-        let service = OnboardingService(
-            networkOperationFactory: NetworkOperationFactory(jsonDecoder: GithubJSONDecoder()),
-            operationQueue: OperationQueue()
-        )
+        let service = OnboardingService()
 
         let resolver = OnboardingConfigVersionResolver(userDefaultsStorage: SettingsManager.shared)
 
         let interactor = RootInteractor(
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
             settings: SelectedWalletSettings.shared,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,

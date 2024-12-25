@@ -18,19 +18,22 @@ final class WalletConnectSessionInteractor {
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
+    private let tonConnectService: TonConnectService
 
     init(
         walletConnect: WalletConnectService,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainRepository: AnyDataProviderRepository<ChainModel>,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        tonConnectService: TonConnectService
     ) {
         self.walletConnect = walletConnect
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.walletRepository = walletRepository
         self.chainRepository = chainRepository
         self.operationQueue = operationQueue
+        self.tonConnectService = tonConnectService
     }
 
     // MARK: - Private methods
@@ -71,6 +74,10 @@ final class WalletConnectSessionInteractor {
 // MARK: - WalletConnectSessionInteractorInput
 
 extension WalletConnectSessionInteractor: WalletConnectSessionInteractorInput {
+    func cancelTonConnect(appRequest: TonConnect.AppRequest, app: TonConnectApp) async throws {
+        try await tonConnectService.cancelRequest(appRequest: appRequest, app: app)
+    }
+
     func submit(signDecision: WalletConnectSignDecision) async throws {
         try await walletConnect.submit(signDecision: signDecision)
     }

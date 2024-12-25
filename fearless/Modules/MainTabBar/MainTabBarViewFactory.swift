@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
-
+import SSFModels
 import SSFUtils
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
@@ -55,15 +55,22 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             applicationHandler: ApplicationHandler(),
             networkStatusPresenter: networkStatusPresenter,
             reachability: ReachabilityManager.shared,
-            walletConnectCoordinator: WalletConnectCoordinator(),
-            localizationManager: localizationManager
+            walletConnectCoordinator: WalletConnectCoordinator.shared,
+            localizationManager: localizationManager,
+            eventCenter: EventCenter.shared
         )
 
-        let viewControllers = createViewControllers(stakingModuleOutput: presenter, walletConnect: walletConnect, wallet: wallet)
+        let viewControllers = createViewControllers(
+            stakingModuleOutput: presenter,
+            walletConnect: walletConnect,
+            wallet: wallet
+        )
         let view = MainTabBarViewController(
             viewControllers: viewControllers,
             presenter: presenter,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            eventCenter: EventCenter.shared,
+            wallet: wallet
         )
 
         return view
@@ -77,6 +84,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         var viewControllers: [UIViewController?] = []
         let walletController = createWalletController(walletConnect: walletConnect)
         viewControllers.append(walletController)
+
+        let dAppController = createBrowserController(wallet: wallet)
+        viewControllers.append(dAppController)
 
         let crowdloanController = createCrowdloanController()
         viewControllers.append(crowdloanController)
@@ -93,16 +103,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewControllers.compactMap { $0 }
     }
 
-    static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
-        guard let crowdloanController = createCrowdloanController() else {
-            return nil
-        }
-
-        view.didReplaceView(for: crowdloanController, for: Self.crowdloanIndex)
-
-        return crowdloanController
-    }
-
     @discardableResult
     static func reloadStakingView(
         on view: MainTabBarViewProtocol,
@@ -112,7 +112,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         switch stakingType {
         case .normal:
             let stakingViewController = createStakingController(moduleOutput: moduleOutput)
-            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+            if let stakingViewController = stakingViewController {
+                view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+            }
 
             return stakingViewController
         case .pool:
@@ -150,20 +152,27 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createStakingController(
         moduleOutput: StakingMainModuleOutput?
-    ) -> UIViewController {
-        let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller ?? UIViewController()
+    ) -> UIViewController? {
+        let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller
 
         let icon = R.image.iconTabStaking()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(
+
+        var navigationController: FearlessNavigationController
+
+        if let viewController = viewController {
+            navigationController = FearlessNavigationController(rootViewController: viewController)
+        } else {
+            navigationController = FearlessNavigationController()
+        }
+
+        navigationController.tabBarItem = createTabBarItem(
             normalImage: normalIcon,
             selectedImage: selectedIcon
         )
-
-        let navigationController = FearlessNavigationController(rootViewController: viewController)
 
         return navigationController
     }
@@ -208,6 +217,32 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return navigationController
     }
 
+    static func createBrowserController(wallet: MetaAccountModel) -> UIViewController? {
+        guard let controller = DappBrowserAssembly.configureModule(wallet: wallet)?.view.controller else {
+            return nil
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+
+        let icon = R.image.iconBrowser()
+        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
+            .withRenderingMode(.alwaysOriginal)
+        navigationController.tabBarItem = createTabBarItem(
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
+
+        return navigationController
+    }
+
+    static func createPolkaswapController(wallet _: MetaAccountModel) -> UIViewController? {
+        let fakeSwapViewController = UIViewController()
+        fakeSwapViewController.tabBarItem.isEnabled = false
+        return fakeSwapViewController
+    }
+
     static func createCrowdloanController() -> UIViewController? {
         let crowdloanState = CrowdloanSharedState()
         crowdloanState.settings.setup()
@@ -234,12 +269,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         )
 
         return navigationController
-    }
-
-    static func createPolkaswapController(wallet _: MetaAccountModel) -> UIViewController? {
-        let fakeSwapViewController = UIViewController()
-        fakeSwapViewController.tabBarItem.isEnabled = false
-        return fakeSwapViewController
     }
 
     static func createTabBarItem(

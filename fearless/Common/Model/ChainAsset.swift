@@ -5,36 +5,40 @@ import SSFModels
 extension ChainAsset {
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
 
-    var identifier: String {
-        [chain.identifier, asset.id].joined(separator: " : ")
-    }
-
     var storagePath: StorageCodingPath {
         var storagePath: StorageCodingPath
+
         switch chainAssetType {
-        case .normal, .equilibrium, .none:
-            storagePath = StorageCodingPath.account
-        case
-            .ormlChain,
-            .ormlAsset,
-            .foreignAsset,
-            .stableAssetPoolToken,
-            .liquidCrowdloan,
-            .vToken,
-            .vsToken,
-            .stable,
-            .assetId,
-            .token2,
-            .xcm:
-            storagePath = StorageCodingPath.tokens
-        case .assets:
-            storagePath = StorageCodingPath.assetsAccount
-        case .soraAsset:
-            if isUtility {
+        case let .substrate(substrateType: substrateType):
+            switch substrateType {
+            case .normal, .equilibrium:
                 storagePath = StorageCodingPath.account
-            } else {
+            case
+                .ormlChain,
+                .ormlAsset,
+                .foreignAsset,
+                .stableAssetPoolToken,
+                .liquidCrowdloan,
+                .vToken,
+                .vsToken,
+                .stable,
+                .assetId,
+                .token2,
+                .xcm:
                 storagePath = StorageCodingPath.tokens
+            case .assets:
+                storagePath = StorageCodingPath.assetsAccount
+            case .soraAsset:
+                if isUtility {
+                    storagePath = StorageCodingPath.account
+                } else {
+                    storagePath = StorageCodingPath.tokens
+                }
             }
+        case .ethereum:
+            storagePath = .account
+        case .ton:
+            storagePath = .tokens
         }
 
         return storagePath

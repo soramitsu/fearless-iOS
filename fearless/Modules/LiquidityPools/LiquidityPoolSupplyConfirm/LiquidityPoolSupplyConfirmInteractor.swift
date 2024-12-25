@@ -3,6 +3,7 @@ import SSFModels
 import SSFPolkaswap
 import SSFPools
 import BigInt
+import SSFCrypto
 
 protocol LiquidityPoolSupplyConfirmInteractorOutput: AnyObject {
     func didReceiveFee(_ fee: BigUInt)

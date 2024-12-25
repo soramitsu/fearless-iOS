@@ -1,7 +1,7 @@
 import UIKit
 
 final class WalletConnectProposalViewLayout: UIView {
-    private let status: WalletConnectProposalPresenter.SessionStatus
+    private let status: SessionStatus
 
     var locale: Locale = .current {
         didSet {
@@ -44,7 +44,7 @@ final class WalletConnectProposalViewLayout: UIView {
         return view
     }()
 
-    init(status: WalletConnectProposalPresenter.SessionStatus) {
+    init(status: SessionStatus) {
         self.status = status
         super.init(frame: .zero)
         backgroundColor = R.color.colorBlack19()!

@@ -51,10 +51,6 @@ final class UsernameSetupViewController: UIViewController, ViewHolder {
         setupKeyboardHandler()
     }
 
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-    }
-
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()

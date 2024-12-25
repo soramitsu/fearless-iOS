@@ -1,5 +1,6 @@
 import SSFModels
 import Web3
+import SSFAccountManagment
 
 final class OKXCrossChainDataFetching {
     private let okxService: OKXDexAggregatorService

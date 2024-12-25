@@ -478,7 +478,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         assetIconViewModel = viewModel.assetIcon
         balanceViewModel = viewModel.balanceViewModel
 
-        iconButton.imageWithTitleView?.iconImage = R.image.iconFearlessRounded()
+        iconButton.imageWithTitleView?.iconImage = viewModel.walletIcon
         iconButton.invalidateLayout()
 
         networkInfoView?.bind(chainName: viewModel.chainName)

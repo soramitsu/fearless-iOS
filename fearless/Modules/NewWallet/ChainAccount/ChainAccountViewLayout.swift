@@ -281,8 +281,6 @@ private extension ChainAccountViewLayout {
     }
 
     func setupNavigationViewLayout() {
-        selectNetworkButton.isUserInteractionEnabled = false
-
         navigationBar.addSubview(backButton)
         backButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()

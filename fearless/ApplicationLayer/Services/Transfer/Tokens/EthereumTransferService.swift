@@ -27,7 +27,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
     }
 
     func estimateFee(for transfer: Transfer) async throws -> BigUInt {
-        switch transfer.chainAsset.asset.ethereumType {
+        switch transfer.chainAsset.asset.assetType.ethereumAssetType {
         case .normal:
             let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
             let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
@@ -56,7 +56,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
     }
 
     func estimateFee(for transfer: Transfer, baseFeePerGas: EthereumQuantity) async throws -> BigUInt {
-        switch transfer.chainAsset.asset.ethereumType {
+        switch transfer.chainAsset.asset.assetType.ethereumAssetType {
         case .normal:
             let address = try EthereumAddress(rawAddress: transfer.receiver.hexToBytes())
             let call = EthereumCall(to: address)
@@ -218,7 +218,7 @@ final class EthereumTransferService: BaseEthereumService, TransferServiceProtoco
     // MARK: Transfers
 
     func submit(transfer: Transfer) async throws -> String {
-        switch transfer.chainAsset.asset.ethereumType {
+        switch transfer.chainAsset.asset.assetType.ethereumAssetType {
         case .normal:
             return try await transferNative(transfer: transfer)
         case .erc20, .bep20:

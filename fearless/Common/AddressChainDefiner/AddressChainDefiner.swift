@@ -1,5 +1,6 @@
 import RobinHood
 import SSFModels
+import SSFCrypto
 
 enum AddressValidationResult {
     case valid(String)
@@ -57,7 +58,7 @@ final class AddressChainDefiner {
                     guard strongSelf.chainIsEnabled(chain: chain) else {
                         return false
                     }
-                    return strongSelf.validate(address: address, for: chain).isValidOrSame
+                    return strongSelf.validate(address: address, for: chain).isValidOrSame && strongSelf.validateEcosystem(for: chain)
                 }
                 continuation.resume(returning: posssibleChains)
             }
@@ -68,10 +69,19 @@ final class AddressChainDefiner {
         guard let address = address, address.isNotEmpty, let accoundId = (try? AddressFactory.accountId(from: address, chain: chain)) else {
             return .invalid(address)
         }
-        if accoundId == wallet.substrateAccountId || accoundId == wallet.ethereumAddress {
+        if accoundId == wallet.ecosystem.substrateAccountId || accoundId == wallet.ecosystem.ethereumAddress {
             return .sameAddress(address)
         }
         return .valid(address)
+    }
+
+    private func validateEcosystem(for chain: ChainModel) -> Bool {
+        switch wallet.ecosystem {
+        case .regular:
+            return !chain.ecosystem.isTon
+        case .ton:
+            return chain.ecosystem.isTon
+        }
     }
 
     private func chainIsEnabled(chain: ChainModel) -> Bool {

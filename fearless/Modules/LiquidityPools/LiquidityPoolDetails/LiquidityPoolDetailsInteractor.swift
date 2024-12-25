@@ -3,6 +3,8 @@ import SSFModels
 import SSFPolkaswap
 import SSFPools
 import SSFStorageQueryKit
+import SSFAccountManagment
+import SSFCrypto
 
 protocol LiquidityPoolDetailsInteractorOutput: AnyObject {
     func didReceiveLiquidityPair(liquidityPair: LiquidityPair?)

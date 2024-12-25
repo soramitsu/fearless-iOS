@@ -17,17 +17,20 @@ final class WalletConnectProposalInteractor {
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
+    private let tonConnectService: TonConnectService
 
     init(
         walletConnect: WalletConnectService,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainRepository: AnyDataProviderRepository<ChainModel>,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        tonConnectService: TonConnectService
     ) {
         self.walletConnect = walletConnect
         self.walletRepository = walletRepository
         self.chainRepository = chainRepository
         self.operationQueue = operationQueue
+        self.tonConnectService = tonConnectService
     }
 
     // MARK: - Private methods
@@ -74,5 +77,19 @@ extension WalletConnectProposalInteractor: WalletConnectProposalInteractorInput 
 
     func submitDisconnect(topic: String) async throws {
         try await walletConnect.disconnect(topic: topic)
+    }
+
+    func confirmConnectionRequest(
+        wallet: MetaAccountModel,
+        tonChainModel: ChainModel,
+        params: TonConnectParameters,
+        manifest: TonConnectManifest
+    ) async throws {
+        try await tonConnectService.confirmConnectionRequest(
+            wallet: wallet,
+            tonChainModel: tonChainModel,
+            params: params,
+            manifest: manifest
+        )
     }
 }

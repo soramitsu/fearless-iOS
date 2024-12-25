@@ -70,10 +70,12 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             language: language,
             currency: currency,
             locale: locale,
-            missingAccountIssue: missingAccountIssue
+            missingAccountIssue: missingAccountIssue,
+            ecosystem: wallet.ecosystem
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         let viewModel = ProfileViewModel(
+            wallet: wallet,
             profileUserViewModel: profileUserViewModel,
             profileOptionViewModel: profileOptionViewModel,
             logoutViewModel: logoutViewModel
@@ -108,15 +110,17 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             )
         }
 
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let address = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
 
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
+            icon: wallet.icon(),
             fiatBalance: fiatBalance,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel
+            accountScoreViewModel: accountScoreViewModel,
+            optionsAvailable: wallet.ecosystem.isRegular
         )
     }
 
@@ -124,22 +128,38 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         language: Language,
         currency: Currency,
         locale: Locale,
-        missingAccountIssue: [ChainIssue]
+        missingAccountIssue: [ChainIssue],
+        ecosystem: WalletEcosystem
     ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .walletConnect:
+                guard ecosystem.isRegular else {
+                    return nil
+                }
+
                 return createWalletConnectViewModel(locale: locale)
             case .accountList:
+                let missingEthAccount: Bool
+                switch ecosystem {
+                case .regular:
+                    missingEthAccount = missingAccountIssue.isNotEmpty
+                case .ton:
+                    missingEthAccount = false
+                }
                 return createAccountListViewModel(
                     for: locale,
-                    missingEthAccount: missingAccountIssue.isNotEmpty
+                    missingEthAccount: missingEthAccount
                 )
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
                 return createLanguageViewModel(from: language, locale: locale)
             case .polkaswapDisclaimer:
+                guard ecosystem.isRegular else {
+                    return nil
+                }
+
                 return createPolkaswapDisclaimer(locale: locale)
             case .about:
                 return createAboutViewModel(for: locale)
@@ -148,6 +168,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .accountScore:
+                guard ecosystem.isRegular else {
+                    return nil
+                }
+
                 return createAccountScoreViewModel(locale: locale)
             }
         }

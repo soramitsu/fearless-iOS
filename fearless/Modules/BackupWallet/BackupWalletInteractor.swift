@@ -107,20 +107,24 @@ extension BackupWalletInteractor: BackupWalletInteractorInput {
     }
 
     func removeBackupFromGoogle() {
-        let address42 = try? wallet.substratePublicKey.toAddress(using: .substrate(42))
-        let account = OpenBackupAccount(address: address42 ?? wallet.substratePublicKey.toHex())
-
-        Task {
-            do {
-                try await cloudStorage?.deleteBackup(account: account)
-                await MainActor.run {
-                    output?.didReceiveRemove(result: .success(()))
-                }
-            } catch {
-                await MainActor.run {
-                    output?.didReceiveRemove(result: .failure(error))
+        switch wallet.ecosystem {
+        case let .regular(regular):
+            Task {
+                do {
+                    let address42 = try? regular.substratePublicKey.toAddress(using: .substrate(42))
+                    let account = OpenBackupAccount(address: address42 ?? regular.substratePublicKey.toHex())
+                    try await cloudStorage?.deleteBackup(account: account)
+                    await MainActor.run {
+                        output?.didReceiveRemove(result: .success(()))
+                    }
+                } catch {
+                    await MainActor.run {
+                        output?.didReceiveRemove(result: .failure(error))
+                    }
                 }
             }
+        case .ton:
+            break
         }
     }
 

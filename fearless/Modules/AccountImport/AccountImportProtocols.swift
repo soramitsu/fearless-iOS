@@ -38,7 +38,11 @@ protocol AccountImportPresenterProtocol: AnyObject {
 protocol AccountImportInteractorInputProtocol: AnyObject {
     func setup()
     func importMetaAccount(request: MetaAccountImportRequest)
-    func importUniqueChain(request: UniqueChainImportRequest)
+    func importUniqueChain(
+        source: UniqueChainImportRequestSource,
+        wallet: MetaAccountModel,
+        request: UniqueChainImportRequest
+    )
     func deriveMetadataFromKeystore(_ keystore: String)
     func createMnemonicFromString(_ mnemonicString: String) -> IRMnemonicProtocol?
 }

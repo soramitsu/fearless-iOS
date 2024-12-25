@@ -10,7 +10,7 @@ final class ChainAssetListPresenter {
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
-
+    var bannersInput: BannersModuleInput?
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
     private var chainAssets: [ChainAsset]?
@@ -35,6 +35,7 @@ final class ChainAssetListPresenter {
         self.router = router
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
+
         self.localizationManager = localizationManager
     }
 
@@ -64,6 +65,10 @@ final class ChainAssetListPresenter {
 
             DispatchQueue.main.async {
                 self.view?.didReceive(viewModel: viewModel)
+
+                DispatchQueue.global().async {
+                    self.bannersInput?.reload()
+                }
             }
         }
     }
@@ -116,6 +121,8 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         self.view = view
         interactor.setup(with: self)
     }
+
+    func didAppear(view _: ChainAssetListViewInput) {}
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
         if viewModel.chainAsset.chain.isSupported {
@@ -194,7 +201,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
-    func updateViewModel(isInitSearchState _: Bool) {
+    func updateViewModel() {
         provideViewModel()
     }
 
@@ -342,9 +349,9 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
 extension ChainAssetListPresenter: BannersModuleOutput {
     func didTapCloseBanners() {}
 
-    func reloadBannersView() {
+    func reloadBannersView(bannersCount: Int) {
         DispatchQueue.main.async {
-            self.view?.reloadBanners()
+            self.view?.reloadBanners(shouldShowBanners: bannersCount > 0)
         }
     }
 }

@@ -212,15 +212,15 @@ class SubqueryHistoryOperationFactory {
                     assetId = extrinsic.assetId
                 }
 
-                if chainAsset.chainAssetType != .normal, assetId == nil {
+                if chainAsset.chainAssetType.substrateAssetType != .normal, assetId == nil {
                     return false
                 }
 
-                if chainAsset.chainAssetType == .normal, assetId != nil {
+                if chainAsset.chainAssetType.substrateAssetType == .normal, assetId != nil {
                     return false
                 }
 
-                if chainAsset.chainAssetType == .normal, assetId == nil {
+                if chainAsset.chainAssetType.substrateAssetType == .normal, assetId == nil {
                     return true
                 }
 

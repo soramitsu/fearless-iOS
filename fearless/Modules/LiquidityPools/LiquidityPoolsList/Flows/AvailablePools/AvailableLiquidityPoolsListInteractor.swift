@@ -3,6 +3,7 @@ import SSFPools
 import SSFPolkaswap
 import SSFModels
 import SSFStorageQueryKit
+import SSFCrypto
 
 protocol AvailableLiquidityPoolsListInteractorOutput: AnyObject {
     func didReceiveLiquidityPairs(pairs: [LiquidityPair]?)

@@ -64,7 +64,8 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
 
     private func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let controller = UsernameSetupViewFactory.createViewForOnboarding(
-            flow: .chain(model: uniqueChainModel)
+            flow: .chain(model: uniqueChainModel),
+            ecosystem: .regular // TODO: - Select ecosystem
         )?.controller else {
             return
         }

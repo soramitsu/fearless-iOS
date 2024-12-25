@@ -1,4 +1,5 @@
 import UIKit
+import SSFAccountManagment
 import IrohaCrypto
 import SSFUtils
 import RobinHood
@@ -86,7 +87,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 cryptoType: request.cryptoType,
                 defaultChainId: request.defaultChainId
             )
-            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: true)
+            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackedUp: true)
         case let .seed(data):
             let request = MetaAccountImportSeedRequest(
                 substrateSeed: data.substrateSeed,
@@ -96,7 +97,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 ethereumDerivationPath: data.ethereumDerivationPath,
                 cryptoType: request.cryptoType
             )
-            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: true)
+            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackedUp: true)
         case let .keystore(data):
             let request = MetaAccountImportKeystoreRequest(
                 substrateKeystore: data.substrateKeystore,
@@ -106,47 +107,57 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
                 username: request.username,
                 cryptoType: request.cryptoType
             )
-            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackuped: true)
+            operation = accountOperationFactory.newMetaAccountOperation(request: request, isBackedUp: true)
+        case let .ton(mnemonic):
+            let request = MetaAccountImportTonMnemonicRequest(
+                mnemonic: mnemonic,
+                username: request.username
+            )
+            operation = accountOperationFactory.newTonMetaAccountOperation(
+                request: request,
+                isBackedUp: true
+            )
         }
         importAccountUsingOperation(operation)
     }
 
-    func importUniqueChain(request: UniqueChainImportRequest) {
+    func importUniqueChain(
+        source: UniqueChainImportRequestSource,
+        wallet: MetaAccountModel,
+        request: UniqueChainImportRequest
+    ) {
         let operation: BaseOperation<MetaAccountModel>
-        switch request.source {
+        switch source {
         case let .mnemonic(data):
-            let request = ChainAccountImportMnemonicRequest(
+            let mnemonicRequest = ChainAccountImportMnemonicRequest(
+                wallet: wallet,
                 mnemonic: data.mnemonic,
                 username: request.username,
                 derivationPath: data.derivationPath,
                 cryptoType: request.cryptoType,
-                isEthereum: request.chain.isEthereumBased,
-                meta: request.meta,
-                chainId: request.chain.chainId
+                chains: request.chains
             )
-            operation = accountOperationFactory.importChainAccountOperation(request: request)
+            operation = accountOperationFactory.importChainAccountOperation(request: mnemonicRequest)
         case let .seed(data):
-            let request = ChainAccountImportSeedRequest(
+            let seedRequest = ChainAccountImportSeedRequest(
+                wallet: wallet,
                 seed: data.seed,
                 username: request.username,
                 derivationPath: data.derivationPath,
                 cryptoType: request.cryptoType,
-                isEthereum: request.chain.isEthereumBased,
-                meta: request.meta,
-                chainId: request.chain.chainId
+                chains: request.chains
             )
-            operation = accountOperationFactory.importChainAccountOperation(request: request)
+            operation = accountOperationFactory.importChainAccountOperation(request: seedRequest)
         case let .keystore(data):
-            let request = ChainAccountImportKeystoreRequest(
+            let keystoreRequest = ChainAccountImportKeystoreRequest(
+                wallet: wallet,
                 keystore: data.keystore,
                 password: data.password,
                 username: request.username,
                 cryptoType: request.cryptoType,
-                isEthereum: request.chain.isEthereumBased,
-                meta: request.meta,
-                chainId: request.chain.chainId
+                chains: request.chains
             )
-            operation = accountOperationFactory.importChainAccountOperation(request: request)
+            operation = accountOperationFactory.importChainAccountOperation(request: keystoreRequest)
         }
         importAccountUsingOperation(operation)
     }

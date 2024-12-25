@@ -4,6 +4,7 @@ import IrohaCrypto
 import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!

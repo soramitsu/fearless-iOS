@@ -1,5 +1,5 @@
 {
-  "originHash" : "ff607dea603fe5d698bde6ad8c990bd19ddf806208772a49e31f8a4f28fbe7c0",
+  "originHash" : "32c95351262bede99a72d45e969582e1f2e5a23d3ab1ed79d39a8cef5e63dead",
   "pins" : [
     {
       "identity" : "appauth-ios",
@@ -141,8 +141,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
-        "branch" : "fearless-wallet",
-        "revision" : "225d9bbf141cd8e818557b5ba70427bb65507fd2"
+        "branch" : "FW-new-ecosystem",
+        "revision" : "46eeda75fd638a132965b3115abf5a9aea899cd0"
       }
     },
     {
@@ -218,6 +218,15 @@
       }
     },
     {
+      "identity" : "swift-openapi-runtime",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-openapi-runtime",
+      "state" : {
+        "revision" : "a51b3bd6f2151e9a6f792ca6937a7242c4758768",
+        "version" : "0.3.6"
+      }
+    },
+    {
       "identity" : "swift-qrcode-generator",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/dagronf/swift-qrcode-generator",
@@ -260,6 +269,24 @@
       "state" : {
         "revision" : "4e538834483059ceefaaad8cdb3abe0d7d1c5146",
         "version" : "3.1.0"
+      }
+    },
+    {
+      "identity" : "ton-api-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/DRadmir/ton-api-swift.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "8ddff19a40d3d00503cab7fb9d9eb77459169488"
+      }
+    },
+    {
+      "identity" : "ton-swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/DRadmir/ton-swift.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "73c9894e2be8d6d16b87853342eb2755d2e4be8a"
       }
     },
     {

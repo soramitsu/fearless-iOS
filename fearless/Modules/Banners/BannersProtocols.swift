@@ -5,7 +5,7 @@ typealias BannersModuleCreationResult = (
     input: BannersModuleInput
 )
 
-protocol BannersRouterInput: AnyObject, SheetAlertPresentable {
+protocol BannersRouterInput: AnyObject, SheetAlertPresentable, AccountManagementPresentable {
     func showWalletBackupScreen(
         for wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
@@ -21,9 +21,10 @@ protocol BannersRouterInput: AnyObject, SheetAlertPresentable {
 protocol BannersModuleInput: AnyObject {
     func reload(with wallet: MetaAccountModel)
     func update(banners: [Banners])
+    func reload()
 }
 
 protocol BannersModuleOutput: AnyObject {
-    func reloadBannersView()
+    func reloadBannersView(bannersCount: Int)
     func didTapCloseBanners()
 }

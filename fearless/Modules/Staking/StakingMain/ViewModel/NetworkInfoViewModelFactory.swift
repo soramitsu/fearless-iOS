@@ -166,7 +166,8 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
             chainName: chainAsset.chain.name,
             assetName: chainAsset.chain.name,
             assetIcon: imageViewModel,
-            balanceViewModel: balanceViewModel
+            balanceViewModel: balanceViewModel,
+            walletIcon: selectedMetaAccount.icon()
         )
     }
 

@@ -1,4 +1,5 @@
 import UIKit
+import SSFAccountManagment
 import IrohaCrypto
 import SoraFoundation
 import SSFUtils
@@ -13,6 +14,7 @@ final class AccountCreatePresenter {
 
     let usernameSetup: UsernameSetupModel
     var flow: AccountCreateFlow
+    let ecosystem: AccountCreateEcosystem
 
     private var mnemonic: [String]?
     private var selectedCryptoType: CryptoType = .sr25519
@@ -20,11 +22,13 @@ final class AccountCreatePresenter {
     private var ethereumDerivationPathViewModel: InputViewModelProtocol?
 
     init(
+        ecosystem: AccountCreateEcosystem,
         usernameSetup: UsernameSetupModel,
         wireframe: AccountCreateWireframeProtocol,
         interactor: AccountCreateInteractorInputProtocol,
         flow: AccountCreateFlow
     ) {
+        self.ecosystem = ecosystem
         self.usernameSetup = usernameSetup
         self.wireframe = wireframe
         self.interactor = interactor
@@ -147,10 +151,14 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         case .wallet, .backup:
             view?.set(chainType: .both)
         case let .chain(model):
-            if let cryptoType = CryptoType(rawValue: model.meta.substrateCryptoType) {
+            if
+                let substrateCryptoType = model.meta.ecosystem.substrateCryptoType,
+                let cryptoType = CryptoType(rawValue: substrateCryptoType) {
                 selectedCryptoType = cryptoType
             }
             view?.set(chainType: model.chain.isEthereumBased ? .ethereum : .substrate)
+        case .ethereum:
+            view?.set(chainType: .ethereum)
         }
         applySubstrateCryptoTypeViewModel()
         applySubstrateDerivationPathViewModel()
@@ -228,10 +236,6 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         else {
             return
         }
-        guard let mnemonic = interactor.createMnemonicFromString(mnemonic.joined(separator: " ")) else {
-            didReceiveMnemonicGeneration(error: AccountCreateError.invalidMnemonicFormat)
-            return
-        }
 
         guard substrateViewModel.inputHandler.completed else {
             view?.didValidateSubstrateDerivationPath(.invalid)
@@ -249,30 +253,53 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         let substrateDerivationPath = (substrateDerivationPathViewModel?.inputHandler.value).nonEmpty(or: "")
         switch unwrappedFlow {
         case .wallet:
-            let request = MetaAccountImportMnemonicRequest(
-                mnemonic: mnemonic,
-                username: usernameSetup.username,
-                substrateDerivationPath: substrateDerivationPath,
-                ethereumDerivationPath: ethereumDerivationPath,
-                cryptoType: selectedCryptoType,
-                defaultChainId: nil
-            )
-            wireframe.confirm(
-                from: view,
-                flow: .wallet(request)
-            )
+            switch ecosystem {
+            case .regular:
+                guard let mnemonic = interactor.createMnemonicFromString(mnemonic.joined(separator: " ")) else {
+                    didReceiveMnemonicGeneration(error: AccountCreateError.invalidMnemonicFormat)
+                    return
+                }
+                let request = MetaAccountImportMnemonicRequest(
+                    mnemonic: mnemonic,
+                    username: usernameSetup.username,
+                    substrateDerivationPath: substrateDerivationPath,
+                    ethereumDerivationPath: ethereumDerivationPath,
+                    cryptoType: selectedCryptoType,
+                    defaultChainId: nil
+                )
+                wireframe.confirm(
+                    from: view,
+                    flow: .wallet(.regular(request))
+                )
+            case .ton:
+                let request = MetaAccountImportTonMnemonicRequest(
+                    mnemonic: mnemonic.joined(separator: " "),
+                    username: usernameSetup.username
+                )
+                wireframe.confirm(
+                    from: view,
+                    flow: .wallet(.ton(request))
+                )
+            }
         case let .chain(model):
+            guard let mnemonic = interactor.createMnemonicFromString(mnemonic.joined(separator: " ")) else {
+                didReceiveMnemonicGeneration(error: AccountCreateError.invalidMnemonicFormat)
+                return
+            }
             let request = ChainAccountImportMnemonicRequest(
+                wallet: model.meta,
                 mnemonic: mnemonic,
                 username: usernameSetup.username,
                 derivationPath: model.chain.isEthereumBased ? ethereumDerivationPath : substrateDerivationPath,
                 cryptoType: model.chain.isEthereumBased ? .ecdsa : selectedCryptoType,
-                isEthereum: model.chain.isEthereumBased,
-                meta: model.meta,
-                chainId: model.chain.chainId
+                chains: [model.chain]
             )
             wireframe.confirm(from: view, flow: .chain(request))
         case .backup:
+            guard let mnemonic = interactor.createMnemonicFromString(mnemonic.joined(separator: " ")) else {
+                didReceiveMnemonicGeneration(error: AccountCreateError.invalidMnemonicFormat)
+                return
+            }
             let request = MetaAccountImportMnemonicRequest(
                 mnemonic: mnemonic,
                 username: usernameSetup.username,
@@ -285,6 +312,20 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                 request: request,
                 from: view
             )
+        case let .ethereum(wallet: wallet, chains: chains):
+            guard let mnemonic = interactor.createMnemonicFromString(mnemonic.joined(separator: " ")) else {
+                didReceiveMnemonicGeneration(error: AccountCreateError.invalidMnemonicFormat)
+                return
+            }
+            let request = ChainAccountImportMnemonicRequest(
+                wallet: wallet,
+                mnemonic: mnemonic,
+                username: usernameSetup.username,
+                derivationPath: ethereumDerivationPath,
+                cryptoType: .ecdsa,
+                chains: chains
+            )
+            wireframe.confirm(from: view, flow: .chain(request))
         }
     }
 

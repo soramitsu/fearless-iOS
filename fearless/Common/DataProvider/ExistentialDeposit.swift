@@ -9,6 +9,10 @@ protocol ExistentialDepositServiceProtocol {
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     )
+
+    func fetchExistentialDeposit(
+        chainAsset: ChainAsset
+    ) async throws -> BigUInt
 }
 
 final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepositServiceProtocol {
@@ -16,18 +20,15 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
 
     private let operationManager: OperationManagerProtocol
     private let chainRegistry: ChainRegistryProtocol
-    private let chainId: ChainModel.Id
 
     // MARK: - Constructor
 
     init(
         operationManager: OperationManagerProtocol,
-        chainRegistry: ChainRegistryProtocol,
-        chainId: ChainModel.Id
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.operationManager = operationManager
         self.chainRegistry = chainRegistry
-        self.chainId = chainId
     }
 
     // MARK: - Public methods
@@ -36,12 +37,12 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
 
-        switch chainAsset.chainAssetType {
+        switch chainAsset.chainAssetType.substrateAssetType {
         case .equilibrium:
             fetchConstant(
                 for: .equilibriumExistentialDeposit,
@@ -61,13 +62,28 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         }
     }
 
+    func fetchExistentialDeposit(
+        chainAsset: ChainAsset
+    ) async throws -> BigUInt {
+        try await withUnsafeThrowingContinuation { continuation in
+            fetchExistentialDeposit(chainAsset: chainAsset) { result in
+                switch result {
+                case let .success(success):
+                    continuation.resume(returning: success)
+                case let .failure(failure):
+                    continuation.resume(throwing: failure)
+                }
+            }
+        }
+    }
+
     // MARK: - Private methods
 
     private func fetchSubAssetsExistentialDeposit(
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
-        guard let connection = chainRegistry.getConnection(for: chainId) else {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
             completion(.failure(ChainRegistryError.connectionUnavailable))
             return
         }
@@ -106,11 +122,11 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
-        guard let connection = chainRegistry.getConnection(for: chainId) else {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
             completion(.failure(ChainRegistryError.connectionUnavailable))
             return
         }
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }

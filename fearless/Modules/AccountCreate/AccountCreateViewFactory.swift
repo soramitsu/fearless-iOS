@@ -2,15 +2,23 @@ import Foundation
 import IrohaCrypto
 import SoraFoundation
 import SoraKeystore
+import SSFModels
+
+enum AccountCreateEcosystem {
+    case regular
+    case ton
+}
 
 final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     static func createViewForOnboarding(
+        ecosystem: AccountCreateEcosystem,
         model: UsernameSetupModel,
         flow: AccountCreateFlow
     ) -> AccountCreateViewProtocol? {
         let wireframe = AccountCreateWireframe()
 
         return createViewForUsername(
+            ecosystem: ecosystem,
             model: model,
             flow: flow,
             wireframe: wireframe
@@ -18,11 +26,13 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     }
 
     static func createViewForAdding(
+        ecosystem: AccountCreateEcosystem,
         model: UsernameSetupModel
     ) -> AccountCreateViewProtocol? {
         let wireframe = AddAccount.AccountCreateWireframe()
 
         return createViewForUsername(
+            ecosystem: ecosystem,
             model: model,
             flow: .wallet,
             wireframe: wireframe
@@ -30,10 +40,12 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     }
 
     static func createViewForSwitch(
+        ecosystem: AccountCreateEcosystem,
         model: UsernameSetupModel
     ) -> AccountCreateViewProtocol? {
         let wireframe = SwitchAccount.AccountCreateWireframe()
         return createViewForUsername(
+            ecosystem: ecosystem,
             model: model,
             flow: .wallet,
             wireframe: wireframe
@@ -41,18 +53,20 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     }
 
     static func createViewForUsername(
+        ecosystem: AccountCreateEcosystem,
         model: UsernameSetupModel,
         flow: AccountCreateFlow,
         wireframe: AccountCreateWireframeProtocol
     ) -> AccountCreateViewProtocol? {
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        let interactor = AccountCreateInteractor(ecosystem: ecosystem, mnemonicCreator: IRMnemonicCreator())
         let presenter = AccountCreatePresenter(
+            ecosystem: ecosystem,
             usernameSetup: model,
             wireframe: wireframe,
             interactor: interactor,
             flow: flow
         )
-        let view = AccountCreateViewController(presenter: presenter)
+        let view = AccountCreateViewController(ecosystem: ecosystem, presenter: presenter)
 
         presenter.view = view
         interactor.presenter = presenter

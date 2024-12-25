@@ -6,7 +6,7 @@ final class WalletConnectActiveSessionsRouter: WalletConnectActiveSessionsRouter
         _ session: Session,
         view: ControllerBackedProtocol?
     ) {
-        let module = WalletConnectProposalAssembly.configureModule(status: .active(session))
+        let module = WalletConnectProposalAssembly.configureModule(status: .active(.walletConnect(session)))
         guard let controller = module?.view.controller else {
             return
         }
@@ -17,7 +17,13 @@ final class WalletConnectActiveSessionsRouter: WalletConnectActiveSessionsRouter
         output: ScanQRModuleOutput,
         view: ControllerBackedProtocol?
     ) {
-        let module = ScanQRAssembly.configureModule(moduleOutput: output, matchers: [ScanQRAssembly.wcSchemeMatcher])
+        let module = ScanQRAssembly.configureModule(
+            moduleOutput: output,
+            matchers: [
+                ScanQRAssembly.wcSchemeMatcher,
+                ScanQRAssembly.tonConnectMatcher
+            ]
+        )
         guard let controller = module?.view.controller else {
             return
         }

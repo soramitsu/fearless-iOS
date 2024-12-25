@@ -222,7 +222,7 @@ final class SelectableAmountInputView: UIView {
         symbolLabel.text = viewModel.symbol.uppercased()
         chainLabel.text = viewModel.chain
 
-        viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
+        viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true, cornerRadius: LayoutConstants.iconSize / 2)
         iconSelect.isHidden = !viewModel.selectable
     }
 

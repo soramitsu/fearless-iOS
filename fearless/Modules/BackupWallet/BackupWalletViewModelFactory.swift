@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFCloudStorage
 import SSFModels
 import SoraKeystore
+import SSFCrypto
 
 protocol BackupWalletViewModelFactoryProtocol {
     func createViewModel(
@@ -63,6 +64,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         return ProfileViewModel(
+            wallet: wallet,
             profileUserViewModel: profileUserViewModel,
             profileOptionViewModel: profileOptionViewModel,
             logoutViewModel: logoutViewModel
@@ -77,14 +79,19 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         backupAccounts: [OpenBackupAccount]?,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
-        let publicKey = wallet.substratePublicKey
-        let address = try? AddressFactory.address(for: publicKey, chainFormat: .substrate(42))
-
         var backupOptions: [BackupWalletOptions] = exportOptions.map { BackupWalletOptions(exportOptions: $0) }
-        if backupAccounts?.contains(where: { $0.address == address }) == true {
-            backupOptions.append(.removeGoogle)
-        } else if let backupAccounts = backupAccounts, !backupAccounts.contains(where: { $0.address == address }) {
-            backupOptions.append(.backupGoogle)
+        switch wallet.ecosystem {
+        case let .regular(regular):
+            let publicKey = regular.substratePublicKey
+            let address = try? AddressFactory.address(for: publicKey, chainFormat: .substrate(42))
+
+            if backupAccounts?.contains(where: { $0.address == address }) == true {
+                backupOptions.append(.removeGoogle)
+            } else if let backupAccounts = backupAccounts, !backupAccounts.contains(where: { $0.address == address }) {
+                backupOptions.append(.backupGoogle)
+            }
+        case .ton:
+            break
         }
 
         let optionViewModels = backupOptions.compactMap { (option) -> ProfileOptionViewModel? in
@@ -155,7 +162,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         balance: WalletBalanceInfo?,
         locale: Locale
     ) -> WalletsManagmentCellViewModel {
-        let address = wallet.ethereumAddress?.toHex(includePrefix: true)
+        let address = wallet.ecosystem.ethereumAddress?.toHex(includePrefix: true)
         let accountScoreViewModel = AccountScoreViewModel(fetcher: accountScoreFetcher, address: address, chain: nil, settings: settings, eventCenter: EventCenter.shared, logger: Logger.shared)
 
         var fiatBalance: String = ""
@@ -174,9 +181,11 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
         return WalletsManagmentCellViewModel(
             isSelected: false,
             walletName: wallet.name,
+            icon: wallet.icon(),
             fiatBalance: fiatBalance,
             dayChange: dayChange,
-            accountScoreViewModel: accountScoreViewModel
+            accountScoreViewModel: accountScoreViewModel,
+            optionsAvailable: false
         )
     }
 

@@ -1,6 +1,7 @@
 import UIKit
 import SSFQRService
 import RobinHood
+import SSFModels
 
 final class GetPreinstalledWalletInteractor: BaseAccountImportInteractor {
     // MARK: - Private properties

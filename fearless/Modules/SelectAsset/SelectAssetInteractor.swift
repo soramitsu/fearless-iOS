@@ -75,7 +75,7 @@ extension SelectAssetInteractor: SelectAssetInteractorInput {
         }
     }
 
-    func fetchAccountInfos(with chainAssets: [ChainAsset]) async -> [ChainAsset: AccountInfo?] {
-        await accountInfoFetchingProvider.fetch(for: chainAssets, wallet: wallet)
+    func fetchAccountInfos(with chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?] {
+        try await accountInfoFetchingProvider.fetchByUniqKey(for: chainAssets, wallet: wallet)
     }
 }

@@ -17,7 +17,7 @@ extension PinChangeInteractor: PinSetupInteractorInputProtocol {
             pin,
             for: KeystoreTag.pincode.rawValue,
             completionQueue: DispatchQueue.main
-        ) { [weak self] (_) -> Void in
+        ) { [weak self] _ in
             self?.presenter?.didSavePin()
         }
     }

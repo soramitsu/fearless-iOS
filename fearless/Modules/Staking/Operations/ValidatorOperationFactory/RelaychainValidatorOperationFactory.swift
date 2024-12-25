@@ -4,6 +4,7 @@ import IrohaCrypto
 import SSFUtils
 import SSFModels
 import SSFRuntimeCodingService
+import SSFCrypto
 
 // swiftlint:disable type_body_length
 final class RelaychainValidatorOperationFactory {
@@ -149,12 +150,6 @@ final class RelaychainValidatorOperationFactory {
         }
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
-
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
@@ -264,16 +259,8 @@ final class RelaychainValidatorOperationFactory {
         }
 
         let chainFormat = chain.chainFormat
-
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let hasNominatorsLimit = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
-
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
-
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
             path: .maxNominatorRewardedPerValidator
@@ -346,16 +333,8 @@ final class RelaychainValidatorOperationFactory {
 
         let chain = chain
         let chainFormat = chain.chainFormat
-
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
-
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
-
         let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
             dependingOn: runtimeOperation,
             path: .maxNominatorRewardedPerValidator
@@ -687,10 +666,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     }
 
     func fetchAllValidators() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
@@ -701,11 +676,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 dependingOn: runtimeOperation,
                 path: .slashDeferDuration
             )
-
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
@@ -738,7 +708,12 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                         storagePath: .validatorPrefs,
                         type: .accountId
                     )
-                    accountId = try key.toAccountId()
+
+                    if key.hasPrefix("0x") {
+                        accountId = try AccountId(hexStringSSF: key)
+                    } else {
+                        accountId = try SS58AddressFactory().accountId(from: key)
+                    }
                 } else {
                     let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
                     let key: AccountId = try await extractor.extractKey(
@@ -807,7 +782,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             slashDeferOperation,
             maxNominatorsOperation,
             rewardOperation,
-            eraValidatorsOperation,
+            eraValidatorsOperation
         ]
 
         let dependencies = baseOperations + [allValidatorPrefsOperation] + [allValidatorsOperation] + identityWrapper.allOperations + slashingsWrapper.allOperations
@@ -817,10 +792,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
     // swiftlint:disable function_body_length
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
@@ -832,11 +803,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                 dependingOn: runtimeOperation,
                 path: .slashDeferDuration
             )
-
-        let oldArgumentExists = runtimeService.snapshot?.metadata.getConstant(
-            in: ConstantCodingPath.maxNominatorRewardedPerValidator.moduleName,
-            constantName: ConstantCodingPath.maxNominatorRewardedPerValidator.constantName
-        ) != nil
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
@@ -964,14 +930,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func activeValidatorsOperation(
         for nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
-        }
-
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
         let activeValidatorsStakeInfoWrapper = createActiveValidatorsStakeInfo(
             for: nominatorAddress,
@@ -1028,14 +986,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func pendingValidatorsOperation(
         for accountIds: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
-        }
-
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
         let validatorsStakeInfoWrapper = createValidatorsStakeInfoWrapper(
             for: accountIds,
@@ -1081,10 +1031,6 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func wannabeValidatorsOperation(
         for accountIdList: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
-            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
-        }
-
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
