@@ -2488,7 +2488,6 @@
 		FA634D312D196AEE00EDA155 /* TonConnectApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA634CA52D196AEE00EDA155 /* TonConnectApp.swift */; };
 		FA634D322D196AEE00EDA155 /* ConnectedAccountsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA634C772D196AEE00EDA155 /* ConnectedAccountsViewModelFactory.swift */; };
 		FA634D342D196B1B00EDA155 /* OnboardingMainViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA634D332D196B1B00EDA155 /* OnboardingMainViewLayout.swift */; };
-		FA634D3A2D1974CD00EDA155 /* TonSwift in Frameworks */ = {isa = PBXBuildFile; productRef = FA634D392D1974CD00EDA155 /* TonSwift */; };
 		FA634D3D2D1975A400EDA155 /* EventSource in Frameworks */ = {isa = PBXBuildFile; productRef = FA634D3C2D1975A400EDA155 /* EventSource */; };
 		FA634D3F2D1975A400EDA155 /* StreamURLSessionTransport in Frameworks */ = {isa = PBXBuildFile; productRef = FA634D3E2D1975A400EDA155 /* StreamURLSessionTransport */; };
 		FA634D412D1975A400EDA155 /* TonAPI in Frameworks */ = {isa = PBXBuildFile; productRef = FA634D402D1975A400EDA155 /* TonAPI */; };
@@ -6820,7 +6819,6 @@
 				C5AFED6C37C2C29E9903D136 /* Pods_fearlessAll_fearless.framework in Frameworks */,
 				FAACFB282D12B05D000C5046 /* SSFKeyPair in Frameworks */,
 				FAACFAE52D1291F3000C5046 /* SSFExtrinsicKit in Frameworks */,
-				FA634D3A2D1974CD00EDA155 /* TonSwift in Frameworks */,
 				FAACFAFD2D1291F3000C5046 /* SSFSingleValueCache in Frameworks */,
 				FA2F50352D02B63400ED1441 /* SSFSingleValueCache in Frameworks */,
 				FA2F50722D02B68600ED1441 /* SSFSigner in Frameworks */,
@@ -16864,7 +16862,6 @@
 				FAACFB432D12B05D000C5046 /* SSFXCM */,
 				FAACFB452D12B05D000C5046 /* SoraKeystore */,
 				FAACFB472D12B05D000C5046 /* keccak */,
-				FA634D392D1974CD00EDA155 /* TonSwift */,
 				FA634D3C2D1975A400EDA155 /* EventSource */,
 				FA634D3E2D1975A400EDA155 /* StreamURLSessionTransport */,
 				FA634D402D1975A400EDA155 /* TonAPI */,
@@ -16941,7 +16938,6 @@
 				FAF600732C48D79500E56558 /* XCRemoteSwiftPackageReference "Cosmos" */,
 				FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */,
 				FAACFB0C2D12B05D000C5046 /* XCRemoteSwiftPackageReference "shared-features-spm" */,
-				FA634D382D1974CD00EDA155 /* XCRemoteSwiftPackageReference "ton-swift" */,
 				FA634D3B2D1975A400EDA155 /* XCRemoteSwiftPackageReference "ton-api-swift" */,
 			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -20947,20 +20943,12 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		FA634D382D1974CD00EDA155 /* XCRemoteSwiftPackageReference "ton-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/DRadmir/ton-swift.git";
-			requirement = {
-				branch = main;
-				kind = branch;
-			};
-		};
 		FA634D3B2D1975A400EDA155 /* XCRemoteSwiftPackageReference "ton-api-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/DRadmir/ton-api-swift.git";
 			requirement = {
-				branch = main;
-				kind = branch;
+				kind = exactVersion;
+				version = 0.5.0;
 			};
 		};
 		FA7254652AC2F12D00EC47A6 /* XCRemoteSwiftPackageReference "WalletConnectSwiftV2" */ = {
@@ -21245,11 +21233,6 @@
 		FA2F50812D02B68600ED1441 /* keccak */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = keccak;
-		};
-		FA634D392D1974CD00EDA155 /* TonSwift */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = FA634D382D1974CD00EDA155 /* XCRemoteSwiftPackageReference "ton-swift" */;
-			productName = TonSwift;
 		};
 		FA634D3C2D1975A400EDA155 /* EventSource */ = {
 			isa = XCSwiftPackageProductDependency;

@@ -74,6 +74,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         pricesService.setup()
         tonConnectService.setup()
         toggleService.setup()
+        okxSyncService.syncUp()
     }
 
     func throttle() {

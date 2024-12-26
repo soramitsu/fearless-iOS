@@ -1,5 +1,5 @@
 protocol OKXSyncService {
-    func syncAvailableChainsAndAssets() async throws
+    func syncUp()
 }
 
 final class OKXSyncServiceImpl: OKXSyncService {
@@ -9,13 +9,15 @@ final class OKXSyncServiceImpl: OKXSyncService {
         self.okxService = okxService
     }
 
-    func syncAvailableChainsAndAssets() async throws {
-        do {
-            let availableChains = try await okxService.fetchAvailableChains(preferredDataSourceType: .remote)
-            let parameters = OKXDexAllTokensRequestParameters(chainId: nil)
-            let availableTokens = try await okxService.fetchAllTokens(parameters: parameters, preferredDataSourceType: .remote)
-        } catch {
-            print(error)
+    func syncUp() {
+        Task {
+            do {
+                let availableChains = try await okxService.fetchAvailableChains(preferredDataSourceType: .remote)
+                let parameters = OKXDexAllTokensRequestParameters(chainId: nil)
+                let availableTokens = try await okxService.fetchAllTokens(parameters: parameters, preferredDataSourceType: .remote)
+            } catch {
+                print(error)
+            }
         }
     }
 }
