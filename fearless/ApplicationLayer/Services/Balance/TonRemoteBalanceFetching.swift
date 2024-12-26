@@ -123,7 +123,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             throw TonRemoteBalanceFetchingError.missingAccount
         }
 
-        let address = try accountId.asTonAddress().toRaw()
+        let address = try accountId.asTonAddress().toFriendly().toString()
         let chainAccountInfos = try await getChainAccountInfos(
             address: address,
             currency: wallet.selectedCurrency

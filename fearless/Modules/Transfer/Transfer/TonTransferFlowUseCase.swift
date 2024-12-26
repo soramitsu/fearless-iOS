@@ -69,6 +69,8 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         selectedChainAsset = chainAsset
         utilityChainAsset = chainAsset.chain.utilityChainAssets().first
 
+        provideInputViewModel?()
+        provideAssetViewModel?()
         provideRecipientViewModel?()
         provideNetworkViewModel?()
 
@@ -209,7 +211,6 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         }
 
         async let balancesTask = try await interactor.fetchAccountInfos(for: chainAsset)
-
         let chainAssetBalance = await balance(
             for: chainAsset,
             accountId: accountId,
