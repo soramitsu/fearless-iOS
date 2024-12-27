@@ -50,7 +50,8 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     private var bokoloCashId: Data?
     private var bokoloSwapValues: SwapValues?
 
@@ -219,6 +220,10 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
         let transfer = TransferType.xorless(xorless)
         return transfer
     }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
+    }
 
     // MARK: - Private methods
 
@@ -235,10 +240,15 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
                 transfer: transfer,
                 chainAsset: selectedChainAsset
             )
-            for try await fee in stream {
-                let precision = Int16(selectedChainAsset.asset.precision)
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
-                try await self.checkXorFeePaymentPossibles()
+            
+            do {
+                for try await fee in stream {
+                    let precision = Int16(selectedChainAsset.asset.precision)
+                    self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
+                    try await self.checkXorFeePaymentPossibles()
+                }
+            } catch {
+                onFeeEstimationFailure?(error)
             }
         }
     }

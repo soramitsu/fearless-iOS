@@ -33,8 +33,9 @@ extension UIAlertController {
 
         alertController.addAction(copy)
 
+        let type: ChainModel.SubscanType = chain.ecosystem == .ton ? .tonAccount : .address
         chain.externalApi?.explorers?.forEach { explorer in
-            guard let url = explorer.explorerUrl(for: address, type: .address) else {
+            guard let url = explorer.explorerUrl(for: address, type: type) else {
                 return
             }
             let title = explorer.type.actionTitle().value(for: locale)

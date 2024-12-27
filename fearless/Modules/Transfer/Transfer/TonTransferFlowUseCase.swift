@@ -48,7 +48,8 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     init(
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -88,7 +89,8 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         case .all:
             guard
                 let selectedChainAsset,
-                let availableInputBalance
+                let availableBalance,
+                let sendAmount = amount()
             else {
                 throw TransferFlowUseCaseError.getValidatorsError
             }
@@ -97,8 +99,7 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
                 ? .utility(balance: utilityBalance)
                 : .orml(balance: availableBalance, utilityBalance: utilityBalance)
 
-            let sendAmount = inputResult?.absoluteValue(from: availableInputBalance)
-
+            let feeAndTip: Decimal = [fee, tip].compactMap { $0 }.reduce(0.0, +)
             let validators = [
                 dataValidatingFactory.has(
                     fee: fee,
@@ -111,7 +112,7 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
                 },
                 dataValidatingFactory.canPayFeeAndAmount(
                     balanceType: balanceType,
-                    feeAndTip: .zero,
+                    feeAndTip: feeAndTip,
                     sendAmount: sendAmount,
                     locale: locale
                 )
@@ -160,6 +161,10 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         let transfer = TransferType.ton(tonTransfer)
         return transfer
     }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
+    }
 
     // MARK: - Private methods
 
@@ -167,9 +172,17 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         guard
             let transfer = getTransfer(),
             let selectedChainAsset,
-            let utilityChainAsset
+            let utilityChainAsset,
+            let amount = amount(),
+            amount > 0
         else {
             return
+        }
+        
+        if let balance = utilityBalance, balance < 0.005 {
+            onFeeEstimationFailure?(ConvenienceError(error: "You don't have enough tokens to cover the transaction fee and complete the transfer."))
+            return
+
         }
         provideFeeViewModel?()
         Task { [weak self] in
@@ -179,13 +192,23 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
                 chainAsset: selectedChainAsset
             )
             let precision = Int16(utilityChainAsset.asset.precision)
+            let shouldUpdateInputViewModel = inputResult?.needsUpdateInputAfterChange == true
+
             do {
                 for try await fee in stream {
-                    self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
+                    self.fee = (Decimal.fromSubstrateAmount(fee, precision: precision)).flatMap {
+                        return $0 * 1.1
+                    }
+                    
                     self.provideFeeViewModel?()
+
+                    if shouldUpdateInputViewModel {
+                        self.provideInputViewModel?()
+                    }
                 }
             } catch {
                 logger.customError(error)
+                onFeeEstimationFailure?(error)
             }
         }
     }

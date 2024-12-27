@@ -48,7 +48,8 @@ final class SoraQrTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     init(
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -138,6 +139,10 @@ final class SoraQrTransferFlowUseCase: TransferFlowUseCase {
         buildSubstrateTransfer()
     }
 
+    func checkAccountIsActive() async -> Bool {
+        true
+    }
+    
     // MARK: - Private methods
 
     private func calcFee() {

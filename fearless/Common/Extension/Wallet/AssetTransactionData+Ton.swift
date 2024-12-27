@@ -13,8 +13,9 @@ extension AssetTransactionData {
         asset: AssetModel,
         filters: [WalletTransactionHistoryFilter]
     ) -> AssetTransactionData? {
-        let status: AssetTransactionStatus = event.isInProgress ? .pending : .commited
-
+        let commitedStatus: AssetTransactionStatus = action.status == .ok ? .commited : .rejected
+        let status: AssetTransactionStatus = event.isInProgress ? .pending : commitedStatus
+        
         var fees: [AssetTransactionFee] = []
         if let feeValue = BigUInt(string: String(abs(event.fee))),
            let feeValue = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
