@@ -36,6 +36,13 @@ final class PricesService: PricesServiceProtocol {
 
     func setup() {
         eventCenter.add(observer: self)
+    }
+
+    func updatePrices() {
+        pricesProvider?.refresh()
+    }
+    
+    private func subscribe() {
         let walletsOperation = walletRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let chainsOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let subscribeOperation = ClosureOperation { [weak self] in
@@ -50,10 +57,6 @@ final class PricesService: PricesServiceProtocol {
         subscribeOperation.addDependency(walletsOperation)
         subscribeOperation.addDependency(chainsOperation)
         operationQueue.addOperations([subscribeOperation, walletsOperation, chainsOperation], waitUntilFinished: false)
-    }
-
-    func updatePrices() {
-        pricesProvider?.refresh()
     }
 }
 
@@ -75,8 +78,7 @@ extension PricesService: PriceLocalSubscriptionHandler {
 
 extension PricesService: EventVisitorProtocol {
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
-        let updatedChainAssets = event.newOrUpdatedChains.map(\.chainAssets).reduce([], +).uniq(predicate: { $0.chainAssetId })
-        observePrices(for: updatedChainAssets, currencies: currencies)
+        subscribe()
     }
 
     func processChainsUpdated(event: ChainsUpdatedEvent) {
