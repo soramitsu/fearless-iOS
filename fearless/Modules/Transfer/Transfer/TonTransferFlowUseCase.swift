@@ -180,7 +180,7 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         }
         
         if let balance = utilityBalance, balance < 0.005 {
-            onFeeEstimationFailure?(ConvenienceError(error: "You don't have enough tokens to cover the transaction fee and complete the transfer."))
+            onFeeEstimationFailure?(ConvenienceError(error: "Your account is inactive. Top up your balance to calculate the fee."))
             return
 
         }
