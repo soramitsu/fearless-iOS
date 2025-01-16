@@ -45,16 +45,7 @@ final class CrossChainDepsContainer {
             operationManager: OperationManagerFacade.sharedManager,
             chainRegistry: chainRegistry
         )
-        let storageRequestPerformer: StorageRequestPerformer? = (destChainModel?.chainId).flatMap {
-            guard
-                let runtimeService = chainRegistry.getRuntimeProvider(for: $0),
-                let connection = chainRegistry.getConnection(for: $0)
-            else {
-                return nil
-            }
-
-            return StorageRequestPerformerDefault(runtimeService: runtimeService, connection: connection)
-        }
+        let storageRequestPerformer = StorageRequestPerformerDefault(chainRegistry: chainRegistry)
 
         let deps = CrossChainConfirmationDeps(
             xcmServices: xcmServices,

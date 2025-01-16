@@ -7,18 +7,18 @@ protocol RuntimeProviderPoolProtocol {
     func setupRuntimeProvider(
         for chain: ChainModel,
         chainTypes: Data?
-    ) -> RuntimeProviderProtocol
+    ) async -> RuntimeProviderProtocol
     @discardableResult
     func setupHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
         chainTypes: Data
-    ) -> RuntimeProviderProtocol
-    func destroyRuntimeProvider(for chainId: ChainModel.Id)
+    ) async -> RuntimeProviderProtocol
+    func destroyRuntimeProvider(for chainId: ChainModel.Id) async
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 }
 
-final class RuntimeProviderPool {
+final actor RuntimeProviderPool {
     private let runtimeProviderFactory: RuntimeProviderFactoryProtocol
 
     private var usedRuntimeModules = UsedRuntimePaths()
@@ -29,9 +29,13 @@ final class RuntimeProviderPool {
     init(runtimeProviderFactory: RuntimeProviderFactoryProtocol) {
         self.runtimeProviderFactory = runtimeProviderFactory
     }
+    
+    private func saveRuntimeProvider(provider: RuntimeProviderProtocol?, for chainId: ChainModel.Id) async {
+        runtimeProviders[chainId] = provider
+    }
 }
 
-extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
+extension RuntimeProviderPool: @preconcurrency RuntimeProviderPoolProtocol {
     @discardableResult
     func setupHotRuntimeProvider(
         for chain: ChainModel,
@@ -45,8 +49,8 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
             usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
         )
 
-        lock.exclusivelyWrite { [weak self] in
-            self?.runtimeProviders[chain.chainId] = runtimeProvider
+        Task {
+            await saveRuntimeProvider(provider: runtimeProvider, for: chain.chainId)
         }
 
         runtimeProvider.setupHot()
@@ -68,8 +72,8 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
                 usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
             )
 
-            lock.exclusivelyWrite { [weak self] in
-                self?.runtimeProviders[chain.chainId] = runtimeProvider
+            Task {
+                await saveRuntimeProvider(provider: runtimeProvider, for: chain.chainId)
             }
 
             runtimeProvider.setup()
@@ -81,14 +85,12 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         let runtimeProvider = lock.concurrentlyRead { runtimeProviders[chainId] }
         runtimeProvider?.cleanup()
 
-        lock.exclusivelyWrite { [weak self] in
-            self?.runtimeProviders[chainId] = nil
+        Task {
+            await saveRuntimeProvider(provider: nil, for: chainId)
         }
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
-        lock.concurrentlyRead {
-            runtimeProviders[chainId]
-        }
+        runtimeProviders[chainId]
     }
 }

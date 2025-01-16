@@ -72,6 +72,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
         utilityChainAsset = chainAsset.chain.utilityChainAssets().first
 
         provideNetworkViewModel?()
+        provideAssetViewModel?()
 
         try await fetchRequaredInfo(for: chainAsset)
         calcFee()

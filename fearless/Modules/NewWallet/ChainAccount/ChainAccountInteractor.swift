@@ -198,6 +198,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func updateData() {
+        fetchChainAssetBasedData()
+        
         guard
             remoteFetchTimer == nil,
             !chainAsset.chain.ecosystem.isSubstrate

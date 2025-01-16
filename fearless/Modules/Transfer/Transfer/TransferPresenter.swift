@@ -330,6 +330,8 @@ final class TransferPresenter {
             currentFlowUseCase = flow
         }
         setupBindings()
+
+        await provideAssetVewModel()
     }
 
     private func setCurrentFlow(for implType: TransferFlowDirectionImpl) {

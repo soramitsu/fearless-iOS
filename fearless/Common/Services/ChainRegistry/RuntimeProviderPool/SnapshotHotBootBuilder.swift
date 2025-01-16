@@ -99,12 +99,13 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
             else {
                 return
             }
-
-            runtimeProviderPool.setupHotRuntimeProvider(
-                for: chain,
-                runtimeItem: runtimeItem,
-                chainTypes: chainTypes
-            )
+            Task {
+                await runtimeProviderPool.setupHotRuntimeProvider(
+                    for: chain,
+                    runtimeItem: runtimeItem,
+                    chainTypes: chainTypes
+                )
+            }
         }
     }
 

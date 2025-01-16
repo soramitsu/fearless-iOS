@@ -9,6 +9,8 @@ enum BalanceLocksFetchingError: Error {
     case unknownChainAssetType
     case stakingNotFound
     case noDataFound
+    case noVestingLocksFound
+    case noAssetFrozenFound
 }
 
 protocol BalanceLocksFetching {
@@ -46,12 +48,12 @@ final class BalanceLocksFetchingDefault {
         let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
         let controllerRequest = StakingControllerRequest(accountId: accountIdVariant)
 
-        let controllerAddress: String? = try? await storageRequestPerformer.performSingle(controllerRequest)
+        let controllerAddress: String? = try? await storageRequestPerformer.performSingle(controllerRequest, chain: chainAsset.chain)
         if let controllerAddress {
             return try controllerAddress.toAccountId(using: chainAsset.chain.chainFormat)
         }
 
-        let controllerAccountId: Data? = try await storageRequestPerformer.performSingle(controllerRequest)
+        let controllerAccountId: Data? = try await storageRequestPerformer.performSingle(controllerRequest, chain: chainAsset.chain)
         return controllerAccountId
     }
 
@@ -78,7 +80,7 @@ final class BalanceLocksFetchingDefault {
 
         let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
         let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
-        let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request)
+        let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request, chain: chainAsset.chain)
         return assetAccountInfo
     }
 }
@@ -90,14 +92,20 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
         async let governanceLocks = fetchGovernanceLocks(for: accountId)
         async let crowdloanLocks = fetchCrowdloanLocks(for: accountId)
         async let vestingLocks = fetchVestingLocks(for: accountId, currencyId: currencyId)
-
-        return await [
-            (try? stakingLocks).or(.zero),
-            (try? nominationPoolLocks).or(.zero),
-            (try? governanceLocks).or(.zero),
-            (try? crowdloanLocks).or(.zero),
-            (try? vestingLocks).or(.zero)
-        ].reduce(0, +)
+        
+        let values = await [
+            (try? stakingLocks),
+            (try? nominationPoolLocks),
+            (try? governanceLocks),
+            (try? crowdloanLocks),
+            (try? vestingLocks)
+        ].compactMap { $0 }
+        
+        guard values.first != nil else {
+            throw BalanceLocksFetchingError.noDataFound
+        }
+        
+        return values.reduce(0, +)
     }
 
     func fetchStakingLocks(for accountId: AccountId) async throws -> StakingLocks {
@@ -109,8 +117,8 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
         let ledgerRequest = StakingLedgerRequest(accountId: accountIdVariant)
         let eraRequest = StakingCurrentEraRequest()
 
-        async let asyncActiveEra: StringScaleMapper<EraIndex>? = storageRequestPerformer.performSingle(eraRequest)
-        async let asyncLedger: StakingLedger? = storageRequestPerformer.performSingle(ledgerRequest)
+        async let asyncActiveEra: StringScaleMapper<EraIndex>? = storageRequestPerformer.performSingle(eraRequest, chain: chainAsset.chain)
+        async let asyncLedger: StakingLedger? = storageRequestPerformer.performSingle(ledgerRequest, chain: chainAsset.chain)
 
         let ledger = try await asyncLedger
         let activeEra = try await asyncActiveEra?.value
@@ -159,8 +167,8 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
         let poolMemberRequest = NominationPoolsPoolMembersRequest(accountId: accountId)
         let eraRequest = StakingCurrentEraRequest()
 
-        async let asyncStakingPoolMember: StakingPoolMember? = storageRequestPerformer.performSingle(poolMemberRequest)
-        async let asyncActiveEra: StringScaleMapper<EraIndex>? = storageRequestPerformer.performSingle(eraRequest)
+        async let asyncStakingPoolMember: StakingPoolMember? = storageRequestPerformer.performSingle(poolMemberRequest, chain: chainAsset.chain)
+        async let asyncActiveEra: StringScaleMapper<EraIndex>? = storageRequestPerformer.performSingle(eraRequest, chain: chainAsset.chain)
         async let claimableResponse = try await fetchPoolPendingRewards(for: accountId)
 
         let stakingPoolMember = try await asyncStakingPoolMember
@@ -213,7 +221,7 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
 
         let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
         let balancesLocksRequest = BalancesLocksRequest(accountId: accountIdVariant)
-        let balanceLocks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest)
+        let balanceLocks: BalanceLocks? = try await storageRequestPerformer.performSingle(balancesLocksRequest, chain: chainAsset.chain)
         let govLocked = balanceLocks?.first(where: { $0.displayId == "pyconvot" })?.amount
         return Decimal.fromSubstrateAmount(govLocked.or(.zero), precision: Int16(chainAsset.asset.precision)).or(.zero)
     }
@@ -231,37 +239,51 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
     func fetchVestingLocks(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal {
         let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
         let balancesLocksRequest = BalancesLocksRequest(accountId: accountIdVariant)
-        let balanceLocks: BalanceLocks? = try? await storageRequestPerformer.performSingle(balancesLocksRequest)
+        let balanceLocks: BalanceLocks? = try? await storageRequestPerformer.performSingle(balancesLocksRequest, chain: chainAsset.chain)
 
-        let balanceLockedRewardsValue = balanceLocks?.first { $0.lockType?.lowercased().contains("vest") == true }.map { lock in
-            Decimal.fromSubstrateAmount(lock.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
-        } ?? .zero
+        let balanceLockedRewardsValue = balanceLocks?.first { $0.lockType?.lowercased().contains("vest") == true }.flatMap { lock in
+            Decimal.fromSubstrateAmount(lock.amount, precision: Int16(chainAsset.asset.precision))
+        }
 
         guard let currencyId else {
+            guard let balanceLockedRewardsValue else {
+                throw BalanceLocksFetchingError.noVestingLocksFound
+            }
+            
             return balanceLockedRewardsValue
         }
 
         let tokensLocksRequest = TokensLocksRequest(accountId: accountIdVariant, currencyId: currencyId)
-        let tokenLocks: TokenLocks? = try? await storageRequestPerformer.performSingle(tokensLocksRequest)
-        let tokenLockedRewardsValue = tokenLocks?.first { $0.lockType?.lowercased().contains("vest") == true }.map { lock in
-            Decimal.fromSubstrateAmount(lock.amount, precision: Int16(chainAsset.asset.precision)) ?? .zero
-        } ?? .zero
+        let tokenLocks: TokenLocks? = try? await storageRequestPerformer.performSingle(tokensLocksRequest, chain: chainAsset.chain)
+        let tokenLockedRewardsValue = tokenLocks?.first { $0.lockType?.lowercased().contains("vest") == true }.flatMap { lock in
+            Decimal.fromSubstrateAmount(lock.amount, precision: Int16(chainAsset.asset.precision))
+        }
 
-        return [balanceLockedRewardsValue, tokenLockedRewardsValue].reduce(0, +)
+        let values = [balanceLockedRewardsValue, tokenLockedRewardsValue].compactMap { $0 }
+        guard values.first != nil else {
+            throw BalanceLocksFetchingError.noVestingLocksFound
+        }
+        
+        return values.reduce(0, +)
     }
 
     func fetchAssetLocks(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal {
         guard let currencyId else {
-            return .zero
+            throw BalanceLocksFetchingError.noAssetFrozenFound
         }
 
         let accountIdVariant = try AccountIdVariant.build(raw: accountId, chain: chainAsset.chain)
         let request = AssetsAccountRequest(accountId: accountIdVariant, currencyId: currencyId)
-        let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request)
+        let assetAccountInfo: AssetAccountInfo? = try await storageRequestPerformer.performSingle(request, chain: chainAsset.chain)
         let locked = assetAccountInfo.flatMap {
             Decimal.fromSubstrateAmount($0.locked, precision: Int16(chainAsset.asset.precision))
         }
-        return locked.or(.zero)
+        
+        guard let locked else {
+            throw BalanceLocksFetchingError.noAssetFrozenFound
+        }
+        
+        return locked
     }
 
     func fetchAssetFrozen(for accountId: AccountId, currencyId: CurrencyId?) async throws -> Decimal {

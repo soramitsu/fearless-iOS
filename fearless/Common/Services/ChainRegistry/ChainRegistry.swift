@@ -195,13 +195,15 @@ final class ChainRegistry {
             return
         }
 
-        let connection = try substrateConnectionPool.setupConnection(for: newChain)
         let chainTypes = chainsTypesMap[newChain.chainId]
-
-        runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
+        Task {
+            await runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
+        }
+        
+        let connection = try substrateConnectionPool.setupConnection(for: newChain)
         runtimeSyncService.register(chain: newChain, with: connection)
         setupRuntimeVersionSubscription(for: newChain, connection: connection)
-
+        
         chains.append(newChain)
     }
 
@@ -211,11 +213,13 @@ final class ChainRegistry {
         }
 
         clearRuntimeSubscription(for: updatedChain.chainId)
-
-        let connection = try substrateConnectionPool.setupConnection(for: updatedChain)
         let chainTypes = chainsTypesMap[updatedChain.chainId]
 
-        runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
+        Task {
+            await runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
+        }
+        
+        let connection = try substrateConnectionPool.setupConnection(for: updatedChain)
         setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
         chains = chains.filter { $0.chainId != updatedChain.chainId }
@@ -223,7 +227,9 @@ final class ChainRegistry {
     }
 
     private func handleDeletedSubstrateChain(chainId: ChainModel.Id) {
-        runtimeProviderPool.destroyRuntimeProvider(for: chainId)
+        Task {
+            await runtimeProviderPool.destroyRuntimeProvider(for: chainId)
+        }
         clearRuntimeSubscription(for: chainId)
         runtimeSyncService.unregister(chainId: chainId)
         chains = chains.filter { $0.chainId != chainId }
@@ -490,7 +496,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         }
         let chainTypes = chainsTypesMap[chainId]
 
-        let runtimeProvider = runtimeProviderPool.setupRuntimeProvider(for: chain, chainTypes: chainTypes)
+        let runtimeProvider = await runtimeProviderPool.setupRuntimeProvider(for: chain, chainTypes: chainTypes)
         return runtimeProvider
     }
 
@@ -498,6 +504,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         guard let substrateConnectionPool = self.substrateConnectionPool else {
             throw ChainRegistryError.connectionUnavailable
         }
+
         let connection = try substrateConnectionPool.setupConnection(for: chain)
         return connection
     }
@@ -529,7 +536,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeSnapshot {
-        guard let runtimeProvider = getRuntimeProvider(for: chainId) else {
+        guard let runtimeProvider = await getRuntimeProvider(for: chainId) else {
             throw RuntimeProviderError.providerUnavailable
         }
         guard let runtimeSnapshot = runtimeProvider.snapshot else {

@@ -43,8 +43,7 @@ final class ClaimCrowdloanRewardsAssembly {
             accountResponse: accountResponse
         )
         let storageRequestPerformer = StorageRequestPerformerDefault(
-            runtimeService: runtimeService,
-            connection: connection
+            chainRegistry: chainRegistry
         )
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared

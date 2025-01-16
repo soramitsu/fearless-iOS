@@ -3,9 +3,9 @@ import SSFModels
 import SSFStorageQueryKit
 
 actor SubstrateRemoteBalanceFetchingImpl: AccountInfoRemoteService {
-    private let storagePerformer: SSFStorageQueryKit.StorageRequestPerformer
+    private let storagePerformer: StorageRequestPerformer
 
-    init(storagePerformer: SSFStorageQueryKit.StorageRequestPerformer) {
+    init(storagePerformer: StorageRequestPerformer) {
         self.storagePerformer = storagePerformer
     }
 
@@ -170,7 +170,7 @@ actor SubstrateRemoteBalanceFetchingImpl: AccountInfoRemoteService {
                 )
                 return request
             } else {
-                let params: [[any SSFStorageQueryKit.NMapKeyParamProtocol]] = [
+                let params: [[any NMapKeyParamProtocol]] = [
                     [NMapKeyParam(value: accountId)],
                     [NMapKeyParam(value: chainAsset.currencyId)]
                 ]
@@ -189,7 +189,7 @@ actor SubstrateRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             )
             return request
         case .assets:
-            let params: [[any SSFStorageQueryKit.NMapKeyParamProtocol]] = [
+            let params: [[any NMapKeyParamProtocol]] = [
                 [NMapKeyParam(value: chainAsset.currencyId)],
                 [NMapKeyParam(value: accountId)]
             ]
@@ -213,7 +213,7 @@ actor SubstrateRemoteBalanceFetchingImpl: AccountInfoRemoteService {
             )
             return request
         default:
-            let params: [[any SSFStorageQueryKit.NMapKeyParamProtocol]] = [
+            let params: [[any NMapKeyParamProtocol]] = [
                 [NMapKeyParam(value: accountId)],
                 [NMapKeyParam(value: chainAsset.currencyId)]
             ]
