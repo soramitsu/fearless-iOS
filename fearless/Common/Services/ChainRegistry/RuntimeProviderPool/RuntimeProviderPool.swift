@@ -18,7 +18,7 @@ protocol RuntimeProviderPoolProtocol {
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 }
 
-final actor RuntimeProviderPool {
+final class RuntimeProviderPool {
     private let runtimeProviderFactory: RuntimeProviderFactoryProtocol
 
     private var usedRuntimeModules = UsedRuntimePaths()
@@ -35,7 +35,7 @@ final actor RuntimeProviderPool {
     }
 }
 
-extension RuntimeProviderPool: @preconcurrency RuntimeProviderPoolProtocol {
+extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
     @discardableResult
     func setupHotRuntimeProvider(
         for chain: ChainModel,
