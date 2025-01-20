@@ -32,6 +32,9 @@ final class PricesService: PricesServiceProtocol {
         self.operationQueue = operationQueue
         self.logger = logger
         self.eventCenter = eventCenter
+        eventCenter.add(observer: self)
+        
+        subscribe()
     }
 
     func setup() {

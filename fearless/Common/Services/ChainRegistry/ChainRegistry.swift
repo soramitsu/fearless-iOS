@@ -196,9 +196,7 @@ final class ChainRegistry {
         }
 
         let chainTypes = chainsTypesMap[newChain.chainId]
-        Task {
-            await runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
-        }
+        runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
         
         let connection = try substrateConnectionPool.setupConnection(for: newChain)
         runtimeSyncService.register(chain: newChain, with: connection)
@@ -215,9 +213,7 @@ final class ChainRegistry {
         clearRuntimeSubscription(for: updatedChain.chainId)
         let chainTypes = chainsTypesMap[updatedChain.chainId]
 
-        Task {
-            await runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
-        }
+        runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
         
         let connection = try substrateConnectionPool.setupConnection(for: updatedChain)
         setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
@@ -227,9 +223,7 @@ final class ChainRegistry {
     }
 
     private func handleDeletedSubstrateChain(chainId: ChainModel.Id) {
-        Task {
-            await runtimeProviderPool.destroyRuntimeProvider(for: chainId)
-        }
+        runtimeProviderPool.destroyRuntimeProvider(for: chainId)
         clearRuntimeSubscription(for: chainId)
         runtimeSyncService.unregister(chainId: chainId)
         chains = chains.filter { $0.chainId != chainId }
@@ -496,7 +490,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         }
         let chainTypes = chainsTypesMap[chainId]
 
-        let runtimeProvider = await runtimeProviderPool.setupRuntimeProvider(for: chain, chainTypes: chainTypes)
+        let runtimeProvider = runtimeProviderPool.setupRuntimeProvider(for: chain, chainTypes: chainTypes)
         return runtimeProvider
     }
 
@@ -536,7 +530,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         usedRuntimePaths _: [String: [String]],
         runtimeItem _: SSFModels.RuntimeMetadataItemProtocol?
     ) async throws -> SSFRuntimeCodingService.RuntimeSnapshot {
-        guard let runtimeProvider = await getRuntimeProvider(for: chainId) else {
+        guard let runtimeProvider = getRuntimeProvider(for: chainId) else {
             throw RuntimeProviderError.providerUnavailable
         }
         guard let runtimeSnapshot = runtimeProvider.snapshot else {

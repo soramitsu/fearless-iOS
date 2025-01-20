@@ -59,7 +59,7 @@ enum WalletBalanceListenerType {
     case networkManagement(wallet: MetaAccountModel)
 }
 
-final actor WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, ChainAssetListBuilder {
+final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, ChainAssetListBuilder {
     static let shared = createWalletBalanceAdapter()
 
     // MARK: - Private properties
@@ -332,16 +332,13 @@ final actor WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         listener: WalletBalanceSubscriptionListener,
         result: WalletBalancesResult
     ) {
-        Task {
-            await clearIfNeeded()
-            listener.handle(result: result)
-        }
+        clearIfNeeded()
+        listener.handle(result: result)
     }
 
     private func buildAndNotifyIfNeeded(with updatedWalletsIds: [MetaAccountId], updatedChainAssets: [ChainAsset]) {
-        Task {
-            await clearIfNeeded()
-        }
+        clearIfNeeded()
+
         let unwrappedListeners = listeners.compactMap {
             if let target = $0.target as? WalletBalanceSubscriptionListener {
                 return target
@@ -391,8 +388,14 @@ final actor WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         }
     }
 
-    private func clearIfNeeded() async {
-        listeners = listeners.filter { $0.target != nil }
+    private func clearIfNeeded() {
+        listenersLock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+
+            strongSelf.listeners = strongSelf.listeners.filter { $0.target != nil }
+        }
     }
 
     private func updateWalletsIfNeeded(with wallet: MetaAccountModel) {
@@ -413,66 +416,55 @@ final actor WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 // MARK: - EventVisitorProtocol
 
 extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
-    nonisolated func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        Task {
-            var wallets = await self.wallets
-            if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
-               let wallet = wallets[safe: index] {
-                if wallet.selectedCurrency != event.account.selectedCurrency {
-                    wallets[index] = event.account
-                }
-                if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
-                    wallets[index] = event.account
-                    await buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)
-                }
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
+           let wallet = wallets[safe: index] {
+            if wallet.selectedCurrency != event.account.selectedCurrency {
                 wallets[index] = event.account
-                
-                await saveWallets(wallets)
             }
+            if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
+                wallets[index] = event.account
+                buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)
+            }
+            wallets[index] = event.account
         }
     }
 
-    nonisolated func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        Task {
-            let existingWalletsIds = await wallets.compactMap { $0.metaId }
-            guard !existingWalletsIds.contains(event.account.metaId) else {
-                return
-            }
-            await handle([event.account], chainAssets)
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        let existingWalletsIds = wallets.compactMap { $0.metaId }
+        guard !existingWalletsIds.contains(event.account.metaId) else {
+            return
         }
+        handle([event.account], chainAssets)
     }
 
-    nonisolated func processLogout() {
-        Task {
-            await saveWallets([])
-            await accountInfosAdapters.values.forEach { adapter in
-                adapter.reset()
-            }
-            await saveAccountInfoAdapters([:])
+    func processLogout() {
+        wallets = []
+        accountInfosAdapters.values.forEach { adapter in
+            adapter.reset()
         }
+        accountInfosAdapters = [:]
     }
 
-    nonisolated func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
         Task {
             let chainAssets = try await chainAssetFetcher.fetchAwait(
                 shouldUseCache: false,
                 filters: [.enabledChains],
                 sortDescriptors: []
             )
-            await subscribeToAccountInfo(for: wallets, chainAssets)
+            subscribeToAccountInfo(for: wallets, chainAssets)
         }
     }
 
-    nonisolated func processPricesUpdated() {
+    func processPricesUpdated() {
         Task {
-            let chainAssets = try await chainAssetFetcher.fetchAwait(
+            self.chainAssets = try await chainAssetFetcher.fetchAwait(
                 shouldUseCache: false,
                 filters: [.enabledChains],
                 sortDescriptors: []
             )
-            
-            await saveChainAssets(chainAssets)
-            await buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
+            buildAndNotifyIfNeeded(with: wallets.map { $0.metaId }, updatedChainAssets: chainAssets)
         }
     }
 }
@@ -480,33 +472,29 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
 // MARK: - AccountInfoSubscriptionAdapterHandler
 
 extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandler {
-    nonisolated func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            Task {
+            accountInfoWorkQueue.async(flags: .barrier) {
                 let key = chainAsset.uniqueKey(accountId: accountId)
-                let previousAccountInfo = await self.accountInfos[key] ?? nil
+                let previousAccountInfo = self.accountInfos[key] ?? nil
 
-                var accountInfos = await self.accountInfos
-                accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
-                await saveAccountInfos(accountInfos: accountInfos)
+                self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
 
                 let bothNil = (previousAccountInfo == nil && accountInfo == nil)
 
                 guard previousAccountInfo != accountInfo, !bothNil else {
                     return
                 }
-                await self.buildAndNotifyIfNeeded(with: self.wallets.map { $0.metaId }, updatedChainAssets: self.chainAssets)
+                self.buildAndNotifyIfNeeded(with: self.wallets.map { $0.metaId }, updatedChainAssets: self.chainAssets)
             }
         case let .failure(error):
-            Task {
-                await logger.error("""
-                    WalletBalanceFetcher error: \(error.localizedDescription)
-                    account: \(accountId),
-                    chainAsset: \(chainAsset.debugName)
-                    """
-                )
-            }
+            logger.error("""
+                WalletBalanceFetcher error: \(error.localizedDescription)
+                account: \(accountId),
+                chainAsset: \(chainAsset.debugName)
+                """
+            )
         }
     }
 }

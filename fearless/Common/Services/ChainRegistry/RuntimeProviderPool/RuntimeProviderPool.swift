@@ -7,14 +7,14 @@ protocol RuntimeProviderPoolProtocol {
     func setupRuntimeProvider(
         for chain: ChainModel,
         chainTypes: Data?
-    ) async -> RuntimeProviderProtocol
+    ) -> RuntimeProviderProtocol
     @discardableResult
     func setupHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
         chainTypes: Data
-    ) async -> RuntimeProviderProtocol
-    func destroyRuntimeProvider(for chainId: ChainModel.Id) async
+    ) -> RuntimeProviderProtocol
+    func destroyRuntimeProvider(for chainId: ChainModel.Id)
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 }
 
@@ -28,10 +28,6 @@ final class RuntimeProviderPool {
 
     init(runtimeProviderFactory: RuntimeProviderFactoryProtocol) {
         self.runtimeProviderFactory = runtimeProviderFactory
-    }
-    
-    private func saveRuntimeProvider(provider: RuntimeProviderProtocol?, for chainId: ChainModel.Id) async {
-        runtimeProviders[chainId] = provider
     }
 }
 
@@ -49,8 +45,8 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
             usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
         )
 
-        Task {
-            await saveRuntimeProvider(provider: runtimeProvider, for: chain.chainId)
+        lock.exclusivelyWrite { [weak self] in
+            self?.runtimeProviders[chain.chainId] = runtimeProvider
         }
 
         runtimeProvider.setupHot()
@@ -72,8 +68,8 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
                 usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
             )
 
-            Task {
-                await saveRuntimeProvider(provider: runtimeProvider, for: chain.chainId)
+            lock.exclusivelyWrite { [weak self] in
+                self?.runtimeProviders[chain.chainId] = runtimeProvider
             }
 
             runtimeProvider.setup()
@@ -85,8 +81,8 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         let runtimeProvider = lock.concurrentlyRead { runtimeProviders[chainId] }
         runtimeProvider?.cleanup()
 
-        Task {
-            await saveRuntimeProvider(provider: nil, for: chainId)
+        lock.exclusivelyWrite { [weak self] in
+            self?.runtimeProviders[chainId] = nil
         }
     }
 
