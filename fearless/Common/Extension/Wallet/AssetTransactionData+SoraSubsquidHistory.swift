@@ -33,7 +33,7 @@ extension AssetTransactionData {
                 fee: transactionFee,
                 status: status
             )
-        case ("assets", "transfer"):
+        case (.some(_), "transfer"):
             return createTransferTransaction(
                 from: item,
                 address: address,

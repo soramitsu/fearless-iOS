@@ -11,6 +11,7 @@ enum BalanceLocksFetchingError: Error {
     case noDataFound
     case noVestingLocksFound
     case noAssetFrozenFound
+    case timeout
 }
 
 protocol BalanceLocksFetching {
@@ -93,19 +94,66 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
         async let crowdloanLocks = fetchCrowdloanLocks(for: accountId)
         async let vestingLocks = fetchVestingLocks(for: accountId, currencyId: currencyId)
         
-        let values = await [
-            (try? stakingLocks),
-            (try? nominationPoolLocks),
-            (try? governanceLocks),
-            (try? crowdloanLocks),
-            (try? vestingLocks)
-        ].compactMap { $0 }
+        var stakingLocksValue: Decimal?
+        var nominationPoolLocksValue: Decimal?
+        var governanceLocksValue: Decimal?
+        var crowdloanLocksValue: Decimal?
+        var vestingLocksValue: Decimal?
         
-        guard values.first != nil else {
-            throw BalanceLocksFetchingError.noDataFound
+        var errors: [Error] = []
+        
+        do {
+            if chainAsset.asset.staking == nil {
+                stakingLocksValue = 0
+            } else {
+                stakingLocksValue = try await stakingLocks
+            }
+        } catch {
+            errors.append(error)
         }
         
-        return values.reduce(0, +)
+        do {
+            if chainAsset.chain.options?.contains(.poolStaking) != true {
+                nominationPoolLocksValue = 0
+            } else {
+                nominationPoolLocksValue = try await nominationPoolLocks
+            }
+        } catch {
+            errors.append(error)
+        }
+        
+        do {
+            if chainAsset.isUtility {
+                governanceLocksValue = try await governanceLocks
+            } else {
+                governanceLocksValue = 0
+            }
+        } catch {
+            errors.append(error)
+        }
+        
+        do {
+            vestingLocksValue = try await vestingLocks
+        } catch {
+            errors.append(error)
+        }
+        
+        
+        let isTimeoutError: Bool = errors.first { $0 as? JSONRPCEngineError == JSONRPCEngineError.clientCancelled } != nil
+        
+        guard !isTimeoutError else {
+            throw BalanceLocksFetchingError.timeout
+        }
+        
+        
+        return [
+            stakingLocksValue,
+            nominationPoolLocksValue,
+            governanceLocksValue,
+            crowdloanLocksValue,
+            vestingLocksValue
+        ].compactMap { $0 }.reduce(0, +)
+        
     }
 
     func fetchStakingLocks(for accountId: AccountId) async throws -> StakingLocks {
