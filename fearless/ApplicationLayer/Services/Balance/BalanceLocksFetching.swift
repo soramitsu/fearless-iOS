@@ -138,6 +138,16 @@ extension BalanceLocksFetchingDefault: BalanceLocksFetching {
             errors.append(error)
         }
         
+        do {
+            if chainAsset.isUtility {
+                crowdloanLocksValue = try await crowdloanLocks
+            } else {
+                crowdloanLocksValue = 0
+            }
+        } catch {
+            errors.append(error)
+        }
+        
         
         let isTimeoutError: Bool = errors.first { $0 as? JSONRPCEngineError == JSONRPCEngineError.clientCancelled } != nil
         

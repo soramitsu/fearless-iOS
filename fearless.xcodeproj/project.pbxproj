@@ -5827,7 +5827,6 @@
 		FA6ECE732BF49C0C00481B2B /* LiquidityPoolDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolDetailsViewModel.swift; sourceTree = "<group>"; };
 		FA6ECE752BF49D3D00481B2B /* LiquidityPoolDetailsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolDetailsViewModelFactory.swift; sourceTree = "<group>"; };
 		FA6FC016067C632AF256EB62 /* PolkaswapSwapConfirmationProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PolkaswapSwapConfirmationProtocols.swift; sourceTree = "<group>"; };
-		FA70B23F2D3F8BD800571D30 /* shared-features-spm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "shared-features-spm"; path = "../shared-features-spm"; sourceTree = SOURCE_ROOT; };
 		FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartTextsViewModel.swift; sourceTree = "<group>"; };
 		FA7253F32AC2E48400EC47A6 /* CryptoProvider.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CryptoProvider.swift; sourceTree = "<group>"; };
 		FA7253F42AC2E48400EC47A6 /* WalletConnectPayloadSigner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletConnectPayloadSigner.swift; sourceTree = "<group>"; };
@@ -9938,7 +9937,6 @@
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
-				FA70B23F2D3F8BD800571D30 /* shared-features-spm */,
 				849013AA24A80984008F705E /* fearless */,
 				849013C124A80986008F705E /* fearlessTests */,
 				8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */,
