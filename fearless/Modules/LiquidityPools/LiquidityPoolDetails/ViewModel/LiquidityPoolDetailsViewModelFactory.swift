@@ -8,7 +8,7 @@ import SoraFoundation
 protocol LiquidityPoolDetailsViewModelFactory {
     func buildViewModel(
         liquidityPair: LiquidityPair,
-        reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?,
+        reserves: SSFStorageQueryKit.CachedStorageResponse<PolkaswapPoolReservesInfo>?,
         apyInfo: PoolApyInfo?,
         chain: ChainModel,
         locale: Locale,
@@ -32,7 +32,7 @@ final class LiquidityPoolDetailsViewModelFactoryDefault: LiquidityPoolDetailsVie
 
     func buildViewModel(
         liquidityPair: LiquidityPair,
-        reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?,
+        reserves: SSFStorageQueryKit.CachedStorageResponse<PolkaswapPoolReservesInfo>?,
         apyInfo: PoolApyInfo?,
         chain: ChainModel,
         locale: Locale,

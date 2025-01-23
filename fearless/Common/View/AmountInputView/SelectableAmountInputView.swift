@@ -101,8 +101,8 @@ final class SelectableAmountInputView: UIView {
         return label
     }()
 
-    private let balanceLabel: UILabel = {
-        let label = UILabel()
+    private let balanceLabel: SkeletonLabel = {
+        let label = SkeletonLabel(skeletonSize: CGSize(width: 60, height: 10))
         label.font = .p1Paragraph
         label.textColor = R.color.colorStrokeGray()
         label.numberOfLines = 1
@@ -216,7 +216,7 @@ final class SelectableAmountInputView: UIView {
         if let balance = viewModel.balance {
             applyType(for: balance)
         } else {
-            balanceLabel.text = nil
+            balanceLabel.updateTextWithLoading(nil)
         }
 
         symbolLabel.text = viewModel.symbol.uppercased()
@@ -238,7 +238,11 @@ final class SelectableAmountInputView: UIView {
 
         switch type {
         case .send, .swapSend, .swapReceive:
-            balanceLabel.text = balance
+            let text = R.string.localizable.commonAvailableFormat(
+                balance,
+                preferredLanguages: locale.rLanguages
+            )
+            balanceLabel.updateTextWithLoading(text)
         }
     }
 
@@ -385,7 +389,25 @@ final class SelectableAmountInputView: UIView {
         }
 
         selectButton.snp.makeConstraints { make in
-            make.edges.equalTo(leftStackView)
+            make.edges.equalTo(symbolStackView)
+        }
+
+        iconView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.iconSize)
+        }
+
+        textField.snp.makeConstraints { make in
+            make.trailing.equalTo(priceLabel)
+            make.centerY.equalTo(symbolStackView)
+            make.leading.equalTo(symbolStackView.snp.trailing).offset(UIConstants.bigOffset)
+        }
+
+        balanceLabel.snp.makeConstraints { make in
+            make.leading.equalTo(titleLabel)
+            make.top.equalTo(symbolStackView.snp.bottom).offset(UIConstants.minimalOffset)
+            make.bottom.equalToSuperview().offset(-LayoutConstants.offset)
+            make.height.equalTo(15)
+            make.width.greaterThanOrEqualTo(60)
         }
     }
 

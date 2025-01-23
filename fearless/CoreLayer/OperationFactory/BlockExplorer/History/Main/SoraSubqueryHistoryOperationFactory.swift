@@ -74,15 +74,15 @@ class SoraSubqueryHistoryOperationFactory {
         var filterStrings: [String] = []
 
         if filters.contains(where: { $0.type == .swap && $0.selected }) {
-            filterStrings.append("{ method:{equalTo:\"swap\"}}")
+            filterStrings.append("{ method:{equalToInsensitive:\"swap\"}}")
         }
 
         if filters.contains(where: { $0.type == .reward && $0.selected }) {
-            filterStrings.append("{ method:{ equalTo:\"Rewarded\"}}")
+            filterStrings.append("{ method:{ equalToInsensitive:\"rewarded\"}}")
         }
 
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
-            filterStrings.append("{ method:{ equalTo:\"Transfer\"}}")
+            filterStrings.append("{ method:{ equalToInsensitive:\"transfer\"}}")
         }
 
         guard filterStrings.isNotEmpty else {

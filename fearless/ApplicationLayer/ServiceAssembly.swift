@@ -80,7 +80,7 @@ final class ServiceAssembly {
         if let _substrateRemoteBalanceFetching {
             return _substrateRemoteBalanceFetching
         }
-        let storagePerformer = SSFStorageQueryKit.StorageRequestPerformerDefault(
+        let storagePerformer = StorageRequestPerformerDefault(
             chainRegistry: chainRegistry
         )
         let service = SubstrateRemoteBalanceFetchingImpl(

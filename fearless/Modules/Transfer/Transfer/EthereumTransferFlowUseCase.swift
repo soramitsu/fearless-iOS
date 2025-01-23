@@ -47,7 +47,8 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     init(
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -134,6 +135,10 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
         )
         let transfer = TransferType.ethereum(ethereumTransfer)
         return transfer
+    }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
     }
 
     // MARK: - Private methods

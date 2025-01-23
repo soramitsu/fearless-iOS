@@ -103,13 +103,16 @@ final class ChainAccountPresenter {
 
         let transferrableBalance = freeBalance - frozenValue.or(.zero)
         let transferrableValue = balanceViewModelFactory.balanceFromPrice(transferrableBalance, priceData: priceData, usageCase: .detailsCrypto)
-        let totalLocked = balanceLocksValue.or(.zero) + frozenValue.or(.zero)
-        let lockedValue = balanceViewModelFactory.balanceFromPrice(totalLocked, priceData: priceData, usageCase: .detailsCrypto)
+        let lockedComponents = [balanceLocksValue, frozenValue].compactMap { $0 }
+        let totalLocked = lockedComponents.first != nil ? lockedComponents.reduce(0, +) : nil
+        let lockedValue = totalLocked.flatMap {
+            balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto)
+        }
 
         let balanceViewModel = ChainAccountBalanceViewModel(
             transferrableValue: transferrableValue,
             lockedValue: lockedValue,
-            hasLockedTokens: totalLocked > Decimal.zero
+            hasLockedTokens: totalLocked.or(.zero) > Decimal.zero
         )
 
         DispatchQueue.main.async { [weak self] in

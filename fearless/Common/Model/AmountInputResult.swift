@@ -1,6 +1,6 @@
 import Foundation
 
-enum AmountInputResult {
+enum AmountInputResult: Equatable {
     case rate(_ value: Decimal)
     case absolute(_ value: Decimal)
 
@@ -10,6 +10,15 @@ enum AmountInputResult {
             return max(value * available, 0.0)
         case let .absolute(value):
             return value
+        }
+    }
+    
+    var needsUpdateInputAfterChange: Bool {
+        switch self {
+        case .rate:
+            return true
+        case .absolute:
+            return false
         }
     }
 }
