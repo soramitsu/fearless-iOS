@@ -20971,8 +20971,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "FW-new-ecosystem";
-				kind = branch;
+				kind = revision;
+				revision = b820bfd2e5e67d0341c5a5b135633309baab2057;
 			};
 		};
 		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
