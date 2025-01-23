@@ -109,7 +109,7 @@ final class SelectableAmountInputView: UIView {
         return label
     }()
 
-    private let symbolView: UIStackView = {
+    private let symbolStackView: UIStackView = {
         let stackView = UIFactory.default.createHorizontalStackView(spacing: 4)
         return stackView
     }()
