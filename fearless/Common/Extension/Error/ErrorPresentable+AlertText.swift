@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import TonAPI
 
 struct ErrorContent {
     let title: String
@@ -29,6 +30,10 @@ extension ErrorPresentable where Self: SheetAlertPresentable {
                 let message = R.string.localizable.connectionErrorMessage(preferredLanguages: locale?.rLanguages)
 
                 return ErrorContent(title: title, message: message)
+            }
+            
+            if let stringConvertibleError = error as? CustomStringConvertible {
+                return ErrorContent(title: "", message: stringConvertibleError.description)
             }
 
             return nil

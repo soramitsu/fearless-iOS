@@ -12,27 +12,27 @@ enum AccountInfoStorageResponseValueRegistry: String {
 struct AccountInfoStorageRequest: MixStorageRequest {
     typealias Response = AccountInfo
     let parametersType: MixStorageRequestParametersType
-    let storagePath: any StorageCodingPathProtocol
+    let storagePath: StorageCodingPath
     let requestId: String
 }
 
 struct OrmlAccountInfoStorageRequest: MixStorageRequest {
     typealias Response = OrmlAccountInfo
     let parametersType: MixStorageRequestParametersType
-    let storagePath: any StorageCodingPathProtocol
+    let storagePath: StorageCodingPath
     let requestId: String
 }
 
 struct EquilibriumAccountInfotorageRequest: MixStorageRequest {
     typealias Response = EquilibriumAccountInfo
     let parametersType: MixStorageRequestParametersType
-    let storagePath: any StorageCodingPathProtocol
+    let storagePath: StorageCodingPath
     let requestId: String
 }
 
 struct AssetAccountStorageRequest: MixStorageRequest {
     typealias Response = AssetAccount
     let parametersType: MixStorageRequestParametersType
-    let storagePath: any StorageCodingPathProtocol
+    let storagePath: StorageCodingPath
     let requestId: String
 }

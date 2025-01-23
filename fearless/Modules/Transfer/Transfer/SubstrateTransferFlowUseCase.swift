@@ -48,7 +48,8 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     init(
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -71,6 +72,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
         utilityChainAsset = chainAsset.chain.utilityChainAssets().first
 
         provideNetworkViewModel?()
+        provideAssetViewModel?()
 
         try await fetchRequaredInfo(for: chainAsset)
         calcFee()
@@ -150,6 +152,10 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
 
     func getTransfer() -> TransferType? {
         buildSubstrateTransfer()
+    }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
     }
 
     // MARK: - Private methods

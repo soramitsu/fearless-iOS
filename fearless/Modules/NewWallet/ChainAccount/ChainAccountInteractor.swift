@@ -115,6 +115,12 @@ final class ChainAccountInteractor {
     }
 
     private func fetchBalanceLocks() {
+        guard chainAsset.chain.ecosystem == .substrate else {
+            presenter?.didReceiveBalanceLocks(.zero)
+            presenter?.didReceiveAssetFrozen(.zero)
+            return
+        }
+        
         guard
             let balanceLocksFetcher = currentDependencies?.balanceLocksFetcher,
             let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
@@ -205,6 +211,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func updateData() {
+        fetchChainAssetBasedData()
+        
         guard
             remoteFetchTimer == nil,
             !chainAsset.chain.ecosystem.isSubstrate

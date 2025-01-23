@@ -29,7 +29,7 @@ final class LiquidityPoolDetailsPresenter {
 
     private var liquidityPair: LiquidityPair?
     private var accountPoolInfo: AccountPool?
-    private var reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?
+    private var reserves: SSFStorageQueryKit.CachedStorageResponse<PolkaswapPoolReservesInfo>?
     private var apyInfo: PoolApyInfo?
 
     // MARK: - Constructors
@@ -69,7 +69,7 @@ final class LiquidityPoolDetailsPresenter {
             return
         }
 
-        let reserves = reserves ?? CachedStorageResponse(value: input.reserves, type: .remote)
+        let reserves = reserves ?? SSFStorageQueryKit.CachedStorageResponse(value: input.reserves, type: .remote)
         let apy = apyInfo ?? input.apyInfo
         let accountPoolInfo = accountPoolInfo ?? input.accountPool
 
@@ -151,7 +151,7 @@ extension LiquidityPoolDetailsPresenter: LiquidityPoolDetailsInteractorOutput {
         provideViewModel()
     }
 
-    func didReceivePoolReserves(reserves: CachedStorageResponse<PolkaswapPoolReservesInfo>?) {
+    func didReceivePoolReserves(reserves: SSFStorageQueryKit.CachedStorageResponse<PolkaswapPoolReservesInfo>) {
         self.reserves = reserves
         provideViewModel()
     }

@@ -101,15 +101,15 @@ final class SelectableAmountInputView: UIView {
         return label
     }()
 
-    private let balanceLabel: UILabel = {
-        let label = UILabel()
+    private let balanceLabel: SkeletonLabel = {
+        let label = SkeletonLabel(skeletonSize: CGSize(width: 60, height: 10))
         label.font = .p1Paragraph
         label.textColor = R.color.colorStrokeGray()
         label.numberOfLines = 1
         return label
     }()
 
-    private let symbolView: UIStackView = {
+    private let symbolStackView: UIStackView = {
         let stackView = UIFactory.default.createHorizontalStackView(spacing: 4)
         return stackView
     }()
@@ -216,7 +216,7 @@ final class SelectableAmountInputView: UIView {
         if let balance = viewModel.balance {
             applyType(for: balance)
         } else {
-            balanceLabel.text = nil
+            balanceLabel.updateTextWithLoading(nil)
         }
 
         symbolLabel.text = viewModel.symbol.uppercased()
@@ -238,7 +238,11 @@ final class SelectableAmountInputView: UIView {
 
         switch type {
         case .send, .swapSend, .swapReceive:
-            balanceLabel.text = balance
+            let text = R.string.localizable.commonAvailableFormat(
+                balance,
+                preferredLanguages: locale.rLanguages
+            )
+            balanceLabel.updateTextWithLoading(text)
         }
     }
 
