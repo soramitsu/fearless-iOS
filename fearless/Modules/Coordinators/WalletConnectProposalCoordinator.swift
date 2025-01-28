@@ -31,6 +31,7 @@ enum ConnectProposal {
 
 enum ActionConnect {
     case walletConnect(Session)
+    case tonConnect(app: TonConnectApp, delegate: (any WalletConnectProposalModuleOutput)?)
 }
 
 final class WalletConnectProposalCoordinator: DefaultCoordinator, CoordinatorFinishOutput {

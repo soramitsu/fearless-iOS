@@ -56,6 +56,12 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
                     wallets: wallets,
                     locale: locale
                 )
+            case .tonConnect:
+                return try buildTonConenctActiveSessionViewModel(
+                    chains: chains,
+                    wallets: wallets,
+                    locale: locale
+                )
             }
         }
     }
@@ -134,6 +140,12 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
                     title: session.peer.name,
                     subtitle: URL(string: session.peer.url)?.host ?? session.peer.url,
                     icon: RemoteImageViewModel(string: session.peer.url)
+                )
+            case let .tonConnect(app, _):
+                return WalletConnectProposalCellModel.DetailsViewModel(
+                    title: app.name,
+                    subtitle: app.appUrl.host ?? "",
+                    icon: RemoteImageViewModel(url: app.iconUrl)
                 )
             }
         }
@@ -432,6 +444,41 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             WalletConnectProposalCellModel.dAppInfo(dApp),
             WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks),
             WalletConnectProposalCellModel(requiredExpandableViewModel: requiredExpandableViewModel)
+        ].compactMap { $0 }
+
+        let cells = [infoCells, walletCellViewModels].reduce([], +)
+
+        return WalletConnectProposalViewModel(
+            indexPath: nil,
+            cells: cells,
+            expiryDate: nil
+        )
+    }
+    
+    func buildTonConenctActiveSessionViewModel(
+        chains: [ChainModel],
+        wallets: [MetaAccountModel],
+        locale: Locale
+    ) throws -> WalletConnectProposalViewModel {
+        guard
+            let app = status.tonApp,
+            let tonChain = chains.first(where: { $0.ecosystem == .ton })
+        else {
+            throw ConvenienceError(error: "Missing wallet connect proposal")
+        }
+        let dApp = createDAppViewModel()
+
+        let requiredNetworks = WalletConnectProposalCellModel.DetailsViewModel(
+            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
+            subtitle: tonChain.name,
+            icon: RemoteImageViewModel(url: tonChain.icon)
+        )
+
+        let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
+
+        let infoCells = [
+            WalletConnectProposalCellModel.dAppInfo(dApp),
+            WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks)
         ].compactMap { $0 }
 
         let cells = [infoCells, walletCellViewModels].reduce([], +)

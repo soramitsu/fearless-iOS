@@ -274,7 +274,8 @@ actor TonConnectServiceImpl: TonConnectService {
             name: name,
             iconUrl: iconUrl,
             publicKey: sessionCrypto.keyPair.publicKey.data,
-            privateKey: sessionCrypto.keyPair.privateKey.data
+            privateKey: sessionCrypto.keyPair.privateKey.data,
+            connectionType: .http
         )
         await appRepository.save(models: [app])
     }

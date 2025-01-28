@@ -65,6 +65,10 @@ final class WalletConnectProposalInteractor {
 // MARK: - WalletConnectProposalInteractorInput
 
 extension WalletConnectProposalInteractor: WalletConnectProposalInteractorInput {
+    func disconnect(app: TonConnectApp) async {
+        await tonConnectService.saveDisconnected(app: app)
+    }
+    
     func setup(with output: WalletConnectProposalInteractorOutput) {
         self.output = output
         fetchWallets()

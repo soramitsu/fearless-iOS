@@ -220,7 +220,8 @@ final class TonWebBridgePresenter: NSObject {
             name: manifest.name,
             iconUrl: manifest.iconUrl,
             publicKey: sessionCrypto.keyPair.publicKey.data,
-            privateKey: sessionCrypto.keyPair.privateKey.data
+            privateKey: sessionCrypto.keyPair.privateKey.data,
+            connectionType: .js
         )
         await interactor.connected(app: connectedApp)
     }
