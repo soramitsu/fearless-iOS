@@ -69,28 +69,37 @@ class SoraSubqueryHistoryOperationFactory {
     }
 
     private func prepareFilter(
-        filters: [WalletTransactionHistoryFilter]
+        filters: [WalletTransactionHistoryFilter],
+        address: String
     ) -> String {
         var filterStrings: [String] = []
-
+        
+        var innerFilters: [String] = []
+        var outerFilters: [String] = []
         if filters.contains(where: { $0.type == .swap && $0.selected }) {
-            filterStrings.append("{ method:{equalToInsensitive:\"swap\"}}")
+            innerFilters.append("{module:{equalTo: \"\("liquidityProxy")\"},method:{equalTo: \"\("swap")\"}}")
         }
 
         if filters.contains(where: { $0.type == .reward && $0.selected }) {
-            filterStrings.append("{ method:{ equalToInsensitive:\"rewarded\"}}")
+            innerFilters.append("{module:{equalTo: \"\("staking")\"},method:{equalTo: \"\("Rewarded")\"}}")
         }
 
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
-            filterStrings.append("{ method:{ equalToInsensitive:\"transfer\"}}")
+            innerFilters.append("{module:{equalTo: \"\("assets")\"}, method:{equalTo: \"\("transfer")\"}}")
+            outerFilters.append("{module:{equalTo: \"\("assets")\"}, method:{equalTo: \"\("transfer")\"},execution:{contains:{success: true}},data:{contains:{to: \"\(address)\"}}}")
         }
-
-        guard filterStrings.isNotEmpty else {
-            return ""
-        }
-
+        
+        innerFilters.append("{module:{equalTo: \"\("poolXYK")\"},method:{equalTo: \"\("depositLiquidity")\"}},{data:{contains:{method: \"\("depositLiquidity")\"}}}")
+        innerFilters.append("{module:{equalTo: \"\("poolXYK")\"},method:{equalTo: \"\("withdrawLiquidity")\"}},{data:{contains:{method: \"\("withdrawLiquidity")\"}}}")
+        innerFilters.append("{module:{equalTo: \"\("referrals")\"}}")
+        innerFilters.append("{module:{equalTo: \"\("ethBridge")\"},method:{equalTo: \"\("transferToSidechain")\"}}")
+        outerFilters.append("{module:{equalTo: \"\("referrals")\"},method:{equalTo: \"\("setReferrer")\"},execution:{contains:{success: true}},data:{contains:{to: \"\(address)\"}}}")
+        
         let resultFilters = filterStrings.joined(separator: ",")
-        return resultFilters
+        
+        let result = "{or:[{address:{equalTo: \"\(address)\"},or:[\(innerFilters.joined(separator: ","))]},\(outerFilters.joined(separator: ","))]}"
+
+        return result
     }
 
     private func prepareQueryForAddress(
@@ -100,7 +109,7 @@ class SoraSubqueryHistoryOperationFactory {
         filters: [WalletTransactionHistoryFilter]
     ) -> String {
         let after = cursor.map { "\"\($0)\"" } ?? "null"
-        let filter = prepareFilter(filters: filters)
+        let filter = prepareFilter(filters: filters, address: address)
 
         return """
         {
@@ -108,7 +117,7 @@ class SoraSubqueryHistoryOperationFactory {
                     after: \(after)
                     first: \(count)
                     orderBy: TIMESTAMP_DESC
-                    filter: {or: [\(filter)] address: {equalTo: "\(address)"}}
+                    filter: \(filter)
                   ) {
                     pageInfo {
                       startCursor
@@ -217,7 +226,7 @@ class SoraSubqueryHistoryOperationFactory {
                     localItems: localTransactions
                 )
             } else {
-                let transactions: [AssetTransactionData] = filteredTransactions.map { item in
+                let transactions: [AssetTransactionData] = remoteTransactions.map { item in
                     item.createTransactionForAddress(
                         address,
                         chain: chain,

@@ -86,7 +86,8 @@ extension WalletOptionPresenter: WalletOptionViewOutput {
     func didLoad(view: WalletOptionViewInput) {
         self.view = view
         interactor.setup(with: self)
-        view.walletDetailsButton(isVisible: wallet.ecosystem.isRegular)
+        view.setWalletDetailsButton(isVisible: wallet.ecosystem.isRegular)
+        view.setAccountScoreButton(isVisible: wallet.ecosystem.ethereumPublicKey != nil)
     }
 }
 

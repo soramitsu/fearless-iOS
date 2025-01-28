@@ -57,7 +57,8 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
             migrators: migrators,
             logger: Logger.shared,
             onboardingService: service,
-            onboardingConfigResolver: resolver
+            onboardingConfigResolver: resolver,
+            pricesService: PricesService.shared
         )
 
         let view = RootViewController(

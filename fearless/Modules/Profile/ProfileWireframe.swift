@@ -9,7 +9,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
     ) {
-        guard let walletDetails = ConnectedAccountsAssembly.configureModule() else {
+        guard let walletDetails = ConnectedAccountsAssembly.configureModule(wallet: metaAccount) else {
             return
         }
         let navigationController = FearlessNavigationController(
