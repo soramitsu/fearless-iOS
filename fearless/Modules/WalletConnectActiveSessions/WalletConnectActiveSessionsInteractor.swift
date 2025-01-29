@@ -32,6 +32,8 @@ final class WalletConnectActiveSessionsInteractor {
         self.appRepository = appRepository
         self.tonConnectService = tonConnectService
         self.eventCenter = eventCenter
+        
+        eventCenter.add(observer: self)
     }
 }
 
