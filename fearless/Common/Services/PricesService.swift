@@ -87,11 +87,10 @@ extension PricesService: EventVisitorProtocol {
         observePrices(for: updatedChainAssets, currencies: currencies)
     }
 
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         let currency = event.account.selectedCurrency
         observePrices(for: chainAssets, currencies: [currency])
     }
-    
 }
 
 private extension PricesService {

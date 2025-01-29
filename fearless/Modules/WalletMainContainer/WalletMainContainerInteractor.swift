@@ -146,6 +146,11 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
         wallet = event.account
         output?.didReceiveAccount(event.account)
     }
+    
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        wallet = event.account
+        output?.didReceiveAccount(event.account)
+    }
 
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         guard let wallet = SelectedWalletSettings.shared.value else {

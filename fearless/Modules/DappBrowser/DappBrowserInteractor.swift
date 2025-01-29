@@ -94,6 +94,10 @@ extension DappBrowserInteractor: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         output?.didUpdate(wallet: event.account)
     }
+    
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        output?.didUpdate(wallet: event.account)
+    }
 
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         output?.didUpdate(wallet: event.account)

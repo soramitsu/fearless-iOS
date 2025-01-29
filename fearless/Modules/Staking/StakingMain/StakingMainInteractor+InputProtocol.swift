@@ -307,6 +307,35 @@ extension StakingMainInteractor: EventVisitorProtocol {
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
     }
+    
+    func processPricesUpdated() {
+        guard let selectedChainAsset else {
+            return
+        }
+        
+        chainAssetFetching.fetch(
+            shouldUseCache: false,
+            filters: [.chainAssetId(selectedChainAsset.chainAssetId)],
+            sortDescriptors: []
+        ) { [weak self] result in
+            switch result {
+            case .success(let chainAssets):
+                if let updatedChainAsset = chainAssets.first {
+                    self?.selectedChainAsset = updatedChainAsset
+
+                    
+                    DispatchQueue.main.async {
+                        self?.updateAfterChainAssetSave()
+                        self?.presenter?.didUpdate(newChainAsset: updatedChainAsset)
+                    }
+                }
+            case .failure(let error):
+                self?.logger?.error(error.localizedDescription)
+            case .none:
+                break
+            }
+        }
+    }
 }
 
 extension StakingMainInteractor: ApplicationHandlerDelegate {

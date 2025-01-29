@@ -21,6 +21,7 @@ final class StakingMainPresenter {
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
     private weak var moduleOutput: StakingMainModuleOutput?
+    private let eventCenter: EventCenterProtocol
 
     var chainAsset: ChainAsset? {
         stateMachine.viewState { (state: BaseStakingState) in state.commonData.chainAsset }
@@ -55,13 +56,15 @@ final class StakingMainPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol?,
         selectedMetaAccount: MetaAccountModel,
-        moduleOutput: StakingMainModuleOutput?
+        moduleOutput: StakingMainModuleOutput?,
+        eventCenter: EventCenterProtocol
     ) {
         self.stateViewModelFactory = stateViewModelFactory
         self.networkInfoViewModelFactory = networkInfoViewModelFactory
         self.viewModelFacade = viewModelFacade
         self.logger = logger
         self.selectedMetaAccount = selectedMetaAccount
+        self.eventCenter = eventCenter
 
         let stateMachine = StakingStateMachine()
         self.stateMachine = stateMachine
@@ -70,6 +73,9 @@ final class StakingMainPresenter {
 
         stateMachine.delegate = self
         self.moduleOutput = moduleOutput
+        
+        eventCenter.add(observer: self, dispatchIn: .main)
+        
     }
 
     private func provideStakingInfo() {
@@ -715,6 +721,13 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func networkInfoViewExpansion(isExpanded: Bool) {
         view?.expandNetworkInfoView(isExpanded)
     }
+    
+    func didUpdate(newChainAsset: ChainAsset) {
+        stateMachine.state.process(chainAsset: newChainAsset)
+        provideStakingInfo()
+        provideMainViewModel()
+        provideState()
+    }
 
 //    Parachain
 
@@ -745,6 +758,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(rewardChainAsset: ChainAsset?) {
         stateMachine.state.process(rewardChainAsset: rewardChainAsset)
     }
+    
 }
 
 // MARK: - ModalPickerViewControllerDelegate
@@ -888,5 +902,18 @@ extension StakingMainPresenter: WalletsManagmentModuleOutput {
 
     func showGetPreinstalledWallet() {
         wireframe.showGetPreinstalledWallet(from: view)
+    }
+}
+
+extension StakingMainPresenter: EventVisitorProtocol {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        guard event.account.metaId == selectedMetaAccount.metaId else {
+            return
+        }
+        
+        selectedMetaAccount = event.account
+        provideStakingInfo()
+        provideMainViewModel()
+        provideState()
     }
 }

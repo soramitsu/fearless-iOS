@@ -416,12 +416,19 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 // MARK: - EventVisitorProtocol
 
 extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
            let wallet = wallets[safe: index] {
             if wallet.selectedCurrency != event.account.selectedCurrency {
                 wallets[index] = event.account
             }
+        }
+    }
+        
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
+           let wallet = wallets[safe: index] {
+    
             if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
                 wallets[index] = event.account
                 buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)

@@ -66,16 +66,16 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        guard wallet.ecosystem.isRegular else {
-            return
-        }
-        eventCenter.add(observer: self)
-        chainRegistry.chainsSubscribe(
-            self,
-            runningInQueue: walletAssetsObserverQueue
-        ) { [weak self] changes in
-            self?.handleChains(changes: changes, accounts: nil)
-        }
+//        guard wallet.ecosystem.isRegular else {
+//            return
+//        }
+//        eventCenter.add(observer: self)
+//        chainRegistry.chainsSubscribe(
+//            self,
+//            runningInQueue: walletAssetsObserverQueue
+//        ) { [weak self] changes in
+//            self?.handleChains(changes: changes, accounts: nil)
+//        }
     }
 
     func throttle() {

@@ -33,8 +33,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "678d442c6f7828def400a70ae15968aef67ef52d",
-        "version" : "1.8.3"
+        "revision" : "729e01bc9b9dab466ac85f21fb9ee2bc1c61b258",
+        "version" : "1.8.4"
       }
     },
     {
@@ -142,7 +142,7 @@
       "location" : "https://github.com/soramitsu/shared-features-spm.git",
       "state" : {
         "branch" : "FW-new-ecosystem",
-        "revision" : "f27477c369b8c634da72883a559dd68152fb588e"
+        "revision" : "53e0a4bbea854ab32e97392365c3e523b9a0dc66"
       }
     },
     {
@@ -177,8 +177,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio.git",
       "state" : {
-        "revision" : "dca6594f65308c761a9c409e09fbf35f48d50d34",
-        "version" : "2.77.0"
+        "revision" : "ba72f31e11275fc5bf060c966cf6c1f36842a291",
+        "version" : "2.79.0"
       }
     },
     {
@@ -195,8 +195,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/apple/swift-nio-http2.git",
       "state" : {
-        "revision" : "eaa71bb6ae082eee5a07407b1ad0cbd8f48f9dca",
-        "version" : "1.34.1"
+        "revision" : "170f4ca06b6a9c57b811293cebcb96e81b661310",
+        "version" : "1.35.0"
       }
     },
     {

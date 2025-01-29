@@ -29,6 +29,7 @@ protocol EventVisitorProtocol: AnyObject {
     func processLogout()
     func processAccountScoreSettingsChanged()
     func processPricesUpdated()
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent)
 }
 
 extension EventVisitorProtocol {
@@ -60,4 +61,5 @@ extension EventVisitorProtocol {
     func processLogout() {}
     func processAccountScoreSettingsChanged() {}
     func processPricesUpdated() {}
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {}
 }

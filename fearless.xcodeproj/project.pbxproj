@@ -2353,6 +2353,7 @@
 		FA402F2F27C7C646008CF986 /* ExportAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA402F2E27C7C646008CF986 /* ExportAction.swift */; };
 		FA44284229D44E51000142EB /* ChainStakingSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA44284129D44E51000142EB /* ChainStakingSettings.swift */; };
 		FA4441342BF75FD90067C633 /* LiquidityPoolListType.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4441332BF75FD90067C633 /* LiquidityPoolListType.swift */; };
+		FA46449E2D49E14B00E21668 /* SelectedCurrencyChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA46449D2D49E13E00E21668 /* SelectedCurrencyChanged.swift */; };
 		FA46D2C7283DDD07005A112B /* ParachainStakingCandidateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA46D2C6283DDD07005A112B /* ParachainStakingCandidateMetadata.swift */; };
 		FA4889672B7F5E360092ABF8 /* GiantsquidExtrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4889662B7F5E360092ABF8 /* GiantsquidExtrinsic.swift */; };
 		FA4B928F284493C60003BCEF /* DelegateCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA4B928E284493C60003BCEF /* DelegateCall.swift */; };
@@ -5683,6 +5684,7 @@
 		FA402F2E27C7C646008CF986 /* ExportAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportAction.swift; sourceTree = "<group>"; };
 		FA44284129D44E51000142EB /* ChainStakingSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainStakingSettings.swift; sourceTree = "<group>"; };
 		FA4441332BF75FD90067C633 /* LiquidityPoolListType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidityPoolListType.swift; sourceTree = "<group>"; };
+		FA46449D2D49E13E00E21668 /* SelectedCurrencyChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedCurrencyChanged.swift; sourceTree = "<group>"; };
 		FA46D2C6283DDD07005A112B /* ParachainStakingCandidateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingCandidateMetadata.swift; sourceTree = "<group>"; };
 		FA4889662B7F5E360092ABF8 /* GiantsquidExtrinsic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiantsquidExtrinsic.swift; sourceTree = "<group>"; };
 		FA4B928E284493C60003BCEF /* DelegateCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegateCall.swift; sourceTree = "<group>"; };
@@ -11432,6 +11434,7 @@
 		84EBC54824F660A700459D15 /* Events */ = {
 			isa = PBXGroup;
 			children = (
+				FA46449D2D49E13E00E21668 /* SelectedCurrencyChanged.swift */,
 				071606C32C7C6C2400C1DF75 /* PricesUpdated.swift */,
 				0701B9CC2C78FF7900DCD395 /* AccountScoreSettingsChanged.swift */,
 				FACD42782A5BE7C6009975AA /* RuntimeSnapshotReady.swift */,
@@ -19965,6 +19968,7 @@
 				36909529AF4B97AE71AD4C24 /* TonWebBridgePresenter.swift in Sources */,
 				720633807C7746A254866395 /* TonWebBridgeInteractor.swift in Sources */,
 				AA69046E4B7838BE78859A24 /* TonWebBridgeViewController.swift in Sources */,
+				FA46449E2D49E14B00E21668 /* SelectedCurrencyChanged.swift in Sources */,
 				0701B8B92C78F69500DCD395 /* BlockExplorerType+Filters.swift in Sources */,
 				DBF246FDD6E70D1DC6529539 /* TonWebBridgeViewLayout.swift in Sources */,
 				152915F53A2C88A15B2BA725 /* TonWebBridgeAssembly.swift in Sources */,
@@ -20770,7 +20774,7 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				branch = "FW-new-ecosystem";
+				branch = 53e0a4bbea854ab32e97392365c3e523b9a0dc66;
 				kind = branch;
 			};
 		};
