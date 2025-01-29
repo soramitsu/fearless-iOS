@@ -12,7 +12,8 @@ final class WalletConnectActiveSessionsAssembly {
             wallet: wallet,
             walletConnectService: WalletConnectServiceImpl.shared,
             appRepository: ServiceAssembly.shared.tonConnectAppAsyncRepository(),
-            tonConnectService: ServiceAssembly.shared.tonConnectService()
+            tonConnectService: ServiceAssembly.shared.tonConnectService(),
+            eventCenter: ServiceAssembly.shared.eventCenter
         )
         let router = WalletConnectActiveSessionsRouter()
 

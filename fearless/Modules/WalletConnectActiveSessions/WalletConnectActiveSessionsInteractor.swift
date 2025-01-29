@@ -17,17 +17,21 @@ final class WalletConnectActiveSessionsInteractor {
     private let walletConnectService: WalletConnectService
     private let appRepository: AsyncAnyRepository<TonConnectApp>
     private let tonConnectService: TonConnectService
+    private let eventCenter: EventCenterProtocol
 
     init(
         wallet: MetaAccountModel,
         walletConnectService: WalletConnectService,
         appRepository: AsyncAnyRepository<TonConnectApp>,
-        tonConnectService: TonConnectService
+        tonConnectService: TonConnectService,
+        eventCenter: EventCenterProtocol
+
     ) {
         self.wallet = wallet
         self.walletConnectService = walletConnectService
         self.appRepository = appRepository
         self.tonConnectService = tonConnectService
+        self.eventCenter = eventCenter
     }
 }
 
@@ -68,5 +72,11 @@ extension WalletConnectActiveSessionsInteractor: WalletConnectActiveSessionsInte
 extension WalletConnectActiveSessionsInteractor: WalletConnectServiceDelegate {
     func didChange(sessions: [Session]) {
         output?.didReceive(sessions: sessions)
+    }
+}
+
+extension WalletConnectActiveSessionsInteractor: EventVisitorProtocol {
+    func processTonConnectEstablished() {
+        getSesstion()
     }
 }

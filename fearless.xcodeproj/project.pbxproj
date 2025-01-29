@@ -377,6 +377,7 @@
 		07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA455289B78E10035A8AB /* CopyableLabelView.swift */; };
 		07DFA45A289B8D520035A8AB /* WalletBalanceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */; };
 		07E346D4288E616E00A8FAEC /* WalletBalanceBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */; };
+		07E77AAB2D49EEB500F25F60 /* TonConnectEstablished.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07E77AAA2D49EEB500F25F60 /* TonConnectEstablished.swift */; };
 		07EC555B2CD8A3600074132E /* MultiAssetV12.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 07EC555A2CD8A3600074132E /* MultiAssetV12.xcmappingmodel */; };
 		07ECB7F32C69CF13000E0A14 /* TonConnectDessision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07ECB7F22C69CF13000E0A14 /* TonConnectDessision.swift */; };
 		07ECB7F52C69EDCE000E0A14 /* SessionStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07ECB7F42C69EDCE000E0A14 /* SessionStatus.swift */; };
@@ -3606,6 +3607,7 @@
 		07DFA455289B78E10035A8AB /* CopyableLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CopyableLabelView.swift; path = fearless/Common/View/CopyableLabelView.swift; sourceTree = SOURCE_ROOT; };
 		07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletBalanceInfo.swift; sourceTree = "<group>"; };
 		07E346D3288E616E00A8FAEC /* WalletBalanceBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceBuilder.swift; sourceTree = "<group>"; };
+		07E77AAA2D49EEB500F25F60 /* TonConnectEstablished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectEstablished.swift; sourceTree = "<group>"; };
 		07EC555A2CD8A3600074132E /* MultiAssetV12.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MultiAssetV12.xcmappingmodel; sourceTree = "<group>"; };
 		07ECB7F22C69CF13000E0A14 /* TonConnectDessision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectDessision.swift; sourceTree = "<group>"; };
 		07ECB7F42C69EDCE000E0A14 /* SessionStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStatus.swift; sourceTree = "<group>"; };
@@ -11457,6 +11459,7 @@
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
 				FAE39AF22A9E1A4F0011A9D6 /* ChainsSetupCompleted.swift */,
 				C65C7F6A2AD82B8D0069D877 /* LogoutEvent.swift */,
+				07E77AAA2D49EEB500F25F60 /* TonConnectEstablished.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -19615,6 +19618,7 @@
 				3E053332BA9D170FB1569ABB /* WalletTransactionDetailsProtocols.swift in Sources */,
 				002561414AF1F8F3B4B65538 /* WalletTransactionDetailsWireframe.swift in Sources */,
 				FA88005D2B319F9D000AE5EB /* BaseStakingAccountResolver.swift in Sources */,
+				07E77AAB2D49EEB500F25F60 /* TonConnectEstablished.swift in Sources */,
 				05A6BB4F8F0912404A4D8413 /* WalletTransactionDetailsPresenter.swift in Sources */,
 				69DE177B9D1745FEE848E870 /* WalletTransactionDetailsInteractor.swift in Sources */,
 				44B20C179522F7E38DAA2441 /* WalletTransactionDetailsViewController.swift in Sources */,
