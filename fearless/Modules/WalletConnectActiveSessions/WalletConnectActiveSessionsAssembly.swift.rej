@@ -1,9 +1,0 @@
-diff a/fearless/Modules/WalletConnectActiveSessions/WalletConnectActiveSessionsAssembly.swift b/fearless/Modules/WalletConnectActiveSessions/WalletConnectActiveSessionsAssembly.swift	(rejected hunks)
-@@ -13,6 +13,7 @@ final class WalletConnectActiveSessionsAssembly {
-             walletConnectService: WalletConnectServiceImpl.shared,
-             appRepository: ServiceAssembly.shared.tonConnectAppAsyncRepository(),
-             tonConnectService: ServiceAssembly.shared.tonConnectService(),
-+            eventCenter: ServiceAssembly.shared.eventCenter
-         )
-         let router = WalletConnectActiveSessionsRouter()
- 
