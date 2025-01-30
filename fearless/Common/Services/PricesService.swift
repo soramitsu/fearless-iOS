@@ -78,6 +78,10 @@ extension PricesService: PriceLocalSubscriptionHandler {
 }
 
 extension PricesService: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        subscribe()
+    }
+    
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
         subscribe()
     }
