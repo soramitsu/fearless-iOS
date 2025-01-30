@@ -612,6 +612,18 @@ extension StakingStateViewModelFactory: StakingStateViewModelFactoryProtocol {
 
 extension StakingStateViewModelFactory: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        guard selectedMetaAccount.metaId == event.account.metaId else {
+            return
+        }
+        
+        selectedMetaAccount = event.account
+    }
+    
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        guard selectedMetaAccount.metaId == event.account.metaId else {
+            return
+        }
+        
         selectedMetaAccount = event.account
     }
 }

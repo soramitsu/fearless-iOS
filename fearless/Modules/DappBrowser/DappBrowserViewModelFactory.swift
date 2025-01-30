@@ -152,7 +152,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
         locale: Locale
     ) -> [DappBrowserViewModel] {
         var viewModel: [DappBrowserViewModel] = []
-        let walletApps = connected.filter { $0.walletId == wallet.metaId }
+        let walletApps = connected.filter { $0.walletId == wallet.metaId && $0.connectionType == .js }
 
         if walletApps.isNotEmpty {
             let apps = connected

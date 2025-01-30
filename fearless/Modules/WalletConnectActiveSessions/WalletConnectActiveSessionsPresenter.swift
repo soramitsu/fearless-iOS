@@ -2,6 +2,7 @@ import Foundation
 import WalletConnectSign
 import SoraFoundation
 import SSFQRService
+import SSFModels
 
 protocol WalletConnectActiveSessionsViewInput: ControllerBackedProtocol, HiddableBarWhenPushed, LoadableViewProtocol {
     func didReceive(viewModels: [WalletConnectActiveSessionsViewModel])
@@ -10,6 +11,7 @@ protocol WalletConnectActiveSessionsViewInput: ControllerBackedProtocol, Hiddabl
 protocol WalletConnectActiveSessionsInteractorInput: AnyObject {
     func setup(with output: WalletConnectActiveSessionsInteractorOutput)
     func setupConnection(uri: String) async throws
+    func getSesstion()
 }
 
 final class WalletConnectActiveSessionsPresenter {
@@ -19,18 +21,22 @@ final class WalletConnectActiveSessionsPresenter {
     private let router: WalletConnectActiveSessionsRouterInput
     private let interactor: WalletConnectActiveSessionsInteractorInput
 
+    private let wallet: MetaAccountModel
     private let viewModelFactory: WalletConnectActiveSessionsViewModelFactory
 
     private var sessions: [Session]?
+    private var tonApps: [TonConnectApp]?
 
     // MARK: - Constructors
 
     init(
+        wallet: MetaAccountModel,
         viewModelFactory: WalletConnectActiveSessionsViewModelFactory,
         interactor: WalletConnectActiveSessionsInteractorInput,
         router: WalletConnectActiveSessionsRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.wallet = wallet
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
@@ -40,23 +46,26 @@ final class WalletConnectActiveSessionsPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        guard let sessions = sessions else {
-            return
+        let viewModels: [WalletConnectActiveSessionsViewModel]
+        switch wallet.ecosystem {
+        case .regular:
+            guard let sessions = sessions else {
+                return
+            }
+            viewModels = viewModelFactory.createViewModel(from: sessions)
+        case .ton:
+            guard let tonApps = tonApps else {
+                return
+            }
+            viewModels = viewModelFactory.createViewModel(from: tonApps)
         }
-        let viewModels = viewModelFactory.createViewModel(from: sessions)
-        view?.didReceive(viewModels: viewModels)
-        view?.didStopLoading()
+        Task { @MainActor in
+            view?.didReceive(viewModels: viewModels)
+            view?.didStopLoading()
+        }
     }
-}
-
-// MARK: - WalletConnectActiveSessionsViewOutput
-
-extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewOutput {
-    func createNewConnection() {
-        router.showScaner(output: self, view: view)
-    }
-
-    func filterConnection(by text: String?) {
+    
+    private func filterSession( by text: String?) {
         let sessions = sessions?.filter {
             guard let text = text else { return false }
             if text.isEmpty {
@@ -68,12 +77,50 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewO
         let viewModels = viewModelFactory.createViewModel(from: sessions)
         view?.didReceive(viewModels: viewModels)
     }
+    
+    private func filterTonApp( by text: String?) {
+        let tonApps = tonApps?.filter {
+            guard let text = text else { return false }
+            if text.isEmpty {
+                return true
+            }
+            return $0.name.lowercased().contains(text.lowercased()) == true
+        }
+        guard let tonApps = tonApps else { return }
+        let viewModels = viewModelFactory.createViewModel(from: tonApps)
+        view?.didReceive(viewModels: viewModels)
+    }
+}
+
+// MARK: - WalletConnectActiveSessionsViewOutput
+
+extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewOutput {
+    func createNewConnection() {
+        router.showScaner(output: self, view: view)
+    }
+
+    func filterConnection(by text: String?) {
+        switch wallet.ecosystem {
+        case .regular:
+            filterSession(by: text)
+        case .ton:
+            filterTonApp(by: text)
+        }
+    }
 
     func didSelectRowAt(_ indexPath: IndexPath) {
-        guard let session = sessions?[safe: indexPath.row] else {
-            return
+        switch wallet.ecosystem {
+        case .regular:
+            guard let session = sessions?[safe: indexPath.row] else {
+                return
+            }
+            router.showSession(.walletConnect(session), view: view)
+        case .ton:
+            guard let app = tonApps?[safe: indexPath.row] else {
+                return
+            }
+            router.showSession(.tonConnect(app: app, delegate: self), view: view)
         }
-        router.showSession(session, view: view)
     }
 
     func backButtonDidTapped() {
@@ -90,6 +137,11 @@ extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsViewO
 // MARK: - WalletConnectActiveSessionsInteractorOutput
 
 extension WalletConnectActiveSessionsPresenter: WalletConnectActiveSessionsInteractorOutput {
+    func didReceive(connectedApps: [TonConnectApp]) {
+        tonApps = connectedApps.filter { $0.connectionType == .http }
+        provideViewModel()
+    }
+    
     func didReceive(sessions: [WalletConnectSign.Session]) {
         self.sessions = sessions
         provideViewModel()
@@ -120,5 +172,28 @@ extension WalletConnectActiveSessionsPresenter: ScanQRModuleOutput {
                 })
             }
         }
+    }
+}
+
+extension Session: WalletConnectActiveSessionsItem {
+    var name: String {
+        peer.name
+    }
+    
+    var url: URL? {
+        URL(string: peer.url)
+    }
+    
+    var icon: URL? {
+        guard let icon = peer.icons.first else {
+            return nil
+        }
+        return URL(string: icon)
+    }
+}
+
+extension WalletConnectActiveSessionsPresenter: WalletConnectProposalModuleOutput {
+    func disconnected() {
+        interactor.getSesstion()
     }
 }

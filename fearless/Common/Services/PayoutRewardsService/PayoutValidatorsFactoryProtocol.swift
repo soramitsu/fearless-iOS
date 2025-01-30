@@ -17,6 +17,8 @@ enum PayoutValidatorsFactoryAssembly {
             return SubsquidPayoutValidatorsForNominatorFactory(url: blockExplorer.url, chainAsset: chainAsset)
         case .sora:
             return SoraSubsquidPayoutValidatorsForNominatorFactory(url: blockExplorer.url, chainAsset: chainAsset)
+        case .soraSubquery:
+            return SoraSubqueryPayoutValidatorsForNominatorFactory(url: blockExplorer.url, chainAsset: chainAsset)
         default:
             return SubsquidPayoutValidatorsForNominatorFactory(url: blockExplorer.url, chainAsset: chainAsset)
         }

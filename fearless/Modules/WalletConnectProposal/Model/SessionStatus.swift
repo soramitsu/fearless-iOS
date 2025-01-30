@@ -43,6 +43,22 @@ enum SessionStatus {
             switch session {
             case let .walletConnect(session):
                 return session
+            case .tonConnect:
+                return nil
+            }
+        }
+    }
+    
+    var tonApp: TonConnectApp? {
+        switch self {
+        case .proposal:
+            return nil
+        case .active(let active):
+            switch active {
+            case .walletConnect:
+                return nil
+            case let .tonConnect(tonConnectApp, _):
+                return tonConnectApp
             }
         }
     }
@@ -56,8 +72,13 @@ enum SessionStatus {
             case let .tonJsBridge(_, _, _, delegate):
                 return delegate
             }
-        case .active:
-            return nil
+        case let .active(active):
+            switch active {
+            case .walletConnect(let session):
+                return nil
+            case .tonConnect(let app, let delegate):
+                return delegate
+            }
         }
     }
 }

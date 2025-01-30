@@ -19,9 +19,9 @@ final class AllDoneViewModelFactory: AllDoneViewModelFactoryProtocol {
         isWalletConnectResult: Bool
     ) -> AllDoneViewModel {
         let defaultTitle = R.string.localizable
-            .allDoneAlertAllDoneStub(preferredLanguages: locale.rLanguages)
+            .commonTransactionSent(preferredLanguages: locale.rLanguages)
         let defaultDesription = R.string.localizable
-            .allDoneAlertDescriptionStub(preferredLanguages: locale.rLanguages)
+            .commonTransactionSentDescription(preferredLanguages: locale.rLanguages)
 
         return AllDoneViewModel(
             title: title ?? defaultTitle,

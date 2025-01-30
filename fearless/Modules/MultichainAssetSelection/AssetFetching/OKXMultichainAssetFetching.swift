@@ -45,7 +45,8 @@ class OKXMultichainAssetFetching: MultichainAssetFetching {
                 currencyId: $0.tokenContractAddress,
                 isUtility: isUtility,
                 isNative: false,
-                assetType: ethereumType
+                assetType: ethereumType,
+                priceData: nativeAsset?.asset.priceData ?? []
             )
 
             return ChainAsset(chain: chain, asset: asset)

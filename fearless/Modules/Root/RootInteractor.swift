@@ -18,6 +18,7 @@ final class RootInteractor {
     private let logger: LoggerProtocol?
     private let onboardingService: OnboardingServiceProtocol
     private let onboardingConfigResolver: OnboardingConfigVersionResolver
+    private let pricesService: PricesServiceProtocol
 
     init(
         settings: SelectedWalletSettings,
@@ -26,7 +27,8 @@ final class RootInteractor {
         migrators: [Migrating],
         logger: LoggerProtocol? = nil,
         onboardingService: OnboardingServiceProtocol,
-        onboardingConfigResolver: OnboardingConfigVersionResolver
+        onboardingConfigResolver: OnboardingConfigVersionResolver,
+        pricesService: PricesServiceProtocol
     ) {
         self.settings = settings
         self.applicationConfig = applicationConfig
@@ -35,6 +37,7 @@ final class RootInteractor {
         self.logger = logger
         self.onboardingService = onboardingService
         self.onboardingConfigResolver = onboardingConfigResolver
+        self.pricesService = pricesService
     }
 
     private func setupURLHandlingService() {
@@ -67,6 +70,8 @@ final class RootInteractor {
 
 extension RootInteractor: RootInteractorInputProtocol {
     func setup(runMigrations: Bool) {
+        pricesService.setup()
+        
         setupURLHandlingService()
         if runMigrations {
             runMigrators()

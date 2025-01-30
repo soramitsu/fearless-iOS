@@ -1239,3 +1239,5 @@ akan muncul di sini";
 "сurrencies.stub.text" = "Mata uang";
 "swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
 "select.liquidity.title" = "Select liquidity";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";

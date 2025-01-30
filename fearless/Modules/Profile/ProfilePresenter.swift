@@ -229,12 +229,15 @@ extension ProfilePresenter: Localizable {
 }
 
 extension ProfilePresenter: EventVisitorProtocol {
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         if selectedCurrency != event.account.selectedCurrency {
             selectedWallet = event.account
             let currency = event.account.selectedCurrency
             interactor.update(currency: currency)
         }
+    }
+    
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         selectedWallet = event.account
     }
 }

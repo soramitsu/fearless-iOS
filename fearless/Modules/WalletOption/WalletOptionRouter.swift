@@ -13,8 +13,8 @@ final class WalletOptionRouter: WalletOptionRouterInput {
         view?.controller.present(navigationController, animated: true)
     }
 
-    func showWalletDetails(from view: ControllerBackedProtocol?, for _: MetaAccountModel) {
-        guard let module = ConnectedAccountsAssembly.configureModule() else {
+    func showWalletDetails(from view: ControllerBackedProtocol?, for wallet: MetaAccountModel) {
+        guard let module = ConnectedAccountsAssembly.configureModule(wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(

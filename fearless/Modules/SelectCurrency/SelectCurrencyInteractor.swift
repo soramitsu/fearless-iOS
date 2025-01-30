@@ -59,7 +59,11 @@ final class SelectCurrencyInteractor {
         SelectedWalletSettings.shared.performSave(value: updatedAccount) { [weak self] result in
             switch result {
             case let .success(account):
-                self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                self?.eventCenter.notify(with: SelectedCurrencyChangedEvent(account: account))
+                
+                DispatchQueue.main.async {
+                    self?.output?.didComplete()
+                }
             case .failure:
                 break
             }

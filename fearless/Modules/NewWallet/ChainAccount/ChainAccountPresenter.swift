@@ -102,11 +102,11 @@ final class ChainAccountPresenter {
         ) ?? Decimal.zero
 
         let transferrableBalance = freeBalance - frozenValue.or(.zero)
-        let transferrableValue = balanceViewModelFactory.balanceFromPrice(transferrableBalance, priceData: priceData, usageCase: .detailsCrypto)
+        let transferrableValue = balanceViewModelFactory.balanceFromPrice(transferrableBalance, priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto)
         let lockedComponents = [balanceLocksValue, frozenValue].compactMap { $0 }
         let totalLocked = lockedComponents.first != nil ? lockedComponents.reduce(0, +) : nil
         let lockedValue = totalLocked.flatMap {
-            balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto)
+            balanceViewModelFactory.balanceFromPrice($0, priceData: chainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto)
         }
 
         let balanceViewModel = ChainAccountBalanceViewModel(

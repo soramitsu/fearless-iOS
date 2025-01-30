@@ -108,8 +108,8 @@ final class WalletConnectConfirmationPresenter {
     private func approveTonConnect() async throws {
         _ = try await interactor.approve()
         Task { @MainActor in
-            router.dismiss(view: view)
-            view?.controller.onInteractionDismiss()
+            showAllDone(hash: nil)
+            view?.didStopLoading()
         }
     }
 

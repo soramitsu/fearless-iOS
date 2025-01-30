@@ -21,7 +21,9 @@ final class WalletConnectProposalAssembly {
             walletRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            tonConnectService: ServiceAssembly.shared.tonConnectService()
+            tonConnectService: ServiceAssembly.shared.tonConnectService(),
+            eventCenter: ServiceAssembly.shared.eventCenter
+
         )
         let router = WalletConnectProposalRouter()
 

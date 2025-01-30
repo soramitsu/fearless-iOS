@@ -103,7 +103,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         eventCenter.add(observer: self)
 
         Task {
-            await fetchInitialData()
+            fetchInitialData()
         }
     }
     
@@ -150,9 +150,9 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                 await addListener(weakListener)
             }
             
-            await updateWalletsIfNeeded(with: wallet)
-            if let balances = await buildBalance(for: [wallet], chainAssets: chainAssets) {
-                await notify(listener: listener, result: .success(balances))
+            updateWalletsIfNeeded(with: wallet)
+            if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
             }
         }
     }
@@ -167,8 +167,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             Task {
                 await addListener(weakListener)
             }
-            if let balances = await buildBalance(for: wallets, chainAssets: chainAssets) {
-                await notify(listener: listener, result: .success(balances))
+            if let balances = buildBalance(for: wallets, chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
             }
         }
     }
@@ -185,8 +185,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             Task {
                 await addListener(weakListener)
             }
-            if let balances = await buildBalance(for: [wallet], chainAssets: [chainAsset]) {
-                await notify(listener: listener, result: .success(balances))
+            if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+                notify(listener: listener, result: .success(balances))
             }
         }
     }
@@ -204,8 +204,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                 await addListener(weakListener)
             }
 
-            if let balances = await buildBalance(for: [wallet], chainAssets: chainAssets) {
-                await notify(listener: listener, result: .success(balances))
+            if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
             }
         }
     }
@@ -221,16 +221,16 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
             Task {
                 await addListener(weakListener)
             }
-            await updateWalletsIfNeeded(with: wallet)
-            let selectedChainAssets = await filterChainAssets(
+            updateWalletsIfNeeded(with: wallet)
+            let selectedChainAssets = filterChainAssets(
                 with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
                 chainAssets: chainAssets,
                 wallet: wallet,
                 search: nil
             )
 
-            if let balances = await buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
-                await notify(listener: listener, result: .success(balances))
+            if let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
+                notify(listener: listener, result: .success(balances))
             }
         }
     }
@@ -416,12 +416,19 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 // MARK: - EventVisitorProtocol
 
 extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
            let wallet = wallets[safe: index] {
             if wallet.selectedCurrency != event.account.selectedCurrency {
                 wallets[index] = event.account
             }
+        }
+    }
+        
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
+           let wallet = wallets[safe: index] {
+    
             if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
                 wallets[index] = event.account
                 buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)

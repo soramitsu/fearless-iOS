@@ -2,12 +2,10 @@ import UIKit
 import SoraFoundation
 import SSFNetwork
 import SoraKeystore
+import SSFModels
 
 final class ConnectedAccountsAssembly {
-    static func configureModule() -> ConnectedAccountsModuleCreationResult? {
-        guard let wallet = SelectedWalletSettings.shared.value else {
-            return nil
-        }
+    static func configureModule(wallet: MetaAccountModel) -> ConnectedAccountsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let interactor = ConnectedAccountsInteractor(

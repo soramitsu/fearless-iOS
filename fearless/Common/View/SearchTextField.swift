@@ -12,6 +12,7 @@ class SearchTextField: BackgroundedContentControl {
     let textField: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .none
+        textField.autocorrectionType = .no
         return textField
     }()
 

@@ -2764,6 +2764,9 @@
 		FA9A8F452A78C045008FA99F /* SubstrateTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F442A78C045008FA99F /* SubstrateTransferService.swift */; };
 		FA9A8F472A82005F008FA99F /* EthereumWalletRemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F462A82005F008FA99F /* EthereumWalletRemoteSubscriptionService.swift */; };
 		FA9A8F492A82034B008FA99F /* EthereumConnectionPool.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9A8F482A82034B008FA99F /* EthereumConnectionPool.swift */; };
+		FA9B04C52D4B7A0A0048BF33 /* SelectedCurrencyChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9B04C32D4B7A0A0048BF33 /* SelectedCurrencyChanged.swift */; };
+		FA9B04C62D4B7A0A0048BF33 /* TonConnectEstablished.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9B04C42D4B7A0A0048BF33 /* TonConnectEstablished.swift */; };
+		FA9B04C82D4B7A220048BF33 /* SoraSubqueryPayoutValidatorForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9B04C72D4B7A220048BF33 /* SoraSubqueryPayoutValidatorForNominatorFactory.swift */; };
 		FA9C96572CA2A57200B6C0D2 /* CrossChainTxTrackingViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9C96562CA2A57100B6C0D2 /* CrossChainTxTrackingViewModelFactory.swift */; };
 		FA9C96592CA2A6E000B6C0D2 /* CrossChainTransactionTrackingOverallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9C96582CA2A6E000B6C0D2 /* CrossChainTransactionTrackingOverallView.swift */; };
 		FA9C965B2CA2AC3700B6C0D2 /* CrossChainTxTrakingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA9C965A2CA2AC3700B6C0D2 /* CrossChainTxTrakingViewModel.swift */; };
@@ -6148,6 +6151,9 @@
 		FA9A8F442A78C045008FA99F /* SubstrateTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateTransferService.swift; sourceTree = "<group>"; };
 		FA9A8F462A82005F008FA99F /* EthereumWalletRemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumWalletRemoteSubscriptionService.swift; sourceTree = "<group>"; };
 		FA9A8F482A82034B008FA99F /* EthereumConnectionPool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConnectionPool.swift; sourceTree = "<group>"; };
+		FA9B04C32D4B7A0A0048BF33 /* SelectedCurrencyChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedCurrencyChanged.swift; sourceTree = "<group>"; };
+		FA9B04C42D4B7A0A0048BF33 /* TonConnectEstablished.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TonConnectEstablished.swift; sourceTree = "<group>"; };
+		FA9B04C72D4B7A220048BF33 /* SoraSubqueryPayoutValidatorForNominatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSubqueryPayoutValidatorForNominatorFactory.swift; sourceTree = "<group>"; };
 		FA9C96562CA2A57100B6C0D2 /* CrossChainTxTrackingViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainTxTrackingViewModelFactory.swift; sourceTree = "<group>"; };
 		FA9C96582CA2A6E000B6C0D2 /* CrossChainTransactionTrackingOverallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainTransactionTrackingOverallView.swift; sourceTree = "<group>"; };
 		FA9C965A2CA2AC3700B6C0D2 /* CrossChainTxTrakingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainTxTrakingViewModel.swift; sourceTree = "<group>"; };
@@ -11134,6 +11140,8 @@
 		84EBC54824F660A700459D15 /* Events */ = {
 			isa = PBXGroup;
 			children = (
+				FA9B04C32D4B7A0A0048BF33 /* SelectedCurrencyChanged.swift */,
+				FA9B04C42D4B7A0A0048BF33 /* TonConnectEstablished.swift */,
 				FA43BA9B2C86C09200D626A8 /* PricesUpdated.swift */,
 				FACD42782A5BE7C6009975AA /* RuntimeSnapshotReady.swift */,
 				FACD42792A5BE7C6009975AA /* WalletRemoteSubscriptionWasUpdatedEvent.swift */,
@@ -13077,6 +13085,7 @@
 		F4DCAE4526207ECD00CCA6BF /* PayoutRewardsService */ = {
 			isa = PBXGroup;
 			children = (
+				FA9B04C72D4B7A220048BF33 /* SoraSubqueryPayoutValidatorForNominatorFactory.swift */,
 				FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */,
 				FAFFAEAA29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift */,
 				FAFFAEA929AC90E50074AF1F /* SubsquidPayoutValidatorsForNominatorFactory.swift */,
@@ -19293,6 +19302,7 @@
 				FA634D682D1A8B0F00EDA155 /* SessionStatus.swift in Sources */,
 				FA634D102D196AEE00EDA155 /* TonConnectDessision.swift in Sources */,
 				FA634D112D196AEE00EDA155 /* WalletSendConfirmViewLayout.swift in Sources */,
+				FA9B04C82D4B7A220048BF33 /* SoraSubqueryPayoutValidatorForNominatorFactory.swift in Sources */,
 				FA634D122D196AEE00EDA155 /* SendViewLayout.swift in Sources */,
 				FA634D132D196AEE00EDA155 /* EcosystemOptionsViewController.swift in Sources */,
 				FA634D142D196AEE00EDA155 /* TonTransferFlowUseCase.swift in Sources */,
@@ -19992,6 +20002,8 @@
 				FAD429082A86567F001D6A16 /* BannersPresenter.swift in Sources */,
 				2B99F241DC91645B1226E10C /* WarningAlertWireframe.swift in Sources */,
 				0BD66304BF73EBDFE1857380 /* WarningAlertPresenter.swift in Sources */,
+				FA9B04C52D4B7A0A0048BF33 /* SelectedCurrencyChanged.swift in Sources */,
+				FA9B04C62D4B7A0A0048BF33 /* TonConnectEstablished.swift in Sources */,
 				5712A48A0C8AEFD9355FD9DA /* WarningAlertInteractor.swift in Sources */,
 				FA5085AC2C33C6D4002DF97D /* SafeArray.swift in Sources */,
 				FABA16462B0C9511001AF2F0 /* NetworkManagmentViewModel.swift in Sources */,
@@ -21055,8 +21067,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/soramitsu/shared-features-spm.git";
 			requirement = {
-				kind = revision;
-				revision = b820bfd2e5e67d0341c5a5b135633309baab2057;
+				branch = "fearless-wallet";
+				kind = branch;
 			};
 		};
 		FAB482E92C58A8AA00594D89 /* XCRemoteSwiftPackageReference "Web3.swift" */ = {

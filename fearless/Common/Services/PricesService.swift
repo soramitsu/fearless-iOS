@@ -33,8 +33,6 @@ final class PricesService: PricesServiceProtocol {
         self.logger = logger
         self.eventCenter = eventCenter
         eventCenter.add(observer: self)
-        
-        subscribe()
     }
 
     func setup() {
@@ -80,6 +78,10 @@ extension PricesService: PriceLocalSubscriptionHandler {
 }
 
 extension PricesService: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        subscribe()
+    }
+    
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
         subscribe()
     }
@@ -89,7 +91,7 @@ extension PricesService: EventVisitorProtocol {
         observePrices(for: updatedChainAssets, currencies: currencies)
     }
 
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         let currency = event.account.selectedCurrency
         observePrices(for: chainAssets, currencies: [currency])
     }
@@ -143,7 +145,7 @@ private extension PricesService {
             }
             var updatedAssets: [AssetModel] = []
             chain.chainAssets.forEach { chainAsset in
-                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId }
+                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId || $0.coingeckoPriceId == chainAsset.asset.coingeckoPriceId }
                 let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
                 updatedAssets.append(updatedAsset)
             }

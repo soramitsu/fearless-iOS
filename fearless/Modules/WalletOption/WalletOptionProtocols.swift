@@ -4,7 +4,8 @@ typealias WalletOptionModuleCreationResult = (view: WalletOptionViewInput, input
 
 protocol WalletOptionViewInput: ControllerBackedProtocol {
     func setDeleteButtonIsVisible(_ isVisible: Bool)
-    func walletDetailsButton(isVisible: Bool)
+    func setWalletDetailsButton(isVisible: Bool)
+    func setAccountScoreButton(isVisible: Bool)
 }
 
 protocol WalletOptionViewOutput: AnyObject {

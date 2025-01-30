@@ -41,9 +41,8 @@ extension BalanceViewModelFactoryProtocol {
 final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     private let targetAssetInfo: AssetBalanceDisplayInfo
     private let formatterFactory: AssetBalanceFormatterFactoryProtocol
-    private var selectedMetaAccount: MetaAccountModel
     private let chainAsset: ChainAsset
-
+    private var wallet: MetaAccountModel
     private let eventCenter = EventCenter.shared
 
     init(
@@ -54,8 +53,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     ) {
         self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
-        self.selectedMetaAccount = selectedMetaAccount
         self.chainAsset = chainAsset
+        self.wallet = selectedMetaAccount
 
         eventCenter.add(observer: self, dispatchIn: .main)
     }
@@ -66,7 +65,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
 
         let targetAmount = rate * amount
-        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(wallet.selectedCurrency)
         let localizableFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 
         return LocalizableResource { locale in
@@ -100,7 +99,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: usageCase)
-        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(wallet.selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 
         return LocalizableResource { locale in
@@ -148,7 +147,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         selectable: Bool
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
         let localizableBalanceFormatter = formatterFactory.createPlainTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
-        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
+        let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(wallet.selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 
         let symbol = targetAssetInfo.symbol
@@ -201,6 +200,18 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
 extension BalanceViewModelFactory: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        selectedMetaAccount = event.account
+        guard wallet.metaId == event.account.metaId else {
+            return
+        }
+        
+        wallet = event.account
+    }
+    
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        guard wallet.metaId == event.account.metaId else {
+            return
+        }
+        
+        wallet = event.account
     }
 }

@@ -41,7 +41,7 @@ class SendDataValidatingFactory: NSObject {
             case let .utility(balance):
                 if let balance = balance,
                    let feeAndTip = feeAndTip {
-                    return sendAmount.or(.zero) + feeAndTip <= balance && sendAmount.or(1) > 0
+                    return sendAmount.or(.zero) + feeAndTip <= balance
                 } else {
                     return false
                 }

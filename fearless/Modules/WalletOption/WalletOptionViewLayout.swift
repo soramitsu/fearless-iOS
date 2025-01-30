@@ -65,6 +65,7 @@ final class WalletOptionViewLayout: UIView {
             backupWalletButton,
             changeWalletNameButton,
             accountScoreButton,
+            walletDetailsButton,
             deleteWalletButton
         ]
     }()

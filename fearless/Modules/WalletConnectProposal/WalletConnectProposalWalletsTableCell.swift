@@ -15,7 +15,6 @@ final class WalletConnectProposalWalletsTableCell: UITableViewCell {
         view.borderWidth = 2
         view.layout = .singleTitle
         view.highlightedStrokeColor = R.color.colorPink()!
-        view.iconImage = R.image.iconBirdGreen()
         view.isUserInteractionEnabled = false
         view.triangularedBackgroundView?.gradientBorderColors = UIColor.walletBorderGradientColors
         return view
@@ -38,6 +37,7 @@ final class WalletConnectProposalWalletsTableCell: UITableViewCell {
         view.title = viewModel.walletName
         view.layoutIfNeeded()
         view.triangularedBackgroundView?.setGradientBorder(highlighted: viewModel.isSelected, animated: true)
+        view.iconImage = viewModel.icon
     }
 
     // MARK: - Private methods

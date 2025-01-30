@@ -87,6 +87,8 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
-        runtimeProviders[chainId]
+        lock.concurrentlyRead {
+            runtimeProviders[chainId]
+        }
     }
 }

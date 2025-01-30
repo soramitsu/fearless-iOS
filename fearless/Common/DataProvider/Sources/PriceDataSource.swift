@@ -205,7 +205,7 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
 }
 
 extension PriceDataSource: EventVisitorProtocol {
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         currencies = (currencies.or([]) + [event.account.selectedCurrency]).uniq(predicate: { $0.id })
     }
 }

@@ -60,9 +60,6 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
         locale: Locale,
         selectedAssetId: String?
     ) -> [SelectAssetCellViewModel] {
-        print("sa-debug Building view model for chain: ", chainAssets.first?.chain.name)
-        print("sa-debug Account infos: ", accountInfos.filter { $0.value != nil }.map { $0.value?.data.sendAvailable })
-
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
