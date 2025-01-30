@@ -32,6 +32,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         wallets: [MetaAccountModel],
         locale: Locale
     ) throws -> WalletConnectProposalViewModel {
+        let wallets = filterWallets(wallets: wallets)
         switch status {
         case let .proposal(connectProposal):
             switch connectProposal {
@@ -109,6 +110,27 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     }
 
     // MARK: - Private methods
+    
+    private func filterWallets(wallets: [MetaAccountModel]) -> [MetaAccountModel] {
+        return wallets.filter { wallet in
+            switch status {
+            case .proposal(let connectProposal):
+                switch connectProposal {
+                case .walletConnect:
+                    return wallet.ecosystem.isRegular
+                case .tonJsBridge, .tonConnect:
+                    return wallet.ecosystem.isTon
+                }
+            case .active(let actionConnect):
+                switch actionConnect {
+                case .walletConnect:
+                    return wallet.ecosystem.isRegular
+                case .tonConnect:
+                    return wallet.ecosystem.isTon
+                }
+            }
+        }
+    }
 
     private func createDAppViewModel() -> WalletConnectProposalCellModel.DetailsViewModel {
         switch status {
@@ -376,11 +398,13 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         from wallets: [MetaAccountModel],
         forActiveSession: Bool
     ) -> [WalletConnectProposalCellModel] {
-        wallets.enumerated().map { index, wallet in
+        let selectedWallet = SelectedWalletSettings.shared.value
+        return wallets.enumerated().map { index, wallet in
             let viewModel = WalletConnectProposalCellModel.WalletViewModel(
                 metaId: wallet.metaId,
                 walletName: wallet.name,
-                isSelected: forActiveSession ? true : index == 0
+                isSelected: forActiveSession ? true : wallet.metaId == selectedWallet?.metaId,
+                icon: wallet.ecosystem.isRegular ? R.image.iconBirdGreen()! : R.image.tonIcon()!
             )
             return WalletConnectProposalCellModel.wallet(viewModel)
         }
