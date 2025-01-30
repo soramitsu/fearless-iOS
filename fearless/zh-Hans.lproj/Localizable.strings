@@ -1249,3 +1249,5 @@
 "your.validators.stop.nominating.title" = "停止提名";
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";

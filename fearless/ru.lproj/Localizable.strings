@@ -1252,3 +1252,5 @@
 "your.validators.stop.nominating.title" = "Прекратить номинирование";
 "your.validators.validator.total.stake" = "Всего в стейкинге: %@";
 "сurrencies.stub.text" = "Токены";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";

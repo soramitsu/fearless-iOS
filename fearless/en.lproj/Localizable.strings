@@ -1254,3 +1254,5 @@ belongs to the right network";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.validator.total.stake" = "Total staked: %@";
 "сurrencies.stub.text" = "Currencies";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";

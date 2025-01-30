@@ -1244,3 +1244,5 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
