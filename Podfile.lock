@@ -9,7 +9,7 @@ PODS:
   - Cuckoo (2.0.9):
     - Cuckoo/Swift (= 2.0.9)
   - Cuckoo/Swift (2.0.9)
-  - FearlessKeys (0.1.4)
+  - FearlessKeys (0.1.5)
   - FireMock (3.1)
   - Kingfisher (7.10.2)
   - MediaView (0.2.0)
@@ -82,7 +82,7 @@ PODS:
 DEPENDENCIES:
   - Charts (~> 4.1.0)
   - Cuckoo
-  - FearlessKeys (= 0.1.4)
+  - FearlessKeys (= 0.1.5)
   - FireMock
   - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
@@ -140,7 +140,7 @@ SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: 6a459bc897d6d80bd1b8c78482ec7ad05dffc3f0
   Cuckoo: e2cc9a06a47d3faee7430a261c9c654b79b35f6e
-  FearlessKeys: 5ec2782533624d237c899677a8c10859fbbc6668
+  FearlessKeys: 54697ac7bdb2a16aa4525bed06c8769a351606db
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   Kingfisher: 99edc495d3b7607e6425f0d6f6847b2abd6d716d
   MediaView: 10ff6a5c7950a7c72c5da9e9b89cc85a981e6abc
@@ -158,6 +158,6 @@ SPEC CHECKSUMS:
   SwiftLint: eb47480d47c982481592c195c221d11013a679cc
   SwiftyBeaver: ade157e4f857812e7d7f15f2e3396bb8733f8a1c
 
-PODFILE CHECKSUM: 6eca9a23a0e78699b9b76e0f4a5d70c067f5290f
+PODFILE CHECKSUM: d50f67e5652b6dc7c25c383940113f88a40d89bc
 
 COCOAPODS: 1.15.2

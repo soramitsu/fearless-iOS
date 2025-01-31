@@ -79,21 +79,17 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
 
         transitionCoordinator?.animate(alongsideTransition: { [weak self] context in
             if context.isInteractive {
-                print("123123 Interactive swipe transition. Start.")
             } else {
                 self?.output.handleDismissingSwipe()
-                print("123123 Back button transition. Start.")
             }
         }, completion: { [weak self] context in
             if context.isCancelled {
-                print("123123 Interactive swipe transition. Finish. Cancelled. We are still on child screen.")
             } else if context.initiallyInteractive {
                 self?.output.handleDismissingSwipe()
             } else {}
         })
 
         transitionCoordinator?.notifyWhenInteractionChanges { _ in
-            print("123123 Interactive swipe transition. Finger lifted up or moved back to edge.")
         }
     }
 
@@ -118,10 +114,10 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
             self?.output.didTapContinueButton()
         }
         rootView.liquidityView.selectHandler = { [weak self] in
-            self?.output.didTapLiquiditySources()
+//            self?.output.didTapLiquiditySources()
         }
         rootView.routeView.selectHandler = { [weak self] in
-            self?.output.didTapSelectRoute()
+//            self?.output.didTapSelectRoute()
         }
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory
@@ -301,7 +297,6 @@ extension CrossChainSwapSetupViewController: UIGestureRecognizerDelegate {
     }
 
     func gestureRecognizer(_: UIGestureRecognizer, shouldReceive event: UIEvent) -> Bool {
-        print("Gesture event: ", event)
         return true
     }
 }

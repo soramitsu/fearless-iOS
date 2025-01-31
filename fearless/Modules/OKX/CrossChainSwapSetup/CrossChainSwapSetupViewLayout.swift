@@ -29,6 +29,12 @@ final class CrossChainSwapSetupViewLayout: UIView {
         label.textColor = R.color.colorWhite()
         return label
     }()
+    
+    let navigationIcon: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.okx_icon()
+        return imageView
+    }()
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
@@ -74,6 +80,8 @@ final class CrossChainSwapSetupViewLayout: UIView {
         setupLayout()
         applyLocalization()
         backgroundColor = R.color.colorBlack19()
+        
+        navigationBar.setCenterViews([navigationIcon])
     }
 
     @available(*, unavailable)
@@ -184,8 +192,8 @@ final class CrossChainSwapSetupViewLayout: UIView {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
 
-        navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
-        originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+//        navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
+        originNetworkFeeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
         liquidityView.titleLabel.text = "Liquidity sources"
