@@ -12,7 +12,8 @@ final class CrossChainSwapConfirmAssembly {
         wallet: MetaAccountModel,
         amount: String,
         selectedDexIds: [String]?,
-        swap: CrossChainSwap
+        swap: CrossChainSwap,
+        slippage: Decimal
     ) -> CrossChainSwapConfirmModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
@@ -64,7 +65,8 @@ final class CrossChainSwapConfirmAssembly {
             dataValidatingFactory: dataValidatingFactory,
             amount: amount,
             selectedDexIds: selectedDexIds,
-            logger: Logger.shared
+            logger: Logger.shared,
+            slippage: slippage
         )
 
         let view = CrossChainSwapConfirmViewController(

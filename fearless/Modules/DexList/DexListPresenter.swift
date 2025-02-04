@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
-protocol DexListViewInput: ControllerBackedProtocol {
+protocol DexListViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: DexListViewModel)
 }
 
@@ -54,6 +54,7 @@ final class DexListPresenter {
     // MARK: - Private methods
 
     private func fetchQuotes() {
+        view?.didStartLoading()
         let isCrossChain = sourceChainAsset.chain.chainId != destinationChainAsset.chain.chainId
 
         Task {
@@ -63,6 +64,7 @@ final class DexListPresenter {
                     let viewModel = viewModelFactory.buildCrossChainViewModel(crossChainQuotes: quotes, locale: selectedLocale, destinationChainAsset: destinationChainAsset)
 
                     await MainActor.run {
+                        view?.didStopLoading()
                         view?.didReceive(viewModel: viewModel)
                     }
                 } else {
@@ -90,10 +92,14 @@ final class DexListPresenter {
                     self.swapQuotes = quotes
 
                     await MainActor.run {
+                        view?.didStopLoading()
                         view?.didReceive(viewModel: viewModel)
                     }
                 }
             } catch {
+                await MainActor.run {
+                    view?.didStopLoading()
+                }
                 print("Failed to fetch quotes: ", error)
             }
         }

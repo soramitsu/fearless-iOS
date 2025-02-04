@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
-protocol BridgeListViewInput: ControllerBackedProtocol {
+protocol BridgeListViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: BridgeListViewModel)
 }
 
@@ -68,6 +68,7 @@ final class BridgeListPresenter {
     }
 
     private func fetchQuotes() {
+        view?.didStartLoading()
         Task {
             do {
                 let quotes1 = try await interactor.getCrossChainQuotes(sort: 0)
@@ -79,6 +80,7 @@ final class BridgeListPresenter {
                 })
 
                 await MainActor.run {
+                    view?.didStopLoading()
                     provideViewModel()
                 }
             } catch {
@@ -88,6 +90,7 @@ final class BridgeListPresenter {
     }
 
     private func provideViewModel() {
+
         let viewModel = viewModelFactory.buildCrossChainViewModel(
             crossChainQuotes: quotes,
             locale: selectedLocale,

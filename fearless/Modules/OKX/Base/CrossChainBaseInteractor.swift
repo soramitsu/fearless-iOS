@@ -5,6 +5,7 @@ protocol CrossChainBaseInteractorInput {
         chainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
+        slippage: String,
         selectedDexIds: [String]?
     ) async throws -> OKXQuoteInfo?
 
@@ -12,6 +13,7 @@ protocol CrossChainBaseInteractorInput {
         chainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
+        slippage: String,
         selectedDexIds: [String]?
     ) async throws -> CrossChainTx?
 }
@@ -27,6 +29,7 @@ class CrossChainBaseInteractor: CrossChainBaseInteractorInput {
         chainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
+        slippage: String,
         selectedDexIds: [String]?
     ) async throws -> OKXQuoteInfo? {
         let okxCase = OKXCase(fromChainAsset: chainAsset, toChainAsset: destinationChainAsset)
@@ -36,7 +39,8 @@ class CrossChainBaseInteractor: CrossChainBaseInteractorInput {
             sourceChainAsset: chainAsset,
             destinationChainAsset: destinationChainAsset,
             amount: amount,
-            selectedDexIds: selectedDexIds
+            selectedDexIds: selectedDexIds,
+            slippage: slippage
         )
     }
 
@@ -44,6 +48,7 @@ class CrossChainBaseInteractor: CrossChainBaseInteractorInput {
         chainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
+        slippage: String,
         selectedDexIds: [String]?
     ) async throws -> CrossChainTx? {
         let okxCase = OKXCase(fromChainAsset: chainAsset, toChainAsset: destinationChainAsset)
@@ -53,7 +58,8 @@ class CrossChainBaseInteractor: CrossChainBaseInteractorInput {
             sourceChainAsset: chainAsset,
             destinationChainAsset: destinationChainAsset,
             amount: amount,
-            selectedDexIds: selectedDexIds
+            selectedDexIds: selectedDexIds,
+            slippage: slippage
         )
     }
 }

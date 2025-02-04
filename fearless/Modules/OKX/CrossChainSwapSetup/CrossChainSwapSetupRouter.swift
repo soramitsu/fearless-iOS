@@ -31,6 +31,7 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
         amount: String,
         selectedDexIds: [String]?,
         swap: CrossChainSwap,
+        slippage: Decimal,
         from view: ControllerBackedProtocol?
     ) {
         guard let module = CrossChainSwapConfirmAssembly.configureModule(
@@ -39,7 +40,8 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
             wallet: wallet,
             amount: amount,
             selectedDexIds: selectedDexIds,
-            swap: swap
+            swap: swap,
+            slippage: slippage
         ) else {
             return
         }

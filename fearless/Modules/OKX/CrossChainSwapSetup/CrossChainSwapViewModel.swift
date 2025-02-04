@@ -9,4 +9,6 @@ struct CrossChainSwapViewModel {
     let sendTokenRatioTitle: String?
     let receiveTokenRatioTitle: String?
     let liquiditySources: String?
+    let slippageTitle: String?
+    let routeViewModels: [ImageMarkedLabelViewModel]?
 }

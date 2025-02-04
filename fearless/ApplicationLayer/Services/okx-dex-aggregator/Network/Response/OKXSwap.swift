@@ -28,10 +28,13 @@ extension OKXSwap: CrossChainSwap {
         tx.to
     }
 
-    var route: String? {
-        routerResult.quoteCompareList.sorted { quote1, quote2 in
-            quote1.amountOut > quote2.amountOut
-        }.first?.dexName
+    var fromRoute: [String]? {
+        routerResult.dexRouterList
+            .compactMap { $0.subRouterList.compactMap { [$0.fromToken.tokenSymbol.uppercased(), $0.toToken.tokenSymbol.uppercased()] }.reduce([], +) }.reduce([], +)
+    }
+    
+    var toRoute: [String]? {
+        nil
     }
 
     var crossChainFee: String? {
@@ -82,5 +85,15 @@ extension OKXSwap: CrossChainSwap {
 
     var selectedDexId: String? {
         nil
+    }
+    
+    var slippage: String? {
+        tx.slippage
+    }
+    
+    var dexName: String? {
+        routerResult.quoteCompareList.sorted { quote1, quote2 in
+            quote1.amountOut > quote2.amountOut
+        }.first?.dexName
     }
 }

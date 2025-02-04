@@ -8,13 +8,16 @@ protocol CrossChainSwap {
     var gasLimit: String? { get }
     var gasPrice: String? { get }
     var maxPriorityFeePerGas: String? { get }
-    var route: String? { get }
+    var fromRoute: [String]? { get }
+    var toRoute: [String]? { get }
     var crossChainFee: String? { get }
     var fiatFee: String? { get }
     var contractAddress: String? { get }
     var from: String? { get }
     var fee: String? { get }
     var selectedDexId: String? { get }
+    var slippage: String? { get }
+    var dexName: String? { get }
 
     var quotes: [OKXDexQuote]? { get }
 }

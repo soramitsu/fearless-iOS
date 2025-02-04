@@ -20,7 +20,8 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
-        selectedDexIds: [String]?
+        selectedDexIds: [String]?,
+        slippage: String
     ) async throws -> OKXQuoteInfo? {
         let fromTokenAddress = sourceChainAsset.asset.currencyId ?? sourceChainAsset.asset.id
         let toTokenAddress = destinationChainAsset.asset.currencyId ?? destinationChainAsset.asset.id
@@ -31,7 +32,7 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
             sort: 1,
-            slippage: "0.01",
+            slippage: slippage,
             allowBridge: selectedDexIds?.compactMap { UInt32($0) }
         )
 
@@ -47,7 +48,8 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
-        selectedDexIds: [String]?
+        selectedDexIds: [String]?,
+        slippage: String
     ) async throws -> CrossChainTx? {
         guard let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress() else {
             throw ChainAccountFetchingError.accountNotExists
@@ -62,7 +64,7 @@ extension OKXCrossChainDataFetching: OKXDataFetching {
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
             sort: 1,
-            slippage: "0.025",
+            slippage: slippage,
             userWalletAddress: address,
             allowBridge: selectedDexIds?.compactMap { UInt32($0) }
         )

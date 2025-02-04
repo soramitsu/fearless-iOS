@@ -146,7 +146,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         priceData: PriceData?,
         selectable: Bool
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
-        let localizableBalanceFormatter = formatterFactory.createPlainTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
+        let localizableBalanceFormatter = formatterFactory.createPlainTokenFormatter(for: targetAssetInfo, usageCase: .listCryptoWith(minimumFractionDigits: 1, maximumFractionDigits: 4))
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(wallet.selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 

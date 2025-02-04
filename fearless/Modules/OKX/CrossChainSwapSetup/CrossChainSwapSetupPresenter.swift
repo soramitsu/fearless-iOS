@@ -45,10 +45,11 @@ final class CrossChainSwapSetupPresenter {
     private var swapToBalance: Decimal?
     private var utilityBalance: Decimal?
     private var selectedDexIds: [String]?
-    private var dexs: [OKXLiquiditySource]?
+    private var dexs: [OKXDexQuote]?
     private var selectedSort: UInt8 = 0
     private var fromNetworkFee: Decimal?
     private var automaticallySelectedDexId: String?
+    private var slippage: Decimal = 0.01
 
     private var dexTask: Task<Void, Never>?
     private var quotesTask: Task<Void, Never>?
@@ -139,10 +140,15 @@ final class CrossChainSwapSetupPresenter {
                     chainAsset: swapFromChainAsset,
                     destinationChainAsset: swapToChainAsset,
                     amount: amountUnwrapped,
+                    slippage: slippage.stringWithPointSeparator,
                     selectedDexIds: selectedDexIds
                 )
 
                 self.swap = swapSetupInfo?.swap
+                if (selectedDexIds?.isEmpty).or(true) {
+                    self.dexs = swapSetupInfo?.swap?.quotes
+                }
+                
                 self.fromNetworkFee = swapSetupInfo?.fee.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(utilityChainAsset.asset.precision)) }
 
                 if selectedDexIds?.isEmpty != false {
@@ -187,22 +193,6 @@ final class CrossChainSwapSetupPresenter {
     }
 
     private func fetchDexs() {
-        guard let swapFromChainAsset else {
-            return
-        }
-
-        dexTask = Task {
-            do {
-                let response = try await interactor.fetchDexs(chainAsset: swapFromChainAsset)
-                self.dexs = response.data?.sorted(by: { $0.name < $1.name })
-
-                await MainActor.run {
-                    provideViewModel()
-                }
-            } catch {
-                logger?.customError(error)
-            }
-        }
     }
 
     private func provideDestinationInput() {
@@ -258,7 +248,9 @@ final class CrossChainSwapSetupPresenter {
             wallet: wallet,
             locale: selectedLocale,
             selectedDexIds: selectedDexIds,
-            totalFiatFee: totalFiatFee
+            totalFiatFee: totalFiatFee,
+            dexs: dexs,
+            slippage: slippage
         )
 
         DispatchQueue.main.async { [weak self] in
@@ -372,6 +364,8 @@ final class CrossChainSwapSetupPresenter {
 
         subscribeOnBalance()
         fetchInfo()
+        fetchDexs()
+
     }
 
     private func handle(accountInfo: AccountInfo?, for chainAssetKey: ChainAssetKey) {
@@ -630,6 +624,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
                 amount: amountUnwrapped,
                 selectedDexIds: selectedDexIds ?? automaticallySelectedDexIds,
                 swap: swap,
+                slippage: slippage,
                 from: self.view
             )
         }
@@ -663,7 +658,8 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
         guard
             let fromAmountDecimal = swapFromInputResult?.absoluteValue(from: balanceMinusFee ?? .zero),
             let swapFromChainAsset,
-            let swapToChainAsset
+            let swapToChainAsset,
+            swapFromChainAsset.chain.chainId != swapToChainAsset.chain.chainId
         else {
             return
         }
@@ -760,6 +756,7 @@ extension CrossChainSwapSetupPresenter: DexListModuleOutput {
         self.selectedDexIds = selectedDexIds
         provideViewModel()
         fetchInfo()
+        fetchDexs()
     }
 }
 
@@ -768,5 +765,6 @@ extension CrossChainSwapSetupPresenter: BridgeListModuleOutput {
         selectedSort = sort
         provideViewModel()
         fetchInfo()
+        fetchDexs()
     }
 }

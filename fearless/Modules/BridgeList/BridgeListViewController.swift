@@ -9,6 +9,10 @@ protocol BridgeListViewOutput: AnyObject {
 }
 
 final class BridgeListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+    var loadableContentView: UIView {
+        rootView.tableView
+    }
+    
     typealias RootViewType = BridgeListViewLayout
 
     // MARK: Private properties

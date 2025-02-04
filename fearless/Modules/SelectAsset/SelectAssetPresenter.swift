@@ -60,11 +60,13 @@ final class SelectAssetPresenter {
             do {
                 let accountInfos = try await self.interactor.fetchAccountInfos(with: chainAssets)
                 self.accountInfos = accountInfos
-                self.chainAssets = chainAssets
                 
                 guard !Task.isCancelled else {
                     return
                 }
+                
+                self.chainAssets = chainAssets
+                
                 await MainActor.run(body: {
                     provideViewModel()
                 })
@@ -162,6 +164,8 @@ extension SelectAssetPresenter: Localizable {
 
 extension SelectAssetPresenter: SelectAssetModuleInput {
     func update(with chainAssets: [ChainAsset]) {
+        self.chainAssets = chainAssets
+
         accountInfosTask?.cancel()
 
         interactor.update(with: chainAssets)

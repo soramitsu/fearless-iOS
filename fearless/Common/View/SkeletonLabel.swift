@@ -28,6 +28,16 @@ class SkeletonLabel: UILabel, SkeletonLoadableView {
             startSkeletonAnimation()
         }
     }
+    
+    func updateAttributedTextWithLoading(_ text: NSAttributedString?) {
+        self.attributedText = text
+
+        if text != nil {
+            stopSkeletonAnimation()
+        } else {
+            startSkeletonAnimation()
+        }
+    }
 
     override func layoutSubviews() {
         super.layoutSubviews()

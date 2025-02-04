@@ -11,7 +11,9 @@ protocol CrossChainSwapSetupViewModelFactory {
         wallet: MetaAccountModel,
         locale: Locale,
         selectedDexIds: [String]?,
-        totalFiatFee: Decimal?
+        totalFiatFee: Decimal?,
+        dexs: [OKXDexQuote]?,
+        slippage: Decimal
     ) -> CrossChainSwapViewModel
 }
 
@@ -31,8 +33,12 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
         wallet: MetaAccountModel,
         locale: Locale,
         selectedDexIds: [String]?,
-        totalFiatFee: Decimal?
+        totalFiatFee: Decimal?,
+        dexs: [OKXDexQuote]?,
+        slippage: Decimal
     ) -> CrossChainSwapViewModel {
+        let isCrossChain = sourceChainAsset.chain.chainId != targetChainAsset.chain.chainId
+        
         let utilityFeeChainAsset = sourceChainAsset.chain.utilityChainAssets().first ?? sourceChainAsset
         let sourceBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: sourceChainAsset)
         let targetBalanceViewModelFactory = buildBalanceViewModelFactory(wallet: wallet, for: targetChainAsset)
@@ -69,21 +75,48 @@ class CrossChainSwapSetupViewModelFactoryImpl: CrossChainSwapSetupViewModelFacto
 
         let sendTokenRatioTitle = "\(sourceChainAsset.asset.symbol.uppercased())/\(targetChainAsset.asset.symbol.uppercased())"
         let receiveTokenRatioTitle = "\(targetChainAsset.asset.symbol.uppercased())/\(sourceChainAsset.asset.symbol.uppercased())"
-        let liquiditySources: String? = (swap.quotes?.count).map { count in
+        let liquiditySources: String? = (dexs?.count).map { count in
             let selectedCount = selectedDexIds?.count ?? count
             return "\(selectedCount)/\(count)"
         }
         let txCommission = totalFiatFeeString.flatMap { "\(wallet.selectedCurrency.symbol) \($0)" }
+        
+        let slippageTitle = (slippage * 100).description + "%"
 
+        
+        let sourceChainIconViewModel = sourceChainAsset.chain.icon.flatMap { RemoteImageViewModel(url: $0)}
+        let targetChainIconViewModel = targetChainAsset.chain.icon.flatMap { RemoteImageViewModel(url: $0)}
+        
+        var fromRouteViewModels = swap.fromRoute?.compactMap {
+            ImageMarkedLabelViewModel(labelText: $0, imageViewModel: sourceChainIconViewModel)
+        }
+        var toRouteViewModels = swap.toRoute?.compactMap {
+            ImageMarkedLabelViewModel(labelText: $0, imageViewModel: targetChainIconViewModel)
+        }
+        
+        if isCrossChain && (fromRouteViewModels).isNullOrEmpty {
+            let sourceTokenViewModel = ImageMarkedLabelViewModel(labelText: sourceChainAsset.asset.symbol.uppercased(), imageViewModel: sourceChainIconViewModel)
+            fromRouteViewModels?.insert(sourceTokenViewModel, at: 0)
+        }
+        
+        if isCrossChain && (toRouteViewModels).isNullOrEmpty {
+            let targetTokenViewModel = ImageMarkedLabelViewModel(labelText: targetChainAsset.asset.symbol.uppercased(), imageViewModel: targetChainIconViewModel)
+            toRouteViewModels?.insert(targetTokenViewModel, at: 0)
+        }
+        
+        let routeViewModels: [ImageMarkedLabelViewModel] = [fromRouteViewModels, toRouteViewModels].compactMap { $0 }.reduce([], +)
+        
         return CrossChainSwapViewModel(
             minimumReceived: minimumReceiveAmountViewModel?.value(for: locale),
-            route: swap.route?.capitalized,
+            route: swap.dexName?.capitalized,
             sendTokenRatio: sendTokenRatioString,
             receiveTokenRatio: receiveTokenRatioString,
             fee: txCommission,
             sendTokenRatioTitle: sendTokenRatioTitle,
             receiveTokenRatioTitle: receiveTokenRatioTitle,
-            liquiditySources: liquiditySources
+            liquiditySources: liquiditySources,
+            slippageTitle: slippageTitle,
+            routeViewModels: routeViewModels
         )
     }
 

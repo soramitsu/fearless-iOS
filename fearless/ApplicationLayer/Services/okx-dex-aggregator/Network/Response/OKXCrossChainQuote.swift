@@ -42,8 +42,18 @@ extension OKXCrossChainQuote: CrossChainSwap {
         nil
     }
 
-    var route: String? {
-        routerList.compactMap { $0.router.bridgeName }.joined(separator: " → ")
+    var fromRoute: [String]? {
+        let fromDexRouterList = routerList.compactMap { $0.fromDexRouterList }.reduce([], +)
+        let fromRoute = fromDexRouterList.compactMap { $0.subRouterList.compactMap { [$0.fromToken.tokenSymbol.uppercased(), $0.toToken.tokenSymbol.uppercased()] }.reduce([], +) }.reduce([], +)
+        
+        return fromRoute
+    }
+    
+    var toRoute: [String]? {
+        let toDexRouterList = routerList.compactMap { $0.toDexRouterList }.reduce([], +)
+        let toRoute = toDexRouterList.compactMap { $0.subRouterList.compactMap { [$0.fromToken.tokenSymbol.uppercased(), $0.toToken.tokenSymbol.uppercased()] }.reduce([], +) }.reduce([], +)
+        
+        return toRoute
     }
 
     var crossChainFee: String? {
@@ -68,5 +78,13 @@ extension OKXCrossChainQuote: CrossChainSwap {
         }
 
         return "\(bridgeId)"
+    }
+    
+    var slippage: String? {
+        nil
+    }
+    
+    var dexName: String? {
+        routerList.compactMap { $0.router.bridgeName }.joined(separator: " → ")
     }
 }

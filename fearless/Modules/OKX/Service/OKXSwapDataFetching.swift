@@ -22,7 +22,8 @@ extension OKXSwapsDataFetching: OKXDataFetching {
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
-        selectedDexIds: [String]?
+        selectedDexIds: [String]?,
+        slippage: String
     ) async throws -> OKXQuoteInfo? {
         guard let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress() else {
             throw CrossChainSwapSetupInteractorError.accountNotFound
@@ -42,7 +43,7 @@ extension OKXSwapsDataFetching: OKXDataFetching {
             amount: amount,
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
-            slippage: "0.01",
+            slippage: slippage,
             userWalletAddress: address,
             dexIds: dexIds
         )
@@ -59,7 +60,8 @@ extension OKXSwapsDataFetching: OKXDataFetching {
         sourceChainAsset: ChainAsset,
         destinationChainAsset: ChainAsset,
         amount: String,
-        selectedDexIds: [String]?
+        selectedDexIds: [String]?,
+        slippage: String
     ) async throws -> CrossChainTx? {
         guard let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress() else {
             throw CrossChainSwapSetupInteractorError.accountNotFound
@@ -79,7 +81,7 @@ extension OKXSwapsDataFetching: OKXDataFetching {
             amount: amount,
             fromTokenAddress: fromTokenAddress,
             toTokenAddress: toTokenAddress,
-            slippage: "0.01",
+            slippage: slippage,
             userWalletAddress: address,
             dexIds: dexIds
         )

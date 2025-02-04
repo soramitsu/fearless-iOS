@@ -11,4 +11,5 @@ struct OKXSwapTransaction: Decodable {
     let minReceiveAmount: String
     let to: String
     let value: String
+    let slippage: String?
 }

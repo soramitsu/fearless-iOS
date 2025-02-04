@@ -114,10 +114,10 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
             self?.output.didTapContinueButton()
         }
         rootView.liquidityView.selectHandler = { [weak self] in
-//            self?.output.didTapLiquiditySources()
+            self?.output.didTapLiquiditySources()
         }
-        rootView.routeView.selectHandler = { [weak self] in
-//            self?.output.didTapSelectRoute()
+        rootView.bridgeNameView.selectHandler = { [weak self] in
+            self?.output.didTapSelectRoute()
         }
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory

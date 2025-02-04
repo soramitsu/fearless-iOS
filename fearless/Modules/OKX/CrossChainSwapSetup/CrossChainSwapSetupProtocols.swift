@@ -1,4 +1,5 @@
 import SSFModels
+import Foundation
 
 typealias CrossChainSwapSetupModuleCreationResult = (
     view: CrossChainSwapSetupViewInput,
@@ -22,6 +23,7 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
         amount: String,
         selectedDexIds: [String]?,
         swap: CrossChainSwap,
+        slippage: Decimal,
         from view: ControllerBackedProtocol?
     )
 

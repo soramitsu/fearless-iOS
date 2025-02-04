@@ -238,11 +238,7 @@ final class SelectableAmountInputView: UIView {
 
         switch type {
         case .send, .swapSend, .swapReceive:
-            let text = R.string.localizable.commonAvailableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-            balanceLabel.updateTextWithLoading(text)
+            balanceLabel.updateTextWithLoading(balance)
         }
     }
 

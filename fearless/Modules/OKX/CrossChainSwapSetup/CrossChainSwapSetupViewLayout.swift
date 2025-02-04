@@ -53,10 +53,12 @@ final class CrossChainSwapSetupViewLayout: UIView {
 
     let originNetworkFeeView = createMultiView()
     let minReceivedView = createMultiView()
-    let routeView = createMultiView()
+    let bridgeNameView = createMultiView()
     let sendRatioView = createMultiView()
     let receiveRatioView = createMultiView()
     let liquidityView = createMultiView()
+    let slippageView = createMultiView()
+    let routeView = TradeRouteView()
     let errorView: ErrorView = {
         let view = ErrorView()
         view.isHidden = true
@@ -92,17 +94,20 @@ final class CrossChainSwapSetupViewLayout: UIView {
     // MARK: - Public methods
 
     func bind(viewModel: CrossChainSwapViewModel?) {
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView].forEach { $0.isHidden = viewModel == nil }
+        [minReceivedView, bridgeNameView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView, slippageView, routeView].forEach { $0.isHidden = viewModel == nil }
 
+        slippageView.isHidden = viewModel?.slippageTitle == nil
         liquidityView.isHidden = viewModel?.liquiditySources == nil
         liquidityView.valueTop.text = viewModel?.liquiditySources
         minReceivedView.bindBalance(viewModel: viewModel?.minimumReceived)
-        routeView.valueTop.text = viewModel?.route
+        bridgeNameView.valueTop.text = viewModel?.route
         sendRatioView.valueTop.text = viewModel?.sendTokenRatio
         receiveRatioView.valueTop.text = viewModel?.receiveTokenRatio
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
         receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
         originNetworkFeeView.valueTop.text = viewModel?.fee
+        slippageView.valueTop.text = viewModel?.slippageTitle
+        routeView.bind(viewModels: viewModel?.routeViewModels)
         errorView.isHidden = true
     }
 
@@ -173,17 +178,19 @@ final class CrossChainSwapSetupViewLayout: UIView {
         contentView.stackView.addArrangedSubview(routeView)
         contentView.stackView.addArrangedSubview(sendRatioView)
         contentView.stackView.addArrangedSubview(receiveRatioView)
+        contentView.stackView.addArrangedSubview(slippageView)
+        contentView.stackView.addArrangedSubview(bridgeNameView)
         contentView.stackView.addArrangedSubview(liquidityView)
         contentView.stackView.addArrangedSubview(originNetworkFeeView)
 
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView].forEach {
+        [minReceivedView, bridgeNameView, sendRatioView, receiveRatioView, slippageView, originNetworkFeeView, liquidityView, routeView].forEach {
             $0.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(viewOffset)
                 make.height.equalTo(LayoutConstants.networkFeeViewHeight)
             }
         }
 
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, liquidityView].forEach { $0.isHidden = true }
+        [minReceivedView, bridgeNameView, sendRatioView, receiveRatioView, slippageView, originNetworkFeeView, liquidityView, routeView].forEach { $0.isHidden = true }
     }
 
     private func applyLocalization() {
@@ -195,8 +202,10 @@ final class CrossChainSwapSetupViewLayout: UIView {
 //        navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
         originNetworkFeeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
-        routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
+        bridgeNameView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
+        slippageView.titleLabel.text = R.string.localizable.lpSlippageTitle(preferredLanguages: locale.rLanguages)
         liquidityView.titleLabel.text = "Liquidity sources"
+        routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
     }
 
     private static func createMultiView() -> TitleMultiValueView {

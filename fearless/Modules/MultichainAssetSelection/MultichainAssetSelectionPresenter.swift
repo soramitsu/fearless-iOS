@@ -108,6 +108,7 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
     }
 
     func didSelect(chain: ChainModel) {
+        
         selectedChainId = chain.chainId
         provideViewModel()
 

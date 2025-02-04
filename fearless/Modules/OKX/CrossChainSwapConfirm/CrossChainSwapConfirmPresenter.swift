@@ -45,6 +45,7 @@ final class CrossChainSwapConfirmPresenter {
     private let selectedDexIds: [String]?
     private var fromNetworkFee: Decimal?
     private var crossChainTx: CrossChainTx?
+    private var slippage: Decimal
 
     // MARK: - Constructors
 
@@ -60,7 +61,8 @@ final class CrossChainSwapConfirmPresenter {
         dataValidatingFactory: SendDataValidatingFactory,
         amount: String,
         selectedDexIds: [String]?,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        slippage: Decimal
     ) {
         self.interactor = interactor
         self.router = router
@@ -73,6 +75,7 @@ final class CrossChainSwapConfirmPresenter {
         self.amount = amount
         self.selectedDexIds = selectedDexIds
         self.logger = logger
+        self.slippage = slippage
 
         self.localizationManager = localizationManager
     }
@@ -100,6 +103,7 @@ final class CrossChainSwapConfirmPresenter {
                     chainAsset: swapFromChainAsset,
                     destinationChainAsset: swapToChainAsset,
                     amount: amount,
+                    slippage: slippage.stringWithPointSeparator,
                     selectedDexIds: selectedDexIds
                 )
 
@@ -141,6 +145,7 @@ final class CrossChainSwapConfirmPresenter {
                     chainAsset: swapFromChainAsset,
                     destinationChainAsset: swapToChainAsset,
                     amount: amount,
+                    slippage: slippage.stringWithPointSeparator,
                     selectedDexIds: selectedDexIds
                 )
 
@@ -174,7 +179,9 @@ final class CrossChainSwapConfirmPresenter {
             wallet: wallet,
             locale: selectedLocale,
             selectedDexIds: nil,
-            totalFiatFee: totalFiatFee
+            totalFiatFee: totalFiatFee,
+            dexs: nil,
+            slippage: slippage
         )
 
         DispatchQueue.main.async { [weak self] in

@@ -9,6 +9,10 @@ protocol DexListViewOutput: AnyObject {
 }
 
 final class DexListViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+    var loadableContentView: UIView {
+        rootView.tableView
+    }
+    
     typealias RootViewType = DexListViewLayout
 
     // MARK: Private properties
