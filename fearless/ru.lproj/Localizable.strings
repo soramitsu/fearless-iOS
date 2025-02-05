@@ -307,6 +307,7 @@
 "common.search.start.title" = "Здесь появятся результаты поиска";
 "common.secret.derivation.path" = "Последовательность для вывода секрета";
 "common.see.all" = "Посмотреть все";
+"common.see.all" = "See all";
 "common.select" = "Выбрать";
 "common.select" = "Выбрать";
 "common.select.all" = "Выбрать все";
@@ -327,6 +328,8 @@
 "common.total" = "Всего";
 "common.transaction.failed" = "Транзакция не прошла. Пожалуйста, попытайтесь снова";
 "common.transaction.raw.data" = "Исходные данные транзакции";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
 "common.transaction.submitted" = "Транзакция отправлена";
 "common.undefined.error.message" = "Пожалуйста, попробуйте снова с другими входными данными. Если ошибка повторяется, то свяжитесь со службой поддержки.";
 "common.undefined.error.title" = "Неопределенная ошибка";
@@ -376,6 +379,9 @@
 "create.new.account" = "Создать новый аккаунт";
 "create.new.connection" = "Создание нового подключения";
 "create.new.pincode" = "Создайте новый PIN код";
+"cross.chain.confirmation.screen.title" = "Cross-chain swap";
+"cross.chain.liquidity.sources.title" = "Liquidity sources";
+"cross.chain.trade.route.title" = "The Trade Route";
 "cross.chain.tx.status.destination.fail.description" = "Transaction failed on the %@. Your funds in the current transaction will be returned to your wallet.";
 "cross.chain.tx.status.destination.fail.title" = "Transaction refund";
 "cross.chain.tx.status.done.description" = "Transaction has been successfully completed.";
@@ -469,6 +475,8 @@
 "export.substrate.title" = "Экспорт Substrate";
 "export.wallet" = "Экспорт кошелька";
 "export.wallet.chains.count" = "+%d ДРУГИХ";
+"fee.calculation.error" = "Что-то пошло не так при расчете комиссии. Пожалуйста, повторите попытку позже.";
+"fee.calculation.error.inactive.account" = "Ваш аккаунт неактивен. Пополните баланс, чтобы рассчитать комиссию.";
 "fee.not.yet.loaded.message" = "Подождите, пока будет рассчитана комиссия";
 "fee.not.yet.loaded.title" = "Расчет комиссии в процессе";
 "google.backup.button.title" = "Подключиться через Google";
@@ -519,7 +527,7 @@
 "lp.apy.title" = "Стратегический бонус APY";
 "lp.available.pools.title" = "Доступные пулы";
 "lp.banner.action.details.title" = "Показать подробности";
-"lp.banner.text" = "Присоединяйтесь к пулам ликвидности и получите вознаграждения";
+"lp.banner.text" = "Присоединяйтесь к пулам ликвидности\nи получайте награды";
 "lp.confirm.liquidity.screen.title" = "Подтвердите ликвидность";
 "lp.confirm.liquidity.warning.text" = "Оценка результата. Если цена изменится более чем на 0.5%, ваша транзакция будет отменена";
 "lp.liquidity.add.complete.text" = "Ваш вклад в пул ликвидности успешно завершен";
@@ -789,6 +797,7 @@
 "select.asset.search.empty.subtitle" = "Ассеты не найдены :(";
 "select.asset.search.placeholder" = "Поиск по токену";
 "select.collators.warning" = "ОТКАЗ ОТ ОТВЕТСТВЕННОСТИ: Предложения алгоритмических коллаторов не являются финансовыми консультациями или советами. Стекинг — это высокорискованная деятельность, и предложения по алгоритмических коллаторов не обязательно снижают этот риск. Коллектор, предложенный алгоритмом, все равно может покинуть пул кандидатов. Коллектор, предложенный алгоритмом, также может изменить свои параметры (например, ставки комиссии и т. д.) в любое время после того, как был предложен и/или выбран. Вы можете потерять вознаграждение по этим или другим причинам. Делайте ставки на токены и используйте предложения по коллатору только по своему усмотрению, проведя должную осмотрительность и тщательно взвесив все сопутствующие риски.";
+"select.liquidity.title" = "Select liquidity";
 "select.network.search.empty.subtitle" = "Сети не найдены :(";
 "select.network.search.placeholder" = "Поиск по сети";
 "select.save.type" = "Выберите тип сохранения";
@@ -1096,6 +1105,7 @@
 ";
 "substrate.secret.derivation.path" = "Путь деривации секрета substrate\
 ";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
 "swipable.cell.button.hide" = "Скрыть";
 "swipable.cell.button.receive" = "Получить";
 "swipable.cell.button.send" = "Отправить";
@@ -1235,6 +1245,7 @@
 "wallet.transaction.history.filter.title" = "Показать";
 "wallet.transaction.history.unsupported.message" = "История транзакций для этой сети еще не поддерживается";
 "wallets.managment.add.new.wallet" = "Добавить новый кошелек";
+"warning.message.nothing.to.claim" = "You have nothing to claim";
 "what.accounts.for.export" = "Какие аккаунты в кошельке вы хотите экспортировать?";
 "xcm.cross.chain.button.title" = "Cross-chain";
 "xcm.cross.chain.invalid.address.message" = "Судя по указанному адресу, вы пытаетесь осуществить перевод не в той сети.";
@@ -1251,7 +1262,4 @@
 "your.validators.stop.nominating.title" = "Прекратить номинирование";
 "your.validators.validator.total.stake" = "Всего в стейкинге: %@";
 "сurrencies.stub.text" = "Токены";
-"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
-"select.liquidity.title" = "Select liquidity";
-"common.transaction.sent" = "Transaction sent";
-"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
+"common.total.fee" = "Total fee";

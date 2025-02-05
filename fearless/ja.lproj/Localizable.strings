@@ -307,6 +307,7 @@
 "common.search.start.title" = "検索結果はここに表示されます";
 "common.secret.derivation.path" = "秘密の派生パス(Derivation Path)";
 "common.see.all" = "すべて見る";
+"common.see.all" = "See all";
 "common.select" = "選択";
 "common.select" = "選択";
 "common.select.all" = "全て選択";
@@ -327,6 +328,8 @@
 "common.total" = "合計";
 "common.transaction.failed" = "トランザクションに失敗しました。後でもう一度お試しください";
 "common.transaction.raw.data" = "トランザクションの生データ";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
 "common.transaction.submitted" = "送信されたトランザクション";
 "common.undefined.error.message" = "別の入力でもう一度お試しください。エラーが再度表示される場合は、サポートにお問い合わせください";
 "common.undefined.error.title" = "未定義のエラー";
@@ -377,6 +380,9 @@
 "create.new.connection" = "新しい接続の作成";
 "create.new.pincode" = "新しいPINコードを作成";
 "cross.chain.tx.status.destination.fail.description" = "Transaction failed on the %@. Your funds in the current transaction will be returned to your wallet.";
+"cross.chain.confirmation.screen.title" = "Cross-chain swap";
+"cross.chain.liquidity.sources.title" = "Liquidity sources";
+"cross.chain.trade.route.title" = "The Trade Route";
 "cross.chain.tx.status.destination.fail.title" = "Transaction refund";
 "cross.chain.tx.status.done.description" = "Transaction has been successfully completed.";
 "cross.chain.tx.status.done.title" = "All done";
@@ -469,6 +475,8 @@
 "export.substrate.title" = "サブストレート(Substrate)のエクスポート";
 "export.wallet" = "ウォレットをエクスポート";
 "export.wallet.chains.count" = "+%d その他";
+"fee.calculation.error" = "Something went wrong while calculating the fee. Please try again later.";
+"fee.calculation.error.inactive.account" = "Your account is inactive. Top up your balance to calculate the fee.";
 "fee.not.yet.loaded.message" = "料金が計算されるまでお待ちください";
 "fee.not.yet.loaded.title" = "料金計算中";
 "google.backup.button.title" = "Googleと接続する";
@@ -790,6 +798,7 @@
 "select.asset.search.empty.subtitle" = "アセットが見つかりませんでした";
 "select.asset.search.placeholder" = "トークンで検索";
 "select.collators.warning" = "免責事項：アルゴリズム・コレーターの提案は、金融に関する相談や助言に該当するものではありません。ステーキングはハイリスクな活動であり、アルゴリズムによるコレーターの提案は、必ずしもこのリスクを軽減するものではありません。アルゴリズムによって提案されたコレーターは、候補から外れる可能性があります。アルゴリズムによって提案されたコレーターは、提案および/または選択された後、いつでもパラメーター(例：手数料率など)を変更することができます。これらの理由や他の理由で報酬を失う可能性があります。関連するリスクを注意して慎重に検討した上で、ご自身の判断でトークンをステークし、コレーターの提案を使用するようにしてください";
+"select.liquidity.title" = "Select liquidity";
 "select.network.search.empty.subtitle" = "ネットワークが見つかりませんでした";
 "select.network.search.placeholder" = "ネットワークで検索";
 "select.save.type" = "保存形式を選択";
@@ -1093,6 +1102,7 @@
 "stories.version2.slide5.title" = "エコシステムとの調和";
 "substrate.crypto.type" = "サブストレート(Substrate)キー・ペアの暗号方式";
 "substrate.secret.derivation.path" = "サブストレート(Substrate)の秘密の派生パス(Derivation Path)";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
 "swipable.cell.button.hide" = "隠す";
 "swipable.cell.button.receive" = "受信";
 "swipable.cell.button.send" = "送信";
@@ -1227,6 +1237,7 @@
 "wallet.transaction.history.filter.title" = "表示";
 "wallet.transaction.history.unsupported.message" = "このネットワークのトランザクション履歴は、まだサポートされていません";
 "wallets.managment.add.new.wallet" = "新しいウォレットを追加";
+"warning.message.nothing.to.claim" = "You have nothing to claim";
 "what.accounts.for.export" = "ウォレット内のどのアカウントをエクスポートしますか?";
 "xcm.cross.chain.button.title" = "クロス・チェーン";
 "xcm.cross.chain.invalid.address.message" = "提供されたアドレスによると、間違ったネットワークで送信しようとしています";
@@ -1243,7 +1254,4 @@
 "your.validators.stop.nominating.title" = "ノミネートを中止";
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
-"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
-"select.liquidity.title" = "Select liquidity";
-"common.transaction.sent" = "Transaction sent";
-"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
+"common.total.fee" = "Total fee";

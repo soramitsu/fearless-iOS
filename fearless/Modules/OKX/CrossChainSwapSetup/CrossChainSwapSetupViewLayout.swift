@@ -199,12 +199,11 @@ final class CrossChainSwapSetupViewLayout: UIView {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
 
-//        navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
         originNetworkFeeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
-        bridgeNameView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
+        bridgeNameView.titleLabel.text = R.string.localizable.crossChainTradeRouteTitle(preferredLanguages: locale.rLanguages)
         slippageView.titleLabel.text = R.string.localizable.lpSlippageTitle(preferredLanguages: locale.rLanguages)
-        liquidityView.titleLabel.text = "Liquidity sources"
+        liquidityView.titleLabel.text = R.string.localizable.crossChainLiquiditySourcesTitle(preferredLanguages: locale.rLanguages)
         routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
     }
 

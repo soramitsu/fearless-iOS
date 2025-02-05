@@ -145,7 +145,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
     private func createTransferItemFromData(
         _ data: AssetTransactionData,
         locale: Locale,
-        txType _: TransactionType
+        txType: TransactionType
     ) throws -> WalletTransactionHistoryCellViewModel {
         let amountValue = data.amount.decimalValue
         var totalAmountValue = amountValue
@@ -167,16 +167,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
         let usageCase: NumberFormatterUsageCase = .detailsCrypto
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: usageCase)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
-        let address: String
-
-        if data.peerFirstName != nil || data.peerLastName != nil {
-            let firstName = data.peerFirstName ?? ""
-            let lastName = data.peerLastName ?? ""
-
-            address = L10n.Common.fullName(firstName, lastName)
-        } else {
-            address = data.peerName ?? ""
-        }
+        let address = data.peerName ?? ""
 
         let incoming: Bool
         let statusIcon: UIImage? = data.status == .rejected ? R.image.iconTxFailed() : nil

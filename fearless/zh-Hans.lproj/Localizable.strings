@@ -309,6 +309,7 @@
 "common.search.start.title" = "搜索结果将会在这里显示";
 "common.secret.derivation.path" = "秘密派生路径";
 "common.see.all" = "查看全部";
+"common.see.all" = "See all";
 "common.select" = "选择";
 "common.select" = "选择";
 "common.select.all" = "全选";
@@ -329,6 +330,8 @@
 "common.total" = "总共";
 "common.transaction.failed" = "交易失败。请稍后再试。";
 "common.transaction.raw.data" = "交易原始数据";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
 "common.transaction.submitted" = "交易已提交";
 "common.undefined.error.message" = "请尝试使用其他输入再次操作。如果错误仍然出现，请联系技术支持。";
 "common.undefined.error.title" = "未定义错误";
@@ -378,6 +381,9 @@
 "create.new.account" = "创建一个新账户";
 "create.new.connection" = "创建新连接";
 "create.new.pincode" = "创建一个新的PIN码";
+"cross.chain.confirmation.screen.title" = "Cross-chain swap";
+"cross.chain.liquidity.sources.title" = "Liquidity sources";
+"cross.chain.trade.route.title" = "The Trade Route";
 "cross.chain.tx.status.destination.fail.description" = "Transaction failed on the %@. Your funds in the current transaction will be returned to your wallet.";
 "cross.chain.tx.status.destination.fail.title" = "Transaction refund";
 "cross.chain.tx.status.done.description" = "Transaction has been successfully completed.";
@@ -471,6 +477,8 @@
 "export.substrate.title" = "导出Substrate";
 "export.wallet" = "导出钱包";
 "export.wallet.chains.count" = "+%d 其他";
+"fee.calculation.error" = "Something went wrong while calculating the fee. Please try again later.";
+"fee.calculation.error.inactive.account" = "Your account is inactive. Top up your balance to calculate the fee.";
 "fee.not.yet.loaded.message" = "请等待，直到费用计算完成。";
 "fee.not.yet.loaded.title" = "费用计算正在进行中";
 "google.backup.button.title" = "与Google连接";
@@ -792,6 +800,7 @@
 "select.asset.search.empty.subtitle" = "未找到任何资产 :(";
 "select.asset.search.placeholder" = "按代币搜索";
 "select.collators.warning" = "免责声明：算法收集人建议并不构成金融咨询或建议。质押是一项高风险活动，算法收集人建议并不能完全减轻这种风险。由算法提供的收集人仍有可能离开候选池。由算法提供的收集人也可以在被推荐和/或选择后随时更改其参数（例如佣金率等）。您可能因此或其他原因而失去奖励。请在进行尽职调查和慎重考虑风险后，根据自己的判断谨慎使用质押代币和使用收集人建议。";
+"select.liquidity.title" = "Select liquidity";
 "select.network.search.empty.subtitle" = "未找到任何网络 :(";
 "select.network.search.placeholder" = "按网络搜索";
 "select.save.type" = "选择保存类型";
@@ -1096,6 +1105,7 @@
 "stories.version2.slide5.title" = "与生态系统和谐相处";
 "substrate.crypto.type" = "Substrate密钥对加密类型";
 "substrate.secret.derivation.path" = "Substrate密钥派生路径";
+"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
 "swipable.cell.button.hide" = "隐藏";
 "swipable.cell.button.receive" = "接收";
 "swipable.cell.button.send" = "发送";
@@ -1232,6 +1242,7 @@
 "wallet.transaction.history.filter.title" = "显示";
 "wallet.transaction.history.unsupported.message" = "该网络暂时不支持交易历史记录。";
 "wallets.managment.add.new.wallet" = "添加新钱包";
+"warning.message.nothing.to.claim" = "You have nothing to claim";
 "what.accounts.for.export" = "您想导出钱包中的哪些账户？";
 "xcm.cross.chain.button.title" = "跨链";
 "xcm.cross.chain.invalid.address.message" = "根据提供的地址，您正在尝试在错误的网络上进行转账。";
@@ -1248,7 +1259,4 @@
 "your.validators.stop.nominating.title" = "停止提名";
 "your.validators.validator.total.stake" = "总质押：%@";
 "сurrencies.stub.text" = "货币";
-"swap.liquidity.error" = "Insufficient liquidity is available for this asset pair to proceed the swap.";
-"select.liquidity.title" = "Select liquidity";
-"common.transaction.sent" = "Transaction sent";
-"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";
+"common.total.fee" = "Total fee";

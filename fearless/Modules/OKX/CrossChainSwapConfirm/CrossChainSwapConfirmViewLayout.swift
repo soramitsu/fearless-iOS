@@ -55,7 +55,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
 
     let originNetworkFeeView = createMultiView()
     let minReceivedView = createMultiView()
-    let routeView = createMultiView()
+    let routeView = TradeRouteView()
     let sendRatioView = createMultiView()
     let receiveRatioView = createMultiView()
     let slippageView = createMultiView()
@@ -107,10 +107,10 @@ final class CrossChainSwapConfirmViewLayout: UIView {
     }
 
     func bind(viewModel: CrossChainSwapViewModel?) {
-        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, slippageView].forEach { $0.isHidden = viewModel == nil }
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView].forEach { $0.isHidden = viewModel == nil }
 
         minReceivedView.bindBalance(viewModel: viewModel?.minimumReceived)
-        routeView.valueTop.text = viewModel?.route
+        routeView.bind(viewModels: viewModel?.routeViewModels)
         sendRatioView.valueTop.text = viewModel?.sendTokenRatio
         receiveRatioView.valueTop.text = viewModel?.receiveTokenRatio
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
@@ -130,7 +130,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         approveButton.imageWithTitleView?.title = R.string.localizable.commonApprove(preferredLanguages: locale.rLanguages)
 
         titleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
-        originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        originNetworkFeeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
         minReceivedView.titleLabel.text = R.string.localizable.polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         routeView.titleLabel.text = R.string.localizable.polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
         slippageView.titleLabel.text = R.string.localizable.lpSlippageTitle(preferredLanguages: locale.rLanguages)
@@ -140,6 +140,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         func makeCommonConstraints(for view: UIView) {
             view.snp.makeConstraints { make in
                 make.leading.trailing.equalToSuperview()
+                make.height.equalTo(50)
             }
         }
 
@@ -196,6 +197,8 @@ final class CrossChainSwapConfirmViewLayout: UIView {
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+        
+        [minReceivedView, routeView, sendRatioView, receiveRatioView, originNetworkFeeView, slippageView].forEach { $0.isHidden = true }
     }
 
     private static func createMultiView() -> TitleMultiValueView {
