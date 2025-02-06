@@ -23,11 +23,16 @@ protocol SelectAssetInteractorOutput: AnyObject {
 protocol SelectAssetRouterInput: SheetAlertPresentable, ErrorPresentable, PresentDismissable {}
 
 protocol SelectAssetModuleInput: AnyObject {
-    func update(with chainAssets: [ChainAsset])
+    func update(with chainAssets: [ChainAsset]?)
     func runLoading()
     func stopLoading()
 }
 
 protocol SelectAssetModuleOutput: AnyObject {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?)
+    func refreshData()
+}
+
+extension SelectAssetModuleOutput {
+    func refreshData() {}
 }

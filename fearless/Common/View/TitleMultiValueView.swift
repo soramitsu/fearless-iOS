@@ -39,8 +39,27 @@ class TitleMultiValueView: UIView {
         view.strokeColor = R.color.colorDarkGray()!
         return view
     }()
+    
+    let infoButton: ExtendedTouchAreaButton = {
+        let button = ExtendedTouchAreaButton()
+        button.setImage(R.image.iconInfoFilled(), for: .normal)
+        button.isHidden = true
+        return button
+    }()
+    
+    let titleStackView: UIStackView = {
+        let stackView = UIFactory.default.createHorizontalStackView(spacing: 6)
+        stackView.alignment = .center
+        return stackView
+    }()
+    
 
     var selectHandler: (() -> Void)?
+    var infoHandler: (() -> Void)? {
+        didSet {
+            infoButton.isHidden = infoHandler == nil
+        }
+    }
 
     private var skeletonView: SkrullableView?
 
@@ -100,13 +119,15 @@ class TitleMultiValueView: UIView {
     }
 
     func setupLayout() {
+        
         addSubview(borderView)
         borderView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        addSubview(titleStackView)
 
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
+        titleStackView.addArrangedSubview(titleLabel)
+        titleStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview()
             make.top.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
@@ -119,8 +140,20 @@ class TitleMultiValueView: UIView {
 
         valueLabelsStack.addArrangedSubview(valueTop)
         valueLabelsStack.addArrangedSubview(valueBottom)
+        
+        
+        titleStackView.addArrangedSubview(infoButton)
+        infoButton.snp.makeConstraints { make in
+            make.size.equalTo(12)
+        }
+        
+        infoButton.addTarget(self, action: #selector(handleTapInfoButton), for: .touchUpInside)
     }
 
+    @objc func handleTapInfoButton() {
+        infoHandler?()
+    }
+    
     @objc func handleTapGesture() {
         selectHandler?()
     }

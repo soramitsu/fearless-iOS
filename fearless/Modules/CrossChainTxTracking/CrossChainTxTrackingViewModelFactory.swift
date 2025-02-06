@@ -72,6 +72,8 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
 
         let toAmountViewModel = transactionType == .incoming ? amountViewModel : nil
         let fromAmountViewModel = (transactionType == .outgoing || transactionType == .bridge) ? amountViewModel : nil
+        let statusViewModel = buildStatusViewModel(tx: status, locale: locale)
+
         return CrossChainTxTrackingViewModel(
             statusViewModels: statusViewModels,
             statusTitle: statusTitle,
@@ -88,7 +90,8 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             fromHashViewTitle: R.string.localizable.commonNetworkHash(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages),
             toHashViewTitle: nil,
             fromFeeViewTitle: R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages),
-            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages),
+            statusViewModel: statusViewModel
         )
     }
 
@@ -113,6 +116,8 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             usageCase: .detailsCrypto
         )
         let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
+        let statusViewModel = buildStatusViewModel(tx: status, locale: locale)
+
         return CrossChainTxTrackingViewModel(
             statusViewModels: [sourceStepStatus],
             statusTitle: R.string.localizable.crossChainTxStatusSourceFailTitle(preferredLanguages: locale.rLanguages),
@@ -129,7 +134,8 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             fromHashViewTitle: R.string.localizable.commonNetworkHash(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages),
             toHashViewTitle: nil,
             fromFeeViewTitle: R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages),
-            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages),
+            statusViewModel: statusViewModel
         )
     }
 
@@ -194,6 +200,7 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             status: detailStatus
         )
         let address = wallet.fetch(for: sourceChainAsset.chain.accountRequest())?.toAddress()
+        let statusViewModel = buildStatusViewModel(tx: status, locale: locale)
         return CrossChainTxTrackingViewModel(
             statusViewModels: statusViewModels,
             statusTitle: statusTitle,
@@ -210,8 +217,16 @@ final class CrossChainTxTrackingViewModelFactoryImpl: CrossChainTxTrackingViewMo
             fromHashViewTitle: R.string.localizable.commonNetworkHash(sourceChainAsset.chain.name, preferredLanguages: locale.rLanguages),
             toHashViewTitle: R.string.localizable.commonNetworkHash(destinationChainAsset.chain.name, preferredLanguages: locale.rLanguages),
             fromFeeViewTitle: R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages),
-            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+            toFeeViewTitle: R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages),
+            statusViewModel: statusViewModel
         )
+    }
+    
+    private func buildStatusViewModel(tx: OKXCrossChainTransactionStatus, locale: Locale) -> CrossChainStatusViewModel {
+        let txStatus = OKXCrossChainTxStatus(rawValue: tx.status)
+        let txDetailStatus = OKXCrossChainTxDetailStatus(rawValue: tx.detailStatus)
+        
+        return CrossChainStatusViewModel(status: txStatus, detailStatus: txDetailStatus, locale: locale)
     }
 
     private func statusTitle(detailStatus: OKXCrossChainTxDetailStatus, locale: Locale) -> String? {

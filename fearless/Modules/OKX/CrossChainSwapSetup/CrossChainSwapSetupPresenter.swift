@@ -134,6 +134,18 @@ final class CrossChainSwapSetupPresenter {
         guard let swapFromChainAsset, let swapToChainAsset, let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, amountUnwrapped.isNotEmpty else {
             return
         }
+        
+        guard Decimal(string: amountUnwrapped) != 0 else {
+            swapToInputResult = nil
+            provideDestinationAssetViewModel()
+
+            swap = nil
+            
+            provideViewModel()
+            checkLoadingState()
+            return
+        }
+        
         Task {
             do {
                 let swapSetupInfo = try await interactor.fetchSwapSetupInfo(
@@ -174,7 +186,6 @@ final class CrossChainSwapSetupPresenter {
 
                     if let error = error as? OKXDexError, let view = self?.view {
                         let message = error.decode(with: swapFromChainAsset)
-//                        self?.router.presentError(for: "", message: message ?? "", view: view, locale: self?.selectedLocale)
                         switch error {
                         case .insufficientLiquidity:
                             self?.showLiquidityError()
@@ -515,6 +526,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
     }
 
     func selectFromAmountPercentage(_ percentage: Float) {
+        timer?.invalidate()
         runLoadingState()
 
         swapVariant = .desiredInput
@@ -524,6 +536,7 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
     }
 
     func updateFromAmount(_ newValue: Decimal) {
+        timer?.invalidate()
         runLoadingState()
 
         swapVariant = .desiredInput
@@ -678,6 +691,14 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
             selectedSort: selectedSort
         )
     }
+    
+    func didTapRouteInfoButton() {
+        router.presentInfo(
+            message: R.string.localizable.crossChainOkxRouteDescription(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.crossChainOkxRouteTitle(preferredLanguages: selectedLocale.rLanguages),
+            from: view
+        )
+    }
 }
 
 // MARK: - CrossChainSwapSetupInteractorOutput
@@ -735,8 +756,12 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupModuleInput {
 
 extension CrossChainSwapSetupPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?) {
+        guard let chainAsset else {
+            return
+        }
+        
         if contextTag == 0 {
-            if chainAsset?.chain.isSora == true {
+            if chainAsset.chain.isSora == true {
                 didSelectSoraChainAsset(chainAsset)
             } else {
                 didSelectSourceChainAsset(chainAsset)

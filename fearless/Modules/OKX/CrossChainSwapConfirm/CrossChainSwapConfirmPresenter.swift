@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFModels
 import BigInt
+import Web3
 
 protocol CrossChainSwapConfirmViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(swapAmountInfoViewModel: SwapAmountInfoViewModel)
@@ -10,6 +11,7 @@ protocol CrossChainSwapConfirmViewInput: ControllerBackedProtocol, LoadableViewP
     func didReceive(feeViewModel: TitleMultiValueViewModel?)
     func setButtonLoadingState(isLoading: Bool)
     func setApproveButtonVisible(_ visible: Bool)
+    func didReceiveError(viewModel: ErrorViewModel?)
 }
 
 protocol CrossChainSwapConfirmInteractorInput: AnyObject, CrossChainBaseInteractor {
@@ -134,6 +136,15 @@ final class CrossChainSwapConfirmPresenter {
                 }
             } catch {
                 logger?.customError(error)
+                
+                if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
+                    await MainActor.run {
+                        self.showDefaultError(
+                            title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
+                            message: rpcError.message
+                        )
+                    }
+                }
             }
         }
     }
@@ -160,6 +171,28 @@ final class CrossChainSwapConfirmPresenter {
 
                 calculateTotalFiatFee()
                 provideViewModel()
+                
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else {
+                        return
+                    }
+                    
+                    self.view?.setButtonLoadingState(isLoading: false)
+
+                    if let error = error as? OKXDexError{
+                        let message = error.decode(with: self.swapFromChainAsset)
+                        switch error {
+                        default:
+                            self.showDefaultError(
+                                title: R.string.localizable.commonImportant(preferredLanguages: self.selectedLocale.rLanguages),
+                                message: message ?? ""
+                            )
+                        }
+                    } else {
+                        self.router.present(error: error, from: self.view, locale: self.selectedLocale)
+                    }
+                }
+
             }
         }
     }
@@ -268,6 +301,16 @@ final class CrossChainSwapConfirmPresenter {
     private func setupTimer() {
         timer?.invalidate()
         timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(handleTimerTick), userInfo: nil, repeats: true)
+    }
+    
+    private func showDefaultError(title: String, message: String) {
+        let errorViewModel = ErrorViewModel(
+            title: title,
+            message: message,
+            actionTitle: nil,
+            actionHandler: nil
+        )
+        view?.didReceiveError(viewModel: errorViewModel)
     }
 }
 

@@ -8,6 +8,7 @@ protocol CrossChainSwapSetupViewOutput: AnyObject {
     func didTapSelectToAsset()
     func didTapBackButton()
     func didTapContinueButton()
+    func didTapRouteInfoButton()
     func selectFromAmountPercentage(_ percentage: Float)
     func updateFromAmount(_ newValue: Decimal)
     func didTapSwitchInputsButton()
@@ -76,6 +77,8 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
 
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        output.handleViewWillDisappear()
 
         transitionCoordinator?.animate(alongsideTransition: { [weak self] context in
             if context.isInteractive {
@@ -118,6 +121,9 @@ final class CrossChainSwapSetupViewController: UIViewController, ViewHolder, Hid
         }
         rootView.bridgeNameView.selectHandler = { [weak self] in
             self?.output.didTapSelectRoute()
+        }
+        rootView.bridgeNameView.infoHandler = { [weak self] in
+            self?.output.didTapRouteInfoButton()
         }
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory
@@ -219,7 +225,13 @@ extension CrossChainSwapSetupViewController: AmountInputViewModelObserver {
     @objc private func updateAmounts() {
         if rootView.amountView.textField.isFirstResponder {
             guard let amountFrom = amountFromInputViewModel?.decimalAmount else {
-                output.updateFromAmount(0)
+                if amountFromInputViewModel?.isValid == false {
+                    updatePreviewButton()
+                }
+                
+                if (rootView.amountView.textField.text?.isEmpty).or(true) {
+                    output.updateFromAmount(0)
+                }
 
                 return
             }

@@ -93,6 +93,10 @@ final class SelectAssetPresenter {
 // MARK: - SelectAssetViewOutput
 
 extension SelectAssetPresenter: SelectAssetViewOutput {
+    func didTapRetry() {
+        output.refreshData()
+    }
+    
     var numberOfItems: Int {
         viewModels.count
     }
@@ -163,7 +167,14 @@ extension SelectAssetPresenter: Localizable {
 }
 
 extension SelectAssetPresenter: SelectAssetModuleInput {
-    func update(with chainAssets: [ChainAsset]) {
+    func update(with chainAssets: [ChainAsset]?) {
+        guard let chainAssets else {
+            view?.didReceive(errorMessage: R.string.localizable.emptyStateMessage(preferredLanguages: selectedLocale.rLanguages))
+            return
+        }
+        
+        view?.didReceive(errorMessage: nil)
+
         self.chainAssets = chainAssets
 
         accountInfosTask?.cancel()

@@ -23,7 +23,8 @@ final class MultichainAssetSelectionPresenter {
     private let logger: LoggerProtocol
     private let selectAssetModuleOutput: SelectAssetModuleOutput?
     weak var selectAssetModuleInput: SelectAssetModuleInput?
-    private var selectedChainId: ChainModel.Id?
+//    private var selectedChainId: ChainModel.Id?
+    private var selectedChain: ChainModel?
     private var chains: [ChainModel]?
     private let assetFetching: MultichainAssetFetching
     private var filter: ((ChainAsset) throws -> Bool)?
@@ -49,7 +50,7 @@ final class MultichainAssetSelectionPresenter {
         self.assetFetching = assetFetching
         self.filter = filter
 
-        selectedChainId = selectedChainAsset?.chain.chainId
+        selectedChain = selectedChainAsset?.chain
 
         self.localizationManager = localizationManager
     }
@@ -58,7 +59,7 @@ final class MultichainAssetSelectionPresenter {
 
     private func provideViewModel() {
         Task {
-            let viewModels = viewModelFactory.buildViewModels(chains: chains.or([]), selectedChainId: selectedChainId)
+            let viewModels = viewModelFactory.buildViewModels(chains: chains.or([]), selectedChainId: selectedChain?.chainId)
             await view?.didReceive(viewModels: viewModels)
         }
     }
@@ -69,25 +70,26 @@ final class MultichainAssetSelectionPresenter {
                 let chains = try await interactor.fetchChains().sorted(by: { $0.rank.or(UInt16.max) < $1.rank.or(UInt16.max) })
                 self.chains = chains
 
-                if selectedChainId == nil {
-                    selectedChainId = chains.first?.chainId
+                if selectedChain == nil {
+                    selectedChain = chains.first
 
                     if let chain = chains.first {
                         DispatchQueue.main.async { [weak self] in
                             self?.didSelect(chain: chain)
                         }
                     }
-                } else if let chain = chains.first(where: { $0.chainId == selectedChainId }) {
+                } else if let chain = chains.first(where: { $0.chainId == selectedChain?.chainId }) {
                     DispatchQueue.main.async { [weak self] in
                         self?.didSelect(chain: chain)
                     }
                 }
 
-                let viewModels = viewModelFactory.buildViewModels(chains: chains, selectedChainId: selectedChainId)
+                let viewModels = viewModelFactory.buildViewModels(chains: chains, selectedChainId: selectedChain?.chainId)
                 await view?.didReceive(viewModels: viewModels)
             } catch {
                 await MainActor.run {
                     selectAssetModuleInput?.stopLoading()
+                    selectAssetModuleInput?.update(with: nil)
                 }
 
                 await view?.didReceive(viewModels: nil)
@@ -109,7 +111,7 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
 
     func didSelect(chain: ChainModel) {
         
-        selectedChainId = chain.chainId
+        selectedChain = chain
         provideViewModel()
 
         Task {
@@ -149,10 +151,6 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
     func didTapCloseButton() {
         router.dismiss(view: view)
     }
-
-    func didTapRetryButton() {
-        fetchChains()
-    }
 }
 
 // MARK: - MultichainAssetSelectionInteractorOutput
@@ -170,5 +168,15 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionModuleInput
 extension MultichainAssetSelectionPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?) {
         selectAssetModuleOutput?.assetSelection(didCompleteWith: chainAsset, contextTag: contextTag)
+    }
+    
+    func refreshData() {
+        selectAssetModuleInput?.runLoading()
+
+        if let selectedChain = selectedChain {
+            didSelect(chain: selectedChain)
+        } else {
+            fetchChains()
+        }
     }
 }

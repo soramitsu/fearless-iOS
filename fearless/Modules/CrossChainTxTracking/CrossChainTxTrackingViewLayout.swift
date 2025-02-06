@@ -86,7 +86,8 @@ final class CrossChainTxTrackingViewLayout: UIView {
         toHashView.valueLabel.text = viewModel.toChainTxHash
         toChainFeeView.bindBalance(viewModel: viewModel.toChainFee)
         fromChainFeeView.bindBalance(viewModel: viewModel.fromChainFee)
-        statusRowLabel.valueTop.text = viewModel.detailStatus
+        statusRowLabel.valueTop.text = viewModel.statusViewModel.title
+        statusRowLabel.valueTop.textColor = viewModel.statusViewModel.color
 
         fromHashView.isHidden = viewModel.fromChainTxHash.isNullOrEmpty
         toHashView.isHidden = viewModel.toChainTxHash.isNullOrEmpty

@@ -84,6 +84,11 @@ extension CrossChainSwapConfirmViewController: CrossChainSwapConfirmViewInput {
     func setApproveButtonVisible(_ visible: Bool) {
         rootView.approveButton.isHidden = !visible
     }
+    
+    func didReceiveError(viewModel: ErrorViewModel?) {
+        rootView.bind(errorViewModel: viewModel)
+        rootView.confirmButton.set(enabled: false, changeStyle: true)
+    }
 }
 
 // MARK: - Localizable

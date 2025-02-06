@@ -2597,6 +2597,9 @@
 		FA7D46CD2AF24191005D681B /* SoraRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7D46CC2AF24191005D681B /* SoraRewardOperationFactory.swift */; };
 		FA7D46CF2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */; };
 		FA80391728DD70D7007365E8 /* AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */; };
+		FA816EDC2D54434300D8E74B /* OKXCrossChainTxStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA816EDB2D54433C00D8E74B /* OKXCrossChainTxStatus.swift */; };
+		FA816EDE2D5443A500D8E74B /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA816EDD2D5443A500D8E74B /* Colors.xcassets */; };
+		FA816EE22D5444E800D8E74B /* CrossChainStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA816EE12D5444DD00D8E74B /* CrossChainStatusViewModel.swift */; };
 		FA837A3B2CA1407D00E3F623 /* EthBlockChangesListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA837A3A2CA1407D00E3F623 /* EthBlockChangesListener.swift */; };
 		FA851FF127917494004F5979 /* WalletTransactionDetailsViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */; };
 		FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */; };
@@ -5988,6 +5991,9 @@
 		FA7D46CC2AF24191005D681B /* SoraRewardOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardOperationFactory.swift; sourceTree = "<group>"; };
 		FA7D46CE2AF24A1B005D681B /* SoraSubsquidPayoutValidatorForNominatorFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraSubsquidPayoutValidatorForNominatorFactory.swift; sourceTree = "<group>"; };
 		FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactory.swift; sourceTree = "<group>"; };
+		FA816EDB2D54433C00D8E74B /* OKXCrossChainTxStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OKXCrossChainTxStatus.swift; sourceTree = "<group>"; };
+		FA816EDD2D5443A500D8E74B /* Colors.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Colors.xcassets; sourceTree = "<group>"; };
+		FA816EE12D5444DD00D8E74B /* CrossChainStatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainStatusViewModel.swift; sourceTree = "<group>"; };
 		FA837A3A2CA1407D00E3F623 /* EthBlockChangesListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthBlockChangesListener.swift; sourceTree = "<group>"; };
 		FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsViewState.swift; sourceTree = "<group>"; };
 		FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InactiveBondAlertConfig.swift; sourceTree = "<group>"; };
@@ -9724,6 +9730,7 @@
 				849013AB24A80984008F705E /* AppDelegate.swift */,
 				FA38C9A227606FDD005C5577 /* ApplicationLayer */,
 				849013B424A80986008F705E /* Assets.xcassets */,
+				FA816EDD2D5443A500D8E74B /* Colors.xcassets */,
 				AE2060AF2637068700357578 /* CIKeys.stencil */,
 				AE8D028D2638074D00780D18 /* CIKeys.generated.swift */,
 				849013D124A92686008F705E /* Common */,
@@ -13881,6 +13888,7 @@
 		FA3549F62CF8725E00EBB4EC /* OKX */ = {
 			isa = PBXGroup;
 			children = (
+				FA816EE02D54449F00D8E74B /* ViewModels */,
 				FAC6D2732D51C47D00EA9324 /* Views */,
 				FA79F95C2D06EB0A001E5E1B /* Base */,
 				FADA1E7D2CFDA14500DCA3AA /* OKXQuoteInfo.swift */,
@@ -14767,6 +14775,14 @@
 			path = Service;
 			sourceTree = "<group>";
 		};
+		FA816EE02D54449F00D8E74B /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				FA816EE12D5444DD00D8E74B /* CrossChainStatusViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
 		FA86441B2767193800956D8E /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -15202,6 +15218,7 @@
 		FA95295F2C8A1D23004C5C11 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				FA816EDB2D54433C00D8E74B /* OKXCrossChainTxStatus.swift */,
 				FA9529602C8A1D2F004C5C11 /* OKXDexError.swift */,
 				FA9529622C8A1D44004C5C11 /* OKXDexErrorCode.swift */,
 			);
@@ -17111,6 +17128,7 @@
 				8468B86724F59DA700B76BC6 /* IconTitleHeaderView.xib in Resources */,
 				84D2F46425EF6A5A008B914D /* RecommendedValidatorListHeaderView.xib in Resources */,
 				DAD0C626F7AA97E4974486AD /* AccountConfirmViewController.xib in Resources */,
+				FA816EDE2D5443A500D8E74B /* Colors.xcassets in Resources */,
 				8438C45B2655AC2600047E3F /* runtime-rococo.json in Resources */,
 				AE2060B02637068700357578 /* CIKeys.stencil in Resources */,
 				9D5F6A48E7A9166B9341F417 /* NetworkInfoViewController.xib in Resources */,
@@ -18317,6 +18335,7 @@
 				FAADC1BB2926597400DA9903 /* ScanQRProtocols.swift in Sources */,
 				F4A12BF7260B61E900392C33 /* StakingManageOption.swift in Sources */,
 				FA880DF62C74976400F81F1F /* CrossChainSwapSetupViewModelFactory.swift in Sources */,
+				FA816EE22D5444E800D8E74B /* CrossChainStatusViewModel.swift in Sources */,
 				FAD428F92A86567F001D6A16 /* BackupPasswordInteractor.swift in Sources */,
 				843A2C7726A86FD000266F53 /* TitleStatusView.swift in Sources */,
 				FA7254332AC2E48500EC47A6 /* RLPBigInt.swift in Sources */,
@@ -19438,6 +19457,7 @@
 				FA7254432AC2E48500EC47A6 /* WalletConnectService.swift in Sources */,
 				845532D226846B6800C2645D /* ParachainLeaseInfo.swift in Sources */,
 				84DE8BD6264A651A002AF1EF /* RewardSelectionView+Inspectable.swift in Sources */,
+				FA816EDC2D54434300D8E74B /* OKXCrossChainTxStatus.swift in Sources */,
 				8472C5AD265CF9C500E2481B /* StakingRewardDestConfirmViewModelFactory.swift in Sources */,
 				F40966F526B299FC008CD244 /* SubqueryRewardsSource.swift in Sources */,
 				076D9D2C29370C33002762E3 /* MarketButton.swift in Sources */,

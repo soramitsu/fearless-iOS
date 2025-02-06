@@ -35,6 +35,10 @@ final class AmountInputViewModel: IAmountInputViewModel, MoneyPresentable {
     }
 
     var isValid: Bool {
+        if amount.isEmpty || amount.last == "," || amount.last == "." {
+            return false
+        }
+        
         if let value = Decimal(string: amount, locale: formatter.locale), value > 0 {
             return true
         } else {

@@ -17,4 +17,5 @@ struct CrossChainTxTrackingViewModel {
     let toHashViewTitle: String?
     let fromFeeViewTitle: String?
     let toFeeViewTitle: String?
+    let statusViewModel: CrossChainStatusViewModel
 }

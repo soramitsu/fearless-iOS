@@ -1255,3 +1255,13 @@
 "your.validators.validator.total.stake" = "総ステーク：%@";
 "сurrencies.stub.text" = "通貨";
 "common.total.fee" = "Total fee";
+"cross.chain.okx.route.title" = "Trade Route";
+"cross.chain.okx.route.description" = "What’s X Routing?\nOKX’s X Routing algorithm finds the best price across every DEX. We compare prices from Liquidity Providers (LPs) with the best liquidity pools, split orders, and take into consideration prices, slippage, and network fees.For cross-chain swaps: “Overall best” is the optimal route based on amount, network fees, slippage, and cross-chain bridge costs; “Fastest” is the quickest route; “Max amount” gets you the most tokens.\n\nHow does it work?\nWe connect over 20 networks, 400 decentralized exchanges, and offer over 210,000 crypto assets in one place. This allows us to offer the largest variety of quotes on the market.\n\nWhy OKX DEX?\nTrade a variety of crypto assets across numerous blockchains in one click with minimal slippage and the best trading prices.";
+"cross.chain.tx.detail.status.waiting.description" = "Order in process";
+"cross.chain.tx.detail.status.from.success.description" = "Source chain order successful";
+"cross.chain.tx.detail.status.from.failure.description" = "Source chain order failed";
+"cross.chain.tx.detail.status.bridge.pending.description" = "Cross-chain bridge order pending";
+"cross.chain.tx.detail.status.bride.success.description" = "Bridge order successful";
+"cross.chain.tx.detail.status.success.description" = "Cross-chain exchange order successful";
+"cross.chain.tx.detail.status.refund.description" = "Cross-chain failed, order refunded";
+"common.not.found" = "Not found";

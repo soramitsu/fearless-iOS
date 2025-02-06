@@ -71,11 +71,11 @@ final class BridgeListPresenter {
         view?.didStartLoading()
         Task {
             do {
-                let quotes1 = try await interactor.getCrossChainQuotes(sort: 0)
-                let quotes2 = try await interactor.getCrossChainQuotes(sort: 1)
-                let quotes3 = try await interactor.getCrossChainQuotes(sort: 2)
+                async let quotes1 = try await interactor.getCrossChainQuotes(sort: 0)
+                async let quotes2 = try await interactor.getCrossChainQuotes(sort: 1)
+                async let quotes3 = try await interactor.getCrossChainQuotes(sort: 2)
 
-                self.quotes = [quotes1.or([]), quotes2.or([]), quotes3.or([])].reduce([], +).uniqued(on: { quote in
+                self.quotes = try await [quotes1.or([]), quotes2.or([]), quotes3.or([])].reduce([], +).uniqued(on: { quote in
                     quote.routerList.first?.router.bridgeId
                 })
 

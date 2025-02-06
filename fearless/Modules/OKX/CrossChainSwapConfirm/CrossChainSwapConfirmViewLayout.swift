@@ -59,7 +59,12 @@ final class CrossChainSwapConfirmViewLayout: UIView {
     let sendRatioView = createMultiView()
     let receiveRatioView = createMultiView()
     let slippageView = createMultiView()
-
+    let errorView: ErrorView = {
+        let view = ErrorView()
+        view.isHidden = true
+        return view
+    }()
+    
     private lazy var multiViews = [
         minReceivedView,
         routeView,
@@ -116,10 +121,18 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         sendRatioView.titleLabel.text = viewModel?.sendTokenRatioTitle
         receiveRatioView.titleLabel.text = viewModel?.receiveTokenRatioTitle
         slippageView.valueTop.text = viewModel?.slippageTitle
+
     }
 
     func bind(feeViewModel: TitleMultiValueViewModel?) {
         originNetworkFeeView.bind(viewModel: feeViewModel)
+    }
+    
+    func bind(errorViewModel: ErrorViewModel?) {
+        if let errorVM = errorViewModel {
+            errorView.bindError(viewModel: errorVM)
+            errorView.isHidden = false
+        }
     }
 
     // MARK: - Private methods
@@ -165,6 +178,7 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         addSubview(contentView)
         addSubview(confirmButton)
         addSubview(approveButton)
+        addSubview(errorView)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
@@ -176,6 +190,10 @@ final class CrossChainSwapConfirmViewLayout: UIView {
         contentView.stackView.addArrangedSubview(swapStubTitle)
         contentView.stackView.addArrangedSubview(swapAmountInfoView)
         contentView.stackView.addArrangedSubview(infoViewsStackView)
+        contentView.stackView.addArrangedSubview(errorView)
+        errorView.snp.makeConstraints { make in
+            make.width.equalToSuperview().inset(UIConstants.bigOffset)
+        }
 
         multiViews.forEach { view in
             infoViewsStackView.addArrangedSubview(view)
