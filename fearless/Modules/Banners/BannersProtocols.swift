@@ -20,6 +20,8 @@ protocol BannersRouterInput: AnyObject, SheetAlertPresentable, AccountManagement
     func showSoraCard(
         on view: ControllerBackedProtocol?
     )
+    
+    func showBuyXor(on view: ControllerBackedProtocol?)
 }
 
 protocol BannersModuleInput: AnyObject {

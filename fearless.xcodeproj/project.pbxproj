@@ -633,6 +633,8 @@
 		6A895389D78655DD5EC55CDD /* StartSelectValidatorsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C316BE4F5A0342D379F783E8 /* StartSelectValidatorsTests.swift */; };
 		6A8A060B9EB9ABAF6EC066FF /* NetworkInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED5BEE4CC908012820FE89F /* NetworkInfoProtocols.swift */; };
 		6A977B56FD6441F52660771C /* StakingRewardDetailsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D6470B066E67834BF97E0A68 /* StakingRewardDetailsPresenter.swift */; };
+		6B47399F2D5E1D36002759B5 /* SCBuyXorBannerCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B47399E2D5E1D36002759B5 /* SCBuyXorBannerCell.swift */; };
+		6B4739A12D5E1D80002759B5 /* SCBuyXorItem+CollectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B4739A02D5E1D80002759B5 /* SCBuyXorItem+CollectionViewModel.swift */; };
 		6B4F5F4FD7820C70FB51A2F9 /* PolkaswapSwapConfirmationAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CA950D301F6605D204E99F3 /* PolkaswapSwapConfirmationAssembly.swift */; };
 		6B62E63FB9E379EA19A41464 /* AccountCreateProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C158C8D1855BCE53636934 /* AccountCreateProtocols.swift */; };
 		6BAF97802DB9C640515F47C7 /* StakingMainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 003FA37F2B240C5D7605340D /* StakingMainInteractor.swift */; };
@@ -3880,6 +3882,8 @@
 		6B0277C3D897EADD48A7C64F /* AnalyticsValidatorsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsInteractor.swift; sourceTree = "<group>"; };
 		6B152D1AC1CD34A4530CB6D0 /* ClaimCrowdloanRewardsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ClaimCrowdloanRewardsTests.swift; sourceTree = "<group>"; };
 		6B37BB3FF5CDF7EA9D7371B7 /* WalletTransactionDetailsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsInteractor.swift; sourceTree = "<group>"; };
+		6B47399E2D5E1D36002759B5 /* SCBuyXorBannerCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCBuyXorBannerCell.swift; sourceTree = "<group>"; };
+		6B4739A02D5E1D80002759B5 /* SCBuyXorItem+CollectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCBuyXorItem+CollectionViewModel.swift"; sourceTree = "<group>"; };
 		6B60728FCFBC8A9BE4C7B50B /* YourValidatorListInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListInteractor.swift; sourceTree = "<group>"; wrapsLines = 1; };
 		6B896BA49EE0D4C77401D097 /* AnalyticsValidatorsWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsWireframe.swift; sourceTree = "<group>"; };
 		6C3011E6F226BFC9BE9C5475 /* ConnectedAccountsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectedAccountsViewController.swift; sourceTree = "<group>"; };
@@ -8580,6 +8584,15 @@
 			path = StakingAmount;
 			sourceTree = "<group>";
 		};
+		6B47399D2D5E1D11002759B5 /* SCBuyXorBannerCell */ = {
+			isa = PBXGroup;
+			children = (
+				6B47399E2D5E1D36002759B5 /* SCBuyXorBannerCell.swift */,
+				6B4739A02D5E1D80002759B5 /* SCBuyXorItem+CollectionViewModel.swift */,
+			);
+			path = SCBuyXorBannerCell;
+			sourceTree = "<group>";
+		};
 		6F6F27E826BB58116AC820A8 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
@@ -12323,6 +12336,7 @@
 		B7A9ADCE2CECC0330093D10E /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				6B47399D2D5E1D11002759B5 /* SCBuyXorBannerCell */,
 				B7A9ADD82CEDFD250093D10E /* BannerCell */,
 				B7A9ADD92CEDFD350093D10E /* SCardBannerCell */,
 			);
@@ -17117,6 +17131,7 @@
 				846449FF2567090B004EAA4B /* TriangularedView+Inspectable.swift in Sources */,
 				FA2FC7F928B3807C00CC0A42 /* StakingPoolJoinChoosePoolViewModelFactory.swift in Sources */,
 				FA17B4BC27E873F3006E0735 /* WarningAlertDismissAnimator.swift in Sources */,
+				6B47399F2D5E1D36002759B5 /* SCBuyXorBannerCell.swift in Sources */,
 				8460E11D2542011200826F55 /* DetailsTriangularedView.swift in Sources */,
 				FA93A2D728323CB90021330F /* CustomValidatorListParachainViewModelState.swift in Sources */,
 				841AAC2326F6879900F0A25E /* AssetBalanceDisplayInfo.swift in Sources */,
@@ -17325,6 +17340,7 @@
 				FA72542C2AC2E48500EC47A6 /* AppMetadata.swift in Sources */,
 				C63468DF28F2C178005CB1F1 /* Contact.swift in Sources */,
 				FA286B162A3043DB008BD527 /* CrossChainRouter.swift in Sources */,
+				6B4739A12D5E1D80002759B5 /* SCBuyXorItem+CollectionViewModel.swift in Sources */,
 				07EC555B2CD8A3600074132E /* MultiAssetV12.xcmappingmodel in Sources */,
 				848C3D0926248A3B005481C3 /* TransferCall.swift in Sources */,
 				C63468E428F3530A005CB1F1 /* AddressBookViewModelFactory.swift in Sources */,

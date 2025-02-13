@@ -3,6 +3,7 @@ import SCard
 import SSFModels
 
 final class BannersRouter: BannersRouterInput {
+    
     func showWalletBackupScreen(
         for wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
@@ -37,5 +38,10 @@ final class BannersRouter: BannersRouterInput {
     ) {
         guard let viewController = view?.controller else { return }
         SCard.shared?.start(in: viewController)
+    }
+    
+    func showBuyXor(on view: ControllerBackedProtocol?) {
+        guard let viewController = view?.controller else { return }
+        SCard.shared?.showExchange(in: viewController)
     }
 }
