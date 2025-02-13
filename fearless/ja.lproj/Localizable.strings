@@ -1265,3 +1265,6 @@
 "cross.chain.tx.detail.status.success.description" = "Cross-chain exchange order successful";
 "cross.chain.tx.detail.status.refund.description" = "Cross-chain failed, order refunded";
 "common.not.found" = "Not found";
+"erc20.funds.permission.approve.title" = "Spending Approval\n%@";
+"erc20.funds.permission.revoke.title" = "Revoke Approval\n%@";
+"cross.chain.funds.permission.request.from.title" = "Request from";

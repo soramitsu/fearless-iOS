@@ -20,6 +20,28 @@ final class PolkaswapAdjustmentRouter: PolkaswapAdjustmentRouterInput {
 
         view?.controller.present(module.view.controller, animated: true)
     }
+    
+    func showSelectAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        output: SelectAssetModuleOutput,
+        flow: MultichainChainFetchingFlow,
+        selectedChainAsset: ChainAsset?,
+        filter: ((ChainAsset) throws -> Bool)?
+    ) {
+        guard let module = MultichainAssetSelectionAssembly.configureModule(
+            flow: flow,
+            wallet: wallet,
+            selectAssetModuleOutput: output,
+            contextTag: flow.contextTag,
+            selectedChainAsset: selectedChainAsset,
+            filter: filter
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
 
     func showSelectAsset(
         from view: ControllerBackedProtocol?,

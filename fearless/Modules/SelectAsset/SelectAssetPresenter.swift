@@ -22,6 +22,7 @@ final class SelectAssetPresenter {
     private var fullViewModels: [SelectAssetCellViewModel] = []
     private var chainAssets: [ChainAsset] = []
     private var selectedChainAsset: ChainAsset?
+    private var isEmbed: Bool
 
     private var accountInfosTask: Task<Void, Never>?
     private let processingQueue = DispatchQueue(label: "qr.capture.service.queue")
@@ -38,7 +39,8 @@ final class SelectAssetPresenter {
         output: SelectAssetModuleOutput,
         localizationManager: LocalizationManagerProtocol,
         contextTag: Int?,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        isEmbed: Bool
     ) {
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
@@ -49,6 +51,7 @@ final class SelectAssetPresenter {
         self.output = output
         self.contextTag = contextTag
         self.logger = logger
+        self.isEmbed = isEmbed
         
         self.localizationManager = localizationManager
     }
@@ -138,6 +141,10 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
         self.view = view
         interactor.setup(with: self)
         view.bind(viewModel: searchTextsViewModel)
+        
+        if !isEmbed {
+            interactor.fetchChainAssets()
+        }
     }
 
     func willDisappear() {
@@ -173,6 +180,7 @@ extension SelectAssetPresenter: SelectAssetModuleInput {
             return
         }
         
+        view?.didStopLoading()
         view?.didReceive(errorMessage: nil)
 
         self.chainAssets = chainAssets
@@ -183,10 +191,10 @@ extension SelectAssetPresenter: SelectAssetModuleInput {
     }
 
     func runLoading() {
-        chainAssets = []
-        accountInfos = [:]
+//        chainAssets = []
+//        accountInfos = [:]
 
-        view?.didReload()
+//        view?.didReload()
         view?.didStartLoading()
     }
 

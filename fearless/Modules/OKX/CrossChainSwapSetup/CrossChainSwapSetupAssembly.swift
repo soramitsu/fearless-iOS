@@ -14,7 +14,6 @@ final class CrossChainSwapSetupAssembly {
             repository: repository,
             operationManager: OperationManagerFacade.sharedManager
         )
-
         let networkWorker = NetworkWorkerImpl()
         let okxService = OKXDexAggregatorServiceImpl(networkWorker: networkWorker, signer: OKXDexRequestSigner())
         let ethereumBalanceFetching = EthereumRemoteBalanceFetching(
@@ -32,6 +31,7 @@ final class CrossChainSwapSetupAssembly {
         )
         let dependencyContainer = CrossChainDependencyContainer(okxService: okxService, wallet: wallet)
         let assetFetching = OKXMultichainAssetFetching(okxService: okxService, sourceChainId: nil)
+
         let interactor = CrossChainSwapSetupInteractor(
             okxService: okxService,
             wallet: wallet,

@@ -8,7 +8,7 @@ protocol AllDonePresentable {
         title: String?,
         description: String?,
         extrinsicHash: String,
-        from view: ControllerBackedProtocol,
+        from view: ControllerBackedProtocol?,
         closure: (() -> Void)?
     )
 }
@@ -19,7 +19,7 @@ extension AllDonePresentable {
         title: String? = nil,
         description: String? = nil,
         extrinsicHash: String,
-        from view: ControllerBackedProtocol,
+        from view: ControllerBackedProtocol?,
         closure: (() -> Void)? = nil
     ) {
         if let controller = AllDoneAssembly.configureModule(
@@ -36,8 +36,8 @@ extension AllDonePresentable {
             )
             controller.modalTransitioningFactory = factory
 
-            let presentingViewController = view.controller.presentedViewController ?? view.controller
-            presentingViewController.present(controller, animated: true)
+            let presentingViewController = view?.controller.presentedViewController ?? view?.controller
+            presentingViewController?.present(controller, animated: true)
         }
     }
 }

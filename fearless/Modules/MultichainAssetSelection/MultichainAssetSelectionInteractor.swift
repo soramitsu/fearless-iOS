@@ -14,6 +14,12 @@ final class MultichainAssetSelectionInteractor {
         self.chainFetching = chainFetching
         self.assetFetching = assetFetching
     }
+    
+    private func updateChains() {
+        Task {
+            _ = try await chainFetching.fetchChains(preferredDataSourceType: .remote)
+        }
+    }
 }
 
 // MARK: - MultichainAssetSelectionInteractorInput
@@ -21,13 +27,14 @@ final class MultichainAssetSelectionInteractor {
 extension MultichainAssetSelectionInteractor: MultichainAssetSelectionInteractorInput {
     func setup(with output: MultichainAssetSelectionInteractorOutput) {
         self.output = output
+        updateChains()
     }
 
     func fetchChains() async throws -> [ChainModel] {
-        try await chainFetching.fetchChains(preferredDataSourceType: .remote)
+        try await chainFetching.fetchChains(preferredDataSourceType: .combine)
     }
 
     func fetchAssets(for chain: ChainModel, preferredDataSourceType: PreferredDataSourceType) async throws -> [ChainAsset] {
-        try await assetFetching.fetchAssets(for: chain, preferredDataSourceType: preferredDataSourceType)
+        return try await assetFetching.fetchAssets(for: chain, preferredDataSourceType: preferredDataSourceType)
     }
 }

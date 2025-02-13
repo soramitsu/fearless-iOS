@@ -12,7 +12,7 @@ extension AssetTransactionData {
     ) -> AssetTransactionData {
         let peerAddress = item.from == address ? item.to : item.from
         var type = item.from == address ? TransactionType.outgoing : TransactionType.incoming
-        if item.isToContract {
+        if item.isToContract == true {
             type = .bridge
         }
 

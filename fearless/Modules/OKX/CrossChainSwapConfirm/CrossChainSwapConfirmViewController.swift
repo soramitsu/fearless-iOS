@@ -5,7 +5,6 @@ protocol CrossChainSwapConfirmViewOutput: AnyObject {
     func didLoad(view: CrossChainSwapConfirmViewInput)
     func didTapConfirmButton()
     func didTapBackButton()
-    func didTapApproveButton()
 }
 
 final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -48,10 +47,6 @@ final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder, H
         rootView.backButton.addAction { [weak self] in
             self?.output.didTapBackButton()
         }
-
-        rootView.approveButton.addAction { [weak self] in
-            self?.output.didTapApproveButton()
-        }
     }
 
     // MARK: - Private methods
@@ -62,7 +57,6 @@ final class CrossChainSwapConfirmViewController: UIViewController, ViewHolder, H
 extension CrossChainSwapConfirmViewController: CrossChainSwapConfirmViewInput {
     func setButtonLoadingState(isLoading: Bool) {
         rootView.confirmButton.set(loading: isLoading)
-        rootView.approveButton.set(loading: isLoading)
     }
 
     func didReceive(swapAmountInfoViewModel: SwapAmountInfoViewModel) {
@@ -81,10 +75,6 @@ extension CrossChainSwapConfirmViewController: CrossChainSwapConfirmViewInput {
         rootView.bind(feeViewModel: feeViewModel)
     }
 
-    func setApproveButtonVisible(_ visible: Bool) {
-        rootView.approveButton.isHidden = !visible
-    }
-    
     func didReceiveError(viewModel: ErrorViewModel?) {
         rootView.bind(errorViewModel: viewModel)
         rootView.confirmButton.set(enabled: false, changeStyle: true)

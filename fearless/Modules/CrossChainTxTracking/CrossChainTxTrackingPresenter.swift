@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
-protocol CrossChainTxTrackingViewInput: ControllerBackedProtocol {
+protocol CrossChainTxTrackingViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: CrossChainTxTrackingViewModel)
 }
 
@@ -50,6 +50,7 @@ final class CrossChainTxTrackingPresenter {
 
     private func provideViewModel(_ viewModel: CrossChainTxTrackingViewModel) async {
         await MainActor.run(body: {
+            view?.didStopLoading()
             view?.didReceive(viewModel: viewModel)
         })
     }
@@ -67,8 +68,6 @@ final class CrossChainTxTrackingPresenter {
     }
 
     private func handleCrossChainTransaction(_ status: OKXCrossChainTransactionStatus) async throws {
-        print("debug-txs: tx: ", status)
-
         guard
             let sourceChain = try await interactor.queryChain(chainId: status.fromChainId),
             let destinationChain = try await interactor.queryChain(chainId: status.toChainId)
@@ -100,7 +99,6 @@ final class CrossChainTxTrackingPresenter {
     }
 
     private func handleSwapTransaction(_ status: OKXCrossChainTransactionStatus) async throws {
-        print("debug-txs: tx: ", status)
         guard let sourceChain = try await interactor.queryChain(chainId: status.fromChainId) else {
             return
         }
@@ -133,13 +131,19 @@ final class CrossChainTxTrackingPresenter {
                     return
                 }
 
-                let isCrossChain = status.toChainId.isNotEmpty
+                let isCrossChain = status.toChainId.isNotEmpty || (transaction.reason?.isNotEmpty).or(false)
 
-                print("debug-txs: isCrossChain: ", isCrossChain)
                 if isCrossChain {
                     try await handleCrossChainTransaction(status)
                 } else {
-                    try await handleSwapTransaction(status)
+                    await MainActor.run {
+                        router.presentHistoryDetails(
+                            chainAsset: chainAsset,
+                            transaction: transaction,
+                            wallet: wallet,
+                            from: view
+                        )
+                    }
                 }
             } catch {
                 print("fetch tx status error: ", error)
@@ -162,6 +166,10 @@ extension CrossChainTxTrackingPresenter: CrossChainTxTrackingViewOutput {
         interactor.setup(with: self)
         fetchData()
         setupTimer()
+    }
+    
+    func viewWillAppear() {
+        view?.didStartLoading()
     }
 
     func didTapBackButton() {

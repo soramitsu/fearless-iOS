@@ -66,7 +66,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
         statusView.imageView.image = viewModel.statusIcon
 
         switch viewModel.transactionType {
-        case .incoming, .outgoing:
+        case .incoming, .outgoing, .bridge:
             if let transferViewModel = viewModel as? TransferTransactionDetailsViewModel {
                 bindTransfer(viewModel: transferViewModel)
             }
@@ -82,7 +82,7 @@ final class WalletTransactionDetailsViewLayout: UIView {
             if let extrinsicViewModel = viewModel as? ExtrinsicTransactionDetailsViewModel {
                 bindExtrinsic(viewModel: extrinsicViewModel)
             }
-        case .swap, .unused, .bridge:
+        case .swap, .unused:
             break
         }
     }

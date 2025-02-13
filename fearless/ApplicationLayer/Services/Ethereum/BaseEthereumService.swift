@@ -14,6 +14,7 @@ protocol EthereumService {
     func queryNonce(ethereumAddress: EthereumAddress) async throws -> EthereumQuantity
     func checkChainSupportEip1559() async -> Bool
     func queryGasLimit(invocation: SolidityInvocation) async throws -> EthereumQuantity
+    func isTransactionExists(txHash: String) async throws -> Bool
 }
 
 class BaseEthereumService: EthereumService {
@@ -23,6 +24,21 @@ class BaseEthereumService: EthereumService {
         ws: Web3.Eth
     ) {
         self.ws = ws
+    }
+    
+    func isTransactionExists(txHash: String) async throws -> Bool {
+        let hash = try EthereumData.string(txHash)
+        return try await withCheckedThrowingContinuation { continuation in
+            ws.getTransactionReceipt(transactionHash: hash) { resp in
+                if let response = resp.result {
+                    continuation.resume(with: .success(response?.blockHash != nil))
+                } else if let error = resp.error {
+                    continuation.resume(with: .failure(error))
+                } else {
+                    continuation.resume(with: .failure(TransferServiceError.unexpected))
+                }
+            }
+        }
     }
 
     func queryGasLimit(call: EthereumCall) async throws -> EthereumQuantity {

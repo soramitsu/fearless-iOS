@@ -92,6 +92,15 @@ protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, S
         moduleOutput: PolkaswapDisclaimerModuleOutput?,
         from view: ControllerBackedProtocol?
     )
+    
+    func showSelectAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        output: SelectAssetModuleOutput,
+        flow: MultichainChainFetchingFlow,
+        selectedChainAsset: ChainAsset?,
+        filter: ((ChainAsset) throws -> Bool)?
+    )
 }
 
 protocol PolkaswapAdjustmentModuleInput: AnyObject {

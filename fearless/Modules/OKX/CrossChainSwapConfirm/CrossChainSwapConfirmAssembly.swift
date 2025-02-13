@@ -7,25 +7,20 @@ import SoraKeystore
 
 final class CrossChainSwapConfirmAssembly {
     static func configureModule(
-        swapFromChainAsset: ChainAsset,
-        swapToChainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        amount: String,
-        selectedDexIds: [String]?,
-        swap: CrossChainSwap,
-        slippage: Decimal
+        crossChainSwapParameters: CrossChainSwapParameters,
+        approveTxHash: String?
     ) -> CrossChainSwapConfirmModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-            selectedMetaAccount: wallet
+            selectedMetaAccount: crossChainSwapParameters.wallet
         )
 
         guard
-            let eth = try? EthereumNodeFetching().getHttps(for: swapFromChainAsset.chain),
-            let accountResponse = wallet.fetch(for: swapFromChainAsset.chain.accountRequest()),
+            let eth = try? EthereumNodeFetching().getHttps(for: crossChainSwapParameters.swapFromChainAsset.chain),
+            let accountResponse = crossChainSwapParameters.wallet.fetch(for: crossChainSwapParameters.swapFromChainAsset.chain.accountRequest()),
             let senderAddress = accountResponse.toAddress(),
-            let privateKey = try? fetchSecretKey(for: swapFromChainAsset.chain, accountResponse: accountResponse, wallet: wallet),
+            let privateKey = try? fetchSecretKey(for: crossChainSwapParameters.swapFromChainAsset.chain, accountResponse: accountResponse, wallet: crossChainSwapParameters.wallet),
             let ethereumPrivateKey = try? EthereumPrivateKey(privateKey: privateKey.bytes)
         else {
             return nil
@@ -38,35 +33,36 @@ final class CrossChainSwapConfirmAssembly {
             senderAddress: senderAddress,
             eth: eth
         )
-        let dependencyContainer = CrossChainDependencyContainer(okxService: okxService, wallet: wallet)
+        let dependencyContainer = CrossChainDependencyContainer(okxService: okxService, wallet: crossChainSwapParameters.wallet)
 
         let interactor = CrossChainSwapConfirmInteractor(
             swapService: swapService,
-            wallet: wallet,
-            swapFromChainAsset: swapFromChainAsset,
+            wallet: crossChainSwapParameters.wallet,
+            swapFromChainAsset: crossChainSwapParameters.swapFromChainAsset,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             okxService: okxService,
-            amount: amount,
-            swap: swap,
+            amount: crossChainSwapParameters.amount,
+            swap: crossChainSwapParameters.swap,
             dependencyContainer: dependencyContainer
         )
         let router = CrossChainSwapConfirmRouter()
         let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
-        let viewModelFactory = CrossChainSwapConfirmViewModelFactoryImpl(wallet: wallet)
+        let viewModelFactory = CrossChainSwapConfirmViewModelFactoryImpl(wallet: crossChainSwapParameters.wallet)
         let presenter = CrossChainSwapConfirmPresenter(
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            swapFromChainAsset: swapFromChainAsset,
-            swapToChainAsset: swapToChainAsset,
-            swap: swap,
+            swapFromChainAsset: crossChainSwapParameters.swapFromChainAsset,
+            swapToChainAsset: crossChainSwapParameters.swapToChainAsset,
+            swap: crossChainSwapParameters.swap,
             viewModelFactory: viewModelFactory,
-            wallet: wallet,
+            wallet: crossChainSwapParameters.wallet,
             dataValidatingFactory: dataValidatingFactory,
-            amount: amount,
-            selectedDexIds: selectedDexIds,
+            amount: crossChainSwapParameters.amount,
+            selectedDexIds: crossChainSwapParameters.selectedDexIds,
             logger: Logger.shared,
-            slippage: slippage
+            slippage: crossChainSwapParameters.slippage,
+            approveTxHash: approveTxHash
         )
 
         let view = CrossChainSwapConfirmViewController(

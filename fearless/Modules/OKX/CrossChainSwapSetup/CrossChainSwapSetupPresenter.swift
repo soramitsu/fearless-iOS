@@ -19,6 +19,10 @@ protocol CrossChainSwapSetupInteractorInput: AnyObject, CrossChainBaseInteractor
     func fetchBalance(for chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?]
     func fetchDexs(chainAsset: ChainAsset) async throws -> OKXResponse<OKXLiquiditySource>
     func fetchOkxChainAsset(nativeChainAsset: ChainAsset) async throws -> ChainAsset?
+    func fetchFundsPermissionMode(
+        swapFromChainAsset: ChainAsset,
+        amount: String
+    ) async throws -> CrossChainFundsPermissionMode
 }
 
 final class CrossChainSwapSetupPresenter {
@@ -50,6 +54,7 @@ final class CrossChainSwapSetupPresenter {
     private var fromNetworkFee: Decimal?
     private var automaticallySelectedDexId: String?
     private var slippage: Decimal = 0.01
+    private var fundsPermissionMode: CrossChainFundsPermissionMode?
 
     private var dexTask: Task<Void, Never>?
     private var quotesTask: Task<Void, Never>?
@@ -126,6 +131,7 @@ final class CrossChainSwapSetupPresenter {
 
     private func reloadData() {
         fetchInfo()
+        refreshFundsPermission()
 
         setupTimer()
     }
@@ -196,14 +202,11 @@ final class CrossChainSwapSetupPresenter {
                             )
                         }
                     } else {
-                        self?.router.present(error: error, from: self?.view, locale: self?.selectedLocale)
+//                        self?.router.present(error: error, from: self?.view, locale: self?.selectedLocale)
                     }
                 }
             }
         }
-    }
-
-    private func fetchDexs() {
     }
 
     private func provideDestinationInput() {
@@ -237,7 +240,7 @@ final class CrossChainSwapSetupPresenter {
     }
 
     private func checkLoadingState() {
-        let isReady = swap != nil
+        let isReady = swap != nil && fundsPermissionMode != nil
 
         DispatchQueue.main.async { [weak self] in
             self?.view?.setButtonLoadingState(isLoading: !isReady)
@@ -360,7 +363,6 @@ final class CrossChainSwapSetupPresenter {
 
         subscribeOnBalance()
         fetchInfo()
-        fetchDexs()
     }
 
     private func didSelectSoraChainAsset(_ chainAsset: ChainAsset?) {
@@ -375,16 +377,15 @@ final class CrossChainSwapSetupPresenter {
 
         subscribeOnBalance()
         fetchInfo()
-        fetchDexs()
 
     }
 
     private func handle(accountInfo: AccountInfo?, for chainAssetKey: ChainAssetKey) {
-        if let swapFromChainAsset, chainAssetKey == swapFromChainAsset.chain.utilityChainAssets().first?.uniqueKey(for: wallet) {
+        if let swapFromChainAsset, let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, chainAssetKey == utilityChainAsset.uniqueKey(for: wallet) {
             utilityBalance = accountInfo.map {
                 Decimal.fromSubstrateAmount(
                     $0.data.sendAvailable,
-                    precision: Int16(swapFromChainAsset.asset.precision)
+                    precision: Int16(utilityChainAsset.asset.precision)
                 )
             } ?? .zero
         }
@@ -506,6 +507,55 @@ final class CrossChainSwapSetupPresenter {
             didSelectSourceChainAsset(chainAsset)
         }
     }
+    
+    private func refreshFundsPermission() {
+        guard let chainAsset = swapFromChainAsset else {
+            return
+        }
+        
+        Task {
+            do {
+                fundsPermissionMode = try await interactor.fetchFundsPermissionMode(
+                    swapFromChainAsset: chainAsset,
+                    amount: amountUnwrapped
+                )
+            } catch {
+                fundsPermissionMode = CrossChainFundsPermissionMode.none
+            }
+        }
+    }
+    
+    private func proceedToNextScreen() {
+        guard let swapFromChainAsset, let swapToChainAsset, let swap, let fundsPermissionMode else {
+            return
+        }
+        
+        let automaticallySelectedDexIds = automaticallySelectedDexId.flatMap { [$0] }
+        let selectedDexIds = selectedDexIds ?? automaticallySelectedDexIds
+        let parameters = CrossChainSwapParameters(
+            swapFromChainAsset: swapFromChainAsset,
+            swapToChainAsset: swapToChainAsset,
+            wallet: wallet,
+            amount: amountUnwrapped,
+            selectedDexIds: selectedDexIds,
+            swap: swap,
+            slippage: slippage
+        )
+        
+        switch fundsPermissionMode {
+        case .none:
+            self.router.presentConfirm(
+                crossChainSwapParameters: parameters,
+                from: self.view
+            )
+        case .approve, .revoke:
+            self.router.presentFundsPermission(
+                mode: fundsPermissionMode,
+                crossChainSwapParameters: parameters,
+                from: view
+            )
+        }
+    }
 }
 
 // MARK: - CrossChainSwapSetupViewOutput
@@ -610,11 +660,9 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
     }
 
     func didTapContinueButton() {
-        guard let swapFromChainAsset, let swapToChainAsset, let swap else {
+        guard let swapFromChainAsset else {
             return
         }
-
-        let automaticallySelectedDexIds = automaticallySelectedDexId.flatMap { [$0] }
 
         let balance: BalanceType = swapFromChainAsset.asset.isUtility ? .utility(balance: swapFromBalance) : .orml(balance: swapFromBalance, utilityBalance: utilityBalance)
         DataValidationRunner(validators: [
@@ -625,21 +673,8 @@ extension CrossChainSwapSetupPresenter: CrossChainSwapSetupViewOutput {
                 sendAmount: swapFromInputResult?.absoluteValue(from: swapFromBalance.or(.zero)),
                 locale: selectedLocale
             )
-        ]).runValidation { [weak self, swap] in
-            guard let self else {
-                return
-            }
-
-            self.router.presentConfirm(
-                swapFromChainAsset: swapFromChainAsset,
-                swapToChainAsset: swapToChainAsset,
-                wallet: self.wallet,
-                amount: amountUnwrapped,
-                selectedDexIds: selectedDexIds ?? automaticallySelectedDexIds,
-                swap: swap,
-                slippage: slippage,
-                from: self.view
-            )
+        ]).runValidation { [weak self] in
+            self?.proceedToNextScreen()
         }
     }
 
@@ -749,8 +784,9 @@ extension CrossChainSwapSetupPresenter: Localizable {
 
 extension CrossChainSwapSetupPresenter: CrossChainSwapSetupModuleInput {
     func didSelect(sourceChainAsset: ChainAsset?) {
+        fundsPermissionMode = nil
         didSelectSourceChainAsset(sourceChainAsset)
-        fetchDexs()
+        refreshFundsPermission()
     }
 }
 
@@ -781,7 +817,6 @@ extension CrossChainSwapSetupPresenter: DexListModuleOutput {
         self.selectedDexIds = selectedDexIds
         provideViewModel()
         fetchInfo()
-        fetchDexs()
     }
 }
 
@@ -790,6 +825,5 @@ extension CrossChainSwapSetupPresenter: BridgeListModuleOutput {
         selectedSort = sort
         provideViewModel()
         fetchInfo()
-        fetchDexs()
     }
 }

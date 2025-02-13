@@ -65,7 +65,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
             .value(for: locale)
 
         switch transactionType {
-        case .incoming, .outgoing:
+        case .incoming, .outgoing, .bridge:
             let from: String?
             let to: String?
             switch chain.ecosystem {
@@ -148,7 +148,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
                 sender: sender,
                 fee: feeString
             )
-        case .swap, .bridge:
+        case .swap:
             let from = transactionType == .outgoing ? accountAddress : transaction.peerName
             let to = transactionType == .incoming ? accountAddress : transaction.peerName
             let amountString = tokenFormatter.stringFromDecimal(transaction.amount.decimalValue)

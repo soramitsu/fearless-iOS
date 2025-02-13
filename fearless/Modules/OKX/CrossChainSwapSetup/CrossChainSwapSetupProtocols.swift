@@ -17,13 +17,7 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
     )
 
     func presentConfirm(
-        swapFromChainAsset: ChainAsset,
-        swapToChainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        amount: String,
-        selectedDexIds: [String]?,
-        swap: CrossChainSwap,
-        slippage: Decimal,
+        crossChainSwapParameters: CrossChainSwapParameters,
         from view: ControllerBackedProtocol?
     )
 
@@ -45,6 +39,12 @@ protocol CrossChainSwapSetupRouterInput: AnyObject, PresentDismissable, SheetAle
         from view: ControllerBackedProtocol?,
         moduleOutput: BridgeListModuleOutput?,
         selectedSort: UInt8
+    )
+    
+    func presentFundsPermission(
+        mode: CrossChainFundsPermissionMode,
+        crossChainSwapParameters: CrossChainSwapParameters,
+        from view: ControllerBackedProtocol?
     )
 }
 

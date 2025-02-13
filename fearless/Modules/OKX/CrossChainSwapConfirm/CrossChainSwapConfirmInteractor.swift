@@ -23,6 +23,7 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
     private let okxService: OKXDexAggregatorService
     private let amount: String
     private let swap: CrossChainSwap
+    
 
     init(
         swapService: OKXEthereumSwapService,
@@ -58,37 +59,6 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
         let secretKey = try keystore.fetchKey(for: tag)
         return secretKey
     }
-
-    private func fetchApproveTransaction() async throws -> OKXApproveTransaction {
-        guard let amount = swap.fromAmount else {
-            throw CrossChainSwapConfirmInteractorError.approveInvalidAmount
-        }
-
-        let fromTokensParameters = OKXDexAllTokensRequestParameters(chainId: swapFromChainAsset.chain.chainId)
-        let fromTokens = try await okxService.fetchAllTokens(parameters: fromTokensParameters, preferredDataSourceType: .combine)
-
-        guard
-            let fromTokenAddress = fromTokens.data?.first(where: { $0.tokenSymbol.lowercased() == swapFromChainAsset.asset.symbol.lowercased() })?.tokenContractAddress
-        else {
-            throw CrossChainSwapSetupInteractorError.cannotFindTokenAddress
-        }
-        let parameters = OKXDexApproveRequestParameters(chainId: swapFromChainAsset.chain.chainId, tokenContractAddress: fromTokenAddress, approveAmount: amount)
-        let approveTransaction = try await okxService.fetchApproveTransactionInfo(parameters: parameters).data?.first
-
-        guard let approveTransaction else {
-            throw CrossChainSwapConfirmInteractorError.invalidApproveTransactionResponse
-        }
-
-        return approveTransaction
-    }
-
-    private func sendApproveTransaction(approveTransaction: OKXApproveTransaction) async throws -> String {
-        try await swapService.approve(
-            approveTransaction: approveTransaction,
-            chain: swapFromChainAsset.chain,
-            chainAsset: swapFromChainAsset
-        )
-    }
 }
 
 // MARK: - CrossChainSwapConfirmInteractorInput
@@ -96,6 +66,10 @@ final class CrossChainSwapConfirmInteractor: CrossChainBaseInteractor {
 extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput {
     func setup(with output: CrossChainSwapConfirmInteractorOutput) {
         self.output = output
+    }
+    
+    func checkTransactionSucceed(approveTxHash: String) async throws -> Bool {
+        return try await swapService.isTransactionExists(txHash: approveTxHash)
     }
 
     func confirmSwap(tx: CrossChainTx) async throws -> String {
@@ -113,28 +87,6 @@ extension CrossChainSwapConfirmInteractor: CrossChainSwapConfirmInteractorInput 
             handler: self,
             deliveryOn: .main
         )
-    }
-
-    func isNeedAllowance() async throws -> Bool {
-        guard !swapFromChainAsset.asset.isUtility else {
-            return false
-        }
-
-        guard let fromAmount = swap.fromAmount, let amount = BigUInt(string: fromAmount) else {
-            return false
-        }
-
-        guard let dexTokenApproveAddress = try await okxService.fetchAvailableChains(preferredDataSourceType: .combine).data?.first(where: { swapFromChainAsset.chain.chainId == "\($0.chainId)" })?.dexTokenApproveAddress else {
-            throw CrossChainSwapConfirmInteractorError.invalidApproveTransactionResponse
-        }
-        let allowance = try await swapService.getAllowance(dexTokenApproveAddress: dexTokenApproveAddress, chainAsset: swapFromChainAsset)
-
-        return allowance < amount
-    }
-
-    func approveSpending() async throws -> String {
-        let approveTransaction = try await fetchApproveTransaction()
-        return try await sendApproveTransaction(approveTransaction: approveTransaction)
     }
 }
 

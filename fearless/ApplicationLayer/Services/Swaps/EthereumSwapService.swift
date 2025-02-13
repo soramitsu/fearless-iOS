@@ -8,7 +8,7 @@ enum OKXEthereumSwapServiceError: Error {
     case unknownAllowanceResponse
 }
 
-protocol OKXEthereumSwapService {
+protocol OKXEthereumSwapService: EthereumService {
     func swap(
         swap: CrossChainTx,
         chainAsset: ChainAsset
@@ -27,6 +27,12 @@ protocol OKXEthereumSwapService {
 
     func estimateFee(
         swap: CrossChainTx,
+        chainAsset: ChainAsset
+    ) async throws -> BigUInt
+    
+    func estimateFee(
+        approveTransaction: OKXApproveTransaction,
+        chain: ChainModel,
         chainAsset: ChainAsset
     ) async throws -> BigUInt
 }
@@ -180,13 +186,29 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
             throw EthereumServiceError.invalidTransaction
         }
 
-        let data = try EthereumData(ethereumValue: EthereumValue(stringLiteral: swap.transactionHex))
+        let data = try EthereumData.string(swap.transactionHex)
         let value = BigUInt(string: swapFromAmount)
         let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
         let gasPrice = try await queryGasPrice()
         let ethereumValue: EthereumQuantity? = chainAsset.isUtility ? EthereumQuantity(quantity: value) : nil
 
         let call = EthereumCall(from: senderAddress, to: contractAddress, value: ethereumValue, data: data)
+        let gasLimit = try await queryGasLimit(call: call)
+        return gasPrice.quantity * gasLimit.quantity
+    }
+    
+    func estimateFee(approveTransaction: OKXApproveTransaction, chain: ChainModel, chainAsset: ChainAsset) async throws -> BigUInt {
+        guard
+            let contractAddress = EthereumAddress(hexString: chainAsset.asset.id)
+        else {
+            throw EthereumServiceError.invalidTransaction
+        }
+
+        let data = try EthereumData.string(approveTransaction.data)
+        let senderAddress = try EthereumAddress(rawAddress: senderAddress.hexToBytes())
+        let gasPrice = try await queryGasPrice()
+
+        let call = EthereumCall(from: senderAddress, to: contractAddress, data: data)
         let gasLimit = try await queryGasLimit(call: call)
         return gasPrice.quantity * gasLimit.quantity
     }
@@ -200,8 +222,12 @@ final class OKXEthereumSwapServiceImpl: BaseEthereumService, OKXEthereumSwapServ
 
         return try await withCheckedThrowingContinuation { continuation in
             transferCall.call { result, error in
-                if let result = result, let remaining = result["_remaining"] as? BigUInt {
-                    continuation.resume(with: .success(remaining))
+                if let result = result{
+                    if let remaining = result["_remaining"] as? BigUInt {
+                        continuation.resume(with: .success(remaining))
+                    } else {
+                        continuation.resume(with: .success(.zero))
+                    }
                 } else {
                     if let error = error {
                         continuation.resume(throwing: error)

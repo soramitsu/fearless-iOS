@@ -64,9 +64,11 @@ extension CrossChainTxTrackingInteractor: CrossChainTxTrackingInteractorInput {
             guard let decimals = $0.decimals, let precision = UInt16(decimals) else {
                 return nil
             }
+            let isUtility = $0.tokenContractAddress == "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+            let contractAddress = $0.tokenContractAddress
+            let nativeAsset = isUtility ? chain.utilityChainAssets().first : chain.chainAssets.first(where: { $0.asset.id.lowercased() == contractAddress.lowercased() })
 
             let iconURL = $0.tokenLogoUrl.flatMap { URL(string: $0) }
-            let isUtility = $0.tokenSymbol.uppercased() == chain.utilityAssets().first?.symbol.uppercased()
             let ethereumType: ChainAssetType = isUtility ? .ethereum(ethereumType: .normal) : .ethereum(ethereumType: .erc20)
 
             let asset = AssetModel(
@@ -77,7 +79,8 @@ extension CrossChainTxTrackingInteractor: CrossChainTxTrackingInteractorInput {
                 icon: iconURL,
                 isUtility: isUtility,
                 isNative: false,
-                assetType: ethereumType
+                assetType: ethereumType,
+                priceData: nativeAsset?.asset.priceData ?? []
             )
             return ChainAsset(chain: chain, asset: asset)
         }

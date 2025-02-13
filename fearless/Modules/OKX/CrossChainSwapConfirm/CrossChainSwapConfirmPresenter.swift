@@ -10,7 +10,6 @@ protocol CrossChainSwapConfirmViewInput: ControllerBackedProtocol, LoadableViewP
     func didReceive(doubleImageViewModel: PolkaswapDoubleSymbolViewModel)
     func didReceive(feeViewModel: TitleMultiValueViewModel?)
     func setButtonLoadingState(isLoading: Bool)
-    func setApproveButtonVisible(_ visible: Bool)
     func didReceiveError(viewModel: ErrorViewModel?)
 }
 
@@ -19,8 +18,7 @@ protocol CrossChainSwapConfirmInteractorInput: AnyObject, CrossChainBaseInteract
     func subscribeOnBalance(for chainAssets: [ChainAsset])
     func estimateFee(tx: CrossChainTx) async throws -> BigUInt
     func confirmSwap(tx: CrossChainTx) async throws -> String
-    func isNeedAllowance() async throws -> Bool
-    func approveSpending() async throws -> String
+    func checkTransactionSucceed(approveTxHash: String) async throws -> Bool
 }
 
 final class CrossChainSwapConfirmPresenter {
@@ -48,6 +46,7 @@ final class CrossChainSwapConfirmPresenter {
     private var fromNetworkFee: Decimal?
     private var crossChainTx: CrossChainTx?
     private var slippage: Decimal
+    private var approveTxHash: String?
 
     // MARK: - Constructors
 
@@ -64,7 +63,8 @@ final class CrossChainSwapConfirmPresenter {
         amount: String,
         selectedDexIds: [String]?,
         logger: LoggerProtocol?,
-        slippage: Decimal
+        slippage: Decimal,
+        approveTxHash: String?
     ) {
         self.interactor = interactor
         self.router = router
@@ -78,25 +78,12 @@ final class CrossChainSwapConfirmPresenter {
         self.selectedDexIds = selectedDexIds
         self.logger = logger
         self.slippage = slippage
+        self.approveTxHash = approveTxHash
 
         self.localizationManager = localizationManager
     }
 
     // MARK: - Data Fetching
-
-    private func checkAllowance() {
-        Task {
-            let isNeedAllowance = try await interactor.isNeedAllowance()
-
-            if !isNeedAllowance {
-                fetchCrossChainTx()
-            }
-            await MainActor.run {
-                self.view?.setButtonLoadingState(isLoading: false)
-                view?.setApproveButtonVisible(isNeedAllowance)
-            }
-        }
-    }
 
     private func fetchCrossChainTx() {
         Task {
@@ -116,8 +103,25 @@ final class CrossChainSwapConfirmPresenter {
             }
         }
     }
+    
+    private func checkApproveTransactionSucceed(approveTxHash: String) {
+        Task {
+            let isSucceed = try await interactor.checkTransactionSucceed(approveTxHash: approveTxHash)
+            if isSucceed {
+                self.approveTxHash = nil
+                refreshFee()
+            }
+        }
+    }
 
     private func refreshFee() {
+        if let approveTxHash {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
+                self?.checkApproveTransactionSucceed(approveTxHash: approveTxHash)
+            }
+            return
+        }
+        
         guard let utilityChainAsset = swapFromChainAsset.chain.utilityChainAssets().first, let crossChainTx else {
             return
         }
@@ -135,6 +139,9 @@ final class CrossChainSwapConfirmPresenter {
                     view?.setButtonLoadingState(isLoading: false)
                 }
             } catch {
+                await MainActor.run {
+                    self.view?.setButtonLoadingState(isLoading: false)
+                }
                 logger?.customError(error)
                 
                 if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
@@ -295,12 +302,12 @@ final class CrossChainSwapConfirmPresenter {
     }
 
     @objc private func handleTimerTick() {
-        fetchInfo()
+//        fetchInfo()
     }
 
     private func setupTimer() {
-        timer?.invalidate()
-        timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(handleTimerTick), userInfo: nil, repeats: true)
+//        timer?.invalidate()
+//        timer = Timer.scheduledTimer(timeInterval: 15.0, target: self, selector: #selector(handleTimerTick), userInfo: nil, repeats: true)
     }
     
     private func showDefaultError(title: String, message: String) {
@@ -333,7 +340,7 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         calculateTotalFiatFee()
         setupTimer()
         fetchInfo()
-        checkAllowance()
+        fetchCrossChainTx()
 
         self.view?.setButtonLoadingState(isLoading: true)
     }
@@ -366,12 +373,30 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
 
             Task {
                 do {
+                    let isCrossChain = self.swapFromChainAsset.chain.chainId != self.swapToChainAsset.chain.chainId
+
+                    
                     let txHash = try await self.interactor.confirmSwap(tx: crossChainTx)
-                    let transaction = AssetTransactionData(transactionId: txHash, status: .pending, assetId: "", peerId: "", peerFirstName: nil, peerLastName: nil, peerName: nil, details: "", amount: AmountDecimal(value: sendAmountDecimal.or(.zero)), fees: [], timestamp: Int64(Date().timeIntervalSince1970), type: "", reason: nil, context: nil)
+                    let transaction = AssetTransactionData(transactionId: txHash, status: .pending, assetId: "", peerId: "", peerFirstName: nil, peerLastName: nil, peerName: nil, details: "", amount: AmountDecimal(value: sendAmountDecimal.or(.zero)), fees: [], timestamp: Int64(Date().timeIntervalSince1970), type: "", reason: "crosschain", context: nil)
 
                     await MainActor.run {
                         self.handleDismissingSwipe()
-                        self.router.presentStatusTrackingScreen(transaction: transaction, chainAsset: self.swapFromChainAsset, wallet: self.wallet, from: self.view)
+                        
+                        if isCrossChain {
+                            self.router.presentStatusTrackingScreen(
+                                transaction: transaction,
+                                chainAsset: self.swapFromChainAsset,
+                                wallet: self.wallet,
+                                from: self.view
+                            )
+                        } else {
+                            self.router.complete(
+                                on: self.view,
+                                title: txHash,
+                                chainAsset: self.swapFromChainAsset
+                            )
+                            
+                        }
                     }
                 } catch {
                     await MainActor.run {
@@ -388,31 +413,6 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         timer = nil
 
         router.dismiss(view: view)
-    }
-
-    func didTapApproveButton() {
-        view?.setButtonLoadingState(isLoading: true)
-
-        Task {
-            do {
-                _ = try await interactor.approveSpending()
-
-                await MainActor.run {
-                    self.view?.setButtonLoadingState(isLoading: false)
-                    view?.setApproveButtonVisible(false)
-                    fetchCrossChainTx()
-                }
-
-            } catch {
-                await MainActor.run {
-                    view?.setButtonLoadingState(isLoading: false)
-
-                    if let view = view {
-                        self.router.presentError(for: error.localizedDescription, message: "", view: view, locale: self.selectedLocale)
-                    }
-                }
-            }
-        }
     }
 }
 

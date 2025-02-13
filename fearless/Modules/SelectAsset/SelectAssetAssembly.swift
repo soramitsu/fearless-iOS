@@ -61,7 +61,8 @@ final class SelectAssetAssembly {
             output: output,
             localizationManager: localizationManager,
             contextTag: contextTag,
-            logger: Logger.shared
+            logger: Logger.shared,
+            isEmbed: isEmbed
         )
 
         let view = SelectAssetViewController(

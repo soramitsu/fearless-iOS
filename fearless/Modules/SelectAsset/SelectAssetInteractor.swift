@@ -28,8 +28,16 @@ final class SelectAssetInteractor {
         self.chainAssets = chainAssets
         self.wallet = wallet
     }
+}
 
-    private func fetchChainAssets() {
+// MARK: - SelectAssetInteractorInput
+
+extension SelectAssetInteractor: SelectAssetInteractorInput {
+    func setup(with output: SelectAssetInteractorOutput) {
+        self.output = output
+    }
+    
+    func fetchChainAssets() {
         if let chainAssets = self.chainAssets {
             output?.didReceiveChainAssets(result: .success(chainAssets))
             return
@@ -54,15 +62,6 @@ final class SelectAssetInteractor {
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
         }
-    }
-}
-
-// MARK: - SelectAssetInteractorInput
-
-extension SelectAssetInteractor: SelectAssetInteractorInput {
-    func setup(with output: SelectAssetInteractorOutput) {
-        self.output = output
-        fetchChainAssets()
     }
 
     func update(with chainAssets: [ChainAsset]) {

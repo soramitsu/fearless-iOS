@@ -2,7 +2,7 @@ import UIKit
 
 import SoraFoundation
 
-final class WalletTransactionDetailsViewController: UIViewController, ViewHolder {
+final class WalletTransactionDetailsViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = WalletTransactionDetailsViewLayout
 
     let presenter: WalletTransactionDetailsPresenterProtocol

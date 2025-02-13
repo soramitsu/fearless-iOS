@@ -25,23 +25,12 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
     }
 
     func presentConfirm(
-        swapFromChainAsset: ChainAsset,
-        swapToChainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        amount: String,
-        selectedDexIds: [String]?,
-        swap: CrossChainSwap,
-        slippage: Decimal,
+        crossChainSwapParameters: CrossChainSwapParameters,
         from view: ControllerBackedProtocol?
     ) {
         guard let module = CrossChainSwapConfirmAssembly.configureModule(
-            swapFromChainAsset: swapFromChainAsset,
-            swapToChainAsset: swapToChainAsset,
-            wallet: wallet,
-            amount: amount,
-            selectedDexIds: selectedDexIds,
-            swap: swap,
-            slippage: slippage
+            crossChainSwapParameters: crossChainSwapParameters,
+            approveTxHash: nil
         ) else {
             return
         }
@@ -88,6 +77,21 @@ final class CrossChainSwapSetupRouter: CrossChainSwapSetupRouterInput {
             wallet: wallet,
             moduleOutput: moduleOutput,
             selectedSort: selectedSort
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
+    }
+    
+    func presentFundsPermission(
+        mode: CrossChainFundsPermissionMode,
+        crossChainSwapParameters: CrossChainSwapParameters,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let module = CrossChainFundsPermissionAssembly.configureModule(
+            mode: mode,
+            crossChainSwapParameters: crossChainSwapParameters
         ) else {
             return
         }

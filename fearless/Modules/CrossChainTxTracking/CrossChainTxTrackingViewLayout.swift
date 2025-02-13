@@ -95,6 +95,11 @@ final class CrossChainTxTrackingViewLayout: UIView {
         toChainFeeView.isHidden = viewModel.toChainFee == nil
         toAmountView.isHidden = viewModel.receivedAmount == nil
         fromAmountView.isHidden = viewModel.amount == nil
+        walletNameView.isHidden = viewModel.walletName == nil
+        dateView.isHidden = viewModel.date == nil
+        statusRowLabel.isHidden = false
+        statusDescriptionLabel.isHidden = viewModel.statusDescription == nil
+        statusTitleLabel.isHidden = viewModel.statusTitle == nil
 
         fromHashView.titleLabel.text = viewModel.fromHashViewTitle
         toHashView.titleLabel.text = viewModel.toHashViewTitle
@@ -140,6 +145,7 @@ final class CrossChainTxTrackingViewLayout: UIView {
                 make.leading.trailing.equalToSuperview().inset(16)
                 make.height.equalTo(60)
             }
+            $0.isHidden = true
         }
     }
 

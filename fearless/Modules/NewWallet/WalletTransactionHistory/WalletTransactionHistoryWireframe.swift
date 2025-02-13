@@ -44,6 +44,8 @@ final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframe
             controller = module.controller
         }
         
-        view?.controller.present(controller, animated: true)
+        let navigation = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigation, animated: true)
     }
 }

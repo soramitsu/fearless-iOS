@@ -6,6 +6,10 @@ import SSFModels
 import RobinHood
 import SSFCrypto
 
+enum EthereumRemoteBalanceFetchingError: Error {
+    case notFound
+}
+
 actor EthereumRemoteBalanceFetching: AccountInfoRemoteService {
     private let chainRegistry: ChainRegistryProtocol
     private let repositoryWrapper: BalanceRepositoryCacheWrapper
@@ -94,7 +98,7 @@ actor EthereumRemoteBalanceFetching: AccountInfoRemoteService {
                     unwrapedContinuation.resume(with: .failure(error))
                     nillableContinuation = nil
                 } else {
-                    unwrapedContinuation.resume(with: .success(nil))
+                    unwrapedContinuation.resume(with: .failure(EthereumRemoteBalanceFetchingError.notFound))
                     nillableContinuation = nil
                 }
             }
@@ -125,7 +129,7 @@ actor EthereumRemoteBalanceFetching: AccountInfoRemoteService {
                     unwrapedContinuation.resume(with: .failure(error))
                     nillableContinuation = nil
                 } else {
-                    unwrapedContinuation.resume(with: .success(nil))
+                    unwrapedContinuation.resume(with: .failure(EthereumRemoteBalanceFetchingError.notFound))
                     nillableContinuation = nil
                 }
             })
@@ -215,6 +219,10 @@ actor EthereumRemoteBalanceFetching: AccountInfoRemoteService {
     }
 
     nonisolated private func cache(accountInfo: AccountInfo?, chainAsset: ChainAsset, accountId: AccountId) throws {
+        guard let accountInfo else {
+            return
+        }
+        
         let storagePath = chainAsset.storagePath
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(

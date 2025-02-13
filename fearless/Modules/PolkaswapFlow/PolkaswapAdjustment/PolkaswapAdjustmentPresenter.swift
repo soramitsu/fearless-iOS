@@ -551,16 +551,27 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapSelectFromAsset() {
-        let showChainAssets = xorChainAsset?.chain.chainAssets
-            .filter { $0.chainAssetId != swapToChainAsset?.chainAssetId }
-        router.showSelectAsset(
-            from: view,
-            wallet: wallet,
-            chainAssets: showChainAssets,
-            selectedAssetId: swapFromChainAsset?.asset.id,
-            contextTag: InputTag.swapFrom.rawValue,
-            output: self
-        )
+        if swapToChainAsset == nil  {
+            router.showSelectAsset(
+                from: view,
+                wallet: wallet,
+                output: self,
+                flow: .okxSource,
+                selectedChainAsset: swapFromChainAsset,
+                filter: { $0.chainAssetId != self.swapToChainAsset?.chainAssetId }
+            )
+        } else {
+            let showChainAssets = xorChainAsset?.chain.chainAssets
+                .filter { $0.chainAssetId != swapToChainAsset?.chainAssetId }
+            router.showSelectAsset(
+                from: view,
+                wallet: wallet,
+                chainAssets: showChainAssets,
+                selectedAssetId: swapFromChainAsset?.asset.id,
+                contextTag: InputTag.swapFrom.rawValue,
+                output: self
+            )
+        }
     }
 
     func didTapSelectToAsset() {

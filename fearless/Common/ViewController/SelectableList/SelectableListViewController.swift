@@ -10,41 +10,12 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     ViewHolder,
     KeyboardViewAdoptable,
     LoadableViewProtocol,
-    EmptyStateDelegate,
-    EmptyStateDataSource,
-    EmptyStateViewOwnerProtocol,
     Localizable {
     typealias RootViewType = SelectableListViewLayout
 
     func applyLocalization() {
-        reloadEmptyState(animated: true)
     }
-
-    var shouldDisplayEmptyState: Bool { errorMessage != nil }
-
-    var viewForEmptyState: UIView? {
-        let emptyView = EmptyView()
-        emptyView.image = R.image.iconWarning()
-        emptyView.title = R.string.localizable
-            .emptyViewTitle(preferredLanguages: selectedLocale.rLanguages)
-        emptyView.text = errorMessage
-        emptyView.iconMode = .bigFilledShadow
-        emptyView.retryButton.setTitle(R.string.localizable.commonRetry(preferredLanguages: selectedLocale.rLanguages), for: .normal)
-        emptyView.retryButton.isHidden = false
-        emptyView.retryButton.addAction { [weak self] in
-            self?.listPresenter.didTapRetry()
-        }
-        return emptyView
-    }
-
-    var emptyStateDelegate: SoraUI.EmptyStateDelegate {
-        self
-    }
-
-    var emptyStateDataSource: SoraUI.EmptyStateDataSource {
-        self
-    }
-
+    
     var keyboardHandler: FearlessKeyboardHandler?
 
     private var errorMessage: String?
@@ -155,7 +126,6 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 extension SelectableListViewController: SelectionListViewProtocol {
     func didReceive(errorMessage: String?) {
         self.errorMessage = errorMessage
-        reloadEmptyState(animated: true)
     }
 
     func bind(viewModel: TextSearchViewModel?) {
@@ -164,9 +134,8 @@ extension SelectableListViewController: SelectionListViewProtocol {
 
     func didReload() {
         rootView.tableView.reloadData()
-        rootView.setEmptyView(vasible: errorMessage != nil)
+        rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
         didStopLoading()
-        reloadEmptyState(animated: true)
     }
 
     func reloadCell(at indexPath: IndexPath) {

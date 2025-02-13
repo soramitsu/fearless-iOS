@@ -17,6 +17,8 @@ protocol OKXDexAggregatorService {
     func fetchCrossChainTransactionStatus(parameters: OKXDexCrossChainStatusParameters) async throws -> OKXResponse<OKXCrossChainTransactionStatus>
     func fetchCrossChainQuote(parameters: OKXDexCrossChainQuoteParameters) async throws -> OKXResponse<OKXCrossChainQuote>
     func fetchTransactionByHash(parameters: OKXWalletTransactionByHashParameters) async throws -> OKXResponse<OKXTransactionHistoryElement>
+    func fetchTransactionsHistory(parameters: OKXWalletPostTransactionTransactionsByAddressParameters) async throws -> OKXResponse<[OKXTransactionHistoryElement]>
+    func fetchAvailableBlockchains() async throws -> OKXResponse<[OKXChain]>
 }
 
 final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
@@ -251,6 +253,41 @@ final class OKXDexAggregatorServiceImpl: OKXDexAggregatorService {
 
         request.signingType = .custom(signer: signer)
         let response: OKXResponse<OKXTransactionHistoryElement> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+    
+    func fetchTransactionsHistory(parameters: OKXWalletPostTransactionTransactionsByAddressParameters) async throws -> OKXResponse<[OKXTransactionHistoryElement]> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/wallet/post-transaction/transactions-by-address",
+            queryItems: parameters.urlParameters,
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<[OKXTransactionHistoryElement]> = try await networkWorker.performRequest(with: request)
+
+        try validateResponseCode(response.code, msg: response.msg)
+
+        return response
+    }
+    
+    func fetchAvailableBlockchains() async throws -> OKXResponse<[OKXChain]> {
+        let request = RequestConfig(
+            baseURL: ApplicationConfig.shared.okxDexAggregatorURL,
+            method: .get,
+            endpoint: "api/v5/wallet/chain/supported-chains",
+            headers: nil,
+            body: nil
+        )
+
+        request.signingType = .custom(signer: signer)
+        let response: OKXResponse<[OKXChain]> = try await networkWorker.performRequest(with: request)
 
         try validateResponseCode(response.code, msg: response.msg)
 

@@ -42,7 +42,7 @@ final class SymbolView: UIView {
     }
 
     private func setupLayout() {
-        containerView.backgroundColor = R.color.colorBlack()
+        containerView.backgroundColor = R.color.colorBlack19()
 
         containerView.addSubview(imageView)
         imageView.snp.makeConstraints { make in

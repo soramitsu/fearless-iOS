@@ -138,7 +138,7 @@ struct OklinkData: Codable {
 struct OklinkTransactionItem: Codable {
     let txID, methodID, blockHash, height: String
     let transactionTime, from, to: String
-    let isFromContract, isToContract: Bool
+    let isFromContract, isToContract: Bool?
     let amount, transactionSymbol, txFee, state: String
     let tokenID, tokenContractAddress, challengeStatus, l1OriginHash: String
 

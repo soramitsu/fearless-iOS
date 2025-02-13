@@ -100,13 +100,6 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
             return chainlinkPrice.replaceFiatDayChange(fiatDayChange: coingeckoPrice?.fiatDayChange)
         }
 
-        let filtered = coingeckoPrices.filter { coingeckoPrice in
-            guard let coingeckoPriceId = coingeckoPrice.coingeckoPriceId else {
-                return true
-            }
-            return !caPriceIds.intersection(sqPriceIds).contains(coingeckoPriceId)
-        }
-
         return coingeckoPrices + replacedFiatDayChange
     }
 
@@ -114,16 +107,6 @@ final class PriceDataSource: SingleValueProviderSourceProtocol {
         if soraSubqueryPrices.isEmpty {
             let prices = makePrices(from: coingeckoPrices, for: .sorasubquery)
             return coingeckoPrices + prices
-        }
-        let caPriceIds = Set(chainAssets.compactMap { $0.asset.priceId })
-        let sqPriceIds = Set(soraSubqueryPrices.compactMap { $0.priceId })
-
-        let filtered = coingeckoPrices.filter { coingeckoPrice in
-            let chainAsset = chainAssets.first { $0.asset.coingeckoPriceId == coingeckoPrice.priceId }
-            guard let priceId = chainAsset?.asset.priceId else {
-                return true
-            }
-            return !caPriceIds.intersection(sqPriceIds).contains(priceId)
         }
 
         return coingeckoPrices + soraSubqueryPrices

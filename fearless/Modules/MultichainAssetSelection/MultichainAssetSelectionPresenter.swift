@@ -28,6 +28,7 @@ final class MultichainAssetSelectionPresenter {
     private var chains: [ChainModel]?
     private let assetFetching: MultichainAssetFetching
     private var filter: ((ChainAsset) throws -> Bool)?
+    private var fetchAssetsTask: Task<Void, Never>?
 
     // MARK: - Constructors
 
@@ -67,6 +68,10 @@ final class MultichainAssetSelectionPresenter {
     private func fetchChains() {
         Task {
             do {
+                await MainActor.run {
+                    selectAssetModuleInput?.runLoading()
+                }
+                
                 let chains = try await interactor.fetchChains().sorted(by: { $0.rank.or(UInt16.max) < $1.rank.or(UInt16.max) })
                 self.chains = chains
 
@@ -114,7 +119,7 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
         selectedChain = chain
         provideViewModel()
 
-        Task {
+        fetchAssetsTask = Task {
             do {
                 if let cachedChainAssets = try? await interactor.fetchAssets(for: chain, preferredDataSourceType: .cache) {
                     var filtered = cachedChainAssets
@@ -132,14 +137,27 @@ extension MultichainAssetSelectionPresenter: MultichainAssetSelectionViewOutput 
                     }
                 }
 
+                guard !Task.isCancelled else {
+                    return
+                }
                 let availableChainAssets = try await interactor.fetchAssets(for: chain, preferredDataSourceType: .remote)
+                guard !Task.isCancelled else {
+                    return
+                }
                 var filtered = availableChainAssets
 
                 if let filter {
                     filtered = try availableChainAssets.filter(filter)
                 }
 
+                guard !Task.isCancelled else {
+                    return
+                }
                 await MainActor.run { [filtered] in
+                    guard filtered.first?.chain.chainId == selectedChain?.chainId else {
+                        return
+                    }
+                    
                     selectAssetModuleInput?.update(with: filtered)
                 }
             } catch {

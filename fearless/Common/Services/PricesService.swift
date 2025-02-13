@@ -145,7 +145,16 @@ private extension PricesService {
             }
             var updatedAssets: [AssetModel] = []
             chain.chainAssets.forEach { chainAsset in
-                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId || $0.coingeckoPriceId == chainAsset.asset.coingeckoPriceId }
+                guard chainAsset.asset.priceId != nil || chainAsset.asset.coingeckoPriceId != nil else {
+                    return
+                }
+                
+                var assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId }
+                
+                if assetPrices.isEmpty {
+                    assetPrices = prices.filter { $0.coingeckoPriceId == chainAsset.asset.coingeckoPriceId }
+                }
+                
                 let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
                 updatedAssets.append(updatedAsset)
             }
@@ -158,7 +167,6 @@ private extension PricesService {
             []
         })
         saveOperation.completionBlock = { [weak self] in
-            print("save operation result: ", saveOperation.result)
             self?.eventCenter.notify(with: PricesUpdated())
         }
         operationQueue.addOperation(saveOperation)

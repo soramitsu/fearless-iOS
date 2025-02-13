@@ -12,6 +12,7 @@ protocol SelectAssetViewOutput: SelectionListPresenterProtocol {
 
 protocol SelectAssetInteractorInput: AnyObject {
     func setup(with output: SelectAssetInteractorOutput)
+    func fetchChainAssets()
     func update(with chainAssets: [ChainAsset])
     func fetchAccountInfos(with chainAssets: [ChainAsset]) async throws -> [ChainAssetKey: AccountInfo?]
 }

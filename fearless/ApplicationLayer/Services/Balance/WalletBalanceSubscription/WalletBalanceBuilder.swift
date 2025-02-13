@@ -66,7 +66,6 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         var totalBalance: Decimal = .zero
         var totalDayChange: Decimal = .zero
         var enabledAccountInfos: [ChainAssetKey: AccountInfo?] = [:]
-
         chainAssets.forEach { chainAsset in
             let accountRequest = chainAsset.chain.accountRequest()
             guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {

@@ -5,9 +5,10 @@ protocol CrossChainTxTrackingViewOutput: AnyObject {
     func didLoad(view: CrossChainTxTrackingViewInput)
     func didTapBackButton()
     func didTapCopy()
+    func viewWillAppear()
 }
 
-final class CrossChainTxTrackingViewController: UIViewController, ViewHolder {
+final class CrossChainTxTrackingViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = CrossChainTxTrackingViewLayout
 
     // MARK: Private properties
@@ -52,6 +53,11 @@ final class CrossChainTxTrackingViewController: UIViewController, ViewHolder {
             self?.output.didTapCopy()
         }
     }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        output.viewWillAppear()
+    }
 
     // MARK: - Private methods
 }
@@ -61,6 +67,10 @@ final class CrossChainTxTrackingViewController: UIViewController, ViewHolder {
 extension CrossChainTxTrackingViewController: CrossChainTxTrackingViewInput {
     func didReceive(viewModel: CrossChainTxTrackingViewModel) {
         rootView.bind(viewModel: viewModel)
+    }
+    
+    var loadableContentView: UIView {
+        rootView.contentView
     }
 }
 

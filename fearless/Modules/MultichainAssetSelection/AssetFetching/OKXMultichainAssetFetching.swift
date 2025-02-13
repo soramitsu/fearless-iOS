@@ -43,6 +43,7 @@ class OKXMultichainAssetFetching: MultichainAssetFetching {
                 precision: precision,
                 icon: iconURL,
                 currencyId: $0.tokenContractAddress,
+                color: nativeAsset?.asset.color,
                 isUtility: isUtility,
                 isNative: false,
                 assetType: ethereumType,

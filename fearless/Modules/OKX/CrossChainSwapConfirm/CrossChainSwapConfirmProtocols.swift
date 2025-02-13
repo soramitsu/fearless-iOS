@@ -12,6 +12,12 @@ protocol CrossChainSwapConfirmRouterInput: AnyObject, PushDismissable, SheetAler
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
+    
+    func complete(
+        on view: ControllerBackedProtocol?,
+        title: String?,
+        chainAsset: ChainAsset
+    )
 }
 
 protocol CrossChainSwapConfirmModuleInput: AnyObject {}
