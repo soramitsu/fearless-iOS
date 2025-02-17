@@ -13,6 +13,7 @@ protocol PurchaseProviderProtocol {
     func with(logoUrl: URL) -> Self
     func with(colorCode: String) -> Self
     func with(callbackUrl: URL) -> Self
+    func with(chainName: String) -> Self
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction]
 }
 
@@ -30,6 +31,10 @@ extension PurchaseProviderProtocol {
     }
 
     func with(callbackUrl _: URL) -> Self {
+        self
+    }
+    
+    func with(chainName _: String) -> Self {
         self
     }
 }
