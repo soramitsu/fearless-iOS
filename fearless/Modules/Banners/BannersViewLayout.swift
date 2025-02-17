@@ -15,6 +15,7 @@ final class BannersViewLayout: UIView {
         view.decelerationRate = .fast
         view.registerClassForCell(BannerCellDefault.self)
         view.registerClassForCell(SCardBannerCell.self)
+        view.registerClassForCell(SCBuyXorBannerCell.self)
         return view
     }()
 

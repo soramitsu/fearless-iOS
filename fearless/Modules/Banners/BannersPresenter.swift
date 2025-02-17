@@ -120,7 +120,7 @@ extension BannersPresenter: BannerCellDelegate {
         case .backup:
             router.showWalletBackupScreen(for: wallet, from: view)
         case .buyXor:
-            break
+            router.showBuyXor(on: view)
         case .liquidityPools:
             router.presentLiquidityPools(on: view, wallet: wallet, chainId: Chain.soraMain.genesisHash)
         case .liquidityPoolsTest:
@@ -142,7 +142,8 @@ extension BannersPresenter: BannerCellDelegate {
             }
             showNotBackedUpAlert(wallet: wallet)
         case .buyXor:
-            break
+            SCard.shared?.isSCBannerHidden = true
+            provideViewModel()
         case .liquidityPools, .liquidityPoolsTest:
             moduleOutput?.didTapCloseBanners()
         case .addRegularWallet:

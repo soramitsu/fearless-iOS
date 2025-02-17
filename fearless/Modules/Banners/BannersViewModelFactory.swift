@@ -168,7 +168,11 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
         if soraCardStatus == .notStarted {
             banners.append(.soraCard)
         }
-
+        
+        if soraCardStatus == .successful {
+            banners.append(.buyXor)
+        }
+        
         return createViewModel(
             banners: banners,
             delegate: delegate,
