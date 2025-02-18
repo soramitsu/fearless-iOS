@@ -1252,3 +1252,5 @@ thuộc đúng mạng";
 "your.validators.stop.nominating.title" = "Dừng đề cử";
 "your.validators.validator.total.stake" = "Tổng đã stake: %@";
 "сurrencies.stub.text" = "Tiền tệ";
+"common.transaction.sent" = "Transaction sent";
+"common.transaction.sent.description" = "Your transaction has been successfully sent to the blockchain";

@@ -85,7 +85,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let walletController = createWalletController(walletConnect: walletConnect)
         viewControllers.append(walletController)
 
-        let crowdloanController = createBrowserController(wallet: wallet)
+        let dAppController = createBrowserController(wallet: wallet)
+        viewControllers.append(dAppController)
+
+        let crowdloanController = createCrowdloanController()
         viewControllers.append(crowdloanController)
 
         let polkaswapControoller = createPolkaswapController(wallet: wallet)
@@ -159,18 +162,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             .withRenderingMode(.alwaysOriginal)
 
         var navigationController: FearlessNavigationController
-        
+
         if let viewController = viewController {
             navigationController = FearlessNavigationController(rootViewController: viewController)
         } else {
             navigationController = FearlessNavigationController()
         }
-        
+
         navigationController.tabBarItem = createTabBarItem(
             normalImage: normalIcon,
             selectedImage: selectedIcon
         )
-        
+
         return navigationController
     }
 
@@ -238,6 +241,34 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let fakeSwapViewController = UIViewController()
         fakeSwapViewController.tabBarItem.isEnabled = false
         return fakeSwapViewController
+    }
+
+    static func createCrowdloanController() -> UIViewController? {
+        let crowdloanState = CrowdloanSharedState()
+        crowdloanState.settings.setup()
+
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let crowloanView = CrowdloanListViewFactory.createView(
+                  with: crowdloanState,
+                  selectedMetaAccount: selectedMetaAccount
+              )
+        else {
+            return nil
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
+
+        let icon = R.image.iconTabCrowloan()
+        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
+            .withRenderingMode(.alwaysOriginal)
+        navigationController.tabBarItem = createTabBarItem(
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
+
+        return navigationController
     }
 
     static func createTabBarItem(

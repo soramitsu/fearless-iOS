@@ -4,24 +4,29 @@ import RobinHood
 
 protocol ConnectedAccountsInteractorOutput: AnyObject {
     func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>)
+    func processSelectedAccountChanged(wallet: MetaAccountModel)
 }
 
 final class ConnectedAccountsInteractor {
     // MARK: - Private properties
     private weak var output: ConnectedAccountsInteractorOutput?
 
-    private let wallet: MetaAccountModel
+    private var wallet: MetaAccountModel
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let chainRepository: AsyncAnyRepository<ChainModel>
+    private let eventCenter: EventCenterProtocol
 
     init(
         wallet: MetaAccountModel,
         chainRepository: AsyncAnyRepository<ChainModel>,
-        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
+        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
+        self.eventCenter = eventCenter
+        eventCenter.add(observer: self, dispatchIn: .global())
     }
 
     // MARK: - Private methods
@@ -57,5 +62,14 @@ extension ConnectedAccountsInteractor: WalletBalanceSubscriptionListener {
 
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalances(result)
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension ConnectedAccountsInteractor: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        wallet = event.account
+        output?.processSelectedAccountChanged(wallet: wallet)
     }
 }

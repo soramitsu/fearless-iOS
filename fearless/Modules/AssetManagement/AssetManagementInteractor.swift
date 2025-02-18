@@ -122,6 +122,12 @@ extension AssetManagementInteractor: AssetManagementInteractorInput {
 // MARK: - EventVisitorProtocol
 
 extension AssetManagementInteractor: EventVisitorProtocol {
+    nonisolated func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        Task {
+            await output?.didReceiveUpdated(wallet: event.account)
+        }
+    }
+    
     nonisolated func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         Task {
             await output?.didReceiveUpdated(wallet: event.account)

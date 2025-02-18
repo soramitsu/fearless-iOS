@@ -32,6 +32,7 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         wallets: [MetaAccountModel],
         locale: Locale
     ) throws -> WalletConnectProposalViewModel {
+        let wallets = filterWallets(wallets: wallets)
         switch status {
         case let .proposal(connectProposal):
             switch connectProposal {
@@ -52,6 +53,12 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             switch actionConnect {
             case .walletConnect:
                 return try buildWalletConnectActiveSessionViewModel(
+                    chains: chains,
+                    wallets: wallets,
+                    locale: locale
+                )
+            case .tonConnect:
+                return try buildTonConenctActiveSessionViewModel(
                     chains: chains,
                     wallets: wallets,
                     locale: locale
@@ -103,6 +110,27 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
     }
 
     // MARK: - Private methods
+    
+    private func filterWallets(wallets: [MetaAccountModel]) -> [MetaAccountModel] {
+        return wallets.filter { wallet in
+            switch status {
+            case .proposal(let connectProposal):
+                switch connectProposal {
+                case .walletConnect:
+                    return wallet.ecosystem.isRegular
+                case .tonJsBridge, .tonConnect:
+                    return wallet.ecosystem.isTon
+                }
+            case .active(let actionConnect):
+                switch actionConnect {
+                case .walletConnect:
+                    return wallet.ecosystem.isRegular
+                case .tonConnect:
+                    return wallet.ecosystem.isTon
+                }
+            }
+        }
+    }
 
     private func createDAppViewModel() -> WalletConnectProposalCellModel.DetailsViewModel {
         switch status {
@@ -134,6 +162,12 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
                     title: session.peer.name,
                     subtitle: URL(string: session.peer.url)?.host ?? session.peer.url,
                     icon: RemoteImageViewModel(string: session.peer.url)
+                )
+            case let .tonConnect(app, _):
+                return WalletConnectProposalCellModel.DetailsViewModel(
+                    title: app.name,
+                    subtitle: app.appUrl.host ?? "",
+                    icon: RemoteImageViewModel(url: app.iconUrl)
                 )
             }
         }
@@ -364,11 +398,13 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
         from wallets: [MetaAccountModel],
         forActiveSession: Bool
     ) -> [WalletConnectProposalCellModel] {
-        wallets.enumerated().map { index, wallet in
+        let selectedWallet = SelectedWalletSettings.shared.value
+        return wallets.enumerated().map { index, wallet in
             let viewModel = WalletConnectProposalCellModel.WalletViewModel(
                 metaId: wallet.metaId,
                 walletName: wallet.name,
-                isSelected: forActiveSession ? true : index == 0
+                isSelected: forActiveSession ? true : wallet.metaId == selectedWallet?.metaId,
+                icon: wallet.ecosystem.isRegular ? R.image.iconBirdGreen()! : R.image.tonIcon()!
             )
             return WalletConnectProposalCellModel.wallet(viewModel)
         }
@@ -432,6 +468,41 @@ final class WalletConnectProposalViewModelFactoryImpl: WalletConnectProposalView
             WalletConnectProposalCellModel.dAppInfo(dApp),
             WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks),
             WalletConnectProposalCellModel(requiredExpandableViewModel: requiredExpandableViewModel)
+        ].compactMap { $0 }
+
+        let cells = [infoCells, walletCellViewModels].reduce([], +)
+
+        return WalletConnectProposalViewModel(
+            indexPath: nil,
+            cells: cells,
+            expiryDate: nil
+        )
+    }
+    
+    func buildTonConenctActiveSessionViewModel(
+        chains: [ChainModel],
+        wallets: [MetaAccountModel],
+        locale: Locale
+    ) throws -> WalletConnectProposalViewModel {
+        guard
+            let app = status.tonApp,
+            let tonChain = chains.first(where: { $0.ecosystem == .ton })
+        else {
+            throw ConvenienceError(error: "Missing wallet connect proposal")
+        }
+        let dApp = createDAppViewModel()
+
+        let requiredNetworks = WalletConnectProposalCellModel.DetailsViewModel(
+            title: R.string.localizable.requiredNetworks(preferredLanguages: locale.rLanguages),
+            subtitle: tonChain.name,
+            icon: RemoteImageViewModel(url: tonChain.icon)
+        )
+
+        let walletCellViewModels = createWalletsCellModels(from: wallets, forActiveSession: false)
+
+        let infoCells = [
+            WalletConnectProposalCellModel.dAppInfo(dApp),
+            WalletConnectProposalCellModel(requiredNetworksViewModel: requiredNetworks)
         ].compactMap { $0 }
 
         let cells = [infoCells, walletCellViewModels].reduce([], +)

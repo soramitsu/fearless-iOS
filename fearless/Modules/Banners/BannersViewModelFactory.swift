@@ -152,6 +152,15 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
         shouldShowAddWalletBanner: Bool
     ) -> BannersViewModel {
         var banners: [Banners] = []
+        
+        if soraCardStatus == .notStarted {
+            banners.append(.soraCard)
+        }
+        
+        if soraCardStatus == .successful {
+            banners.append(.buyXor)
+        }
+        
         if let wallet = SelectedWalletSettings.shared.value, !wallet.hasBackup {
             banners.insert(.backup, at: 0)
         }
@@ -163,14 +172,6 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
             } else if divided.remainder.isEmpty {
                 banners.append(.addTonWallet)
             }
-        }
-        
-        if soraCardStatus == .notStarted {
-            banners.append(.soraCard)
-        }
-        
-        if soraCardStatus == .successful {
-            banners.append(.buyXor)
         }
         
         return createViewModel(

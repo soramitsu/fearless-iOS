@@ -80,7 +80,8 @@ final class DappBrowserPresenter {
             let viewModel = viewModelFactory.buildNetworkFilterViewModel(
                 chains: try await interactor.chains,
                 filter: interactor.filter,
-                locale: selectedLocale
+                locale: selectedLocale,
+                wallet: wallet
             )
             Task { @MainActor in
                 view?.didReceive(viewModel: viewModel)
@@ -135,10 +136,10 @@ extension DappBrowserPresenter: DappBrowserViewOutput {
     }
 
     func didTapOnWalletSelectButton() {
-        router.showWalletManagment(
-            from: view,
-            moduleOutput: self
-        )
+//        router.showWalletManagment(
+//            from: view,
+//            moduleOutput: self
+//        )
     }
 
     func didTapOnNetworkSelectButton() {
@@ -218,6 +219,10 @@ extension DappBrowserPresenter: WalletsManagmentModuleOutput {
     func selectedWallet(_ wallet: MetaAccountModel, for contextTag: Int) {
         self.wallet = wallet
         provideWalletViewModel()
+    }
+
+    func showAddNewWallet() {
+        router.showCreateNewWallet(ecosystem: nil, from: view)
     }
 }
 

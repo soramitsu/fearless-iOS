@@ -63,7 +63,7 @@ final class ChainAssetListViewController:
         if keyboardHandler == nil, keyboardAdoptable {
             setupKeyboardHandler()
         }
-        
+
         output.didAppear(view: self)
     }
 
@@ -153,11 +153,11 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             rootView.removeHeaderView()
             return
         }
-        
+
         guard let viewModel else {
             return
         }
-        
+
         didReceive(viewModel: viewModel)
     }
 
@@ -178,7 +178,6 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
                 reloadEmptyState(animated: false)
                 return
             }
-
 
             if withAnimate {
                 rootView.runManageAssetAnimate(finish: { [weak self] in
@@ -202,6 +201,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             rootView.setHeaderView()
             rootView.tableView.reloadData()
         }
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -293,8 +293,7 @@ extension ChainAssetListViewController: EmptyStateDataSource {
 
 extension ChainAssetListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        return false
-//        guard let viewModel = viewModel else { return false }
-//        return viewModel.displayState.rows.isEmpty
+        guard let viewModel = viewModel else { return false }
+        return viewModel.displayState.rows.isEmpty
     }
 }

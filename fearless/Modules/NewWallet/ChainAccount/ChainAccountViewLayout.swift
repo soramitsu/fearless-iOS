@@ -189,7 +189,7 @@ final class ChainAccountViewLayout: UIView {
 //        balanceInfoStackView.isHidden = balanceViewModel == nil
 
         transferableBalanceView.bindBalance(viewModel: balanceViewModel?.transferrableValue.value(for: locale))
-        balanceLocksView.bindBalance(viewModel: balanceViewModel?.lockedValue.value(for: locale))
+        balanceLocksView.bindBalance(viewModel: balanceViewModel?.lockedValue?.value(for: locale))
         infoButton.isHidden = !(balanceViewModel?.hasLockedTokens == true)
     }
 
@@ -281,8 +281,6 @@ private extension ChainAccountViewLayout {
     }
 
     func setupNavigationViewLayout() {
-        selectNetworkButton.isUserInteractionEnabled = false
-
         navigationBar.addSubview(backButton)
         backButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()

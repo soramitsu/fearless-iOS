@@ -47,6 +47,23 @@ struct TransferDepsContainer {
     lazy var addressChainDefiner: AddressChainDefiner = {
         ServiceAssembly.shared.addressChainDefiner(wallet: wallet)
     }()
+    
+    lazy var accountInfoFetchingProvider: AccountInfoFetching = {
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationQueue()
+        )
+        return accountInfoFetching
+    }()
 }
 
 actor TransferInteractor: RuntimeConstantFetching {
@@ -115,10 +132,8 @@ extension TransferInteractor: TransferInteractorInput {
 
     func fetchAccountInfos(for chainAsset: ChainAsset) async throws -> [ChainAssetKey: AccountInfo?] {
         let chainAssets = getChainAssets(for: chainAsset)
-        let accountInfos = try await deps
-            .accountInfoRemoteService
-            .fetchAccountInfos(for: chainAssets, wallet: deps.wallet)
-        return accountInfos
+        return try await deps.accountInfoFetchingProvider.fetchByUniqKey(for: chainAssets, wallet: deps.wallet)
+       
     }
 
     func fetchExistentialDeposit(for chainAsset: ChainAsset) async throws -> BigUInt {

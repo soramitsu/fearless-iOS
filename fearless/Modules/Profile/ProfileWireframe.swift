@@ -10,7 +10,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
     ) {
-        guard let walletDetails = ConnectedAccountsAssembly.configureModule() else {
+        guard let walletDetails = ConnectedAccountsAssembly.configureModule(wallet: metaAccount) else {
             return
         }
         let navigationController = FearlessNavigationController(
@@ -128,23 +128,6 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(navigation, animated: true)
     }
 
-    func showCrowdloan(from view: ControllerBackedProtocol?) {
-        let crowdloanState = CrowdloanSharedState()
-        crowdloanState.settings.setup()
-
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
-              let crowloanView = CrowdloanListViewFactory.createView(
-                  with: crowdloanState,
-                  selectedMetaAccount: selectedMetaAccount
-              )
-        else {
-            return
-        }
-
-        let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
-        view?.controller.present(navigationController, animated: true)
-    }
-    
     func showSoraCard(from view: ControllerBackedProtocol?) {
         guard let vc = view?.controller else { return }
         SCard.shared?.start(in: vc)

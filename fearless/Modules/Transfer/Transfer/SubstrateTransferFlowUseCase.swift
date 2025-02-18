@@ -11,7 +11,6 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
 
     let interactor: TransferInteractorInput
     let implType: TransferFlowDirectionImpl = .substrate
-    var transfer: TransferType?
 
     var selectedChainAsset: ChainAsset?
     var utilityChainAsset: ChainAsset?
@@ -49,7 +48,8 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     init(
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -72,6 +72,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
         utilityChainAsset = chainAsset.chain.utilityChainAssets().first
 
         provideNetworkViewModel?()
+        provideAssetViewModel?()
 
         try await fetchRequaredInfo(for: chainAsset)
         calcFee()
@@ -113,7 +114,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
                 self?.inputResult = .rate(1.0)
                 self?.provideAssetViewModel?()
                 self?.provideInputViewModel?()
-                self?.refreshFee(for: self?.transfer)
+                self?.refreshFee(for: self?.getTransfer())
             },
             cancelAction: { [weak self] in
                 self?.sendAllEnabled = false
@@ -136,7 +137,7 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
                     fee: fee,
                     locale: locale,
                     onError: { [weak self] in
-                        self?.refreshFee(for: self?.transfer)
+                        self?.refreshFee(for: self?.getTransfer())
                     }
                 ),
                 dataValidatingFactory.canPayFeeAndAmount(
@@ -147,6 +148,14 @@ final class SubstrateTransferFlowUseCase: TransferFlowUseCase {
                 )
             ]
         }
+    }
+
+    func getTransfer() -> TransferType? {
+        buildSubstrateTransfer()
+    }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
     }
 
     // MARK: - Private methods

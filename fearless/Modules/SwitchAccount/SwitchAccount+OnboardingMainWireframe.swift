@@ -3,6 +3,8 @@ import SSFCloudStorage
 
 extension SwitchAccount {
     final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
+        func didCompleteCreate(from view: ControllerBackedProtocol?) {}
+        
         func showPreinstalledFlow(from view: ControllerBackedProtocol?) {
             let module = GetPreinstalledWalletAssembly.configureModuleForExistingUser()
 

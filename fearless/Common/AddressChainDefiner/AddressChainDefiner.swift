@@ -58,7 +58,7 @@ final class AddressChainDefiner {
                     guard strongSelf.chainIsEnabled(chain: chain) else {
                         return false
                     }
-                    return strongSelf.validate(address: address, for: chain).isValidOrSame
+                    return strongSelf.validate(address: address, for: chain).isValidOrSame && strongSelf.validateEcosystem(for: chain)
                 }
                 continuation.resume(returning: posssibleChains)
             }
@@ -73,6 +73,15 @@ final class AddressChainDefiner {
             return .sameAddress(address)
         }
         return .valid(address)
+    }
+
+    private func validateEcosystem(for chain: ChainModel) -> Bool {
+        switch wallet.ecosystem {
+        case .regular:
+            return !chain.ecosystem.isTon
+        case .ton:
+            return chain.ecosystem.isTon
+        }
     }
 
     private func chainIsEnabled(chain: ChainModel) -> Bool {

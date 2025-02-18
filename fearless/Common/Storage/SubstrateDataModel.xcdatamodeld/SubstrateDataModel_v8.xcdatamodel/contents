@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="class">
         <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="currencyId" optional="YES" attributeType="String"/>
@@ -45,6 +45,7 @@
         <attribute name="rank" optional="YES" attributeType="String"/>
         <attribute name="stakingApiType" optional="YES" attributeType="String"/>
         <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
+        <attribute name="tonBridgeUrl" optional="YES" attributeType="URI"/>
         <attribute name="types" optional="YES" attributeType="URI"/>
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAsset" inverseName="chain" inverseEntity="CDAsset"/>
@@ -151,6 +152,7 @@
     <entity name="CDTonConnectedApp" representedClassName="CDTonConnectedApp" syncable="YES" codeGenerationType="class">
         <attribute name="appUrl" attributeType="URI"/>
         <attribute name="clientId" attributeType="String"/>
+        <attribute name="connectionType" optional="YES" attributeType="String"/>
         <attribute name="iconUrl" optional="YES" attributeType="URI"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>

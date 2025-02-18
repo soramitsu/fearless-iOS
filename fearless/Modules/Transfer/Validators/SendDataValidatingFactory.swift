@@ -37,12 +37,11 @@ class SendDataValidatingFactory: NSObject {
             self?.basePresentable.presentAmountTooHigh(from: view, locale: locale)
 
         }, preservesCondition: {
-            let amount = sendAmount ?? 0
             switch balanceType {
             case let .utility(balance):
                 if let balance = balance,
                    let feeAndTip = feeAndTip {
-                    return amount + feeAndTip <= balance && amount > 0
+                    return sendAmount.or(.zero) + feeAndTip <= balance
                 } else {
                     return false
                 }
@@ -50,7 +49,7 @@ class SendDataValidatingFactory: NSObject {
                 if let balance = balance,
                    let feeAndTip = feeAndTip,
                    let utilityBalance = utilityBalance {
-                    return amount <= balance && feeAndTip <= utilityBalance
+                    return sendAmount.or(.zero) <= balance && feeAndTip <= utilityBalance
                 } else {
                     return false
                 }

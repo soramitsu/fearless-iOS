@@ -1,7 +1,10 @@
+import SSFModels
+
 enum AccountCreateFlow {
     case chain(model: UniqueChainModel)
     case wallet
     case backup
+    case ethereum(wallet: MetaAccountModel, chains: [ChainModel])
 
     var supportsSubstrate: Bool {
         switch self {
@@ -9,12 +12,14 @@ enum AccountCreateFlow {
             return true
         case let .chain(model):
             return !model.chain.isEthereumBased
+        case .ethereum:
+            return false
         }
     }
 
     var supportsEthereum: Bool {
         switch self {
-        case .wallet, .backup:
+        case .wallet, .backup, .ethereum:
             return true
         case let .chain(model):
             return model.chain.isEthereumBased
@@ -25,7 +30,7 @@ enum AccountCreateFlow {
         switch self {
         case .wallet, .backup:
             return true
-        case .chain:
+        case .chain, .ethereum:
             return false
         }
     }
@@ -36,6 +41,8 @@ enum AccountCreateFlow {
             return ""
         case let .chain(model):
             return model.meta.name
+        case let .ethereum(wallet, _):
+            return wallet.name
         }
     }
 }

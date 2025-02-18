@@ -29,7 +29,7 @@ final class ChainModelMapper {
         )
     }
 
-    private func createAsset(from entity: CDAsset) -> AssetModel? {
+    private func createAsset(from entity: CDAsset, ecosystem: Ecosystem) -> AssetModel? {
         var symbol: String?
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
@@ -69,7 +69,22 @@ final class ChainModelMapper {
             priceProvider = PriceProvider(type: type, id: id, precision: Int16(precision))
         }
 
-        guard let assetType = ChainAssetType(storageValue: entity.type) else {
+        guard let assetType: ChainAssetType = entity.type.map({ type in
+            if let type = ChainAssetType(storageValue: type) {
+                return type
+            }
+            switch ecosystem {
+            case .substrate, .ethereumBased:
+                let substrateType = SubstrateAssetType(rawValue: type) ?? .normal
+                return .substrate(substrateType: substrateType)
+            case .ethereum:
+                let ethereumType = EthereumAssetType(rawValue: type) ?? .normal
+                return .ethereum(ethereumType: ethereumType)
+            case .ton:
+                let tonType = TonAssetType(rawValue: type) ?? .normal
+                return .ton(tonType: tonType)
+            }
+        }) else {
             return nil
         }
 
@@ -152,15 +167,15 @@ final class ChainModelMapper {
                 entity.currencyId = priceData.currencyId
                 entity.priceId = priceData.priceId
                 entity.price = priceData.price
-                entity.fiatDayByChange = String("\(priceData.fiatDayChange)")
+                entity.fiatDayByChange = NSDecimalNumber(decimal: priceData.fiatDayChange ?? .zero).stringValue
                 entity.coingeckoPriceId = priceData.coingeckoPriceId
                 return entity
             }
 
             if
                 let oldAssets = entity.assets as? Set<CDAsset>,
-                let updatedAsset = oldAssets.first(where: { cdAsset in
-                    cdAsset.id == assetModel.id
+                let updatedAsset = oldAssets.first(where: { asset in
+                    asset.id == assetModel.id
                 }) {
                 if let oldPrices = updatedAsset.priceData as? Set<CDPriceData> {
                     oldPrices.forEach { cdPriceData in
@@ -176,8 +191,8 @@ final class ChainModelMapper {
         }
 
         if let oldAssets = entity.assets as? Set<CDAsset> {
-            oldAssets.forEach { cdAsset in
-                context.delete(cdAsset)
+            oldAssets.forEach { asset in
+                context.delete(asset)
             }
         }
 
@@ -558,7 +573,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             selectedNode: selectedNode,
             customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion,
-            identityChain: entity.identityChain
+            identityChain: entity.identityChain, 
+            tonBridgeUrl: entity.tonBridgeUrl
         )
 
         let assetsArray: [AssetModel] = entity.assets.or([]).compactMap { anyAsset in
@@ -566,7 +582,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
                 return nil
             }
 
-            return createAsset(from: asset)
+            return createAsset(from: asset, ecosystem: ecosystem)
         }
         let assets = Set(assetsArray)
 
@@ -601,6 +617,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
         entity.identityChain = model.identityChain
+        entity.tonBridgeUrl = model.tonBridgeUrl
+        
         updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)

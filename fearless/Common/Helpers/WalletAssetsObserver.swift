@@ -66,13 +66,16 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
     // MARK: - ApplicationServiceProtocol
 
     func setup() {
-        eventCenter.add(observer: self)
-        chainRegistry.chainsSubscribe(
-            self,
-            runningInQueue: walletAssetsObserverQueue
-        ) { [weak self] changes in
-            self?.handleChains(changes: changes, accounts: nil)
-        }
+//        guard wallet.ecosystem.isRegular else {
+//            return
+//        }
+//        eventCenter.add(observer: self)
+//        chainRegistry.chainsSubscribe(
+//            self,
+//            runningInQueue: walletAssetsObserverQueue
+//        ) { [weak self] changes in
+//            self?.handleChains(changes: changes, accounts: nil)
+//        }
     }
 
     func throttle() {
@@ -108,6 +111,9 @@ final class WalletAssetsObserverImpl: WalletAssetsObserver {
             returning: [ChainModel: [ChainAssetId: AccountInfo?]].self
         ) { group in
             chains.forEach { chain in
+                guard !chain.ecosystem.isTon else {
+                    return
+                }
                 group.addTask {
                     do {
                         let accountInfos = try await self.accountInfoRemote.fetchAccountInfos(for: chain, wallet: self.wallet)

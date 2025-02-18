@@ -11,7 +11,6 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
 
     let interactor: TransferInteractorInput
     let implType: TransferFlowDirectionImpl = .ton
-    var transfer: TransferType?
 
     var selectedChainAsset: ChainAsset?
     var utilityChainAsset: ChainAsset?
@@ -49,7 +48,8 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     init(
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -70,6 +70,8 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         selectedChainAsset = chainAsset
         utilityChainAsset = chainAsset.chain.utilityChainAssets().first
 
+        provideInputViewModel?()
+        provideAssetViewModel?()
         provideRecipientViewModel?()
         provideNetworkViewModel?()
 
@@ -87,7 +89,8 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         case .all:
             guard
                 let selectedChainAsset,
-                let availableInputBalance
+                let availableBalance,
+                let sendAmount = amount()
             else {
                 throw TransferFlowUseCaseError.getValidatorsError
             }
@@ -96,21 +99,20 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
                 ? .utility(balance: utilityBalance)
                 : .orml(balance: availableBalance, utilityBalance: utilityBalance)
 
-            let sendAmount = inputResult?.absoluteValue(from: availableInputBalance)
-
+            let feeAndTip: Decimal = [fee, tip].compactMap { $0 }.reduce(0.0, +)
             let validators = [
                 dataValidatingFactory.has(
                     fee: fee,
                     locale: locale
                 ) { [weak self] in
-                    guard let transfer = self?.transfer else {
+                    guard let transfer = self?.getTransfer() else {
                         return
                     }
                     self?.refreshFee(for: transfer)
                 },
                 dataValidatingFactory.canPayFeeAndAmount(
                     balanceType: balanceType,
-                    feeAndTip: .zero,
+                    feeAndTip: feeAndTip,
                     sendAmount: sendAmount,
                     locale: locale
                 )
@@ -119,36 +121,7 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         }
     }
 
-    // MARK: - Private methods
-
-    private func calcFee() {
-        guard
-            let transfer = buildTonTransfer(),
-            let selectedChainAsset,
-            let utilityChainAsset
-        else {
-            return
-        }
-        provideFeeViewModel?()
-        Task { [weak self] in
-            guard let self else { return }
-            let stream = await self.interactor.estimateFee(
-                transfer: transfer,
-                chainAsset: selectedChainAsset
-            )
-            let precision = Int16(utilityChainAsset.asset.precision)
-            do {
-                for try await fee in stream {
-                    self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
-                    self.provideFeeViewModel?()
-                }
-            } catch {
-                logger.customError(error)
-            }
-        }
-    }
-
-    private func buildTonTransfer() -> TransferType? {
+    func getTransfer() -> TransferType? {
         guard
             let availableInputBalance,
             let selectedChainAsset,
@@ -158,7 +131,6 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
             let recipientAddress = getRecipientAddress(),
             let contract = wallet.ecosystem.tonWalletContract()
         else {
-            transfer = nil
             return nil
         }
 
@@ -187,8 +159,58 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
             comment: comment
         )
         let transfer = TransferType.ton(tonTransfer)
-        self.transfer = transfer
         return transfer
+    }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
+    }
+
+    // MARK: - Private methods
+
+    private func calcFee() {
+        guard
+            let transfer = getTransfer(),
+            let selectedChainAsset,
+            let utilityChainAsset,
+            let amount = amount(),
+            amount > 0
+        else {
+            return
+        }
+        
+        if let balance = utilityBalance, balance < 0.005 {
+            onFeeEstimationFailure?(ConvenienceError(error: "Your account is inactive. Top up your balance to calculate the fee."))
+            return
+
+        }
+        provideFeeViewModel?()
+        Task { [weak self] in
+            guard let self else { return }
+            let stream = await self.interactor.estimateFee(
+                transfer: transfer,
+                chainAsset: selectedChainAsset
+            )
+            let precision = Int16(utilityChainAsset.asset.precision)
+            let shouldUpdateInputViewModel = inputResult?.needsUpdateInputAfterChange == true
+
+            do {
+                for try await fee in stream {
+                    self.fee = (Decimal.fromSubstrateAmount(fee, precision: precision)).flatMap {
+                        return $0 * 1.1
+                    }
+                    
+                    self.provideFeeViewModel?()
+
+                    if shouldUpdateInputViewModel {
+                        self.provideInputViewModel?()
+                    }
+                }
+            } catch {
+                logger.customError(error)
+                onFeeEstimationFailure?(error)
+            }
+        }
     }
 
     private func getRecipientAddress() -> RecipientAddress? {
@@ -212,7 +234,6 @@ final class TonTransferFlowUseCase: TransferFlowUseCase {
         }
 
         async let balancesTask = try await interactor.fetchAccountInfos(for: chainAsset)
-
         let chainAssetBalance = await balance(
             for: chainAsset,
             accountId: accountId,

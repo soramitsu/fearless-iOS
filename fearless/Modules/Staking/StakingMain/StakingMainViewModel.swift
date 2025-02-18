@@ -7,4 +7,5 @@ struct StakingMainViewModel {
     let assetName: String
     let assetIcon: ImageViewModelProtocol?
     let balanceViewModel: LocalizableResource<String>?
+    let walletIcon: UIImage
 }

@@ -197,7 +197,7 @@ public struct AccountEventAction: Codable {
     }
 }
 
-enum AccountEventStatus: Codable {
+enum AccountEventStatus: Codable, Equatable {
     case ok
     case failed
     case unknown(String)

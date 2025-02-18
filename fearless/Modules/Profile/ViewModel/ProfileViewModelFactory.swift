@@ -20,7 +20,6 @@ enum ProfileOption: UInt, CaseIterable {
     case walletConnect
     case soraCard
     case accountList
-    case crowdloans
     case currency
     case language
     case polkaswapDisclaimer
@@ -136,11 +135,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .walletConnect:
-                guard ecosystem.isRegular else {
-                    return nil
-                }
-
-                return createWalletConnectViewModel(locale: locale)
+                return createWalletConnectViewModel(ecosystem: ecosystem)
             case .accountList:
                 let missingEthAccount: Bool
                 switch ecosystem {
@@ -175,13 +170,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 }
 
                 return createAccountScoreViewModel(locale: locale)
-            case .crowdloans:
-                switch ecosystem {
-                case .regular:
-                    return createCrowdloans(for: locale)
-                default:
-                    return nil
-                }
             case .soraCard:
                 return createSoraCardViewModel(for: locale)
             }
@@ -190,9 +178,16 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         return optionViewModels
     }
 
-    private func createWalletConnectViewModel(locale _: Locale) -> ProfileOptionViewModel {
-        ProfileOptionViewModel(
-            title: "Wallet connect",
+    private func createWalletConnectViewModel(ecosystem: WalletEcosystem) -> ProfileOptionViewModel {
+        let title: String
+        switch ecosystem {
+        case .regular:
+            title = "Wallet connect"
+        case .ton:
+            title = "Ton connect"
+        }
+        return ProfileOptionViewModel(
+            title: title,
             icon: R.image.iconWalletConnect(),
             accessoryTitle: nil,
             accessoryImage: nil,
@@ -264,19 +259,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryImage: nil,
             accessoryType: .arrow,
             option: .changePincode
-        )
-    }
-
-    private func createCrowdloans(for locale: Locale) -> ProfileOptionViewModel {
-        let title = R.string.localizable
-            .tabbarCrowdloanTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(
-            title: title,
-            icon: R.image.crowdloansProfileIcon()!,
-            accessoryTitle: nil,
-            accessoryImage: nil,
-            accessoryType: .arrow,
-            option: .crowdloans
         )
     }
 

@@ -26,7 +26,6 @@ enum TransferValidationCase {
 protocol TransferFlowUseCase: AnyObject {
     var interactor: TransferInteractorInput { get }
     var implType: TransferFlowDirectionImpl { get }
-    var transfer: TransferType? { get set }
 
     var selectedChainAsset: ChainAsset? { get set }
     var utilityChainAsset: ChainAsset? { get set }
@@ -55,6 +54,7 @@ protocol TransferFlowUseCase: AnyObject {
     var provideInputViewModel: (() -> Void)? { get set }
     var provideTipViewModel: (() -> Void)? { get set }
     var provideFeeViewModel: (() -> Void)? { get set }
+    var onFeeEstimationFailure: ((Error) -> Void)? { get set }
 
     func handle(initialData: SendFlowInitialData) async throws
     func reset() async
@@ -64,19 +64,38 @@ protocol TransferFlowUseCase: AnyObject {
         validationCase: TransferValidationCase,
         locale: Locale
     ) throws -> [DataValidating]
+    func getTransfer() -> TransferType?
+    func checkAccountIsActive() async -> Bool
 }
 
 extension TransferFlowUseCase {
     func amount() -> Decimal? {
-        guard let availableInputBalance else {
-            return nil
+        let sendAvailableBalance = availableBalance.flatMap { availableInputBalance in
+            guard selectedChainAsset?.isUtility == true else {
+                return availableInputBalance
+            }
+            
+            var balance = availableInputBalance
+            if let fee = fee {
+                balance -= fee
+            }
+            if let tip = tip {
+                balance -= tip
+            }
+            
+            return balance
         }
-        let amount = inputResult?.absoluteValue(from: availableInputBalance)
+        
+        
+        guard let sendAvailableBalance else {
+            return inputResult?.absoluteValue(from: .zero)
+        }
+        
+        let amount = inputResult?.absoluteValue(from: sendAvailableBalance)
         return amount
     }
 
     func reset() async {
-        transfer = nil
         selectedChainAsset = nil
         utilityChainAsset = nil
         inputResult = nil
@@ -145,22 +164,36 @@ extension TransferFlowUseCase {
         guard
             let selectedChainAsset,
             let transfer,
-            let utilityChainAsset
+            let utilityChainAsset,
+            let amount = amount(),
+            amount > 0.0
         else {
             return
         }
+        let shouldUpdateInputViewModel = inputResult?.needsUpdateInputAfterChange == true
         provideFeeViewModel?()
+        
         Task { [weak self] in
             guard let self else { return }
-            let stream = await self.interactor.estimateFee(
-                transfer: transfer,
-                chainAsset: selectedChainAsset
-            )
-            for try await fee in stream {
-                let precision = Int16(utilityChainAsset.asset.precision)
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
-                self.provideFeeViewModel?()
-                await calcAvailableInputBalance()
+            do {
+                let stream = await self.interactor.estimateFee(
+                    transfer: transfer,
+                    chainAsset: selectedChainAsset
+                )
+                for try await fee in stream {
+                    let precision = Int16(utilityChainAsset.asset.precision)
+                    self.fee = Decimal.fromSubstrateAmount(fee, precision: precision).flatMap {
+                        $0 * 1.1
+                    }
+                    self.provideFeeViewModel?()
+                    
+                    if shouldUpdateInputViewModel {
+                        self.provideInputViewModel?()
+                    }
+                    await calcAvailableInputBalance()
+                }
+            } catch {
+                onFeeEstimationFailure?(error)
             }
         }
     }
@@ -173,7 +206,6 @@ extension TransferFlowUseCase {
             let inputAmount = inputResult?.absoluteValue(from: availableInputBalance),
             let amount = inputAmount.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
         else {
-            transfer = nil
             return nil
         }
         let tip = tip?.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
@@ -183,7 +215,6 @@ extension TransferFlowUseCase {
             tip: tip
         )
         let transfer = TransferType.substrate(subtrateTransfer)
-        self.transfer = transfer
         return transfer
     }
 
@@ -200,6 +231,5 @@ extension TransferFlowUseCase {
         } else {
             availableInputBalance = availableBalance
         }
-        provideInputViewModel?()
     }
 }

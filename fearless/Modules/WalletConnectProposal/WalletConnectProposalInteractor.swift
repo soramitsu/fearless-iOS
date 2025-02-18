@@ -18,19 +18,22 @@ final class WalletConnectProposalInteractor {
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
     private let tonConnectService: TonConnectService
+    private let eventCenter: EventCenterProtocol
 
     init(
         walletConnect: WalletConnectService,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainRepository: AnyDataProviderRepository<ChainModel>,
         operationQueue: OperationQueue,
-        tonConnectService: TonConnectService
+        tonConnectService: TonConnectService,
+        eventCenter: EventCenterProtocol
     ) {
         self.walletConnect = walletConnect
         self.walletRepository = walletRepository
         self.chainRepository = chainRepository
         self.operationQueue = operationQueue
         self.tonConnectService = tonConnectService
+        self.eventCenter = eventCenter
     }
 
     // MARK: - Private methods
@@ -65,6 +68,10 @@ final class WalletConnectProposalInteractor {
 // MARK: - WalletConnectProposalInteractorInput
 
 extension WalletConnectProposalInteractor: WalletConnectProposalInteractorInput {
+    func disconnect(app: TonConnectApp) async {
+        await tonConnectService.saveDisconnected(app: app)
+    }
+    
     func setup(with output: WalletConnectProposalInteractorOutput) {
         self.output = output
         fetchWallets()
@@ -91,5 +98,6 @@ extension WalletConnectProposalInteractor: WalletConnectProposalInteractorInput 
             params: params,
             manifest: manifest
         )
+        eventCenter.notify(with: TonConnectEstablished())
     }
 }

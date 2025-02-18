@@ -51,6 +51,12 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
                 icon: model.chain.icon.map { RemoteImageViewModel(url: $0) }
             )
             view.bindUniqueChain(viewModel: uniqueChainModel)
+        case .ethereum(wallet: let wallet, chains: let chains):
+            let selectableViewModel = SelectableViewModel(
+                underlyingViewModel: viewModel,
+                selectable: false
+            )
+            view.bindUsername(viewModel: selectableViewModel)
         }
         self.view = view
     }

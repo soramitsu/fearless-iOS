@@ -6,7 +6,7 @@ typealias WalletConnectActiveSessionsModuleCreationResult = (
 
 protocol WalletConnectActiveSessionsRouterInput: PresentDismissable, SheetAlertPresentable, ErrorPresentable {
     func showSession(
-        _ session: Session,
+        _ action: ActionConnect,
         view: ControllerBackedProtocol?
     )
     func showScaner(

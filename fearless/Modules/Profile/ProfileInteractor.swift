@@ -136,6 +136,14 @@ extension ProfileInteractor: EventVisitorProtocol {
     func processWalletNameChanged(event: WalletNameChanged) {
         updateWallet(event.wallet)
     }
+
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        provideUserSettings()
+    }
+    
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        provideUserSettings()
+    }
 }
 
 extension ProfileInteractor: WalletBalanceSubscriptionListener {

@@ -3,14 +3,22 @@ import SoraFoundation
 
 final class WalletConnectActiveSessionsAssembly {
     static func configureModule() -> WalletConnectActiveSessionsModuleCreationResult? {
+        guard let wallet = SelectedWalletSettings.shared.value else {
+            return nil
+        }
         let localizationManager = LocalizationManager.shared
 
         let interactor = WalletConnectActiveSessionsInteractor(
-            walletConnectService: WalletConnectServiceImpl.shared
+            wallet: wallet,
+            walletConnectService: WalletConnectServiceImpl.shared,
+            appRepository: ServiceAssembly.shared.tonConnectAppAsyncRepository(),
+            tonConnectService: ServiceAssembly.shared.tonConnectService(),
+            eventCenter: ServiceAssembly.shared.eventCenter
         )
         let router = WalletConnectActiveSessionsRouter()
 
         let presenter = WalletConnectActiveSessionsPresenter(
+            wallet: wallet,
             viewModelFactory: WalletConnectActiveSessionsViewModelFactoryImpl(),
             interactor: interactor,
             router: router,

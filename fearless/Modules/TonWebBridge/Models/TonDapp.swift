@@ -7,7 +7,7 @@ struct TonDapp: Codable, Equatable, Identifiable {
     let name: String
     let description: String?
     let icon: URL
-    let poster: URL?
+    let background: URL?
     let url: URL
 
     enum CodingKeys: CodingKey {
@@ -16,7 +16,7 @@ struct TonDapp: Codable, Equatable, Identifiable {
         case name
         case description
         case icon
-        case poster
+        case background
         case url
     }
 }

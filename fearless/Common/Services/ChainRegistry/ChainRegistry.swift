@@ -195,13 +195,13 @@ final class ChainRegistry {
             return
         }
 
-        let connection = try substrateConnectionPool.setupConnection(for: newChain)
         let chainTypes = chainsTypesMap[newChain.chainId]
-
         runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
+        
+        let connection = try substrateConnectionPool.setupConnection(for: newChain)
         runtimeSyncService.register(chain: newChain, with: connection)
         setupRuntimeVersionSubscription(for: newChain, connection: connection)
-
+        
         chains.append(newChain)
     }
 
@@ -211,11 +211,11 @@ final class ChainRegistry {
         }
 
         clearRuntimeSubscription(for: updatedChain.chainId)
-
-        let connection = try substrateConnectionPool.setupConnection(for: updatedChain)
         let chainTypes = chainsTypesMap[updatedChain.chainId]
 
         runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
+        
+        let connection = try substrateConnectionPool.setupConnection(for: updatedChain)
         setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
         chains = chains.filter { $0.chainId != updatedChain.chainId }
@@ -276,17 +276,22 @@ final class ChainRegistry {
     private func handle(ton chain: ChainModel) {
         chains = chains.filter { $0.chainId != chain.chainId }
         chains.append(chain)
-//#if DEBUG
-        let token = TonNodeApiKeyDebug.tonApiKey
-//#else
-//        let token = TonNodeApiKey.tonApiKey
-//#endif
+
+//        #if DEBUG
+            let token = TonNodeApiKeyDebug.tonApiKey
+//        #else
+//            let token = TonNodeApiKey.tonApiKey
+//        #endif
+        guard let tonBridgeURL = chain.tonBridgeUrl else {
+            logger?.error("Missing tonBridgeURL")
+            return
+        }
         let isTesnet = LocalToggleService.shared.tonEnvListToggle.storageValue
         if chain.options.or([]).contains(.testnet), isTesnet, let node = chain.nodes.first {
-            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token)
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
             tonApiAssembly = apiAssembly
         } else if !chain.options.or([]).contains(.testnet), !isTesnet, let node = chain.nodes.first {
-            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token)
+            let apiAssembly = TonAPIAssembly(tonAPIURL: node.url, token: token, tonBridgeURL: tonBridgeURL)
             tonApiAssembly = apiAssembly
         }
     }
@@ -493,6 +498,7 @@ extension ChainRegistry: SSFChainRegistry.ChainRegistryProtocol {
         guard let substrateConnectionPool = self.substrateConnectionPool else {
             throw ChainRegistryError.connectionUnavailable
         }
+
         let connection = try substrateConnectionPool.setupConnection(for: chain)
         return connection
     }

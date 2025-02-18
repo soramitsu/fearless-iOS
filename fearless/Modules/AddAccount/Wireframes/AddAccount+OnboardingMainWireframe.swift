@@ -3,6 +3,17 @@ import SSFCloudStorage
 
 extension AddAccount {
     final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
+        func didCompleteCreate(from view: ControllerBackedProtocol?) {
+            guard let navigationController = view?.controller.navigationController else {
+                return
+            }
+
+            MainTransitionHelper.transitToMainTabBarController(
+                closing: navigationController,
+                animated: true
+            )
+        }
+        
         func showPreinstalledFlow(from view: ControllerBackedProtocol?) {
             let module = GetPreinstalledWalletAssembly.configureModuleForNewUser()
 

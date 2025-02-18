@@ -6,9 +6,9 @@ PODS:
   - CocoaLumberjack (3.8.5):
     - CocoaLumberjack/Core (= 3.8.5)
   - CocoaLumberjack/Core (3.8.5)
-  - Cuckoo (2.0.13):
-    - Cuckoo/Swift (= 2.0.13)
-  - Cuckoo/Swift (2.0.13)
+  - Cuckoo (2.0.11):
+    - Cuckoo/Swift (= 2.0.11)
+  - Cuckoo/Swift (2.0.11)
   - FearlessKeys (0.1.4)
   - FireMock (3.1)
   - IdensicMobileSDK (1.33.1)
@@ -101,7 +101,7 @@ DEPENDENCIES:
   - Cuckoo
   - FearlessKeys (= 0.1.4)
   - FireMock
-  - "IdensicMobileSDK (from `{http: \"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz\"}`)"
+  - "IdensicMobileSDK (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.2.8.tar.gz\"}`)"
   - Kingfisher (= 7.10.2)
   - MediaView (from `https://github.com/bnsports/MediaView.git`, branch `dev`)
   - R.swift (= 6.1.0)
@@ -180,7 +180,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: 6a459bc897d6d80bd1b8c78482ec7ad05dffc3f0
-  Cuckoo: ccd19173b7f967425e99c0e156a682fe03ba8d88
+  Cuckoo: 36c35350217c076cc5d59bd2ca5c5b3d17fd29e1
   FearlessKeys: 5ec2782533624d237c899677a8c10859fbbc6668
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IdensicMobileSDK: 17ea7880e6b29440944bc7c02d1a6937fec60337
@@ -194,7 +194,7 @@ SPEC CHECKSUMS:
   ReachabilitySwift: 32793e867593cfc1177f5d16491e3a197d2fccda
   RecaptchaEnterprise: 9b60bc1e1633d120e24a098d80546776fab1282e
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
-  SCard: 6075ad5169cc002dc83ec431dd0b62a0c749fbe0
+  SCard: 53512133252a31ccfe36113e34c694190287a83e
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
@@ -209,4 +209,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 30880a3848267e912ab7171173055109f4448512
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.12.1

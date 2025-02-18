@@ -10,7 +10,6 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
 
     let interactor: TransferInteractorInput
     let implType: TransferFlowDirectionImpl = .ethereum
-    var transfer: TransferType?
 
     var selectedChainAsset: ChainAsset?
     var utilityChainAsset: ChainAsset?
@@ -48,7 +47,8 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     init(
         wallet: MetaAccountModel,
         dataValidatingFactory: SendDataValidatingFactory,
@@ -102,7 +102,7 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
                     fee: fee,
                     locale: locale
                 ) { [weak self] in
-                    guard let transfer = self?.transfer else {
+                    guard let transfer = self?.getTransfer() else {
                         return
                     }
                     self?.refreshFee(for: transfer)
@@ -118,16 +118,7 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
         }
     }
 
-    // MARK: - Private methods
-
-    private func calcFee() {
-        guard let transfer = buildEthereumTransfer() else {
-            return
-        }
-        refreshFee(for: transfer)
-    }
-
-    private func buildEthereumTransfer() -> TransferType? {
+    func getTransfer() -> TransferType? {
         guard
             let availableInputBalance,
             let selectedChainAsset,
@@ -135,7 +126,6 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
             let inputAmount = inputResult?.absoluteValue(from: availableInputBalance),
             let amount = inputAmount.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
         else {
-            transfer = nil
             return nil
         }
 
@@ -144,8 +134,20 @@ final class EthereumTransferFlowUseCase: TransferFlowUseCase {
             receiver: recipientAddress
         )
         let transfer = TransferType.ethereum(ethereumTransfer)
-        self.transfer = transfer
         return transfer
+    }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
+    }
+
+    // MARK: - Private methods
+
+    private func calcFee() {
+        guard let transfer = getTransfer() else {
+            return
+        }
+        refreshFee(for: transfer)
     }
 
     private func fetchRequiredInfo(for chainAsset: ChainAsset) async throws {

@@ -5,7 +5,11 @@ typealias ConnectedAccountsModuleCreationResult = (
     input: ConnectedAccountsModuleInput
 )
 
-protocol ConnectedAccountsRouterInput: AnyDismissable, AuthorizationPresentable, AccountScorePresentable {
+protocol ConnectedAccountsRouterInput: 
+    AnyDismissable,
+    AuthorizationPresentable,
+    AccountScorePresentable,
+    SheetAlertPresentable {
     func showAccountDetails(
         from view: ControllerBackedProtocol?,
         metaAccount: MetaAccountModel
@@ -33,6 +37,22 @@ protocol ConnectedAccountsRouterInput: AnyDismissable, AuthorizationPresentable,
     )
     func showSeedExport(
         flow: ExportFlow,
+        from view: ControllerBackedProtocol?
+    )
+    func showUniqueChainSourceSelection(
+        from view: ControllerBackedProtocol?,
+        items: [ReplaceChainOption],
+        callback: @escaping ModalPickerSelectionCallback
+    )
+    func showCreate(
+        wallet: MetaAccountModel,
+        chains: [ChainModel],
+        from view: ControllerBackedProtocol?
+    )
+    func showImport(
+        wallet: MetaAccountModel,
+        chains: [ChainModel],
+        defaultSource: AccountImportSource,
         from view: ControllerBackedProtocol?
     )
 }

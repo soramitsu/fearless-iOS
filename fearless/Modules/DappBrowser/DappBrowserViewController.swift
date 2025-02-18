@@ -121,6 +121,7 @@ extension DappBrowserViewController: DappBrowserViewInput {
     }
 
     func didReceive(viewModel: DappBrowsetNetworkFilterViewModel?) {
+        rootView.selectNetworkButton.applySelectableStyle(false)
         rootView.selectNetworkButton.isHidden = viewModel == nil
         guard let viewModel else {
             return
@@ -215,7 +216,7 @@ extension DappBrowserViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch viewModel[indexPath.section] {
         case .featured:
-            return 170
+            return UIScreen.width / 3.4
         case .section:
             return 64
         }

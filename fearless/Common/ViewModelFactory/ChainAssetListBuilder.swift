@@ -356,13 +356,25 @@ extension ChainAssetListBuilder {
         chainAssets: [ChainAsset],
         for wallet: MetaAccountModel
     ) -> [ChainAsset] {
-        let enabledAssetIds: [String] = wallet.assetsVisibility
-            .filter { !$0.hidden }
-            .map { $0.assetId }
-        let enabled = chainAssets.filter {
-            enabledAssetIds.contains($0.identifier)
+        switch wallet.ecosystem {
+        case .regular:
+            let enabledAssetIds: [String] = wallet.assetsVisibility
+                .filter { !$0.hidden }
+                .map { $0.assetId }
+            let enabled = chainAssets.filter {
+                enabledAssetIds.contains($0.identifier)
+            }
+            return enabled
+        case .ton:
+            let tonChainAssets = chainAssets.filter { chainAsset in
+                if let assetVisibility = wallet.assetsVisibility.first(where: { $0.assetId == chainAsset.identifier }) {
+                    return !assetVisibility.hidden
+                } else {
+                    return true
+                }
+            }
+            return tonChainAssets
         }
-        return enabled
     }
 
     func defaultByPopular(chainAssets: [ChainAsset]) -> [ChainAsset] {

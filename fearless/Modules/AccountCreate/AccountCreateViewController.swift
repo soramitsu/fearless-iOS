@@ -76,7 +76,7 @@ private extension AccountCreateViewController {
         )
         navigationItem.rightBarButtonItem = infoItem
         switch presenter.flow {
-        case .wallet, .chain:
+        case .wallet, .chain, .ethereum:
             title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
         case .backup:
             title = R.string.localizable.backupMnemonicTitle(preferredLanguages: locale.rLanguages)

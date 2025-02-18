@@ -102,103 +102,153 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.accountInfoFetchingProvider = accountInfoFetchingProvider
         eventCenter.add(observer: self)
 
-        fetchInitialData()
+        Task {
+            fetchInitialData()
+        }
+    }
+    
+    private func addListener(_ listener: WeakWrapper) async {
+        listeners.append(listener)
+    }
+    
+    private func removeListener(_ listener: WalletBalanceSubscriptionListener) async {
+        listeners = listeners.filter {
+            if let target = $0.target as? WalletBalanceSubscriptionListener {
+                return target !== listener
+            }
+            return true
+        }
+    }
+    
+    private func saveAccountInfoAdapters(_ accountInfosAdapters: [String: AccountInfoSubscriptionAdapter]) async {
+        self.accountInfosAdapters = accountInfosAdapters
+    }
+    
+    private func saveWallets(_ wallets: [MetaAccountModel]) async {
+        self.wallets = wallets
+    }
+    
+    private func saveChainAssets(_ chainAssets: [ChainAsset]) async {
+        self.chainAssets = chainAssets
+    }
+    
+    private func saveAccountInfos(accountInfos: [ChainAssetKey: AccountInfo?]) async {
+        self.accountInfos = accountInfos
     }
 
     // MARK: - Public methods
 
-    func subscribeWalletBalance(
+    nonisolated func subscribeWalletBalance(
         wallet: MetaAccountModel,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        updateWalletsIfNeeded(with: wallet)
-        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: chainAssets)
+
+            let weakListener = WeakWrapper(target: listener)
+            Task {
+                await addListener(weakListener)
+            }
+            
+            updateWalletsIfNeeded(with: wallet)
+            if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
-    func subscribeWalletsBalances(
+    nonisolated func subscribeWalletsBalances(
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        if let balances = buildBalance(for: wallets, chainAssets: chainAssets) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            try await updateLocalBalances(wallets: wallets, chainAssets: chainAssets)
+
+            let weakListener = WeakWrapper(target: listener)
+            Task {
+                await addListener(weakListener)
+            }
+            if let balances = buildBalance(for: wallets, chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
-    func subscribeChainAssetBalance(
+    nonisolated func subscribeChainAssetBalance(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
-            notify(listener: listener, result: .success(balances))
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: [chainAsset])
+
+            let weakListener = WeakWrapper(target: listener)
+            Task {
+                await addListener(weakListener)
+            }
+            if let balances = buildBalance(for: [wallet], chainAssets: [chainAsset]) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
-    func subscribeChainAssetsBalance(
+    nonisolated func subscribeChainAssetsBalance(
         chainAssets: [ChainAsset],
         wallet: MetaAccountModel,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: chainAssets)
 
-        if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
-            notify(listener: listener, result: .success(balances))
+            let weakListener = WeakWrapper(target: listener)
+            Task {
+                await addListener(weakListener)
+            }
+
+            if let balances = buildBalance(for: [wallet], chainAssets: chainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
-    func subscribeNetworkManagementBalance(
+    nonisolated func subscribeNetworkManagementBalance(
         wallet: MetaAccountModel,
         listener: WalletBalanceSubscriptionListener
     ) {
-        let weakListener = WeakWrapper(target: listener)
-        listenersLock.exclusivelyWrite { [weak self] in
-            self?.listeners.append(weakListener)
-        }
-        updateWalletsIfNeeded(with: wallet)
-        let selectedChainAssets = filterChainAssets(
-            with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
-            chainAssets: chainAssets,
-            wallet: wallet,
-            search: nil
-        )
+        Task {
+            try await updateLocalBalances(wallets: [wallet], chainAssets: chainAssets)
 
-        if let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
-            notify(listener: listener, result: .success(balances))
+            let weakListener = WeakWrapper(target: listener)
+            Task {
+                await addListener(weakListener)
+            }
+            updateWalletsIfNeeded(with: wallet)
+            let selectedChainAssets = filterChainAssets(
+                with: NetworkManagmentFilter(identifier: wallet.networkManagmentFilter),
+                chainAssets: chainAssets,
+                wallet: wallet,
+                search: nil
+            )
+
+            if let balances = buildBalance(for: [wallet], chainAssets: selectedChainAssets) {
+                notify(listener: listener, result: .success(balances))
+            }
         }
     }
 
-    func unsubscribe(listener: WalletBalanceSubscriptionListener) {
-        listenersLock.exclusivelyWrite { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
-
-            strongSelf.listeners = strongSelf.listeners.filter {
-                if let target = $0.target as? WalletBalanceSubscriptionListener {
-                    return target !== listener
-                }
-                return true
-            }
+    nonisolated func unsubscribe(listener: WalletBalanceSubscriptionListener) {
+        Task {
+            await removeListener(listener)
         }
     }
 
     // MARK: - Private methods
+
+    private func updateLocalBalances(wallets: [MetaAccountModel], chainAssets: [ChainAsset]) async throws {
+        let accountInfos = try await fetchAccountInfos(wallets: wallets, chainAssets: chainAssets)
+        self.accountInfos = self.accountInfos.merging(accountInfos, uniquingKeysWith: { _, new in
+            new
+        })
+    }
 
     private func buildBalance(for wallets: [MetaAccountModel], chainAssets: [ChainAsset]) -> WalletBalanceInfos? {
         let walletBalances = walletBalanceBuilder.buildBalance(
@@ -245,20 +295,15 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         wallets: [MetaAccountModel],
         chainAssets: [ChainAsset]
     ) async throws -> [ChainAssetKey: AccountInfo?] {
-        let accountInfos = try await withThrowingTaskGroup(of: [ChainAssetKey: AccountInfo?].self) { group in
-            wallets.forEach { wallet in
-                group.addTask {
-                    try await self.accountInfoFetchingProvider.fetchByUniqKey(for: chainAssets, wallet: wallet)
-                }
+        let accountInfos = try await wallets.concurrentMap { wallet in
+            do {
+                return try await self.accountInfoFetchingProvider.fetchByUniqKey(for: chainAssets, wallet: wallet)
+            } catch {
+                return [:]
             }
-
-            var result = [ChainAssetKey: AccountInfo?]()
-            for try await accountInfos in group {
-                result.merge(accountInfos) { _, new in new }
-            }
-            return result
         }
-        return accountInfos
+        let result = Dictionary(accountInfos.flatMap { $0 }, uniquingKeysWith: { _, last in last })
+        return result
     }
 
     private func subscribeToAccountInfo(
@@ -371,12 +416,19 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 // MARK: - EventVisitorProtocol
 
 extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
            let wallet = wallets[safe: index] {
             if wallet.selectedCurrency != event.account.selectedCurrency {
                 wallets[index] = event.account
             }
+        }
+    }
+        
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        if let index = wallets.firstIndex(where: { $0.metaId == event.account.metaId }),
+           let wallet = wallets[safe: index] {
+    
             if wallet.networkManagmentFilter != event.account.networkManagmentFilter {
                 wallets[index] = event.account
                 buildAndNotifyIfNeeded(with: [wallet.metaId], updatedChainAssets: chainAssets)

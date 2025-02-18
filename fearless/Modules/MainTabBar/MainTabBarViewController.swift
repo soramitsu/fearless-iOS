@@ -20,7 +20,7 @@ final class MainTabBarViewController: UITabBarController {
         self.eventCenter = eventCenter
         self.fullViewControllersList = viewControllers
         self.wallet = wallet
-        
+
         super.init(nibName: nil, bundle: nil)
 
         self.viewControllers = viewControllers
@@ -35,7 +35,7 @@ final class MainTabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         delegate = self
-        
+
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 
@@ -43,20 +43,19 @@ final class MainTabBarViewController: UITabBarController {
         super.viewDidAppear(animated)
 
         if !viewAppeared {
+            update(with: wallet)
             viewAppeared = true
             presenter.didLoad(view: self)
         }
 
         let tabBar = TabBar(frame: tabBar.frame)
+        tabBar.setup(for: wallet.ecosystem)
         tabBar.middleButton.addAction { [weak self] in
             self?.presenter.presentPolkaswap()
         }
         setValue(tabBar, forKey: "tabBar")
 
         applyLocalization()
-        
-        update(with: wallet)
-
     }
 
     private func openTab<T: UIViewController>(vcClass _: T.Type) -> Bool {
@@ -83,19 +82,21 @@ final class MainTabBarViewController: UITabBarController {
     private func wrappedSelectedViewController() -> UIViewController? {
         selectedViewController?.navigationRootViewController()
     }
-    
+
     private func update(with wallet: MetaAccountModel) {
         if let tabBar = self.tabBar as? TabBar {
             tabBar.setup(for: wallet.ecosystem)
         }
+        let indexes: IndexSet
         switch wallet.ecosystem {
         case .regular:
-            setViewControllers(fullViewControllersList, animated: true)
+            indexes = [0, 2, 3, 4, 5]
         case .ton:
-            let indexes: IndexSet = [0, 1, 4]
-            let tonViewControllers = indexes.map { fullViewControllersList[$0] }
-            setViewControllers(tonViewControllers, animated: true)
+            indexes = [0, 1, 5]
         }
+        let tonViewControllers = indexes.map { fullViewControllersList[$0] }
+        selectedIndex = 0
+        setViewControllers(tonViewControllers, animated: true)
     }
 }
 
@@ -131,6 +132,7 @@ extension MainTabBarViewController: Localizable {
 
 extension MainTabBarViewController: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        self.wallet = event.account
         update(with: event.account)
     }
 }

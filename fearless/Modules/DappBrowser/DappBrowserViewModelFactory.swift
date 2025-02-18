@@ -21,7 +21,8 @@ protocol DappBrowserViewModelFactory {
     func buildNetworkFilterViewModel(
         chains: [ChainModel],
         filter: NetworkManagmentFilter,
-        locale: Locale
+        locale: Locale,
+        wallet: MetaAccountModel
     ) -> DappBrowsetNetworkFilterViewModel?
 }
 
@@ -46,6 +47,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
             )
         case .connected:
             return buildConnectedPageViewModel(
+                wallet: wallet,
                 connected: connected,
                 locale: locale
             )
@@ -55,31 +57,40 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
     func buildNetworkFilterViewModel(
         chains: [ChainModel],
         filter: NetworkManagmentFilter,
-        locale: Locale
+        locale: Locale,
+        wallet: MetaAccountModel
     ) -> DappBrowsetNetworkFilterViewModel? {
-        let selectedFilterName: String
-        let selectedFilterImage: ImageViewModelProtocol?
-        switch filter {
-        case let .chain(id):
-            let selectedChain = chains.first(where: { $0.chainId == id })
-            selectedFilterName = selectedChain?.name ?? ""
-            selectedFilterImage = selectedChain?.icon.map { RemoteImageViewModel(url: $0) }
-        case .all:
-            selectedFilterName = R.string.localizable.chainSelectionAllNetworks(
-                preferredLanguages: locale.rLanguages
+        switch wallet.ecosystem {
+        case .regular:
+            let selectedFilterName: String
+            let selectedFilterImage: ImageViewModelProtocol?
+            switch filter {
+            case let .chain(id):
+                let selectedChain = chains.first(where: { $0.chainId == id })
+                selectedFilterName = selectedChain?.name ?? ""
+                selectedFilterImage = selectedChain?.icon.map { RemoteImageViewModel(url: $0) }
+            case .all:
+                selectedFilterName = R.string.localizable.chainSelectionAllNetworks(
+                    preferredLanguages: locale.rLanguages
+                )
+                selectedFilterImage = filter.filterImage
+            case .popular:
+                selectedFilterName = R.string.localizable.networkManagementPopular(preferredLanguages: locale.rLanguages)
+                selectedFilterImage = filter.filterImage
+            case .favourite:
+                selectedFilterName = R.string.localizable.networkManagmentFavourite(preferredLanguages: locale.rLanguages)
+                selectedFilterImage = filter.filterImage
+            }
+            return DappBrowsetNetworkFilterViewModel(
+                networkName: selectedFilterName,
+                image: selectedFilterImage
             )
-            selectedFilterImage = filter.filterImage
-        case .popular:
-            selectedFilterName = R.string.localizable.networkManagementPopular(preferredLanguages: locale.rLanguages)
-            selectedFilterImage = filter.filterImage
-        case .favourite:
-            selectedFilterName = R.string.localizable.networkManagmentFavourite(preferredLanguages: locale.rLanguages)
-            selectedFilterImage = filter.filterImage
+        case .ton:
+            return DappBrowsetNetworkFilterViewModel(
+                networkName: "Ton Mainnet",
+                image: BundleImageViewModel(image: R.image.tonIcon())
+            )
         }
-        return DappBrowsetNetworkFilterViewModel(
-            networkName: selectedFilterName,
-            image: selectedFilterImage
-        )
     }
 
     // MARK: - Private methods
@@ -136,20 +147,24 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
     }
 
     private func buildConnectedPageViewModel(
+        wallet: MetaAccountModel,
         connected: [TonConnectApp],
         locale: Locale
     ) -> [DappBrowserViewModel] {
         var viewModel: [DappBrowserViewModel] = []
+        let walletApps = connected.filter { $0.walletId == wallet.metaId && $0.connectionType == .js }
 
-        if connected.isNotEmpty {
-            let apps = connected.map {
+        if walletApps.isNotEmpty {
+            let apps = connected
+                .filter { $0.walletId == wallet.metaId }
+                .map {
                 TonDapp(
                     identifier: $0.identifier,
                     chains: ["\(TonConstants.tonChainId)", "\(TonConstants.testnetChainId)"],
                     name: $0.name,
                     description: nil,
                     icon: $0.iconUrl ?? TonConstants.tonIcon,
-                    poster: nil,
+                    background: nil,
                     url: $0.appUrl
                 )
             }
@@ -190,7 +205,7 @@ final class DappBrowserViewModelFactoryImpl: DappBrowserViewModelFactory {
     ) -> DappBrowserViewModel {
         let featured = dapps.map {
             DappBrowserFeaturedViewModel(
-                poster: RemoteImageViewModel(url: $0.poster) ?? BundleImageViewModel(image: R.image.featuredBanner()),
+                poster: RemoteImageViewModel(url: $0.background) ?? BundleImageViewModel(image: R.image.featuredBanner()),
                 icon: RemoteImageViewModel(url: $0.icon),
                 dappName: $0.name,
                 dappDescription: $0.description ?? "",

@@ -121,42 +121,43 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
         importAccountUsingOperation(operation)
     }
 
-    func importUniqueChain(request: UniqueChainImportRequest) {
+    func importUniqueChain(
+        source: UniqueChainImportRequestSource,
+        wallet: MetaAccountModel,
+        request: UniqueChainImportRequest
+    ) {
         let operation: BaseOperation<MetaAccountModel>
-        switch request.source {
+        switch source {
         case let .mnemonic(data):
-            let request = ChainAccountImportMnemonicRequest(
+            let mnemonicRequest = ChainAccountImportMnemonicRequest(
+                wallet: wallet,
                 mnemonic: data.mnemonic,
                 username: request.username,
                 derivationPath: data.derivationPath,
                 cryptoType: request.cryptoType,
-                ecosystem: request.chain.ecosystem,
-                meta: request.meta,
-                chainId: request.chain.chainId
+                chains: request.chains
             )
-            operation = accountOperationFactory.importChainAccountOperation(request: request)
+            operation = accountOperationFactory.importChainAccountOperation(request: mnemonicRequest)
         case let .seed(data):
-            let request = ChainAccountImportSeedRequest(
+            let seedRequest = ChainAccountImportSeedRequest(
+                wallet: wallet,
                 seed: data.seed,
                 username: request.username,
                 derivationPath: data.derivationPath,
                 cryptoType: request.cryptoType,
-                ecosystem: request.chain.ecosystem,
-                meta: request.meta,
-                chainId: request.chain.chainId
+                chains: request.chains
             )
-            operation = accountOperationFactory.importChainAccountOperation(request: request)
+            operation = accountOperationFactory.importChainAccountOperation(request: seedRequest)
         case let .keystore(data):
-            let request = ChainAccountImportKeystoreRequest(
+            let keystoreRequest = ChainAccountImportKeystoreRequest(
+                wallet: wallet,
                 keystore: data.keystore,
                 password: data.password,
                 username: request.username,
                 cryptoType: request.cryptoType,
-                ecosystem: request.chain.ecosystem,
-                meta: request.meta,
-                chainId: request.chain.chainId
+                chains: request.chains
             )
-            operation = accountOperationFactory.importChainAccountOperation(request: request)
+            operation = accountOperationFactory.importChainAccountOperation(request: keystoreRequest)
         }
         importAccountUsingOperation(operation)
     }

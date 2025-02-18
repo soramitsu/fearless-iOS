@@ -14,7 +14,7 @@ final class WalletOptionRouter: WalletOptionRouterInput {
     }
 
     func showWalletDetails(from view: ControllerBackedProtocol?, for wallet: MetaAccountModel) {
-        guard let module = ConnectedAccountsAssembly.configureModule() else {
+        guard let module = ConnectedAccountsAssembly.configureModule(wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(

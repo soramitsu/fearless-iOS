@@ -3,7 +3,7 @@ import UIKit
 final class DappBrowserFeaturedCell: UICollectionViewCell {
     let posterImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFill
+        imageView.contentMode = .scaleToFill
         imageView.clipsToBounds = true
         return imageView
     }()
@@ -40,21 +40,23 @@ final class DappBrowserFeaturedCell: UICollectionViewCell {
     override func layoutSubviews() {
         super.layoutSubviews()
         iconViewImage.layer.cornerRadius = 8
-        posterImageView.layer.cornerRadius = 15
     }
 
     override func prepareForReuse() {
         super.prepareForReuse()
         posterImageView.kf.cancelDownloadTask()
         posterImageView.image = nil
+        iconViewImage.kf.cancelDownloadTask()
+        iconViewImage.image = nil
     }
 
     func configure(model: DappBrowserFeaturedViewModel) {
         model.poster.loadImage(
             on: posterImageView,
-            placholder: R.image.featuredBanner(),
             targetSize: bounds.size,
-            animated: true
+            animated: true,
+            cornerRadius: 0,
+            completionHandler: nil
         )
         model.icon.loadImage(
             on: iconViewImage,

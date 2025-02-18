@@ -7,7 +7,9 @@ import SSFAccountManagment
 final class CrowdloanListInteractor: RuntimeConstantFetching {
     weak var presenter: CrowdloanListInteractorOutputProtocol!
 
-    let selectedMetaAccount: MetaAccountModel
+    var selectedMetaAccount: MetaAccountModel? {
+        SelectedWalletSettings.shared.value
+    }
     let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
     let jsonDataProviderFactory: JsonDataProviderFactoryProtocol
     let chainRegistry: ChainRegistryProtocol
@@ -33,7 +35,6 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     }
 
     init(
-        selectedMetaAccount: MetaAccountModel,
         settings: CrowdloanChainSettings,
         chainRegistry: ChainRegistryProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
@@ -45,7 +46,6 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         logger: LoggerProtocol? = nil,
         eventCenter: EventCenterProtocol
     ) {
-        self.selectedMetaAccount = selectedMetaAccount
         self.crowdloanOperationFactory = crowdloanOperationFactory
         self.chainRegistry = chainRegistry
         self.jsonDataProviderFactory = jsonDataProviderFactory
@@ -64,7 +64,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         connection: ChainConnection,
         runtimeService: RuntimeCodingServiceProtocol
     ) {
-        guard !crowdloans.isEmpty else {
+        guard !crowdloans.isEmpty, let selectedMetaAccount else {
             presenter.didReceiveContributions(result: .success([:]))
             return
         }
@@ -267,7 +267,9 @@ extension CrowdloanListInteractor {
     }
 
     func handleSelectionChange(to chain: ChainModel) {
-        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
+        guard
+            let selectedMetaAccount,
+            let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
             presenter.didReceiveAccountInfo(
                 result: .failure(ChainAccountFetchingError.accountNotExists)
             )

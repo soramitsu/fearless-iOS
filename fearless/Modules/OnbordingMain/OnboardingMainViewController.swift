@@ -8,8 +8,10 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
     var presenter: OnboardingMainPresenterProtocol!
 
     private let ecosystem: AccountCreateEcosystem?
+    private var shouldDismiss: Bool
     init(ecosystem: AccountCreateEcosystem?) {
         self.ecosystem = ecosystem
+        self.shouldDismiss = ecosystem != nil
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -40,7 +42,17 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
             self.presenter.didSelect(ecosystem: .regular)
             self.ecosystemHasBeenSelected()
         }
+        rootView.selectRegularBannerView.addTapGestureRecognizer { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .regular)
+            self.ecosystemHasBeenSelected()
+        }
         rootView.selectTonBannerView.actionButton.addAction { [weak self] in
+            guard let self else { return }
+            self.presenter.didSelect(ecosystem: .ton)
+            self.ecosystemHasBeenSelected()
+        }
+        rootView.selectTonBannerView.addTapGestureRecognizer { [weak self] in
             guard let self else { return }
             self.presenter.didSelect(ecosystem: .ton)
             self.ecosystemHasBeenSelected()
@@ -56,6 +68,9 @@ final class OnboardingMainViewController: UIViewController, ViewHolder, Hiddable
             self?.presenter.didTapGetPreinstalled()
         }
         rootView.backButton.addAction { [weak self] in
+            if self?.shouldDismiss == true {
+                self?.presenter.dismiss()
+            }
             UIView.animate(
                 withDuration: 0.25,
                 delay: 0,

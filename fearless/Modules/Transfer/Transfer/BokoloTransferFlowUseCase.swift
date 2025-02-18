@@ -13,7 +13,6 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
 
     let interactor: TransferInteractorInput
     let implType: TransferFlowDirectionImpl = .bokoloCash
-    var transfer: TransferType?
 
     var selectedChainAsset: ChainAsset?
     var utilityChainAsset: ChainAsset?
@@ -51,7 +50,8 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
     var provideNetworkViewModel: (() -> Void)?
     var provideTipViewModel: (() -> Void)?
     var provideFeeViewModel: (() -> Void)?
-
+    var onFeeEstimationFailure: ((Error) -> Void)?
+    
     private var bokoloCashId: Data?
     private var bokoloSwapValues: SwapValues?
 
@@ -126,7 +126,6 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
         provideInputViewModel?()
 
         try await fetchRequiredInfo(for: qrChainAsset)
-        transfer = try buildTransfer()
         refreshFee()
     }
 
@@ -162,7 +161,7 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
 
             let validators = [
                 dataValidatingFactory.has(fee: feeForValidation, locale: locale, onError: { [weak self] in
-                    self?.refreshFee(for: self?.transfer)
+                    self?.refreshFee(for: self?.getTransfer())
                 }),
                 dataValidatingFactory.canPayFeeAndAmount(
                     balanceType: balanceType,
@@ -176,11 +175,61 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
         }
     }
 
+    func getTransfer() -> TransferType? {
+        let address = BokoloConstants.bokoloCasheBridgeAddress
+        guard
+            let availableInputBalance,
+            let selectedChainAsset,
+            let inputAmount = inputResult?.absoluteValue(from: availableInputBalance),
+            let amount = inputAmount.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision)),
+            let receiver = try? AddressFactory.accountId(
+                from: address,
+                chain: selectedChainAsset.chain
+            )
+        else {
+            return nil
+        }
+
+        let fee = fee?.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision)) ?? .zero
+        let feeReserve = BigUInt(10_000_000_000_000_000)
+
+        let maxAmountIn = ((self.fee ?? .zero) * 1.5).toSubstrateAmount(
+            precision: Int16(selectedChainAsset.asset.precision)
+        )
+        let filter: PolkaswapLiquidityFilterMode = .disabled
+        let filterMode = SSFTransferService.PolkaswapCallFilterModeType(
+            wrappedName: filter.code,
+            wrappedValue: nil
+        )
+
+        let dexId = String(bokoloSwapValues?.dexId ?? 0)
+        let soraAssetId = SSFUtils.SoraAssetId(
+            wrappedValue: BokoloConstants.bokoloCashAssetCurrencyId
+        )
+        let xorless = SSFTransferService.XorlessTransfer(
+            dexId: dexId,
+            assetId: soraAssetId,
+            receiver: receiver,
+            amount: amount,
+            desiredXorAmount: fee + feeReserve,
+            maxAmountIn: maxAmountIn ?? .zero,
+            selectedSourceTypes: [],
+            filterMode: filterMode,
+            additionalData: bokoloCashId ?? Data()
+        )
+        let transfer = TransferType.xorless(xorless)
+        return transfer
+    }
+    
+    func checkAccountIsActive() async -> Bool {
+        true
+    }
+
     // MARK: - Private methods
 
     private func refreshFee() {
         guard
-            let transfer,
+            let transfer = getTransfer(),
             let selectedChainAsset
         else {
             return
@@ -191,10 +240,15 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
                 transfer: transfer,
                 chainAsset: selectedChainAsset
             )
-            for try await fee in stream {
-                let precision = Int16(selectedChainAsset.asset.precision)
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
-                try await self.checkXorFeePaymentPossibles()
+            
+            do {
+                for try await fee in stream {
+                    let precision = Int16(selectedChainAsset.asset.precision)
+                    self.fee = Decimal.fromSubstrateAmount(fee, precision: precision)
+                    try await self.checkXorFeePaymentPossibles()
+                }
+            } catch {
+                onFeeEstimationFailure?(error)
             }
         }
     }
@@ -237,53 +291,6 @@ final class BokoloTransferFlowUseCase: TransferFlowUseCase {
 
             provideFeeViewModel?()
         }
-    }
-
-    private func buildTransfer() throws -> TransferType? {
-        guard
-            let availableInputBalance,
-            let selectedChainAsset,
-            let inputAmount = inputResult?.absoluteValue(from: availableInputBalance),
-            let amount = inputAmount.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision))
-        else {
-            return nil
-        }
-
-        let address = BokoloConstants.bokoloCasheBridgeAddress
-        let receiver = try AddressFactory.accountId(
-            from: address,
-            chain: selectedChainAsset.chain
-        )
-
-        let fee = fee?.toSubstrateAmount(precision: Int16(selectedChainAsset.asset.precision)) ?? .zero
-        let feeReserve = BigUInt(10_000_000_000_000_000)
-
-        let maxAmountIn = ((self.fee ?? .zero) * 1.5).toSubstrateAmount(
-            precision: Int16(selectedChainAsset.asset.precision)
-        )
-        let filter: PolkaswapLiquidityFilterMode = .disabled
-        let filterMode = SSFTransferService.PolkaswapCallFilterModeType(
-            wrappedName: filter.code,
-            wrappedValue: nil
-        )
-
-        let dexId = String(bokoloSwapValues?.dexId ?? 0)
-        let soraAssetId = SSFUtils.SoraAssetId(
-            wrappedValue: BokoloConstants.bokoloCashAssetCurrencyId
-        )
-        let xorless = SSFTransferService.XorlessTransfer(
-            dexId: dexId,
-            assetId: soraAssetId,
-            receiver: receiver,
-            amount: amount,
-            desiredXorAmount: fee + feeReserve,
-            maxAmountIn: maxAmountIn ?? .zero,
-            selectedSourceTypes: [],
-            filterMode: filterMode,
-            additionalData: bokoloCashId ?? Data()
-        )
-        let transfer = TransferType.xorless(xorless)
-        return transfer
     }
 
     private func fetchRequiredInfo(for chainAsset: ChainAsset) async throws {

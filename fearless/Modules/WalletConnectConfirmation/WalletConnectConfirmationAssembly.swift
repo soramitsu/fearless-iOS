@@ -7,13 +7,7 @@ final class WalletConnectConfirmationAssembly {
     ) -> WalletConnectConfirmationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        guard
-            let accountResponse = inputData.wallet.fetch(for: inputData.chain.accountRequest()),
-            let bocFactory = try? ServiceAssembly.shared.tonBocFactory(
-                metaId: inputData.wallet.metaId,
-                accountResponse: accountResponse
-            )
-        else {
+        guard let accountResponse = inputData.wallet.fetch(for: inputData.chain.accountRequest()) else {
             return nil
         }
         let interactor = WalletConnectConfirmationInteractor(

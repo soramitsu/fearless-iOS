@@ -3,10 +3,10 @@ import WalletConnectSign
 
 final class WalletConnectActiveSessionsRouter: WalletConnectActiveSessionsRouterInput {
     func showSession(
-        _ session: Session,
+        _ action: ActionConnect,
         view: ControllerBackedProtocol?
     ) {
-        let module = WalletConnectProposalAssembly.configureModule(status: .active(.walletConnect(session)))
+        let module = WalletConnectProposalAssembly.configureModule(status: .active(action))
         guard let controller = module?.view.controller else {
             return
         }

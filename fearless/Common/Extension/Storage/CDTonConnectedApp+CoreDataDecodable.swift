@@ -14,6 +14,7 @@ extension CDTonConnectedApp: CoreDataCodable {
         iconUrl = app.iconUrl
         publicKey = app.publicKey
         privateKey = app.privateKey
+        connectionType = app.connectionType.rawValue
     }
 
     public func encode(to encoder: any Encoder) throws {
@@ -26,5 +27,6 @@ extension CDTonConnectedApp: CoreDataCodable {
         try container.encode(iconUrl, forKey: .iconUrl)
         try container.encode(publicKey, forKey: .publicKey)
         try container.encode(privateKey, forKey: .privateKey)
+        try container.encode(connectionType, forKey: .connectionType)
     }
 }

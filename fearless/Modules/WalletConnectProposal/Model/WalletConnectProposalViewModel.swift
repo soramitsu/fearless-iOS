@@ -114,12 +114,14 @@ enum WalletConnectProposalCellModel {
         let metaId: String
         let walletName: String
         var isSelected: Bool
+        let icon: UIImage
 
         func toggle() -> Self {
             WalletViewModel(
                 metaId: metaId,
                 walletName: walletName,
-                isSelected: !isSelected
+                isSelected: !isSelected,
+                icon: icon
             )
         }
     }

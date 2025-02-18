@@ -708,7 +708,12 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                         storagePath: .validatorPrefs,
                         type: .accountId
                     )
-                    accountId = try key.toAccountId(using: self.chain.chainFormat)
+
+                    if key.hasPrefix("0x") {
+                        accountId = try AccountId(hexStringSSF: key)
+                    } else {
+                        accountId = try SS58AddressFactory().accountId(from: key)
+                    }
                 } else {
                     let extractor = StorageKeyDataExtractor(runtimeService: runtimeService)
                     let key: AccountId = try await extractor.extractKey(

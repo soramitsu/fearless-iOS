@@ -44,7 +44,6 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let normal = chainAssets.slice.first else {
             throw TonRemoteBalanceFetchingError.utilityNotFound
         }
-        let jettons = chainAssets.remainder
 
         let chainAccountInfos = try await getChainAccountInfos(
             address: address,
@@ -55,7 +54,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let jettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
-            jettons: jettons
+            chain: chain
         )
         let jettonsAccountInfoMap = Dictionary(
             uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.chainAssetId, $0.1) }
@@ -119,13 +118,12 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let normal = chainAssets.slice.first else {
             throw TonRemoteBalanceFetchingError.utilityNotFound
         }
-        let jettons = chainAssets.remainder
 
         guard let accountId = wallet.fetch(for: normal.chain.accountRequest())?.accountId else {
             throw TonRemoteBalanceFetchingError.missingAccount
         }
 
-        let address = try accountId.asTonAddress().toRaw()
+        let address = try accountId.asTonAddress().toFriendly().toString()
         let chainAccountInfos = try await getChainAccountInfos(
             address: address,
             currency: wallet.selectedCurrency
@@ -135,7 +133,7 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
         let jettonsAccountInfos = createJettonsAccountInfos(
             jettonBalances: jettonBalances,
-            jettons: jettons
+            chain: normal.chain
         )
         let jettonsAccountInfoMap = Dictionary(
             uniqueKeysWithValues: jettonsAccountInfos.map { ($0.0.uniqueKey(accountId: accountId), $0.1) }
@@ -171,14 +169,35 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
 
     private func createJettonsAccountInfos(
         jettonBalances: [TonJettonBalance],
-        jettons: [ChainAsset]
+        chain: ChainModel
     ) -> [(ChainAsset, AccountInfo)] {
-        let jettonsAccountInfo: [(ChainAsset, AccountInfo)] = jettonBalances.compactMap { jetton in
-            let chainAsset = jettons.first(where: { $0.asset.id == jetton.item.walletAddress.toRaw() })
-            guard let chainAsset else { return nil }
+        let jettonsAccountInfo: [(ChainAsset, AccountInfo)] = jettonBalances.map { jetton in
+            let asset = createAssetModel(from: jetton)
+            let chainAsset = ChainAsset(chain: chain, asset: asset)
             return (chainAsset, AccountInfo(balance: jetton.quantity))
         }
         return jettonsAccountInfo
+    }
+
+    private func createAssetModel(from balanceInfo: TonJettonBalance) -> AssetModel {
+        AssetModel(
+            id: balanceInfo.item.walletAddress.toRaw(),
+            name: balanceInfo.item.jettonInfo.name,
+            symbol: balanceInfo.item.jettonInfo.symbol ?? balanceInfo.item.jettonInfo.name,
+            precision: UInt16(balanceInfo.item.jettonInfo.fractionDigits),
+            icon: balanceInfo.item.jettonInfo.imageURL,
+            currencyId: balanceInfo.item.jettonInfo.address.toRaw(),
+            existentialDeposit: nil,
+            color: nil,
+            isUtility: false,
+            isNative: false,
+            staking: nil,
+            purchaseProviders: nil,
+            assetType: .ton(tonType: .jetton),
+            priceProvider: nil,
+            coingeckoPriceId: nil,
+            priceData: balanceInfo.priceData
+        )
     }
 
     private func getChainAccountInfos(
@@ -259,14 +278,21 @@ actor TonRemoteBalanceFetchingImpl: AccountInfoRemoteService {
         guard let price = rates?.prices?.additionalProperties.first?.value else {
             return []
         }
+        let fiatDayChangeString = rates?.diff_24h?.additionalProperties.first?.value.replacingOccurrences(of: "%", with: "")
+        let fiatDayChangeStringU002D = fiatDayChangeString?.replacingOccurrences(of: "\u{2212}", with: "-") ?? "0"
+        let fiatDayChangeDecimal = Decimal(string: fiatDayChangeStringU002D) ?? .zero
         let priceData = PriceData(
             currencyId: currency.id,
             priceId: "",
             price: String(price),
-            fiatDayChange: .zero,
+            fiatDayChange: calculatePercentageValue(base: Decimal(price), percent: fiatDayChangeDecimal),
             coingeckoPriceId: nil
         )
         return [priceData]
+    }
+
+    private func calculatePercentageValue(base: Decimal, percent: Decimal) -> Decimal {
+        return base * percent / 100
     }
 
     nonisolated private func cache(

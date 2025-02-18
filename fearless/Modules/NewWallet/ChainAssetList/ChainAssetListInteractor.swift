@@ -122,6 +122,10 @@ final class ChainAssetListInteractor {
             sortDescriptors: sorts
         ) { [weak self] result in
             guard let result = result else { return }
+            if let chainAsset = try? result.get() {
+                self?.chainAssets = chainAsset
+                self?.subscribeToAccountInfo(for: chainAsset)
+            }
             self?.output?.didReceiveChainAssets(result: result)
         }
     }
@@ -314,15 +318,19 @@ extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension ChainAssetListInteractor: EventVisitorProtocol {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
+        guard event.account.metaId == wallet.metaId else {
+            return
+        }
+        
+        output?.didReceiveWallet(wallet: event.account)
+        updateTonPricesIfNeeded()
+        wallet = event.account
+        output?.updateViewModel()
+    }
+    
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         output?.didReceiveWallet(wallet: event.account)
-
-        if wallet.selectedCurrency != event.account.selectedCurrency {
-            guard let chainAssets = chainAssets else {
-                return
-            }
-            updateTonPricesIfNeeded()
-        }
 
         if wallet.assetsVisibility != event.account.assetsVisibility {
             updateChainAssets(using: filters, sorts: sorts, useCashe: false)

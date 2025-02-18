@@ -17,6 +17,7 @@ protocol WalletConnectProposalInteractorInput: AnyObject {
         params: TonConnectParameters,
         manifest: TonConnectManifest
     ) async throws
+    func disconnect(app: TonConnectApp) async
 }
 
 final class WalletConnectProposalPresenter {
@@ -360,6 +361,14 @@ extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
             case let .walletConnect(session):
                 view?.didStartLoading()
                 submitDisconnect(topic: session.topic, name: session.peer.name)
+            case let .tonConnect(app, _):
+                view?.didStartLoading()
+                Task {
+                    await interactor.disconnect(app: app)
+                    moduleOutput?.disconnected()
+                    let description = R.string.localizable.walletConnectConnectionDissconnected(app.name, preferredLanguages: selectedLocale.rLanguages)
+                    await showAllDone(description: description)
+                }
             }
         }
     }
@@ -380,6 +389,8 @@ extension WalletConnectProposalPresenter: WalletConnectProposalViewOutput {
             switch active {
             case .walletConnect:
                 submitReject()
+            case .tonConnect:
+                router.dismiss(view: view)
             }
         }
     }

@@ -185,7 +185,7 @@ final class BackupWalletViewModelFactory: BackupWalletViewModelFactoryProtocol {
             fiatBalance: fiatBalance,
             dayChange: dayChange,
             accountScoreViewModel: accountScoreViewModel,
-            optionsAvailable: wallet.ecosystem.isRegular
+            optionsAvailable: false
         )
     }
 

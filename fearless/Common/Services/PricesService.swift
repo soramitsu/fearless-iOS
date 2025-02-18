@@ -32,10 +32,18 @@ final class PricesService: PricesServiceProtocol {
         self.operationQueue = operationQueue
         self.logger = logger
         self.eventCenter = eventCenter
+        eventCenter.add(observer: self)
     }
 
     func setup() {
         eventCenter.add(observer: self)
+    }
+
+    func updatePrices() {
+        pricesProvider?.refresh()
+    }
+    
+    private func subscribe() {
         let walletsOperation = walletRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let chainsOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let subscribeOperation = ClosureOperation { [weak self] in
@@ -50,10 +58,6 @@ final class PricesService: PricesServiceProtocol {
         subscribeOperation.addDependency(walletsOperation)
         subscribeOperation.addDependency(chainsOperation)
         operationQueue.addOperations([subscribeOperation, walletsOperation, chainsOperation], waitUntilFinished: false)
-    }
-
-    func updatePrices() {
-        pricesProvider?.refresh()
     }
 }
 
@@ -74,9 +78,12 @@ extension PricesService: PriceLocalSubscriptionHandler {
 }
 
 extension PricesService: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        subscribe()
+    }
+    
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
-        let updatedChainAssets = event.newOrUpdatedChains.map(\.chainAssets).reduce([], +).uniq(predicate: { $0.chainAssetId })
-        observePrices(for: updatedChainAssets, currencies: currencies)
+        subscribe()
     }
 
     func processChainsUpdated(event: ChainsUpdatedEvent) {
@@ -84,7 +91,7 @@ extension PricesService: EventVisitorProtocol {
         observePrices(for: updatedChainAssets, currencies: currencies)
     }
 
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+    func processSelectedCurrencyChanged(event: SelectedCurrencyChangedEvent) {
         let currency = event.account.selectedCurrency
         observePrices(for: chainAssets, currencies: [currency])
     }
@@ -138,7 +145,7 @@ private extension PricesService {
             }
             var updatedAssets: [AssetModel] = []
             chain.chainAssets.forEach { chainAsset in
-                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId }
+                let assetPrices = prices.filter { $0.priceId == chainAsset.asset.priceId || $0.coingeckoPriceId == chainAsset.asset.coingeckoPriceId }
                 let updatedAsset = chainAsset.asset.replacingPrice(assetPrices)
                 updatedAssets.append(updatedAsset)
             }

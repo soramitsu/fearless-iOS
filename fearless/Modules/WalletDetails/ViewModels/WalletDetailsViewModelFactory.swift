@@ -64,7 +64,10 @@ class WalletDetailsViewModelFactory {
         }
 
         let emptyAccounts = filteredChains.filter {
-            flow.wallet.fetch(for: $0.accountRequest()) == nil
+            guard !$0.ecosystem.isTon else {
+                return false
+            }
+            return flow.wallet.fetch(for: $0.accountRequest()) == nil
                 && !(flow.wallet.unusedChainIds ?? []).contains($0.chainId)
         }
         let nativeAccounts = filteredChains.filter {

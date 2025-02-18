@@ -2,6 +2,16 @@ import Foundation
 import SSFCloudStorage
 
 final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
+
+    func didCompleteCreate(from view: ControllerBackedProtocol?) {
+        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
+            return
+        }
+
+        rootAnimator.animateTransition(to: pincodeViewController)
+    }
+    
     func showSignup(from view: OnboardingMainViewProtocol?, ecosystem: AccountCreateEcosystem) {
         guard let usernameSetup = UsernameSetupViewFactory.createViewForOnboarding(ecosystem: ecosystem) else {
             return

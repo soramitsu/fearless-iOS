@@ -158,8 +158,7 @@ final class TransferPresenter {
             return
         }
 
-        let availableInputBalance = currentFlowUseCase.availableInputBalance ?? .zero
-        let inputAmount = currentFlowUseCase.inputResult?.absoluteValue(from: availableInputBalance)
+        let inputAmount = currentFlowUseCase.amount()
 
         let inputViewModel = viewModelFactory.createBalanceInputViewModel(
             inputAmount: inputAmount,
@@ -331,6 +330,8 @@ final class TransferPresenter {
             currentFlowUseCase = flow
         }
         setupBindings()
+
+        await provideAssetVewModel()
     }
 
     private func setCurrentFlow(for implType: TransferFlowDirectionImpl) {
@@ -432,6 +433,15 @@ final class TransferPresenter {
         currentFlowUseCase?.provideFeeViewModel = { [weak self] in
             Task { [weak self] in
                 await self?.provideFeeViewModel()
+            }
+        }
+        currentFlowUseCase?.onFeeEstimationFailure = { [weak self] error in
+            guard let view = self?.view else {
+                return
+            }
+                        
+            DispatchQueue.main.async {
+                self?.router.present(error: error, from: self?.view, locale: self?.selectedLocale)
             }
         }
     }
@@ -615,6 +625,31 @@ final class TransferPresenter {
         )
         router.present(viewModel: alertViewModel, from: view)
     }
+
+    private func handleDesiredCrypto(qrInfo: DesiredCryptocurrencyQRInfo) async throws {
+        let possibleChains = await interactor.getPossibleChains(for: qrInfo.address)
+        let chainAsset = possibleChains
+            .first(where: { $0.name.lowercased() == qrInfo.assetName.lowercased() })?
+            .chainAssets
+            .first(where: { $0.asset.isUtility })
+
+        guard let chainAsset else {
+            await showUnsupportedAssetAlert()
+            return
+        }
+
+        await setCurrentFlow(for: chainAsset.chain.ecosystem)
+        currentFlowUseCase?.recipientAddress = qrInfo.address
+        currentFlowUseCase?.isValidRecipient = true
+        currentFlowUseCase?.canEditRecipient = false
+
+        if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
+            currentFlowUseCase?.inputResult = .absolute(qrAmount)
+            currentFlowUseCase?.isUserInteractiveAmount = false
+        }
+
+        try await currentFlowUseCase?.handle(initialData: .chainAsset(chainAsset /* , address: qrInfo.address */ ))
+    }
 }
 
 // MARK: - TransferViewOutput
@@ -698,10 +733,15 @@ extension TransferPresenter: TransferViewOutput {
 
         Task { await provideIsReady() }
 
-        guard let transfer = currentFlowUseCase?.transfer else {
+        guard let transfer = currentFlowUseCase?.getTransfer() else {
             return
         }
-        currentFlowUseCase?.refreshFee(for: transfer)
+        
+        do {
+            try currentFlowUseCase?.refreshFee(for: transfer)
+        } catch {
+            router.present(error: error, from: view, locale: selectedLocale)
+        }
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -725,10 +765,15 @@ extension TransferPresenter: TransferViewOutput {
             await provideIsReady()
         }
 
-        guard let transfer = currentFlowUseCase?.transfer else {
+        guard let transfer = currentFlowUseCase?.getTransfer() else {
             return
         }
-        currentFlowUseCase?.refreshFee(for: transfer)
+        
+        do {
+            try currentFlowUseCase?.refreshFee(for: transfer)
+        } catch {
+            router.present(error: error, from: view, locale: selectedLocale)
+        }
     }
 
     func didSwitchSendAll(_ enabled: Bool) {
@@ -742,31 +787,6 @@ extension TransferPresenter: TransferViewOutput {
             await interactor.setup(with: self)
             await handleSendFlow(address: nil)
         }
-    }
-
-    private func handleDesiredCrypto(qrInfo: DesiredCryptocurrencyQRInfo) async throws {
-        let possibleChains = await interactor.getPossibleChains(for: qrInfo.address)
-        let chainAsset = possibleChains
-            .first(where: { $0.name.lowercased() == qrInfo.assetName.lowercased() })?
-            .chainAssets
-            .first(where: { $0.asset.isUtility })
-
-        guard let chainAsset else {
-            await showUnsupportedAssetAlert()
-            return
-        }
-
-        await setCurrentFlow(for: chainAsset.chain.ecosystem)
-        currentFlowUseCase?.recipientAddress = qrInfo.address
-        currentFlowUseCase?.isValidRecipient = true
-        currentFlowUseCase?.canEditRecipient = false
-
-        if let qrAmount = Decimal(string: qrInfo.amount ?? "") {
-            currentFlowUseCase?.inputResult = .absolute(qrAmount)
-            currentFlowUseCase?.isUserInteractiveAmount = false
-        }
-
-        try await currentFlowUseCase?.handle(initialData: .chainAsset(chainAsset /* , address: qrInfo.address */ ))
     }
 }
 

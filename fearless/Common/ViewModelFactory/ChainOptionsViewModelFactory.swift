@@ -7,7 +7,7 @@ protocol ChainOptionsViewModelFactoryProtocol {
 
 extension ChainOptionsViewModelFactoryProtocol {
     func buildChainOptionsViewModel(chainAsset: ChainAsset) -> [ChainOptionsViewModel]? {
-        let presentableOptions = [ChainOptions.testnet]
+        let presentableOptions: [ChainOptions] = []
 
         var viewModels: [ChainOptionsViewModel] = []
 

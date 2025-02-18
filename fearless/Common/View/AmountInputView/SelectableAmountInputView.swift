@@ -48,8 +48,8 @@ final class SelectableAmountInputView: UIView {
         return label
     }()
 
-    private let balanceLabel: UILabel = {
-        let label = UILabel()
+    private let balanceLabel: SkeletonLabel = {
+        let label = SkeletonLabel(skeletonSize: CGSize(width: 60, height: 10))
         label.font = .p1Paragraph
         label.textColor = R.color.colorStrokeGray()
         label.numberOfLines = 1
@@ -139,12 +139,12 @@ final class SelectableAmountInputView: UIView {
         if let balance = viewModel.balance {
             applyType(for: balance)
         } else {
-            balanceLabel.text = nil
+            balanceLabel.updateTextWithLoading(nil)
         }
 
         symbolLabel.text = viewModel.symbol.uppercased()
 
-        viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
+        viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true, cornerRadius: LayoutConstants.iconSize / 2)
         iconSelect.isHidden = !viewModel.selectable
     }
 
@@ -158,10 +158,11 @@ final class SelectableAmountInputView: UIView {
     private func applyType(for balance: String) {
         switch type {
         case .send, .swapSend, .swapReceive:
-            balanceLabel.text = R.string.localizable.commonAvailableFormat(
+            let text = R.string.localizable.commonAvailableFormat(
                 balance,
                 preferredLanguages: locale.rLanguages
             )
+            balanceLabel.updateTextWithLoading(text)
         }
     }
 
@@ -237,6 +238,8 @@ final class SelectableAmountInputView: UIView {
             make.leading.equalTo(titleLabel)
             make.top.equalTo(symbolStackView.snp.bottom).offset(UIConstants.minimalOffset)
             make.bottom.equalToSuperview().offset(-LayoutConstants.offset)
+            make.height.equalTo(15)
+            make.width.greaterThanOrEqualTo(60)
         }
     }
 

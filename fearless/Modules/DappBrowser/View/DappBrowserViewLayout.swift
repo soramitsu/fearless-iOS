@@ -18,7 +18,7 @@ final class DappBrowserViewLayout: UIView {
 
     let switchWalletButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconFearlessRounded(), for: .normal)
+        button.setImage(R.image.tonIcon(), for: .normal)
         return button
     }()
 

@@ -11,7 +11,7 @@ extension CDTonDapp: CoreDataCodable {
         name = try container.decode(String.self, forKey: .name)
         appDescription = try container.decode(String?.self, forKey: .description)
         icon = try container.decode(URL?.self, forKey: .icon)
-        poster = try container.decode(URL?.self, forKey: .poster)
+        poster = try container.decode(URL?.self, forKey: .background)
         url = try container.decode(URL.self, forKey: .url)
     }
 
@@ -23,7 +23,7 @@ extension CDTonDapp: CoreDataCodable {
         try container.encode(name, forKey: .name)
         try container.encodeIfPresent(appDescription, forKey: .description)
         try container.encodeIfPresent(icon, forKey: .icon)
-        try container.encodeIfPresent(poster, forKey: .poster)
+        try container.encodeIfPresent(poster, forKey: .background)
         try container.encode(url, forKey: .url)
         try container.encode(identifier, forKey: .identifier)
     }
