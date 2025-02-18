@@ -95,16 +95,6 @@ final class CrossChainFundsPermissionPresenter {
             let feeDecimal = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
             let feeViewModel = feeDecimal.flatMap { feeBalanceViewModelFactory?.balanceFromPrice($0, priceData: utilityChainAsset.asset.getPrice(for: wallet.selectedCurrency), usageCase: .detailsCrypto) }
             
-            await MainActor.run {
-                view?.bind(feeViewModel: feeViewModel?.value(for: selectedLocale))
-                
-                self.showDefaultError(
-                    title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
-                    message: "test message"
-                )
-            }
-            
-            
             self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
         } catch {
             logger?.customError(error)
