@@ -162,7 +162,7 @@ final class BannersViewModelFactory: BannersViewModelFactoryProtocol {
         }
         
         if let wallet = SelectedWalletSettings.shared.value, !wallet.hasBackup {
-            banners.insert(.backup, at: 0)
+            banners.append(.backup)
         }
 
         if shouldShowAddWalletBanner {
