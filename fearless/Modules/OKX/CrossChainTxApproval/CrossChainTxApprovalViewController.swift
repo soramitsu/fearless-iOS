@@ -72,6 +72,11 @@ extension CrossChainFundsPermissionViewController: CrossChainFundsPermissionView
     func bind(viewModel: CrossChainFundsPermissionViewModel) {
         rootView.bind(viewModel: viewModel)
     }
+    
+    func didReceiveError(viewModel: ErrorViewModel?) {
+        rootView.bind(errorViewModel: viewModel)
+        rootView.confirmButton.set(enabled: false, changeStyle: true)
+    }
 }
 
 // MARK: - Localizable

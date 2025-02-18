@@ -54,7 +54,12 @@ final class CrossChainFundsPermissionViewLayout: UIView {
     }()
     
     let warningView = WarningView()
-
+    let errorView: ErrorView = {
+        let view = ErrorView()
+        view.isHidden = true
+        return view
+    }()
+    
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -90,6 +95,13 @@ final class CrossChainFundsPermissionViewLayout: UIView {
     
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bindBalance(viewModel: feeViewModel)
+    }
+    
+    func bind(errorViewModel: ErrorViewModel?) {
+        if let errorVM = errorViewModel {
+            errorView.bindError(viewModel: errorVM)
+            errorView.isHidden = false
+        }
     }
 
     private func configure() {
@@ -141,6 +153,7 @@ final class CrossChainFundsPermissionViewLayout: UIView {
         contentView.stackView.addArrangedSubview(amountLabel)
         contentView.stackView.addArrangedSubview(infoBackground)
         contentView.stackView.addArrangedSubview(warningView)
+        contentView.stackView.addArrangedSubview(errorView)
 
         infoBackground.addSubview(infoViewsStackView)
         infoViewsStackView.addArrangedSubview(senderView)
@@ -171,6 +184,11 @@ final class CrossChainFundsPermissionViewLayout: UIView {
         }
         
         warningView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        }
+        
+        errorView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }

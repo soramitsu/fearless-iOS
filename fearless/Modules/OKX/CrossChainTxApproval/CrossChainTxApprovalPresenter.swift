@@ -1,4 +1,5 @@
 import Foundation
+import Web3
 import SoraFoundation
 import BigInt
 import SSFModels
@@ -8,6 +9,7 @@ protocol CrossChainFundsPermissionViewInput: ControllerBackedProtocol {
     func bind(viewModel: CrossChainFundsPermissionViewModel)
     func bind(feeViewModel: BalanceViewModelProtocol?)
     func setButtonLoadingState(isLoading: Bool)
+    func didReceiveError(viewModel: ErrorViewModel?)
 }
 
 protocol CrossChainFundsPermissionInteractorInput: AnyObject {
@@ -95,12 +97,26 @@ final class CrossChainFundsPermissionPresenter {
             
             await MainActor.run {
                 view?.bind(feeViewModel: feeViewModel?.value(for: selectedLocale))
+                
+                self.showDefaultError(
+                    title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
+                    message: "test message"
+                )
             }
             
             
             self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(utilityChainAsset.asset.precision))
         } catch {
             logger?.customError(error)
+            
+            if let rpcError = error as? RPCResponse<EthereumQuantity>.Error {
+                await MainActor.run {
+                    self.showDefaultError(
+                        title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: self.selectedLocale.rLanguages),
+                        message: rpcError.message
+                    )
+                }
+            }
         }
     }
     
@@ -163,6 +179,16 @@ final class CrossChainFundsPermissionPresenter {
             approveTxHash: txHash,
             from: view
         )
+    }
+    
+    private func showDefaultError(title: String, message: String) {
+        let errorViewModel = ErrorViewModel(
+            title: title,
+            message: message,
+            actionTitle: nil,
+            actionHandler: nil
+        )
+        view?.didReceiveError(viewModel: errorViewModel)
     }
 }
 

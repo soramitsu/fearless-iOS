@@ -353,7 +353,7 @@ extension CrossChainSwapConfirmPresenter: CrossChainSwapConfirmViewOutput {
         }
 
         let sendAmount = swap.fromAmount.flatMap { BigUInt(string: $0) }
-        let sendAmountDecimal = sendAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(swapToChainAsset.asset.precision)) }
+        let sendAmountDecimal = sendAmount.flatMap { Decimal.fromSubstrateAmount($0, precision: Int16(swapFromChainAsset.asset.precision)) }
         let balance: BalanceType = swapFromChainAsset.asset.isUtility ? .utility(balance: swapFromBalance) : .orml(balance: swapFromBalance, utilityBalance: utilityBalance)
 
         DataValidationRunner(validators: [

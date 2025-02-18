@@ -169,7 +169,6 @@ final class CrossChainSwapConfirmViewLayout: UIView {
 
         addSubview(contentView)
         addSubview(confirmButton)
-        addSubview(errorView)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
