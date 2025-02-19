@@ -35,11 +35,7 @@ final class SCardService {
             return address ?? ""
         }
         
-        #if F_DEV
         let config = SCard.Config.dev
-        #else
-        let config = SCard.Config.prod
-        #endif
 
         let xorBalanceStream = SCStream<Decimal>(wrappedValue: Decimal(0))
 
