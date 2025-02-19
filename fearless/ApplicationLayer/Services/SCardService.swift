@@ -35,7 +35,11 @@ final class SCardService {
             return address ?? ""
         }
         
-        let config = SCard.Config.local
+        #if F_DEV
+        let config = SCard.Config.dev
+        #else
+        let config = SCard.Config.prod
+        #endif
 
         let xorBalanceStream = SCStream<Decimal>(wrappedValue: Decimal(0))
 
@@ -62,13 +66,29 @@ final class SCardService {
 }
 
 extension SCard.Config {
-    static let local = SCard.Config(
+    static let dev = SCard.Config(
         appStoreUrl: "https://apps.apple.com/us/app/sora-wallet-polkaswap/id1457566711",
         backendUrl: "https://backend.dev.sora-card.tachi.soramitsu.co.jp/",
         pwAuthDomain: "soracard.com",
         pwApiKey: "6974528a-ee11-4509-b549-a8d02c1aec0d",
         appPlatformId: "cb281534-52b9-49fc-bba5-41f241e24592",
         recaptchaKey: "6LeWLPEpAAAAADUgxnZD50V3GvmFLGKhVTLVMxSV",
+        kycUrl: "https://kyc-test.soracard.com/mobile",
+        kycUsername: "E7A6CB83-630E-4D24-88C5-18AAF96032A4",
+        kycPassword: "75A55B7E-A18F-4498-9092-58C7D6BDB333",
+        xOneEndpoint: "https://dev.x1ex.com/widgets/sdk.js",
+        xOneId: "sprkwdgt-WYL6QBNC",
+        environmentType: .test,
+        themeMode: .manual(.fearless)
+    )
+    
+    static let prod = SCard.Config(
+        appStoreUrl: "https://apps.apple.com/us/app/sora-wallet-polkaswap/id1457566711",
+        backendUrl: "https://backend.dev.sora-card.tachi.soramitsu.co.jp/",
+        pwAuthDomain: "soracard.com",
+        pwApiKey: "6974528a-ee11-4509-b549-a8d02c1aec0d",
+        appPlatformId: "6974528a-ee11-4509-b549-a8d02c1aec0d",
+        recaptchaKey: "FB0F27BD-E525-4876-A17E-A63B4C33B293",
         kycUrl: "https://kyc-test.soracard.com/mobile",
         kycUsername: "E7A6CB83-630E-4D24-88C5-18AAF96032A4",
         kycPassword: "75A55B7E-A18F-4498-9092-58C7D6BDB333",
