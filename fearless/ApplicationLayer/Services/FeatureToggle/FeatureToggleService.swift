@@ -66,7 +66,6 @@ final class FeatureToggleProvider {
 
         if let snapshot = snapshot {
             settingsManager.dappEnabled = snapshot.dappEnabled.or(FeatureToggleConfig.defaultConfig.dappEnabled ?? true)
-
             eventCenter.notify(with: FeatureToggleConfigSyncComplete(config: snapshot))
             
             deliver(snapshot: snapshot, to: request)
@@ -81,6 +80,9 @@ final class FeatureToggleProvider {
             if let snapshot = snapshot {
                 self.snapshot = snapshot
                 resolveRequests()
+                
+                settingsManager.dappEnabled = snapshot.dappEnabled.or(FeatureToggleConfig.defaultConfig.dappEnabled ?? true)
+                eventCenter.notify(with: FeatureToggleConfigSyncComplete(config: snapshot))
             }
         case .failure:
             handleDefault()
